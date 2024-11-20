@@ -17,11 +17,11 @@ import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
  *
  * Demos:
  *
- * - [Popover](https://base-ui.netlify.app/components/react-popover/)
+ * - [Popover](https://base-ui.com/components/react-popover/)
  *
  * API:
  *
- * - [PopoverPositioner API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverPositioner)
+ * - [PopoverPositioner API](https://base-ui.com/components/react-popover/#api-reference-PopoverPositioner)
  */
 const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   props: PopoverPositioner.Props,

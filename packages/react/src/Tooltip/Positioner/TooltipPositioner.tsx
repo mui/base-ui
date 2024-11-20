@@ -17,11 +17,11 @@ import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
  *
  * Demos:
  *
- * - [Tooltip](https://base-ui.netlify.app/components/react-tooltip/)
+ * - [Tooltip](https://base-ui.com/components/react-tooltip/)
  *
  * API:
  *
- * - [TooltipPositioner API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipPositioner)
+ * - [TooltipPositioner API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipPositioner)
  */
 const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   props: TooltipPositioner.Props,

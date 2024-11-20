@@ -13,11 +13,11 @@ const ownerState = {};
  *
  * Demos:
  *
- * - [Popover](https://base-ui.netlify.app/components/react-popover/)
+ * - [Popover](https://base-ui.com/components/react-popover/)
  *
  * API:
  *
- * - [PopoverDescription API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverDescription)
+ * - [PopoverDescription API](https://base-ui.com/components/react-popover/#api-reference-PopoverDescription)
  */
 const PopoverDescription = React.forwardRef(function PopoverDescription(
   props: PopoverDescription.Props,

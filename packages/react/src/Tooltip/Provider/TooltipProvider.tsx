@@ -9,11 +9,11 @@ import { FloatingDelayGroup } from '@floating-ui/react';
  *
  * Demos:
  *
- * - [Tooltip](https://base-ui.netlify.app/components/react-tooltip/)
+ * - [Tooltip](https://base-ui.com/components/react-tooltip/)
  *
  * API:
  *
- * - [TooltipProvider API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipProvider)
+ * - [TooltipProvider API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipProvider)
  */
 const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvider(props) {
   const { delay, closeDelay, timeout = 400 } = props;

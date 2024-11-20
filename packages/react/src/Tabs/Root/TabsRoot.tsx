@@ -11,11 +11,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Tabs](https://base-ui.netlify.app/components/react-tabs/)
+ * - [Tabs](https://base-ui.com/components/react-tabs/)
  *
  * API:
  *
- * - [TabsRoot API](https://base-ui.netlify.app/components/react-tabs/#api-reference-TabsRoot)
+ * - [TabsRoot API](https://base-ui.com/components/react-tabs/#api-reference-TabsRoot)
  */
 const TabsRoot = React.forwardRef(function TabsRoot(
   props: TabsRoot.Props,

@@ -12,11 +12,11 @@ const ownerState = {};
  *
  * Demos:
  *
- * - [Scroll Area](https://base-ui.netlify.app/components/react-scroll-area/)
+ * - [Scroll Area](https://base-ui.com/components/react-scroll-area/)
  *
  * API:
  *
- * - [ScrollAreaRoot API](https://base-ui.netlify.app/components/react-scroll-area/#api-reference-ScrollAreaRoot)
+ * - [ScrollAreaRoot API](https://base-ui.com/components/react-scroll-area/#api-reference-ScrollAreaRoot)
  */
 const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   props: ScrollAreaRoot.Props,

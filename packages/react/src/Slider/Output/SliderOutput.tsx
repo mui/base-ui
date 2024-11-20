@@ -11,11 +11,11 @@ import { useSliderOutput } from './useSliderOutput';
  *
  * Demos:
  *
- * - [Slider](https://base-ui.netlify.app/components/react-slider/)
+ * - [Slider](https://base-ui.com/components/react-slider/)
  *
  * API:
  *
- * - [SliderOutput API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderOutput)
+ * - [SliderOutput API](https://base-ui.com/components/react-slider/#api-reference-SliderOutput)
  */
 const SliderOutput = React.forwardRef(function SliderOutput(
   props: SliderOutput.Props,

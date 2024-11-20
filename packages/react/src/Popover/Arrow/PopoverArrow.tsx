@@ -15,11 +15,11 @@ import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
  *
  * Demos:
  *
- * - [Popover](https://base-ui.netlify.app/components/react-popover/)
+ * - [Popover](https://base-ui.com/components/react-popover/)
  *
  * API:
  *
- * - [PopoverArrow API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverArrow)
+ * - [PopoverArrow API](https://base-ui.com/components/react-popover/#api-reference-PopoverArrow)
  */
 const PopoverArrow = React.forwardRef(function PopoverArrow(
   props: PopoverArrow.Props,

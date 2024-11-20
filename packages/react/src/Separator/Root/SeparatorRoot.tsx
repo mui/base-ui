@@ -10,11 +10,11 @@ const EMPTY_OBJECT = {};
  *
  * Demos:
  *
- * - [Separator](https://base-ui.netlify.app/components/react-separator/)
+ * - [Separator](https://base-ui.com/components/react-separator/)
  *
  * API:
  *
- * - [SeparatorRoot API](https://base-ui.netlify.app/components/react-separator/#api-reference-SeparatorRoot)
+ * - [SeparatorRoot API](https://base-ui.com/components/react-separator/#api-reference-SeparatorRoot)
  */
 const SeparatorRoot = React.forwardRef(function SeparatorRootComponent(
   props: SeparatorRoot.Props,

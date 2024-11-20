@@ -16,11 +16,11 @@ import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
  *
  * Demos:
  *
- * - [Preview Card](https://base-ui.netlify.app/components/react-preview-card/)
+ * - [Preview Card](https://base-ui.com/components/react-preview-card/)
  *
  * API:
  *
- * - [PreviewCardPositioner API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardPositioner)
+ * - [PreviewCardPositioner API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardPositioner)
  */
 const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
   props: PreviewCardPositioner.Props,

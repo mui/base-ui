@@ -12,11 +12,11 @@ import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
  *
  * Demos:
  *
- * - [Dialog](https://base-ui.netlify.app/components/react-dialog/)
+ * - [Dialog](https://base-ui.com/components/react-dialog/)
  *
  * API:
  *
- * - [DialogTrigger API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogTrigger)
+ * - [DialogTrigger API](https://base-ui.com/components/react-dialog/#api-reference-DialogTrigger)
  */
 const DialogTrigger = React.forwardRef(function DialogTrigger(
   props: DialogTrigger.Props,

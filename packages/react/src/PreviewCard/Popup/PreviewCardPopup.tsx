@@ -29,11 +29,11 @@ const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.OwnerState
  *
  * Demos:
  *
- * - [Preview Card](https://base-ui.netlify.app/components/react-preview-card/)
+ * - [Preview Card](https://base-ui.com/components/react-preview-card/)
  *
  * API:
  *
- * - [PreviewCardPopup API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardPopup)
+ * - [PreviewCardPopup API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardPopup)
  */
 const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   props: PreviewCardPopup.Props,

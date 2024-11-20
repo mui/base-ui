@@ -29,11 +29,11 @@ const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.OwnerState> = 
  *
  * Demos:
  *
- * - [Tooltip](https://base-ui.netlify.app/components/react-tooltip/)
+ * - [Tooltip](https://base-ui.com/components/react-tooltip/)
  *
  * API:
  *
- * - [TooltipPopup API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipPopup)
+ * - [TooltipPopup API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipPopup)
  */
 const TooltipPopup = React.forwardRef(function TooltipPopup(
   props: TooltipPopup.Props,

@@ -9,11 +9,11 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  *
  * Demos:
  *
- * - [Select](https://base-ui.netlify.app/components/react-select/)
+ * - [Select](https://base-ui.com/components/react-select/)
  *
  * API:
  *
- * - [SelectIcon API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectIcon)
+ * - [SelectIcon API](https://base-ui.com/components/react-select/#api-reference-SelectIcon)
  */
 const SelectIcon = React.forwardRef(function SelectIcon(
   props: SelectIcon.Props,

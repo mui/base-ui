@@ -12,11 +12,11 @@ import { pressableTriggerOpenStateMapping } from '../../utils/popupOpenStateMapp
  *
  * Demos:
  *
- * - [Select](https://base-ui.netlify.app/components/react-select/)
+ * - [Select](https://base-ui.com/components/react-select/)
  *
  * API:
  *
- * - [SelectTrigger API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectTrigger)
+ * - [SelectTrigger API](https://base-ui.com/components/react-select/#api-reference-SelectTrigger)
  */
 const SelectTrigger = React.forwardRef(function SelectTrigger(
   props: SelectTrigger.Props,

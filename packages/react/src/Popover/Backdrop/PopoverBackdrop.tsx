@@ -29,11 +29,11 @@ const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.OwnerState>
  *
  * Demos:
  *
- * - [Popover](https://base-ui.netlify.app/components/react-popover/)
+ * - [Popover](https://base-ui.com/components/react-popover/)
  *
  * API:
  *
- * - [PopoverBackdrop API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverBackdrop)
+ * - [PopoverBackdrop API](https://base-ui.com/components/react-popover/#api-reference-PopoverBackdrop)
  */
 const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   props: PopoverBackdrop.Props,

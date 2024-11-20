@@ -12,11 +12,11 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
  *
  * Demos:
  *
- * - [Radio Group](https://base-ui.netlify.app/components/react-radio-group/)
+ * - [Radio Group](https://base-ui.com/components/react-radio-group/)
  *
  * API:
  *
- * - [RadioGroupRoot API](https://base-ui.netlify.app/components/react-radio-group/#api-reference-RadioGroupRoot)
+ * - [RadioGroupRoot API](https://base-ui.com/components/react-radio-group/#api-reference-RadioGroupRoot)
  */
 const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
   props: RadioGroupRoot.Props,

@@ -13,11 +13,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Field](https://base-ui.netlify.app/components/react-field/)
+ * - [Field](https://base-ui.com/components/react-field/)
  *
  * API:
  *
- * - [FieldDescription API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldDescription)
+ * - [FieldDescription API](https://base-ui.com/components/react-field/#api-reference-FieldDescription)
  */
 const FieldDescription = React.forwardRef(function FieldDescription(
   props: FieldDescription.Props,

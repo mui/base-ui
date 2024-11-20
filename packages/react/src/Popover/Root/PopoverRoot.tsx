@@ -10,11 +10,11 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * Demos:
  *
- * - [Popover](https://base-ui.netlify.app/components/react-popover/)
+ * - [Popover](https://base-ui.com/components/react-popover/)
  *
  * API:
  *
- * - [PopoverRoot API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverRoot)
+ * - [PopoverRoot API](https://base-ui.com/components/react-popover/#api-reference-PopoverRoot)
  */
 const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
   const { openOnHover = false, delay, closeDelay = 0, animated = true } = props;

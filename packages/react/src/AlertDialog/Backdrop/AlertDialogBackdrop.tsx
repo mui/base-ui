@@ -27,11 +27,11 @@ const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.OwnerSt
  *
  * Demos:
  *
- * - [Alert Dialog](https://base-ui.netlify.app/components/react-alert-dialog/)
+ * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
  *
  * API:
  *
- * - [AlertDialogBackdrop API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogBackdrop)
+ * - [AlertDialogBackdrop API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogBackdrop)
  */
 const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   props: AlertDialogBackdrop.Props,

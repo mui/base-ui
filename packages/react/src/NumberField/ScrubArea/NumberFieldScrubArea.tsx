@@ -12,11 +12,11 @@ import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
  *
  * Demos:
  *
- * - [Number Field](https://base-ui.netlify.app/components/react-number-field/)
+ * - [Number Field](https://base-ui.com/components/react-number-field/)
  *
  * API:
  *
- * - [NumberFieldScrubArea API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldScrubArea)
+ * - [NumberFieldScrubArea API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldScrubArea)
  */
 const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
   props: NumberFieldScrubArea.Props,

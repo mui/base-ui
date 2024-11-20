@@ -142,11 +142,11 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
  *
  * Demos:
  *
- * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ * - [Menu](https://base-ui.com/components/react-menu/)
  *
  * API:
  *
- * - [MenuItem API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuItem)
+ * - [MenuItem API](https://base-ui.com/components/react-menu/#api-reference-MenuItem)
  */
 const MenuItem = React.forwardRef(function MenuItem(
   props: MenuItem.Props,

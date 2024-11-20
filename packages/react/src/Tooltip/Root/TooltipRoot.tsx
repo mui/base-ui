@@ -10,11 +10,11 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * Demos:
  *
- * - [Tooltip](https://base-ui.netlify.app/components/react-tooltip/)
+ * - [Tooltip](https://base-ui.com/components/react-tooltip/)
  *
  * API:
  *
- * - [TooltipRoot API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipRoot)
+ * - [TooltipRoot API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipRoot)
  */
 const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
   const { delay, closeDelay, hoverable = true, animated = true, trackCursorAxis = 'none' } = props;

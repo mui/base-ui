@@ -12,11 +12,11 @@ import { useScrollAreaScrollbarContext } from '../Scrollbar/ScrollAreaScrollbarC
  *
  * Demos:
  *
- * - [Scroll Area](https://base-ui.netlify.app/components/react-scroll-area/)
+ * - [Scroll Area](https://base-ui.com/components/react-scroll-area/)
  *
  * API:
  *
- * - [ScrollAreaThumb API](https://base-ui.netlify.app/components/react-scroll-area/#api-reference-ScrollAreaThumb)
+ * - [ScrollAreaThumb API](https://base-ui.com/components/react-scroll-area/#api-reference-ScrollAreaThumb)
  */
 const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
   props: ScrollAreaThumb.Props,

@@ -10,11 +10,11 @@ import { TabsOrientation } from '../Root/TabsRoot';
  *
  * Demos:
  *
- * - [Tabs](https://base-ui.netlify.app/components/react-tabs/)
+ * - [Tabs](https://base-ui.com/components/react-tabs/)
  *
  * API:
  *
- * - [Tab API](https://base-ui.netlify.app/components/react-tabs/#api-reference-Tab)
+ * - [Tab API](https://base-ui.com/components/react-tabs/#api-reference-Tab)
  */
 const Tab = React.forwardRef(function Tab(
   props: Tab.Props,

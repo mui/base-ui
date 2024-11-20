@@ -9,11 +9,11 @@ import { useDialogRoot } from '../../Dialog/Root/useDialogRoot';
  *
  * Demos:
  *
- * - [Alert Dialog](https://base-ui.netlify.app/components/react-alert-dialog/)
+ * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
  *
  * API:
  *
- * - [AlertDialogRoot API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogRoot)
+ * - [AlertDialogRoot API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogRoot)
  */
 const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
   const { animated = true, children, defaultOpen, onOpenChange, open } = props;

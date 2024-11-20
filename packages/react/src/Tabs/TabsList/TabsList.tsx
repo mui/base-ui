@@ -12,11 +12,11 @@ import { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Tabs](https://base-ui.netlify.app/components/react-tabs/)
+ * - [Tabs](https://base-ui.com/components/react-tabs/)
  *
  * API:
  *
- * - [TabsList API](https://base-ui.netlify.app/components/react-tabs/#api-reference-TabsList)
+ * - [TabsList API](https://base-ui.com/components/react-tabs/#api-reference-TabsList)
  */
 const TabsList = React.forwardRef(function TabsList(
   props: TabsList.Props,

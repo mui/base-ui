@@ -12,11 +12,11 @@ import { useScrollAreaScrollbar } from './useScrollAreaScrollbar';
  *
  * Demos:
  *
- * - [Scroll Area](https://base-ui.netlify.app/components/react-scroll-area/)
+ * - [Scroll Area](https://base-ui.com/components/react-scroll-area/)
  *
  * API:
  *
- * - [ScrollAreaScrollbar API](https://base-ui.netlify.app/components/react-scroll-area/#api-reference-ScrollAreaScrollbar)
+ * - [ScrollAreaScrollbar API](https://base-ui.com/components/react-scroll-area/#api-reference-ScrollAreaScrollbar)
  */
 const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
   props: ScrollAreaScrollbar.Props,

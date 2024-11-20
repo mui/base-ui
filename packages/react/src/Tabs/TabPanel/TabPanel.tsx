@@ -11,11 +11,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Tabs](https://base-ui.netlify.app/components/react-tabs/)
+ * - [Tabs](https://base-ui.com/components/react-tabs/)
  *
  * API:
  *
- * - [TabPanel API](https://base-ui.netlify.app/components/react-tabs/#api-reference-TabPanel)
+ * - [TabPanel API](https://base-ui.com/components/react-tabs/#api-reference-TabPanel)
  */
 const TabPanel = React.forwardRef(function TabPanel(
   props: TabPanel.Props,

@@ -14,11 +14,11 @@ const ownerState = {};
  *
  * Demos:
  *
- * - [Select](https://base-ui.netlify.app/components/react-select/)
+ * - [Select](https://base-ui.com/components/react-select/)
  *
  * API:
  *
- * - [SelectGroupLabel API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectGroupLabel)
+ * - [SelectGroupLabel API](https://base-ui.com/components/react-select/#api-reference-SelectGroupLabel)
  */
 const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   props: SelectGroupLabel.Props,

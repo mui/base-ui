@@ -11,11 +11,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Fieldset](https://base-ui.netlify.app/components/react-fieldset/)
+ * - [Fieldset](https://base-ui.com/components/react-fieldset/)
  *
  * API:
  *
- * - [FieldsetRoot API](https://base-ui.netlify.app/components/react-fieldset/#api-reference-FieldsetRoot)
+ * - [FieldsetRoot API](https://base-ui.com/components/react-fieldset/#api-reference-FieldsetRoot)
  */
 const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   props: FieldsetRoot.Props,

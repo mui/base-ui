@@ -11,11 +11,11 @@ import { accordionStyleHookMapping } from '../Item/styleHooks';
  *
  * Demos:
  *
- * - [Accordion](https://base-ui.netlify.app/components/react-accordion/)
+ * - [Accordion](https://base-ui.com/components/react-accordion/)
  *
  * API:
  *
- * - [AccordionHeader API](https://base-ui.netlify.app/components/react-accordion/#api-reference-AccordionHeader)
+ * - [AccordionHeader API](https://base-ui.com/components/react-accordion/#api-reference-AccordionHeader)
  */
 const AccordionHeader = React.forwardRef(function AccordionHeader(
   props: AccordionHeader.Props,

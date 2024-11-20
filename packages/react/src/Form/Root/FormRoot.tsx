@@ -11,11 +11,11 @@ import { useEventCallback } from '../../utils/useEventCallback';
  *
  * Demos:
  *
- * - [Form](https://base-ui.netlify.app/components/react-form/)
+ * - [Form](https://base-ui.com/components/react-form/)
  *
  * API:
  *
- * - [FormRoot API](https://base-ui.netlify.app/components/react-form/#api-reference-FormRoot)
+ * - [FormRoot API](https://base-ui.com/components/react-form/#api-reference-FormRoot)
  */
 const FormRoot = React.forwardRef(function FormRoot(
   props: FormRoot.Props,

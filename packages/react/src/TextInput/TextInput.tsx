@@ -8,11 +8,11 @@ import { Field } from '../Field';
  *
  * Demos:
  *
- * - [Text Input](https://base-ui.netlify.app/components/react-text-input/)
+ * - [Text Input](https://base-ui.com/components/react-text-input/)
  *
  * API:
  *
- * - [TextInput API](https://base-ui.netlify.app/components/react-text-input/#api-reference-TextInput)
+ * - [TextInput API](https://base-ui.com/components/react-text-input/#api-reference-TextInput)
  */
 const TextInput = React.forwardRef(function TextInput(
   props: TextInput.Props,

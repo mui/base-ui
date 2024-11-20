@@ -8,11 +8,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Select](https://base-ui.netlify.app/components/react-select/)
+ * - [Select](https://base-ui.com/components/react-select/)
  *
  * API:
  *
- * - [SelectScrollDownArrow API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectScrollDownArrow)
+ * - [SelectScrollDownArrow API](https://base-ui.com/components/react-select/#api-reference-SelectScrollDownArrow)
  */
 const SelectScrollDownArrow = React.forwardRef(function SelectScrollDownArrow(
   props: SelectScrollDownArrow.Props,

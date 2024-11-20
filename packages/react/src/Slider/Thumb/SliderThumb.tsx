@@ -27,11 +27,11 @@ function defaultRender(
  *
  * Demos:
  *
- * - [Slider](https://base-ui.netlify.app/components/react-slider/)
+ * - [Slider](https://base-ui.com/components/react-slider/)
  *
  * API:
  *
- * - [SliderThumb API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderThumb)
+ * - [SliderThumb API](https://base-ui.com/components/react-slider/#api-reference-SliderThumb)
  */
 const SliderThumb = React.forwardRef(function SliderThumb(
   props: SliderThumb.Props,

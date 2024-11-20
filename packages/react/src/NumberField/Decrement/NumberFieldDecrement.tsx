@@ -11,11 +11,11 @@ import { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Number Field](https://base-ui.netlify.app/components/react-number-field/)
+ * - [Number Field](https://base-ui.com/components/react-number-field/)
  *
  * API:
  *
- * - [NumberFieldDecrement API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldDecrement)
+ * - [NumberFieldDecrement API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldDecrement)
  */
 const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
   props: NumberFieldDecrement.Props,

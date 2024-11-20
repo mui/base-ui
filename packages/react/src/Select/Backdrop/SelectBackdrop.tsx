@@ -30,11 +30,11 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.OwnerState> 
  *
  * Demos:
  *
- * - [Select](https://base-ui.netlify.app/components/react-select/)
+ * - [Select](https://base-ui.com/components/react-select/)
  *
  * API:
  *
- * - [SelectBackdrop API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectBackdrop)
+ * - [SelectBackdrop API](https://base-ui.com/components/react-select/#api-reference-SelectBackdrop)
  */
 const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   props: SelectBackdrop.Props,

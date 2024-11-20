@@ -10,11 +10,11 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  *
  * Demos:
  *
- * - [Select](https://base-ui.netlify.app/components/react-select/)
+ * - [Select](https://base-ui.com/components/react-select/)
  *
  * API:
  *
- * - [SelectOptionIndicator API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectOptionIndicator)
+ * - [SelectOptionIndicator API](https://base-ui.com/components/react-select/#api-reference-SelectOptionIndicator)
  */
 const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
   props: SelectOptionIndicator.Props,

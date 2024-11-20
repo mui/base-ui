@@ -30,11 +30,11 @@ const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.OwnerState> = 
  *
  * Demos:
  *
- * - [Popover](https://base-ui.netlify.app/components/react-popover/)
+ * - [Popover](https://base-ui.com/components/react-popover/)
  *
  * API:
  *
- * - [PopoverPopup API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverPopup)
+ * - [PopoverPopup API](https://base-ui.com/components/react-popover/#api-reference-PopoverPopup)
  */
 const PopoverPopup = React.forwardRef(function PopoverPopup(
   props: PopoverPopup.Props,

@@ -11,11 +11,11 @@ import { useSliderIndicator } from './useSliderIndicator';
  *
  * Demos:
  *
- * - [Slider](https://base-ui.netlify.app/components/react-slider/)
+ * - [Slider](https://base-ui.com/components/react-slider/)
  *
  * API:
  *
- * - [SliderIndicator API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderIndicator)
+ * - [SliderIndicator API](https://base-ui.com/components/react-slider/#api-reference-SliderIndicator)
  */
 const SliderIndicator = React.forwardRef(function SliderIndicator(
   props: SliderIndicator.Props,

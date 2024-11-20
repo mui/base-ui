@@ -17,8 +17,7 @@ export const projectSettings: ProjectSettings = {
       tsConfigPath: 'tsconfig.build.json',
     },
   ],
-  // TODO: Update when we have the domain set up
-  baseApiUrl: 'https://base-ui.netlify.app',
+  baseApiUrl: 'https://base-ui.com',
   getApiPages: () => findApiPages('docs/data/api'),
   getComponentInfo: getBaseUiComponentInfo,
   getComponentImports,
@@ -44,7 +43,7 @@ export const newProjectSettings: ProjectSettings = {
     },
   ],
   // TODO update domain and routing when we are ready
-  baseApiUrl: 'https://base-ui.netlify.app',
+  baseApiUrl: 'https://base-ui.com',
   getComponentInfo: (filename) => ({
     ...getBaseUiComponentInfo(filename),
     apiPagesDirectory: path.join(process.cwd(), `docs/reference/temp/components`),

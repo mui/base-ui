@@ -12,11 +12,11 @@ const ownerState = {};
  *
  * Demos:
  *
- * - [Dialog](https://base-ui.netlify.app/components/react-dialog/)
+ * - [Dialog](https://base-ui.com/components/react-dialog/)
  *
  * API:
  *
- * - [DialogClose API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogClose)
+ * - [DialogClose API](https://base-ui.com/components/react-dialog/#api-reference-DialogClose)
  */
 const DialogClose = React.forwardRef(function DialogClose(
   props: DialogClose.Props,

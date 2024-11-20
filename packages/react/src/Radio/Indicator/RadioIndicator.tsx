@@ -17,11 +17,11 @@ const customStyleHookMapping: CustomStyleHookMapping<RadioIndicator.OwnerState> 
  *
  * Demos:
  *
- * - [Radio Group](https://base-ui.netlify.app/components/react-radio-group/)
+ * - [Radio Group](https://base-ui.com/components/react-radio-group/)
  *
  * API:
  *
- * - [RadioIndicator API](https://base-ui.netlify.app/components/react-radio-group/#api-reference-RadioIndicator)
+ * - [RadioIndicator API](https://base-ui.com/components/react-radio-group/#api-reference-RadioIndicator)
  */
 const RadioIndicator = React.forwardRef(function RadioIndicator(
   props: RadioIndicator.Props,

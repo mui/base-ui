@@ -32,11 +32,11 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.OwnerState> = {
  *
  * Demos:
  *
- * - [Dialog](https://base-ui.netlify.app/components/react-dialog/)
+ * - [Dialog](https://base-ui.com/components/react-dialog/)
  *
  * API:
  *
- * - [DialogPopup API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogPopup)
+ * - [DialogPopup API](https://base-ui.com/components/react-dialog/#api-reference-DialogPopup)
  */
 const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopup.Props,

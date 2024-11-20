@@ -12,11 +12,11 @@ const ownerState = {};
  *
  * Demos:
  *
- * - [Alert Dialog](https://base-ui.netlify.app/components/react-alert-dialog/)
+ * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
  *
  * API:
  *
- * - [AlertDialogClose API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogClose)
+ * - [AlertDialogClose API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogClose)
  */
 const AlertDialogClose = React.forwardRef(function AlertDialogClose(
   props: AlertDialogClose.Props,

@@ -14,11 +14,11 @@ import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
  *
  * Demos:
  *
- * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ * - [Menu](https://base-ui.com/components/react-menu/)
  *
  * API:
  *
- * - [SubmenuTrigger API](https://base-ui.netlify.app/components/react-menu/#api-reference-SubmenuTrigger)
+ * - [SubmenuTrigger API](https://base-ui.com/components/react-menu/#api-reference-SubmenuTrigger)
  */
 const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   props: SubmenuTrigger.Props,

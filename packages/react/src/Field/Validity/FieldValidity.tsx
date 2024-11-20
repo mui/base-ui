@@ -10,11 +10,11 @@ import { FieldValidityData } from '../Root/FieldRoot';
  *
  * Demos:
  *
- * - [Field](https://base-ui.netlify.app/components/react-field/)
+ * - [Field](https://base-ui.com/components/react-field/)
  *
  * API:
  *
- * - [FieldValidity API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldValidity)
+ * - [FieldValidity API](https://base-ui.com/components/react-field/#api-reference-FieldValidity)
  */
 const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(props) {
   const { children } = props;

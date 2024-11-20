@@ -14,11 +14,11 @@ import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
  *
  * Demos:
  *
- * - [Tooltip](https://base-ui.netlify.app/components/react-tooltip/)
+ * - [Tooltip](https://base-ui.com/components/react-tooltip/)
  *
  * API:
  *
- * - [TooltipArrow API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipArrow)
+ * - [TooltipArrow API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipArrow)
  */
 const TooltipArrow = React.forwardRef(function TooltipArrow(
   props: TooltipArrow.Props,

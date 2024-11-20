@@ -13,11 +13,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Checkbox Group](https://base-ui.netlify.app/components/react-checkbox-group/)
+ * - [Checkbox Group](https://base-ui.com/components/react-checkbox-group/)
  *
  * API:
  *
- * - [CheckboxGroupRoot API](https://base-ui.netlify.app/components/react-checkbox-group/#api-reference-CheckboxGroupRoot)
+ * - [CheckboxGroupRoot API](https://base-ui.com/components/react-checkbox-group/#api-reference-CheckboxGroupRoot)
  */
 const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
   props: CheckboxGroupRoot.Props,

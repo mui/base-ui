@@ -11,11 +11,11 @@ import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
  *
  * Demos:
  *
- * - [Preview Card](https://base-ui.netlify.app/components/react-preview-card/)
+ * - [Preview Card](https://base-ui.com/components/react-preview-card/)
  *
  * API:
  *
- * - [PreviewCardTrigger API](https://base-ui.netlify.app/components/react-preview-card/#api-reference-PreviewCardTrigger)
+ * - [PreviewCardTrigger API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardTrigger)
  */
 const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   props: PreviewCardTrigger.Props,

@@ -11,11 +11,11 @@ const ownerState = {};
  *
  * Demos:
  *
- * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ * - [Menu](https://base-ui.com/components/react-menu/)
  *
  * API:
  *
- * - [MenuGroup API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuGroup)
+ * - [MenuGroup API](https://base-ui.com/components/react-menu/#api-reference-MenuGroup)
  */
 const MenuGroup = React.forwardRef(function MenuGroup(
   props: MenuGroup.Props,

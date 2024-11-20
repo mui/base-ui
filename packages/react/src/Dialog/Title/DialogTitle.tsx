@@ -14,11 +14,11 @@ const ownerState = {};
  *
  * Demos:
  *
- * - [Dialog](https://base-ui.netlify.app/components/react-dialog/)
+ * - [Dialog](https://base-ui.com/components/react-dialog/)
  *
  * API:
  *
- * - [DialogTitle API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogTitle)
+ * - [DialogTitle API](https://base-ui.com/components/react-dialog/#api-reference-DialogTitle)
  */
 const DialogTitle = React.forwardRef(function DialogTitle(
   props: DialogTitle.Props,

@@ -14,11 +14,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Field](https://base-ui.netlify.app/components/react-field/)
+ * - [Field](https://base-ui.com/components/react-field/)
  *
  * API:
  *
- * - [FieldError API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldError)
+ * - [FieldError API](https://base-ui.com/components/react-field/#api-reference-FieldError)
  */
 const FieldError = React.forwardRef(function FieldError(
   props: FieldError.Props,

@@ -11,11 +11,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Number Field](https://base-ui.netlify.app/components/react-number-field/)
+ * - [Number Field](https://base-ui.com/components/react-number-field/)
  *
  * API:
  *
- * - [NumberFieldGroup API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldGroup)
+ * - [NumberFieldGroup API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldGroup)
  */
 const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
   props: NumberFieldGroup.Props,

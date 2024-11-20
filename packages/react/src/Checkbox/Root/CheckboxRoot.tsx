@@ -15,11 +15,11 @@ import { CheckboxRootContext } from './CheckboxRootContext';
  *
  * Demos:
  *
- * - [Checkbox](https://base-ui.netlify.app/components/react-checkbox/)
+ * - [Checkbox](https://base-ui.com/components/react-checkbox/)
  *
  * API:
  *
- * - [CheckboxRoot API](https://base-ui.netlify.app/components/react-checkbox/#api-reference-CheckboxRoot)
+ * - [CheckboxRoot API](https://base-ui.com/components/react-checkbox/#api-reference-CheckboxRoot)
  */
 const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   props: CheckboxRoot.Props,

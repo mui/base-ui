@@ -11,11 +11,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Fieldset](https://base-ui.netlify.app/components/react-fieldset/)
+ * - [Fieldset](https://base-ui.com/components/react-fieldset/)
  *
  * API:
  *
- * - [FieldsetLegend API](https://base-ui.netlify.app/components/react-fieldset/#api-reference-FieldsetLegend)
+ * - [FieldsetLegend API](https://base-ui.com/components/react-fieldset/#api-reference-FieldsetLegend)
  */
 const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   props: FieldsetLegend.Props,

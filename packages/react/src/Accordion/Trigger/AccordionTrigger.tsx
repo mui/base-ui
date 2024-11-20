@@ -14,11 +14,11 @@ import { useAccordionItemContext } from '../Item/AccordionItemContext';
  *
  * Demos:
  *
- * - [Accordion](https://base-ui.netlify.app/components/react-accordion/)
+ * - [Accordion](https://base-ui.com/components/react-accordion/)
  *
  * API:
  *
- * - [AccordionTrigger API](https://base-ui.netlify.app/components/react-accordion/#api-reference-AccordionTrigger)
+ * - [AccordionTrigger API](https://base-ui.com/components/react-accordion/#api-reference-AccordionTrigger)
  */
 
 const AccordionTrigger = React.forwardRef(function AccordionTrigger(

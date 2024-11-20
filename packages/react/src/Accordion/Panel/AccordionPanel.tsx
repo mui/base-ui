@@ -14,11 +14,11 @@ import { accordionStyleHookMapping } from '../Item/styleHooks';
  *
  * Demos:
  *
- * - [Accordion](https://base-ui.netlify.app/components/react-accordion/)
+ * - [Accordion](https://base-ui.com/components/react-accordion/)
  *
  * API:
  *
- * - [AccordionPanel API](https://base-ui.netlify.app/components/react-accordion/#api-reference-AccordionPanel)
+ * - [AccordionPanel API](https://base-ui.com/components/react-accordion/#api-reference-AccordionPanel)
  */
 const AccordionPanel = React.forwardRef(function AccordionPanel(
   props: AccordionPanel.Props,

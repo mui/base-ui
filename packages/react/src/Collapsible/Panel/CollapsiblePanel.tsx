@@ -12,11 +12,11 @@ import { useCollapsiblePanel } from './useCollapsiblePanel';
  *
  * Demos:
  *
- * - [Collapsible](https://base-ui.netlify.app/components/react-collapsible/)
+ * - [Collapsible](https://base-ui.com/components/react-collapsible/)
  *
  * API:
  *
- * - [CollapsiblePanel API](https://base-ui.netlify.app/components/react-collapsible/#api-reference-CollapsiblePanel)
+ * - [CollapsiblePanel API](https://base-ui.com/components/react-collapsible/#api-reference-CollapsiblePanel)
  */
 const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   props: CollapsiblePanel.Props,

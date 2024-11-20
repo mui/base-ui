@@ -15,11 +15,11 @@ import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
  *
  * Demos:
  *
- * - [Menu](https://base-ui.netlify.app/components/react-menu/)
+ * - [Menu](https://base-ui.com/components/react-menu/)
  *
  * API:
  *
- * - [MenuArrow API](https://base-ui.netlify.app/components/react-menu/#api-reference-MenuArrow)
+ * - [MenuArrow API](https://base-ui.com/components/react-menu/#api-reference-MenuArrow)
  */
 const MenuArrow = React.forwardRef(function MenuArrow(
   props: MenuArrow.Props,

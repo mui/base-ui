@@ -15,11 +15,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Switch](https://base-ui.netlify.app/components/react-switch/)
+ * - [Switch](https://base-ui.com/components/react-switch/)
  *
  * API:
  *
- * - [SwitchRoot API](https://base-ui.netlify.app/components/react-switch/#api-reference-SwitchRoot)
+ * - [SwitchRoot API](https://base-ui.com/components/react-switch/#api-reference-SwitchRoot)
  */
 const SwitchRoot = React.forwardRef(function SwitchRoot(
   props: SwitchRoot.Props,

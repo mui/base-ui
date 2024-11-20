@@ -12,11 +12,11 @@ import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
  *
  * Demos:
  *
- * - [Tooltip](https://base-ui.netlify.app/components/react-tooltip/)
+ * - [Tooltip](https://base-ui.com/components/react-tooltip/)
  *
  * API:
  *
- * - [TooltipTrigger API](https://base-ui.netlify.app/components/react-tooltip/#api-reference-TooltipTrigger)
+ * - [TooltipTrigger API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipTrigger)
  */
 const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   props: TooltipTrigger.Props,

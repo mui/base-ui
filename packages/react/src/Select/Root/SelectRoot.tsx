@@ -11,11 +11,11 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
  *
  * Demos:
  *
- * - [Select](https://base-ui.netlify.app/components/react-select/)
+ * - [Select](https://base-ui.com/components/react-select/)
  *
  * API:
  *
- * - [SelectRoot API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectRoot)
+ * - [SelectRoot API](https://base-ui.com/components/react-select/#api-reference-SelectRoot)
  */
 const SelectRoot: SelectRoot = function SelectRoot<Value>(
   props: SelectRoot.Props<Value>,

@@ -31,11 +31,11 @@ const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.OwnerState
  *
  * Demos:
  *
- * - [Alert Dialog](https://base-ui.netlify.app/components/react-alert-dialog/)
+ * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
  *
  * API:
  *
- * - [AlertDialogPopup API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogPopup)
+ * - [AlertDialogPopup API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogPopup)
  */
 const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   props: AlertDialogPopup.Props,

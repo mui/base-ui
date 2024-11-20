@@ -13,11 +13,11 @@ import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
  *
  * Demos:
  *
- * - [Select](https://base-ui.netlify.app/components/react-select/)
+ * - [Select](https://base-ui.com/components/react-select/)
  *
  * API:
  *
- * - [SelectArrow API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectArrow)
+ * - [SelectArrow API](https://base-ui.com/components/react-select/#api-reference-SelectArrow)
  */
 const SelectArrow = React.forwardRef(function SelectArrow(
   props: SelectArrow.Props,

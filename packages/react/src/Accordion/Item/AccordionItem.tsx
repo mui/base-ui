@@ -20,11 +20,11 @@ import { accordionStyleHookMapping } from './styleHooks';
  *
  * Demos:
  *
- * - [Accordion](https://base-ui.netlify.app/components/react-accordion/)
+ * - [Accordion](https://base-ui.com/components/react-accordion/)
  *
  * API:
  *
- * - [AccordionItem API](https://base-ui.netlify.app/components/react-accordion/#api-reference-AccordionItem)
+ * - [AccordionItem API](https://base-ui.com/components/react-accordion/#api-reference-AccordionItem)
  */
 const AccordionItem = React.forwardRef(function AccordionItem(
   props: AccordionItem.Props,

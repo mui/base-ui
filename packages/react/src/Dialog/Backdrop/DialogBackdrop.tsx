@@ -28,11 +28,11 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.OwnerState> 
  *
  * Demos:
  *
- * - [Dialog](https://base-ui.netlify.app/components/react-dialog/)
+ * - [Dialog](https://base-ui.com/components/react-dialog/)
  *
  * API:
  *
- * - [DialogBackdrop API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogBackdrop)
+ * - [DialogBackdrop API](https://base-ui.com/components/react-dialog/#api-reference-DialogBackdrop)
  */
 const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdrop.Props,

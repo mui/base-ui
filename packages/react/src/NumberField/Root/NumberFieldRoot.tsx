@@ -13,11 +13,11 @@ import type { FieldRoot } from '../../Field/Root/FieldRoot';
  *
  * Demos:
  *
- * - [Number Field](https://base-ui.netlify.app/components/react-number-field/)
+ * - [Number Field](https://base-ui.com/components/react-number-field/)
  *
  * API:
  *
- * - [NumberFieldRoot API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldRoot)
+ * - [NumberFieldRoot API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldRoot)
  */
 const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   props: NumberFieldRoot.Props,

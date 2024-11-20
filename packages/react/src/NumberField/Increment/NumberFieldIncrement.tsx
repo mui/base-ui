@@ -11,11 +11,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Number Field](https://base-ui.netlify.app/components/react-number-field/)
+ * - [Number Field](https://base-ui.com/components/react-number-field/)
  *
  * API:
  *
- * - [NumberFieldIncrement API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldIncrement)
+ * - [NumberFieldIncrement API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldIncrement)
  */
 const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
   props: NumberFieldIncrement.Props,

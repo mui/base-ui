@@ -15,11 +15,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Field](https://base-ui.netlify.app/components/react-field/)
+ * - [Field](https://base-ui.com/components/react-field/)
  *
  * API:
  *
- * - [FieldLabel API](https://base-ui.netlify.app/components/react-field/#api-reference-FieldLabel)
+ * - [FieldLabel API](https://base-ui.com/components/react-field/#api-reference-FieldLabel)
  */
 const FieldLabel = React.forwardRef(function FieldLabel(
   props: FieldLabel.Props,

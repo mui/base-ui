@@ -31,11 +31,11 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.OwnerState> = {
  *
  * Demos:
  *
- * - [Select](https://base-ui.netlify.app/components/react-select/)
+ * - [Select](https://base-ui.com/components/react-select/)
  *
  * API:
  *
- * - [SelectPopup API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectPopup)
+ * - [SelectPopup API](https://base-ui.com/components/react-select/#api-reference-SelectPopup)
  */
 const SelectPopup = React.forwardRef(function SelectPopup(
   props: SelectPopup.Props,

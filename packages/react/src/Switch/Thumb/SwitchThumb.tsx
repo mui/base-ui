@@ -12,11 +12,11 @@ import { styleHookMapping } from '../styleHooks';
  *
  * Demos:
  *
- * - [Switch](https://base-ui.netlify.app/components/react-switch/)
+ * - [Switch](https://base-ui.com/components/react-switch/)
  *
  * API:
  *
- * - [SwitchThumb API](https://base-ui.netlify.app/components/react-switch/#api-reference-SwitchThumb)
+ * - [SwitchThumb API](https://base-ui.com/components/react-switch/#api-reference-SwitchThumb)
  */
 const SwitchThumb = React.forwardRef(function SwitchThumb(
   props: SwitchThumb.Props,

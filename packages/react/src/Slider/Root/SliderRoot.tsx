@@ -14,11 +14,11 @@ import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
  *
  * Demos:
  *
- * - [Slider](https://base-ui.netlify.app/components/react-slider/)
+ * - [Slider](https://base-ui.com/components/react-slider/)
  *
  * API:
  *
- * - [SliderRoot API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderRoot)
+ * - [SliderRoot API](https://base-ui.com/components/react-slider/#api-reference-SliderRoot)
  */
 const SliderRoot = React.forwardRef(function SliderRoot(
   props: SliderRoot.Props,

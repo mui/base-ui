@@ -12,11 +12,11 @@ const ownerState = {};
  *
  * Demos:
  *
- * - [Select](https://base-ui.netlify.app/components/react-select/)
+ * - [Select](https://base-ui.com/components/react-select/)
  *
  * API:
  *
- * - [SelectGroup API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectGroup)
+ * - [SelectGroup API](https://base-ui.com/components/react-select/#api-reference-SelectGroup)
  */
 const SelectGroup = React.forwardRef(function SelectGroup(
   props: SelectGroup.Props,

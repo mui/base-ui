@@ -98,11 +98,11 @@ const MemoizedInnerSelectOptionText = React.memo(InnerSelectOptionText);
  *
  * Demos:
  *
- * - [Select](https://base-ui.netlify.app/components/react-select/)
+ * - [Select](https://base-ui.com/components/react-select/)
  *
  * API:
  *
- * - [SelectOptionText API](https://base-ui.netlify.app/components/react-select/#api-reference-SelectOptionText)
+ * - [SelectOptionText API](https://base-ui.com/components/react-select/#api-reference-SelectOptionText)
  */
 const SelectOptionText = React.forwardRef(function SelectOptionText(
   props: SelectOptionText.Props,

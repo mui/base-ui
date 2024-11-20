@@ -11,11 +11,11 @@ import { BaseUIComponentProps } from '../../utils/types';
  *
  * Demos:
  *
- * - [Progress](https://base-ui.netlify.app/components/react-progress/)
+ * - [Progress](https://base-ui.com/components/react-progress/)
  *
  * API:
  *
- * - [ProgressRoot API](https://base-ui.netlify.app/components/react-progress/#api-reference-ProgressRoot)
+ * - [ProgressRoot API](https://base-ui.com/components/react-progress/#api-reference-ProgressRoot)
  */
 const ProgressRoot = React.forwardRef(function ProgressRoot(
   props: ProgressRoot.Props,

@@ -15,11 +15,11 @@ const rootStyleHookMapping = {
  *
  * Demos:
  *
- * - [Accordion](https://base-ui.netlify.app/components/react-accordion/)
+ * - [Accordion](https://base-ui.com/components/react-accordion/)
  *
  * API:
  *
- * - [AccordionRoot API](https://base-ui.netlify.app/components/react-accordion/#api-reference-AccordionRoot)
+ * - [AccordionRoot API](https://base-ui.com/components/react-accordion/#api-reference-AccordionRoot)
  */
 const AccordionRoot = React.forwardRef(function AccordionRoot(
   props: AccordionRoot.Props,

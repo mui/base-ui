@@ -16,11 +16,11 @@ import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
  *
  * Demos:
  *
- * - [Popover](https://base-ui.netlify.app/components/react-popover/)
+ * - [Popover](https://base-ui.com/components/react-popover/)
  *
  * API:
  *
- * - [PopoverTrigger API](https://base-ui.netlify.app/components/react-popover/#api-reference-PopoverTrigger)
+ * - [PopoverTrigger API](https://base-ui.com/components/react-popover/#api-reference-PopoverTrigger)
  */
 const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   props: PopoverTrigger.Props,

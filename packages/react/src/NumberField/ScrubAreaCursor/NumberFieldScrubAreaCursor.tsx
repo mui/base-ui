@@ -15,11 +15,11 @@ import { ownerDocument } from '../../utils/owner';
  *
  * Demos:
  *
- * - [Number Field](https://base-ui.netlify.app/components/react-number-field/)
+ * - [Number Field](https://base-ui.com/components/react-number-field/)
  *
  * API:
  *
- * - [NumberFieldScrubAreaCursor API](https://base-ui.netlify.app/components/react-number-field/#api-reference-NumberFieldScrubAreaCursor)
+ * - [NumberFieldScrubAreaCursor API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldScrubAreaCursor)
  */
 const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAreaCursor(
   props: NumberFieldScrubAreaCursor.Props,

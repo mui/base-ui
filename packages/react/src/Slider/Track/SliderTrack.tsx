@@ -10,11 +10,11 @@ import { sliderStyleHookMapping } from '../Root/styleHooks';
  *
  * Demos:
  *
- * - [Slider](https://base-ui.netlify.app/components/react-slider/)
+ * - [Slider](https://base-ui.com/components/react-slider/)
  *
  * API:
  *
- * - [SliderTrack API](https://base-ui.netlify.app/components/react-slider/#api-reference-SliderTrack)
+ * - [SliderTrack API](https://base-ui.com/components/react-slider/#api-reference-SliderTrack)
  */
 const SliderTrack = React.forwardRef(function SliderTrack(
   props: SliderTrack.Props,

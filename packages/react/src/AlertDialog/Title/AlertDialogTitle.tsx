@@ -13,11 +13,11 @@ const ownerState = {};
  *
  * Demos:
  *
- * - [Alert Dialog](https://base-ui.netlify.app/components/react-alert-dialog/)
+ * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
  *
  * API:
  *
- * - [AlertDialogTitle API](https://base-ui.netlify.app/components/react-alert-dialog/#api-reference-AlertDialogTitle)
+ * - [AlertDialogTitle API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogTitle)
  */
 const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
   props: AlertDialogTitle.Props,

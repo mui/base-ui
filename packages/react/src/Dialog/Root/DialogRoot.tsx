@@ -9,11 +9,11 @@ import { type CommonParameters, useDialogRoot } from './useDialogRoot';
  *
  * Demos:
  *
- * - [Dialog](https://base-ui.netlify.app/components/react-dialog/)
+ * - [Dialog](https://base-ui.com/components/react-dialog/)
  *
  * API:
  *
- * - [DialogRoot API](https://base-ui.netlify.app/components/react-dialog/#api-reference-DialogRoot)
+ * - [DialogRoot API](https://base-ui.com/components/react-dialog/#api-reference-DialogRoot)
  */
 const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
   const {

@@ -15,11 +15,11 @@ const noop = () => null;
  *
  * Demos:
  *
- * - [Tabs](https://base-ui.netlify.app/components/react-tabs/)
+ * - [Tabs](https://base-ui.com/components/react-tabs/)
  *
  * API:
  *
- * - [TabIndicator API](https://base-ui.netlify.app/components/react-tabs/#api-reference-TabIndicator)
+ * - [TabIndicator API](https://base-ui.com/components/react-tabs/#api-reference-TabIndicator)
  */
 const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicator.Props>(
   function TabIndicator(props, forwardedRef) {
