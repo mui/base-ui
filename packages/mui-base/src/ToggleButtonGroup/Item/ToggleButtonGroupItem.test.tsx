@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act } from '@mui/internal-test-utils';
-import { ToggleButtonGroup } from '@base_ui/react/ToggleButtonGroup';
+import { ToggleButtonGroup } from '@base-ui-components/react/ToggleButtonGroup';
 import { createRenderer, describeConformance } from '#test-utils';
 import { NOOP } from '../../utils/noop';
 import { CompositeRoot } from '../../Composite/Root/CompositeRoot';

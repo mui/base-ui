@@ -17,7 +17,7 @@
   },
   "name": "ToggleButtonRoot",
   "imports": [
-    "import { ToggleButton } from '@base_ui/react/ToggleButton';\nconst ToggleButtonRoot = ToggleButton.Root;"
+    "import { ToggleButton } from '@base-ui-components/react/ToggleButton';\nconst ToggleButtonRoot = ToggleButton.Root;"
   ],
   "classes": [],
   "spread": true,

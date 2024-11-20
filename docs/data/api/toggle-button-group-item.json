@@ -15,7 +15,7 @@
   },
   "name": "ToggleButtonGroupItem",
   "imports": [
-    "import { ToggleButtonGroup } from '@base_ui/react/ToggleButtonGroup';\nconst ToggleButtonGroupItem = ToggleButtonGroup.Item;"
+    "import { ToggleButtonGroup } from '@base-ui-components/react/ToggleButtonGroup';\nconst ToggleButtonGroupItem = ToggleButtonGroup.Item;"
   ],
   "classes": [],
   "spread": true,
