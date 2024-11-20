@@ -20,7 +20,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { getOpenChangeReason, OpenChangeReason } from '../../utils/getOpenChangeReason';
+import { getOpenChangeReason, type OpenChangeReason } from '../../utils/getOpenChangeReason';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
