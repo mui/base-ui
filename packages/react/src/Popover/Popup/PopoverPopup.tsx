@@ -46,7 +46,6 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   const {
     open,
-    openMethod,
     instantType,
     transitionStatus,
     getRootPopupProps,
@@ -57,10 +56,11 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
   } = usePopoverRootContext();
   const positioner = usePopoverPositionerContext();
 
-  const { getPopupProps } = usePopoverPopup({
+  const { getPopupProps, resolvedInitialFocus } = usePopoverPopup({
     getProps: getRootPopupProps,
     titleId,
     descriptionId,
+    initialFocus,
   });
 
   const ownerState: PopoverPopup.OwnerState = React.useMemo(
@@ -73,32 +73,6 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     }),
     [open, positioner.side, positioner.alignment, instantType, transitionStatus],
   );
-
-  // Default initial focus logic:
-  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
-  // (this is required for Android specifically as iOS handles this automatically).
-  const defaultInitialFocus = React.useCallback(
-    (interactionType: InteractionType) => {
-      if (interactionType === 'touch') {
-        return popupRef;
-      }
-
-      return 0;
-    },
-    [popupRef],
-  );
-
-  const resolvedInitialFocus = React.useMemo(() => {
-    if (initialFocus == null) {
-      return defaultInitialFocus(openMethod ?? '');
-    }
-
-    if (typeof initialFocus === 'function') {
-      return initialFocus(openMethod ?? '');
-    }
-
-    return initialFocus;
-  }, [defaultInitialFocus, initialFocus, openMethod]);
 
   const mergedRef = useForkRef(popupRef, forwardedRef);
 
