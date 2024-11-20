@@ -10,7 +10,7 @@ import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { CodeSandboxLink } from './CodeSandboxLink';
 import { DemoErrorFallback } from './DemoErrorFallback';
-import { ToolbarButton } from '../ToolbarButton';
+import { GhostButton } from '../GhostButton';
 
 export interface DemoProps extends React.ComponentProps<typeof BaseDemo.Root> {
   variants: BaseDemo.DemoVariant[];
@@ -20,6 +20,7 @@ export interface DemoProps extends React.ComponentProps<typeof BaseDemo.Root> {
 export function Demo({ className, defaultOpen = false, title, ...props }: DemoProps) {
   const [open, setOpen] = React.useState(defaultOpen);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
+  const expandCollapsible = React.useCallback(() => setOpen(true), []);
 
   return (
     <BaseDemo.Root className={clsx('DemoRoot', className)} {...props}>
@@ -30,14 +31,14 @@ export function Demo({ className, defaultOpen = false, title, ...props }: DemoPr
       <Collapsible.Root open={open} onOpenChange={setOpen}>
         <div role="figure" aria-label="Component demo code">
           <div className="DemoToolbar">
-            <DemoFileSelector onTabChange={() => setOpen(true)} />
+            <DemoFileSelector onTabChange={expandCollapsible} />
 
             <div className="ml-auto flex items-center gap-4">
-              <DemoVariantSelector className="contents" />
+              <DemoVariantSelector className="contents" onVariantChange={expandCollapsible} />
               <CodeSandboxLink title="Base UI example" description="Base UI example" />
               <BaseDemo.SourceCopy
                 aria-label="Copy code"
-                render={<ToolbarButton />}
+                render={<GhostButton />}
                 onCopied={() => {
                   const newTimeout = window.setTimeout(() => {
                     window.clearTimeout(newTimeout);
