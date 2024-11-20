@@ -6,6 +6,11 @@
       "type": "string | (state) => string",
       "description": "Class names applied to the element or a function that returns them based on the component's state."
     },
+    "container": {
+      "type": "React.Ref | HTMLElement | null",
+      "default": "false",
+      "description": "The container element to which the backdrop is appended to."
+    },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
