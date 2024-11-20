@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
-import { usePreviewCardBackdrop } from './usePreviewCardBackdrop';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -41,7 +40,6 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   const { render, className, keepMounted = false, container, ...otherProps } = props;
 
   const { open, mounted, transitionStatus } = usePreviewCardRootContext();
-  const { getBackdropProps } = usePreviewCardBackdrop();
 
   const ownerState: PreviewCardBackdrop.OwnerState = React.useMemo(
     () => ({
@@ -52,12 +50,11 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getBackdropProps,
     render: render ?? 'div',
     className,
     ownerState,
     ref: forwardedRef,
-    extraProps: otherProps,
+    extraProps: { role: 'presentation', ...otherProps },
     customStyleHookMapping,
   });
 

@@ -3,7 +3,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
-import { useDialogBackdrop } from '../../Dialog/Backdrop/useDialogBackdrop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -37,32 +36,29 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   props: AlertDialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = false, ...other } = props;
-  const { open, hasParentDialog, animated } = useAlertDialogRootContext();
+  const { render, className, keepMounted = false, container, ...other } = props;
+  const { open, hasParentDialog, mounted, transitionStatus } = useAlertDialogRootContext();
 
-  const { getRootProps, mounted, transitionStatus } = useDialogBackdrop({
-    animated,
-    open,
-    ref: forwardedRef,
-  });
-
-  const ownerState: AlertDialogBackdrop.OwnerState = { open, transitionStatus };
+  const ownerState: AlertDialogBackdrop.OwnerState = React.useMemo(
+    () => ({
+      open,
+      transitionStatus,
+    }),
+    [open, transitionStatus],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
     ownerState,
-    propGetter: getRootProps,
-    extraProps: other,
+    ref: forwardedRef,
+    extraProps: { role: 'presentation', ...other },
     customStyleHookMapping,
   });
 
-  if (!mounted && !keepMounted) {
-    return null;
-  }
-
-  if (hasParentDialog) {
-    // no need to render nested backdrops
+  // no need to render nested backdrops
+  const shouldRender = (keepMounted || mounted) && !hasParentDialog;
+  if (!shouldRender) {
     return null;
   }
 
@@ -77,6 +73,11 @@ namespace AlertDialogBackdrop {
      * @default false
      */
     keepMounted?: boolean;
+    /**
+     * The container element to which the backdrop is appended to.
+     * @default false
+     */
+    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 
   export interface OwnerState {
