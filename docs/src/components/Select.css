@@ -8,6 +8,7 @@
 
   .SelectOption {
     @apply text-xs;
+    outline: 0;
     display: grid;
     grid-template-columns: 1rem auto;
     align-items: center;

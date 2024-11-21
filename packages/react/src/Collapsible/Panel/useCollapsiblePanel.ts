@@ -145,7 +145,7 @@ export function useCollapsiblePanel(
       element.style.animationName = shouldCancelAnimation ? 'none' : originalAnimationName;
       element.style.transitionDuration = shouldCancelAnimation
         ? '0s'
-        : originalTransitionDuration ?? '';
+        : (originalTransitionDuration ?? '');
 
       runOnceAnimationsFinish(() => {
         ReactDOM.flushSync(() => {

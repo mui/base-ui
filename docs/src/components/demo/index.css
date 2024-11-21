@@ -86,6 +86,13 @@
   }
 
   .DemoTab {
+    /* Reset browser defaults */
+    background: none;
+    border-radius: 0;
+    border: none;
+    color: inherit;
+    padding: 0;
+
     font-family: var(--font-mono);
     letter-spacing: normal;
     cursor: default;
@@ -219,6 +226,13 @@
   }
 
   .DemoCollapseButton {
+    /* Reset browser defaults */
+    background: none;
+    border-radius: 0;
+    border: none;
+    color: inherit;
+    padding: 0;
+
     @apply text-xs;
     background-color: var(--color-gray-50);
     cursor: default;
