@@ -10,14 +10,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
 /**
  * @ignore - internal component.
  */
-const CompositeItem = React.forwardRef(function CompositeItem(
-  props: CompositeItem.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  const { render, className, ...otherProps } = props;
+function CompositeItem<Metadata>(props: CompositeItem.Props<Metadata>) {
+  const { render, className, itemRef, metadata, ...otherProps } = props;
 
   const { activeIndex } = useCompositeRootContext();
-  const { getItemProps, ref, index } = useCompositeItem();
+  const { getItemProps, ref, index } = useCompositeItem({ metadata });
 
   const ownerState: CompositeItem.OwnerState = React.useMemo(
     () => ({
@@ -26,7 +23,7 @@ const CompositeItem = React.forwardRef(function CompositeItem(
     [index, activeIndex],
   );
 
-  const mergedRef = useForkRef(forwardedRef, ref);
+  const mergedRef = useForkRef(itemRef, ref);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getItemProps,
@@ -38,14 +35,19 @@ const CompositeItem = React.forwardRef(function CompositeItem(
   });
 
   return renderElement();
-});
+}
 
 namespace CompositeItem {
   export interface OwnerState {
     active: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props<Metadata>
+    extends Omit<BaseUIComponentProps<'div', OwnerState>, 'itemRef'> {
+    // the itemRef name collides with https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/itemref
+    itemRef?: React.RefObject<HTMLElement | null>;
+    metadata?: Metadata;
+  }
 }
 
 CompositeItem.propTypes /* remove-proptypes */ = {
@@ -61,6 +63,24 @@ CompositeItem.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  itemRef: PropTypes.shape({
+    current: (props, propName) => {
+      if (props[propName] == null) {
+        return null;
+      }
+      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+        return new Error(`Expected prop '${propName}' to be of type Element`);
+      }
+      return null;
+    },
+  }),
+  /**
+   * @ignore
+   */
+  metadata: PropTypes.any,
   /**
    * A function to customize rendering of the component.
    */

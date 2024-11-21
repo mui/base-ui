@@ -11,10 +11,7 @@ import type { Dimensions } from '../composite';
 /**
  * @ignore - internal component.
  */
-const CompositeRoot = React.forwardRef(function CompositeRoot<CustomMetadata extends {}>(
-  props: CompositeRoot.Props<CustomMetadata>,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
+function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>) {
   const {
     render,
     className,
@@ -28,6 +25,7 @@ const CompositeRoot = React.forwardRef(function CompositeRoot<CustomMetadata ext
     enableHomeAndEndKeys,
     onMapChange,
     stopEventPropagation,
+    rootRef,
     ...otherProps
   } = props;
 
@@ -39,14 +37,13 @@ const CompositeRoot = React.forwardRef(function CompositeRoot<CustomMetadata ext
     orientation,
     activeIndex: activeIndexProp,
     onActiveIndexChange: onActiveIndexChangeProp,
-    rootRef: forwardedRef,
+    rootRef,
     stopEventPropagation,
     enableHomeAndEndKeys,
   });
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
-    ref: forwardedRef,
     render: render ?? 'div',
     ownerState: {},
     className,
@@ -60,20 +57,17 @@ const CompositeRoot = React.forwardRef(function CompositeRoot<CustomMetadata ext
 
   return (
     <CompositeRootContext.Provider value={contextValue}>
-      <CompositeList<CustomMetadata> elementsRef={elementsRef} onMapChange={onMapChange}>
+      <CompositeList<Metadata> elementsRef={elementsRef} onMapChange={onMapChange}>
         {renderElement()}
       </CompositeList>
     </CompositeRootContext.Provider>
   );
-}) as {
-  <CustomMetadata extends {}>(props: CompositeRoot.Props<CustomMetadata>): React.JSX.Element | null;
-  propTypes?: any;
-};
+}
 
 namespace CompositeRoot {
   export interface OwnerState {}
 
-  export interface Props<CustomMetadata> extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props<Metadata> extends BaseUIComponentProps<'div', OwnerState> {
     orientation?: 'horizontal' | 'vertical' | 'both';
     cols?: number;
     loop?: boolean;
@@ -82,8 +76,9 @@ namespace CompositeRoot {
     itemSizes?: Dimensions[];
     dense?: boolean;
     enableHomeAndEndKeys?: boolean;
-    onMapChange?: (newMap: Map<Node, CompositeMetadata<CustomMetadata> | null>) => void;
+    onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
     stopEventPropagation?: boolean;
+    rootRef?: React.RefObject<HTMLElement | null>;
   }
 }
 
@@ -145,6 +140,20 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  rootRef: PropTypes.shape({
+    current: (props, propName) => {
+      if (props[propName] == null) {
+        return null;
+      }
+      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+        return new Error(`Expected prop '${propName}' to be of type Element`);
+      }
+      return null;
+    },
+  }),
   /**
    * @ignore
    */

@@ -41,6 +41,8 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
     getItemProps,
     ref: compositeItemRef,
     index,
+    // hook is used instead of the CompositeItem component
+    // because the index is needed for Tab internals
   } = useCompositeItem<TabMetadata>({ metadata: tabMetadata });
 
   const tabValue = valueParam ?? index;
