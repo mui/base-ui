@@ -100,10 +100,6 @@
       "matchManagers": ["github-actions"]
     },
     {
-      "groupName": "@definitelytyped tools",
-      "matchPackagePatterns": ["@definitelytyped/*"]
-    },
-    {
       "groupName": "chai - incompatible versions",
       "matchPackageNames": ["chai", "@types/chai"],
       "allowedVersions": "< 5.0.0"
