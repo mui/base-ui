@@ -148,19 +148,9 @@ PopoverPopup.propTypes /* remove-proptypes */ = {
    * It can be either a ref to the element or a function that returns such a ref.
    * If not provided, the first focusable element is focused.
    */
-  initialFocus: PropTypes.oneOfType([
+  initialFocus: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     PropTypes.func,
-    PropTypes.shape({
-      current: (props, propName) => {
-        if (props[propName] == null) {
-          return null;
-        }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop '${propName}' to be of type Element`);
-        }
-        return null;
-      },
-    }),
+    refType,
   ]),
   /**
    * A function to customize rendering of the component.
