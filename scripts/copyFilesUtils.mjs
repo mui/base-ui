@@ -115,7 +115,7 @@ export async function createPackageFile() {
           default: './cjs/index.js',
         },
         import: {
-          types: './esm/index.d.js',
+          types: './esm/index.d.ts',
           default: './esm/index.js',
         },
       },
@@ -125,7 +125,7 @@ export async function createPackageFile() {
           default: './cjs/*/index.js',
         },
         import: {
-          types: './esm/*/index.d.js',
+          types: './esm/*/index.d.ts',
           default: './esm/*/index.js',
         },
       },
