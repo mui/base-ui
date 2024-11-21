@@ -36,13 +36,13 @@
   opacity: 0.2;
   transition: opacity 150ms;
 
+  @media (prefers-color-scheme: dark) {
+    opacity: 0.7;
+  }
+
   &[data-entering],
   &[data-exiting] {
     opacity: 0;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    opacity: 0.7;
   }
 }
 
