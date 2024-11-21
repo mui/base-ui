@@ -13,7 +13,9 @@
     }
   },
   "name": "FieldRoot",
-  "imports": ["import { Field } from '@base_ui/react/Field';\nconst FieldRoot = Field.Root;"],
+  "imports": [
+    "import { Field } from '@base-ui-components/react/Field';\nconst FieldRoot = Field.Root;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

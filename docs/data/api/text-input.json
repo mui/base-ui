@@ -4,7 +4,7 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "TextInput",
-  "imports": ["import { TextInput } from '@base_ui/react/TextInput';"],
+  "imports": ["import { TextInput } from '@base-ui-components/react/TextInput';"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

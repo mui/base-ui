@@ -7,7 +7,7 @@
   },
   "name": "AccordionSection",
   "imports": [
-    "import { Accordion } from '@base_ui/react/Accordion';\nconst AccordionSection = Accordion.Section;"
+    "import { Accordion } from '@base-ui-components/react/Accordion';\nconst AccordionSection = Accordion.Section;"
   ],
   "classes": [],
   "spread": true,

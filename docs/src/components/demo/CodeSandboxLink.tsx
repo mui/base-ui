@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
 import { createCodeSandbox } from 'docs/src/blocks/sandbox/createCodeSandbox';
 import { ExternalLinkIcon } from 'docs/src/icons/ExternalLink';
-import { ToolbarButton } from '../ToolbarButton';
+import { GhostButton } from '../GhostButton';
 
 const COMMIT_REF = process.env.PULL_REQUEST_ID ? process.env.COMMIT_REF : undefined;
 const SOURCE_CODE_REPO = process.env.SOURCE_CODE_REPO;
@@ -68,25 +68,25 @@ export function CodeSandboxLink({ title, description, ...props }: CodeSandboxLin
   }, [files, language, name, title, description]);
 
   return (
-    <ToolbarButton aria-label="Open in CodeSandbox" type="button" onClick={handleClick} {...props}>
+    <GhostButton aria-label="Open in CodeSandbox" type="button" onClick={handleClick} {...props}>
       CodeSandbox
       <ExternalLinkIcon />
-    </ToolbarButton>
+    </GhostButton>
   );
 }
 
 function resolveDependencies(packageName: string): Record<string, string> {
   switch (packageName) {
-    case '@base_ui/react': {
+    case '@base-ui-components/react': {
       if (COMMIT_REF === undefined || SOURCE_CODE_REPO !== 'https://github.com/mui/base-ui') {
         // #default-branch-switch
         return {
-          '@base_ui/react': 'latest',
+          '@base-ui-components/react': 'latest',
         };
       }
       const shortSha = COMMIT_REF.slice(0, 8);
       return {
-        '@base_ui/react': `https://pkg.csb.dev/mui/base-ui/commit/${shortSha}/@base_ui/react`,
+        '@base-ui-components/react': `https://pkg.csb.dev/mui/base-ui/commit/${shortSha}/@base-ui-components/react`,
       };
     }
 

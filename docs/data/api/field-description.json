@@ -5,7 +5,7 @@
   },
   "name": "FieldDescription",
   "imports": [
-    "import { Field } from '@base_ui/react/Field';\nconst FieldDescription = Field.Description;"
+    "import { Field } from '@base-ui-components/react/Field';\nconst FieldDescription = Field.Description;"
   ],
   "classes": [],
   "spread": true,

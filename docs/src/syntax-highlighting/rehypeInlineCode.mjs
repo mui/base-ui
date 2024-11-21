@@ -2,7 +2,7 @@ import { toString } from 'hast-util-to-string';
 import { visitParents } from 'unist-util-visit-parents';
 
 /**
- * - Adds a `data-inline-code` attribute to distinguish inline code from code blocks
+ * - Adds a `data-inline` attribute to distinguish inline code from code blocks
  * - Tweaks how inline code syntax highlighting works
  */
 export function rehypeInlineCode() {
@@ -13,7 +13,7 @@ export function rehypeInlineCode() {
       }
 
       node.properties ??= {};
-      node.properties['data-inline-code'] = '';
+      node.properties['data-inline'] = '';
 
       // Unwrap the <span> that contains the <code> element
       const span = ancestors.slice(-1)[0];
@@ -30,7 +30,7 @@ export function rehypeInlineCode() {
       node.children?.forEach((part) => {
         const text = part.children[0]?.value;
         if (text === 'undefined' || text === 'null' || text === '""' || text === "''") {
-          part.properties.style = 'color:var(--color-pale)';
+          part.properties.style = 'color: var(--color-gray-500)';
         }
       });
 

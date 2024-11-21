@@ -39,7 +39,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, keepMounted = false, ...other } = props;
-  const { open, modal, hasParentDialog, animated } = useDialogRootContext();
+  const { open, hasParentDialog, animated } = useDialogRootContext();
 
   const { getRootProps, mounted, transitionStatus } = useDialogBackdrop({
     animated,
@@ -48,8 +48,8 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   });
 
   const ownerState: DialogBackdrop.OwnerState = React.useMemo(
-    () => ({ open, modal, transitionStatus }),
-    [open, modal, transitionStatus],
+    () => ({ open, transitionStatus }),
+    [open, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -85,7 +85,6 @@ namespace DialogBackdrop {
 
   export interface OwnerState {
     open: boolean;
-    modal: boolean;
     transitionStatus: TransitionStatus;
   }
 }

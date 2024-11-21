@@ -4,7 +4,7 @@ import copy from 'clipboard-copy';
 import clsx from 'clsx';
 import { CopyIcon } from '../icons/Copy';
 import { CheckIcon } from '../icons/Check';
-import { ToolbarButton } from './ToolbarButton';
+import { GhostButton } from './GhostButton';
 
 const CodeBlockContext = React.createContext({ codeId: '', titleId: '' });
 
@@ -33,7 +33,7 @@ export function Panel({ className, children, ...props }: React.ComponentPropsWit
       <div id={titleId} className="CodeBlockPanelTitle">
         {children}
       </div>
-      <ToolbarButton
+      <GhostButton
         aria-label="Copy code"
         onClick={async () => {
           const code = document.getElementById(codeId)?.textContent;
@@ -53,7 +53,7 @@ export function Panel({ className, children, ...props }: React.ComponentPropsWit
         <span className="flex size-[14px] items-center justify-center">
           {copyTimeout ? <CheckIcon /> : <CopyIcon />}
         </span>
-      </ToolbarButton>
+      </GhostButton>
     </div>
   );
 }

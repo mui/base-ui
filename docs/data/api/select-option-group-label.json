@@ -5,7 +5,7 @@
   },
   "name": "SelectOptionGroupLabel",
   "imports": [
-    "import { Select } from '@base_ui/react/Select';\nconst SelectOptionGroupLabel = Select.OptionGroupLabel;"
+    "import { Select } from '@base-ui-components/react/Select';\nconst SelectOptionGroupLabel = Select.OptionGroupLabel;"
   ],
   "classes": [],
   "spread": true,
