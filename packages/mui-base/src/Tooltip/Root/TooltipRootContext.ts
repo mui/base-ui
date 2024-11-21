@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { FloatingRootContext, OpenChangeReason } from '@floating-ui/react';
+import type { FloatingRootContext } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 export interface TooltipRootContext {
   open: boolean;

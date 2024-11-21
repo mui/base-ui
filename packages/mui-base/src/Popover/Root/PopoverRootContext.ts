@@ -1,9 +1,10 @@
 'use client';
 import * as React from 'react';
-import type { OpenChangeReason, FloatingRootContext } from '@floating-ui/react';
+import type { FloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { InteractionType } from '../../utils/useEnhancedClickHandler';
+import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 export interface PopoverRootContext {
   open: boolean;
