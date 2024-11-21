@@ -6,7 +6,6 @@ import {
   useFloatingRootContext,
   useHover,
   useInteractions,
-  type OpenChangeReason,
   type FloatingRootContext,
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
@@ -17,6 +16,10 @@ import { useFocusExtended } from '../utils/useFocusExtended';
 import { OPEN_DELAY, CLOSE_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import {
+  translateOpenChangeReason,
+  type OpenChangeReason,
+} from '../../utils/translateOpenChangeReason';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,
@@ -77,7 +80,7 @@ export function usePreviewCardRoot(
         !openValue && (reasonValue === 'reference-press' || reasonValue === 'escape-key');
 
       function changeState() {
-        setOpen(openValue, eventValue, reasonValue);
+        setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
       }
 
       if (animated && isHover) {

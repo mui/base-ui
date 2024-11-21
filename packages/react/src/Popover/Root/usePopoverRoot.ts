@@ -8,7 +8,6 @@ import {
   useHover,
   useInteractions,
   useRole,
-  type OpenChangeReason,
   type FloatingRootContext,
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
@@ -21,6 +20,10 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import {
+  translateOpenChangeReason,
+  type OpenChangeReason,
+} from '../../utils/translateOpenChangeReason';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -88,7 +91,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
 
       function changeState() {
-        setOpen(openValue, eventValue, reasonValue);
+        setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
       }
 
       if (animated && isHover) {
