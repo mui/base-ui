@@ -18,7 +18,7 @@
 
     &[data-highlighted] {
       color: white;
-      background-color: var(--color-blue);
+      background-color: var(--color-highlight);
     }
   }
 
