@@ -9,8 +9,10 @@ export type OpenChangeReason =
   | 'outside-press'
   | 'trigger-press';
 
-export function getOpenChangeReason(nativeReason?: NativeReason): OpenChangeReason | undefined {
-  if (nativeReason == null) {
+export function translateOpenChangeReason(
+  nativeReason?: NativeReason,
+): OpenChangeReason | undefined {
+  if (!nativeReason) {
     return undefined;
   }
 

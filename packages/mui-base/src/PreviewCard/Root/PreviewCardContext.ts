@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { FloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
-import type { OpenChangeReason } from '../../utils/getOpenChangeReason';
+import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 export interface PreviewCardRootContext {
   open: boolean;
