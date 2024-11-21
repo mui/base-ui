@@ -27,7 +27,7 @@
     },
     {
       "groupName": "Tailwind CSS",
-      "matchPackagePatterns": ["tailwindcss", "@tailwindcss/*"]
+      "matchPackagePatterns": ["tailwindcss", "@tailwindcss/*", "prettier-plugin-tailwindcss"]
     },
     {
       "groupName": "core-js",
