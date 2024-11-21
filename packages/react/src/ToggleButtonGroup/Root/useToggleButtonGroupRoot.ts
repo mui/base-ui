@@ -11,7 +11,7 @@ export function useToggleButtonGroupRoot(
   const {
     value,
     defaultValue,
-    direction = 'ltr',
+    // direction = 'ltr',
     disabled = false,
     onValueChange,
     toggleMultiple = false,
