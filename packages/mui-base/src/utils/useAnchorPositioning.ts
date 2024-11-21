@@ -12,17 +12,17 @@ import {
   hide,
   type UseFloatingOptions,
   type Placement,
-  type Boundary,
   type FloatingRootContext,
   type VirtualElement,
   type Padding,
   type FloatingContext,
 } from '@floating-ui/react';
-import { getSide, getAlignment } from '@floating-ui/utils';
+import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
 export type Side = 'top' | 'bottom' | 'left' | 'right';
 export type Alignment = 'start' | 'center' | 'end';
+export type Boundary = 'clipping-ancestors' | Element | Element[] | Rect;
 
 interface UseAnchorPositioningParameters {
   enabled?: boolean;
@@ -99,9 +99,9 @@ export function useAnchorPositioning(
   const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
 
   const commonCollisionProps = {
-    boundary: collisionBoundary,
+    boundary: collisionBoundary === 'clipping-ancestors' ? 'clippingAncestors' : collisionBoundary,
     padding: collisionPadding,
-  };
+  } as const;
 
   // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
   // tooltip. If this assumption ends up being false, we can switch to state to manage the arrow's

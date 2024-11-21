@@ -27,7 +27,7 @@
     },
     "collisionBoundary": {
       "type": "'clippingAncestors' | Element | Element[] | Rect",
-      "default": "'clippingAncestors'",
+      "default": "'clipping-ancestors'",
       "description": "The boundary that the preview card element should be constrained to."
     },
     "collisionPadding": {

@@ -2,12 +2,11 @@ import * as React from 'react';
 import type {
   VirtualElement,
   Padding,
-  Boundary,
   FloatingContext,
   FloatingRootContext,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { getInertValue } from '../../utils/getInertValue';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
@@ -138,7 +137,7 @@ export namespace usePopoverPositioner {
     alignmentOffset?: number;
     /**
      * The boundary that the popover element should be constrained to.
-     * @default 'clippingAncestors'
+     * @default 'clipping-ancestors'
      */
     collisionBoundary?: Boundary;
     /**
