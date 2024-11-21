@@ -4,7 +4,6 @@ import { defineConfig } from 'vitest/config';
 
 const CURRENT_DIR = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = resolve(CURRENT_DIR, './');
-const CI = process.env.CI === 'true';
 
 export default defineConfig({
   test: {
@@ -21,13 +20,6 @@ export default defineConfig({
     },
     env: {
       MUI_VITEST: 'true',
-    },
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        minForks: CI ? 2 : undefined,
-        maxForks: CI ? 2 : undefined,
-      },
     },
   },
 });
