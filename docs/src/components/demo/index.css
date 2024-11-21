@@ -35,9 +35,7 @@
 
     /* Center the contents */
     display: grid;
-    & > * {
-      margin: auto;
-    }
+    place-content: center;
   }
 
   .DemoToolbar {
