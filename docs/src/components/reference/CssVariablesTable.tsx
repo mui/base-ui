@@ -5,6 +5,7 @@ import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import { ReferenceTablePopover } from './ReferenceTablePopover';
 import * as Table from '../Table';
 import type { CssVariableDef } from './types';
+import { Code } from '../Code';
 
 interface CssVariablesTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, CssVariableDef>;
@@ -15,9 +16,9 @@ export async function CssVariablesTable({ data, ...props }: CssVariablesTablePro
     <Table.Root {...props}>
       <Table.Head>
         <Table.Row>
-          <Table.HeaderCell className="w-[188px]">CSS variable</Table.HeaderCell>
+          <Table.HeaderCell className="w-48">CSS variable</Table.HeaderCell>
           <Table.HeaderCell className="w-full">Type</Table.HeaderCell>
-          <Table.HeaderCell className="w-[36px]" aria-label="Description" />
+          <Table.HeaderCell className="w-10" aria-label="Description" />
         </Table.Row>
       </Table.Head>
       <Table.Body>
@@ -37,7 +38,7 @@ export async function CssVariablesTable({ data, ...props }: CssVariablesTablePro
           return (
             <Table.Row key={name}>
               <Table.HeaderCell scope="row">
-                <code className="text-navy text-xs">{name}</code>
+                <Code className="text-navy">{name}</Code>
               </Table.HeaderCell>
               <Table.Cell>
                 <CssVaribleType />

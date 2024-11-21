@@ -14,12 +14,12 @@ interface MDXComponents {
 }
 
 export const mdxComponents: MDXComponents = {
-  code: (props) => ('data-inline-code' in props ? <Code {...props} /> : <code {...props} />),
+  code: Code,
   h1: (props) => <h1 className="mb-4 text-3xl font-bold" {...props} />,
   h2: (props) => (
     <div className="mt-10 mb-5">
       <h2 className="mb-4 scroll-mt-6 text-xl font-medium" {...props} />
-      <div className="border-border border-t" />
+      <div className="border-t border-gray-200" />
     </div>
   ),
   h3: (props) => <h3 className="mt-8 mb-1.5 scroll-mt-6 text-lg font-medium" {...props} />,
