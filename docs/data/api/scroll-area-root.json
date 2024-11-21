@@ -9,14 +9,14 @@
   },
   "name": "ScrollAreaRoot",
   "imports": [
-    "import { ScrollArea } from '@base_ui/react/ScrollArea';\nconst ScrollAreaRoot = ScrollArea.Root;"
+    "import { ScrollArea } from '@base-ui-components/react/ScrollArea';\nconst ScrollAreaRoot = ScrollArea.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "ScrollAreaRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/ScrollArea/Root/ScrollAreaRoot.tsx",
+  "filename": "/packages/react/src/ScrollArea/Root/ScrollAreaRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-scroll-area/\">Scroll Area</a></li></ul>",
   "cssComponent": false

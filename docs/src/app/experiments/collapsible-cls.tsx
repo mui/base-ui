@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Collapsible } from '@base_ui/react/Collapsible';
+import { Collapsible } from '@base-ui-components/react/Collapsible';
 import classes from './collapsible.module.css';
 
 function classNames(...c: Array<string | undefined | null | false>) {

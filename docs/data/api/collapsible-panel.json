@@ -6,14 +6,14 @@
   },
   "name": "CollapsiblePanel",
   "imports": [
-    "import { Collapsible } from '@base_ui/react/Collapsible';\nconst CollapsiblePanel = Collapsible.Panel;"
+    "import { Collapsible } from '@base-ui-components/react/Collapsible';\nconst CollapsiblePanel = Collapsible.Panel;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "CollapsiblePanel",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Collapsible/Panel/CollapsiblePanel.tsx",
+  "filename": "/packages/react/src/Collapsible/Panel/CollapsiblePanel.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-collapsible/\">Collapsible</a></li></ul>",
   "cssComponent": false

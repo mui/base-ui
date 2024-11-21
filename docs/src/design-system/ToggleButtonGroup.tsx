@@ -1,7 +1,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 // eslint-disable-next-line no-restricted-imports
-import { useControlled } from '@base_ui/react/utils/useControlled';
+import { useControlled } from '@base-ui-components/react/utils/useControlled';
 import classes from './ToggleButtonGroup.module.css';
 
 export interface ToggleButtonGroupProps<Option extends { value: string; label: string }>

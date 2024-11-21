@@ -2,7 +2,7 @@
   .Popup {
     max-width: var(--available-width);
     max-height: var(--available-height);
-    border-radius: 0.375rem;
+    border-radius: var(--radius-md);
     background-color: var(--color-popup);
     overflow: hidden;
     box-shadow:
@@ -11,8 +11,10 @@
       0px 39px 39px 0px rgba(35, 39, 52, 0.04),
       0px 10px 21px 0px rgba(35, 39, 52, 0.05);
 
-    outline: 1px solid var(--color-popup-border);
+    outline: 1px solid var(--color-gray-200);
     @media (prefers-color-scheme: dark) {
+      /* Use stronger outline in dark mode because the shadow isn't really visible */
+      outline-color: var(--color-gray-300);
       outline-offset: -1px;
     }
 
@@ -20,20 +22,20 @@
     transition-property: opacity, transform;
     transition-timing-function: cubic-bezier(0.3, 1.065, 0.01, 0.975);
 
-    &[data-open] {
-      opacity: 1;
-      transition-duration: 150ms;
-      @media (prefers-reduced-motion: no-preference) {
-        transform: scale(1);
-      }
-    }
-
     &,
     &[data-entering] {
       opacity: 0;
       transition-duration: 275ms;
       @media (prefers-reduced-motion: no-preference) {
         transform: scale(0.98);
+      }
+    }
+
+    &[data-open] {
+      opacity: 1;
+      transition-duration: 150ms;
+      @media (prefers-reduced-motion: no-preference) {
+        transform: scale(1);
       }
     }
 

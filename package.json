@@ -1,5 +1,5 @@
 {
-  "name": "@base_ui/monorepo",
+  "name": "@base-ui-components/monorepo",
   "version": "1.0.0-alpha.3",
   "private": true,
   "scripts": {
@@ -88,7 +88,7 @@
     "@next/eslint-plugin-next": "^14.2.17",
     "@octokit/rest": "^20.1.1",
     "@playwright/test": "1.48.2",
-    "@tailwindcss/postcss": "4.0.0-alpha.30",
+    "@tailwindcss/postcss": "4.0.0-alpha.34",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.13",
     "@types/mocha": "^10.0.8",
@@ -168,7 +168,7 @@
     "style-loader": "^4.0.0",
     "stylelint": "^16.4.0",
     "stylelint-config-standard": "^36.0.1",
-    "tailwindcss": "4.0.0-alpha.30",
+    "tailwindcss": "4.0.0-alpha.34",
     "terser": "^5.31.0",
     "terser-webpack-plugin": "^5.3.10",
     "tsx": "^4.8.2",

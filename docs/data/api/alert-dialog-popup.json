@@ -9,14 +9,14 @@
   },
   "name": "AlertDialogPopup",
   "imports": [
-    "import { AlertDialog } from '@base_ui/react/AlertDialog';\nconst AlertDialogPopup = AlertDialog.Popup;"
+    "import { AlertDialog } from '@base-ui-components/react/AlertDialog';\nconst AlertDialogPopup = AlertDialog.Popup;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "AlertDialogPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/AlertDialog/Popup/AlertDialogPopup.tsx",
+  "filename": "/packages/react/src/AlertDialog/Popup/AlertDialogPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-alert-dialog/\">Alert Dialog</a></li></ul>",
   "cssComponent": false

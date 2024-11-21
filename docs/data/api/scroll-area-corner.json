@@ -5,14 +5,14 @@
   },
   "name": "ScrollAreaCorner",
   "imports": [
-    "import { ScrollArea } from '@base_ui/react/ScrollArea';\nconst ScrollAreaCorner = ScrollArea.Corner;"
+    "import { ScrollArea } from '@base-ui-components/react/ScrollArea';\nconst ScrollAreaCorner = ScrollArea.Corner;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "ScrollAreaCorner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/ScrollArea/Corner/ScrollAreaCorner.tsx",
+  "filename": "/packages/react/src/ScrollArea/Corner/ScrollAreaCorner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-scroll-area/\">Scroll Area</a></li></ul>",
   "cssComponent": false

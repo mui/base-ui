@@ -6,14 +6,14 @@
   },
   "name": "SelectOptionIndicator",
   "imports": [
-    "import { Select } from '@base_ui/react/Select';\nconst SelectOptionIndicator = Select.OptionIndicator;"
+    "import { Select } from '@base-ui-components/react/Select';\nconst SelectOptionIndicator = Select.OptionIndicator;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SelectOptionIndicator",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Select/OptionIndicator/SelectOptionIndicator.tsx",
+  "filename": "/packages/react/src/Select/OptionIndicator/SelectOptionIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

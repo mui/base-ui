@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { Tabs } from '@base_ui/react/Tabs';
+import { Tabs } from '@base-ui-components/react/Tabs';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {

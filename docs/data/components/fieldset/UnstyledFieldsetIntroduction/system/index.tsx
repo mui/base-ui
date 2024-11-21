@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Field } from '@base_ui/react/Field';
-import { Fieldset } from '@base_ui/react/Fieldset';
+import { Field } from '@base-ui-components/react/Field';
+import { Fieldset } from '@base-ui-components/react/Fieldset';
 import { styled } from '@mui/system';
 
 export default function UnstyledFieldsetIntroduction() {

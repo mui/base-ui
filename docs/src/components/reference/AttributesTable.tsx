@@ -5,6 +5,7 @@ import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import type { AttributeDef } from './types';
 import * as Table from '../Table';
 import { ReferenceTablePopover } from './ReferenceTablePopover';
+import { Code } from '../Code';
 
 interface AttributesTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, AttributeDef>;
@@ -15,9 +16,9 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
     <Table.Root {...props}>
       <Table.Head>
         <Table.Row>
-          <Table.HeaderCell className="w-[188px]">Attribute</Table.HeaderCell>
+          <Table.HeaderCell className="w-48">Attribute</Table.HeaderCell>
           <Table.HeaderCell className="w-full">Type</Table.HeaderCell>
-          <Table.HeaderCell className="w-[36px]" aria-label="Description" />
+          <Table.HeaderCell className="w-10" aria-label="Description" />
         </Table.Row>
       </Table.Head>
       <Table.Body>
@@ -40,7 +41,7 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
           return (
             <Table.Row key={name}>
               <Table.HeaderCell scope="row">
-                <code className="text-navy text-xs">{name}</code>
+                <Code className="text-navy">{name}</Code>
               </Table.HeaderCell>
               <Table.Cell>
                 <AttributeType />
@@ -59,5 +60,5 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
 }
 
 function EmptyAttribute() {
-  return <span className="text-pale text-xs">Empty attribute</span>;
+  return <span className="text-gray-500">Empty attribute</span>;
 }

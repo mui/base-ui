@@ -16,7 +16,7 @@ module.exports = function getBabelConfig(api) {
   const useESModules = api.env(['regressions', 'stable', 'rollup']);
 
   const defaultAlias = {
-    '@base_ui/react': resolveAliasPath('./packages/mui-base/src'),
+    '@base-ui-components/react': resolveAliasPath('./packages/react/src'),
     docs: resolveAliasPath('./docs'),
     test: resolveAliasPath('./test'),
     '@mui-internal/api-docs-builder': resolveAliasPath(
