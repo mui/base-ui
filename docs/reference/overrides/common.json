@@ -15,9 +15,6 @@
     "container": {
       "type": "React.Ref | HTMLElement | null"
     },
-    "finalFocus": {
-      "type": "React.Ref"
-    },
     "initialFocus": {
       "type": "React.Ref | (interactionType => HTMLElement | null)"
     },

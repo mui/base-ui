@@ -13,6 +13,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
+import { refType } from '../../utils/proptypes';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.OwnerState> = {
   ...baseMapping,
@@ -141,17 +142,7 @@ PopoverPopup.propTypes /* remove-proptypes */ = {
    * Determines an element to focus after the popover is closed.
    * If not provided, the focus returns to the trigger.
    */
-  finalFocus: PropTypes.shape({
-    current: (props, propName) => {
-      if (props[propName] == null) {
-        return null;
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
-  }),
+  finalFocus: refType,
   /**
    * Determines an element to focus when the popover is opened.
    * It can be either a ref to the element or a function that returns such a ref.
