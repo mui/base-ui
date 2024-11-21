@@ -10,12 +10,14 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
-import { getInertValue } from '../../utils/getInertValue';
+import { useMenuRootContext } from '../Root/MenuRootContext';
 
 export function useMenuPositioner(
   params: useMenuPositioner.Parameters,
 ): useMenuPositioner.ReturnValue {
-  const { open = false, keepMounted } = params;
+  const { keepMounted, mounted } = params;
+
+  const { open } = useMenuRootContext();
 
   const {
     positionerStyles,
@@ -36,16 +38,16 @@ export function useMenuPositioner(
         hiddenStyles.pointerEvents = 'none';
       }
 
-      return mergeReactProps(externalProps, {
+      return mergeReactProps<'div'>(externalProps, {
+        role: 'presentation',
+        hidden: !mounted,
         style: {
           ...positionerStyles,
           ...hiddenStyles,
         },
-        'aria-hidden': !open || undefined,
-        inert: getInertValue(!open),
       });
     },
-    [positionerStyles, open, keepMounted, hidden],
+    [keepMounted, open, hidden, positionerStyles, mounted],
   );
 
   return React.useMemo(
@@ -151,10 +153,9 @@ export namespace useMenuPositioner {
 
   export interface Parameters extends SharedParameters {
     /**
-     * If `true`, the Menu is mounted.
-     * @default true
+     * Whether the Menu is mounted.
      */
-    mounted?: boolean;
+    mounted: boolean;
     /**
      * The Menu root context.
      */

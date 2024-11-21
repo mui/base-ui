@@ -20,6 +20,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { useLatestRef } from '../../utils/useLatestRef';
 import {
   translateOpenChangeReason,
   type OpenChangeReason,
@@ -62,13 +63,19 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
 
+  const openRef = useLatestRef(open);
+
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
       if (!keepMounted && !nextOpen) {
         if (animated) {
-          runOnceAnimationsFinish(() => setMounted(false));
+          runOnceAnimationsFinish(() => {
+            if (!openRef.current) {
+              setMounted(false);
+            }
+          });
         } else {
           setMounted(false);
         }

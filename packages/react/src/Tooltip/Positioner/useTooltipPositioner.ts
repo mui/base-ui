@@ -3,11 +3,14 @@ import type { Padding, VirtualElement, FloatingRootContext } from '@floating-ui/
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
+import { useTooltipRootContext } from '../Root/TooltipRootContext';
 
 export function useTooltipPositioner(
   params: useTooltipPositioner.Parameters,
 ): useTooltipPositioner.ReturnValue {
-  const { open = false, keepMounted = false, trackCursorAxis = 'none' } = params;
+  const { keepMounted, mounted } = params;
+
+  const { open, trackCursorAxis } = useTooltipRootContext();
 
   const {
     positionerStyles,
@@ -34,15 +37,14 @@ export function useTooltipPositioner(
 
         return mergeReactProps<'div'>(externalProps, {
           role: 'presentation',
+          hidden: !mounted,
           style: {
             ...positionerStyles,
             ...hiddenStyles,
-            maxWidth: 'var(--available-width)',
-            maxHeight: 'var(--available-height)',
           },
         });
       },
-      [positionerStyles, hidden, trackCursorAxis, open, keepMounted],
+      [keepMounted, open, hidden, trackCursorAxis, mounted, positionerStyles],
     );
 
   return React.useMemo(
@@ -151,6 +153,10 @@ export namespace useTooltipPositioner {
   }
 
   export interface Parameters extends SharedParameters {
+    /**
+     * Whether the tooltip is mounted.
+     */
+    mounted: boolean;
     /**
      * Whether the tooltip is open.
      * @default false

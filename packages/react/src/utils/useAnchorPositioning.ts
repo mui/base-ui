@@ -25,7 +25,6 @@ export type Alignment = 'start' | 'center' | 'end';
 export type Boundary = 'clipping-ancestors' | Element | Element[] | Rect;
 
 interface UseAnchorPositioningParameters {
-  enabled?: boolean;
   anchor?:
     | Element
     | VirtualElement
@@ -45,8 +44,7 @@ interface UseAnchorPositioningParameters {
   keepMounted?: boolean;
   arrowPadding?: number;
   floatingRootContext?: FloatingRootContext;
-  mounted?: boolean;
-  open?: boolean;
+  mounted: boolean;
   trackAnchor?: boolean;
   nodeId?: string;
   allowAxisFlip?: boolean;
@@ -71,10 +69,9 @@ interface UseAnchorPositioningReturnValue {
  * @ignore - internal hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters = {},
+  params: UseAnchorPositioningParameters,
 ): UseAnchorPositioningReturnValue {
   const {
-    enabled = true,
     anchor,
     floatingRootContext,
     positionMethod = 'absolute',
@@ -89,10 +86,9 @@ export function useAnchorPositioning(
     sticky = false,
     keepMounted = false,
     arrowPadding = 5,
-    mounted = true,
+    mounted,
     trackAnchor = true,
     allowAxisFlip = true,
-    open,
     nodeId,
   } = params;
 
@@ -193,8 +189,10 @@ export function useAnchorPositioning(
     },
   );
 
+  // Ensure positioning doesn't run initially for `keepMounted` elements that
+  // aren't initially open.
   let rootContext = floatingRootContext;
-  if (!enabled && floatingRootContext) {
+  if (!mounted && floatingRootContext) {
     rootContext = {
       ...floatingRootContext,
       elements: { reference: null, floating: null, domReference: null },
@@ -223,7 +221,6 @@ export function useAnchorPositioning(
     isPositioned,
   } = useFloating({
     rootContext,
-    open,
     placement,
     middleware,
     strategy: positionMethod,
@@ -236,7 +233,7 @@ export function useAnchorPositioning(
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
   useEnhancedEffect(() => {
-    if (!enabled) {
+    if (!mounted) {
       return;
     }
 
@@ -247,10 +244,10 @@ export function useAnchorPositioning(
       refs.setPositionReference(unwrappedElement);
       registeredPositionReferenceRef.current = unwrappedElement;
     }
-  }, [enabled, refs, anchor]);
+  }, [mounted, refs, anchor]);
 
   React.useEffect(() => {
-    if (!enabled) {
+    if (!mounted) {
       return;
     }
 
@@ -264,14 +261,14 @@ export function useAnchorPositioning(
       refs.setPositionReference(anchor.current);
       registeredPositionReferenceRef.current = anchor.current;
     }
-  }, [enabled, refs, anchor]);
+  }, [mounted, refs, anchor]);
 
   React.useEffect(() => {
-    if (enabled && keepMounted && mounted && elements.domReference && elements.floating) {
+    if (keepMounted && mounted && elements.domReference && elements.floating) {
       return autoUpdate(elements.domReference, elements.floating, update, autoUpdateOptions);
     }
     return undefined;
-  }, [enabled, keepMounted, mounted, elements, update, autoUpdateOptions]);
+  }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
 
   const renderedSide = getSide(renderedPlacement);
   const renderedAlignment = getAlignment(renderedPlacement) || 'center';

@@ -54,6 +54,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     floatingRootContext,
     positionMethod,
     open,
+    mounted,
     keepMounted,
     side,
     sideOffset,
