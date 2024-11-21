@@ -35,7 +35,7 @@ const ToggleButtonGroupRoot = React.forwardRef(function ToggleButtonGroupRoot(
   const {
     value: valueProp,
     defaultValue: defaultValueProp,
-    dir,
+    direction,
     disabled: disabledProp,
     toggleMultiple = false,
     onValueChange,
@@ -55,7 +55,7 @@ const ToggleButtonGroupRoot = React.forwardRef(function ToggleButtonGroupRoot(
   const { getRootProps, disabled, setGroupValue, value } = useToggleButtonGroupRoot({
     value: valueProp,
     defaultValue,
-    dir,
+    direction,
     disabled: disabledProp,
     toggleMultiple,
     onValueChange,
@@ -103,9 +103,9 @@ export namespace ToggleButtonGroupRoot {
   export interface Props
     extends Pick<
         UseToggleButtonGroupRoot.Parameters,
-        'value' | 'defaultValue' | 'onValueChange' | 'disabled' | 'toggleMultiple' | 'dir'
+        'value' | 'defaultValue' | 'onValueChange' | 'disabled' | 'toggleMultiple' | 'direction'
       >,
-      Omit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue' | 'dir'> {
+      Omit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue'> {
     /**
      * @default false
      */
@@ -136,7 +136,7 @@ ToggleButtonGroupRoot.propTypes /* remove-proptypes */ = {
    * Text direction
    * @default 'ltr'
    */
-  dir: PropTypes.oneOf(['ltr', 'rtl']),
+  direction: PropTypes.oneOf(['ltr', 'rtl']),
   /**
    * @default false
    */

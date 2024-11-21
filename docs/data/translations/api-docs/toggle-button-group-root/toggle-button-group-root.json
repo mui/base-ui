@@ -7,7 +7,7 @@
     "defaultValue": {
       "description": "The open state of the ToggleButtonGroup represented by an array of the values of all pressed <code>&lt;ToggleButtonGroup.Item/&gt;</code>s This is the uncontrolled counterpart of <code>value</code>."
     },
-    "dir": { "description": "Text direction" },
+    "direction": { "description": "Text direction" },
     "onValueChange": {
       "description": "Callback fired when the pressed states of the ToggleButtonGroup changes.",
       "typeDescriptions": {

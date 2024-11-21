@@ -6,7 +6,7 @@ import classes from './styles.module.css';
 export default function ToggleButtonGroupRtl() {
   return (
     <ToggleButtonGroup.Root
-      dir="rtl"
+      direction="rtl"
       toggleMultiple
       aria-label="Text formatting"
       className={classes.root}
