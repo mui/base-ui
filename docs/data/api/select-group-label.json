@@ -5,14 +5,14 @@
   },
   "name": "SelectGroupLabel",
   "imports": [
-    "import { Select } from '@base_ui/react/Select';\nconst SelectGroupLabel = Select.GroupLabel;"
+    "import { Select } from '@base-ui-components/react/Select';\nconst SelectGroupLabel = Select.GroupLabel;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SelectGroupLabel",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/GroupLabel/SelectGroupLabel.tsx",
+  "filename": "/packages/react/src/Select/GroupLabel/SelectGroupLabel.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

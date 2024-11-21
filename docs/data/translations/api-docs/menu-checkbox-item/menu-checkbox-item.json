@@ -1,14 +1,19 @@
 {
   "componentDescription": "An unstyled checkbox menu item to be used within a Menu.",
   "propDescriptions": {
+    "checked": { "description": "If <code>true</code>, the checkbox is checked." },
     "closeOnClick": {
       "description": "If <code>true</code>, the menu will close when the menu item is clicked."
+    },
+    "defaultChecked": {
+      "description": "The default checked state. Use when the component is uncontrolled."
     },
     "disabled": { "description": "If <code>true</code>, the menu item will be disabled." },
     "id": { "description": "The id of the menu item." },
     "label": {
       "description": "A text representation of the menu item&#39;s content. Used for keyboard text navigation matching."
     },
+    "onCheckedChange": { "description": "Callback fired when the checked state is changed." },
     "onClick": { "description": "The click handler for the menu item." }
   },
   "classDescriptions": {}

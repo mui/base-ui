@@ -1,0 +1,28 @@
+@layer components {
+  .SelectPopup {
+    transition-duration: 0ms;
+    cursor: default;
+    user-select: none;
+    padding: 0.25rem;
+  }
+
+  .SelectOption {
+    @apply text-xs;
+    display: grid;
+    grid-template-columns: 1rem auto;
+    align-items: center;
+    height: 1.75rem;
+    padding-left: 0.375rem;
+    padding-right: 1.5rem;
+    border-radius: var(--radius-sm);
+
+    &[data-highlighted] {
+      color: white;
+      background-color: var(--color-blue);
+    }
+  }
+
+  .SelectOptionText {
+    grid-column: 2;
+  }
+}

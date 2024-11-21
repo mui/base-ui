@@ -22,10 +22,18 @@ export function Row({ className, ...props }: React.ComponentProps<'tr'>) {
   return <tr className={clsx('TableRow', className)} {...props} />;
 }
 
-export function HeaderCell({ className, ...props }: React.ComponentProps<'th'>) {
-  return <th scope="col" className={clsx('TableHeaderCell', className)} {...props} />;
+export function HeaderCell({ children, className, ...props }: React.ComponentProps<'th'>) {
+  return (
+    <th scope="col" className={clsx('TableHeaderCell', className)} {...props}>
+      <span className="TableCellInner">{children}</span>
+    </th>
+  );
 }
 
-export function Cell({ className, ...props }: React.ComponentProps<'td'>) {
-  return <td className={clsx('TableCell', className)} {...props} />;
+export function Cell({ children, className, ...props }: React.ComponentProps<'td'>) {
+  return (
+    <td className={clsx('TableCell', className)} {...props}>
+      <span className="TableCellInner">{children}</span>
+    </td>
+  );
 }

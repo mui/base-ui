@@ -7,14 +7,14 @@
   },
   "name": "AccordionItem",
   "imports": [
-    "import { Accordion } from '@base_ui/react/Accordion';\nconst AccordionItem = Accordion.Item;"
+    "import { Accordion } from '@base-ui-components/react/Accordion';\nconst AccordionItem = Accordion.Item;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "AccordionItem",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Accordion/Item/AccordionItem.tsx",
+  "filename": "/packages/react/src/Accordion/Item/AccordionItem.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-accordion/\">Accordion</a></li></ul>",
   "cssComponent": false

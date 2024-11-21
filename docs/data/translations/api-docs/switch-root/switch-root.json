@@ -6,7 +6,7 @@
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
     "defaultChecked": {
-      "description": "The default checked state. Use when the component is not controlled."
+      "description": "The default checked state. Use when the component is uncontrolled."
     },
     "disabled": {
       "description": "If <code>true</code>, the component is disabled and can&#39;t be interacted with."

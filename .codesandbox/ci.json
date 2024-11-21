@@ -2,9 +2,9 @@
   "buildCommand": "build:codesandbox",
   "installCommand": "install:codesandbox",
   "node": "18",
-  "packages": ["packages/mui-base"],
+  "packages": ["packages/react"],
   "publishDirectory": {
-    "@base_ui/react": "packages/mui-base/build"
+    "@base-ui-components/react": "packages/react/build"
   },
   "sandboxes": ["/.codesandbox/template"],
   "silent": true

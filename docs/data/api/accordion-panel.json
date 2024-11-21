@@ -6,14 +6,14 @@
   },
   "name": "AccordionPanel",
   "imports": [
-    "import { Accordion } from '@base_ui/react/Accordion';\nconst AccordionPanel = Accordion.Panel;"
+    "import { Accordion } from '@base-ui-components/react/Accordion';\nconst AccordionPanel = Accordion.Panel;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "AccordionPanel",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Accordion/Panel/AccordionPanel.tsx",
+  "filename": "/packages/react/src/Accordion/Panel/AccordionPanel.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-accordion/\">Accordion</a></li></ul>",
   "cssComponent": false

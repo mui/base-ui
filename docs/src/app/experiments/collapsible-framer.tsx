@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Collapsible } from '@base_ui/react/Collapsible';
+import { Collapsible } from '@base-ui-components/react/Collapsible';
 import { motion } from 'framer-motion';
 import classes from './collapsible.module.css';
 

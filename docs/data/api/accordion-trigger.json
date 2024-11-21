@@ -5,14 +5,14 @@
   },
   "name": "AccordionTrigger",
   "imports": [
-    "import { Accordion } from '@base_ui/react/Accordion';\nconst AccordionTrigger = Accordion.Trigger;"
+    "import { Accordion } from '@base-ui-components/react/Accordion';\nconst AccordionTrigger = Accordion.Trigger;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "AccordionTrigger",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Accordion/Trigger/AccordionTrigger.tsx",
+  "filename": "/packages/react/src/Accordion/Trigger/AccordionTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-accordion/\">Accordion</a></li></ul>",
   "cssComponent": false

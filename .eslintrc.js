@@ -8,7 +8,7 @@ const OneLevelImportMessage = [
 
 const NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED = [
   {
-    group: ['@base_ui/react/*/*'],
+    group: ['@base-ui-components/react/*/*'],
     message: OneLevelImportMessage,
   },
 ];

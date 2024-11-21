@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Tooltip } from '@base_ui/react/Tooltip';
+import { Tooltip } from '@base-ui-components/react/Tooltip';
 import { styled, keyframes } from '@mui/system';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -41,7 +41,6 @@ export const TooltipPopup = styled(Tooltip.Popup)`
 
   &[data-type='css-animation'] {
     &[data-open] {
-      visibility: visible;
       animation: ${scaleIn} 0.2s forwards;
     }
 
@@ -51,21 +50,17 @@ export const TooltipPopup = styled(Tooltip.Popup)`
   }
 
   &[data-type='css-animation-keep-mounted'] {
-    visibility: hidden;
-
     &[data-open] {
-      visibility: visible;
       animation: ${scaleIn} 0.2s forwards;
     }
 
     &[data-exiting] {
-      visibility: visible;
       animation: ${scaleOut} 0.2s forwards;
     }
   }
 
   &[data-type='css-transition'] {
-    transition-property: opacity, transform, visibility;
+    transition-property: opacity, transform;
     transition-duration: 0.2s;
     opacity: 0;
     transform: scale(0);
@@ -82,16 +77,17 @@ export const TooltipPopup = styled(Tooltip.Popup)`
   }
 
   &[data-type='css-transition-keep-mounted'] {
-    transition-property: opacity, transform, visibility;
+    transition-property: opacity, transform;
     transition-duration: 0.2s;
-    opacity: 0;
-    transform: scale(0.8);
-    visibility: hidden;
 
     &[data-open] {
       opacity: 1;
       transform: scale(1);
-      visibility: visible;
+    }
+
+    &[data-entering] {
+      opacity: 0;
+      transform: scale(0.8);
     }
 
     &[data-exiting] {
