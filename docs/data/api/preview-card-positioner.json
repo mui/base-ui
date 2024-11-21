@@ -21,7 +21,7 @@
         "name": "union",
         "description": "HTML element<br>&#124;&nbsp;Array&lt;HTML element&gt;<br>&#124;&nbsp;string<br>&#124;&nbsp;{ height?: number, width?: number, x?: number, y?: number }"
       },
-      "default": "'clippingAncestors'"
+      "default": "'clipping-ancestors'"
     },
     "collisionPadding": {
       "type": {
@@ -57,7 +57,7 @@
   "themeDefaultProps": true,
   "muiName": "PreviewCardPositioner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/PreviewCard/Positioner/PreviewCardPositioner.tsx",
+  "filename": "/packages/react/src/PreviewCard/Positioner/PreviewCardPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-preview-card/\">Preview Card</a></li></ul>",
   "cssComponent": false

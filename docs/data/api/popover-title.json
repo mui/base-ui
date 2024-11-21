@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "PopoverTitle",
   "forwardsRefTo": "HTMLHeadingElement",
-  "filename": "/packages/mui-base/src/Popover/Title/PopoverTitle.tsx",
+  "filename": "/packages/react/src/Popover/Title/PopoverTitle.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

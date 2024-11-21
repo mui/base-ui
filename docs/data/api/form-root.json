@@ -14,7 +14,7 @@
   "themeDefaultProps": true,
   "muiName": "FormRoot",
   "forwardsRefTo": "HTMLFormElement",
-  "filename": "/packages/mui-base/src/Form/Root/FormRoot.tsx",
+  "filename": "/packages/react/src/Form/Root/FormRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-form/\">Form</a></li></ul>",
   "cssComponent": false

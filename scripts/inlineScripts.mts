@@ -12,14 +12,14 @@ const preamble = [
 ].join('\n');
 
 /**
- * Finds files with the `.template.js` extension in the `mui-base` package, minifies them, and writes
+ * Finds files with the `.template.js` extension in the `react` package, minifies them, and writes
  * the code to a new file with the `.min.ts` extension.
  * The minified code is then exported as a string literal.
  */
 async function run() {
   const files = await glob('**/*.template.js', {
     absolute: true,
-    cwd: path.resolve(currentDirectory, '../packages/mui-base/src'),
+    cwd: path.resolve(currentDirectory, '../packages/react/src'),
   });
 
   files.forEach(async (sourceFile) => {

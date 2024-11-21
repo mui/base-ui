@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "FieldsetLegend",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Fieldset/Legend/FieldsetLegend.tsx",
+  "filename": "/packages/react/src/Fieldset/Legend/FieldsetLegend.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-fieldset/\">Fieldset</a></li></ul>",
   "cssComponent": false

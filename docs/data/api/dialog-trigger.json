@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "DialogTrigger",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Dialog/Trigger/DialogTrigger.tsx",
+  "filename": "/packages/react/src/Dialog/Trigger/DialogTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
   "cssComponent": false

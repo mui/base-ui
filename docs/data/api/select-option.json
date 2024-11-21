@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "SelectOption",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/Option/SelectOption.tsx",
+  "filename": "/packages/react/src/Select/Option/SelectOption.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "TooltipTrigger",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Tooltip/Trigger/TooltipTrigger.tsx",
+  "filename": "/packages/react/src/Tooltip/Trigger/TooltipTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false

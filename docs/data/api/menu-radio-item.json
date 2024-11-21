@@ -16,7 +16,7 @@
   "themeDefaultProps": true,
   "muiName": "MenuRadioItem",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Menu/RadioItem/MenuRadioItem.tsx",
+  "filename": "/packages/react/src/Menu/RadioItem/MenuRadioItem.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

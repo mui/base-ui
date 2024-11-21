@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "AccordionTrigger",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Accordion/Trigger/AccordionTrigger.tsx",
+  "filename": "/packages/react/src/Accordion/Trigger/AccordionTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-accordion/\">Accordion</a></li></ul>",
   "cssComponent": false

@@ -15,7 +15,7 @@
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "PreviewCardRoot",
-  "filename": "/packages/mui-base/src/PreviewCard/Root/PreviewCardRoot.tsx",
+  "filename": "/packages/react/src/PreviewCard/Root/PreviewCardRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-preview-card/\">Preview Card</a></li></ul>",
   "cssComponent": false

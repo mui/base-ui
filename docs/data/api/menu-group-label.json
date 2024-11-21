@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "MenuGroupLabel",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Menu/GroupLabel/MenuGroupLabel.tsx",
+  "filename": "/packages/react/src/Menu/GroupLabel/MenuGroupLabel.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

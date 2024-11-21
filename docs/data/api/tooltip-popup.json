@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "TooltipPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Tooltip/Popup/TooltipPopup.tsx",
+  "filename": "/packages/react/src/Tooltip/Popup/TooltipPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false

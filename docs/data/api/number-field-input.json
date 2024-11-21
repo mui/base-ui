@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "NumberFieldInput",
   "forwardsRefTo": "HTMLInputElement",
-  "filename": "/packages/mui-base/src/NumberField/Input/NumberFieldInput.tsx",
+  "filename": "/packages/react/src/NumberField/Input/NumberFieldInput.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-number-field/\">Number Field</a></li></ul>",
   "cssComponent": false

@@ -19,9 +19,9 @@
     "collisionBoundary": {
       "type": {
         "name": "union",
-        "description": "'clippingAncestors'<br>&#124;&nbsp;Array&lt;(props, propName) => {\n  if (props[propName] == null) {\n    return new Error(`Prop '${propName}' is required but wasn't specified`);\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n}&gt;<br>&#124;&nbsp;(props, propName) => {\n  if (props[propName] == null) {\n    return new Error(`Prop '${propName}' is required but wasn't specified`);\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n}<br>&#124;&nbsp;{ height: number, width: number, x: number, y: number }"
+        "description": "'clipping-ancestors'<br>&#124;&nbsp;Array&lt;(props, propName) => {\n  if (props[propName] == null) {\n    return new Error(`Prop '${propName}' is required but wasn't specified`);\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n}&gt;<br>&#124;&nbsp;(props, propName) => {\n  if (props[propName] == null) {\n    return new Error(`Prop '${propName}' is required but wasn't specified`);\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n}<br>&#124;&nbsp;{ height: number, width: number, x: number, y: number }"
       },
-      "default": "'clippingAncestors'"
+      "default": "'clipping-ancestors'"
     },
     "collisionPadding": {
       "type": {
@@ -62,7 +62,7 @@
   "themeDefaultProps": true,
   "muiName": "SelectPositioner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/Positioner/SelectPositioner.tsx",
+  "filename": "/packages/react/src/Select/Positioner/SelectPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

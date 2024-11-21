@@ -1,8 +1,0 @@
-{
-  "parameters": {},
-  "returnValue": {},
-  "name": "useAccordionRoot",
-  "filename": "/packages/mui-base/src/Accordion/Root/useAccordionRoot.ts",
-  "imports": ["import { useAccordionRoot } from '@base-ui-components/react/Accordion';"],
-  "demos": "<ul><li><a href=\"/base-ui/react-accordion/#hook\">Accordion</a></li></ul>"
-}

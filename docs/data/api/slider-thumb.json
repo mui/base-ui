@@ -25,7 +25,7 @@
   "themeDefaultProps": true,
   "muiName": "SliderThumb",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Slider/Thumb/SliderThumb.tsx",
+  "filename": "/packages/react/src/Slider/Thumb/SliderThumb.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-slider/\">Slider</a></li></ul>",
   "cssComponent": false

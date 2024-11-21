@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "AlertDialogBackdrop",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/AlertDialog/Backdrop/AlertDialogBackdrop.tsx",
+  "filename": "/packages/react/src/AlertDialog/Backdrop/AlertDialogBackdrop.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-alert-dialog/\">Alert Dialog</a></li></ul>",
   "cssComponent": false

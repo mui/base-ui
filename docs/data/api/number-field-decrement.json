@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "NumberFieldDecrement",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/NumberField/Decrement/NumberFieldDecrement.tsx",
+  "filename": "/packages/react/src/NumberField/Decrement/NumberFieldDecrement.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-number-field/\">Number Field</a></li></ul>",
   "cssComponent": false
