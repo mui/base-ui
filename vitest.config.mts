@@ -28,7 +28,4 @@ export default defineConfig({
       },
     },
   },
-  optimizeDeps: {
-    exclude: ['@vitest/coverage-v8/browser'],
-  },
 });
