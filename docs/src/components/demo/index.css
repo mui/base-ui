@@ -1,3 +1,10 @@
+@layer base {
+  /* Remove the Tailwind reset in non-Tailwind demos */
+  .DemoPlayground:not([data-variant='tailwind']) * {
+    all: revert-layer;
+  }
+}
+
 @layer components {
   .DemoRoot {
     background-color: var(--color-content);
