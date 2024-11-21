@@ -13,11 +13,11 @@ const customStyleHookMapping = {
  *
  * Demos:
  *
- * - [ToggleButton](https://base-ui.netlify.app/components/react-toggle-button/)
+ * - [ToggleButton](https://base-ui.com/components/react-toggle-button/)
  *
  * API:
  *
- * - [ToggleButtonRoot API](https://base-ui.netlify.app/components/react-toggle-button/#api-reference-ToggleButtonRoot)
+ * - [ToggleButtonRoot API](https://base-ui.com/components/react-toggle-button/#api-reference-ToggleButtonRoot)
  */
 const ToggleButtonRoot = React.forwardRef(function ToggleButtonRoot(
   props: ToggleButtonRoot.Props,

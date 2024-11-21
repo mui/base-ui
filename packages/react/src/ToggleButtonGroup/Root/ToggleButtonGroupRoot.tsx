@@ -22,11 +22,11 @@ const customStyleHookMapping = {
  *
  * Demos:
  *
- * - [ToggleButtonGroup](https://base-ui.netlify.app/components/react-toggle-button-group/)
+ * - [ToggleButtonGroup](https://base-ui.com/components/react-toggle-button-group/)
  *
  * API:
  *
- * - [ToggleButtonGroupRoot API](https://base-ui.netlify.app/components/react-toggle-button-group/#api-reference-ToggleButtonGroupRoot)
+ * - [ToggleButtonGroupRoot API](https://base-ui.com/components/react-toggle-button-group/#api-reference-ToggleButtonGroupRoot)
  */
 const ToggleButtonGroupRoot = React.forwardRef(function ToggleButtonGroupRoot(
   props: ToggleButtonGroupRoot.Props,

@@ -22,7 +22,7 @@
   "themeDefaultProps": true,
   "muiName": "ToggleButtonGroupItem",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/ToggleButtonGroup/Item/ToggleButtonGroupItem.tsx",
+  "filename": "/packages/react/src/ToggleButtonGroup/Item/ToggleButtonGroupItem.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-toggle-button-group/\">ToggleButtonGroup</a></li></ul>",
   "cssComponent": false

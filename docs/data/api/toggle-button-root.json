@@ -24,7 +24,7 @@
   "themeDefaultProps": true,
   "muiName": "ToggleButtonRoot",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/ToggleButton/Root/ToggleButtonRoot.tsx",
+  "filename": "/packages/react/src/ToggleButton/Root/ToggleButtonRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-toggle-button/\">ToggleButton</a></li></ul>",
   "cssComponent": false
