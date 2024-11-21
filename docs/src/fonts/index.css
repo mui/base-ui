@@ -44,58 +44,76 @@
   font-family: 'SF Mono';
   font-weight: normal;
   src: local('SFMono-Regular'), local('ui-monospace');
-  /* Match 13px Unica to 12px SF Mono */
-  size-adjust: calc(100% * 12 / 13);
+  /* Match 14px Unica to 13px SF Mono */
+  size-adjust: calc(100% * 13 / 14);
 }
 
 @font-face {
   font-family: 'SF Mono';
   font-weight: bold;
   src: local('SFMono-Bold'), local('ui-monospace');
-  /* Match 13px Unica to 12px SF Mono */
-  size-adjust: calc(100% * 12 / 13);
+  /* Match 14px Unica to 13px SF Mono */
+  size-adjust: calc(100% * 13 / 14);
 }
 
 @font-face {
   font-family: 'Menlo';
   font-weight: normal;
   src: local('Menlo-Regular');
-  /* Match 13px Unica to 11.5px Menlo */
-  size-adjust: calc(100% * 11.5 / 13);
+  /* Match other monospace fonts to SF Mono in width */
+  size-adjust: calc(100% * 13.25 / 14);
 }
 
 @font-face {
   font-family: 'Menlo';
   font-weight: bold;
   src: local('Menlo-Bold');
-  size-adjust: calc(100% * 11.5 / 13);
+  /* Match other monospace fonts to SF Mono in width */
+  size-adjust: calc(100% * 13.25 / 14);
+}
+
+@font-face {
+  font-family: 'Consolas';
+  font-weight: normal;
+  src: local('Consolas');
+  /* Match other monospace fonts to SF Mono in width */
+  size-adjust: calc(100% * 14.5 / 14);
+  ascent-override: 90%;
+}
+
+@font-face {
+  font-family: 'Consolas';
+  font-weight: bold;
+  src: local('Consolas-Bold');
+  /* Match other monospace fonts to SF Mono in width */
+  size-adjust: calc(100% * 14.5 / 14);
+  ascent-override: 90%;
 }
 
 @font-face {
   font-family: 'DejaVu Sans Mono';
   font-weight: normal;
   src: local('DejaVuSansMono');
-  size-adjust: calc(100% * 11.5 / 13);
+  size-adjust: calc(100% * 13.25 / 14);
 }
 
 @font-face {
   font-family: 'DejaVu Sans Mono';
   font-weight: bold;
   src: local('DejaVuSansMono-Bold');
-  size-adjust: calc(100% * 11.5 / 13);
+  size-adjust: calc(100% * 13.25 / 14);
 }
 
 @font-face {
   font-family: 'Inconsolata';
   font-weight: normal;
   src: local('Inconsolata-Regular');
-  /* Inconsolata is a touch small, match 13px Unica to 14px Inconsolata */
-  size-adjust: calc(100% * 14 / 13);
+  size-adjust: calc(100% * 15.5 / 14);
 }
 
 @font-face {
   font-family: 'Inconsolata';
   font-weight: bold;
   src: local('Inconsolata-Bold');
-  size-adjust: calc(100% * 14 / 13);
+  size-adjust: calc(100% * 15.5 / 14);
 }
