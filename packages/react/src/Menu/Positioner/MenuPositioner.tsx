@@ -43,7 +43,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     alignment = 'center',
     sideOffset = 0,
     alignmentOffset = 0,
-    collisionBoundary = 'clippingAncestors',
+    collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
     hideWhenDetached = false,
@@ -204,7 +204,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The boundary that the Menu element should be constrained to.
-   * @default 'clippingAncestors'
+   * @default 'clipping-ancestors'
    */
   collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,

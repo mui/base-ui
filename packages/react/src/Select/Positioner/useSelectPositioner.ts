@@ -3,13 +3,12 @@ import type {
   VirtualElement,
   Side,
   Padding,
-  Boundary,
   FloatingRootContext,
   FloatingContext,
   Middleware,
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
-import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
@@ -144,7 +143,7 @@ export namespace useSelectPositioner {
     alignmentOffset?: number;
     /**
      * The boundary that the Select element should be constrained to.
-     * @default 'clippingAncestors'
+     * @default 'clipping-ancestors'
      */
     collisionBoundary?: Boundary;
     /**

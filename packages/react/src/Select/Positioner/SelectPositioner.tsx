@@ -35,7 +35,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     alignment = 'start',
     sideOffset = 0,
     alignmentOffset = 0,
-    collisionBoundary,
+    collisionBoundary = 'clipping-ancestors',
     collisionPadding,
     arrowPadding = 5,
     hideWhenDetached = false,
@@ -187,10 +187,10 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The boundary that the Select element should be constrained to.
-   * @default 'clippingAncestors'
+   * @default 'clipping-ancestors'
    */
   collisionBoundary: PropTypes.oneOfType([
-    PropTypes.oneOf(['clippingAncestors']),
+    PropTypes.oneOf(['clipping-ancestors']),
     PropTypes.arrayOf((props, propName) => {
       if (props[propName] == null) {
         return new Error(`Prop '${propName}' is required but wasn't specified`);

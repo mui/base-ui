@@ -38,7 +38,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     alignment = 'center',
     sideOffset = 0,
     alignmentOffset = 0,
-    collisionBoundary = 'clippingAncestors',
+    collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
     hideWhenDetached = false,
@@ -166,7 +166,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The boundary that the tooltip element should be constrained to.
-   * @default 'clippingAncestors'
+   * @default 'clipping-ancestors'
    */
   collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
