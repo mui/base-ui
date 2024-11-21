@@ -46,6 +46,7 @@
   --color-foreground: var(--color-gray-950);
   --color-popup: white;
   --color-gridline: oklch(91.6% 1% 264);
+  --color-highlight: var(--color-blue);
   --color-selection: oklch(80% 50% 264 / 25%);
 
   /* Text colors */
@@ -124,6 +125,7 @@
     --color-foreground: oklch(90% 2% 264);
     --color-popup: var(--color-gray-50);
     --color-gridline: oklch(24% 1% 264);
+    --color-highlight: oklch(45% 40% 264);
     --color-selection: oklch(50% 50% 264 / 40%);
 
     /* Text colors */

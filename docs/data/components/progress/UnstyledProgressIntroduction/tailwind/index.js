@@ -74,7 +74,7 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(props, ref
       ref={ref}
       className={(state) =>
         classNames(
-          'rounded-[inherit] bg-blue-500 dark:bg-blue-400',
+          'rounded-[inherit] bg-gray-500 dark:bg-gray-400',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,

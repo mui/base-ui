@@ -1,6 +1,6 @@
 .popup {
-  background: var(--gray-50);
-  border: 1px solid var(--gray-100);
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-100);
   min-width: 400px;
   border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 18px 50px -10px;
@@ -13,14 +13,14 @@
   z-index: 2100;
 
   :global(.dark) & {
-    color: var(--gray-900);
-    border-color: var(--gray-700);
+    color: var(--color-gray-900);
+    border-color: var(--color-gray-700);
   }
 }
 
 .trigger {
-  background-color: var(--gray-900);
-  color: var(--gray-50);
+  background-color: var(--color-gray-900);
+  color: var(--color-gray-50);
   padding: 8px 16px;
   border-radius: 4px;
   border: none;
@@ -29,23 +29,23 @@
     sans-serif;
 
   &:hover {
-    background-color: var(--gray-700);
+    background-color: var(--color-gray-700);
 
     :global(.dark) & {
-      background-color: var(--gray-200);
+      background-color: var(--color-gray-200);
     }
   }
 
   :global(.dark) & {
-    background-color: var(--gray-50);
-    color: var(--gray-900);
+    background-color: var(--color-gray-50);
+    color: var(--color-gray-900);
   }
 }
 
 .close {
   background-color: transparent;
-  border: 1px solid var(--gray-500);
-  color: var(--gray-900);
+  border: 1px solid var(--color-gray-500);
+  color: var(--color-gray-900);
   padding: 8px 16px;
   border-radius: 4px;
   font-family:
@@ -54,29 +54,29 @@
   min-width: 80px;
 
   &:hover {
-    background-color: var(--gray-200);
+    background-color: var(--color-gray-200);
 
     :global(.dark) & {
-      background-color: var(--gray-700);
+      background-color: var(--color-gray-700);
     }
   }
 
   :global(.dark) & {
-    border-color: var(--gray-300);
-    color: var(--gray-50);
+    border-color: var(--color-gray-300);
+    color: var(--color-gray-50);
   }
 }
 
 .controls {
   display: flex;
   flex-direction: row-reverse;
-  background: var(--gray-100);
+  background: var(--color-gray-100);
   gap: 8px;
   padding: 16px;
   margin: 32px -16px -16px;
 
   :global(.dark) & {
-    background: var(--gray-800);
+    background: var(--color-gray-800);
   }
 }
 

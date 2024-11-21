@@ -5,12 +5,11 @@ import * as BaseDemo from 'docs/src/blocks/Demo';
 import { CopyIcon } from 'docs/src/icons/Copy';
 import clsx from 'clsx';
 import { CheckIcon } from 'docs/src/icons/Check';
-import { ErrorBoundary } from 'react-error-boundary';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { CodeSandboxLink } from './CodeSandboxLink';
-import { DemoErrorFallback } from './DemoErrorFallback';
 import { GhostButton } from '../GhostButton';
+import { DemoPlayground } from './DemoPlayground';
 
 export interface DemoProps extends React.ComponentProps<typeof BaseDemo.Root> {
   variants: BaseDemo.DemoVariant[];
@@ -24,10 +23,7 @@ export function Demo({ className, defaultOpen = false, title, ...props }: DemoPr
 
   return (
     <BaseDemo.Root className={clsx('DemoRoot', className)} {...props}>
-      <ErrorBoundary FallbackComponent={DemoErrorFallback}>
-        <BaseDemo.Playground aria-label="Component demo" className="DemoPlayground" />
-      </ErrorBoundary>
-
+      <DemoPlayground />
       <Collapsible.Root open={open} onOpenChange={setOpen}>
         <div role="figure" aria-label="Component demo code">
           <div className="DemoToolbar">
