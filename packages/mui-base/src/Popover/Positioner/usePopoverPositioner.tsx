@@ -8,13 +8,15 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
-import { getInertValue } from '../../utils/getInertValue';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
+import { usePopoverRootContext } from '../Root/PopoverRootContext';
 
 export function usePopoverPositioner(
   params: usePopoverPositioner.Parameters,
 ): usePopoverPositioner.ReturnValue {
-  const { open = false, keepMounted = false, initialFocus, openMethod, popupRef } = params;
+  const { keepMounted, initialFocus, openMethod, popupRef, mounted } = params;
+
+  const { open } = usePopoverRootContext();
 
   const {
     positionerStyles,
@@ -64,15 +66,14 @@ export function usePopoverPositioner(
 
         return mergeReactProps<'div'>(externalProps, {
           role: 'presentation',
-          // @ts-ignore
-          inert: getInertValue(!open),
+          hidden: !mounted,
           style: {
             ...positionerStyles,
             ...hiddenStyles,
           },
         });
       },
-      [positionerStyles, open, keepMounted, hidden],
+      [keepMounted, open, hidden, mounted, positionerStyles],
     );
 
   return React.useMemo(
@@ -185,6 +186,10 @@ export namespace usePopoverPositioner {
   }
 
   export interface Parameters extends SharedParameters {
+    /**
+     * Whether the popover is mounted.
+     */
+    mounted: boolean;
     /**
      * Whether the popover is open.
      * @default false

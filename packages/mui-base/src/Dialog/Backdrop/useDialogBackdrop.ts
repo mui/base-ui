@@ -21,11 +21,12 @@ export function useDialogBackdrop(
 
   const getRootProps = React.useCallback(
     (externalProps: React.ComponentPropsWithRef<any>) =>
-      mergeReactProps(externalProps, {
+      mergeReactProps<'div'>(externalProps, {
         role: 'presentation',
         ref: handleRef,
+        hidden: !mounted,
       }),
-    [handleRef],
+    [handleRef, mounted],
   );
 
   return {

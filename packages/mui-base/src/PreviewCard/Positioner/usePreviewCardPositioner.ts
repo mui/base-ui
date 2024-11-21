@@ -8,11 +8,14 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { Boundary, useAnchorPositioning, type Side } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
+import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 
 export function usePreviewCardPositioner(
   params: usePreviewCardPositioner.Parameters,
 ): usePreviewCardPositioner.ReturnValue {
-  const { open = false, keepMounted = false } = params;
+  const { keepMounted, mounted } = params;
+
+  const { open } = usePreviewCardRootContext();
 
   const {
     positionerStyles,
@@ -34,14 +37,16 @@ export function usePreviewCardPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps(externalProps, {
+        return mergeReactProps<'div'>(externalProps, {
+          role: 'presentation',
+          hidden: !mounted,
           style: {
             ...positionerStyles,
             ...hiddenStyles,
           },
         });
       },
-      [positionerStyles, open, keepMounted, hidden],
+      [positionerStyles, open, keepMounted, hidden, mounted],
     );
 
   return React.useMemo(
@@ -149,6 +154,10 @@ export namespace usePreviewCardPositioner {
 
   export interface Parameters extends SharedParameters {
     /**
+     * Whether the preview card is mounted.
+     */
+    mounted: boolean;
+    /**
      * If `true`, the preview card is open.
      */
     open?: boolean;
@@ -156,10 +165,6 @@ export namespace usePreviewCardPositioner {
      * The floating root context.
      */
     floatingRootContext?: FloatingRootContext;
-    /**
-     * Whether the preview card is mounted.
-     */
-    mounted?: boolean;
   }
 
   export interface ReturnValue {

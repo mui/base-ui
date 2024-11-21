@@ -55,6 +55,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     anchor,
     floatingRootContext,
     positionMethod,
+    mounted,
     open,
     keepMounted,
     side,

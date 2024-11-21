@@ -16,6 +16,7 @@ import { useFocusExtended } from '../utils/useFocusExtended';
 import { OPEN_DELAY, CLOSE_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { useLatestRef } from '../../utils/useLatestRef';
 import {
   translateOpenChangeReason,
   type OpenChangeReason,
@@ -53,21 +54,27 @@ export function usePreviewCardRoot(
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
+
   const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
 
-  const setOpen = React.useCallback(
+  const openRef = useLatestRef(open);
+
+  const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
       if (!keepMounted && !nextOpen) {
         if (animated) {
-          runOnceAnimationsFinish(() => setMounted(false));
+          runOnceAnimationsFinish(() => {
+            if (!openRef.current) {
+              setMounted(false);
+            }
+          });
         } else {
           setMounted(false);
         }
       }
     },
-    [onOpenChange, setOpenUnwrapped, keepMounted, animated, runOnceAnimationsFinish, setMounted],
   );
 
   const context = useFloatingRootContext({
