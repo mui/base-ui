@@ -9,7 +9,12 @@
     "hiddenUntilFound": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, sets `hidden=\"until-found\"` when closed.\nIf `false`, sets `hidden` when closed."
+      "description": "If `true`, sets the hidden state using `hidden=\"until-found\"`. The panel\nremains mounted in the DOM when closed and overrides `keepMounted`.\nIf `false`, sets the hidden state using `hidden`."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the panel remains mounted when closed and is instead\nhidden using the `hidden` attribute\nIf `false`, the panel is unmounted when closed.\nIf the `hiddenUntilFound` prop is used, the panel overrides this prop and\nis remains mounted when closed."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
