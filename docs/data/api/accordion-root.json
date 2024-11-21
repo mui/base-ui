@@ -24,7 +24,7 @@
   "themeDefaultProps": true,
   "muiName": "AccordionRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Accordion/Root/AccordionRoot.tsx",
+  "filename": "/packages/react/src/Accordion/Root/AccordionRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-accordion/\">Accordion</a></li></ul>",
   "cssComponent": false

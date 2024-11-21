@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "FieldLabel",
   "forwardsRefTo": "HTMLLabelElement",
-  "filename": "/packages/mui-base/src/Field/Label/FieldLabel.tsx",
+  "filename": "/packages/react/src/Field/Label/FieldLabel.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-field/\">Field</a></li></ul>",
   "cssComponent": false

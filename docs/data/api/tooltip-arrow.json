@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "TooltipArrow",
   "forwardsRefTo": "Element",
-  "filename": "/packages/mui-base/src/Tooltip/Arrow/TooltipArrow.tsx",
+  "filename": "/packages/react/src/Tooltip/Arrow/TooltipArrow.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false

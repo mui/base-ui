@@ -19,7 +19,7 @@
   "themeDefaultProps": true,
   "muiName": "FieldError",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Field/Error/FieldError.tsx",
+  "filename": "/packages/react/src/Field/Error/FieldError.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-field/\">Field</a></li></ul>",
   "cssComponent": false

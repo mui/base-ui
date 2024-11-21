@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "PopoverArrow",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Popover/Arrow/PopoverArrow.tsx",
+  "filename": "/packages/react/src/Popover/Arrow/PopoverArrow.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

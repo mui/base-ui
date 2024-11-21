@@ -18,7 +18,7 @@
   "themeDefaultProps": true,
   "muiName": "NumberFieldScrubArea",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/NumberField/ScrubArea/NumberFieldScrubArea.tsx",
+  "filename": "/packages/react/src/NumberField/ScrubArea/NumberFieldScrubArea.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-number-field/\">Number Field</a></li></ul>",
   "cssComponent": false

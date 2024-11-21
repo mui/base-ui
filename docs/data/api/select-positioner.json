@@ -62,7 +62,7 @@
   "themeDefaultProps": true,
   "muiName": "SelectPositioner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/Positioner/SelectPositioner.tsx",
+  "filename": "/packages/react/src/Select/Positioner/SelectPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

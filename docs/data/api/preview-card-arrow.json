@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "PreviewCardArrow",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/PreviewCard/Arrow/PreviewCardArrow.tsx",
+  "filename": "/packages/react/src/PreviewCard/Arrow/PreviewCardArrow.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-preview-card/\">Preview Card</a></li></ul>",
   "cssComponent": false

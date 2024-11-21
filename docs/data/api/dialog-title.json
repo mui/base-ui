@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "DialogTitle",
   "forwardsRefTo": "HTMLHeadingElement",
-  "filename": "/packages/mui-base/src/Dialog/Title/DialogTitle.tsx",
+  "filename": "/packages/react/src/Dialog/Title/DialogTitle.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
   "cssComponent": false

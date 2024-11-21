@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "PreviewCardTrigger",
   "forwardsRefTo": "HTMLAnchorElement",
-  "filename": "/packages/mui-base/src/PreviewCard/Trigger/PreviewCardTrigger.tsx",
+  "filename": "/packages/react/src/PreviewCard/Trigger/PreviewCardTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-preview-card/\">Preview Card</a></li></ul>",
   "cssComponent": false

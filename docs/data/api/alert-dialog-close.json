@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "AlertDialogClose",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/AlertDialog/Close/AlertDialogClose.tsx",
+  "filename": "/packages/react/src/AlertDialog/Close/AlertDialogClose.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-alert-dialog/\">Alert Dialog</a></li></ul>",
   "cssComponent": false

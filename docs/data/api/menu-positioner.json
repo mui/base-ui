@@ -57,7 +57,7 @@
   "themeDefaultProps": true,
   "muiName": "MenuPositioner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Menu/Positioner/MenuPositioner.tsx",
+  "filename": "/packages/react/src/Menu/Positioner/MenuPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

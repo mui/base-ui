@@ -12,12 +12,12 @@ const componentExportExceptions: Record<string, string> = {
 export function getComponentImports(name: string, filename: string) {
   const relativePath = path.relative(repositoryRoot, filename);
   const directories = path.dirname(relativePath).split(path.sep);
-  if (directories[0] !== 'packages' || directories[1] !== 'mui-base' || directories[2] !== 'src') {
+  if (directories[0] !== 'packages' || directories[1] !== 'react' || directories[2] !== 'src') {
     throw new Error(`The file ${filename} is not in the Base UI package`);
   }
 
   if (directories.length < 4) {
-    throw new Error(`The file ${filename} is not in a subdirectory of packages/mui-base/src`);
+    throw new Error(`The file ${filename} is not in a subdirectory of packages/react/src`);
   }
 
   const componentDirectory = directories[3];

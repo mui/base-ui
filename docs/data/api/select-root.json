@@ -21,7 +21,7 @@
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "SelectRoot",
-  "filename": "/packages/mui-base/src/Select/Root/SelectRoot.tsx",
+  "filename": "/packages/react/src/Select/Root/SelectRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

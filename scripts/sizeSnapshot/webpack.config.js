@@ -7,7 +7,7 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const workspaceRoot = path.join(__dirname, '..', '..');
 
 async function getWebpackEntries() {
-  const baseUiPackagePath = path.join(workspaceRoot, 'packages/mui-base/build');
+  const baseUiPackagePath = path.join(workspaceRoot, 'packages/react/build');
   const baseUiComponents = (await glob(path.join(baseUiPackagePath, '([A-Z])*/index.js'))).map(
     (componentPath) => {
       const componentName = path.basename(path.dirname(componentPath));
@@ -72,7 +72,7 @@ function createWebpackConfig(entry, environment) {
     ],
     resolve: {
       alias: {
-        '@base-ui-components/react': path.join(workspaceRoot, 'packages/mui-base/build'),
+        '@base-ui-components/react': path.join(workspaceRoot, 'packages/react/build'),
       },
     },
     entry: { [entry.id]: path.join(workspaceRoot, entry.path) },

@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "AccordionHeader",
   "forwardsRefTo": "HTMLHeadingElement",
-  "filename": "/packages/mui-base/src/Accordion/Header/AccordionHeader.tsx",
+  "filename": "/packages/react/src/Accordion/Header/AccordionHeader.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-accordion/\">Accordion</a></li></ul>",
   "cssComponent": false

@@ -26,7 +26,7 @@
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "MenuRoot",
-  "filename": "/packages/mui-base/src/Menu/Root/MenuRoot.tsx",
+  "filename": "/packages/react/src/Menu/Root/MenuRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

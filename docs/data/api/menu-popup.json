@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "MenuPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Menu/Popup/MenuPopup.tsx",
+  "filename": "/packages/react/src/Menu/Popup/MenuPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

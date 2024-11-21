@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "CheckboxIndicator",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Checkbox/Indicator/CheckboxIndicator.tsx",
+  "filename": "/packages/react/src/Checkbox/Indicator/CheckboxIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-checkbox/\">Checkbox</a></li></ul>",
   "cssComponent": false
