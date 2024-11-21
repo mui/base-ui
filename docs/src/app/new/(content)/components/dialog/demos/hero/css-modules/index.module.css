@@ -34,7 +34,7 @@
   inset: 0;
   background-color: black;
   opacity: 0.2;
-  transition: opacity 150ms;
+  transition: opacity 150ms ease-out;
 
   @media (prefers-color-scheme: dark) {
     opacity: 0.7;
