@@ -9,12 +9,11 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
-import { usePopoverRootContext } from '../Root/PopoverRootContext';
 
 export function usePopoverPositioner(
   params: usePopoverPositioner.Parameters,
 ): usePopoverPositioner.ReturnValue {
-  const { open = false, keepMounted = false } = params;
+  const { open = false, keepMounted = false, mounted } = params;
 
   const {
     positionerStyles,
