@@ -6,7 +6,7 @@ const CI = process.env.CI === 'true';
 
 export default defineConfig({
   test: {
-    reporters: ['basic'],
+    reporters: ['basic', 'hanging-process'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
