@@ -39,6 +39,7 @@
   }
 
   .DemoToolbar {
+    @apply text-xs;
     white-space: nowrap;
     color: var(--color-gray);
     background-color: var(--color-gray-50);
@@ -49,8 +50,6 @@
     gap: 2rem;
     height: 2.25rem;
     padding: 0 0.75rem;
-    font-size: 0.8125rem;
-    line-height: 1.25rem;
     -webkit-user-select: none;
     user-select: none;
 
@@ -74,8 +73,6 @@
 
   .DemoFilename {
     font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    line-height: 1.25rem;
     letter-spacing: normal;
     color: var(--color-foreground);
     font-weight: bold;
@@ -97,8 +94,6 @@
     padding: 0;
 
     font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    line-height: 1.25rem;
     letter-spacing: normal;
     cursor: default;
     position: relative;
@@ -166,10 +161,9 @@
     outline: 0;
 
     & pre {
-      cursor: text;
-      font-size: 0.8125rem;
-      line-height: 1.25rem;
+      @apply text-xs;
       padding: 0.5rem 0.75rem;
+      cursor: text;
 
       /* Closed state */
       overflow: hidden;
