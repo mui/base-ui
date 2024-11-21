@@ -284,7 +284,7 @@ importers:
         specifier: ^3.3.3
         version: 3.3.3
       prettier-plugin-tailwindcss:
-        specifier: ^0.6.8
+        specifier: ^0.6.9
         version: 0.6.9(prettier@3.3.3)
       pretty-quick:
         specifier: ^4.0.0
