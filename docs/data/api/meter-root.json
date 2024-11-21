@@ -33,7 +33,11 @@
   "themeDefaultProps": true,
   "muiName": "MeterRoot",
   "forwardsRefTo": "HTMLDivElement",
+<<<<<<< HEAD
   "filename": "/packages/react/src/meter/root/MeterRoot.tsx",
+=======
+  "filename": "/packages/react/src/Meter/Root/MeterRoot.tsx",
+>>>>>>> 8ac5427ed7 (Fix proptypes and docs)
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-meter/\">Meter</a></li></ul>",
   "cssComponent": false

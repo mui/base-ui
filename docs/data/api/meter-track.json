@@ -12,7 +12,11 @@
   "themeDefaultProps": true,
   "muiName": "MeterTrack",
   "forwardsRefTo": "HTMLSpanElement",
+<<<<<<< HEAD
   "filename": "/packages/react/src/meter/track/MeterTrack.tsx",
+=======
+  "filename": "/packages/react/src/Meter/Track/MeterTrack.tsx",
+>>>>>>> 8ac5427ed7 (Fix proptypes and docs)
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-meter/\">Meter</a></li></ul>",
   "cssComponent": false
