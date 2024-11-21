@@ -7,8 +7,5 @@ export default mergeConfig(
     define: {
       'process.env.NODE_ENV': JSON.stringify('test'),
     },
-    optimizeDeps: {
-      exclude: ['@vitest/coverage-v8/browser'],
-    },
   }),
 );

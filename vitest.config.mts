@@ -9,7 +9,7 @@ export default defineConfig({
   test: {
     reporters: ['basic'],
     coverage: {
-      provider: 'v8',
+      provider: 'istanbul',
       reporter: [['text', { maxCols: 200 }], 'lcov'],
       reportsDirectory: resolve(WORKSPACE_ROOT, 'coverage'),
       include: ['packages/*/src/**/*.ts', 'packages/*/src/**/*.tsx'],
