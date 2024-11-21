@@ -155,6 +155,7 @@
     "react": "19.0.0-rc-fb9a90fa48-20240614",
     "react-docgen": "^5.4.3",
     "react-dom": "19.0.0-rc-fb9a90fa48-20240614",
+    "recast": "^0.23.9",
     "remark": "^15.0.1",
     "rimraf": "^5.0.10",
     "serve": "^14.2.4",
@@ -179,8 +180,6 @@
   },
   "resolutions": {
     "@babel/core": "^7.26.0",
-    "@babel/code-frame": "^7.26.2",
-    "@babel/plugin-transform-destructuring": "npm:@minh.nguyen/plugin-transform-destructuring@^7.5.2",
     "@babel/plugin-transform-runtime": "^7.25.9",
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.25.9",
