@@ -108,7 +108,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     buttonProps.tabIndex = tabIndex ?? 0;
     if (disabled) {
       buttonProps['aria-disabled'] = disabled as boolean;
-      buttonProps.tabIndex = focusableWhenDisabled ? tabIndex ?? 0 : -1;
+      buttonProps.tabIndex = focusableWhenDisabled ? (tabIndex ?? 0) : -1;
     }
   }
 
