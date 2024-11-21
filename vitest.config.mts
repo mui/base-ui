@@ -12,6 +12,7 @@ export default defineConfig({
       reporter: ['text', 'lcov'],
       reportsDirectory: path.resolve(WORKSPACE_ROOT, 'coverage'),
       include: ['packages/*/src/**/*.ts', 'packages/*/src/**/*.tsx'],
+      exclude: ['**/*.test.{js,ts,tsx}', '**/*.test/*'],
     },
     sequence: {
       hooks: 'list',
