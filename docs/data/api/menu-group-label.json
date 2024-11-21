@@ -5,7 +5,7 @@
   },
   "name": "MenuGroupLabel",
   "imports": [
-    "import { Menu } from '@base_ui/react/Menu';\nconst MenuGroupLabel = Menu.GroupLabel;"
+    "import { Menu } from '@base-ui-components/react/Menu';\nconst MenuGroupLabel = Menu.GroupLabel;"
   ],
   "classes": [],
   "spread": true,

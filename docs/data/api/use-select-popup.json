@@ -3,6 +3,6 @@
   "returnValue": {},
   "name": "useSelectPopup",
   "filename": "/packages/mui-base/src/Select/Popup/useSelectPopup.ts",
-  "imports": ["import { useSelectPopup } from '@base_ui/react/Select';"],
+  "imports": ["import { useSelectPopup } from '@base-ui-components/react/Select';"],
   "demos": "<ul></ul>"
 }

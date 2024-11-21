@@ -5,7 +5,7 @@
   },
   "name": "FieldsetRoot",
   "imports": [
-    "import { Fieldset } from '@base_ui/react/Fieldset';\nconst FieldsetRoot = Fieldset.Root;"
+    "import { Fieldset } from '@base-ui-components/react/Fieldset';\nconst FieldsetRoot = Fieldset.Root;"
   ],
   "classes": [],
   "spread": true,

@@ -5,7 +5,9 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "FieldControl",
-  "imports": ["import { Field } from '@base_ui/react/Field';\nconst FieldControl = Field.Control;"],
+  "imports": [
+    "import { Field } from '@base-ui-components/react/Field';\nconst FieldControl = Field.Control;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,

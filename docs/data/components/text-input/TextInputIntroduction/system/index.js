@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { TextInput as TextInputPrimitive } from '@base_ui/react/TextInput';
+import { TextInput as TextInputPrimitive } from '@base-ui-components/react/TextInput';
 import { styled } from '@mui/system';
 
 export default function TextFieldIntroduction() {

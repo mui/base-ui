@@ -2,7 +2,9 @@
 import * as React from 'react';
 import { type DemoVariant } from 'docs/src/blocks/Demo';
 import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
+import * as Select from 'docs/src/components/Select';
 import { useDemoVariantSelectorContext } from './DemoVariantSelectorProvider';
+import { GhostButton } from '../GhostButton';
 
 const translations = {
   variants: {
@@ -19,10 +21,15 @@ const translations = {
 };
 
 export interface DemoVariantSelectorProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
+  onVariantChange?: () => void;
   showLanguageSelector?: boolean;
 }
 
-export function DemoVariantSelector({ showLanguageSelector, ...props }: DemoVariantSelectorProps) {
+export function DemoVariantSelector({
+  showLanguageSelector,
+  onVariantChange,
+  ...props
+}: DemoVariantSelectorProps) {
   /*
     The "local" variant is the one that is selected in the current demo.
     The "global" one is the one that comes from the DemoVariantSelectorContext.
@@ -48,18 +55,33 @@ export function DemoVariantSelector({ showLanguageSelector, ...props }: DemoVari
 
   // Whenever user changes a setting, we update the global preference and not set the local one directly.
   const handleVariantChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      setGlobalVariantId(event.target.value);
+    (value: unknown) => {
+      onVariantChange?.();
+      setGlobalVariantId(value as string);
     },
-    [setGlobalVariantId],
+    [onVariantChange, setGlobalVariantId],
+  );
+
+  const currentVariantLanguages = React.useMemo(
+    () =>
+      variantsMap[selectedLocalVariant.name].map((v) => ({
+        value: v.language,
+        label: translations.languages[v.language],
+        demo: v.demo,
+      })),
+    [selectedLocalVariant.name, variantsMap],
   );
 
   // As above.
   const handleLanguageChange = React.useCallback(
-    (language: { value: string; label: string; demo: DemoVariant }) => {
-      setGlobalLanguageId(language.value);
+    (value: string) => {
+      onVariantChange?.();
+      const language = currentVariantLanguages.find((item) => item.value === value);
+      if (language) {
+        setGlobalLanguageId(language.value);
+      }
     },
-    [setGlobalLanguageId],
+    [currentVariantLanguages, setGlobalLanguageId, onVariantChange],
   );
 
   // When the global variant changes, we update the local one
@@ -97,56 +119,44 @@ export function DemoVariantSelector({ showLanguageSelector, ...props }: DemoVari
     selectedLocalVariant.name,
   ]);
 
-  const currentVariantLanguages = React.useMemo(
-    () =>
-      variantsMap[selectedLocalVariant.name].map((v) => ({
-        value: v.language,
-        label: translations.languages[v.language],
-        demo: v.demo,
-      })),
-    [selectedLocalVariant.name, variantsMap],
-  );
-
   const renderVariantSelector = Object.keys(variantsMap).length > 1;
   const renderLanguageSelector = currentVariantLanguages.length > 1 && showLanguageSelector;
 
   return (
     <div {...props}>
-      {renderVariantSelector && (
-        <select
-          className="DemoSelect"
-          value={selectedLocalVariant.name}
-          onChange={handleVariantChange}
-          aria-label="Styles"
-        >
-          {Object.keys(variantsMap).map((variantName) => (
-            <option key={variantName} value={variantName}>
-              {translations.variants[variantName]}
-            </option>
-          ))}
-        </select>
+      {renderLanguageSelector && (
+        <Select.Root value={selectedLocalVariant.language} onValueChange={handleLanguageChange}>
+          <Select.Trigger
+            render={<GhostButton />}
+            ssrFallback={
+              currentVariantLanguages.find((item) => item.value === selectedLocalVariant.language)
+                ?.label
+            }
+          />
+          <Select.Popup>
+            {currentVariantLanguages.map((language) => (
+              <Select.Option key={language.value} value={language.value}>
+                {language.label}
+              </Select.Option>
+            ))}
+          </Select.Popup>
+        </Select.Root>
       )}
 
-      {renderLanguageSelector && (
-        <select
-          className="DemoSelect"
-          value={selectedLocalVariant.language}
-          onChange={(event) => {
-            const language = currentVariantLanguages.find(
-              ({ value }) => value === event.target.value,
-            );
-            if (language) {
-              handleLanguageChange(language);
-            }
-          }}
-          aria-label="Language"
-        >
-          {currentVariantLanguages.map((language) => (
-            <option key={language.value} value={language.value}>
-              {language.label}
-            </option>
-          ))}
-        </select>
+      {renderVariantSelector && (
+        <Select.Root value={selectedLocalVariant.name} onValueChange={handleVariantChange}>
+          <Select.Trigger
+            render={<GhostButton />}
+            ssrFallback={translations.variants[selectedLocalVariant.name]}
+          />
+          <Select.Popup>
+            {Object.keys(variantsMap).map((variantName) => (
+              <Select.Option key={variantName} value={variantName}>
+                {translations.variants[variantName]}
+              </Select.Option>
+            ))}
+          </Select.Popup>
+        </Select.Root>
       )}
     </div>
   );

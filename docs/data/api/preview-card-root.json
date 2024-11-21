@@ -9,7 +9,7 @@
   },
   "name": "PreviewCardRoot",
   "imports": [
-    "import { PreviewCard } from '@base_ui/react/PreviewCard';\nconst PreviewCardRoot = PreviewCard.Root;"
+    "import { PreviewCard } from '@base-ui-components/react/PreviewCard';\nconst PreviewCardRoot = PreviewCard.Root;"
   ],
   "classes": [],
   "spread": true,

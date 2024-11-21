@@ -1,6 +1,10 @@
 import clsx from 'clsx';
 import * as React from 'react';
 
-export function Code({ className, ...props }: React.ComponentProps<'code'>) {
-  return <code className={clsx('Code', className)} {...props} />;
+interface CodeProps extends React.ComponentProps<'code'> {
+  inline?: boolean;
+}
+
+export function Code({ className, inline = false, ...props }: CodeProps) {
+  return <code data-inline={inline || undefined} className={clsx('Code', className)} {...props} />;
 }

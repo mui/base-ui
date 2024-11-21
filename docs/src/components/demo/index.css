@@ -1,16 +1,16 @@
 @layer components {
   .DemoRoot {
     background-color: var(--color-content);
-    border: 1px solid var(--color-border);
-    border-radius: 0.375rem;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
   }
 
   .DemoPlayground {
     background-color: var(--color-content);
     min-height: 10rem;
     padding: 3rem 1.5rem;
-    border-top-left-radius: 0.375rem;
-    border-top-right-radius: 0.375rem;
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
 
     /* Scroll */
     overflow-x: auto;
@@ -36,9 +36,9 @@
   .DemoToolbar {
     white-space: nowrap;
     color: var(--color-gray);
-    background-color: var(--color-panel);
+    background-color: var(--color-gray-50);
     background-clip: padding-box;
-    border-block: 1px solid var(--color-border);
+    border-block: 1px solid var(--color-gray-200);
     display: flex;
     align-items: center;
     gap: 2rem;
@@ -68,8 +68,10 @@
   }
 
   .DemoFilename {
-    @apply text-xs;
-    font-family: var(--font-family-mono);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    letter-spacing: normal;
     color: var(--color-foreground);
     font-weight: bold;
     -webkit-user-select: text;
@@ -82,45 +84,38 @@
   }
 
   .DemoTab {
-    @apply text-xs;
-    font-family: var(--font-family-mono);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    letter-spacing: normal;
     cursor: default;
     position: relative;
-    margin: -0.5rem;
-    padding: 0.5rem;
     z-index: 0;
     outline: 0;
 
     @media (hover: hover) {
       &:hover {
         &::before {
-          background-color: oklch(20% 12% 264 / 5%);
-        }
-        @media (prefers-color-scheme: dark) {
-          &::before {
-            background-color: oklch(90% 5% 264 / 8%);
-          }
+          background-color: var(--color-gray-100);
         }
       }
     }
 
-    &::before {
+    &::before,
+    &::after {
       content: '';
       position: absolute;
-      pointer-events: none;
-      inset: 0.25rem 0.125rem;
-      border-radius: 0.25rem;
       z-index: -1;
     }
 
-    &:focus-visible::after {
-      content: '';
-      position: absolute;
-      pointer-events: none;
-      inset: 0.125rem 0;
-      outline: 2px solid var(--color-blue);
-      outline-offset: -3px;
-      border-radius: 0.375rem;
+    &::before {
+      inset: -0.125rem -0.375rem;
+      border-radius: var(--radius-sm);
+    }
+
+    /* Increase the clickable size  */
+    &::after {
+      inset: -0.375rem -0.5rem;
     }
 
     &[data-selected] {
@@ -129,42 +124,26 @@
 
       &::before {
         background-color: white;
-        outline: 1px solid oklch(20% 12% 264 / 15%);
+        outline: 1px solid var(--color-gray-300);
         outline-offset: -1px;
         box-shadow:
-          0px 2px 3px -2px oklch(20% 12% 264 / 10%),
-          inset 0px -1px 1px oklch(20% 12% 264 / 10%);
+          0px 2px 3px -2px var(--color-gray-300),
+          inset 0px -1px 1px var(--color-gray-200);
       }
       @media (prefers-color-scheme: dark) {
         &::before {
-          background-color: oklch(22% 2% 264);
-          outline: 1px solid oklch(90% 12% 264 / 15%);
-          box-shadow: none;
-        }
-      }
-
-      &:focus-visible {
-        @media (prefers-color-scheme: dark) {
-          &::before {
-            background-color: black;
-          }
+          outline: none;
+          background-color: var(--color-gray-50);
+          box-shadow:
+            0px 0px 3px 0px var(--color-gray-300),
+            inset 0px 0px 0px 1px var(--color-gray-400);
         }
       }
     }
-  }
 
-  .DemoSelect {
-    appearance: none;
-    background: none;
-    border: 0;
-    margin: 0;
-    padding: 0;
-    outline: 0;
-
-    &:focus-visible {
-      border-radius: 1px;
+    &:focus-visible::before {
       outline: 2px solid var(--color-blue);
-      outline-offset: 2px;
+      outline-offset: -1px;
     }
   }
 
@@ -242,12 +221,12 @@
 
   .DemoCollapseButton {
     @apply text-xs;
-    background-color: var(--color-panel);
+    background-color: var(--color-gray-50);
     cursor: default;
     width: 100%;
     color: var(--color-gray);
     height: 2.25rem;
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--color-gray-200);
     border-bottom-left-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
     border-bottom: 1px solid transparent;
@@ -258,18 +237,12 @@
 
     @media (hover: hover) {
       &:hover {
-        background-color: oklch(97% 0.25% 264);
-        @media (prefers-color-scheme: dark) {
-          background-color: oklch(17% 1% 264);
-        }
+        background-color: var(--color-gray-75);
       }
     }
 
     &:active {
-      background-color: oklch(96% 0.25% 264);
-      @media (prefers-color-scheme: dark) {
-        background-color: oklch(18% 1% 264);
-      }
+      background-color: var(--color-gray-100);
     }
 
     &:focus-visible {

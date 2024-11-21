@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { AlertDialog } from '@base_ui/react/AlertDialog';
+import { AlertDialog } from '@base-ui-components/react/AlertDialog';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<AlertDialog.Backdrop />', () => {

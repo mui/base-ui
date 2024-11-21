@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { Dialog } from '@base_ui/react/Dialog';
+import { Dialog } from '@base-ui-components/react/Dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Dialog.Backdrop />', () => {

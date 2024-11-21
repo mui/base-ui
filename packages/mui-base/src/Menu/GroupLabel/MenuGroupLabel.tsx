@@ -40,7 +40,7 @@ const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
     render: render ?? 'div',
     className,
     ownerState,
-    extraProps: { role: 'group', id, ...other },
+    extraProps: { role: 'presentation', id, ...other },
     ref: forwardedRef,
   });
 

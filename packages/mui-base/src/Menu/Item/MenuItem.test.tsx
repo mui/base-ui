@@ -4,7 +4,7 @@ import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
 import { act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
-import { Menu } from '@base_ui/react/Menu';
+import { Menu } from '@base-ui-components/react/Menu';
 import { describeConformance, createRenderer } from '#test-utils';
 import { MenuRootContext } from '../Root/MenuRootContext';
 

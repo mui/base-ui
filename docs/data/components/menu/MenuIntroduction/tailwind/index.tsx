@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Menu } from '@base_ui/react/Menu';
+import { Menu } from '@base-ui-components/react/Menu';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {
@@ -78,7 +78,7 @@ const MenuPositioner = React.forwardRef<HTMLDivElement, Menu.Positioner.Props>(
     return (
       <Menu.Positioner
         ref={ref}
-        className="focus-visible:outline-0 closed:pointer-events-none"
+        className="closed:pointer-events-none focus-visible:outline-0"
         {...props}
       />
     );
@@ -90,7 +90,7 @@ const MenuSeparator = React.forwardRef<HTMLDivElement, Menu.Separator.Props>(
     return (
       <Menu.Separator
         ref={ref}
-        className="border-t border-solid border-slate-200 dark:border-slate-700 my-2"
+        className="my-2 border-t border-solid border-slate-200 dark:border-slate-700"
         {...props}
       />
     );
@@ -102,7 +102,7 @@ const MenuGroupLabel = React.forwardRef<HTMLDivElement, Menu.GroupLabel.Props>(
     return (
       <Menu.GroupLabel
         ref={ref}
-        className="text-xs font-sans font-semibold text-slate-700 dark:text-slate-200 uppercase p-2 select-none"
+        className="p-2 font-sans text-xs font-semibold text-slate-700 uppercase select-none dark:text-slate-200"
         {...props}
       />
     );

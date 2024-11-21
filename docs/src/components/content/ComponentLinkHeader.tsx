@@ -38,7 +38,7 @@ export function ComponentLinkHeader(props: ComponentLinkHeaderProps) {
         </a>
       )}
       <a
-        href="https://bundlephobia.com/package/@base_ui/react@latest"
+        href="https://bundlephobia.com/package/@base-ui-components/react@latest"
         className={classes.bundleSize}
         rel="nofollow"
         data-ga-event-category="ComponentLinkHeader"

@@ -10,7 +10,7 @@
   },
   "name": "PopoverRoot",
   "imports": [
-    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverRoot = Popover.Root;"
+    "import { Popover } from '@base-ui-components/react/Popover';\nconst PopoverRoot = Popover.Root;"
   ],
   "classes": [],
   "spread": true,

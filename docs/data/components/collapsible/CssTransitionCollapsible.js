@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { Collapsible } from '@base_ui/react/Collapsible';
+import { Collapsible } from '@base-ui-components/react/Collapsible';
 import transitionClasses from './transitions.module.css';
 import classes from './styles.module.css';
 
