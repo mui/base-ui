@@ -11,8 +11,8 @@
   --size: 2.5rem;
   --corner-radius: 0.4rem;
   --border-color: var(--gray-outline-2);
-  --border-radius-visual-right: 0 var(--corner-radius) var(--corner-radius) 0;
-  --border-radius-visual-left: var(--corner-radius) 0 0 var(--corner-radius);
+  --border-radius-right: 0 var(--corner-radius) var(--corner-radius) 0;
+  --border-radius-left: var(--corner-radius) 0 0 var(--corner-radius);
 
   display: flex;
   flex-flow: row nowrap;
@@ -30,21 +30,21 @@
 }
 
 .button:first-child {
-  border-radius: var(--border-radius-visual-left);
+  border-radius: var(--border-radius-left);
   border-right-color: transparent;
 }
 
 .button:last-child {
-  border-radius: var(--border-radius-visual-right);
+  border-radius: var(--border-radius-right);
   border-left-color: transparent;
 }
 
 [dir='rtl'] .button:first-child {
-  border-radius: var(--border-radius-visual-right);
+  border-radius: var(--border-radius-right);
 }
 
 [dir='rtl'] .button:last-child {
-  border-radius: var(--border-radius-visual-left);
+  border-radius: var(--border-radius-left);
 }
 
 .button:not(:disabled):hover {
@@ -61,7 +61,7 @@
   z-index: 1;
 }
 
-.icon {
+.button svg {
   fill: none;
   stroke: currentColor;
   stroke-width: 2;

@@ -46,9 +46,9 @@ export function useToggleButtonGroupRoot(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
         role: 'group',
-        dir: direction,
+        // dir: direction,
       }),
-    [direction],
+    [],
   );
 
   return React.useMemo(
