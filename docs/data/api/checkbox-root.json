@@ -30,7 +30,7 @@
   "themeDefaultProps": true,
   "muiName": "CheckboxRoot",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Checkbox/Root/CheckboxRoot.tsx",
+  "filename": "/packages/react/src/Checkbox/Root/CheckboxRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-checkbox/\">Checkbox</a></li></ul>",
   "cssComponent": false

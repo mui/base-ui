@@ -17,7 +17,7 @@
   "themeDefaultProps": true,
   "muiName": "CollapsibleRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Collapsible/Root/CollapsibleRoot.tsx",
+  "filename": "/packages/react/src/Collapsible/Root/CollapsibleRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-collapsible/\">Collapsible</a></li></ul>",
   "cssComponent": false

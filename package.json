@@ -1,5 +1,5 @@
 {
-  "name": "@base_ui/monorepo",
+  "name": "@base-ui-components/monorepo",
   "version": "1.0.0-alpha.3",
   "private": true,
   "scripts": {

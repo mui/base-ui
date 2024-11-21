@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "CollapsibleTrigger",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Collapsible/Trigger/CollapsibleTrigger.tsx",
+  "filename": "/packages/react/src/Collapsible/Trigger/CollapsibleTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-collapsible/\">Collapsible</a></li></ul>",
   "cssComponent": false

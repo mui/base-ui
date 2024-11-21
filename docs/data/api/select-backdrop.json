@@ -17,7 +17,7 @@
   "themeDefaultProps": true,
   "muiName": "SelectBackdrop",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Select/Backdrop/SelectBackdrop.tsx",
+  "filename": "/packages/react/src/Select/Backdrop/SelectBackdrop.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

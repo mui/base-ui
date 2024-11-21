@@ -18,7 +18,7 @@
   "themeDefaultProps": true,
   "muiName": "CheckboxGroupRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/CheckboxGroup/Root/CheckboxGroupRoot.tsx",
+  "filename": "/packages/react/src/CheckboxGroup/Root/CheckboxGroupRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-checkbox-group/\">Checkbox Group</a></li></ul>",
   "cssComponent": false

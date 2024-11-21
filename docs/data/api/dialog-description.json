@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "DialogDescription",
   "forwardsRefTo": "HTMLParagraphElement",
-  "filename": "/packages/mui-base/src/Dialog/Description/DialogDescription.tsx",
+  "filename": "/packages/react/src/Dialog/Description/DialogDescription.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
   "cssComponent": false

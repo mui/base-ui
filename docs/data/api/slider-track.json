@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "SliderTrack",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Slider/Track/SliderTrack.tsx",
+  "filename": "/packages/react/src/Slider/Track/SliderTrack.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-slider/\">Slider</a></li></ul>",
   "cssComponent": false

@@ -12,7 +12,7 @@
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "TooltipProvider",
-  "filename": "/packages/mui-base/src/Tooltip/Provider/TooltipProvider.tsx",
+  "filename": "/packages/react/src/Tooltip/Provider/TooltipProvider.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false

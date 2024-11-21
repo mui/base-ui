@@ -14,7 +14,7 @@
   "themeDefaultProps": true,
   "muiName": "MenuTrigger",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Menu/Trigger/MenuTrigger.tsx",
+  "filename": "/packages/react/src/Menu/Trigger/MenuTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

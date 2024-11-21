@@ -16,7 +16,7 @@
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "PopoverRoot",
-  "filename": "/packages/mui-base/src/Popover/Root/PopoverRoot.tsx",
+  "filename": "/packages/react/src/Popover/Root/PopoverRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

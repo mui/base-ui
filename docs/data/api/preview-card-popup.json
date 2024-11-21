@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "PreviewCardPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/PreviewCard/Popup/PreviewCardPopup.tsx",
+  "filename": "/packages/react/src/PreviewCard/Popup/PreviewCardPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-preview-card/\">Preview Card</a></li></ul>",
   "cssComponent": false

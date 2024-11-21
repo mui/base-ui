@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "ProgressTrack",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Progress/Track/ProgressTrack.tsx",
+  "filename": "/packages/react/src/Progress/Track/ProgressTrack.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-progress/\">Progress</a></li></ul>",
   "cssComponent": false

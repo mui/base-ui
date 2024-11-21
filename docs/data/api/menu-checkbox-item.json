@@ -18,7 +18,7 @@
   "themeDefaultProps": true,
   "muiName": "MenuCheckboxItem",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Menu/CheckboxItem/MenuCheckboxItem.tsx",
+  "filename": "/packages/react/src/Menu/CheckboxItem/MenuCheckboxItem.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

@@ -23,7 +23,7 @@
   "themeDefaultProps": true,
   "muiName": "TabsRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Tabs/Root/TabsRoot.tsx",
+  "filename": "/packages/react/src/Tabs/Root/TabsRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tabs/\">Tabs</a></li></ul>",
   "cssComponent": false

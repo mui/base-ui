@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "SeparatorRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Separator/Root/SeparatorRoot.tsx",
+  "filename": "/packages/react/src/Separator/Root/SeparatorRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-separator/\">Separator</a></li></ul>",
   "cssComponent": false

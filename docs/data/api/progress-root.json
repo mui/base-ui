@@ -36,7 +36,7 @@
   "themeDefaultProps": true,
   "muiName": "ProgressRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Progress/Root/ProgressRoot.tsx",
+  "filename": "/packages/react/src/Progress/Root/ProgressRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-progress/\">Progress</a></li></ul>",
   "cssComponent": false

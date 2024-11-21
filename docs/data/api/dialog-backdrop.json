@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "DialogBackdrop",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Dialog/Backdrop/DialogBackdrop.tsx",
+  "filename": "/packages/react/src/Dialog/Backdrop/DialogBackdrop.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
   "cssComponent": false

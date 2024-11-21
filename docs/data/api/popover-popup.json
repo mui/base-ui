@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "PopoverPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Popover/Popup/PopoverPopup.tsx",
+  "filename": "/packages/react/src/Popover/Popup/PopoverPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

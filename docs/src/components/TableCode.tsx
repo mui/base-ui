@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Code } from './Code';
 
 interface TableCodeProps extends React.ComponentProps<'code'> {
   printWidth?: number;
@@ -41,7 +42,7 @@ export function TableCode({ children, printWidth = 40, ...props }: TableCodeProp
       unionGroups.forEach((_, index) => {
         const pipe = <span style={{ color: 'var(--syntax-keyword)' }}>| </span>;
         const pipeWithNewline = (
-          <React.Fragment>
+          <React.Fragment key={`fragment-${index}`}>
             <br />
             {pipe}
           </React.Fragment>
@@ -55,7 +56,7 @@ export function TableCode({ children, printWidth = 40, ...props }: TableCodeProp
     children = unionGroups.flat();
   }
 
-  return <code {...props}>{children}</code>;
+  return <Code {...props}>{children}</Code>;
 }
 
 function getTextContents(node?: React.ReactNode): string {

@@ -23,7 +23,7 @@
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "TooltipRoot",
-  "filename": "/packages/mui-base/src/Tooltip/Root/TooltipRoot.tsx",
+  "filename": "/packages/react/src/Tooltip/Root/TooltipRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false

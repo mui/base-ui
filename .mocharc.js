@@ -13,7 +13,7 @@ module.exports = {
   require: [
     '@mui/internal-test-utils/setupBabel',
     '@mui/internal-test-utils/setupJSDOM',
-    './packages/mui-base/test/setup.ts',
+    './packages/react/test/setup.ts',
   ],
   'watch-ignore': [
     // default

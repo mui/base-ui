@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "SliderOutput",
   "forwardsRefTo": "HTMLOutputElement",
-  "filename": "/packages/mui-base/src/Slider/Output/SliderOutput.tsx",
+  "filename": "/packages/react/src/Slider/Output/SliderOutput.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-slider/\">Slider</a></li></ul>",
   "cssComponent": false
