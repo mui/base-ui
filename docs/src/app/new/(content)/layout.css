@@ -1,0 +1,36 @@
+@import 'docs/src/breakpoints.css';
+
+@layer components {
+  .ContentLayoutRoot {
+    display: grid;
+    align-items: start;
+    padding: 0 3rem;
+    grid-template-columns: 1fr;
+
+    @media (--show-side-nav) {
+      padding: 0;
+      grid-template-columns: 15rem 1fr;
+    }
+
+    @media (--show-quick-nav) {
+      grid-template-columns: 1fr 48rem 1fr;
+    }
+  }
+
+  .ContentLayoutMain {
+    padding-top: 3rem;
+    padding-bottom: 5rem;
+    min-width: 0;
+    max-width: min(100%, 48rem);
+    margin: 0 auto;
+
+    @media (--show-side-nav) {
+      margin-left: 0;
+      margin-right: 3rem;
+    }
+
+    @media (--show-quick-nav) {
+      margin: 0;
+    }
+  }
+}

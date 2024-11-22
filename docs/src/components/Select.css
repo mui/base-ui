@@ -2,6 +2,7 @@
   .SelectPopup {
     transition-duration: 0ms;
     cursor: default;
+    -webkit-user-select: none;
     user-select: none;
     padding: 0.25rem;
   }

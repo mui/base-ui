@@ -163,6 +163,7 @@
     & pre {
       @apply text-xs;
       padding: 0.5rem 0.75rem;
+      display: flex;
       cursor: text;
 
       /* Closed state */
@@ -199,7 +200,6 @@
         max-height: none;
 
         /* Scroll */
-        display: flex;
         overflow: auto;
         overscroll-behavior-x: contain;
         scrollbar-width: thin;
