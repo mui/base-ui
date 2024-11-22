@@ -32,6 +32,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     disabled = false,
     readOnly = false,
     required = false,
+    modal = false,
   } = props;
 
   const selectRoot = useSelectRoot<Value>({
@@ -46,6 +47,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     disabled,
     readOnly,
     required,
+    modal,
   });
 
   const { setDirty, validityData } = useFieldRootContext();

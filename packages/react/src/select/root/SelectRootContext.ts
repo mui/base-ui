@@ -50,6 +50,7 @@ export interface SelectRootContext {
   }>;
   id: string | undefined;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
+  modal: boolean;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

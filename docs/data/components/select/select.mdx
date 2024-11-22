@@ -110,6 +110,18 @@ The `Select.OptionIndicator` subcomponent renders an indicator inside an option 
 </Select.OptionIndicator>
 ```
 
+## Modality
+
+By default, the Select is non-modal, so elements outside it can be interacted with.
+To make it modal, use the `modal` prop.
+You may also add a backdrop to the modal Select by using the `Select.Backdrop` component, to indicate that the outside elements are inert.
+
+```jsx
+<Select.Root modal>
+  <Select.Backdrop />
+</Select.Root>
+```
+
 ## Grouped options
 
 `Select.Group` can be used to group options together with a label. The `Select.GroupLabel` subcomponent renders the label:

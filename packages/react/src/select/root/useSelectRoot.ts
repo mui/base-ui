@@ -26,6 +26,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     readOnly = false,
     required = false,
     alignOptionToTrigger: alignOptionToTriggerParam = true,
+    modal = false,
   } = params;
 
   const id = useBaseUiId();
@@ -227,6 +228,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       alignOptionToTrigger,
       transitionStatus,
       fieldControlValidation,
+      modal,
     }),
     [
       id,
@@ -253,6 +255,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       alignOptionToTrigger,
       transitionStatus,
       fieldControlValidation,
+      modal,
     ],
   );
 
@@ -338,6 +341,11 @@ export namespace useSelectRoot {
      * The transition status of the Select.
      */
     transitionStatus?: TransitionStatus;
+    /**
+     * Determines whether the select is modal.
+     * @default false
+     */
+    modal?: boolean;
   }
 
   export interface ReturnValue {
