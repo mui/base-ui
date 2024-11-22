@@ -38,7 +38,7 @@ export function useControlled<T = unknown>({
       if (isControlled !== (controlled !== undefined)) {
         console.error(
           [
-            `MUI: A component is changing the ${
+            `Base UI: A component is changing the ${
               isControlled ? '' : 'un'
             }controlled ${state} state of ${name} to be ${isControlled ? 'un' : ''}controlled.`,
             'Elements should not switch from uncontrolled to controlled (or vice versa).',
@@ -59,7 +59,7 @@ export function useControlled<T = unknown>({
       if (!isControlled && !Object.is(defaultValue, defaultProp)) {
         console.error(
           [
-            `MUI: A component is changing the default ${state} state of an uncontrolled ${name} after being initialized. ` +
+            `Base UI: A component is changing the default ${state} state of an uncontrolled ${name} after being initialized. ` +
               `To suppress this warning opt to use a controlled ${name}.`,
           ].join('\n'),
         );
