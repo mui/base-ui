@@ -353,7 +353,9 @@ describe('<Popover.Root />', () => {
     await user.hover(toggle);
     await flushMicrotasks();
 
-    expect(screen.queryByRole('button', { name: 'Close' })).not.to.equal(null);
-    expect(screen.queryByRole('button', { name: 'Close' })).not.to.toHaveFocus();
+    const close = screen.getByRole('button', { name: 'Close' });
+
+    expect(close).not.to.equal(null);
+    expect(close).not.to.toHaveFocus();
   });
 });
