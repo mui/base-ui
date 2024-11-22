@@ -35,7 +35,7 @@ const TabsList = React.forwardRef<HTMLDivElement, Tabs.List.Props>((props, ref) 
     <Tabs.List
       ref={ref}
       className={clsx(
-        'min-w-tabs-list mb-4 flex content-between items-center justify-center rounded-xl bg-purple-500 font-sans shadow-lg',
+        'min-w-tabs-list mb-4 flex content-between items-center justify-center rounded-xl bg-gray-500 font-sans shadow-lg',
         className,
       )}
       {...other}
@@ -53,11 +53,11 @@ const Tab = React.forwardRef<HTMLButtonElement, Tabs.Tab.Props>((props, ref) => 
         clsx(
           `font-sans ${
             selected
-              ? 'bg-white text-purple-500'
-              : 'bg-transparent text-white hover:bg-purple-400 focus:text-white'
+              ? 'bg-white text-gray-500'
+              : 'bg-transparent text-white hover:bg-gray-400 focus:text-white'
           } ${
             disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
-          } focus:shadow-outline-purple-light m-1.5 flex w-full justify-center rounded-md border-0 px-3 py-2.5 text-sm leading-[1.3] font-semibold focus:outline-0`,
+          } focus:shadow-outline-gray-light m-1.5 flex w-full justify-center rounded-md border-0 px-3 py-2.5 text-sm leading-[1.3] font-semibold focus:outline-0`,
           className,
         )
       }
@@ -71,7 +71,7 @@ const TabPanel = React.forwardRef<HTMLDivElement, Tabs.Panel.Props>((props, ref)
     <Tabs.Panel
       ref={ref}
       className={clsx(
-        'w-full rounded-xl border border-solid border-slate-200 bg-white px-3 py-5 font-sans text-sm opacity-60 dark:border-slate-700 dark:bg-slate-900',
+        'w-full rounded-xl border border-solid border-gray-200 bg-white px-3 py-5 font-sans text-sm opacity-60 dark:border-gray-700 dark:bg-gray-900',
         className,
       )}
       {...other}

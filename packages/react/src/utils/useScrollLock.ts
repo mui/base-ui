@@ -101,10 +101,10 @@ function preventScrollStandard(referenceElement?: Element | null) {
     // Ensure two scrollbars can't appear since `<html>` now has a forced scrollbar, but the
     // `<body>` may have one too.
     if (isScrollableY || hasConstantOverflowY) {
-      bodyStyle.overflowY = 'hidden';
+      bodyStyle.overflowY = 'visible';
     }
     if (isScrollableX || hasConstantOverflowX) {
-      bodyStyle.overflowX = 'hidden';
+      bodyStyle.overflowX = 'visible';
     }
   }
 
