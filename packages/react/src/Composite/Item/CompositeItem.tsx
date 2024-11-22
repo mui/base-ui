@@ -14,14 +14,14 @@ import type { BaseUIComponentProps } from '../../utils/types';
 function CompositeItem<Metadata>(props: CompositeItem.Props<Metadata>) {
   const { render, className, itemRef, metadata, ...otherProps } = props;
 
-  const { activeIndex } = useCompositeRootContext();
+  const { highlightedIndex } = useCompositeRootContext();
   const { getItemProps, ref, index } = useCompositeItem({ metadata });
 
   const ownerState: CompositeItem.OwnerState = React.useMemo(
     () => ({
-      highlighted: index === activeIndex,
+      highlighted: index === highlightedIndex,
     }),
-    [index, activeIndex],
+    [index, highlightedIndex],
   );
 
   const mergedRef = useForkRef(itemRef, ref);

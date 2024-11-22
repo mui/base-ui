@@ -16,8 +16,8 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
   const {
     render,
     className,
-    activeIndex: activeIndexProp,
-    onActiveIndexChange: onActiveIndexChangeProp,
+    highlightedIndex: highlightedIndexProp,
+    onHighlightedIndexChange: onHighlightedIndexChangeProp,
     orientation,
     dense,
     itemSizes,
@@ -30,18 +30,19 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
     ...otherProps
   } = props;
 
-  const { getRootProps, activeIndex, onActiveIndexChange, elementsRef } = useCompositeRoot({
-    itemSizes,
-    cols,
-    loop,
-    dense,
-    orientation,
-    activeIndex: activeIndexProp,
-    onActiveIndexChange: onActiveIndexChangeProp,
-    rootRef,
-    stopEventPropagation,
-    enableHomeAndEndKeys,
-  });
+  const { getRootProps, highlightedIndex, onHighlightedIndexChange, elementsRef } =
+    useCompositeRoot({
+      itemSizes,
+      cols,
+      loop,
+      dense,
+      orientation,
+      highlightedIndex: highlightedIndexProp,
+      onHighlightedIndexChange: onHighlightedIndexChangeProp,
+      rootRef,
+      stopEventPropagation,
+      enableHomeAndEndKeys,
+    });
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
@@ -52,8 +53,8 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
-    () => ({ activeIndex, onActiveIndexChange }),
-    [activeIndex, onActiveIndexChange],
+    () => ({ highlightedIndex, onHighlightedIndexChange }),
+    [highlightedIndex, onHighlightedIndexChange],
   );
 
   return (
@@ -72,8 +73,8 @@ namespace CompositeRoot {
     orientation?: 'horizontal' | 'vertical' | 'both';
     cols?: number;
     loop?: boolean;
-    activeIndex?: number;
-    onActiveIndexChange?: (index: number) => void;
+    highlightedIndex?: number;
+    onHighlightedIndexChange?: (index: number) => void;
     itemSizes?: Dimensions[];
     dense?: boolean;
     enableHomeAndEndKeys?: boolean;
@@ -90,10 +91,6 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  activeIndex: PropTypes.number,
   /**
    * @ignore
    */
@@ -117,6 +114,10 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  highlightedIndex: PropTypes.number,
+  /**
+   * @ignore
+   */
   itemSizes: PropTypes.arrayOf(
     PropTypes.shape({
       height: PropTypes.number.isRequired,
@@ -130,7 +131,7 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  onActiveIndexChange: PropTypes.func,
+  onHighlightedIndexChange: PropTypes.func,
   /**
    * @ignore
    */

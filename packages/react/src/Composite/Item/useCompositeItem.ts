@@ -15,19 +15,19 @@ export interface UseCompositeItemParameters<Metadata> {
  * - [useCompositeItem API](https://mui.com/base-ui/api/use-composite-item/)
  */
 export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Metadata> = {}) {
-  const { activeIndex, onActiveIndexChange } = useCompositeRootContext();
+  const { highlightedIndex, onHighlightedIndexChange } = useCompositeRootContext();
   const { ref, index } = useCompositeListItem(params);
-  const isActive = activeIndex === index;
+  const isHighlighted = highlightedIndex === index;
 
   const getItemProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
-        tabIndex: isActive ? 0 : -1,
+        tabIndex: isHighlighted ? 0 : -1,
         onFocus() {
-          onActiveIndexChange(index);
+          onHighlightedIndexChange(index);
         },
       }),
-    [isActive, index, onActiveIndexChange],
+    [isHighlighted, index, onHighlightedIndexChange],
   );
 
   return React.useMemo(

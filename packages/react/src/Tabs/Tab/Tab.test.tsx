@@ -10,8 +10,8 @@ describe('<Tabs.Tab />', () => {
   const { render } = createRenderer();
 
   const testCompositeContext = {
-    activeIndex: 0,
-    onActiveIndexChange: NOOP,
+    highlightedIndex: 0,
+    onHighlightedIndexChange: NOOP,
   };
 
   const testTabsListContext: TabsListContext = {

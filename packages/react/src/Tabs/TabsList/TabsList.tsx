@@ -91,10 +91,10 @@ const TabsList = React.forwardRef(function TabsList(
   return (
     <TabsListContext.Provider value={tabsListContextValue}>
       <CompositeRoot<TabMetadata>
-        activeIndex={highlightedTabIndex}
+        highlightedIndex={highlightedTabIndex}
         enableHomeAndEndKeys
         loop={loop}
-        onActiveIndexChange={setHighlightedTabIndex}
+        onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
         render={renderElement()}
       />
