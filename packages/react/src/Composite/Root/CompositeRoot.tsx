@@ -82,6 +82,8 @@ namespace CompositeRoot {
   }
 }
 
+export { CompositeRoot };
+
 CompositeRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -159,5 +161,3 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
    */
   stopEventPropagation: PropTypes.bool,
 } as any;
-
-export { CompositeRoot };

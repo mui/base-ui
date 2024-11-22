@@ -69,6 +69,24 @@ const Tab = React.forwardRef(function Tab(
   return renderElement();
 });
 
+namespace Tab {
+  export interface Props extends BaseUIComponentProps<'button', Tab.OwnerState> {
+    /**
+     * The value of the Tab.
+     * When not specified, the value is the child position index.
+     */
+    value?: TabValue;
+  }
+
+  export interface OwnerState {
+    disabled: boolean;
+    selected: boolean;
+    orientation: TabsOrientation;
+  }
+}
+
+export { Tab };
+
 Tab.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -100,21 +118,3 @@ Tab.propTypes /* remove-proptypes */ = {
    */
   value: PropTypes.any,
 } as any;
-
-export { Tab };
-
-namespace Tab {
-  export interface Props extends BaseUIComponentProps<'button', Tab.OwnerState> {
-    /**
-     * The value of the Tab.
-     * When not specified, the value is the child position index.
-     */
-    value?: TabValue;
-  }
-
-  export interface OwnerState {
-    disabled: boolean;
-    selected: boolean;
-    orientation: TabsOrientation;
-  }
-}

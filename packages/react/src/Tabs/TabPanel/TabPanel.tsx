@@ -61,6 +61,28 @@ const TabPanel = React.forwardRef(function TabPanel(
   return renderElement();
 });
 
+namespace TabPanel {
+  export interface OwnerState extends TabsRoot.OwnerState {
+    hidden: boolean;
+  }
+
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
+     * If not provided, it will fall back to the index of the panel.
+     * It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server.
+     */
+    value?: TabValue;
+    /**
+     * If `true`, keeps the contents of the hidden TabPanel in the DOM.
+     * @default false
+     */
+    keepMounted?: boolean;
+  }
+}
+
+export { TabPanel };
+
 TabPanel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -90,25 +112,3 @@ TabPanel.propTypes /* remove-proptypes */ = {
    */
   value: PropTypes.any,
 } as any;
-
-export { TabPanel };
-
-namespace TabPanel {
-  export interface OwnerState extends TabsRoot.OwnerState {
-    hidden: boolean;
-  }
-
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
-    /**
-     * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
-     * If not provided, it will fall back to the index of the panel.
-     * It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server.
-     */
-    value?: TabValue;
-    /**
-     * If `true`, keeps the contents of the hidden TabPanel in the DOM.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
-}

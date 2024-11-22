@@ -102,6 +102,28 @@ const TabsList = React.forwardRef(function TabsList(
   );
 });
 
+namespace TabsList {
+  export type OwnerState = TabsRoot.OwnerState;
+
+  export interface Props extends BaseUIComponentProps<'div', TabsList.OwnerState> {
+    /**
+     * If `true`, the tab will be activated whenever it is focused.
+     * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.
+     *
+     * @default true
+     */
+    activateOnFocus?: boolean;
+    /**
+     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+     *
+     * @default true
+     */
+    loop?: boolean;
+  }
+}
+
+export { TabsList };
+
 TabsList.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -133,25 +155,3 @@ TabsList.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { TabsList };
-
-namespace TabsList {
-  export type OwnerState = TabsRoot.OwnerState;
-
-  export interface Props extends BaseUIComponentProps<'div', TabsList.OwnerState> {
-    /**
-     * If `true`, the tab will be activated whenever it is focused.
-     * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.
-     *
-     * @default true
-     */
-    activateOnFocus?: boolean;
-    /**
-     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
-     *
-     * @default true
-     */
-    loop?: boolean;
-  }
-}

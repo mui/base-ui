@@ -50,6 +50,8 @@ namespace CompositeItem {
   }
 }
 
+export { CompositeItem };
+
 CompositeItem.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -86,5 +88,3 @@ CompositeItem.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { CompositeItem };

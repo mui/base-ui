@@ -103,6 +103,49 @@ const TabsRoot = React.forwardRef(function TabsRoot(
   );
 });
 
+export type TabsOrientation = 'horizontal' | 'vertical';
+export type TabsDirection = 'ltr' | 'rtl';
+export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
+export type TabValue = any | null;
+
+namespace TabsRoot {
+  export type OwnerState = {
+    orientation: TabsOrientation;
+    direction: TabsDirection;
+    tabActivationDirection: TabActivationDirection;
+  };
+
+  export interface Props extends Omit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue'> {
+    /**
+     * The value of the currently selected `Tab`. Use when the component is controlled.
+     * When the value is `null`, no Tab will be selected.
+     */
+    value?: TabValue;
+    /**
+     * The default value. Use when the component is not controlled.
+     * When the value is `null`, no Tab will be selected.
+     * @default 0
+     */
+    defaultValue?: TabValue;
+    /**
+     * The component orientation (layout flow direction).
+     * @default 'horizontal'
+     */
+    orientation?: TabsOrientation;
+    /**
+     * The direction of the text.
+     * @default 'ltr'
+     */
+    direction?: TabsDirection;
+    /**
+     * Callback invoked when new value is being set.
+     */
+    onValueChange?: (value: TabValue, event?: Event) => void;
+  }
+}
+
+export { TabsRoot };
+
 TabsRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -146,46 +189,3 @@ TabsRoot.propTypes /* remove-proptypes */ = {
    */
   value: PropTypes.any,
 } as any;
-
-export { TabsRoot };
-
-export type TabsOrientation = 'horizontal' | 'vertical';
-export type TabsDirection = 'ltr' | 'rtl';
-export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
-export type TabValue = any | null;
-
-namespace TabsRoot {
-  export type OwnerState = {
-    orientation: TabsOrientation;
-    direction: TabsDirection;
-    tabActivationDirection: TabActivationDirection;
-  };
-
-  export interface Props extends Omit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue'> {
-    /**
-     * The value of the currently selected `Tab`. Use when the component is controlled.
-     * When the value is `null`, no Tab will be selected.
-     */
-    value?: TabValue;
-    /**
-     * The default value. Use when the component is not controlled.
-     * When the value is `null`, no Tab will be selected.
-     * @default 0
-     */
-    defaultValue?: TabValue;
-    /**
-     * The component orientation (layout flow direction).
-     * @default 'horizontal'
-     */
-    orientation?: TabsOrientation;
-    /**
-     * The direction of the text.
-     * @default 'ltr'
-     */
-    direction?: TabsDirection;
-    /**
-     * Callback invoked when new value is being set.
-     */
-    onValueChange?: (value: TabValue, event?: Event) => void;
-  }
-}

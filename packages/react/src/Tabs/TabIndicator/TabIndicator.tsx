@@ -90,6 +90,26 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicator.Props>(
   },
 );
 
+namespace TabIndicator {
+  export interface OwnerState extends TabsRoot.OwnerState {
+    selectedTabPosition: ActiveTabPosition | null;
+    orientation: TabsOrientation;
+    direction: TabsDirection;
+  }
+
+  export interface Props extends BaseUIComponentProps<'span', TabIndicator.OwnerState> {
+    /**
+     * If `true`, the indicator will include code to render itself before React hydrates.
+     * This will minimize the time the indicator is not visible after the SSR-generated content is downloaded.
+     *
+     * @default false
+     */
+    renderBeforeHydration?: boolean;
+  }
+}
+
+export { TabIndicator };
+
 TabIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -115,23 +135,3 @@ TabIndicator.propTypes /* remove-proptypes */ = {
    */
   renderBeforeHydration: PropTypes.bool,
 } as any;
-
-export { TabIndicator };
-
-namespace TabIndicator {
-  export interface OwnerState extends TabsRoot.OwnerState {
-    selectedTabPosition: ActiveTabPosition | null;
-    orientation: TabsOrientation;
-    direction: TabsDirection;
-  }
-
-  export interface Props extends BaseUIComponentProps<'span', TabIndicator.OwnerState> {
-    /**
-     * If `true`, the indicator will include code to render itself before React hydrates.
-     * This will minimize the time the indicator is not visible after the SSR-generated content is downloaded.
-     *
-     * @default false
-     */
-    renderBeforeHydration?: boolean;
-  }
-}

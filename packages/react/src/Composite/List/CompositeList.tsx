@@ -25,9 +25,9 @@ function sortByDocumentPosition(a: Node, b: Node) {
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
 
-function areMapsEqual<CustomMetadata>(
-  map1: Map<Node, CompositeMetadata<CustomMetadata> | null>,
-  map2: Map<Node, CompositeMetadata<CustomMetadata> | null>,
+function areMapsEqual<Metadata>(
+  map1: Map<Node, CompositeMetadata<Metadata> | null>,
+  map2: Map<Node, CompositeMetadata<Metadata> | null>,
 ) {
   if (map1.size !== map2.size) {
     return false;
@@ -49,14 +49,12 @@ function areMapsEqual<CustomMetadata>(
  * Provides context for a list of items in a composite component.
  * @ignore - internal component.
  */
-function CompositeList<CustomMetadata>(props: CompositeList.Props<CustomMetadata>) {
+function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const { children, elementsRef, labelsRef, onMapChange } = props;
 
-  const [map, setMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<CustomMetadata> | null>(),
-  );
+  const [map, setMap] = React.useState(() => new Map<Node, CompositeMetadata<Metadata> | null>());
 
-  const register = React.useCallback((node: Node, metadata: CustomMetadata) => {
+  const register = React.useCallback((node: Node, metadata: Metadata) => {
     setMap((prevMap) => new Map(prevMap).set(node, metadata ?? null));
   }, []);
 
@@ -74,7 +72,7 @@ function CompositeList<CustomMetadata>(props: CompositeList.Props<CustomMetadata
     const nodes = Array.from(newMap.keys()).sort(sortByDocumentPosition);
 
     nodes.forEach((node, index) => {
-      const metadata = map.get(node) ?? ({} as CompositeMetadata<CustomMetadata>);
+      const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
 
       newMap.set(node, { ...metadata, index });
     });
@@ -96,7 +94,7 @@ function CompositeList<CustomMetadata>(props: CompositeList.Props<CustomMetadata
 }
 
 namespace CompositeList {
-  export interface Props<CustomMetadata> {
+  export interface Props<Metadata> {
     children: React.ReactNode;
     /**
      * A ref to the list of HTML elements, ordered by their index.
@@ -108,9 +106,11 @@ namespace CompositeList {
      * `useTypeahead`'s `listRef` prop.
      */
     labelsRef?: React.RefObject<Array<string | null>>;
-    onMapChange?: (newMap: Map<Node, CompositeMetadata<CustomMetadata> | null>) => void;
+    onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
   }
 }
+
+export { CompositeList };
 
 CompositeList.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -138,5 +138,3 @@ CompositeList.propTypes /* remove-proptypes */ = {
    */
   onMapChange: PropTypes.func,
 } as any;
-
-export { CompositeList };
