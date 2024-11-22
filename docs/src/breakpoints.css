@@ -9,7 +9,7 @@
   /* Functional breakpoints */
   --breakpoint-show-side-nav: 64rem; /* 1024px */
   --breakpoint-show-quick-nav: 84rem; /* 1344px */
-  --breakpoint-max-layout-width: 89rem; /* 1424px */
+  --breakpoint-max-layout-width: 89rem; /* 1424px - this is a 1440px device minus 16px scrollbar */
 }
 
 @custom-media --sm (min-width: 40rem);
