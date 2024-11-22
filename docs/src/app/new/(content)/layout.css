@@ -13,7 +13,7 @@
     }
 
     @media (--show-quick-nav) {
-      grid-template-columns: 1fr 48rem 1fr;
+      grid-template-columns: minmax(15rem, 1fr) 48rem 1fr;
     }
   }
 

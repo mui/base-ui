@@ -6,6 +6,9 @@
   }
 
   .QuickNavRoot {
+    --quick-nav-width-min: 10.5rem;
+    --quick-nav-width-max: 13.5rem;
+    --quick-nav-width-delta: calc(13.5 - 10.5);
     --quick-nav-item-padding-y: calc((2rem - var(--text-sm--line-height)) / 2);
 
     /* The variable is used in JS positioning logic */
@@ -27,14 +30,16 @@
   .QuickNavInner {
     border-top: 1px solid var(--color-gray-200);
     position: relative;
-    left: 32px;
+    left: 2rem;
     padding-top: 0.75rem;
     padding-bottom: 1.5rem;
     pointer-events: auto;
-    /* Stretch the width between 168px at 1340px and up to 216px at 1440px */
-    width: max(
-      168px,
-      min(216px, 168px + (216 - 168) * (100vw - var(--breakpoint-show-quick-nav)) / 100)
+
+    /* So sorry for the math */
+    width: clamp(
+      var(--quick-nav-width-min),
+      var(--quick-nav-width-min) + var(--quick-nav-width-delta) * var(--breakpoint-ratio-nav),
+      var(--quick-nav-width-max)
     );
   }
 

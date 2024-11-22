@@ -1,24 +1,29 @@
 @layer components {
   .SideNavRoot {
-    --side-nav-scrollbar-margin-left: 1rem;
-    --side-nav-scrollbar-margin-right: clamp(
-      var(--side-nav-scrollbar-margin-left),
-      calc(1rem + 16 * (2.5 - 1) * ((100vw - 1340px) / (1440 - 1340))),
-      2.5rem
-    );
-    --side-nav-scrollbar-width: 1.5rem;
-    --side-nav-scrollbar-thumb-width: 0.25rem;
     --side-nav-item-padding-y: calc((2rem - var(--text-sm--line-height)) / 2);
+    --side-nav-scrollbar-thumb-width: 0.25rem;
+    --side-nav-scrollbar-width: 1.5rem;
+
+    /* So sorry for the math */
+    --side-nav-scrollbar-gap-left: 1rem;
+    --side-nav-scrollbar-gap-right-min: 1rem;
+    --side-nav-scrollbar-gap-right-max: 2.5rem;
+    --side-nav-scrollbar-gap-right-delta: calc(2.5 - 1);
+    --side-nav-scrollbar-gap-right: clamp(
+      var(--side-nav-scrollbar-gap-right-min),
+      var(--side-nav-scrollbar-gap-right-min) + var(--side-nav-scrollbar-gap-right-delta) *
+        var(--breakpoint-ratio-nav),
+      var(--side-nav-scrollbar-gap-right-max)
+    );
+
+    margin-right: calc(
+      var(--side-nav-scrollbar-gap-right) - var(--side-nav-scrollbar-width) / 2 +
+        var(--side-nav-scrollbar-thumb-width) / 2
+    );
 
     @apply text-sm;
     position: sticky;
     top: 0;
-
-    /* Match distance from scrollbar to with the margin-right variable */
-    margin-right: calc(
-      var(--side-nav-scrollbar-margin-right) - var(--side-nav-scrollbar-width) / 2 +
-        var(--side-nav-scrollbar-thumb-width) / 2
-    );
 
     display: none;
     @media (--show-side-nav) {
@@ -28,15 +33,12 @@
 
   .SideNavViewport {
     max-height: 100vh;
+    overscroll-behavior-y: contain;
     padding-top: 0.75rem;
     padding-bottom: 3rem;
     padding-left: 1.5rem;
-
-    overscroll-behavior-y: contain;
-
-    /* Match distance from scrollbar to nav items with the padding-x variable */
     padding-right: calc(
-      var(--side-nav-scrollbar-margin-left) + var(--side-nav-scrollbar-width) / 2 +
+      var(--side-nav-scrollbar-gap-left) + var(--side-nav-scrollbar-width) / 2 +
         var(--side-nav-scrollbar-thumb-width) / 2
     );
 

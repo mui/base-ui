@@ -17,3 +17,71 @@
     background-color: var(--color-selection);
   }
 }
+
+@layer components {
+  .GridlineLayoutRoot {
+    z-index: 0;
+    position: relative;
+
+    /* Stretch padding between 2rem up to 3rem, between 640px to 960px viewport */
+    padding-inline: round(clamp(2rem, 5vw, 3rem), 1px);
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      background-color: var(--color-gridline);
+      height: 1px;
+      right: 0;
+      left: 0;
+    }
+
+    &::before {
+      top: 3rem;
+      margin-top: -1px;
+    }
+
+    &::after {
+      bottom: 3rem;
+      margin-bottom: -1px;
+    }
+  }
+
+  .GridlineLayoutContainer {
+    position: relative;
+    display: flex;
+    margin-inline: auto;
+    min-height: 100dvh;
+    max-width: 83rem;
+    flex-direction: column;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background-color: var(--color-gridline);
+    }
+
+    &::before {
+      left: 0;
+      margin-left: -1px;
+    }
+
+    &::after {
+      right: 0;
+      margin-right: -1px;
+    }
+  }
+
+  .GridlineLayoutContent {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    background-color: var(--color-content);
+  }
+}
