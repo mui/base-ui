@@ -6,9 +6,9 @@
   }
 
   .QuickNavRoot {
-    --quick-nav-width-min: 10.5rem;
+    --quick-nav-width-min: 11rem;
     --quick-nav-width-max: 13.5rem;
-    --quick-nav-width-delta: calc(13.5 - 10.5);
+    --quick-nav-width-delta: calc(13.5 - 11);
     --quick-nav-item-padding-y: calc((2rem - var(--text-sm--line-height)) / 2);
 
     /* The variable is used in JS positioning logic */
