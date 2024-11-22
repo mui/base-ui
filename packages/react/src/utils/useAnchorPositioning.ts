@@ -82,7 +82,7 @@ export function useAnchorPositioning(
     collisionBoundary,
     collisionPadding = 5,
     hideWhenDetached = false,
-    fallbackAxisSideDirection = 'start',
+    fallbackAxisSideDirection = 'none',
     sticky = false,
     keepMounted = false,
     arrowPadding = 5,
