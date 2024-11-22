@@ -39,7 +39,7 @@ export function useCompositeListItem(
         elementsRef.current[index] = node;
         if (labelsRef) {
           const isLabelDefined = label !== undefined;
-          labelsRef.current[index] = isLabelDefined ? label : node?.textContent ?? null;
+          labelsRef.current[index] = isLabelDefined ? label : (node?.textContent ?? null);
         }
       }
     },

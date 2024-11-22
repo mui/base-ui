@@ -26,6 +26,10 @@
       "matchPackagePatterns": "@emotion/*"
     },
     {
+      "groupName": "Tailwind CSS",
+      "matchPackageNames": ["tailwindcss", "@tailwindcss/*", "prettier-plugin-tailwindcss"]
+    },
+    {
       "groupName": "core-js",
       "matchPackageNames": ["core-js"],
       "allowedVersions": "< 2.0.0"
@@ -37,7 +41,12 @@
     },
     {
       "groupName": "React RC types - broken versions",
-      "matchPackageNames": ["@types/react-dom", "@types/react-is"],
+      "matchPackageNames": [
+        "types-react-dom",
+        "types-react-is",
+        "@types/react-dom",
+        "@types/react-is"
+      ],
       "enabled": false
     },
     {
@@ -98,10 +107,6 @@
     {
       "groupName": "GitHub Actions",
       "matchManagers": ["github-actions"]
-    },
-    {
-      "groupName": "@definitelytyped tools",
-      "matchPackagePatterns": ["@definitelytyped/*"]
     },
     {
       "groupName": "chai - incompatible versions",

@@ -1,18 +1,10 @@
 'use client';
 import * as React from 'react';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import { usePopoverPositioner } from './usePopoverPositioner';
 
-export interface PopoverPositionerContext {
-  side: Side;
-  alignment: Alignment;
-  arrowRef: React.MutableRefObject<Element | null>;
-  arrowUncentered: boolean;
-  arrowStyles: React.CSSProperties;
-}
-
-export const PopoverPositionerContext = React.createContext<PopoverPositionerContext | undefined>(
-  undefined,
-);
+export const PopoverPositionerContext = React.createContext<
+  usePopoverPositioner.ReturnValue | undefined
+>(undefined);
 
 if (process.env.NODE_ENV !== 'production') {
   PopoverPositionerContext.displayName = 'PopoverPositionerContext';
