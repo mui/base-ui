@@ -41,7 +41,12 @@
     },
     {
       "groupName": "React RC types - broken versions",
-      "matchPackageNames": ["@types/react-dom", "@types/react-is"],
+      "matchPackageNames": [
+        "types-react-dom",
+        "types-react-is",
+        "@types/react-dom",
+        "@types/react-is"
+      ],
       "enabled": false
     },
     {
