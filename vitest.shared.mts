@@ -41,7 +41,6 @@ const config: UserWorkspaceConfig = {
   },
   resolve: {
     alias: {
-      '@base-ui-components/react': resolve(WORKSPACE_ROOT, './packages/react/src'),
       docs: resolve(WORKSPACE_ROOT, './docs'),
     },
   },
