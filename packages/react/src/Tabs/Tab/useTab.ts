@@ -122,8 +122,6 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
     index,
     rootRef: handleRef,
     selected,
-    // TODO: recalculate this using Composite stuff, but is it really needed?
-    totalTabsCount: -1,
   };
 }
 
@@ -181,11 +179,6 @@ namespace useTab {
      * If `true`, the tab is selected.
      */
     selected: boolean;
-    /**
-     * Total number of tabs in the nearest parent TabsList.
-     * This can be used to determine if the tab is the last one to style it accordingly.
-     */
-    totalTabsCount: number;
   }
 }
 

@@ -5,6 +5,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useCompositeRootContext } from '../Root/CompositeRootContext';
 import { useCompositeItem } from './useCompositeItem';
+import { refType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
@@ -68,17 +69,7 @@ CompositeItem.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  itemRef: PropTypes.shape({
-    current: (props, propName) => {
-      if (props[propName] == null) {
-        return null;
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
-  }),
+  itemRef: refType,
   /**
    * @ignore
    */

@@ -5,6 +5,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { CompositeList, type CompositeMetadata } from '../List/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
+import { refType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Dimensions } from '../composite';
 
@@ -145,17 +146,7 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  rootRef: PropTypes.shape({
-    current: (props, propName) => {
-      if (props[propName] == null) {
-        return null;
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
-  }),
+  rootRef: refType,
   /**
    * @ignore
    */
