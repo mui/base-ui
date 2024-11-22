@@ -105,7 +105,6 @@
   }
 
   .SideNavLink {
-    /* TODO scroll into view */
     display: block;
     padding: var(--side-nav-item-padding-y) 0.75rem;
     border-radius: var(--radius-md);
