@@ -208,11 +208,6 @@ export namespace usePopoverRoot {
      */
     closeDelay?: number;
     /**
-     * Whether the popover popup element stays mounted in the DOM when closed.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
      * Whether the popover can animate, adding animation-related attributes and allowing for exit
      * animations to play. Useful to disable in tests to remove async behavior.
      * @default true
