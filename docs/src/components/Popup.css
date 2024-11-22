@@ -19,24 +19,20 @@
     }
 
     transform-origin: var(--transform-origin);
+    transition-duration: 150ms;
     transition-property: opacity, transform;
     transition-timing-function: cubic-bezier(0.3, 1.065, 0.01, 0.975);
 
-    &,
-    &[data-entering] {
+    &[data-entering],
+    &[data-exiting] {
       opacity: 0;
-      transition-duration: 275ms;
       @media (prefers-reduced-motion: no-preference) {
         transform: scale(0.98);
       }
     }
 
-    &[data-open] {
-      opacity: 1;
-      transition-duration: 150ms;
-      @media (prefers-reduced-motion: no-preference) {
-        transform: scale(1);
-      }
+    &[data-exiting] {
+      transition-duration: 275ms;
     }
 
     &[data-instant] {

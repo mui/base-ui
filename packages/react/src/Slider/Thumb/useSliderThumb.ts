@@ -247,7 +247,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
         'aria-valuenow': thumbValue,
         'aria-valuetext': getAriaValueText
           ? getAriaValueText(thumbValue, index)
-          : ariaValuetext ?? getDefaultAriaValueText(sliderValues, index),
+          : (ariaValuetext ?? getDefaultAriaValueText(sliderValues, index)),
         'data-index': index,
         disabled,
         id: inputId,
