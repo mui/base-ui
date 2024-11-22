@@ -3,6 +3,7 @@ module.exports = {
   singleQuote: true,
   trailingComma: 'all',
   plugins: ['prettier-plugin-tailwindcss'],
+  tailwindStylesheet: './docs/src/styles.css',
   overrides: [
     {
       files: ['docs/**/*.md', 'docs/src/app/**/*.{js,tsx}', 'docs/data/**/*.{js,tsx}'],

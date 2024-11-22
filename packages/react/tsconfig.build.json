@@ -10,8 +10,11 @@
     "moduleResolution": "bundler",
     "noEmit": false,
     "rootDir": "./src",
-    "outDir": "build"
+    "outDir": "build/esm"
   },
   "include": ["src/**/*.ts*"],
-  "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"]
+  "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"],
+  "tsc-alias": {
+    "resolveFullPaths": true
+  }
 }

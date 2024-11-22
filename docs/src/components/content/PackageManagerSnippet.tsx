@@ -38,7 +38,7 @@ export function PackageManagerSnippet(props: PackageManagerSnippetProps) {
 export function Npm(props: React.PropsWithChildren) {
   return (
     <BasePackageManagerSnippet.Code value="npm">
-      <CodeBlock.Root className="mb-5 mt-3">
+      <CodeBlock.Root className="mt-3 mb-5">
         <CodeBlock.Pre {...props} />
       </CodeBlock.Root>
     </BasePackageManagerSnippet.Code>
@@ -48,7 +48,7 @@ export function Npm(props: React.PropsWithChildren) {
 export function Pnpm(props: React.PropsWithChildren) {
   return (
     <BasePackageManagerSnippet.Code value="pnpm">
-      <CodeBlock.Root className="mb-5 mt-3">
+      <CodeBlock.Root className="mt-3 mb-5">
         <CodeBlock.Pre {...props} />
       </CodeBlock.Root>
     </BasePackageManagerSnippet.Code>
@@ -58,7 +58,7 @@ export function Pnpm(props: React.PropsWithChildren) {
 export function Yarn(props: React.PropsWithChildren) {
   return (
     <BasePackageManagerSnippet.Code value="yarn">
-      <CodeBlock.Root className="mb-5 mt-3">
+      <CodeBlock.Root className="mt-3 mb-5">
         <CodeBlock.Pre {...props} />
       </CodeBlock.Root>
     </BasePackageManagerSnippet.Code>

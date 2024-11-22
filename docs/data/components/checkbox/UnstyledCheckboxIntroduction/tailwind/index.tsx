@@ -47,11 +47,11 @@ const Checkbox = React.forwardRef<HTMLButtonElement, BaseCheckbox.Root.Props>(
         className={(state) =>
           classNames(
             'h-6 w-6 rounded-md p-0',
-            'border-2 border-solid border-purple-500',
-            'focus-visible:ring-opacity-60 outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2',
+            'border-2 border-solid border-gray-500',
+            'focus-visible:ring-opacity-60 outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2',
             'transition-colors duration-150',
             state.disabled && 'cursor-not-allowed opacity-40',
-            state.checked && 'bg-purple-500',
+            state.checked && 'bg-gray-500',
             !state.checked && 'bg-transparent',
             typeof props.className === 'function'
               ? props.className(state)
