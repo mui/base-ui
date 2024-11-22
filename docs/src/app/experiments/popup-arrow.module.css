@@ -1,0 +1,84 @@
+.popup {
+  background: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  width: 200px;
+}
+
+.arrow {
+  --arrow-size: 10px;
+  --stroke-size: 1px;
+
+  width: 0;
+  height: 0;
+}
+
+.arrow::before {
+  --size: calc(var(--arrow-size) + var(--stroke-size) * 2);
+
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  z-index: -1;
+}
+
+.arrow[data-side='bottom'] {
+  top: calc((var(--arrow-size) - 1px) * -1);
+  border-left: var(--arrow-size) solid transparent;
+  border-right: var(--arrow-size) solid transparent;
+  border-bottom: var(--arrow-size) solid white;
+}
+
+.arrow[data-side='bottom']::before {
+  top: calc(var(--stroke-size) * -1);
+  left: calc(var(--size) * -1);
+  border-left: var(--size) solid transparent;
+  border-right: var(--size) solid transparent;
+  border-bottom: var(--size) solid #ccc;
+}
+
+.arrow[data-side='top'] {
+  bottom: calc((var(--arrow-size) - 1px) * -1);
+  border-left: var(--arrow-size) solid transparent;
+  border-right: var(--arrow-size) solid transparent;
+  border-top: var(--arrow-size) solid white;
+}
+
+.arrow[data-side='top']::before {
+  bottom: calc(var(--stroke-size) * -1);
+  left: calc(var(--size) * -1);
+  border-left: var(--size) solid transparent;
+  border-right: var(--size) solid transparent;
+  border-top: var(--size) solid #ccc;
+}
+
+.arrow[data-side='left'] {
+  right: calc((var(--arrow-size) - 1px) * -1);
+  border-top: var(--arrow-size) solid transparent;
+  border-bottom: var(--arrow-size) solid transparent;
+  border-left: var(--arrow-size) solid white;
+}
+
+.arrow[data-side='left']::before {
+  right: calc(var(--stroke-size) * -1);
+  top: calc(var(--size) * -1);
+  border-top: var(--size) solid transparent;
+  border-bottom: var(--size) solid transparent;
+  border-left: var(--size) solid #ccc;
+}
+
+.arrow[data-side='right'] {
+  left: calc((var(--arrow-size) - 1px) * -1);
+  border-top: var(--arrow-size) solid transparent;
+  border-bottom: var(--arrow-size) solid transparent;
+  border-right: var(--arrow-size) solid white;
+}
+
+.arrow[data-side='right']::before {
+  left: calc(var(--stroke-size) * -1);
+  top: calc(var(--size) * -1);
+  border-top: var(--size) solid transparent;
+  border-bottom: var(--size) solid transparent;
+  border-right: var(--size) solid #ccc;
+}
