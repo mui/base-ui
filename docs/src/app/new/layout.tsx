@@ -4,9 +4,9 @@ import './layout.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
-    <div className="GridlineLayoutRoot">
-      <div className="GridlineLayoutContainer">
-        <div className="GridlineLayoutContent">{children}</div>
+    <div className="RootLayout">
+      <div className="RootLayoutContainer">
+        <div className="RootLayoutContent">{children}</div>
       </div>
     </div>
   );

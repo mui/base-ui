@@ -5,7 +5,7 @@ import './layout.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
-    <div className="ContentLayoutRoot">
+    <div className="SidebarLayoutRoot">
       <SideNav.Root>
         {nav.map((section) => (
           <SideNav.Section key={section.label}>
@@ -21,7 +21,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
         ))}
       </SideNav.Root>
 
-      <main className="ContentLayoutMain">
+      <main className="SidebarLayoutMain">
         <QuickNav.Container>{children}</QuickNav.Container>
       </main>
     </div>

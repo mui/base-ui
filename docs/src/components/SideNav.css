@@ -1,21 +1,15 @@
 @layer components {
   .SideNavRoot {
-    --side-nav-item-padding-y: calc((2rem - var(--text-sm--line-height)) / 2);
-    --side-nav-scrollbar-thumb-width: 0.25rem;
-    --side-nav-scrollbar-width: 1.5rem;
-
-    /* So sorry for the math */
-    --side-nav-scrollbar-gap-left: 1rem;
-    --side-nav-scrollbar-gap-right-min: 1rem;
-    --side-nav-scrollbar-gap-right-max: 2.5rem;
-    --side-nav-scrollbar-gap-right-delta: calc(2.5 - 1);
-    --side-nav-scrollbar-gap-right: clamp(
-      var(--side-nav-scrollbar-gap-right-min),
-      var(--side-nav-scrollbar-gap-right-min) + var(--side-nav-scrollbar-gap-right-delta) *
-        var(--breakpoint-ratio-nav),
-      var(--side-nav-scrollbar-gap-right-max)
+    --side-nav-item-height: 2rem;
+    --side-nav-item-line-height: var(--text-sm--line-height);
+    --side-nav-item-padding-y: calc(
+      var(--side-nav-item-height) / 2 - var(--side-nav-item-line-height) / 2
     );
 
+    --side-nav-scrollbar-thumb-width: 0.25rem;
+    --side-nav-scrollbar-width: 1.5rem;
+    --side-nav-scrollbar-gap-left: 1rem;
+    --side-nav-scrollbar-gap-right: 2.5rem;
     margin-right: calc(
       var(--side-nav-scrollbar-gap-right) - var(--side-nav-scrollbar-width) / 2 +
         var(--side-nav-scrollbar-thumb-width) / 2

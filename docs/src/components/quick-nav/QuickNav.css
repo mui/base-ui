@@ -6,10 +6,12 @@
   }
 
   .QuickNavRoot {
-    --quick-nav-width-min: 11rem;
-    --quick-nav-width-max: 13.5rem;
-    --quick-nav-width-delta: calc(13.5 - 11);
-    --quick-nav-item-padding-y: calc((2rem - var(--text-sm--line-height)) / 2);
+    --quick-nav-margin-x: 2rem;
+    --quick-nav-item-height: 2rem;
+    --quick-nav-item-line-height: var(--text-sm--line-height);
+    --quick-nav-item-padding-y: calc(
+      var(--quick-nav-item-height) / 2 - var(--quick-nav-item-line-height) / 2
+    );
 
     /* The variable is used in JS positioning logic */
     --top: -1px;
@@ -30,17 +32,11 @@
   .QuickNavInner {
     border-top: 1px solid var(--color-gray-200);
     position: relative;
-    left: 2rem;
+    left: var(--quick-nav-margin-x);
     padding-top: 0.75rem;
     padding-bottom: 1.5rem;
     pointer-events: auto;
-
-    /* So sorry for the math */
-    width: clamp(
-      var(--quick-nav-width-min),
-      var(--quick-nav-width-min) + var(--quick-nav-width-delta) * var(--breakpoint-ratio-nav),
-      var(--quick-nav-width-max)
-    );
+    width: calc(var(--sidebar-width) - var(--quick-nav-margin-x) * 2);
   }
 
   .QuickNavTitle {
