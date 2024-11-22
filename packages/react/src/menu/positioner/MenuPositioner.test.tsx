@@ -28,6 +28,7 @@ const testRootContext: MenuRootContext = {
   mounted: true,
   transitionStatus: undefined,
   typingRef: { current: false },
+  modal: false,
 };
 
 describe('<Menu.Positioner />', () => {

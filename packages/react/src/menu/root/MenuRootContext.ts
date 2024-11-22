@@ -9,6 +9,7 @@ export interface MenuRootContext extends useMenuRoot.ReturnValue {
   parentContext: MenuRootContext | undefined;
   setClickAndDragEnabled: React.Dispatch<React.SetStateAction<boolean>>;
   typingRef: React.RefObject<boolean>;
+  modal: boolean;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);

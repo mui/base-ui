@@ -18,7 +18,6 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
   } = parameters;
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
-
   const mergedRef = useForkRef(externalRef, triggerRef);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -37,7 +36,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
           'aria-haspopup': 'menu' as const,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
-          onMouseDown: (event: MouseEvent) => {
+          onMouseDown: (event: React.MouseEvent) => {
             if (open) {
               return;
             }
@@ -47,6 +46,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
             event.preventDefault();
 
             setClickAndDragEnabled(true);
+
             const mousedownTarget = event.target as Element;
 
             function handleDocumentMouseUp(mouseUpEvent: MouseEvent) {

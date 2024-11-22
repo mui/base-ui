@@ -60,6 +60,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     itemDomElements,
     itemLabels,
     mounted,
+    modal,
   } = useMenuRootContext();
 
   const nodeId = useFloatingNodeId();
@@ -136,10 +137,11 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
           <FloatingPortal root={props.container}>
             <FloatingFocusManager
               context={positioner.floatingContext}
-              modal={false}
+              modal={modal}
               initialFocus={nested ? -1 : 0}
               returnFocus
               disabled={!mounted}
+              outsideElementsInert
             >
               {renderElement()}
             </FloatingFocusManager>

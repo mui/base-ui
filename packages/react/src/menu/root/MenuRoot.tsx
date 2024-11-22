@@ -23,6 +23,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     disabled = false,
     closeParentOnEsc = true,
     loop = true,
+    modal = false,
     onOpenChange,
     open,
     orientation = 'vertical',
@@ -75,8 +76,9 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       clickAndDragEnabled,
       setClickAndDragEnabled,
       typingRef,
+      modal,
     }),
-    [menuRoot, nested, parentContext, disabled, clickAndDragEnabled, setClickAndDragEnabled],
+    [menuRoot, nested, parentContext, disabled, clickAndDragEnabled, setClickAndDragEnabled, modal],
   );
 
   if (!nested) {
@@ -105,6 +107,11 @@ namespace MenuRoot {
      * @default true
      */
     loop?: boolean;
+    /**
+     * Determines whether the menu is modal.
+     * @default false
+     */
+    modal?: boolean;
     /**
      * Callback fired when the component requests to be opened or closed.
      */

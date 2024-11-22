@@ -157,6 +157,18 @@ To change how long the menu waits until it opens or closes when `openOnHover` is
 <Menu.Root openOnHover delay={200}>
 ```
 
+## Modality
+
+By default, the Menu is non-modal, so elements outside it can be interacted with.
+To make it modal, use the `modal` prop.
+You may also add a backdrop to the modal Menu by using the `Menu.Backdrop` component, to indicate that the outside elements are inert.
+
+```jsx
+<Menu.Root modal>
+  <Menu.Backdrop />
+</Menu.Root>
+```
+
 ## Radio items
 
 Menu items can be used as radio buttons. To group them together, use the `Menu.RadioGroup` component:
