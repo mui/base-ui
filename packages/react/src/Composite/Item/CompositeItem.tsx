@@ -18,7 +18,7 @@ function CompositeItem<Metadata>(props: CompositeItem.Props<Metadata>) {
 
   const ownerState: CompositeItem.OwnerState = React.useMemo(
     () => ({
-      active: index === activeIndex,
+      highlighted: index === activeIndex,
     }),
     [index, activeIndex],
   );
@@ -39,7 +39,7 @@ function CompositeItem<Metadata>(props: CompositeItem.Props<Metadata>) {
 
 namespace CompositeItem {
   export interface OwnerState {
-    active: boolean;
+    highlighted: boolean;
   }
 
   export interface Props<Metadata>
