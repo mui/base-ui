@@ -10,10 +10,6 @@
   --breakpoint-show-side-nav: 64rem; /* 1024px */
   --breakpoint-show-quick-nav: 84rem; /* 1344px */
   --breakpoint-max-layout-width: 89rem; /* 1424px */
-
-  /* A multiplier that goes from 0rem to 1rem between the 84rem and 89rem breakpoints */
-  /* This is to allow us gradually scale quick nav and side nav between their min and max width */
-  --breakpoint-ratio-nav: clamp(0rem, (100vw - 84rem) / (89 - 84), 1rem);
 }
 
 @custom-media --sm (min-width: 40rem);
