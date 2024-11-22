@@ -90,7 +90,7 @@ export function useFieldControlValidation() {
     const nextValidityData = {
       value,
       state: nextState,
-      error: Array.isArray(result) ? result[0] : result ?? element.validationMessage,
+      error: Array.isArray(result) ? result[0] : (result ?? element.validationMessage),
       errors: validationErrors,
       initialValue: validityData.initialValue,
     };
