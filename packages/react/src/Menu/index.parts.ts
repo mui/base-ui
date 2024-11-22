@@ -1,4 +1,5 @@
 export { MenuArrow as Arrow } from './Arrow/MenuArrow';
+export { MenuBackdrop as Backdrop } from './Backdrop/MenuBackdrop';
 export { MenuCheckboxItem as CheckboxItem } from './CheckboxItem/MenuCheckboxItem';
 export { MenuCheckboxItemIndicator as CheckboxItemIndicator } from './CheckboxItemIndicator/MenuCheckboxItemIndicator';
 export { MenuGroup as Group } from './Group/MenuGroup';
