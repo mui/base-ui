@@ -45,13 +45,12 @@
   }
 
   .CodeBlockPre {
+    @apply text-xs;
     cursor: text;
     color: var(--color-foreground);
     background-color: var(--color-content);
     padding: 0.5rem 0.75rem;
     border-radius: var(--radius-md);
-    font-size: 0.8125rem;
-    line-height: 1.25rem;
     outline: 0;
 
     /* Scroll */

@@ -42,7 +42,7 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
         'aria-valuenow': value ?? undefined,
         'aria-valuetext': getAriaValueText
           ? getAriaValueText(value)
-          : ariaValuetext ?? getDefaultAriaValueText(value),
+          : (ariaValuetext ?? getDefaultAriaValueText(value)),
         dir: direction,
         role: 'progressbar',
       }),

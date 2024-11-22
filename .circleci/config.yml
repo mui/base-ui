@@ -375,6 +375,19 @@ jobs:
           name: Run danger on PRs
           command: pnpm danger ci --fail-on-errors
       # TODO test bundle size https://github.com/mui/base-ui/issues/201
+  test_package:
+    <<: *default-job
+    steps:
+      - checkout
+      - install_js:
+          react-version: << parameters.react-version >>
+      - run:
+          name: Build packages
+          command: pnpm release:build
+      - run:
+          name: Are the types wrong?
+          command: pnpm -r test:package-types
+
 workflows:
   version: 2
   pipeline:
@@ -416,6 +429,10 @@ workflows:
           requires:
             - checkout
       - test_bundle_size_monitor:
+          <<: *default-context
+          requires:
+            - checkout
+      - test_package:
           <<: *default-context
           requires:
             - checkout

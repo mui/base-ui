@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "nodenext",
     "target": "es2020",
     "lib": ["es2020", "dom"],
     "jsx": "preserve",
-    "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noEmit": true,

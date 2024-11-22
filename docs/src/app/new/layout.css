@@ -1,12 +1,13 @@
 html {
+  color-scheme: light dark;
+
   /* macOS overscroll background */
   background-color: #000;
 }
 
 body {
   min-width: 360px;
-  font-size: 1rem;
-  line-height: 1.5rem;
+  line-height: 1.5;
   background-color: var(--color-background);
   color: var(--color-foreground);
 }
