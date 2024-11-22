@@ -1,9 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useMediaQuery } from '@base-ui-components/react/useMediaQuery';
-// TODO: fix this once Base UI uses the exports field and publishes the utilities
-// eslint-disable-next-line no-restricted-imports
-import { useEnhancedEffect } from '@base-ui-components/react/utils/useEnhancedEffect';
+import { useEnhancedEffect } from '@base-ui-components/react/utils';
 
 let boundDataGaListener = false;
 

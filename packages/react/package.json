@@ -29,6 +29,9 @@
     ".": {
       "import": "./src/index.ts"
     },
+    "./utils": {
+      "import": "./src/utils/index.ts"
+    },
     "./*": {
       "import": "./src/*/index.ts"
     }
