@@ -31,7 +31,6 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     open: externalOpen,
     onOpenChange: onOpenChangeProp = () => {},
     defaultOpen = false,
-    keepMounted = false,
     delay,
     closeDelay,
     openOnHover = false,
@@ -69,22 +68,21 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
-      if (!keepMounted && !nextOpen) {
+
+      if (!nextOpen) {
         if (animated) {
           runOnceAnimationsFinish(() => {
             if (!openRef.current) {
               setMounted(false);
+              setOpenReason(null);
             }
           });
         } else {
           setMounted(false);
+          setOpenReason(null);
         }
-      }
-
-      if (nextOpen) {
-        setOpenReason(reason ?? null);
       } else {
-        setOpenReason(null);
+        setOpenReason(reason ?? null);
       }
     },
   );
