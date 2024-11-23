@@ -6,18 +6,67 @@ import { usePathname } from 'next/navigation';
 import { ScrollArea } from '@base-ui-components/react/ScrollArea';
 import scrollIntoView from 'scroll-into-view-if-needed';
 
+interface SideNavContextValue {
+  /**
+   * Whether we are programmatically scrolling an item into view.
+   * We make sure that the scrollbar is visible only during user interaction.
+   */
+  scrollingIntoView: boolean;
+  setScrollingIntoView: (value: boolean) => void;
+}
+
+const SideNavContext = React.createContext<SideNavContextValue>({
+  scrollingIntoView: false,
+  setScrollingIntoView: () => undefined,
+});
+
 export function Root({ children, className, ...props }: React.ComponentProps<'div'>) {
+  const [scrollingIntoView, setScrollingIntoView] = React.useState(false);
+  const contextValue = React.useMemo(
+    () => ({ scrollingIntoView, setScrollingIntoView }),
+    [scrollingIntoView, setScrollingIntoView],
+  );
+
   return (
-    <nav aria-label="Main navigation" className={clsx('SideNavRoot', className)} {...props}>
-      <ScrollArea.Root>
-        <ScrollArea.Viewport data-side-nav-viewport className="SideNavViewport">
-          {children}
-        </ScrollArea.Viewport>
-        <ScrollArea.Scrollbar orientation="vertical" className="SideNavScrollbar">
-          <ScrollArea.Thumb className="SideNavScrollbarThumb" />
-        </ScrollArea.Scrollbar>
-      </ScrollArea.Root>
-    </nav>
+    <SideNavContext.Provider value={contextValue}>
+      <nav aria-label="Main navigation" className={clsx('SideNavRoot', className)} {...props}>
+        <ScrollArea.Root>
+          <ScrollArea.Viewport data-side-nav-viewport className="SideNavViewport">
+            {children}
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar
+            render={ScrollbarImpl}
+            orientation="vertical"
+            className="SideNavScrollbar"
+          >
+            <ScrollArea.Thumb className="SideNavScrollbarThumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>
+      </nav>
+    </SideNavContext.Provider>
+  );
+}
+
+function ScrollbarImpl(props: ScrollArea.Scrollbar.Props, state: ScrollArea.Scrollbar.OwnerState) {
+  const { scrollingIntoView, setScrollingIntoView } = React.useContext(SideNavContext);
+  const prevScrolling = React.useRef(state.scrolling);
+  const dataScrolling = (props as Record<string, string>)['data-scrolling'];
+
+  React.useEffect(() => {
+    // Clear `scrollingIntoView` state when the ScrollArea's
+    // `state.scrolling` flips back to `false`
+    if (prevScrolling.current && !state.scrolling && scrollingIntoView) {
+      setScrollingIntoView(false);
+    }
+    prevScrolling.current = state.scrolling;
+  }, [scrollingIntoView, setScrollingIntoView, state.scrolling]);
+
+  return (
+    <ScrollArea.Scrollbar
+      {...props}
+      // Prevent `data-scrolling` from being set when scrolling into view programmatically
+      data-scrolling={scrollingIntoView ? undefined : dataScrolling}
+    />
   );
 }
 
@@ -39,13 +88,14 @@ interface ItemProps extends React.ComponentProps<'li'> {
 }
 
 export function Item({ children, className, href, ...props }: ItemProps) {
+  const { setScrollingIntoView } = React.useContext(SideNavContext);
   const ref = React.useRef<HTMLLIElement>(null);
   const pathname = usePathname();
   const active = pathname === href;
 
   React.useEffect(() => {
     if (ref.current && active) {
-      // TODO Vlad this should be rem
+      // TODO Vlad this should be rem, not 48px
       const HEADER_HEIGHT = 48;
       const SCROLL_MARGIN = 48;
       const viewport = document.querySelector('[data-side-nav-viewport]');
@@ -59,6 +109,8 @@ export function Item({ children, className, href, ...props }: ItemProps) {
         scrollMode: 'if-needed',
         boundary: (parent) => viewport.contains(parent),
         behavior: (actions) => {
+          // We are scrolling into view, update upstream state
+          setScrollingIntoView(true);
           actions.forEach(({ top }) => {
             const dir = viewport.scrollTop > top ? -1 : 1;
             const offset = Math.max(0, HEADER_HEIGHT - Math.max(0, window.scrollY));
@@ -67,7 +119,7 @@ export function Item({ children, className, href, ...props }: ItemProps) {
         },
       });
     }
-  }, [active]);
+  }, [active, setScrollingIntoView]);
 
   return (
     <li ref={ref} className={clsx('SideNavItem', className)} {...props}>
