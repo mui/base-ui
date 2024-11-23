@@ -27,7 +27,6 @@
 
   .SideNavViewport {
     max-height: 100vh;
-    overscroll-behavior-y: contain;
     padding-top: 0.75rem;
     padding-bottom: 3rem;
     padding-left: 1.5rem;
