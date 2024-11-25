@@ -43,7 +43,7 @@
     "build:stable": "node ../../scripts/build.mjs stable",
     "build:copy-files": "node ../../scripts/copyFiles.mjs",
     "build:types": "tsx ../../scripts/buildTypes.mjs --project tsconfig.build.json --copy build/cjs",
-    "test:package-types": "attw --pack ./build --include-entrypoints ./Accordion ./Menu ./Tooltip",
+    "test:package-types": "attw --pack ./build --include-entrypoints ./accordion ./menu ./Tooltip",
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
     "release": "pnpm build && pnpm publish",
     "test": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/react/**/*.test.{js,ts,tsx}'",
