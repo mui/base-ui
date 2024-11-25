@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Field } from '@base-ui-components/react/Field';
 import { Checkbox } from '@base-ui-components/react/Checkbox';
 import { Switch } from '@base-ui-components/react/Switch';
-import { NumberField } from 'packages/react/src/number-field';
+import { NumberField } from '@base-ui-components/react/number-field';
 import { Slider } from '@base-ui-components/react/Slider';
 import { RadioGroup } from '@base-ui-components/react/RadioGroup';
 import { Radio } from '@base-ui-components/react/Radio';
