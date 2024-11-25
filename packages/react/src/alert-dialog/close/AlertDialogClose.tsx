@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
-import { useDialogClose } from '../../Dialog/Close/useDialogClose';
+import { useDialogClose } from '../../dialog/close/useDialogClose';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 

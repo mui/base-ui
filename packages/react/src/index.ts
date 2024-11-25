@@ -3,7 +3,7 @@ export * from './alert-dialog';
 export * from './checkbox';
 export * from './checkbox-group';
 export * from './collapsible';
-export * from './Dialog';
+export * from './dialog';
 export * from './Field';
 export * from './Fieldset';
 export * from './Form';

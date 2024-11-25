@@ -1,16 +1,16 @@
 import * as React from 'react';
-import { Dialog } from '@base-ui-components/react/Dialog';
+import { Dialog } from '@base-ui-components/react/dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 
-describe('<Dialog.Close />', () => {
+describe('<Dialog.Trigger />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Dialog.Close />, () => ({
+  describeConformance(<Dialog.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
     render: (node) => {
       return render(
-        <Dialog.Root open modal={false} animated={false}>
-          <Dialog.Popup>{node}</Dialog.Popup>
+        <Dialog.Root open modal={false}>
+          {node}
         </Dialog.Root>,
       );
     },

@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useDialogRootContext } from '../Root/DialogRootContext';
+import { useDialogClose } from './useDialogClose';
+import { useDialogRootContext } from '../root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
+
+const ownerState = {};
 
 /**
- * A button that opens the dialog. Renders a `<button>` element.
  *
  * Demos:
  *
@@ -16,41 +16,35 @@ import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
  *
  * API:
  *
- * - [DialogTrigger API](https://base-ui.com/components/react-dialog/#api-reference-DialogTrigger)
+ * - [DialogClose API](https://base-ui.com/components/react-dialog/#api-reference-DialogClose)
  */
-const DialogTrigger = React.forwardRef(function DialogTrigger(
-  props: DialogTrigger.Props,
+const DialogClose = React.forwardRef(function DialogClose(
+  props: DialogClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
-  const { open, setTriggerElement, getTriggerProps } = useDialogRootContext();
-
-  const ownerState: DialogTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
-
-  const mergedRef = useForkRef(forwardedRef, setTriggerElement);
+  const { open, onOpenChange } = useDialogRootContext();
+  const { getRootProps } = useDialogClose({ open, onOpenChange });
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
     className,
     ownerState,
-    propGetter: getTriggerProps,
+    propGetter: getRootProps,
+    ref: forwardedRef,
     extraProps: other,
-    customStyleHookMapping: triggerOpenStateMapping,
-    ref: mergedRef,
   });
 
   return renderElement();
 });
 
-namespace DialogTrigger {
+namespace DialogClose {
   export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
 
-  export interface OwnerState {
-    open: boolean;
-  }
+  export interface OwnerState {}
 }
 
-DialogTrigger.propTypes /* remove-proptypes */ = {
+DialogClose.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -69,4 +63,4 @@ DialogTrigger.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { DialogTrigger };
+export { DialogClose };

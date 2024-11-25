@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
-import { useDialogBackdrop } from '../../Dialog/Backdrop/useDialogBackdrop';
+import { useDialogBackdrop } from '../../dialog/backdrop/useDialogBackdrop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { BaseUIComponentProps } from '../../utils/types';
