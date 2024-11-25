@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext';
+import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
+import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**

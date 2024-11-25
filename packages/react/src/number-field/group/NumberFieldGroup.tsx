@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext';
+import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
+import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * The increment stepper button.
+ * Groups interactive `NumberField` components together.
  *
  * Demos:
  *
@@ -15,20 +15,20 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * API:
  *
- * - [NumberFieldIncrement API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldIncrement)
+ * - [NumberFieldGroup API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldGroup)
  */
-const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
-  props: NumberFieldIncrement.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
+  props: NumberFieldGroup.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { getIncrementButtonProps, ownerState } = useNumberFieldRootContext();
+  const { getGroupProps, ownerState } = useNumberFieldRootContext();
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getIncrementButtonProps,
+    propGetter: getGroupProps,
     ref: forwardedRef,
-    render: render ?? 'button',
+    render: render ?? 'div',
     ownerState,
     className,
     extraProps: otherProps,
@@ -37,12 +37,12 @@ const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
   return renderElement();
 });
 
-namespace NumberFieldIncrement {
+namespace NumberFieldGroup {
   export interface OwnerState extends NumberFieldRoot.OwnerState {}
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
 }
 
-NumberFieldIncrement.propTypes /* remove-proptypes */ = {
+NumberFieldGroup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -61,4 +61,4 @@ NumberFieldIncrement.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { NumberFieldIncrement };
+export { NumberFieldGroup };

@@ -2,10 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useNumberFieldRootContext } from '../Root/NumberFieldRootContext';
+import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import type { NumberFieldRoot } from '../Root/NumberFieldRoot';
+import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 
 /**
  * The scrub area element.

@@ -12,7 +12,7 @@
   "themeDefaultProps": true,
   "muiName": "NumberFieldScrubAreaCursor",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/react/src/number-field/ScrubAreaCursor/NumberFieldScrubAreaCursor.tsx",
+  "filename": "/packages/react/src/number-field/scrub-area-cursor/NumberFieldScrubAreaCursor.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-number-field/\">Number Field</a></li></ul>",
   "cssComponent": false

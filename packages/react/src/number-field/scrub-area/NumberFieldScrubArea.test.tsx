@@ -4,7 +4,7 @@ import { screen, waitFor, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { isWebKit } from '../../utils/detectBrowser';
-import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';
+import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
 
 function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
   return new PointerEvent('pointermove', {

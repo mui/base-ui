@@ -4,10 +4,10 @@ import { screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
-import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';
+import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
 
 const testContext = {
-  getIncrementButtonProps: (externalProps) => externalProps,
+  getDecrementButtonProps: (externalProps) => externalProps,
   ownerState: {
     value: null,
     required: false,
@@ -17,10 +17,10 @@ const testContext = {
   },
 } as NumberFieldRootContext;
 
-describe('<NumberField.Increment />', () => {
+describe('<NumberField.Decrement />', () => {
   const { render, clock } = createRenderer();
 
-  describeConformance(<NumberField.Increment />, () => ({
+  describeConformance(<NumberField.Decrement />, () => ({
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(
@@ -31,19 +31,19 @@ describe('<NumberField.Increment />', () => {
     },
   }));
 
-  it('has increase label', async () => {
+  it('has decrease label', async () => {
     await render(
       <NumberField.Root>
-        <NumberField.Increment />
+        <NumberField.Decrement />
       </NumberField.Root>,
     );
-    expect(screen.queryByLabelText('Increase')).not.to.equal(null);
+    expect(screen.queryByLabelText('Decrease')).not.to.equal(null);
   });
 
-  it('increments starting from 0 click', async () => {
+  it('decrements starting from 0 click', async () => {
     await render(
       <NumberField.Root>
-        <NumberField.Increment />
+        <NumberField.Decrement />
         <NumberField.Input />
       </NumberField.Root>,
     );
@@ -53,26 +53,26 @@ describe('<NumberField.Increment />', () => {
     expect(screen.getByRole('textbox')).to.have.value('0');
   });
 
-  it('increments to 1 starting from defaultValue=0 click', async () => {
+  it('decrements to -1 starting from defaultValue=0 click', async () => {
     await render(
       <NumberField.Root defaultValue={0}>
-        <NumberField.Increment />
+        <NumberField.Decrement />
         <NumberField.Input />
       </NumberField.Root>,
     );
 
     const button = screen.getByRole('button');
     fireEvent.click(button);
-    expect(screen.getByRole('textbox')).to.have.value('1');
+    expect(screen.getByRole('textbox')).to.have.value('-1');
   });
 
   describe('press and hold', () => {
     clock.withFakeTimers();
 
-    it('increments continuously when holding pointerdown', async () => {
+    it('decrements continuously when holding pointerdown', async () => {
       await render(
         <NumberField.Root defaultValue={0}>
-          <NumberField.Increment />
+          <NumberField.Decrement />
           <NumberField.Input />
         </NumberField.Root>,
       );
@@ -82,7 +82,7 @@ describe('<NumberField.Increment />', () => {
 
       fireEvent.pointerDown(button); // onChange x1
 
-      expect(input).to.have.value('1');
+      expect(input).to.have.value('-1');
 
       clock.tick(START_AUTO_CHANGE_DELAY);
 
@@ -90,19 +90,19 @@ describe('<NumberField.Increment />', () => {
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x3
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x4
 
-      expect(input).to.have.value('4');
+      expect(input).to.have.value('-4');
 
       fireEvent.pointerUp(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
-      expect(input).to.have.value('4');
+      expect(input).to.have.value('-4');
     });
 
-    it('does not increment twice with pointerdown and click', async () => {
+    it('does not decrement twice with pointerdown and click', async () => {
       await render(
         <NumberField.Root defaultValue={0}>
-          <NumberField.Increment />
+          <NumberField.Decrement />
           <NumberField.Input />
         </NumberField.Root>,
       );
@@ -114,13 +114,13 @@ describe('<NumberField.Increment />', () => {
       fireEvent.pointerUp(button);
       fireEvent.click(button, { detail: 1 });
 
-      expect(input).to.have.value('1');
+      expect(input).to.have.value('-1');
     });
 
-    it('should stop incrementing after mouseleave', async () => {
+    it('should stop decrementing after mouseleave', async () => {
       await render(
         <NumberField.Root defaultValue={0}>
-          <NumberField.Increment />
+          <NumberField.Decrement />
           <NumberField.Input />
         </NumberField.Root>,
       );
@@ -130,7 +130,7 @@ describe('<NumberField.Increment />', () => {
 
       fireEvent.pointerDown(button); // onChange x1
 
-      expect(input).to.have.value('1');
+      expect(input).to.have.value('-1');
 
       clock.tick(START_AUTO_CHANGE_DELAY);
 
@@ -138,19 +138,19 @@ describe('<NumberField.Increment />', () => {
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x3
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x4
 
-      expect(input).to.have.value('4');
+      expect(input).to.have.value('-4');
 
       fireEvent.mouseLeave(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
-      expect(input).to.have.value('4');
+      expect(input).to.have.value('-4');
     });
 
-    it('should start incrementing again after mouseleave then mouseenter', async () => {
+    it('should start decrementing again after mouseleave then mouseenter', async () => {
       await render(
         <NumberField.Root defaultValue={0}>
-          <NumberField.Increment />
+          <NumberField.Decrement />
           <NumberField.Input />
         </NumberField.Root>,
       );
@@ -160,7 +160,7 @@ describe('<NumberField.Increment />', () => {
 
       fireEvent.pointerDown(button); // onChange x1
 
-      expect(input).to.have.value('1');
+      expect(input).to.have.value('-1');
 
       clock.tick(START_AUTO_CHANGE_DELAY);
 
@@ -168,25 +168,25 @@ describe('<NumberField.Increment />', () => {
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x3
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x4
 
-      expect(input).to.have.value('4');
+      expect(input).to.have.value('-4');
 
       fireEvent.mouseLeave(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
-      expect(input).to.have.value('4');
+      expect(input).to.have.value('-4');
 
       fireEvent.mouseEnter(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x5
 
-      expect(input).to.have.value('5');
+      expect(input).to.have.value('-5');
     });
 
-    it('should not start incrementing again after mouseleave then mouseenter after pointerup', async () => {
+    it('should not start decrementing again after mouseleave then mouseenter after pointerup', async () => {
       await render(
         <NumberField.Root defaultValue={0}>
-          <NumberField.Increment />
+          <NumberField.Decrement />
           <NumberField.Input />
         </NumberField.Root>,
       );
@@ -196,7 +196,7 @@ describe('<NumberField.Increment />', () => {
 
       fireEvent.pointerDown(button); // onChange x1
 
-      expect(input).to.have.value('1');
+      expect(input).to.have.value('-1');
 
       clock.tick(START_AUTO_CHANGE_DELAY);
 
@@ -204,32 +204,32 @@ describe('<NumberField.Increment />', () => {
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x3
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x4
 
-      expect(input).to.have.value('4');
+      expect(input).to.have.value('-4');
 
       fireEvent.pointerUp(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
-      expect(input).to.have.value('4');
+      expect(input).to.have.value('-4');
 
       fireEvent.mouseLeave(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
-      expect(input).to.have.value('4');
+      expect(input).to.have.value('-4');
 
       fireEvent.mouseEnter(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
-      expect(input).to.have.value('4');
+      expect(input).to.have.value('-4');
     });
   });
 
-  it('should not increment when disabled', async () => {
+  it('should not decrement when disabled', async () => {
     await render(
       <NumberField.Root disabled>
-        <NumberField.Increment />
+        <NumberField.Decrement />
         <NumberField.Input />
       </NumberField.Root>,
     );
@@ -239,10 +239,10 @@ describe('<NumberField.Increment />', () => {
     expect(screen.getByRole('textbox')).to.have.value('');
   });
 
-  it('should not increment when readOnly', async () => {
+  it('should not decrement when readOnly', async () => {
     await render(
       <NumberField.Root readOnly>
-        <NumberField.Increment />
+        <NumberField.Decrement />
         <NumberField.Input />
       </NumberField.Root>,
     );

@@ -40,7 +40,7 @@
   "themeDefaultProps": true,
   "muiName": "NumberFieldRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/number-field/Root/NumberFieldRoot.tsx",
+  "filename": "/packages/react/src/number-field/root/NumberFieldRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-number-field/\">Number Field</a></li></ul>",
   "cssComponent": false
