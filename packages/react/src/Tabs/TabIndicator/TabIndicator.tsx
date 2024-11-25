@@ -1,13 +1,15 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { ActiveTabPosition, useTabIndicator } from './useTabIndicator';
-import { script as prehydrationScript } from './prehydrationScript.min';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useOnMount } from '../../utils/useOnMount';
+import type { BaseUIComponentProps } from '../../utils/types';
 import type { TabsDirection, TabsOrientation, TabsRoot } from '../Root/TabsRoot';
 import { useTabsRootContext } from '../Root/TabsRootContext';
 import { tabsStyleHookMapping } from '../Root/styleHooks';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useTabsListContext } from '../TabsList/TabsListContext';
+import { ActiveTabPosition, useTabIndicator } from './useTabIndicator';
+import { script as prehydrationScript } from './prehydrationScript.min';
 
 const noop = () => null;
 
@@ -25,28 +27,32 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicator.Props>(
   function TabIndicator(props, forwardedRef) {
     const { className, render, renderBeforeHydration = false, ...other } = props;
 
+    const { direction, getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
+      useTabsRootContext();
+
+    const { tabsListRef } = useTabsListContext();
+
     const [instanceId] = React.useState(() => Math.random().toString(36).slice(2));
     const [isMounted, setIsMounted] = React.useState(false);
     const { value: activeTabValue } = useTabsRootContext();
 
-    React.useEffect(() => {
-      setIsMounted(true);
-    }, []);
+    useOnMount(() => setIsMounted(true));
 
-    const {
-      direction,
-      getRootProps,
-      orientation,
-      activeTabPosition: selectedTabPosition,
-      tabActivationDirection,
-    } = useTabIndicator();
+    const { getRootProps, activeTabPosition: selectedTabPosition } = useTabIndicator({
+      getTabElementBySelectedValue,
+      tabsListRef,
+      value,
+    });
 
-    const ownerState: TabIndicator.OwnerState = {
-      selectedTabPosition,
-      orientation,
-      direction,
-      tabActivationDirection,
-    };
+    const ownerState: TabIndicator.OwnerState = React.useMemo(
+      () => ({
+        direction,
+        orientation,
+        selectedTabPosition,
+        tabActivationDirection,
+      }),
+      [direction, orientation, selectedTabPosition, tabActivationDirection],
+    );
 
     const { renderElement } = useComponentRenderer({
       propGetter: getRootProps,
@@ -102,6 +108,8 @@ namespace TabIndicator {
   }
 }
 
+export { TabIndicator };
+
 TabIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -127,5 +135,3 @@ TabIndicator.propTypes /* remove-proptypes */ = {
    */
   renderBeforeHydration: PropTypes.bool,
 } as any;
-
-export { TabIndicator };

@@ -1,65 +1,77 @@
 'use client';
 import * as React from 'react';
-import { useTabsRootContext } from '../Root/TabsRootContext';
-import { useCompoundItem } from '../../useCompound';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { GenericHTMLProps } from '../../utils/types';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { TabActivationDirection, TabsDirection, TabsOrientation } from '../Root/TabsRoot';
+import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
+import type { TabsRootContext } from '../Root/TabsRootContext';
+import type { TabValue } from '../Root/TabsRoot';
 
-function tabPanelValueGenerator(otherTabPanelValues: Set<any>) {
-  return otherTabPanelValues.size;
+export interface TabPanelMetadata {
+  id?: string;
+  value: useTabPanel.Parameters['value'];
 }
 
 function useTabPanel(parameters: useTabPanel.Parameters): useTabPanel.ReturnValue {
-  const { value: valueParam, id: idParam, rootRef: externalRef } = parameters;
   const {
-    value: selectedTabValue,
-    getTabId,
-    orientation,
-    direction,
-    tabActivationDirection,
-  } = useTabsRootContext();
+    getTabIdByPanelValueOrIndex,
+    rootRef: externalRef,
+    selectedValue,
+    value: valueParam,
+  } = parameters;
 
-  const id = useId(idParam);
-  const ref = React.useRef<HTMLElement>(null);
-  const handleRef = useForkRef(ref, externalRef);
-  const metadata = React.useMemo(() => ({ id, ref }), [id]);
+  const id = useId();
 
-  const { id: value } = useCompoundItem(valueParam ?? tabPanelValueGenerator, metadata);
+  const metadata = React.useMemo(
+    () => ({
+      id,
+      value: valueParam,
+    }),
+    [id, valueParam],
+  );
 
-  const hidden = value !== selectedTabValue;
+  const { ref: listItemRef, index } = useCompositeListItem<TabPanelMetadata>({
+    metadata,
+  });
 
-  const correspondingTabId = value !== undefined ? getTabId(value) : undefined;
+  const tabPanelValue = valueParam ?? index;
+
+  const panelRef = React.useRef<HTMLElement>(null);
+  const handleRef = useForkRef(panelRef, listItemRef, externalRef);
+
+  const hidden = tabPanelValue !== selectedValue;
+
+  const correspondingTabId = React.useMemo(() => {
+    return getTabIdByPanelValueOrIndex(valueParam, index);
+  }, [getTabIdByPanelValueOrIndex, index, valueParam]);
 
   const getRootProps = React.useCallback(
     (
       externalProps: React.ComponentPropsWithoutRef<'div'> = {},
     ): React.ComponentPropsWithRef<'div'> => {
       return mergeReactProps(externalProps, {
-        'aria-labelledby': correspondingTabId ?? undefined,
+        'aria-labelledby': correspondingTabId,
         hidden,
         id: id ?? undefined,
         role: 'tabpanel',
         tabIndex: hidden ? -1 : 0,
         ref: handleRef,
+        'data-index': index,
       });
     },
-    [correspondingTabId, handleRef, hidden, id],
+    [correspondingTabId, handleRef, hidden, id, index],
   );
 
   return {
     hidden,
     getRootProps,
     rootRef: handleRef,
-    orientation,
-    direction,
-    tabActivationDirection,
   };
 }
 
 namespace useTabPanel {
-  export interface Parameters {
+  export interface Parameters extends Pick<TabsRootContext, 'getTabIdByPanelValueOrIndex'> {
     /**
      * The id of the TabPanel.
      */
@@ -69,9 +81,13 @@ namespace useTabPanel {
      */
     rootRef?: React.Ref<HTMLElement>;
     /**
+     * The (context) value of the currently active/selected Tab.
+     */
+    selectedValue: TabValue;
+    /**
      * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
      */
-    value?: any;
+    value?: TabValue;
   }
 
   export interface ReturnValue {
@@ -80,17 +96,12 @@ namespace useTabPanel {
      */
     hidden: boolean;
     /**
-     * Resolver for the root slot's props.
-     * @param externalProps additional props for the root slot
-     * @returns props that should be spread on the root slot
+     * Resolver for the TabPanel component's props.
+     * @param externalProps additional props for Tabs.TabPanel
+     * @returns props that should be spread on Tabs.TabPanel
      */
-    getRootProps: (
-      externalProps?: React.ComponentPropsWithRef<'div'>,
-    ) => React.ComponentPropsWithRef<'div'>;
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     rootRef: React.RefCallback<HTMLElement> | null;
-    orientation: TabsOrientation;
-    direction: TabsDirection;
-    tabActivationDirection: TabActivationDirection;
   }
 }
 
