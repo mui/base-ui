@@ -27,7 +27,9 @@ export function getComponentImports(name: string, filename: string) {
   // @base-ui-components/react/number-field => number-field
   const componentDirectory = directories[3];
   // @base-ui-components/react/number-field => NumberField
-  const mainImportName = capitalizeFirstLetter(componentDirectory.replace(/-([a-z])/g, (g) => g[1].toUpperCase()));
+  const mainImportName = capitalizeFirstLetter(
+    componentDirectory.replace(/-([a-z])/g, (g) => g[1].toUpperCase()),
+  );
 
   if (mainImportName === name) {
     return [`import { ${name} } from '@base-ui-components/react/${componentDirectory}';`];
