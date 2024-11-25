@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Field } from '@base-ui-components/react/Field';
-import { Checkbox } from '@base-ui-components/react/Checkbox';
+import { Checkbox } from '@base-ui-components/react/checkbox';
 import { Switch } from '@base-ui-components/react/Switch';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { Slider } from '@base-ui-components/react/Slider';

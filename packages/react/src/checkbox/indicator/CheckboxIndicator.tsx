@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useCheckboxRootContext } from '../Root/CheckboxRootContext';
+import { useCheckboxRootContext } from '../root/CheckboxRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
-import type { CheckboxRoot } from '../Root/CheckboxRoot';
+import type { CheckboxRoot } from '../root/CheckboxRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**

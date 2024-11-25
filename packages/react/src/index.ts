@@ -1,6 +1,6 @@
 export * from './accordion';
 export * from './alert-dialog';
-export * from './Checkbox';
+export * from './checkbox';
 export * from './CheckboxGroup';
 export * from './Collapsible';
 export * from './Dialog';
