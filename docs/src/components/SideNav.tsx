@@ -5,6 +5,8 @@ import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ScrollArea } from '@base-ui-components/react/ScrollArea';
 import scrollIntoView from 'scroll-into-view-if-needed';
+// eslint-disable-next-line no-restricted-imports
+import { useEnhancedEffect } from '@base-ui-components/react/utils/useEnhancedEffect';
 
 interface SideNavContextValue {
   /**
@@ -46,7 +48,7 @@ function Scrollbar(props: React.ComponentProps<'div'>) {
   const dataScrolling = (props as Record<string, string | undefined>)['data-scrolling'];
   const prevScrolling = React.useRef(dataScrolling);
 
-  React.useEffect(() => {
+  useEnhancedEffect(() => {
     // Clear `scrollingIntoView` state when the ScrollArea's
     // `state.scrolling` flips back to `false`
     if (prevScrolling.current && !dataScrolling && scrollingIntoView) {
