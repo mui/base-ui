@@ -5,7 +5,7 @@ export * from './checkbox-group';
 export * from './collapsible';
 export * from './dialog';
 export * from './field';
-export * from './Fieldset';
+export * from './fieldset';
 export * from './Form';
 export * from './Menu';
 export * from './number-field';
