@@ -34,39 +34,36 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
           <ScrollArea.Viewport data-side-nav-viewport className="SideNavViewport">
             {children}
           </ScrollArea.Viewport>
-          <ScrollArea.Scrollbar
-            render={ScrollbarImpl}
-            orientation="vertical"
-            className="SideNavScrollbar"
-          >
-            <ScrollArea.Thumb className="SideNavScrollbarThumb" />
-          </ScrollArea.Scrollbar>
+          <Scrollbar />
         </ScrollArea.Root>
       </nav>
     </SideNavContext.Provider>
   );
 }
 
-function ScrollbarImpl(props: React.ComponentProps<'div'>, state: ScrollArea.Scrollbar.OwnerState) {
+function Scrollbar(props: React.ComponentProps<'div'>) {
   const { scrollingIntoView, setScrollingIntoView } = React.useContext(SideNavContext);
-  const prevScrolling = React.useRef(state.scrolling);
-  const dataScrolling = (props as Record<string, string>)['data-scrolling'];
+  const dataScrolling = (props as Record<string, string | undefined>)['data-scrolling'];
+  const prevScrolling = React.useRef(dataScrolling);
 
   React.useEffect(() => {
     // Clear `scrollingIntoView` state when the ScrollArea's
     // `state.scrolling` flips back to `false`
-    if (prevScrolling.current && !state.scrolling && scrollingIntoView) {
+    if (prevScrolling.current && !dataScrolling && scrollingIntoView) {
       setScrollingIntoView(false);
     }
-    prevScrolling.current = state.scrolling;
-  }, [scrollingIntoView, setScrollingIntoView, state.scrolling]);
+    prevScrolling.current = dataScrolling;
+  }, [scrollingIntoView, setScrollingIntoView, dataScrolling]);
 
   return (
-    <div
-      {...props}
+    <ScrollArea.Scrollbar
       // Prevent `data-scrolling` from being set when scrolling into view programmatically
       data-scrolling={scrollingIntoView ? undefined : dataScrolling}
-    />
+      orientation="vertical"
+      className="SideNavScrollbar"
+    >
+      <ScrollArea.Thumb className="SideNavScrollbarThumb" />
+    </ScrollArea.Scrollbar>
   );
 }
 
