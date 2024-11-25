@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
-import { CheckboxGroup } from '@base-ui-components/react/CheckboxGroup';
+import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { describeConformance } from '../../../test/describeConformance';
 
