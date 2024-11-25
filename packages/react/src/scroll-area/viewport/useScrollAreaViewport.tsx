@@ -5,6 +5,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { clamp } from '../../utils/clamp';
 import { MIN_THUMB_SIZE } from '../constants';
+import { getBoxOffset } from '../utils/getBoxOffset';
 
 export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) {
   const { children } = params;
@@ -58,8 +59,11 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       ? 0
       : (viewportHeight / scrollableContentHeight) * viewportHeight;
 
-    const clampedNextWidth = Math.max(MIN_THUMB_SIZE, nextWidth);
-    const clampedNextHeight = Math.max(MIN_THUMB_SIZE, nextHeight);
+    const xOffset = getBoxOffset(scrollbarXEl, 'x');
+    const yOffset = getBoxOffset(scrollbarYEl, 'y');
+
+    const clampedNextWidth = Math.max(MIN_THUMB_SIZE, nextWidth - xOffset);
+    const clampedNextHeight = Math.max(MIN_THUMB_SIZE, nextHeight - yOffset);
 
     setThumbSize((prevSize) => {
       if (prevSize.height === clampedNextHeight && prevSize.width === clampedNextWidth) {
@@ -74,12 +78,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
     // Handle Y (vertical) scroll
     if (scrollbarYEl && thumbYEl) {
-      const scrollbarStylesY = getComputedStyle(scrollbarYEl);
-      const paddingTop = parseFloat(scrollbarStylesY.paddingTop);
-      const paddingBottom = parseFloat(scrollbarStylesY.paddingBottom);
-
-      const maxThumbOffsetY =
-        scrollbarYEl.offsetHeight - clampedNextHeight - (paddingTop + paddingBottom);
+      const maxThumbOffsetY = scrollbarYEl.offsetHeight - clampedNextHeight - yOffset;
       const scrollRatioY = scrollTop / (scrollableContentHeight - viewportHeight);
 
       // In Safari, don't allow it to go negative or too far as `scrollTop` considers the rubber
@@ -91,12 +90,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
     // Handle X (horizontal) scroll
     if (scrollbarXEl && thumbXEl) {
-      const scrollbarStylesX = getComputedStyle(scrollbarXEl);
-      const paddingLeft = parseFloat(scrollbarStylesX.paddingLeft);
-      const paddingRight = parseFloat(scrollbarStylesX.paddingRight);
-
-      const maxThumbOffsetX =
-        scrollbarXEl.offsetWidth - clampedNextWidth - (paddingLeft + paddingRight);
+      const maxThumbOffsetX = scrollbarXEl.offsetWidth - clampedNextWidth - xOffset;
       const scrollRatioX = scrollLeft / (scrollableContentWidth - viewportWidth);
 
       // In Safari, don't allow it to go negative or too far as `scrollLeft` considers the rubber

@@ -4,6 +4,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { SCROLL_TIMEOUT } from '../constants';
+import { getBoxOffset } from '../utils/getBoxOffset';
 
 interface Size {
   width: number;
@@ -105,8 +106,9 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
         scrollbarYRef.current &&
         currentOrientationRef.current === 'vertical'
       ) {
+        const yOffset = getBoxOffset(scrollbarYRef.current, 'y');
         const thumbHeight = thumbYRef.current.offsetHeight;
-        const maxThumbOffsetY = scrollbarYRef.current.offsetHeight - thumbHeight;
+        const maxThumbOffsetY = scrollbarYRef.current.offsetHeight - thumbHeight - yOffset;
         const scrollRatioY = deltaY / maxThumbOffsetY;
         viewportRef.current.scrollTop =
           startScrollTopRef.current + scrollRatioY * (scrollableContentHeight - viewportHeight);
@@ -123,8 +125,9 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
         scrollbarXRef.current &&
         currentOrientationRef.current === 'horizontal'
       ) {
+        const xOffset = getBoxOffset(scrollbarXRef.current, 'x');
         const thumbWidth = thumbXRef.current.offsetWidth;
-        const maxThumbOffsetX = scrollbarXRef.current.offsetWidth - thumbWidth;
+        const maxThumbOffsetX = scrollbarXRef.current.offsetWidth - thumbWidth - xOffset;
         const scrollRatioX = deltaX / maxThumbOffsetX;
         viewportRef.current.scrollLeft =
           startScrollLeftRef.current + scrollRatioX * (scrollableContentWidth - viewportWidth);
