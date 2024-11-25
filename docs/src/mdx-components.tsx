@@ -14,7 +14,7 @@ interface MDXComponents {
 }
 
 export const mdxComponents: MDXComponents = {
-  code: Code,
+  code: (props) => <Code className="mx-[0.1em]" {...props} />,
   h1: (props) => <h1 className="mb-4 text-3xl font-bold" {...props} />,
   h2: (props) => (
     <div className="mt-10 mb-5">
@@ -48,7 +48,8 @@ export const mdxComponents: MDXComponents = {
   thead: Table.Head,
   tbody: Table.Body,
   tr: Table.Row,
-  th: Table.HeaderCell,
+  th: (props: React.ComponentProps<'th'>) =>
+    props.scope === 'row' ? <Table.RowHeader {...props} /> : <Table.ColumnHeader {...props} />,
   td: Table.Cell,
 
   // Custom components
