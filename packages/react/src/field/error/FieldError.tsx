@@ -6,7 +6,7 @@ import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldError } from './useFieldError';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
+import { useFormRootContext } from '../../form/root/FormRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**

@@ -1,7 +1,7 @@
 import * as ReactDOM from 'react-dom';
 import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData';
-import { useFormRootContext } from '../Form/Root/FormRootContext';
+import { useFormRootContext } from '../form/root/FormRootContext';
 import { useFieldRootContext } from './root/FieldRootContext';
 import { useLatestRef } from '../utils/useLatestRef';
 

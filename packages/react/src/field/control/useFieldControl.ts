@@ -5,7 +5,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldControlValidation } from './useFieldControlValidation';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
+import { useFormRootContext } from '../../form/root/FormRootContext';
 import { useField } from '../useField';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';

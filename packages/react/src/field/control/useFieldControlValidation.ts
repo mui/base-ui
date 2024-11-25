@@ -4,7 +4,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
+import { useFormRootContext } from '../../form/root/FormRootContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 import type { GenericHTMLProps } from '../../utils/types';
 

@@ -6,7 +6,7 @@ import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, STYLE_HOOK_MAPPING } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useFormRootContext } from '../../Form/Root/FormRootContext';
+import { useFormRootContext } from '../../form/root/FormRootContext';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**

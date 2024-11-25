@@ -6,7 +6,7 @@ export * from './collapsible';
 export * from './dialog';
 export * from './field';
 export * from './fieldset';
-export * from './Form';
+export * from './form';
 export * from './Menu';
 export * from './number-field';
 export * from './Popover';
