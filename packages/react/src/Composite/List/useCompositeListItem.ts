@@ -3,8 +3,9 @@ import * as React from 'react';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useCompositeListContext } from './CompositeListContext';
 
-export interface UseCompositeListItemParameters {
+export interface UseCompositeListItemParameters<Metadata> {
   label?: string | null;
+  metadata?: Metadata;
 }
 
 interface UseCompositeListItemReturnValue {
@@ -20,10 +21,10 @@ interface UseCompositeListItemReturnValue {
  *
  * - [useCompositeListItem API](https://mui.com/base-ui/api/use-composite-list-item/)
  */
-export function useCompositeListItem(
-  params: UseCompositeListItemParameters = {},
+export function useCompositeListItem<Metadata>(
+  params: UseCompositeListItemParameters<Metadata> = {},
 ): UseCompositeListItemReturnValue {
-  const { label } = params;
+  const { label, metadata } = params;
 
   const { register, unregister, map, elementsRef, labelsRef } = useCompositeListContext();
 
@@ -49,16 +50,17 @@ export function useCompositeListItem(
   useEnhancedEffect(() => {
     const node = componentRef.current;
     if (node) {
-      register(node);
+      register(node, metadata);
       return () => {
         unregister(node);
       };
     }
     return undefined;
-  }, [register, unregister]);
+  }, [register, unregister, metadata]);
 
   useEnhancedEffect(() => {
-    const i = componentRef.current ? map.get(componentRef.current) : null;
+    const i = componentRef.current ? map.get(componentRef.current)?.index : null;
+
     if (i != null) {
       setIndex(i);
     }

@@ -1,19 +1,20 @@
 'use client';
 import * as React from 'react';
-import { type TabActivationDirection } from './TabsRoot';
+import { type TabMetadata } from '../Tab/useTab';
+import type { TabActivationDirection, TabValue } from './TabsRoot';
 
 export interface TabsRootContext {
   /**
    * The currently selected tab's value.
    */
-  value?: any | null;
+  value: TabValue;
   /**
    * Callback for setting new value.
    */
-  onSelected: (
-    event: Event | undefined,
-    value: any | null,
+  onValueChange: (
+    value: TabValue,
     activationDirection: TabActivationDirection,
+    event: Event,
   ) => void;
   /**
    * The component orientation (layout flow direction).
@@ -24,19 +25,26 @@ export interface TabsRootContext {
    */
   direction: 'ltr' | 'rtl';
   /**
-   * Registers a function that returns the id of the tab with the given value.
+   * Gets the element of the Tab with the given value.
+   * @param {any | undefined} value Value to find the tab for.
    */
-  registerTabIdLookup: (lookupFunction: (id: any) => string | undefined) => void;
+  getTabElementBySelectedValue: (selectedValue: TabValue | undefined) => HTMLElement | null;
   /**
-   * Gets the id of the tab with the given value.
-   * @param value Value to find the tab for.
+   * Gets the `id` attribute of the Tab that corresponds to the given TabPanel value or index.
+   * @param (any | undefined) panelValue Value to find the Tab for.
+   * @param (number) index The index of the TabPanel to look for.
    */
-  getTabId: (value: any) => string | undefined;
+  getTabIdByPanelValueOrIndex: (
+    panelValue: TabValue | undefined,
+    index: number,
+  ) => string | undefined;
   /**
-   * Gets the id of the tab panel with the given value.
-   * @param value Value to find the tab panel for.
+   * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value or index.
+   * @param (any | undefined) tabValue Value to find the Tab for.
+   * @param (number) index The index of the Tab to look for.
    */
-  getTabPanelId: (value: any) => string | undefined;
+  getTabPanelIdByTabValueOrIndex: (tabValue: any, index: number) => string | undefined;
+  setTabMap: (map: Map<Node, (TabMetadata & { index?: number | null }) | null>) => void;
   /**
    * The position of the active tab relative to the previously active tab.
    */

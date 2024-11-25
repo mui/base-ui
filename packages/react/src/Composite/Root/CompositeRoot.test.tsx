@@ -18,9 +18,12 @@ describe('Composite', () => {
   describe('list', () => {
     it('controlled mode', async () => {
       function App() {
-        const [activeIndex, setActiveIndex] = React.useState(0);
+        const [highlightedIndex, setHighlightedIndex] = React.useState(0);
         return (
-          <CompositeRoot activeIndex={activeIndex} onActiveIndexChange={setActiveIndex}>
+          <CompositeRoot
+            highlightedIndex={highlightedIndex}
+            onHighlightedIndexChange={setHighlightedIndex}
+          >
             <CompositeItem data-testid="1">1</CompositeItem>
             <CompositeItem data-testid="2">2</CompositeItem>
             <CompositeItem data-testid="3">3</CompositeItem>

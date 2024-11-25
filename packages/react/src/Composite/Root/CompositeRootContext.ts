@@ -2,8 +2,8 @@
 import * as React from 'react';
 
 export interface CompositeRootContext {
-  activeIndex: number;
-  onActiveIndexChange: (index: number) => void;
+  highlightedIndex: number;
+  onHighlightedIndexChange: (index: number) => void;
 }
 
 export const CompositeRootContext = React.createContext<CompositeRootContext | undefined>(

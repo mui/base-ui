@@ -5,28 +5,26 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useCompositeRootContext } from '../Root/CompositeRootContext';
 import { useCompositeItem } from './useCompositeItem';
+import { refType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * @ignore - internal component.
  */
-const CompositeItem = React.forwardRef(function CompositeItem(
-  props: CompositeItem.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  const { render, className, ...otherProps } = props;
+function CompositeItem<Metadata>(props: CompositeItem.Props<Metadata>) {
+  const { render, className, itemRef, metadata, ...otherProps } = props;
 
-  const { activeIndex } = useCompositeRootContext();
-  const { getItemProps, ref, index } = useCompositeItem();
+  const { highlightedIndex } = useCompositeRootContext();
+  const { getItemProps, ref, index } = useCompositeItem({ metadata });
 
   const ownerState: CompositeItem.OwnerState = React.useMemo(
     () => ({
-      highlighted: index === activeIndex,
+      highlighted: index === highlightedIndex,
     }),
-    [index, activeIndex],
+    [index, highlightedIndex],
   );
 
-  const mergedRef = useForkRef(forwardedRef, ref);
+  const mergedRef = useForkRef(itemRef, ref);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getItemProps,
@@ -38,15 +36,22 @@ const CompositeItem = React.forwardRef(function CompositeItem(
   });
 
   return renderElement();
-});
+}
 
 namespace CompositeItem {
   export interface OwnerState {
     highlighted: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props<Metadata>
+    extends Omit<BaseUIComponentProps<'div', OwnerState>, 'itemRef'> {
+    // the itemRef name collides with https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/itemref
+    itemRef?: React.RefObject<HTMLElement | null>;
+    metadata?: Metadata;
+  }
 }
+
+export { CompositeItem };
 
 CompositeItem.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -62,9 +67,15 @@ CompositeItem.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * @ignore
+   */
+  itemRef: refType,
+  /**
+   * @ignore
+   */
+  metadata: PropTypes.any,
+  /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { CompositeItem };
