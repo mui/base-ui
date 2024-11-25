@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
+import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useDialogBackdrop } from '../../Dialog/Backdrop/useDialogBackdrop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
+import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
@@ -17,26 +17,26 @@ const ownerState = {};
  *
  * API:
  *
- * - [AlertDialogDescription API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogDescription)
+ * - [AlertDialogTitle API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogTitle)
  */
-const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
-  props: AlertDialogDescription.Props,
+const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
+  props: AlertDialogTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, id: idProp, ...other } = props;
-  const { setDescriptionElementId } = useAlertDialogRootContext();
+  const { setTitleElementId } = useAlertDialogRootContext();
 
   const id = useId(idProp);
 
   useEnhancedEffect(() => {
-    setDescriptionElementId(id);
+    setTitleElementId(id);
     return () => {
-      setDescriptionElementId(undefined);
+      setTitleElementId(undefined);
     };
-  }, [id, setDescriptionElementId]);
+  }, [id, setTitleElementId]);
 
   const { renderElement } = useComponentRenderer({
-    render: render ?? 'p',
+    render: render ?? 'h2',
     className,
     ownerState,
     ref: forwardedRef,
@@ -46,13 +46,13 @@ const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
   return renderElement();
 });
 
-namespace AlertDialogDescription {
-  export interface Props extends BaseUIComponentProps<'p', OwnerState> {}
+namespace AlertDialogTitle {
+  export interface Props extends BaseUIComponentProps<'h2', OwnerState> {}
 
   export interface OwnerState {}
 }
 
-AlertDialogDescription.propTypes /* remove-proptypes */ = {
+AlertDialogTitle.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -75,4 +75,4 @@ AlertDialogDescription.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { AlertDialogDescription };
+export { AlertDialogTitle };

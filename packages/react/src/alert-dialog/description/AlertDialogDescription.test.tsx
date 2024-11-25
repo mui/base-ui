@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { AlertDialog } from '@base-ui-components/react/AlertDialog';
+import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 
-describe('<AlertDialog.Close />', () => {
+describe('<AlertDialog.Description />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<AlertDialog.Close />, () => ({
-    refInstanceof: window.HTMLButtonElement,
+  describeConformance(<AlertDialog.Description />, () => ({
+    refInstanceof: window.HTMLParagraphElement,
     render: (node) => {
       return render(
         <AlertDialog.Root open animated={false}>

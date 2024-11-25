@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
+import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
+import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
-
-const ownerState = {};
+import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
  *
@@ -17,42 +15,41 @@ const ownerState = {};
  *
  * API:
  *
- * - [AlertDialogTitle API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogTitle)
+ * - [AlertDialogTrigger API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogTrigger)
  */
-const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
-  props: AlertDialogTitle.Props,
-  forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
+const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
+  props: AlertDialogTrigger.Props,
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, id: idProp, ...other } = props;
-  const { setTitleElementId } = useAlertDialogRootContext();
+  const { render, className, ...other } = props;
+  const { open, setTriggerElement, getTriggerProps } = useAlertDialogRootContext();
 
-  const id = useId(idProp);
+  const ownerState: AlertDialogTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
 
-  useEnhancedEffect(() => {
-    setTitleElementId(id);
-    return () => {
-      setTitleElementId(undefined);
-    };
-  }, [id, setTitleElementId]);
+  const mergedRef = useForkRef(forwardedRef, setTriggerElement);
 
   const { renderElement } = useComponentRenderer({
-    render: render ?? 'h2',
+    render: render ?? 'button',
     className,
     ownerState,
-    ref: forwardedRef,
+    propGetter: getTriggerProps,
     extraProps: other,
+    customStyleHookMapping: triggerOpenStateMapping,
+    ref: mergedRef,
   });
 
   return renderElement();
 });
 
-namespace AlertDialogTitle {
-  export interface Props extends BaseUIComponentProps<'h2', OwnerState> {}
+namespace AlertDialogTrigger {
+  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
 
-  export interface OwnerState {}
+  export interface OwnerState {
+    open: boolean;
+  }
 }
 
-AlertDialogTitle.propTypes /* remove-proptypes */ = {
+AlertDialogTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -66,13 +63,9 @@ AlertDialogTitle.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { AlertDialogTitle };
+export { AlertDialogTrigger };

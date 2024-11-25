@@ -1,17 +1,17 @@
 import * as React from 'react';
-import { AlertDialog } from '@base-ui-components/react/AlertDialog';
+import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 
-describe('<AlertDialog.Trigger />', () => {
+describe('<AlertDialog.Title />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<AlertDialog.Trigger />, () => ({
-    refInstanceof: window.HTMLButtonElement,
+  describeConformance(<AlertDialog.Title />, () => ({
+    refInstanceof: window.HTMLHeadingElement,
     render: (node) => {
       return render(
         <AlertDialog.Root open animated={false}>
           <AlertDialog.Backdrop />
-          {node}
+          <AlertDialog.Popup>{node}</AlertDialog.Popup>
         </AlertDialog.Root>,
       );
     },

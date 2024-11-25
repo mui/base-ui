@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, waitFor } from '@mui/internal-test-utils';
-import { AlertDialog } from '@base-ui-components/react/AlertDialog';
+import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<AlertDialog.Popup />', () => {

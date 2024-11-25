@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useAlertDialogRootContext } from '../Root/AlertDialogRootContext';
+import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useDialogClose } from '../../Dialog/Close/useDialogClose';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
