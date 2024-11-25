@@ -5,6 +5,7 @@
     border: 1px solid var(--color-gray-200);
     border-collapse: separate;
     border-radius: var(--radius-md);
+    white-space: nowrap;
     overflow: hidden;
   }
 
@@ -21,11 +22,6 @@
 
   .TableCell,
   .TableHeaderCell {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-
     /* Not `border` because Safari renders transparent borders with glitches */
     box-shadow: 0 1px var(--color-gray-200);
   }
@@ -41,10 +37,18 @@
     }
   }
 
-  /* Ensures consistent height of the cells */
   .TableCellInner {
+    /* Ensure consistent height of the cells */
     display: flex;
     align-items: center;
     min-height: 1.25rem;
+
+    /* Make individual cells scrollable */
+    padding: 0.5rem 0.75rem;
+    overflow: auto;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }

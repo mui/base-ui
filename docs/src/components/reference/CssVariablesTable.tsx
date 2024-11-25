@@ -16,8 +16,8 @@ export async function CssVariablesTable({ data, ...props }: CssVariablesTablePro
     <Table.Root {...props}>
       <Table.Head>
         <Table.Row>
-          <Table.HeaderCell className="w-48">CSS variable</Table.HeaderCell>
-          <Table.HeaderCell className="w-full">Type</Table.HeaderCell>
+          <Table.HeaderCell className="w-1/2 xs:w-5/8 md:w-1/4">CSS Variable</Table.HeaderCell>
+          <Table.HeaderCell className="w-1/2 xs:w-3/8 md:w-3/4">Type</Table.HeaderCell>
           <Table.HeaderCell className="w-10" aria-label="Description" />
         </Table.Row>
       </Table.Head>

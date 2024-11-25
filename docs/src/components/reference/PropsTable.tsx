@@ -16,9 +16,9 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
     <Table.Root {...props}>
       <Table.Head>
         <Table.Row>
-          <Table.HeaderCell className="w-48">Prop</Table.HeaderCell>
-          <Table.HeaderCell className="w-full">Type</Table.HeaderCell>
-          <Table.HeaderCell className="w-44">Default</Table.HeaderCell>
+          <Table.HeaderCell className="w-1/2 xs:w-5/8 md:w-1/4">Prop</Table.HeaderCell>
+          <Table.HeaderCell className="w-1/2 max-md:hidden">Type</Table.HeaderCell>
+          <Table.HeaderCell className="w-1/2 xs:w-3/8 md:w-1/4">Default</Table.HeaderCell>
           <Table.HeaderCell className="w-10" aria-label="Description" />
         </Table.Row>
       </Table.Head>
@@ -46,7 +46,7 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
               <Table.HeaderCell scope="row">
                 <Code className="text-navy">{name}</Code>
               </Table.HeaderCell>
-              <Table.Cell>
+              <Table.Cell className="max-md:hidden">
                 <PropType />
               </Table.Cell>
               <Table.Cell>
@@ -55,6 +55,9 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
               <Table.Cell>
                 <ReferenceTablePopover>
                   <PropDescription />
+                  <span className="mt-2 block border-t border-gray-200 pt-2 text-xs md:hidden">
+                    <PropType />
+                  </span>
                 </ReferenceTablePopover>
               </Table.Cell>
             </Table.Row>
