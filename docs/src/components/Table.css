@@ -20,20 +20,37 @@
     vertical-align: inherit;
   }
 
-  .TableCell,
-  .TableHeaderCell {
-    /* Not `border` because Safari renders transparent borders with glitches */
-    box-shadow: 0 1px var(--color-gray-200);
-  }
-
   .TableHeaderCell {
     text-align: initial;
-    font-weight: 500;
+    font-weight: normal;
 
     &[scope='col'],
     &[scope='colgroup'] {
+      font-weight: 500;
       color: var(--color-foreground);
       background-color: var(--color-gray-50);
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+  }
+
+  .TableCell,
+  .TableHeaderCell[scope='row'] {
+    position: relative;
+
+    /* Overscroll overlay */
+    &::after {
+      content: '';
+      position: absolute;
+      pointer-events: none;
+      top: 1px;
+      bottom: 1px;
+      right: 0;
+      width: 0.75rem;
+      background-image: linear-gradient(to right, transparent, var(--color-content));
+    }
+
+    :not(:last-child) > & {
+      border-bottom: 1px solid var(--color-gray-200);
     }
   }
 
@@ -45,7 +62,8 @@
 
     /* Make individual cells scrollable */
     padding: 0.5rem 0.75rem;
-    overflow: auto;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
     scrollbar-width: none;
     &::-webkit-scrollbar {
       display: none;

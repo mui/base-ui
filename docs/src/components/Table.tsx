@@ -1,5 +1,4 @@
 import * as React from 'react';
-
 import clsx from 'clsx';
 
 export function Root({ children, className, ...props }: React.ComponentProps<'div'>) {
