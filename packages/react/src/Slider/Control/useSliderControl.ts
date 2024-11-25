@@ -11,7 +11,7 @@ import {
   type useSliderRoot,
   validateMinimumDistance,
 } from '../Root/useSliderRoot';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 

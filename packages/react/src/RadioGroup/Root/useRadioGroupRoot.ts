@@ -3,11 +3,11 @@ import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useControlled } from '../../utils/useControlled';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { useField } from '../../Field/useField';
+import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+import { useField } from '../../field/useField';
 
 /**
  *

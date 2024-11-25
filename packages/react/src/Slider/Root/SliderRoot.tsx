@@ -3,12 +3,12 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldRoot } from '../../Field/Root/FieldRoot';
+import type { FieldRoot } from '../../field/root/FieldRoot';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
 import { SliderRootContext } from './SliderRootContext';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
 /**
  *

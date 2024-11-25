@@ -7,9 +7,9 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useId } from '../../utils/useId';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { useField } from '../../Field/useField';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+import { useField } from '../../field/useField';
 
 export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckboxRoot.ReturnValue {
   const {

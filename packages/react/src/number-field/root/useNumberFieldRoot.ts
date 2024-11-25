@@ -27,10 +27,10 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useId } from '../../utils/useId';
 import { useLatestRef } from '../../utils/useLatestRef';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useForkRef } from '../../utils/useForkRef';
-import { useField } from '../../Field/useField';
+import { useField } from '../../field/useField';
 import type { ScrubHandle } from './useScrub.types';
 
 export function useNumberFieldRoot(

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext } from './SelectRootContext';
 import { SelectIndexContext } from './SelectIndexContext';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 
 /**

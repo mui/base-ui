@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCheckboxGroupRoot } from './useCheckboxGroupRoot';
 import { CheckboxGroupRootContext } from './CheckboxGroupRootContext';
-import type { FieldRoot } from '../../Field/Root/FieldRoot';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import type { FieldRoot } from '../../field/root/FieldRoot';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**

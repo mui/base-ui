@@ -9,13 +9,13 @@ import { useControlled } from '../../utils/useControlled';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useId } from '../../utils/useId';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { asc } from '../utils/asc';
 import { setValueIndex } from '../utils/setValueIndex';
 import { getSliderValue } from '../utils/getSliderValue';
-import { useField } from '../../Field/useField';
+import { useField } from '../../field/useField';
 
 function findClosest(values: number[], currentValue: number) {
   const { index: closestIndex } =

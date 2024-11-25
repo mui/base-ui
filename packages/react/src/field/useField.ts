@@ -2,7 +2,7 @@ import * as ReactDOM from 'react-dom';
 import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData';
 import { useFormRootContext } from '../Form/Root/FormRootContext';
-import { useFieldRootContext } from './Root/FieldRootContext';
+import { useFieldRootContext } from './root/FieldRootContext';
 import { useLatestRef } from '../utils/useLatestRef';
 
 export function useField(params: useField.Parameters) {

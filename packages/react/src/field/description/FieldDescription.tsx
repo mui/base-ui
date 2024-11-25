@@ -2,8 +2,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { FieldRoot } from '../Root/FieldRoot';
-import { useFieldRootContext } from '../Root/FieldRootContext';
+import { FieldRoot } from '../root/FieldRoot';
+import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldDescription } from './useFieldDescription';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';

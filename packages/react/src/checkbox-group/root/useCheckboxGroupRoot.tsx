@@ -4,7 +4,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useCheckboxGroupParent } from '../parent/useCheckboxGroupParent';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { UseCheckboxGroupParent } from '../parent/useCheckboxGroupParent';
 import type { GenericHTMLProps } from '../../utils/types';
 

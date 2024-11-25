@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useFloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
+import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { GenericHTMLProps } from '../../utils/types';
 
 export interface SelectRootContext {

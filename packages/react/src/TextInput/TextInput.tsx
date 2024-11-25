@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../utils/types';
-import { Field } from '../Field';
+import { Field } from '../field';
 
 /**
  *

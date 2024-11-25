@@ -7,7 +7,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useRadioGroupRoot } from './useRadioGroupRoot';
 import { RadioGroupRootContext } from './RadioGroupRootContext';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 /**
  *
  * Demos:

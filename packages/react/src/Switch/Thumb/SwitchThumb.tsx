@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import type { SwitchRoot } from '../Root/SwitchRoot';
 import { useSwitchRootContext } from '../Root/SwitchRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { styleHookMapping } from '../styleHooks';
 

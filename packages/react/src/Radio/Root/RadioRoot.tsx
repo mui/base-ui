@@ -9,7 +9,7 @@ import { useRadioRoot } from './useRadioRoot';
 import { RadioRootContext } from './RadioRootContext';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { NOOP } from '../../utils/noop';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<RadioRoot.OwnerState> = {
   checked(value) {

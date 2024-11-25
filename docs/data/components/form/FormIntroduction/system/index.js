@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { Form } from '@base-ui-components/react/Form';
-import { Fieldset } from '@base-ui-components/react/Fieldset';
-import { Field } from '@base-ui-components/react/Field';
+import { Fieldset } from '@base-ui-components/react/fieldset';
+import { Field } from '@base-ui-components/react/field';
 import { TextInput } from '@base-ui-components/react/TextInput';
 import { styled } from '@mui/system';
 

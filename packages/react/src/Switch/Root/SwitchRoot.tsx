@@ -6,8 +6,8 @@ import { useSwitchRoot } from './useSwitchRoot';
 import { SwitchRootContext } from './SwitchRootContext';
 import { styleHookMapping } from '../styleHooks';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { FieldRoot } from '../../Field/Root/FieldRoot';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import type { FieldRoot } from '../../field/root/FieldRoot';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**

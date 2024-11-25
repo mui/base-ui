@@ -4,7 +4,7 @@ export * from './checkbox';
 export * from './checkbox-group';
 export * from './collapsible';
 export * from './dialog';
-export * from './Field';
+export * from './field';
 export * from './Fieldset';
 export * from './Form';
 export * from './Menu';

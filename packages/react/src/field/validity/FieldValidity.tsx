@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useFieldRootContext } from '../Root/FieldRootContext';
+import { useFieldRootContext } from '../root/FieldRootContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
-import { FieldValidityData } from '../Root/FieldRoot';
+import { FieldValidityData } from '../root/FieldRoot';
 
 /**
  * Render prop component that provides the field's validity state and value to its children.

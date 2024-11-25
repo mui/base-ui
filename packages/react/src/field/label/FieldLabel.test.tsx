@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Field } from '@base-ui-components/react/Field';
+import { Field } from '@base-ui-components/react/field';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { Switch } from '@base-ui-components/react/Switch';
 import { NumberField } from '@base-ui-components/react/number-field';
@@ -10,28 +10,25 @@ import { createRenderer, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';
 
-describe('<Field.Description />', () => {
+describe('<Field.Label />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Field.Description />, () => ({
-    refInstanceof: window.HTMLParagraphElement,
+  describeConformance(<Field.Label />, () => ({
+    refInstanceof: window.HTMLLabelElement,
     render(node) {
       return render(<Field.Root>{node}</Field.Root>);
     },
   }));
 
-  it('should set aria-describedby on the control automatically', () => {
+  it('should set htmlFor referencing the control automatically', () => {
     render(
-      <Field.Root>
+      <Field.Root data-testid="field">
         <Field.Control />
-        <Field.Description>Message</Field.Description>
+        <Field.Label data-testid="label">Label</Field.Label>
       </Field.Root>,
     );
 
-    expect(screen.getByRole('textbox')).to.have.attribute(
-      'aria-describedby',
-      screen.getByText('Message').id,
-    );
+    expect(screen.getByTestId('label')).to.have.attribute('for', screen.getByRole('textbox').id);
   });
 
   describe('component integration', () => {
@@ -40,16 +37,13 @@ describe('<Field.Description />', () => {
         const { container } = render(
           <Field.Root>
             <Checkbox.Root data-testid="button" />
-            <Field.Description data-testid="description" />
+            <Field.Label data-testid="label" />
           </Field.Root>,
         );
 
-        const internalInput = container.querySelector<HTMLInputElement>('input[type="checkbox"]');
+        const internalInput = container.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
 
-        expect(internalInput).to.have.attribute(
-          'aria-describedby',
-          screen.getByTestId('description').id,
-        );
+        expect(screen.getByTestId('label')).to.have.attribute('for', internalInput.id);
       });
     });
 
@@ -58,16 +52,13 @@ describe('<Field.Description />', () => {
         const { container } = render(
           <Field.Root>
             <Switch.Root data-testid="button" />
-            <Field.Description data-testid="description" />
+            <Field.Label data-testid="label" />
           </Field.Root>,
         );
 
-        const internalInput = container.querySelector<HTMLInputElement>('input[type="checkbox"]');
+        const internalInput = container.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
 
-        expect(internalInput).to.have.attribute(
-          'aria-describedby',
-          screen.getByTestId('description').id,
-        );
+        expect(screen.getByTestId('label')).to.have.attribute('for', internalInput.id);
       });
     });
 
@@ -78,13 +69,13 @@ describe('<Field.Description />', () => {
             <NumberField.Root>
               <NumberField.Input />
             </NumberField.Root>
-            <Field.Description data-testid="description" />
+            <Field.Label data-testid="label" />
           </Field.Root>,
         );
 
-        expect(screen.getByRole('textbox')).to.have.attribute(
-          'aria-describedby',
-          screen.getByTestId('description').id,
+        expect(screen.getByTestId('label')).to.have.attribute(
+          'for',
+          screen.getByRole('textbox').id,
         );
       });
     });
@@ -96,13 +87,13 @@ describe('<Field.Description />', () => {
             <Slider.Root data-testid="slider">
               <Slider.Control />
             </Slider.Root>
-            <Field.Description data-testid="description" />
+            <Field.Label data-testid="label" render={<span />} />
           </Field.Root>,
         );
 
         expect(screen.getByTestId('slider')).to.have.attribute(
-          'aria-describedby',
-          screen.getByTestId('description').id,
+          'aria-labelledby',
+          screen.getByTestId('label').id,
         );
       });
     });
@@ -111,16 +102,16 @@ describe('<Field.Description />', () => {
       it('supports RadioGroup', () => {
         render(
           <Field.Root>
-            <RadioGroup.Root>
+            <RadioGroup.Root data-testid="radio-group">
               <Radio.Root value="1" />
             </RadioGroup.Root>
-            <Field.Description data-testid="description" />
+            <Field.Label data-testid="label" />
           </Field.Root>,
         );
 
-        expect(screen.getByTestId('description')).to.have.attribute(
-          'id',
-          screen.getByRole('radiogroup').getAttribute('aria-describedby')!,
+        expect(screen.getByTestId('radio-group')).to.have.attribute(
+          'aria-labelledby',
+          screen.getByTestId('label').id,
         );
       });
     });

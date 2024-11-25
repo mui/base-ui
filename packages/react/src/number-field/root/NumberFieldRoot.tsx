@@ -3,10 +3,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { NumberFieldRootContext } from './NumberFieldRootContext';
 import { UseNumberFieldRoot, useNumberFieldRoot } from './useNumberFieldRoot';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { FieldRoot } from '../../Field/Root/FieldRoot';
+import type { FieldRoot } from '../../field/root/FieldRoot';
 
 /**
  * The foundation for building custom-styled number fields.

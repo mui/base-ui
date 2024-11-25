@@ -3,8 +3,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useFieldControl } from './useFieldControl';
-import { FieldRoot } from '../Root/FieldRoot';
-import { useFieldRootContext } from '../Root/FieldRootContext';
+import { FieldRoot } from '../root/FieldRoot';
+import { useFieldRootContext } from '../root/FieldRootContext';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 

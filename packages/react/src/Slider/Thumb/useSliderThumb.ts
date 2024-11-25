@@ -7,8 +7,8 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
 import type { useSliderRoot } from '../Root/useSliderRoot';
 

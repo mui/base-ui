@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useFieldRootContext } from '../Root/FieldRootContext';
+import { useFieldRootContext } from '../root/FieldRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFormRootContext } from '../../Form/Root/FormRootContext';

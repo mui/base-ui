@@ -9,8 +9,8 @@ import {
   useRole,
   useTypeahead,
 } from '@floating-ui/react';
-import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
-import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
+import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useId } from '../../utils/useId';
 import { useControlled } from '../../utils/useControlled';
 import { type TransitionStatus, useTransitionStatus } from '../../utils';

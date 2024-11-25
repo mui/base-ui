@@ -3,7 +3,7 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
-import { useFieldRootContext } from '../Root/FieldRootContext';
+import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldControlValidation } from './useFieldControlValidation';
 import { useFormRootContext } from '../../Form/Root/FormRootContext';
 import { useField } from '../useField';
