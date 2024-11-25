@@ -5,7 +5,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { clamp } from '../../utils/clamp';
 import { MIN_THUMB_SIZE } from '../constants';
-import { getPaddingOffset } from '../utils/getPaddingOffset';
+import { getOffset } from '../utils/getOffset';
 
 export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) {
   const { children } = params;
@@ -59,11 +59,16 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       ? 0
       : (viewportHeight / scrollableContentHeight) * viewportHeight;
 
-    const xOffset = getPaddingOffset(scrollbarXEl, 'x');
-    const yOffset = getPaddingOffset(scrollbarYEl, 'y');
+    const scrollbarXOffset = getOffset(scrollbarXEl, 'padding', 'x');
+    const scrollbarYOffset = getOffset(scrollbarYEl, 'padding', 'y');
+    const thumbXOffset = getOffset(thumbXEl, 'margin', 'x');
+    const thumbYOffset = getOffset(thumbYEl, 'margin', 'y');
 
-    const clampedNextWidth = Math.max(MIN_THUMB_SIZE, nextWidth - xOffset);
-    const clampedNextHeight = Math.max(MIN_THUMB_SIZE, nextHeight - yOffset);
+    const clampedNextWidth = Math.max(MIN_THUMB_SIZE, nextWidth - scrollbarXOffset - thumbXOffset);
+    const clampedNextHeight = Math.max(
+      MIN_THUMB_SIZE,
+      nextHeight - scrollbarYOffset - thumbYOffset,
+    );
 
     setThumbSize((prevSize) => {
       if (prevSize.height === clampedNextHeight && prevSize.width === clampedNextWidth) {
@@ -78,7 +83,8 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
     // Handle Y (vertical) scroll
     if (scrollbarYEl && thumbYEl) {
-      const maxThumbOffsetY = scrollbarYEl.offsetHeight - clampedNextHeight - yOffset;
+      const maxThumbOffsetY =
+        scrollbarYEl.offsetHeight - clampedNextHeight - scrollbarYOffset - thumbYOffset;
       const scrollRatioY = scrollTop / (scrollableContentHeight - viewportHeight);
 
       // In Safari, don't allow it to go negative or too far as `scrollTop` considers the rubber
@@ -90,7 +96,8 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
     // Handle X (horizontal) scroll
     if (scrollbarXEl && thumbXEl) {
-      const maxThumbOffsetX = scrollbarXEl.offsetWidth - clampedNextWidth - xOffset;
+      const maxThumbOffsetX =
+        scrollbarXEl.offsetWidth - clampedNextWidth - scrollbarXOffset - thumbXOffset;
       const scrollRatioX = scrollLeft / (scrollableContentWidth - viewportWidth);
 
       // In Safari, don't allow it to go negative or too far as `scrollLeft` considers the rubber

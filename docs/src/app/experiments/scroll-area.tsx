@@ -87,6 +87,10 @@ const ScrollAreaThumb = styled(ScrollArea.Thumb)`
   border-radius: 20px;
   flex: 1;
 
+  &[data-orientation='vertical'] {
+    margin-block: 10px;
+  }
+
   &::before {
     content: '';
     display: block;
