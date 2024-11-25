@@ -31,6 +31,7 @@
     "./AlertDialog": "./src/AlertDialog/index.ts",
     "./Checkbox": "./src/Checkbox/index.ts",
     "./CheckboxGroup": "./src/CheckboxGroup/index.ts",
+    "./Collapsible": "./src/Collapsible/index.ts",
     "./Dialog": "./src/Dialog/index.ts",
     "./Field": "./src/Field/index.ts",
     "./Fieldset": "./src/Fieldset/index.ts",
