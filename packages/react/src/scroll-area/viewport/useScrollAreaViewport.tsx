@@ -5,7 +5,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { clamp } from '../../utils/clamp';
 import { MIN_THUMB_SIZE } from '../constants';
-import { getBoxOffset } from '../utils/getBoxOffset';
+import { getPaddingOffset } from '../utils/getPaddingOffset';
 
 export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) {
   const { children } = params;
@@ -59,8 +59,8 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       ? 0
       : (viewportHeight / scrollableContentHeight) * viewportHeight;
 
-    const xOffset = getBoxOffset(scrollbarXEl, 'x');
-    const yOffset = getBoxOffset(scrollbarYEl, 'y');
+    const xOffset = getPaddingOffset(scrollbarXEl, 'x');
+    const yOffset = getPaddingOffset(scrollbarYEl, 'y');
 
     const clampedNextWidth = Math.max(MIN_THUMB_SIZE, nextWidth - xOffset);
     const clampedNextHeight = Math.max(MIN_THUMB_SIZE, nextHeight - yOffset);
