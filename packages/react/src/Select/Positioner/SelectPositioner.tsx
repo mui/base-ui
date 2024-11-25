@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../Root/SelectRootContext';
-import { CompositeList } from '../../Composite/List/CompositeList';
+import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';

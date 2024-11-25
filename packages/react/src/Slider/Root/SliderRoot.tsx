@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../Field/Root/FieldRoot';
-import { CompositeList } from '../../Composite/List/CompositeList';
+import { CompositeList } from '../../composite/list/CompositeList';
 import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
 import { SliderRootContext } from './SliderRootContext';

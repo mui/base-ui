@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { CompositeRoot } from '../../Composite/Root/CompositeRoot';
+import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStyleHookMapping } from '../Root/styleHooks';
 import { useTabsRootContext } from '../Root/TabsRootContext';
 import { TabsRoot } from '../Root/TabsRoot';

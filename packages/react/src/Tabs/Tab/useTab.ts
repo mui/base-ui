@@ -5,7 +5,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
 import { useButton } from '../../useButton';
-import { useCompositeItem } from '../../Composite/Item/useCompositeItem';
+import { useCompositeItem } from '../../composite/item/useCompositeItem';
 import type { TabsRootContext } from '../Root/TabsRootContext';
 import type { useTabsList } from '../TabsList/useTabsList';
 import type { TabsList } from '../TabsList/TabsList';

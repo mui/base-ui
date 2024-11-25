@@ -6,7 +6,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useFieldControlValidation } from '../../Field/Control/useFieldControlValidation';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';

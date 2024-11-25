@@ -7,7 +7,7 @@ import {
   fireEvent,
   flushMicrotasks,
 } from '@mui/internal-test-utils';
-import { CompositeItem } from '../Item/CompositeItem';
+import { CompositeItem } from '../item/CompositeItem';
 import { CompositeRoot } from './CompositeRoot';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);

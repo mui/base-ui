@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import { useCompositeRootContext } from '../Root/CompositeRootContext';
+import { useCompositeRootContext } from '../root/CompositeRootContext';
 import { useCompositeItem } from './useCompositeItem';
 import { refType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';

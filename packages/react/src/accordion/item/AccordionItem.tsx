@@ -10,7 +10,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
 import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
 import { CollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
-import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import type { AccordionRoot } from '../root/AccordionRoot';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Tabs } from '@base-ui-components/react/Tabs';
 import { createRenderer, describeConformance } from '#test-utils';
 import { NOOP } from '../../utils/noop';
-import { CompositeRootContext } from '../../Composite/Root/CompositeRootContext';
+import { CompositeRootContext } from '../../composite/root/CompositeRootContext';
 import { TabsRootContext } from '../Root/TabsRootContext';
 import { TabsListContext } from '../TabsList/TabsListContext';
 

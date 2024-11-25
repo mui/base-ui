@@ -3,7 +3,7 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useControlled } from '../../utils/useControlled';
-import type { CompositeMetadata } from '../../Composite/List/CompositeList';
+import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { TabPanelMetadata } from '../TabPanel/useTabPanel';
 import type { TabMetadata } from '../Tab/useTab';
 import type { TabActivationDirection, TabValue } from './TabsRoot';

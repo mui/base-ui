@@ -7,7 +7,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useRadioGroupRootContext } from '../../RadioGroup/Root/RadioGroupRootContext';
 import { useRadioRoot } from './useRadioRoot';
 import { RadioRootContext } from './RadioRootContext';
-import { CompositeItem } from '../../Composite/Item/CompositeItem';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 import { NOOP } from '../../utils/noop';
 import { useFieldRootContext } from '../../Field/Root/FieldRootContext';
 

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { CompositeRoot } from '../../Composite/Root/CompositeRoot';
+import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useRadioGroupRoot } from './useRadioGroupRoot';

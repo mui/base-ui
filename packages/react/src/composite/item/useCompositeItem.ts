@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useCompositeRootContext } from '../Root/CompositeRootContext';
-import { useCompositeListItem } from '../List/useCompositeListItem';
+import { useCompositeRootContext } from '../root/CompositeRootContext';
+import { useCompositeListItem } from '../list/useCompositeListItem';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 export interface UseCompositeItemParameters<Metadata> {

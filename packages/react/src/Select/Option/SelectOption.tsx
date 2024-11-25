@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import type { UseInteractionsReturn } from '@floating-ui/react';
 import { SelectRootContext, useSelectRootContext } from '../Root/SelectRootContext';
 import { SelectIndexContext, useSelectIndexContext } from '../Root/SelectIndexContext';
-import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useForkRef } from '../../utils/useForkRef';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
