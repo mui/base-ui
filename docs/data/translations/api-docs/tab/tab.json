@@ -6,7 +6,7 @@
     },
     "render": { "description": "A function to customize rendering of the component." },
     "value": {
-      "description": "You can provide your own value. Otherwise, it falls back to the child position index."
+      "description": "The value of the Tab. When not specified, the value is the child position index."
     }
   },
   "classDescriptions": {}

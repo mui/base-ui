@@ -4,26 +4,30 @@ import { useCompositeRootContext } from '../Root/CompositeRootContext';
 import { useCompositeListItem } from '../List/useCompositeListItem';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
+export interface UseCompositeItemParameters<Metadata> {
+  metadata?: Metadata;
+}
+
 /**
  *
  * API:
  *
  * - [useCompositeItem API](https://mui.com/base-ui/api/use-composite-item/)
  */
-export function useCompositeItem() {
-  const { activeIndex, onActiveIndexChange } = useCompositeRootContext();
-  const { ref, index } = useCompositeListItem();
-  const isActive = activeIndex === index;
+export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Metadata> = {}) {
+  const { highlightedIndex, onHighlightedIndexChange } = useCompositeRootContext();
+  const { ref, index } = useCompositeListItem(params);
+  const isHighlighted = highlightedIndex === index;
 
   const getItemProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
-        tabIndex: isActive ? 0 : -1,
+        tabIndex: isHighlighted ? 0 : -1,
         onFocus() {
-          onActiveIndexChange(index);
+          onHighlightedIndexChange(index);
         },
       }),
-    [isActive, index, onActiveIndexChange],
+    [isHighlighted, index, onHighlightedIndexChange],
   );
 
   return React.useMemo(

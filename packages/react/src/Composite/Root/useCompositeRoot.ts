@@ -34,8 +34,8 @@ export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
   loop?: boolean;
-  activeIndex?: number;
-  onActiveIndexChange?: (index: number) => void;
+  highlightedIndex?: number;
+  onHighlightedIndexChange?: (index: number) => void;
   dense?: boolean;
   itemSizes?: Array<Dimensions>;
   rootRef?: React.Ref<Element>;
@@ -45,6 +45,12 @@ export interface UseCompositeRootParameters {
    * @default false
    */
   enableHomeAndEndKeys?: boolean;
+  /**
+   * When `true`, keypress events on Composite's navigation keys
+   * be stopped with event.stopPropagation()
+   * @default false
+   */
+  stopEventPropagation?: boolean;
 }
 
 // Advanced options of Composite, to be implemented later if needed.
@@ -60,18 +66,21 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     loop = true,
     dense = false,
     orientation = 'both',
-    activeIndex: externalActiveIndex,
-    onActiveIndexChange: externalSetActiveIndex,
+    highlightedIndex: externalHighlightedIndex,
+    onHighlightedIndexChange: externalSetHighlightedIndex,
     rootRef: externalRef,
     enableHomeAndEndKeys = false,
+    stopEventPropagation = false,
   } = params;
 
-  const [internalActiveIndex, internalSetActiveIndex] = React.useState(0);
+  const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
 
   const isGrid = cols > 1;
 
-  const activeIndex = externalActiveIndex ?? internalActiveIndex;
-  const onActiveIndexChange = useEventCallback(externalSetActiveIndex ?? internalSetActiveIndex);
+  const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
+  const onHighlightedIndexChange = useEventCallback(
+    externalSetHighlightedIndex ?? internalSetHighlightedIndex,
+  );
 
   const textDirectionRef = React.useRef<TextDirection | null>(null);
 
@@ -103,7 +112,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
           const isRtl = textDirectionRef?.current === 'rtl';
 
-          let nextIndex = activeIndex;
+          let nextIndex = highlightedIndex;
           const minIndex = getMinIndex(elementsRef, disabledIndices);
           const maxIndex = getMaxIndex(elementsRef, disabledIndices);
 
@@ -156,7 +165,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
                   minIndex: minGridIndex,
                   maxIndex: maxGridIndex,
                   prevIndex: getCellIndexOfCorner(
-                    activeIndex > maxIndex ? minIndex : activeIndex,
+                    highlightedIndex > maxIndex ? minIndex : highlightedIndex,
                     sizes,
                     cellMap,
                     cols,
@@ -204,7 +213,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             }
           }
 
-          if (nextIndex === activeIndex && [...toEndKeys, ...toStartKeys].includes(event.key)) {
+          if (
+            nextIndex === highlightedIndex &&
+            [...toEndKeys, ...toStartKeys].includes(event.key)
+          ) {
             if (loop && nextIndex === maxIndex && toEndKeys.includes(event.key)) {
               nextIndex = minIndex;
             } else if (loop && nextIndex === minIndex && toStartKeys.includes(event.key)) {
@@ -218,14 +230,16 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             }
           }
 
-          if (nextIndex !== activeIndex && !isIndexOutOfBounds(elementsRef, nextIndex)) {
-            event.stopPropagation();
+          if (nextIndex !== highlightedIndex && !isIndexOutOfBounds(elementsRef, nextIndex)) {
+            if (stopEventPropagation) {
+              event.stopPropagation();
+            }
 
             if (preventedKeys.includes(event.key)) {
               event.preventDefault();
             }
 
-            onActiveIndexChange(nextIndex);
+            onHighlightedIndexChange(nextIndex);
 
             // Wait for FocusManager `returnFocus` to execute.
             queueMicrotask(() => {
@@ -235,7 +249,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         },
       }),
     [
-      activeIndex,
+      highlightedIndex,
+      stopEventPropagation,
       cols,
       dense,
       elementsRef,
@@ -243,7 +258,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       itemSizes,
       loop,
       mergedRef,
-      onActiveIndexChange,
+      onHighlightedIndexChange,
       orientation,
       enableHomeAndEndKeys,
     ],
@@ -252,10 +267,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   return React.useMemo(
     () => ({
       getRootProps,
-      activeIndex,
-      onActiveIndexChange,
+      highlightedIndex,
+      onHighlightedIndexChange,
       elementsRef,
     }),
-    [getRootProps, activeIndex, onActiveIndexChange, elementsRef],
+    [getRootProps, highlightedIndex, onHighlightedIndexChange, elementsRef],
   );
 }
