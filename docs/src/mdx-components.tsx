@@ -8,6 +8,7 @@ import { PropsTable } from './components/reference/PropsTable';
 import { AttributesTable } from './components/reference/AttributesTable';
 import { CssVariablesTable } from './components/reference/CssVariablesTable';
 import { TableCode } from './components/TableCode';
+import { getChildrenText } from './getChildrenText';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -15,7 +16,12 @@ interface MDXComponents {
 
 export const mdxComponents: MDXComponents = {
   code: (props) => <Code className="mx-[0.1em]" {...props} />,
-  h1: (props) => <h1 className="mb-4 text-3xl font-bold" {...props} />,
+  h1: (props) => (
+    <React.Fragment>
+      <h1 className="mb-4 text-3xl font-bold" {...props} />
+      <title>{`${getChildrenText(props.children)} · Base UI`}</title>
+    </React.Fragment>
+  ),
   h2: (props) => (
     <div className="mt-10 mb-5">
       <h2 className="mb-4 scroll-mt-6 text-xl font-medium" {...props} />
@@ -58,7 +64,12 @@ export const mdxComponents: MDXComponents = {
   AttributesTable: (props) => <AttributesTable className="mt-5 mb-6" {...props} />,
   CssVariablesTable: (props) => <CssVariablesTable className="mt-5 mb-6" {...props} />,
   PropsTable: (props) => <PropsTable className="mt-5 mb-6" {...props} />,
-  Subtitle: (props) => <p className="-mt-2 mb-5 text-lg text-gray" {...props} />,
+  Subtitle: (props) => (
+    <React.Fragment>
+      <p className="-mt-2 mb-5 text-lg text-gray" {...props} />
+      <meta name="description" content={getChildrenText(props.children)} />
+    </React.Fragment>
+  ),
 };
 
 export const inlineMdxComponents: MDXComponents = {
