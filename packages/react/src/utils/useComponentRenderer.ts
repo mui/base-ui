@@ -73,10 +73,6 @@ export function useComponentRenderer<
     ...extraProps,
   };
 
-  if (className) {
-    ownProps.className = className;
-  }
-
   let resolvedRenderProp:
     | ComponentRenderFn<React.HTMLAttributes<any>, OwnerState>
     | React.ReactElement<Record<string, unknown>>;
@@ -91,6 +87,7 @@ export function useComponentRenderer<
   const propsWithRef = {
     ...renderedElementProps,
     ref: useRenderPropForkRef(resolvedRenderProp, ref as React.Ref<any>, renderedElementProps.ref),
+    className,
   };
 
   const renderElement = () => evaluateRenderProp(resolvedRenderProp, propsWithRef, ownerState);
