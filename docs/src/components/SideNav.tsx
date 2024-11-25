@@ -47,7 +47,7 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
   );
 }
 
-function ScrollbarImpl(props: ScrollArea.Scrollbar.Props, state: ScrollArea.Scrollbar.OwnerState) {
+function ScrollbarImpl(props: React.ComponentProps<'div'>, state: ScrollArea.Scrollbar.OwnerState) {
   const { scrollingIntoView, setScrollingIntoView } = React.useContext(SideNavContext);
   const prevScrolling = React.useRef(state.scrolling);
   const dataScrolling = (props as Record<string, string>)['data-scrolling'];
@@ -62,7 +62,7 @@ function ScrollbarImpl(props: ScrollArea.Scrollbar.Props, state: ScrollArea.Scro
   }, [scrollingIntoView, setScrollingIntoView, state.scrolling]);
 
   return (
-    <ScrollArea.Scrollbar
+    <div
       {...props}
       // Prevent `data-scrolling` from being set when scrolling into view programmatically
       data-scrolling={scrollingIntoView ? undefined : dataScrolling}
