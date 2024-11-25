@@ -11,8 +11,8 @@ import { useCollapsibleRoot } from '../../Collapsible/Root/useCollapsibleRoot';
 import type { CollapsibleRoot } from '../../Collapsible/Root/CollapsibleRoot';
 import { CollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
 import { useCompositeListItem } from '../../Composite/List/useCompositeListItem';
-import type { AccordionRoot } from '../Root/AccordionRoot';
-import { useAccordionRootContext } from '../Root/AccordionRootContext';
+import type { AccordionRoot } from '../root/AccordionRoot';
+import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStyleHookMapping } from './styleHooks';
 

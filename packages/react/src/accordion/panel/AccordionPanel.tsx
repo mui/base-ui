@@ -5,10 +5,10 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
 import { useCollapsiblePanel } from '../../Collapsible/Panel/useCollapsiblePanel';
-import { useAccordionRootContext } from '../Root/AccordionRootContext';
-import type { AccordionItem } from '../Item/AccordionItem';
-import { useAccordionItemContext } from '../Item/AccordionItemContext';
-import { accordionStyleHookMapping } from '../Item/styleHooks';
+import { useAccordionRootContext } from '../root/AccordionRootContext';
+import type { AccordionItem } from '../item/AccordionItem';
+import { useAccordionItemContext } from '../item/AccordionItemContext';
+import { accordionStyleHookMapping } from '../item/styleHooks';
 
 /**
  *

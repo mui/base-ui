@@ -7,8 +7,8 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useCollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
 import { useCollapsibleTrigger } from '../../Collapsible/Trigger/useCollapsibleTrigger';
-import type { AccordionItem } from '../Item/AccordionItem';
-import { useAccordionItemContext } from '../Item/AccordionItemContext';
+import type { AccordionItem } from '../item/AccordionItem';
+import { useAccordionItemContext } from '../item/AccordionItemContext';
 
 /**
  *

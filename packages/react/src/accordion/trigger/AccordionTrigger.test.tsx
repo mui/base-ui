@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Accordion } from '@base-ui-components/react/Accordion';
+import { Accordion } from '@base-ui-components/react/accordion';
 import { describeConformance, createRenderer } from '#test-utils';
 import { NOOP } from '../../utils/noop';
 import { CollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
-import { AccordionRootContext } from '../Root/AccordionRootContext';
-import { AccordionItemContext } from '../Item/AccordionItemContext';
+import { AccordionRootContext } from '../root/AccordionRootContext';
+import { AccordionItemContext } from '../item/AccordionItemContext';
 
 const accordionRootContextValue: AccordionRootContext = {
   accordionItemRefs: { current: [] },
@@ -53,10 +53,10 @@ const collapsibleContextValue: CollapsibleRootContext = {
   },
 };
 
-describe('<Accordion.Header />', () => {
+describe('<Accordion.Trigger />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Accordion.Header />, () => ({
+  describeConformance(<Accordion.Trigger />, () => ({
     render: (node) =>
       render(
         <AccordionRootContext.Provider value={accordionRootContextValue}>
@@ -67,6 +67,6 @@ describe('<Accordion.Header />', () => {
           </CollapsibleRootContext.Provider>
         </AccordionRootContext.Provider>,
       ),
-    refInstanceof: window.HTMLHeadingElement,
+    refInstanceof: window.HTMLButtonElement,
   }));
 });

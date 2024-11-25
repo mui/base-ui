@@ -3,9 +3,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { AccordionItem } from '../Item/AccordionItem';
-import { useAccordionItemContext } from '../Item/AccordionItemContext';
-import { accordionStyleHookMapping } from '../Item/styleHooks';
+import type { AccordionItem } from '../item/AccordionItem';
+import { useAccordionItemContext } from '../item/AccordionItemContext';
+import { accordionStyleHookMapping } from '../item/styleHooks';
 
 /**
  *

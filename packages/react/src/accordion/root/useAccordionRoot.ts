@@ -260,7 +260,7 @@ export namespace useAccordionRoot {
     orientation: Orientation;
     /**
      * The open state of the Accordion represented by an array of the values
-     * of all open `<Accordion.Item/>`s
+     * of all open `<Accordion.item/>`s
      */
     value: Value;
   }
