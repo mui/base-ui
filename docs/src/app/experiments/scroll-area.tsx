@@ -58,14 +58,12 @@ const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
   }
 
   &[data-orientation='vertical'] {
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding-block: 20px;
     width: 10px;
   }
 
   &[data-orientation='horizontal'] {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-inline: 20px;
     flex-direction: column;
     height: 10px;
   }
@@ -89,6 +87,10 @@ const ScrollAreaThumb = styled(ScrollArea.Thumb)`
 
   &[data-orientation='vertical'] {
     margin-block: 10px;
+  }
+
+  &[data-orientation='horizontal'] {
+    margin-inline: 10px;
   }
 
   &::before {
