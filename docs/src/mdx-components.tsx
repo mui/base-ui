@@ -14,7 +14,7 @@ interface MDXComponents {
 }
 
 export const mdxComponents: MDXComponents = {
-  code: Code,
+  code: (props) => <Code className="mx-[0.1em]" {...props} />,
   h1: (props) => <h1 className="mb-4 text-3xl font-bold" {...props} />,
   h2: (props) => (
     <div className="mt-10 mb-5">
