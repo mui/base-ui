@@ -1,4 +1,5 @@
 import * as React from 'react';
+import type { Metadata } from 'next/types';
 import * as SideNav from 'docs/src/components/SideNav';
 import * as QuickNav from 'docs/src/components/quick-nav/QuickNav';
 import './layout.css';
@@ -161,3 +162,8 @@ const nav = [
     ],
   },
 ];
+// Title and description are pulled from <h1> and <Subtitle> in the MDX.
+export const metadata: Metadata = {
+  title: null,
+  description: null,
+};
