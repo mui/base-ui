@@ -20,37 +20,43 @@
     vertical-align: inherit;
   }
 
-  .TableHeaderCell {
+  .TableColumnHeader {
+    text-align: initial;
+    font-weight: 500;
+    color: var(--color-foreground);
+    background-color: var(--color-gray-50);
+    border-bottom: 1px solid var(--color-gray-200);
+  }
+
+  .TableCell {
     text-align: initial;
     font-weight: normal;
 
-    &[scope='col'],
-    &[scope='colgroup'] {
-      font-weight: 500;
-      color: var(--color-foreground);
-      background-color: var(--color-gray-50);
+    :not(:last-child) > & {
       border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    &[data-scrollable] {
+      position: relative;
+
+      /* Overscroll overlay */
+      &::after {
+        content: '';
+        position: absolute;
+        pointer-events: none;
+        top: 1px;
+        bottom: 1px;
+        right: 0;
+        width: 1.25rem;
+        background-image: linear-gradient(to right, transparent, var(--color-content));
+        animation: table-cell-overscroll-overlay 500ms;
+      }
     }
   }
 
-  .TableCell,
-  .TableHeaderCell[scope='row'] {
-    position: relative;
-
-    /* Overscroll overlay */
-    &::after {
-      content: '';
-      position: absolute;
-      pointer-events: none;
-      top: 1px;
-      bottom: 1px;
-      right: 0;
-      width: 0.75rem;
-      background-image: linear-gradient(to right, transparent, var(--color-content));
-    }
-
-    :not(:last-child) > & {
-      border-bottom: 1px solid var(--color-gray-200);
+  @keyframes table-cell-overscroll-overlay {
+    from {
+      opacity: 0;
     }
   }
 
@@ -58,10 +64,10 @@
     /* Ensure consistent height of the cells */
     display: flex;
     align-items: center;
-    min-height: 1.25rem;
+    min-height: 2.25rem;
+    padding: 0.5rem 0.75rem 0.5rem;
 
     /* Make individual cells scrollable */
-    padding: 0.5rem 0.75rem;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;

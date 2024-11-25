@@ -48,7 +48,8 @@ export const mdxComponents: MDXComponents = {
   thead: Table.Head,
   tbody: Table.Body,
   tr: Table.Row,
-  th: Table.HeaderCell,
+  th: (props: React.ComponentProps<'th'>) =>
+    props.scope === 'row' ? <Table.RowHeader {...props} /> : <Table.ColumnHeader {...props} />,
   td: Table.Cell,
 
   // Custom components

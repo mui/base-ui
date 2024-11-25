@@ -16,10 +16,10 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
     <Table.Root {...props}>
       <Table.Head>
         <Table.Row>
-          <Table.HeaderCell className="w-1/2 xs:w-5/8 md:w-1/4">Prop</Table.HeaderCell>
-          <Table.HeaderCell className="w-1/2 max-md:hidden">Type</Table.HeaderCell>
-          <Table.HeaderCell className="w-1/2 xs:w-3/8 md:w-1/4">Default</Table.HeaderCell>
-          <Table.HeaderCell className="w-10" aria-label="Description" />
+          <Table.ColumnHeader className="w-1/2 xs:w-5/8 md:w-1/4">Prop</Table.ColumnHeader>
+          <Table.ColumnHeader className="w-1/2 max-md:hidden">Type</Table.ColumnHeader>
+          <Table.ColumnHeader className="w-1/2 xs:w-3/8 md:w-1/4">Default</Table.ColumnHeader>
+          <Table.ColumnHeader className="w-10" aria-label="Description" />
         </Table.Row>
       </Table.Head>
       <Table.Body>
@@ -43,9 +43,9 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
 
           return (
             <Table.Row key={name}>
-              <Table.HeaderCell scope="row">
+              <Table.RowHeader>
                 <Code className="text-navy">{name}</Code>
-              </Table.HeaderCell>
+              </Table.RowHeader>
               <Table.Cell className="max-md:hidden">
                 <PropType />
               </Table.Cell>
