@@ -9,9 +9,9 @@ export default function ScrollAreaIntroduction() {
       <ScrollAreaViewport>
         <div
           style={{
-            width: 100,
+            width: 1000,
             height: 1000,
-            background: 'linear-gradient(to bottom, red, blue)',
+            background: 'linear-gradient(to bottom, red, white)',
           }}
         />
       </ScrollAreaViewport>
@@ -43,8 +43,6 @@ const ScrollAreaViewport = styled(ScrollArea.Viewport)`
 `;
 
 const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
-  padding-top: 20px;
-  padding-bottom: 20px;
   visibility: hidden;
   background: transparent;
   box-sizing: border-box;
@@ -60,10 +58,14 @@ const ScrollAreaScrollbar = styled(ScrollArea.Scrollbar)`
   }
 
   &[data-orientation='vertical'] {
+    padding-top: 20px;
+    padding-bottom: 20px;
     width: 10px;
   }
 
   &[data-orientation='horizontal'] {
+    padding-left: 20px;
+    padding-right: 20px;
     flex-direction: column;
     height: 10px;
   }
