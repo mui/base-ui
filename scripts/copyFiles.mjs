@@ -1,11 +1,7 @@
 /* eslint-disable no-console */
 import path from 'path';
-import {
-  createPackageFile,
-  includeFileInBuild,
-  prepend,
-  typescriptCopy,
-} from './copyFilesUtils.mjs';
+import fse from 'fs-extra';
+import { includeFileInBuild, prepend, typescriptCopy } from './copyFilesUtils.mjs';
 
 const packagePath = process.cwd();
 const buildPath = path.join(packagePath, './build');
@@ -21,7 +17,7 @@ async function addLicense(packageData) {
  */
 `;
   await Promise.all(
-    ['./index.js', './node/index.js'].map(async (file) => {
+    ['./cjs/index.js', './esm/index.js'].map(async (file) => {
       try {
         await prepend(path.resolve(buildPath, file), license);
       } catch (err) {
@@ -41,8 +37,6 @@ async function run() {
     // TypeScript
     await typescriptCopy({ from: srcPath, to: buildPath });
 
-    const packageData = await createPackageFile();
-
     await Promise.all(
       ['./README.md', '../../CHANGELOG.md', '../../LICENSE', ...extraFiles].map(async (file) => {
         const [sourcePath, targetPath] = file.split(':');
@@ -50,6 +44,8 @@ async function run() {
       }),
     );
 
+    const packageFile = await fse.readFile(path.resolve(packagePath, './package.json'), 'utf8');
+    const packageData = JSON.parse(packageFile);
     await addLicense(packageData);
   } catch (err) {
     console.error(err);
