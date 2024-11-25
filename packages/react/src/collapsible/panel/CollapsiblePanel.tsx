@@ -3,9 +3,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCollapsibleRootContext } from '../Root/CollapsibleRootContext';
-import type { CollapsibleRoot } from '../Root/CollapsibleRoot';
-import { collapsibleStyleHookMapping } from '../Root/styleHooks';
+import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
+import type { CollapsibleRoot } from '../root/CollapsibleRoot';
+import { collapsibleStyleHookMapping } from '../root/styleHooks';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 
 /**

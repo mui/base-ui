@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Accordion } from '@base-ui-components/react/accordion';
 import { describeConformance, createRenderer } from '#test-utils';
 import { NOOP } from '../../utils/noop';
-import { CollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
+import { CollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { AccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from '../item/AccordionItemContext';
 

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
-import { Collapsible } from '@base-ui-components/react/Collapsible';
+import { Collapsible } from '@base-ui-components/react/collapsible';
 import { describeConformance } from '../../../test/describeConformance';
-import { CollapsibleRootContext } from '../Root/CollapsibleRootContext';
+import { CollapsibleRootContext } from '../root/CollapsibleRootContext';
 
 const contextValue: CollapsibleRootContext = {
   animated: false,

@@ -2,7 +2,7 @@ export * from './accordion';
 export * from './alert-dialog';
 export * from './checkbox';
 export * from './CheckboxGroup';
-export * from './Collapsible';
+export * from './collapsible';
 export * from './Dialog';
 export * from './Field';
 export * from './Fieldset';

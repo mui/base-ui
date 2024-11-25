@@ -5,8 +5,8 @@ import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useCollapsibleRootContext } from '../../Collapsible/Root/CollapsibleRootContext';
-import { useCollapsibleTrigger } from '../../Collapsible/Trigger/useCollapsibleTrigger';
+import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
+import { useCollapsibleTrigger } from '../../collapsible/trigger/useCollapsibleTrigger';
 import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 
