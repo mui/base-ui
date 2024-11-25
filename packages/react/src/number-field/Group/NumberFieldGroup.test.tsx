@@ -1,14 +1,12 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
-import { NumberField } from '@base-ui-components/react/NumberField';
+import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
-import { isWebKit } from '../../utils/detectBrowser';
 import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';
 
 const testContext = {
-  getScrubAreaCursorProps: (externalProps) => externalProps,
-  isScrubbing: true,
+  getGroupProps: (externalProps) => ({ role: 'group', ...externalProps }),
   ownerState: {
     value: null,
     required: false,
@@ -18,17 +16,12 @@ const testContext = {
   },
 } as NumberFieldRootContext;
 
-describe('<NumberField.ScrubAreaCursor />', () => {
+describe('<NumberField.Group />', () => {
   const { render } = createRenderer();
 
-  // This component doesn't render on WebKit.
-  if (isWebKit()) {
-    return;
-  }
-
-  describeConformance(<NumberField.ScrubAreaCursor />, () => ({
-    refInstanceof: window.HTMLSpanElement,
-    render: async (node) => {
+  describeConformance(<NumberField.Group />, () => ({
+    refInstanceof: window.HTMLDivElement,
+    render(node) {
       return render(
         <NumberFieldRootContext.Provider value={testContext}>
           {node}
@@ -37,12 +30,12 @@ describe('<NumberField.ScrubAreaCursor />', () => {
     },
   }));
 
-  it('has presentation role', async () => {
+  it('has role prop', async () => {
     await render(
       <NumberField.Root>
-        <NumberField.ScrubArea />
+        <NumberField.Group />
       </NumberField.Root>,
     );
-    expect(screen.queryByRole('presentation')).not.to.equal(null);
+    expect(screen.queryByRole('group')).not.to.equal(null);
   });
 });

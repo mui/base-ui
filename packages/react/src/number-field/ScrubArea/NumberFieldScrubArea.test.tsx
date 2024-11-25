@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { screen, waitFor, act } from '@mui/internal-test-utils';
-import { NumberField } from '@base-ui-components/react/NumberField';
+import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { isWebKit } from '../../utils/detectBrowser';
 import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';

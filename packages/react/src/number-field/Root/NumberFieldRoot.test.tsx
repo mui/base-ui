@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, screen, fireEvent, describeSkipIf } from '@mui/internal-test-utils';
-import { NumberField as NumberFieldBase } from '@base-ui-components/react/NumberField';
+import { NumberField as NumberFieldBase } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<NumberField />', () => {
