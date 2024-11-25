@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
 
-export interface CompositeListContextValue {
-  register: (node: Node) => void;
+export interface CompositeListContextValue<Metadata> {
+  register: (node: Node, metadata: Metadata) => void;
   unregister: (node: Node) => void;
-  map: Map<Node, number | null>;
-  elementsRef: React.MutableRefObject<Array<HTMLElement | null>>;
-  labelsRef?: React.MutableRefObject<Array<string | null>>;
+  map: Map<Node, Metadata | null>;
+  elementsRef: React.RefObject<Array<HTMLElement | null>>;
+  labelsRef?: React.RefObject<Array<string | null>>;
 }
 
-export const CompositeListContext = React.createContext<CompositeListContextValue>({
+export const CompositeListContext = React.createContext<CompositeListContextValue<any>>({
   register: () => {},
   unregister: () => {},
   map: new Map(),

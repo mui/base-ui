@@ -54,7 +54,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     className,
     ownerState,
     ref: forwardedRef,
-    extraProps: { role: 'presentation', ...other },
+    extraProps: { role: 'presentation', hidden: !mounted, ...other },
     customStyleHookMapping,
   });
 

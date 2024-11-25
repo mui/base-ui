@@ -1,18 +1,19 @@
 'use client';
 import * as React from 'react';
-import { useTabsListContext } from '../TabsList/TabsListContext';
-import { useTabsRootContext } from '../Root/TabsRootContext';
+import type { TabsListContext } from '../TabsList/TabsListContext';
+import type { TabsRootContext } from '../Root/TabsRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { GenericHTMLProps } from '../../utils/types';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
-import type { TabsDirection, TabsOrientation, TabActivationDirection } from '../Root/TabsRoot';
 
 function round(value: number) {
   return Math.round(value * 100) * 0.01;
 }
 
-export function useTabIndicator(): useTabIndicator.ReturnValue {
-  const { tabsListRef, getTabElement } = useTabsListContext();
-  const { orientation, direction, value, tabActivationDirection } = useTabsRootContext();
+export function useTabIndicator(
+  parameters: useTabIndicator.Parameters,
+): useTabIndicator.ReturnValue {
+  const { value, tabsListRef, getTabElementBySelectedValue } = parameters;
 
   const rerender = useForcedRerendering();
   React.useEffect(() => {
@@ -41,7 +42,7 @@ export function useTabIndicator(): useTabIndicator.ReturnValue {
   let isTabSelected = false;
 
   if (value != null && tabsListRef.current != null) {
-    const selectedTabElement = getTabElement(value);
+    const selectedTabElement = getTabElementBySelectedValue(value);
     isTabSelected = true;
 
     if (selectedTabElement != null) {
@@ -109,9 +110,6 @@ export function useTabIndicator(): useTabIndicator.ReturnValue {
   return {
     getRootProps,
     activeTabPosition,
-    orientation,
-    direction,
-    tabActivationDirection,
   };
 }
 
@@ -123,13 +121,17 @@ export interface ActiveTabPosition {
 }
 
 export namespace useTabIndicator {
+  export interface Parameters
+    extends Pick<TabsRootContext, 'getTabElementBySelectedValue' | 'value'>,
+      Pick<TabsListContext, 'tabsListRef'> {}
+
   export interface ReturnValue {
-    getRootProps: (
-      otherProps?: React.ComponentPropsWithRef<'span'>,
-    ) => React.ComponentPropsWithRef<'span'>;
+    /**
+     * Resolver for the TabIndicator component's props.
+     * @param externalProps additional props for Tabs.TabIndicator
+     * @returns props that should be spread on Tabs.TabIndicator
+     */
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     activeTabPosition: ActiveTabPosition | null;
-    direction: TabsDirection;
-    orientation: TabsOrientation;
-    tabActivationDirection: TabActivationDirection;
   }
 }

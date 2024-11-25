@@ -1,8 +1,9 @@
-import * as path from 'node:path';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { type UserWorkspaceConfig } from 'vitest/config';
 
-const WORKSPACE_ROOT = path.resolve(__dirname, './');
-
+const CURRENT_DIR = dirname(fileURLToPath(import.meta.url));
+const WORKSPACE_ROOT = resolve(CURRENT_DIR, './');
 const environment = process.env.VITEST_ENV;
 
 type ProjectConfig = UserWorkspaceConfig['test'] & {};
@@ -25,7 +26,7 @@ const config: UserWorkspaceConfig = {
   test: {
     exclude: ['node_modules', 'build', '**/*.spec.*'],
     globals: true,
-    setupFiles: [path.resolve(WORKSPACE_ROOT, './test/setupVitest.ts')],
+    setupFiles: [resolve(WORKSPACE_ROOT, './test/setupVitest.ts')],
     environment: 'jsdom',
     environmentOptions: {
       jsdom: {
@@ -40,8 +41,7 @@ const config: UserWorkspaceConfig = {
   },
   resolve: {
     alias: {
-      '@base-ui-components/react': path.resolve(WORKSPACE_ROOT, './packages/react/src'),
-      docs: path.resolve(WORKSPACE_ROOT, './docs'),
+      docs: resolve(WORKSPACE_ROOT, './docs'),
     },
   },
 };

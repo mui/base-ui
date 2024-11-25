@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
+import { FloatingPortal } from '@floating-ui/react';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../Root/SelectRootContext';
 import { CompositeList } from '../../Composite/List/CompositeList';
@@ -91,15 +91,9 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
       <FloatingPortal root={container}>
-        <FloatingFocusManager
-          context={positioner.positionerContext}
-          modal={false}
-          disabled={!mounted}
-        >
-          <SelectPositionerContext.Provider value={positioner}>
-            {renderElement()}
-          </SelectPositionerContext.Provider>
-        </FloatingFocusManager>
+        <SelectPositionerContext.Provider value={positioner}>
+          {renderElement()}
+        </SelectPositionerContext.Provider>
       </FloatingPortal>
     </CompositeList>
   );

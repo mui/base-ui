@@ -1,12 +1,15 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useTabsList } from './useTabsList';
-import { TabsListProvider } from './TabsListProvider';
-import { tabsStyleHookMapping } from '../Root/styleHooks';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { TabsRoot } from '../Root/TabsRoot';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { CompositeRoot } from '../../Composite/Root/CompositeRoot';
+import { tabsStyleHookMapping } from '../Root/styleHooks';
+import { useTabsRootContext } from '../Root/TabsRootContext';
+import { TabsRoot } from '../Root/TabsRoot';
+import { type TabMetadata } from '../Tab/useTab';
+import { useTabsList } from './useTabsList';
+import { TabsListContext } from './TabsListContext';
 
 /**
  *
@@ -24,12 +27,29 @@ const TabsList = React.forwardRef(function TabsList(
 ) {
   const { activateOnFocus = true, className, loop = true, render, ...other } = props;
 
-  const { direction, orientation, getRootProps, contextValue, tabActivationDirection } =
-    useTabsList({
-      rootRef: forwardedRef,
-      loop,
-      activateOnFocus,
-    });
+  const {
+    direction = 'ltr',
+    getTabElementBySelectedValue,
+    onValueChange,
+    orientation = 'horizontal',
+    value,
+    setTabMap,
+    tabActivationDirection,
+  } = useTabsRootContext();
+
+  const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
+
+  const tabsListRef = React.useRef<HTMLElement>(null);
+
+  const { getRootProps, onTabActivation } = useTabsList({
+    getTabElementBySelectedValue,
+    onValueChange,
+    orientation,
+    rootRef: forwardedRef,
+    setTabMap,
+    tabsListRef,
+    value,
+  });
 
   const ownerState: TabsList.OwnerState = React.useMemo(
     () => ({
@@ -49,7 +69,37 @@ const TabsList = React.forwardRef(function TabsList(
     customStyleHookMapping: tabsStyleHookMapping,
   });
 
-  return <TabsListProvider value={contextValue}>{renderElement()}</TabsListProvider>;
+  const tabsListContextValue: TabsListContext = React.useMemo(
+    () => ({
+      activateOnFocus,
+      highlightedTabIndex,
+      onTabActivation,
+      setHighlightedTabIndex,
+      tabsListRef,
+      value,
+    }),
+    [
+      activateOnFocus,
+      highlightedTabIndex,
+      onTabActivation,
+      setHighlightedTabIndex,
+      tabsListRef,
+      value,
+    ],
+  );
+
+  return (
+    <TabsListContext.Provider value={tabsListContextValue}>
+      <CompositeRoot<TabMetadata>
+        highlightedIndex={highlightedTabIndex}
+        enableHomeAndEndKeys
+        loop={loop}
+        onHighlightedIndexChange={setHighlightedTabIndex}
+        onMapChange={setTabMap}
+        render={renderElement()}
+      />
+    </TabsListContext.Provider>
+  );
 });
 
 namespace TabsList {
@@ -71,6 +121,8 @@ namespace TabsList {
     loop?: boolean;
   }
 }
+
+export { TabsList };
 
 TabsList.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -103,5 +155,3 @@ TabsList.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { TabsList };

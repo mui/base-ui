@@ -1,11 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useTabsRoot } from './useTabsRoot';
-import { tabsStyleHookMapping } from './styleHooks';
-import { TabsProvider } from './TabsProvider';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { CompositeList } from '../../Composite/List/CompositeList';
+import { useTabsRoot } from './useTabsRoot';
+import { TabsRootContext } from './TabsRootContext';
+import { tabsStyleHookMapping } from './styleHooks';
+import { TabPanelMetadata } from '../TabPanel/useTabPanel';
 
 /**
  *
@@ -23,22 +25,58 @@ const TabsRoot = React.forwardRef(function TabsRoot(
 ) {
   const {
     className,
-    defaultValue,
-    direction = 'ltr',
-    onValueChange,
+    defaultValue = 0,
+    direction: directionProp = 'ltr',
+    onValueChange: onValueChangeProp,
     orientation = 'horizontal',
     render,
-    value,
+    value: valueProp,
     ...other
   } = props;
 
-  const { contextValue, getRootProps, tabActivationDirection } = useTabsRoot({
-    value,
-    defaultValue,
-    onValueChange,
-    orientation,
+  const {
+    getRootProps,
     direction,
+    getTabElementBySelectedValue,
+    getTabIdByPanelValueOrIndex,
+    getTabPanelIdByTabValueOrIndex,
+    onValueChange,
+    setTabMap,
+    setTabPanelMap,
+    tabActivationDirection,
+    tabPanelRefs,
+    value,
+  } = useTabsRoot({
+    value: valueProp,
+    defaultValue,
+    onValueChange: onValueChangeProp,
+    direction: directionProp,
   });
+
+  const tabsContextValue: TabsRootContext = React.useMemo(
+    () => ({
+      direction,
+      getTabElementBySelectedValue,
+      getTabIdByPanelValueOrIndex,
+      getTabPanelIdByTabValueOrIndex,
+      onValueChange,
+      orientation,
+      setTabMap,
+      tabActivationDirection,
+      value,
+    }),
+    [
+      direction,
+      getTabElementBySelectedValue,
+      getTabIdByPanelValueOrIndex,
+      getTabPanelIdByTabValueOrIndex,
+      onValueChange,
+      orientation,
+      setTabMap,
+      tabActivationDirection,
+      value,
+    ],
+  );
 
   const ownerState: TabsRoot.OwnerState = {
     orientation,
@@ -56,12 +94,19 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     customStyleHookMapping: tabsStyleHookMapping,
   });
 
-  return <TabsProvider value={contextValue}>{renderElement()}</TabsProvider>;
+  return (
+    <TabsRootContext.Provider value={tabsContextValue}>
+      <CompositeList<TabPanelMetadata> elementsRef={tabPanelRefs} onMapChange={setTabPanelMap}>
+        {renderElement()}
+      </CompositeList>
+    </TabsRootContext.Provider>
+  );
 });
 
 export type TabsOrientation = 'horizontal' | 'vertical';
 export type TabsDirection = 'ltr' | 'rtl';
 export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
+export type TabValue = any | null;
 
 namespace TabsRoot {
   export type OwnerState = {
@@ -70,16 +115,18 @@ namespace TabsRoot {
     tabActivationDirection: TabActivationDirection;
   };
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends Omit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue'> {
     /**
-     * The value of the currently selected `Tab`.
-     * If you don't want any selected `Tab`, you can set this prop to `null`.
+     * The value of the currently selected `Tab`. Use when the component is controlled.
+     * When the value is `null`, no Tab will be selected.
      */
-    value?: any | null;
+    value?: TabValue;
     /**
      * The default value. Use when the component is not controlled.
+     * When the value is `null`, no Tab will be selected.
+     * @default 0
      */
-    defaultValue?: any | null;
+    defaultValue?: TabValue;
     /**
      * The component orientation (layout flow direction).
      * @default 'horizontal'
@@ -93,9 +140,11 @@ namespace TabsRoot {
     /**
      * Callback invoked when new value is being set.
      */
-    onValueChange?: (value: any | null, event?: Event) => void;
+    onValueChange?: (value: TabValue, event?: Event) => void;
   }
 }
+
+export { TabsRoot };
 
 TabsRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -112,6 +161,8 @@ TabsRoot.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The default value. Use when the component is not controlled.
+   * When the value is `null`, no Tab will be selected.
+   * @default 0
    */
   defaultValue: PropTypes.any,
   /**
@@ -133,10 +184,8 @@ TabsRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The value of the currently selected `Tab`.
-   * If you don't want any selected `Tab`, you can set this prop to `null`.
+   * The value of the currently selected `Tab`. Use when the component is controlled.
+   * When the value is `null`, no Tab will be selected.
    */
   value: PropTypes.any,
 } as any;
-
-export { TabsRoot };

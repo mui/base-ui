@@ -1,20 +1,18 @@
 import * as React from 'react';
 import { Tabs } from '@base-ui-components/react/Tabs';
 import { createRenderer, describeConformance } from '#test-utils';
-import { TabsProvider, TabsProviderValue } from '../Root/TabsProvider';
+import { TabsRootContext } from '../Root/TabsRootContext';
 
 describe('<Tabs.Panel />', () => {
   const { render } = createRenderer();
 
-  const tabsProviderDefaultValue: TabsProviderValue = {
+  const tabsContextDefaultValue: TabsRootContext = {
     value: '1',
-    onSelected: () => {},
-    registerTabIdLookup() {},
-    getTabId: () => '',
-    getTabPanelId: () => '',
-    getItemIndex: () => 0,
-    registerItem: () => ({ id: 0, deregister: () => {} }),
-    totalSubitemCount: 1,
+    onValueChange: () => {},
+    setTabMap() {},
+    getTabElementBySelectedValue: () => null,
+    getTabIdByPanelValueOrIndex: () => '',
+    getTabPanelIdByTabValueOrIndex: () => '',
     direction: 'ltr',
     orientation: 'horizontal',
     tabActivationDirection: 'none',
@@ -22,7 +20,9 @@ describe('<Tabs.Panel />', () => {
 
   describeConformance(<Tabs.Panel value="1" />, () => ({
     render: (node) => {
-      return render(<TabsProvider value={tabsProviderDefaultValue}>{node}</TabsProvider>);
+      return render(
+        <TabsRootContext.Provider value={tabsContextDefaultValue}>{node}</TabsRootContext.Provider>,
+      );
     },
     refInstanceof: window.HTMLDivElement,
   }));

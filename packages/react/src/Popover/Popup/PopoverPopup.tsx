@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { FloatingFocusManager } from '@floating-ui/react';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePopoverPositionerContext } from '../Positioner/PopoverPositionerContext';
@@ -11,6 +12,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import { InteractionType } from '../../utils/useEnhancedClickHandler';
+import { refType } from '../../utils/proptypes';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.OwnerState> = {
   ...baseMapping,
@@ -40,7 +43,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
   props: PopoverPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, initialFocus, finalFocus, ...otherProps } = props;
 
   const {
     open,
@@ -50,24 +53,26 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     titleId,
     descriptionId,
     popupRef,
+    mounted,
   } = usePopoverRootContext();
-  const { side, alignment } = usePopoverPositionerContext();
+  const positioner = usePopoverPositionerContext();
 
-  const { getPopupProps } = usePopoverPopup({
+  const { getPopupProps, resolvedInitialFocus } = usePopoverPopup({
     getProps: getRootPopupProps,
     titleId,
     descriptionId,
+    initialFocus,
   });
 
   const ownerState: PopoverPopup.OwnerState = React.useMemo(
     () => ({
       open,
-      side,
-      alignment,
+      side: positioner.side,
+      alignment: positioner.alignment,
       instant: instantType,
       transitionStatus,
     }),
-    [open, side, alignment, instantType, transitionStatus],
+    [open, positioner.side, positioner.alignment, instantType, transitionStatus],
   );
 
   const mergedRef = useForkRef(popupRef, forwardedRef);
@@ -82,7 +87,17 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     customStyleHookMapping,
   });
 
-  return renderElement();
+  return (
+    <FloatingFocusManager
+      context={positioner.positionerContext}
+      modal={false}
+      disabled={!mounted}
+      initialFocus={resolvedInitialFocus}
+      returnFocus={finalFocus}
+    >
+      {renderElement()}
+    </FloatingFocusManager>
+  );
 });
 
 namespace PopoverPopup {
@@ -93,7 +108,21 @@ namespace PopoverPopup {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+    /**
+     * Determines an element to focus when the popover is opened.
+     * It can be either a ref to the element or a function that returns such a ref.
+     * If not provided, the first focusable element is focused.
+     */
+    initialFocus?:
+      | React.RefObject<HTMLElement | null>
+      | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
+    /**
+     * Determines an element to focus after the popover is closed.
+     * If not provided, the focus returns to the trigger.
+     */
+    finalFocus?: React.RefObject<HTMLElement | null>;
+  }
 }
 
 PopoverPopup.propTypes /* remove-proptypes */ = {
@@ -109,6 +138,20 @@ PopoverPopup.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * Determines an element to focus after the popover is closed.
+   * If not provided, the focus returns to the trigger.
+   */
+  finalFocus: refType,
+  /**
+   * Determines an element to focus when the popover is opened.
+   * It can be either a ref to the element or a function that returns such a ref.
+   * If not provided, the first focusable element is focused.
+   */
+  initialFocus: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    PropTypes.func,
+    refType,
+  ]),
   /**
    * A function to customize rendering of the component.
    */

@@ -4,7 +4,9 @@ import PropTypes from 'prop-types';
 import { useTab } from './useTab';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { TabsOrientation } from '../Root/TabsRoot';
+import type { TabsOrientation, TabValue } from '../Root/TabsRoot';
+import { useTabsRootContext } from '../Root/TabsRootContext';
+import { useTabsListContext } from '../TabsList/TabsListContext';
 
 /**
  *
@@ -20,18 +22,41 @@ const Tab = React.forwardRef(function Tab(
   props: Tab.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { className, disabled = false, render, value, ...other } = props;
+  const { className, disabled = false, render, value: valueProp, id: idProp, ...other } = props;
 
-  const { selected, getRootProps, orientation } = useTab({
-    ...props,
+  const {
+    value: selectedTabValue,
+    getTabPanelIdByTabValueOrIndex,
+    orientation,
+  } = useTabsRootContext();
+
+  const { activateOnFocus, highlightedTabIndex, onTabActivation, setHighlightedTabIndex } =
+    useTabsListContext();
+
+  const { getRootProps, index, selected } = useTab({
+    activateOnFocus,
+    disabled,
+    getTabPanelIdByTabValueOrIndex,
+    highlightedTabIndex,
+    id: idProp,
+    onTabActivation,
     rootRef: forwardedRef,
+    setHighlightedTabIndex,
+    selectedTabValue,
+    value: valueProp,
   });
 
-  const ownerState: Tab.OwnerState = {
-    disabled,
-    selected,
-    orientation,
-  };
+  const highlighted = index > -1 && index === highlightedTabIndex;
+
+  const ownerState: Tab.OwnerState = React.useMemo(
+    () => ({
+      disabled,
+      highlighted,
+      selected,
+      orientation,
+    }),
+    [disabled, highlighted, selected, orientation],
+  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
@@ -47,9 +72,10 @@ const Tab = React.forwardRef(function Tab(
 namespace Tab {
   export interface Props extends BaseUIComponentProps<'button', Tab.OwnerState> {
     /**
-     * You can provide your own value. Otherwise, it falls back to the child position index.
+     * The value of the Tab.
+     * When not specified, the value is the child position index.
      */
-    value?: any;
+    value?: TabValue;
   }
 
   export interface OwnerState {
@@ -58,6 +84,8 @@ namespace Tab {
     orientation: TabsOrientation;
   }
 }
+
+export { Tab };
 
 Tab.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -77,13 +105,16 @@ Tab.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
+   * @ignore
+   */
+  id: PropTypes.string,
+  /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * You can provide your own value. Otherwise, it falls back to the child position index.
+   * The value of the Tab.
+   * When not specified, the value is the child position index.
    */
   value: PropTypes.any,
 } as any;
-
-export { Tab };

@@ -2,15 +2,15 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
+import { useMenuRootContext } from '../Root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
-const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.OwnerState> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
@@ -24,24 +24,24 @@ const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.OwnerSt
 };
 
 /**
+ * Renders a backdrop for the menu.
  *
  * Demos:
  *
- * - [Preview Card](https://base-ui.com/components/react-preview-card/)
+ * - [Menu](https://base-ui.com/components/react-menu/)
  *
  * API:
  *
- * - [PreviewCardBackdrop API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardBackdrop)
+ * - [MenuBackdrop API](https://base-ui.com/components/react-menu/#api-reference-MenuBackdrop)
  */
-const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
-  props: PreviewCardBackdrop.Props,
+const MenuBackdrop = React.forwardRef(function MenuBackdrop(
+  props: MenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = false, container, ...other } = props;
+  const { className, render, keepMounted = false, container, ...other } = props;
+  const { open, mounted, transitionStatus } = useMenuRootContext();
 
-  const { open, mounted, transitionStatus } = usePreviewCardRootContext();
-
-  const ownerState: PreviewCardBackdrop.OwnerState = React.useMemo(
+  const ownerState: MenuBackdrop.OwnerState = React.useMemo(
     () => ({
       open,
       transitionStatus,
@@ -66,7 +66,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
 });
 
-namespace PreviewCardBackdrop {
+namespace MenuBackdrop {
   export interface OwnerState {
     open: boolean;
     transitionStatus: TransitionStatus;
@@ -74,18 +74,19 @@ namespace PreviewCardBackdrop {
 
   export interface Props extends BaseUIComponentProps<'div', OwnerState> {
     /**
-     * Whether the `Backdrop` remains mounted when the Preview Card `Popup` is closed.
+     * If `true`, the backdrop remains mounted when the menu popup is closed.
      * @default false
      */
     keepMounted?: boolean;
     /**
-     * The element the `Backdrop` is appended to.
+     * The container element to which the backdrop is appended to.
+     * @default false
      */
     container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 }
 
-PreviewCardBackdrop.propTypes /* remove-proptypes */ = {
+MenuBackdrop.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -99,14 +100,15 @@ PreviewCardBackdrop.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The element the `Backdrop` is appended to.
+   * The container element to which the backdrop is appended to.
+   * @default false
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
     PropTypes.func,
   ]),
   /**
-   * Whether the `Backdrop` remains mounted when the Preview Card `Popup` is closed.
+   * If `true`, the backdrop remains mounted when the menu popup is closed.
    * @default false
    */
   keepMounted: PropTypes.bool,
@@ -116,4 +118,4 @@ PreviewCardBackdrop.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { PreviewCardBackdrop };
+export { MenuBackdrop };

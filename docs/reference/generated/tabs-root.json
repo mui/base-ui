@@ -8,7 +8,8 @@
     },
     "defaultValue": {
       "type": "any",
-      "description": "The default value. Use when the component is not controlled."
+      "default": "0",
+      "description": "The default value. Use when the component is not controlled.\nWhen the value is `null`, no Tab will be selected."
     },
     "direction": {
       "type": "'ltr' | 'rtl'",
@@ -30,7 +31,7 @@
     },
     "value": {
       "type": "any",
-      "description": "The value of the currently selected `Tab`.\nIf you don't want any selected `Tab`, you can set this prop to `null`."
+      "description": "The value of the currently selected `Tab`. Use when the component is controlled.\nWhen the value is `null`, no Tab will be selected."
     }
   }
 }

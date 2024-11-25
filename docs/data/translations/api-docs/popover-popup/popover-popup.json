@@ -4,6 +4,12 @@
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
+    "finalFocus": {
+      "description": "Determines an element to focus after the popover is closed. If not provided, the focus returns to the trigger."
+    },
+    "initialFocus": {
+      "description": "Determines an element to focus when the popover is opened. It can be either a ref to the element or a function that returns such a ref. If not provided, the first focusable element is focused."
+    },
     "render": { "description": "A function to customize rendering of the component." }
   },
   "classDescriptions": {}

@@ -9,14 +9,11 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
-import { usePopoverRootContext } from '../Root/PopoverRootContext';
 
 export function usePopoverPositioner(
   params: usePopoverPositioner.Parameters,
 ): usePopoverPositioner.ReturnValue {
-  const { keepMounted, initialFocus, openMethod, popupRef, mounted } = params;
-
-  const { open } = usePopoverRootContext();
+  const { open = false, keepMounted = false, mounted } = params;
 
   const {
     positionerStyles,
@@ -28,32 +25,6 @@ export function usePopoverPositioner(
     renderedAlignment,
     positionerContext,
   } = useAnchorPositioning(params);
-
-  // Default initial focus logic:
-  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
-  // (this is required for Android specifically as iOS handles this automatically).
-  const defaultInitialFocus = React.useCallback(
-    (interactionType: InteractionType) => {
-      if (interactionType === 'touch') {
-        return popupRef;
-      }
-
-      return 0;
-    },
-    [popupRef],
-  );
-
-  const resolvedInitialFocus = React.useMemo(() => {
-    if (initialFocus == null) {
-      return defaultInitialFocus(openMethod ?? '');
-    }
-
-    if (typeof initialFocus === 'function') {
-      return initialFocus(openMethod ?? '');
-    }
-
-    return initialFocus;
-  }, [defaultInitialFocus, initialFocus, openMethod]);
 
   const getPositionerProps: usePopoverPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(
@@ -85,7 +56,6 @@ export function usePopoverPositioner(
       side: renderedSide,
       alignment: renderedAlignment,
       positionerContext,
-      resolvedInitialFocus,
     }),
     [
       getPositionerProps,
@@ -95,7 +65,6 @@ export function usePopoverPositioner(
       renderedSide,
       renderedAlignment,
       positionerContext,
-      resolvedInitialFocus,
     ],
   );
 }
@@ -175,14 +144,6 @@ export namespace usePopoverPositioner {
      * @default true
      */
     trackAnchor?: boolean;
-    /**
-     * Determines an element to focus when the popover is opened.
-     * It can be either a ref to the element or a function that returns such a ref.
-     * If not provided, the first focusable element is focused.
-     */
-    initialFocus?:
-      | React.RefObject<HTMLElement | null>
-      | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
   }
 
   export interface Parameters extends SharedParameters {
@@ -238,9 +199,5 @@ export namespace usePopoverPositioner {
      * The floating context.
      */
     positionerContext: FloatingContext;
-    /**
-     * Ref to the element to focus when the popover is opened, or `0` to focus the first element within the popover.
-     */
-    resolvedInitialFocus: React.RefObject<HTMLElement | null> | 0;
   }
 }

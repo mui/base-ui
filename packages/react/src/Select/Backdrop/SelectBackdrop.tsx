@@ -39,7 +39,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   props: SelectBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, container, ...otherProps } = props;
+  const { className, render, keepMounted = false, container, ...other } = props;
 
   const { open, mounted, transitionStatus } = useSelectRootContext();
 
@@ -53,7 +53,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     className,
     ownerState,
     ref: forwardedRef,
-    extraProps: { role: 'presentation', ...otherProps },
+    extraProps: { role: 'presentation', hidden: !mounted, ...other },
     customStyleHookMapping,
   });
 
