@@ -7,7 +7,7 @@ export * from './dialog';
 export * from './field';
 export * from './fieldset';
 export * from './form';
-export * from './Menu';
+export * from './menu';
 export * from './number-field';
 export * from './Popover';
 export * from './PreviewCard';
