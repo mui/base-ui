@@ -1,0 +1,37 @@
+@import 'docs/src/breakpoints.css';
+
+@layer components {
+  .SidebarLayoutRoot {
+    --sidebar-width: 17.5rem;
+
+    display: grid;
+    align-items: start;
+    padding: 0 3rem;
+    grid-template-columns: 1fr;
+
+    @media (--show-side-nav) {
+      padding: 0;
+      grid-template-columns: var(--sidebar-width) 1fr;
+    }
+
+    @media (--show-quick-nav) {
+      grid-template-columns: var(--sidebar-width) 1fr var(--sidebar-width);
+    }
+  }
+
+  .SidebarLayoutMain {
+    padding-top: 3rem;
+    padding-bottom: 5rem;
+    min-width: 0;
+    margin: 0 auto;
+
+    @media (--show-side-nav) {
+      margin-left: 0;
+      margin-right: 3rem;
+    }
+
+    @media (--show-quick-nav) {
+      margin: 0;
+    }
+  }
+}

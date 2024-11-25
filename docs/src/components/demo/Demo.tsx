@@ -45,7 +45,7 @@ export function Demo({ className, defaultOpen = false, title, ...props }: DemoPr
                 }}
               >
                 Copy
-                <span className="flex size-[14px] items-center justify-center">
+                <span className="flex size-3.5 items-center justify-center">
                   {copyTimeout ? <CheckIcon /> : <CopyIcon />}
                 </span>
               </BaseDemo.SourceCopy>
