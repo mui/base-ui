@@ -57,7 +57,6 @@
     min-height: 100dvh;
     max-width: calc(var(--breakpoint-max-layout-width) - var(--root-layout-padding-x) * 2);
     flex-direction: column;
-    padding-top: 3rem;
     padding-bottom: 3rem;
 
     &::before,
