@@ -14,5 +14,3 @@ export function GitHubIcon(props: React.ComponentProps<'svg'>) {
     </svg>
   );
 }
-
-//
