@@ -2,48 +2,50 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { CompositeList } from '../List/CompositeList';
+import { CompositeList, type CompositeMetadata } from '../List/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
+import { refType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Dimensions } from '../composite';
 
 /**
  * @ignore - internal component.
  */
-const CompositeRoot = React.forwardRef(function CompositeRoot(
-  props: CompositeRoot.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
+function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>) {
   const {
     render,
     className,
-    activeIndex: activeIndexProp,
-    onActiveIndexChange: onActiveIndexChangeProp,
+    highlightedIndex: highlightedIndexProp,
+    onHighlightedIndexChange: onHighlightedIndexChangeProp,
     orientation,
     dense,
     itemSizes,
     loop,
     cols,
     enableHomeAndEndKeys,
+    onMapChange,
+    stopEventPropagation,
+    rootRef,
     ...otherProps
   } = props;
 
-  const { getRootProps, activeIndex, onActiveIndexChange, elementsRef } = useCompositeRoot({
-    itemSizes,
-    cols,
-    loop,
-    dense,
-    orientation,
-    activeIndex: activeIndexProp,
-    onActiveIndexChange: onActiveIndexChangeProp,
-    rootRef: forwardedRef,
-    enableHomeAndEndKeys,
-  });
+  const { getRootProps, highlightedIndex, onHighlightedIndexChange, elementsRef } =
+    useCompositeRoot({
+      itemSizes,
+      cols,
+      loop,
+      dense,
+      orientation,
+      highlightedIndex: highlightedIndexProp,
+      onHighlightedIndexChange: onHighlightedIndexChangeProp,
+      rootRef,
+      stopEventPropagation,
+      enableHomeAndEndKeys,
+    });
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
-    ref: forwardedRef,
     render: render ?? 'div',
     ownerState: {},
     className,
@@ -51,41 +53,44 @@ const CompositeRoot = React.forwardRef(function CompositeRoot(
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
-    () => ({ activeIndex, onActiveIndexChange }),
-    [activeIndex, onActiveIndexChange],
+    () => ({ highlightedIndex, onHighlightedIndexChange }),
+    [highlightedIndex, onHighlightedIndexChange],
   );
 
   return (
     <CompositeRootContext.Provider value={contextValue}>
-      <CompositeList elementsRef={elementsRef}>{renderElement()}</CompositeList>
+      <CompositeList<Metadata> elementsRef={elementsRef} onMapChange={onMapChange}>
+        {renderElement()}
+      </CompositeList>
     </CompositeRootContext.Provider>
   );
-});
+}
 
 namespace CompositeRoot {
   export interface OwnerState {}
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props<Metadata> extends BaseUIComponentProps<'div', OwnerState> {
     orientation?: 'horizontal' | 'vertical' | 'both';
     cols?: number;
     loop?: boolean;
-    activeIndex?: number;
-    onActiveIndexChange?: (index: number) => void;
+    highlightedIndex?: number;
+    onHighlightedIndexChange?: (index: number) => void;
     itemSizes?: Dimensions[];
     dense?: boolean;
     enableHomeAndEndKeys?: boolean;
+    onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
+    stopEventPropagation?: boolean;
+    rootRef?: React.RefObject<HTMLElement | null>;
   }
 }
+
+export { CompositeRoot };
 
 CompositeRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  activeIndex: PropTypes.number,
   /**
    * @ignore
    */
@@ -109,6 +114,10 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  highlightedIndex: PropTypes.number,
+  /**
+   * @ignore
+   */
   itemSizes: PropTypes.arrayOf(
     PropTypes.shape({
       height: PropTypes.number.isRequired,
@@ -122,7 +131,11 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  onActiveIndexChange: PropTypes.func,
+  onHighlightedIndexChange: PropTypes.func,
+  /**
+   * @ignore
+   */
+  onMapChange: PropTypes.func,
   /**
    * @ignore
    */
@@ -131,6 +144,12 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  rootRef: refType,
+  /**
+   * @ignore
+   */
+  stopEventPropagation: PropTypes.bool,
 } as any;
-
-export { CompositeRoot };

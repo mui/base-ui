@@ -107,18 +107,22 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     const positionerStyles = getComputedStyle(positionerElement);
     const popupStyles = getComputedStyle(popupRef.current);
 
-    const borderBottom = parseFloat(popupStyles.borderBottomWidth);
-    const marginTop = parseFloat(positionerStyles.marginTop) || 10;
-    const marginBottom = parseFloat(positionerStyles.marginBottom) || 10;
-    const minHeight = parseFloat(positionerStyles.minHeight) || 100;
-    const paddingLeft = 5;
-    const paddingRight = 5;
-
     const doc = ownerDocument(triggerElement);
     const triggerRect = triggerElement.getBoundingClientRect();
     const positionerRect = positionerElement.getBoundingClientRect();
     const triggerX = triggerRect.left;
     const triggerHeight = triggerRect.height;
+    const scrollHeight = popupRef.current.scrollHeight;
+
+    const borderBottom = parseFloat(popupStyles.borderBottomWidth);
+    const marginTop = parseFloat(positionerStyles.marginTop) || 10;
+    const marginBottom = parseFloat(positionerStyles.marginBottom) || 10;
+    const minHeight = parseFloat(positionerStyles.minHeight) || 100;
+
+    const paddingLeft = 5;
+    const paddingRight = 5;
+    const triggerCollisionThreshold = 20;
+
     const viewportHeight = doc.documentElement.clientHeight - marginTop - marginBottom;
     const viewportWidth = doc.documentElement.clientWidth;
     const availableSpaceBeneathTrigger = viewportHeight - triggerRect.bottom + triggerHeight;
@@ -150,7 +154,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
     positionerElement.style.left = `${left - rightOverflow}px`;
     positionerElement.style.height = `${height}px`;
-    positionerElement.style.minHeight = `${minHeight}px`;
     positionerElement.style.maxHeight = 'auto';
     positionerElement.style.marginTop = `${marginTop}px`;
     positionerElement.style.marginBottom = `${marginBottom}px`;
@@ -162,10 +165,12 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       height = Math.min(viewportHeight, positionerRect.height) - (scrollTop - maxScrollTop);
     }
 
-    // When the reference is too close to the top or bottom of the viewport, or the minHeight is
+    // When the trigger is too close to the top or bottom of the viewport, or the minHeight is
     // reached, we fallback to aligning the popup to the trigger as the UX is poor otherwise.
     const fallbackToAlignPopupToTrigger =
-      triggerRect.top < 20 || triggerRect.bottom > viewportHeight - 20 || height < minHeight;
+      triggerRect.top < triggerCollisionThreshold ||
+      triggerRect.bottom > viewportHeight - triggerCollisionThreshold ||
+      height < Math.min(scrollHeight, minHeight);
 
     if (fallbackToAlignPopupToTrigger) {
       initialPlacedRef.current = true;

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/Popover';
-import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -332,5 +332,30 @@ describe('<Popover.Root />', () => {
       },
       { timeout: 1500 },
     );
+  });
+
+  it('does not move focus to the popover when opened with hover', async () => {
+    await render(
+      <Popover.Root openOnHover delay={0}>
+        <Popover.Trigger>Toggle</Popover.Trigger>
+        <Popover.Positioner>
+          <Popover.Popup>
+            <Popover.Close>Close</Popover.Close>
+          </Popover.Popup>
+        </Popover.Positioner>
+      </Popover.Root>,
+    );
+
+    const toggle = screen.getByRole('button', { name: 'Toggle' });
+
+    act(() => toggle.focus());
+
+    await user.hover(toggle);
+    await flushMicrotasks();
+
+    const close = screen.getByRole('button', { name: 'Close' });
+
+    expect(close).not.to.equal(null);
+    expect(close).not.to.toHaveFocus();
   });
 });

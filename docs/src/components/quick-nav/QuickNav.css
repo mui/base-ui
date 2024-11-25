@@ -1,5 +1,18 @@
 @layer components {
+  .QuickNavContainer {
+    /* Quick Nav's container shouldn't have any paddings to maintain correct positioning */
+    padding: 0;
+    position: relative;
+  }
+
   .QuickNavRoot {
+    --quick-nav-margin-x: 2rem;
+    --quick-nav-item-height: 2rem;
+    --quick-nav-item-line-height: var(--text-sm--line-height);
+    --quick-nav-item-padding-y: calc(
+      var(--quick-nav-item-height) / 2 - var(--quick-nav-item-line-height) / 2
+    );
+
     /* The variable is used in JS positioning logic */
     --top: -1px;
     @apply text-sm;
@@ -11,7 +24,7 @@
     contain: layout;
 
     display: none;
-    @media (min-width: 1340px) {
+    @media (--show-quick-nav) {
       display: block;
     }
   }
@@ -19,17 +32,15 @@
   .QuickNavInner {
     border-top: 1px solid var(--color-gray-200);
     position: relative;
-    left: 2rem;
-    padding-top: 1rem;
+    left: var(--quick-nav-margin-x);
+    padding-top: 0.75rem;
     padding-bottom: 1.5rem;
     pointer-events: auto;
-
-    /* Stretch width between 168px at 1340px and up to 216px at 1440px */
-    width: max(168px, min(216px, 168px + (216 - 168) * (100vw - 1340px) / 100));
+    width: calc(var(--sidebar-width) - var(--quick-nav-margin-x) * 2);
   }
 
   .QuickNavTitle {
-    padding-block: 0.375rem;
+    padding-block: var(--quick-nav-item-padding-y);
     font-weight: 500;
   }
 
@@ -46,8 +57,8 @@
 
   .QuickNavLink {
     display: flex;
-    padding: 0.375rem;
-    margin-inline: -0.375rem;
+    padding: var(--quick-nav-item-padding-y) 0.5rem;
+    margin-inline: -0.5rem;
 
     &:focus-visible {
       color: var(--color-foreground);
@@ -58,7 +69,10 @@
 
     @media (hover: hover) {
       &:hover {
-        color: var(--color-blue);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        text-decoration-thickness: 1px;
+        text-decoration-color: var(--color-gray-500);
       }
     }
   }
