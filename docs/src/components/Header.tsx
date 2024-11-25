@@ -10,12 +10,7 @@ export function Header() {
       </NextLink>
       <div className="flex gap-6">
         <span>v1.0.0-alpha.1</span>
-        <a
-          className="HeaderLink"
-          href="http://github.com/mui/base-ui"
-          target="_blank"
-          rel="noopener"
-        >
+        <a className="HeaderLink" href="https://github.com/mui/base-ui" rel="noopener">
           <GitHubIcon />
           GitHub
         </a>
