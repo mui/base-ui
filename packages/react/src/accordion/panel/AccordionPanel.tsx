@@ -9,6 +9,7 @@ import { useAccordionRootContext } from '../root/AccordionRootContext';
 import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStyleHookMapping } from '../item/styleHooks';
+import { accordionCssVars } from '../cssVars';
 
 /**
  *
@@ -62,8 +63,8 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
       'aria-labelledby': triggerId,
       role: 'region',
       style: {
-        '--accordion-panel-height': height ? `${height}px` : undefined,
-        '--accordion-panel-width': width ? `${width}px` : undefined,
+        [accordionCssVars.accordionPanelHeight]: height ? `${height}px` : undefined,
+        [accordionCssVars.accordionPanelWidth]: width ? `${width}px` : undefined,
         ...styleProp,
       },
     },
