@@ -9,9 +9,5 @@
     },
     "render": { "description": "A function to customize rendering of the component." }
   },
-  "classDescriptions": {},
-  "cssVariablesDescriptions": {
-    "--accordion-panel-height": "Description for the CSS Varaible.",
-    "--accordion-panel-width": "Description for the CSS Varaible."
-  }
+  "classDescriptions": {}
 }

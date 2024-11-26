@@ -8,16 +8,6 @@
   "imports": [
     "import { Accordion } from '@base-ui-components/react/accordion';\nconst AccordionPanel = Accordion.Panel;"
   ],
-  "cssVariables": {
-    "--accordion-panel-height": {
-      "description": "Description for the CSS Varaible.",
-      "type": "number"
-    },
-    "--accordion-panel-width": {
-      "description": "Description for the CSS Varaible.",
-      "type": "number"
-    }
-  },
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
