@@ -218,18 +218,19 @@ export function useCollapsiblePanel(
 
     // const isClosed = !open && !contextMounted;
 
-    if (!isTransitioning || !open) {
-      const rect = !open ? { height: 0, width: 0 } : element.getBoundingClientRect();
+    if (!isTransitioning) {
+      const rect =
+        !open && !contextMounted ? { height: 0, width: 0 } : element.getBoundingClientRect();
 
-      // console.log(
-      //   'rect.height/width',
-      //   rect.height,
-      //   rect.width,
-      //   'transitioning',
-      //   isTransitioning,
-      //   'open',
-      //   open,
-      // );
+      console.log(
+        'rect.height/width',
+        rect.height,
+        rect.width,
+        'transitioning',
+        isTransitioning,
+        'open',
+        open,
+      );
 
       setDimensions({
         height: rect.height,
@@ -267,7 +268,7 @@ export function useCollapsiblePanel(
       cancelAnimationFrame(frame1);
       cancelAnimationFrame(frame2);
     };
-  }, [open, runOnceAnimationsFinish, setContextMounted]);
+  }, [open, contextMounted, runOnceAnimationsFinish, setContextMounted]);
 
   React.useEffect(() => {
     const { current: element } = panelRef;
@@ -289,10 +290,10 @@ export function useCollapsiblePanel(
       frame2 = requestAnimationFrame(() => {
         frame3 = requestAnimationFrame(() => {
           // it takes 3 frames to unset `'0s'` from the initial open state correctly
-          element.style.transitionDuration =
-            originalTransitionDurationRef.current === '0s'
-              ? ''
-              : originalTransitionDurationRef.current;
+          element.style.transitionDuration = '';
+          // originalTransitionDurationRef.current === '0s'
+          //   ? ''
+          //   : originalTransitionDurationRef.current;
         });
       });
       return undefined;
