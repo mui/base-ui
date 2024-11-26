@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { hasComputedStyleMapSupport } from '../../utils/hasComputedStyleMapSupport';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerWindow } from '../../utils/owner';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -9,17 +10,8 @@ import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
 
-let cachedSupportsComputedStyleMap: boolean | undefined;
-
-function supportsComputedStyleMap(element: HTMLElement) {
-  if (cachedSupportsComputedStyleMap === undefined) {
-    cachedSupportsComputedStyleMap = 'computedStyleMap' in element;
-  }
-  return cachedSupportsComputedStyleMap;
-}
-
 function getAnimationNameFromComputedStyles(element: HTMLElement) {
-  if (supportsComputedStyleMap(element)) {
+  if (hasComputedStyleMapSupport()) {
     const styleMap = element.computedStyleMap();
     const animationName = styleMap.get('animation-name');
     return (animationName as CSSKeywordValue)?.value ?? undefined;
