@@ -63,7 +63,8 @@
         }
       }
 
-      &:active {
+      /* No pressed state for menus */
+      &:not([aria-haspopup]):active {
         &::before {
           background-color: var(--color-gray-200);
         }

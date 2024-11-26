@@ -16,14 +16,14 @@
   },
   "name": "TabsRoot",
   "imports": [
-    "import { Tabs } from '@base-ui-components/react/Tabs';\nconst TabsRoot = Tabs.Root;"
+    "import { Tabs } from '@base-ui-components/react/tabs';\nconst TabsRoot = Tabs.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "TabsRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/Tabs/Root/TabsRoot.tsx",
+  "filename": "/packages/react/src/tabs/root/TabsRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tabs/\">Tabs</a></li></ul>",
   "cssComponent": false

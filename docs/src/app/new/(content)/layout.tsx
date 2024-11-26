@@ -1,11 +1,12 @@
 import * as React from 'react';
+import type { Metadata } from 'next/types';
 import * as SideNav from 'docs/src/components/SideNav';
 import * as QuickNav from 'docs/src/components/quick-nav/QuickNav';
 import './layout.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
-    <div className="SidebarLayoutRoot">
+    <div className="ContentLayoutRoot">
       <SideNav.Root>
         {nav.map((section) => (
           <SideNav.Section key={section.label}>
@@ -21,7 +22,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
         ))}
       </SideNav.Root>
 
-      <main className="SidebarLayoutMain">
+      <main className="ContentLayoutMain">
         <QuickNav.Container>{children}</QuickNav.Container>
       </main>
     </div>
@@ -161,3 +162,8 @@ const nav = [
     ],
   },
 ];
+// Title and description are pulled from <h1> and <Subtitle> in the MDX.
+export const metadata: Metadata = {
+  title: null,
+  description: null,
+};

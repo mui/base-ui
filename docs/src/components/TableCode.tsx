@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Code } from './Code';
+import { getChildrenText } from '../getChildrenText';
 
 interface TableCodeProps extends React.ComponentProps<'code'> {
   printWidth?: number;
@@ -7,7 +8,7 @@ interface TableCodeProps extends React.ComponentProps<'code'> {
 
 /** An inline code component that breaks long union types into multiple lines */
 export function TableCode({ children, printWidth = 40, ...props }: TableCodeProps) {
-  const text = getTextContents(children);
+  const text = getChildrenText(children);
 
   if (text.includes('|') && text.length > printWidth) {
     const unionGroups: React.ReactNode[][] = [];
@@ -21,17 +22,17 @@ export function TableCode({ children, printWidth = 40, ...props }: TableCodeProp
         return;
       }
 
-      if (getTextContents(child).trim() === '|' && depth < 1) {
+      if (getChildrenText(child).trim() === '|' && depth < 1) {
         groupIndex += 1;
         unionGroups.push([]);
         return;
       }
 
-      if (getTextContents(child).trim() === '(') {
+      if (getChildrenText(child).trim() === '(') {
         depth += 1;
       }
 
-      if (getTextContents(child).trim() === ')') {
+      if (getChildrenText(child).trim() === ')') {
         depth -= 1;
       }
 
@@ -57,32 +58,4 @@ export function TableCode({ children, printWidth = 40, ...props }: TableCodeProp
   }
 
   return <Code {...props}>{children}</Code>;
-}
-
-function getTextContents(node?: React.ReactNode): string {
-  if (hasChildren(node)) {
-    return getTextContents(node.props?.children);
-  }
-
-  if (Array.isArray(node)) {
-    return node.map(getTextContents).flat().filter(Boolean).join('');
-  }
-
-  if (typeof node === 'string') {
-    return node;
-  }
-
-  return '';
-}
-
-function hasChildren(
-  element?: React.ReactNode,
-): element is React.ReactElement<React.PropsWithChildren> {
-  return (
-    React.isValidElement(element) &&
-    typeof element.props === 'object' &&
-    !!element.props &&
-    'children' in element.props &&
-    Boolean(element.props.children)
-  );
 }

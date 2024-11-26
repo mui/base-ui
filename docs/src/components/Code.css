@@ -1,10 +1,5 @@
 @layer components {
   .Code {
     letter-spacing: normal;
-
-    &[data-inline] {
-      margin-left: 0.1em;
-      margin-right: 0.1em;
-    }
   }
 }
