@@ -5,6 +5,7 @@ import type { CollapsibleRoot } from './CollapsibleRoot';
 export const collapsibleStyleHookMapping: CustomStyleHookMapping<CollapsibleRoot.State> = {
   ...baseMapping,
   transitionStatus: (value) => {
+    // console.log('transitionStatus', value);
     if (value === 'entering') {
       return { 'data-entering': '' } as Record<string, string>;
     }
