@@ -7,14 +7,14 @@
   },
   "name": "MenuTrigger",
   "imports": [
-    "import { Menu } from '@base-ui-components/react/Menu';\nconst MenuTrigger = Menu.Trigger;"
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuTrigger = Menu.Trigger;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "MenuTrigger",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/react/src/Menu/Trigger/MenuTrigger.tsx",
+  "filename": "/packages/react/src/menu/trigger/MenuTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Collapsible } from '@base-ui-components/react/Collapsible';
+import { Collapsible } from '@base-ui-components/react/collapsible';
 import * as BaseDemo from 'docs/src/blocks/Demo';
 import { CopyIcon } from 'docs/src/icons/Copy';
 import clsx from 'clsx';

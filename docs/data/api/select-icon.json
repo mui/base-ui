@@ -5,14 +5,14 @@
   },
   "name": "SelectIcon",
   "imports": [
-    "import { Select } from '@base-ui-components/react/Select';\nconst SelectIcon = Select.Icon;"
+    "import { Select } from '@base-ui-components/react/select';\nconst SelectIcon = Select.Icon;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SelectIcon",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/react/src/Select/Icon/SelectIcon.tsx",
+  "filename": "/packages/react/src/select/icon/SelectIcon.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false
