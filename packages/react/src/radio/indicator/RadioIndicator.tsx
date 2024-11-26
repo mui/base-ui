@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useRadioRootContext } from '../Root/RadioRootContext';
+import { useRadioRootContext } from '../root/RadioRootContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<RadioIndicator.OwnerState> = {
   checked(value) {

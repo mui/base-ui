@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { RadioGroup } from '@base-ui-components/react/RadioGroup';
-import { Radio } from '@base-ui-components/react/Radio';
+import { Radio } from '@base-ui-components/react/radio';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, act, screen, fireEvent } from '@mui/internal-test-utils';
