@@ -14,7 +14,7 @@ export * from './preview-card';
 export * from './progress';
 export * from './radio';
 export * from './radio-group';
-export * from './ScrollArea';
+export * from './scroll-area';
 export * from './Separator';
 export * from './Select';
 export * from './Slider';

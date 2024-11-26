@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useScrollAreaRootContext } from '../Root/ScrollAreaRootContext';
+import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters) {

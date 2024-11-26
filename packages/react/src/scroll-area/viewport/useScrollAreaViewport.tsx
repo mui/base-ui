@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useScrollAreaRootContext } from '../Root/ScrollAreaRootContext';
+import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
