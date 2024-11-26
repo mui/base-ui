@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { ProgressDirection } from '../Root/useProgressRoot';
+import { ProgressDirection } from '../root/useProgressRoot';
 
 function valueToPercent(value: number, min: number, max: number) {
   return ((value - min) * 100) / (max - min);

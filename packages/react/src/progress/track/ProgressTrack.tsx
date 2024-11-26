@@ -2,10 +2,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useProgressIndicator } from './useProgressIndicator';
-import { ProgressRoot } from '../Root/ProgressRoot';
-import { useProgressRootContext } from '../Root/ProgressRootContext';
-import { progressStyleHookMapping } from '../Root/styleHooks';
+import { useProgressRootContext } from '../root/ProgressRootContext';
+import { progressStyleHookMapping } from '../root/styleHooks';
+import { ProgressRoot } from '../root/ProgressRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
@@ -16,25 +15,17 @@ import { BaseUIComponentProps } from '../../utils/types';
  *
  * API:
  *
- * - [ProgressIndicator API](https://base-ui.com/components/react-progress/#api-reference-ProgressIndicator)
+ * - [ProgressTrack API](https://base-ui.com/components/react-progress/#api-reference-ProgressTrack)
  */
-const ProgressIndicator = React.forwardRef(function ProgressIndicator(
-  props: ProgressIndicator.Props,
+const ProgressTrack = React.forwardRef(function ProgressTrack(
+  props: ProgressTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { direction, max, min, value, ownerState } = useProgressRootContext();
-
-  const { getRootProps } = useProgressIndicator({
-    direction,
-    max,
-    min,
-    value,
-  });
+  const { ownerState } = useProgressRootContext();
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
     render: render ?? 'span',
     ownerState,
     className,
@@ -46,13 +37,13 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   return renderElement();
 });
 
-namespace ProgressIndicator {
+namespace ProgressTrack {
   export interface OwnerState extends ProgressRoot.OwnerState {}
 
   export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
 }
 
-ProgressIndicator.propTypes /* remove-proptypes */ = {
+ProgressTrack.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -71,4 +62,4 @@ ProgressIndicator.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { ProgressIndicator };
+export { ProgressTrack };

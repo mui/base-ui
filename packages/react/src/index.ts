@@ -11,7 +11,7 @@ export * from './menu';
 export * from './number-field';
 export * from './popover';
 export * from './preview-card';
-export * from './Progress';
+export * from './progress';
 export * from './RadioGroup';
 export * from './ScrollArea';
 export * from './Separator';
