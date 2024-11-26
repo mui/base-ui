@@ -1,6 +1,6 @@
 'use client';
 // eslint-disable-next-line no-restricted-imports
-import { useEnhancedEffect } from '@base-ui-components/react/utils/useEnhancedEffect';
+import { useEnhancedEffect } from '@base-ui-components/react/utils';
 import * as React from 'react';
 
 export interface PackageManagerSnippetContext {

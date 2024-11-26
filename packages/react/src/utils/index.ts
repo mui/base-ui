@@ -1,7 +1,7 @@
 // Public utils
 
-export * from './prepareForSlot';
-export * from './MuiCancellableEvent';
+export * from './useControlled';
+export * from './useEnhancedEffect';
 export * from './useScrollLock';
 export * from './useTransitionStatus';
 export * from './visuallyHidden';
