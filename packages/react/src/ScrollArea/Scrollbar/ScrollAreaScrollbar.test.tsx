@@ -39,6 +39,12 @@ describe('<ScrollArea.Scrollbar />', () => {
     const verticalScrollbar = screen.getByTestId('vertical');
     const horizontalScrollbar = screen.getByTestId('horizontal');
 
+    // Cursor in browser initially rests on the root element
+    expect(verticalScrollbar).to.have.attribute('data-hovering');
+    expect(horizontalScrollbar).to.have.attribute('data-hovering');
+
+    fireEvent.pointerLeave(screen.getByTestId('root'), { pointerType: 'mouse' });
+
     expect(verticalScrollbar).not.to.have.attribute('data-hovering');
     expect(horizontalScrollbar).not.to.have.attribute('data-hovering');
 
