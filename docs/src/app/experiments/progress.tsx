@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import { Progress } from '@base-ui-components/react/Progress';
+import { Progress } from '@base-ui-components/react/progress';
 
 const VAL1 = 33;
 

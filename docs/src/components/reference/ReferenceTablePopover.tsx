@@ -1,7 +1,7 @@
 'use client';
-import { Popover } from '@base-ui-components/react/Popover';
+import { Popover } from '@base-ui-components/react/popover';
 import * as React from 'react';
-import { useMediaQuery } from '@base-ui-components/react/useMediaQuery';
+import { useMediaQuery } from '@base-ui-components/react/use-media-query';
 import { GhostButton } from '../GhostButton';
 import { Popup } from '../Popup';
 

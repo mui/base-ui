@@ -9,14 +9,14 @@
   },
   "name": "MenuRadioItem",
   "imports": [
-    "import { Menu } from '@base-ui-components/react/Menu';\nconst MenuRadioItem = Menu.RadioItem;"
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuRadioItem = Menu.RadioItem;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "MenuRadioItem",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/Menu/RadioItem/MenuRadioItem.tsx",
+  "filename": "/packages/react/src/menu/radio-item/MenuRadioItem.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

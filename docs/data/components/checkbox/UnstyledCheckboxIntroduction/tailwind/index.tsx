@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Checkbox as BaseCheckbox } from '@base-ui-components/react/Checkbox';
+import { Checkbox as BaseCheckbox } from '@base-ui-components/react/checkbox';
 import { useTheme } from '@mui/system';
 
 function classNames(...classes: Array<string | undefined | null | false>) {

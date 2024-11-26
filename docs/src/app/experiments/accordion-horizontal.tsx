@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Accordion } from '@base-ui-components/react/Accordion';
+import { Accordion } from '@base-ui-components/react/accordion';
 import classes from './accordion.horizontal.module.css';
 
 function classNames(...c: Array<string | undefined | null | false>) {

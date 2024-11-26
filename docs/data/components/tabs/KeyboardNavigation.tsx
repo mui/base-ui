@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Tabs } from '@base-ui-components/react/Tabs';
+import { Tabs } from '@base-ui-components/react/tabs';
 
 export default function KeyboardNavigation() {
   return (
