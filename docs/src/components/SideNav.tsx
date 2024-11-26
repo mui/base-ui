@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import scrollIntoView from 'scroll-into-view-if-needed';
 // eslint-disable-next-line no-restricted-imports
-import { SCROLL_TIMEOUT } from '@base-ui-components/react/ScrollArea/constants';
+import { SCROLL_TIMEOUT } from '@base-ui-components/react/scroll-area/constants';
 
 interface SideNavContextValue {
   /**

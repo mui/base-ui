@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useTheme } from '@mui/system';
 import { Slider } from '@base-ui-components/react/slider';
 import { Tooltip } from '@base-ui-components/react/tooltip';
-import { useSliderRootContext } from '../../../../packages/react/src/Slider/Root/SliderRootContext';
+import { useSliderRootContext } from '../../../../packages/react/src/slider/root/SliderRootContext';
 
 function useIsDarkMode() {
   const theme = useTheme();
