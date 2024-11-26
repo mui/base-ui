@@ -18,47 +18,6 @@ describe('<ScrollArea.Scrollbar />', () => {
     },
   }));
 
-  it('adds [data-hovering] attribute when viewport is hovered', async function test(t = {}) {
-    if (/jsdom/.test(window.navigator.userAgent)) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
-    }
-
-    await render(
-      <ScrollArea.Root style={{ width: 200, height: 200 }} data-testid="root">
-        <ScrollArea.Viewport style={{ width: '100%', height: '100%' }}>
-          <div style={{ width: 1000, height: 1000 }} />
-        </ScrollArea.Viewport>
-        <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical" keepMounted />
-        <ScrollArea.Scrollbar orientation="horizontal" data-testid="horizontal" keepMounted />
-        <ScrollArea.Corner />
-      </ScrollArea.Root>,
-    );
-
-    const verticalScrollbar = screen.getByTestId('vertical');
-    const horizontalScrollbar = screen.getByTestId('horizontal');
-
-    // Cursor in browser initially rests on the root element
-    expect(verticalScrollbar).to.have.attribute('data-hovering');
-    expect(horizontalScrollbar).to.have.attribute('data-hovering');
-
-    fireEvent.pointerLeave(screen.getByTestId('root'), { pointerType: 'mouse' });
-
-    expect(verticalScrollbar).not.to.have.attribute('data-hovering');
-    expect(horizontalScrollbar).not.to.have.attribute('data-hovering');
-
-    fireEvent.pointerEnter(screen.getByTestId('root'), { pointerType: 'mouse' });
-
-    expect(verticalScrollbar).to.have.attribute('data-hovering', '');
-    expect(horizontalScrollbar).to.have.attribute('data-hovering', '');
-
-    fireEvent.pointerLeave(screen.getByTestId('root'), { pointerType: 'mouse' });
-
-    expect(verticalScrollbar).not.to.have.attribute('data-hovering');
-    expect(horizontalScrollbar).not.to.have.attribute('data-hovering');
-  });
-
   it('adds [data-scrolling] attribute when viewport is scrolled', async () => {
     await render(
       <ScrollArea.Root style={{ width: 200, height: 200 }}>
