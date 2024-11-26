@@ -55,14 +55,14 @@
   },
   "name": "SelectPositioner",
   "imports": [
-    "import { Select } from '@base-ui-components/react/Select';\nconst SelectPositioner = Select.Positioner;"
+    "import { Select } from '@base-ui-components/react/select';\nconst SelectPositioner = Select.Positioner;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SelectPositioner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/Select/Positioner/SelectPositioner.tsx",
+  "filename": "/packages/react/src/select/positioner/SelectPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

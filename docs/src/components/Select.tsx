@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Select } from '@base-ui-components/react/Select';
+import { Select } from '@base-ui-components/react/select';
 import clsx from 'clsx';
 import { ChevronDownIcon } from '../icons/ChevronDown';
 import { Popup as PopupComponent } from './Popup';

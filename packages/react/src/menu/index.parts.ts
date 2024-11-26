@@ -11,5 +11,5 @@ export { MenuRadioItem as RadioItem } from './radio-item/MenuRadioItem';
 export { MenuRadioItemIndicator as RadioItemIndicator } from './radio-item-indicator/MenuRadioItemIndicator';
 export { MenuRoot as Root } from './root/MenuRoot';
 export { MenuTrigger as Trigger } from './trigger/MenuTrigger';
-export { SeparatorRoot as Separator } from '../Separator/Root/SeparatorRoot';
+export { SeparatorRoot as Separator } from '../separator/root/SeparatorRoot';
 export { SubmenuTrigger } from './submenu-trigger/SubmenuTrigger';
