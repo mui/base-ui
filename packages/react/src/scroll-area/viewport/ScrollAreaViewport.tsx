@@ -7,7 +7,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { useScrollAreaViewport } from './useScrollAreaViewport';
 
-const ownerState = {};
+const state = {};
 
 /**
  *
@@ -35,7 +35,7 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     render: render ?? 'div',
     ref: mergedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
   });
 
@@ -43,9 +43,9 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 });
 
 namespace ScrollAreaViewport {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 
-  export interface OwnerState {}
+  export interface State {}
 }
 
 ScrollAreaViewport.propTypes /* remove-proptypes */ = {

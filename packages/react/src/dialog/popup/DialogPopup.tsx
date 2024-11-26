@@ -13,7 +13,7 @@ import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenState
 import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 
-const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
   ...baseMapping,
   nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
   transitionStatus: (value) => {
@@ -90,7 +90,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     titleElementId,
   });
 
-  const ownerState: DialogPopup.OwnerState = {
+  const state: DialogPopup.State = {
     open,
     nestedOpenDialogCount,
     transitionStatus,
@@ -99,7 +99,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     propGetter: getRootProps,
     extraProps: {
       ...other,
@@ -129,7 +129,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 });
 
 namespace DialogPopup {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The container element to which the popup is appended to.
      */
@@ -155,7 +155,7 @@ namespace DialogPopup {
     finalFocus?: React.RefObject<HTMLElement | null>;
   }
 
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     nestedOpenDialogCount: number;
     transitionStatus: TransitionStatus;

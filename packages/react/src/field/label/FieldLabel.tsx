@@ -27,7 +27,7 @@ const FieldLabel = React.forwardRef(function FieldLabel(
 ) {
   const { render, className, id: idProp, ...otherProps } = props;
 
-  const { setLabelId, ownerState } = useFieldRootContext(false);
+  const { setLabelId, state } = useFieldRootContext(false);
 
   const id = useId(idProp);
 
@@ -45,7 +45,7 @@ const FieldLabel = React.forwardRef(function FieldLabel(
     render: render ?? 'label',
     ref: forwardedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
     customStyleHookMapping: STYLE_HOOK_MAPPING,
   });
@@ -54,9 +54,9 @@ const FieldLabel = React.forwardRef(function FieldLabel(
 });
 
 namespace FieldLabel {
-  export type OwnerState = FieldRoot.OwnerState;
+  export type State = FieldRoot.State;
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 FieldLabel.propTypes /* remove-proptypes */ = {

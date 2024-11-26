@@ -69,7 +69,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     openMethod,
   });
 
-  const ownerState: PopoverPositioner.OwnerState = React.useMemo(
+  const state: PopoverPositioner.State = React.useMemo(
     () => ({
       open,
       side: positioner.side,
@@ -84,7 +84,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     propGetter: positioner.getPositionerProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: mergedRef,
     extraProps: otherProps,
     customStyleHookMapping: popupOpenStateMapping,
@@ -103,7 +103,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 });
 
 namespace PopoverPositioner {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     side: Side;
     alignment: Alignment;
@@ -111,7 +111,7 @@ namespace PopoverPositioner {
 
   export interface Props
     extends usePopoverPositioner.SharedParameters,
-      BaseUIComponentProps<'div', OwnerState> {
+      BaseUIComponentProps<'div', State> {
     /**
      * The element the popover positioner element is appended to.
      */

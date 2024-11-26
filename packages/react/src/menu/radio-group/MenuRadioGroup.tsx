@@ -41,7 +41,7 @@ const MenuRadioGroup = React.forwardRef(function MenuRadioGroup(
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
     className,
-    ownerState: EMPTY_OBJECT,
+    state: EMPTY_OBJECT,
     extraProps: {
       role: 'group',
       ...other,
@@ -65,7 +65,7 @@ const MenuRadioGroup = React.forwardRef(function MenuRadioGroup(
 });
 
 namespace MenuRadioGroup {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The content of the component.
      */
@@ -87,7 +87,7 @@ namespace MenuRadioGroup {
     onValueChange?: (value: any, event: Event) => void;
   }
 
-  export type OwnerState = {};
+  export type State = {};
 }
 
 MenuRadioGroup.propTypes /* remove-proptypes */ = {

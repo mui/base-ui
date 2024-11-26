@@ -66,7 +66,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     sticky,
   });
 
-  const ownerState: PreviewCardPositioner.OwnerState = React.useMemo(
+  const state: PreviewCardPositioner.State = React.useMemo(
     () => ({
       open,
       side: positioner.side,
@@ -98,7 +98,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     propGetter: positioner.getPositionerProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: mergedRef,
     extraProps: otherProps,
     customStyleHookMapping: popupOpenStateMapping,
@@ -117,7 +117,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
 });
 
 namespace PreviewCardPositioner {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     side: Side;
     alignment: Alignment;
@@ -125,7 +125,7 @@ namespace PreviewCardPositioner {
 
   export interface Props
     extends usePreviewCardPositioner.SharedParameters,
-      BaseUIComponentProps<'div', OwnerState> {}
+      BaseUIComponentProps<'div', State> {}
 }
 
 PreviewCardPositioner.propTypes /* remove-proptypes */ = {

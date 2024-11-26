@@ -6,7 +6,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useRadioRootContext } from '../root/RadioRootContext';
 
-const customStyleHookMapping: CustomStyleHookMapping<RadioIndicator.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<RadioIndicator.State> = {
   checked(value) {
     return {
       'data-radio': value ? 'checked' : 'unchecked',
@@ -29,18 +29,18 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
 ) {
   const { render, className, keepMounted = true, ...otherProps } = props;
 
-  const ownerState = useRadioRootContext();
+  const state = useRadioRootContext();
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'span',
     ref: forwardedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
     customStyleHookMapping,
   });
 
-  const shouldRender = keepMounted || ownerState.checked;
+  const shouldRender = keepMounted || state.checked;
   if (!shouldRender) {
     return null;
   }
@@ -49,7 +49,7 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
 });
 
 namespace RadioIndicator {
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * Whether the component should be kept mounted when not checked.
      * @default true
@@ -57,7 +57,7 @@ namespace RadioIndicator {
     keepMounted?: boolean;
   }
 
-  export interface OwnerState {
+  export interface State {
     checked: boolean;
   }
 }

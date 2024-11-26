@@ -24,7 +24,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { getInputProps, inputRef, ownerState } = useNumberFieldRootContext();
+  const { getInputProps, inputRef, state } = useNumberFieldRootContext();
 
   const mergedInputRef = useForkRef(forwardedRef, inputRef);
 
@@ -33,7 +33,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     ref: mergedInputRef,
     render: render ?? 'input',
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
   });
 
@@ -41,8 +41,8 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 });
 
 namespace NumberFieldInput {
-  export interface OwnerState extends NumberFieldRoot.OwnerState {}
-  export interface Props extends BaseUIComponentProps<'input', OwnerState> {}
+  export interface State extends NumberFieldRoot.State {}
+  export interface Props extends BaseUIComponentProps<'input', State> {}
 }
 
 NumberFieldInput.propTypes /* remove-proptypes */ = {

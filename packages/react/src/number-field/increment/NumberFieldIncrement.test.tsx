@@ -8,7 +8,7 @@ import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
 
 const testContext = {
   getIncrementButtonProps: (externalProps) => externalProps,
-  ownerState: {
+  state: {
     value: null,
     required: false,
     disabled: false,

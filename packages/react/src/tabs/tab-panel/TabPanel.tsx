@@ -39,7 +39,7 @@ const TabPanel = React.forwardRef(function TabPanel(
     value: valueProp,
   });
 
-  const ownerState: TabPanel.OwnerState = React.useMemo(
+  const state: TabPanel.State = React.useMemo(
     () => ({
       direction,
       hidden,
@@ -53,7 +53,7 @@ const TabPanel = React.forwardRef(function TabPanel(
     propGetter: getRootProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     extraProps: { ...other, children: hidden && !keepMounted ? undefined : children },
     customStyleHookMapping: tabsStyleHookMapping,
   });
@@ -62,11 +62,11 @@ const TabPanel = React.forwardRef(function TabPanel(
 });
 
 namespace TabPanel {
-  export interface OwnerState extends TabsRoot.OwnerState {
+  export interface State extends TabsRoot.State {
     hidden: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
      * If not provided, it will fall back to the index of the panel.

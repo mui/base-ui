@@ -23,11 +23,11 @@ const AccordionHeader = React.forwardRef(function AccordionHeader(
 ) {
   const { render, className, ...other } = props;
 
-  const { ownerState } = useAccordionItemContext();
+  const { state } = useAccordionItemContext();
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'h3',
-    ownerState,
+    state,
     className,
     ref: forwardedRef,
     extraProps: other,
@@ -38,7 +38,7 @@ const AccordionHeader = React.forwardRef(function AccordionHeader(
 });
 
 export namespace AccordionHeader {
-  export interface Props extends BaseUIComponentProps<'h3', AccordionItem.OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'h3', AccordionItem.State> {}
 }
 
 export { AccordionHeader };

@@ -7,7 +7,7 @@ import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
 
 const testContext = {
   getGroupProps: (externalProps) => ({ role: 'group', ...externalProps }),
-  ownerState: {
+  state: {
     value: null,
     required: false,
     disabled: false,

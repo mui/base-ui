@@ -44,7 +44,7 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicator.Props>(
       value,
     });
 
-    const ownerState: TabIndicator.OwnerState = React.useMemo(
+    const state: TabIndicator.State = React.useMemo(
       () => ({
         direction,
         orientation,
@@ -58,7 +58,7 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicator.Props>(
       propGetter: getRootProps,
       render: render ?? 'span',
       className,
-      ownerState,
+      state,
       extraProps: {
         ...other,
         'data-instance-id': !(isMounted && renderBeforeHydration) ? instanceId : undefined,
@@ -91,13 +91,13 @@ const TabIndicator = React.forwardRef<HTMLSpanElement, TabIndicator.Props>(
 );
 
 namespace TabIndicator {
-  export interface OwnerState extends TabsRoot.OwnerState {
+  export interface State extends TabsRoot.State {
     selectedTabPosition: ActiveTabPosition | null;
     orientation: TabsOrientation;
     direction: TabsDirection;
   }
 
-  export interface Props extends BaseUIComponentProps<'span', TabIndicator.OwnerState> {
+  export interface Props extends BaseUIComponentProps<'span', TabIndicator.State> {
     /**
      * If `true`, the indicator will include code to render itself before React hydrates.
      * This will minimize the time the indicator is not visible after the SSR-generated content is downloaded.

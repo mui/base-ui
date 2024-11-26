@@ -24,14 +24,14 @@ const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   const { render, className, ...other } = props;
   const { open, setTriggerElement, getTriggerProps } = useAlertDialogRootContext();
 
-  const ownerState: AlertDialogTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
+  const state: AlertDialogTrigger.State = React.useMemo(() => ({ open }), [open]);
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
     className,
-    ownerState,
+    state,
     propGetter: getTriggerProps,
     extraProps: other,
     customStyleHookMapping: triggerOpenStateMapping,
@@ -42,9 +42,9 @@ const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
 });
 
 namespace AlertDialogTrigger {
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {}
 
-  export interface OwnerState {
+  export interface State {
     open: boolean;
   }
 }

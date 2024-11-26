@@ -11,7 +11,7 @@ import { CompositeItem } from '../../composite/item/CompositeItem';
 import { NOOP } from '../../utils/noop';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
-const customStyleHookMapping: CustomStyleHookMapping<RadioRoot.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<RadioRoot.State> = {
   checked(value) {
     return {
       'data-radio': value ? 'checked' : 'unchecked',
@@ -48,7 +48,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     setCheckedValue,
   } = useRadioGroupRootContext();
 
-  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledRoot || disabledProp;
   const readOnly = readOnlyRoot || readOnlyProp;
@@ -60,25 +60,25 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     readOnly,
   });
 
-  const ownerState: RadioRoot.OwnerState = React.useMemo(
+  const state: RadioRoot.State = React.useMemo(
     () => ({
-      ...fieldOwnerState,
+      ...fieldState,
       required,
       disabled,
       readOnly,
       checked,
     }),
-    [fieldOwnerState, disabled, readOnly, checked, required],
+    [fieldState, disabled, readOnly, checked, required],
   );
 
-  const contextValue: RadioRootContext = React.useMemo(() => ownerState, [ownerState]);
+  const contextValue: RadioRootContext = React.useMemo(() => state, [state]);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'button',
     ref: forwardedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
     customStyleHookMapping,
   });
@@ -92,7 +92,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
 });
 
 namespace RadioRoot {
-  export interface Props extends Omit<BaseUIComponentProps<'button', OwnerState>, 'value'> {
+  export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'value'> {
     /**
      * The unique identifying value of the radio in a group.
      */
@@ -114,7 +114,7 @@ namespace RadioRoot {
     readOnly?: boolean;
   }
 
-  export interface OwnerState {
+  export interface State {
     checked: boolean;
     disabled: boolean;
     readOnly: boolean;

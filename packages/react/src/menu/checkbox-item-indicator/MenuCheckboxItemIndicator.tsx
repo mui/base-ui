@@ -22,18 +22,18 @@ const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndi
 ) {
   const { render, className, keepMounted = true, ...other } = props;
 
-  const ownerState = useMenuCheckboxItemContext();
+  const state = useMenuCheckboxItemContext();
 
   const { renderElement } = useComponentRenderer({
     render: render || 'span',
     className,
-    ownerState,
+    state,
     customStyleHookMapping: itemMapping,
     extraProps: other,
     ref: forwardedRef,
   });
 
-  if (!keepMounted && !ownerState.checked) {
+  if (!keepMounted && !state.checked) {
     return null;
   }
 
@@ -66,7 +66,7 @@ MenuCheckboxItemIndicator.propTypes /* remove-proptypes */ = {
 } as any;
 
 namespace MenuCheckboxItemIndicator {
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * If `true`, the component is mounted even if the checkbox is not checked.
      *
@@ -75,7 +75,7 @@ namespace MenuCheckboxItemIndicator {
     keepMounted?: boolean;
   }
 
-  export interface OwnerState {
+  export interface State {
     checked: boolean;
     disabled: boolean;
     highlighted: boolean;

@@ -47,7 +47,7 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'div',
-    ownerState: {},
+    state: {},
     className,
     extraProps: otherProps,
   });
@@ -67,9 +67,9 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
 }
 
 namespace CompositeRoot {
-  export interface OwnerState {}
+  export interface State {}
 
-  export interface Props<Metadata> extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props<Metadata> extends BaseUIComponentProps<'div', State> {
     orientation?: 'horizontal' | 'vertical' | 'both';
     cols?: number;
     loop?: boolean;

@@ -26,7 +26,7 @@ const FieldError = React.forwardRef(function FieldError(
 ) {
   const { render, id, className, match, forceShow, ...otherProps } = props;
 
-  const { validityData, ownerState, name } = useFieldRootContext(false);
+  const { validityData, state, name } = useFieldRootContext(false);
 
   const { errors } = useFormRootContext();
 
@@ -48,7 +48,7 @@ const FieldError = React.forwardRef(function FieldError(
     render: render ?? 'div',
     ref: forwardedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
     customStyleHookMapping: STYLE_HOOK_MAPPING,
   });
@@ -61,9 +61,9 @@ const FieldError = React.forwardRef(function FieldError(
 });
 
 namespace FieldError {
-  export type OwnerState = FieldRoot.OwnerState;
+  export type State = FieldRoot.State;
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Determines whether the error message should be shown when it matches a given property of the
      * field's `ValidityState`.

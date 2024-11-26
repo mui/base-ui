@@ -23,11 +23,11 @@ const ProgressTrack = React.forwardRef(function ProgressTrack(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { ownerState } = useProgressRootContext();
+  const { state } = useProgressRootContext();
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'span',
-    ownerState,
+    state,
     className,
     ref: forwardedRef,
     extraProps: otherProps,
@@ -38,9 +38,9 @@ const ProgressTrack = React.forwardRef(function ProgressTrack(
 });
 
 namespace ProgressTrack {
-  export interface OwnerState extends ProgressRoot.OwnerState {}
+  export interface State extends ProgressRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'span', State> {}
 }
 
 ProgressTrack.propTypes /* remove-proptypes */ = {

@@ -8,7 +8,7 @@ import { useId } from '../../utils/useId';
 import { useSelectGroupContext } from '../group/SelectGroupContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
-const ownerState = {};
+const state = {};
 
 /**
  *
@@ -46,7 +46,7 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
     propGetter: getSelectOptionGroupLabelProps,
     render: render ?? 'div',
     ref: forwardedRef,
-    ownerState,
+    state,
     className,
     extraProps: otherProps,
   });
@@ -55,9 +55,9 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 });
 
 namespace SelectGroupLabel {
-  export interface OwnerState {}
+  export interface State {}
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 SelectGroupLabel.propTypes /* remove-proptypes */ = {

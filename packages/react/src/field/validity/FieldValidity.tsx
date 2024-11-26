@@ -36,7 +36,7 @@ export interface FieldValidityState extends Omit<FieldValidityData, 'state'> {
 }
 
 namespace FieldValidity {
-  export interface OwnerState {}
+  export interface State {}
 
   export interface Props {
     children: (state: FieldValidityState) => React.ReactNode;

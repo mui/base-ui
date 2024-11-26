@@ -48,7 +48,7 @@ const Tab = React.forwardRef(function Tab(
 
   const highlighted = index > -1 && index === highlightedTabIndex;
 
-  const ownerState: Tab.OwnerState = React.useMemo(
+  const state: Tab.State = React.useMemo(
     () => ({
       disabled,
       highlighted,
@@ -62,7 +62,7 @@ const Tab = React.forwardRef(function Tab(
     propGetter: getRootProps,
     render: render ?? 'button',
     className,
-    ownerState,
+    state,
     extraProps: other,
   });
 
@@ -70,7 +70,7 @@ const Tab = React.forwardRef(function Tab(
 });
 
 namespace Tab {
-  export interface Props extends BaseUIComponentProps<'button', Tab.OwnerState> {
+  export interface Props extends BaseUIComponentProps<'button', Tab.State> {
     /**
      * The value of the Tab.
      * When not specified, the value is the child position index.
@@ -78,7 +78,7 @@ namespace Tab {
     value?: TabValue;
   }
 
-  export interface OwnerState {
+  export interface State {
     disabled: boolean;
     selected: boolean;
     orientation: TabsOrientation;

@@ -12,7 +12,7 @@ import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupOpenStateMapping,
   transitionStatus(value): Record<string, string> | null {
     if (value === 'entering') {
@@ -52,7 +52,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const ownerState: SelectPopup.OwnerState = React.useMemo(
+  const state: SelectPopup.State = React.useMemo(
     () => ({
       open,
       transitionStatus,
@@ -67,7 +67,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
     render: render ?? 'div',
     ref: mergedRef,
     className,
-    ownerState,
+    state,
     customStyleHookMapping,
     extraProps: otherProps,
   });
@@ -101,7 +101,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 });
 
 namespace SelectPopup {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
      * The id of the popup element.
@@ -109,7 +109,7 @@ namespace SelectPopup {
     id?: string;
   }
 
-  export interface OwnerState {
+  export interface State {
     side: Side | 'none';
     alignment: 'start' | 'end' | 'center';
     open: boolean;

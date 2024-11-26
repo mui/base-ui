@@ -1,14 +1,12 @@
 'use client';
 import { Popover } from '@base-ui-components/react/popover';
 import * as React from 'react';
+import { useMediaQuery } from '@base-ui-components/react/useMediaQuery';
 import { GhostButton } from '../GhostButton';
 import { Popup } from '../Popup';
 
-interface ReferenceTablePopoverProps {
-  children: React.ReactElement<any>;
-}
-
-export function ReferenceTablePopover({ children }: ReferenceTablePopoverProps) {
+export function ReferenceTablePopover({ children }: React.PropsWithChildren) {
+  const isMobile = useMediaQuery('@media (width < 48rem)', { noSsr: true });
   return (
     <Popover.Root openOnHover delay={0}>
       <Popover.Trigger
@@ -31,9 +29,9 @@ export function ReferenceTablePopover({ children }: ReferenceTablePopoverProps) 
         }
       />
       <Popover.Positioner
-        alignment="start"
-        side="left"
-        alignmentOffset={-3}
+        alignment={isMobile ? 'end' : 'start'}
+        side={isMobile ? 'bottom' : 'left'}
+        alignmentOffset={-4}
         sideOffset={9}
         collisionPadding={16}
       >

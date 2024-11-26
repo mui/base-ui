@@ -25,7 +25,7 @@ const FieldDescription = React.forwardRef(function FieldDescription(
 ) {
   const { render, id, className, ...otherProps } = props;
 
-  const { ownerState } = useFieldRootContext(false);
+  const { state } = useFieldRootContext(false);
 
   const { getDescriptionProps } = useFieldDescription({ id });
 
@@ -34,7 +34,7 @@ const FieldDescription = React.forwardRef(function FieldDescription(
     render: render ?? 'p',
     ref: forwardedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
     customStyleHookMapping: STYLE_HOOK_MAPPING,
   });
@@ -43,9 +43,9 @@ const FieldDescription = React.forwardRef(function FieldDescription(
 });
 
 namespace FieldDescription {
-  export type OwnerState = FieldRoot.OwnerState;
+  export type State = FieldRoot.State;
 
-  export interface Props extends BaseUIComponentProps<'p', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'p', State> {}
 }
 
 FieldDescription.propTypes /* remove-proptypes */ = {

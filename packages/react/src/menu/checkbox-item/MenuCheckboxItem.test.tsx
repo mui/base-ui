@@ -62,7 +62,7 @@ describe('<Menu.CheckboxItem />', () => {
       props: any & { renderSpy: () => void },
       ref: React.ForwardedRef<HTMLLIElement>,
     ) {
-      const { renderSpy, ownerState, ...other } = props;
+      const { renderSpy, state, ...other } = props;
       renderSpy();
       return <li {...other} ref={ref} />;
     });

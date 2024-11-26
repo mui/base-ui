@@ -50,12 +50,12 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     setOpen,
   });
 
-  const { ownerState, triggerId } = useAccordionItemContext();
+  const { state, triggerId } = useAccordionItemContext();
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'div',
-    ownerState,
+    state,
     className,
     extraProps: {
       ...otherProps,
@@ -75,7 +75,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
 
 export namespace AccordionPanel {
   export interface Props
-    extends BaseUIComponentProps<'div', AccordionItem.OwnerState>,
+    extends BaseUIComponentProps<'div', AccordionItem.State>,
       Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {}
 }
 

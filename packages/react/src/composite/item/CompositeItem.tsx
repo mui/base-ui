@@ -17,7 +17,7 @@ function CompositeItem<Metadata>(props: CompositeItem.Props<Metadata>) {
   const { highlightedIndex } = useCompositeRootContext();
   const { getItemProps, ref, index } = useCompositeItem({ metadata });
 
-  const ownerState: CompositeItem.OwnerState = React.useMemo(
+  const state: CompositeItem.State = React.useMemo(
     () => ({
       highlighted: index === highlightedIndex,
     }),
@@ -30,7 +30,7 @@ function CompositeItem<Metadata>(props: CompositeItem.Props<Metadata>) {
     propGetter: getItemProps,
     ref: mergedRef,
     render: render ?? 'div',
-    ownerState,
+    state,
     className,
     extraProps: otherProps,
   });
@@ -39,12 +39,11 @@ function CompositeItem<Metadata>(props: CompositeItem.Props<Metadata>) {
 }
 
 namespace CompositeItem {
-  export interface OwnerState {
+  export interface State {
     highlighted: boolean;
   }
 
-  export interface Props<Metadata>
-    extends Omit<BaseUIComponentProps<'div', OwnerState>, 'itemRef'> {
+  export interface Props<Metadata> extends Omit<BaseUIComponentProps<'div', State>, 'itemRef'> {
     // the itemRef name collides with https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/itemref
     itemRef?: React.RefObject<HTMLElement | null>;
     metadata?: Metadata;

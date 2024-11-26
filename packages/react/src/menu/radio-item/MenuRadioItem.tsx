@@ -45,12 +45,12 @@ const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
     typingRef,
   });
 
-  const ownerState: MenuRadioItem.OwnerState = { disabled, highlighted, checked };
+  const state: MenuRadioItem.State = { disabled, highlighted, checked };
 
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
     className,
-    ownerState,
+    state,
     propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
     customStyleHookMapping: itemMapping,
     extraProps: other,
@@ -226,13 +226,13 @@ interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
 }
 
 namespace MenuRadioItem {
-  export type OwnerState = {
+  export type State = {
     disabled: boolean;
     highlighted: boolean;
     checked: boolean;
   };
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Value of the radio item.
      * This is the value that will be set in the MenuRadioGroup when the item is selected.

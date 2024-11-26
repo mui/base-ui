@@ -60,7 +60,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     typingRef,
   });
 
-  const ownerState: SubmenuTrigger.OwnerState = React.useMemo(
+  const state: SubmenuTrigger.State = React.useMemo(
     () => ({ disabled, highlighted, open }),
     [disabled, highlighted, open],
   );
@@ -68,7 +68,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
     className,
-    ownerState,
+    state,
     propGetter: (externalProps: GenericHTMLProps) =>
       getTriggerProps(getItemProps(getRootProps(externalProps))),
     customStyleHookMapping: triggerOpenStateMapping,
@@ -79,7 +79,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
 });
 
 namespace SubmenuTrigger {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
@@ -95,7 +95,7 @@ namespace SubmenuTrigger {
     id?: string;
   }
 
-  export interface OwnerState {
+  export interface State {
     disabled: boolean;
     highlighted: boolean;
     open: boolean;

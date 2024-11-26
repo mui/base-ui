@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { SwitchRoot } from './SwitchRoot';
 
-export type SwitchRootContext = SwitchRoot.OwnerState;
+export type SwitchRootContext = SwitchRoot.State;
 
 export const SwitchRootContext = React.createContext<SwitchRootContext | undefined>(undefined);
 

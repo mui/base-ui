@@ -7,7 +7,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import type { BaseUIComponentProps } from '../../utils/types';
 
-const ownerState = {};
+const state = {};
 
 /**
  *
@@ -38,7 +38,7 @@ const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
   const { renderElement } = useComponentRenderer({
     render: render ?? 'p',
     className,
-    ownerState,
+    state,
     ref: forwardedRef,
     extraProps: other,
   });
@@ -47,9 +47,9 @@ const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
 });
 
 namespace AlertDialogDescription {
-  export interface Props extends BaseUIComponentProps<'p', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'p', State> {}
 
-  export interface OwnerState {}
+  export interface State {}
 }
 
 AlertDialogDescription.propTypes /* remove-proptypes */ = {

@@ -51,7 +51,7 @@ const TabsList = React.forwardRef(function TabsList(
     value,
   });
 
-  const ownerState: TabsList.OwnerState = React.useMemo(
+  const state: TabsList.State = React.useMemo(
     () => ({
       direction,
       orientation,
@@ -64,7 +64,7 @@ const TabsList = React.forwardRef(function TabsList(
     propGetter: getRootProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     extraProps: other,
     customStyleHookMapping: tabsStyleHookMapping,
   });
@@ -103,9 +103,9 @@ const TabsList = React.forwardRef(function TabsList(
 });
 
 namespace TabsList {
-  export type OwnerState = TabsRoot.OwnerState;
+  export type State = TabsRoot.State;
 
-  export interface Props extends BaseUIComponentProps<'div', TabsList.OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', TabsList.State> {
     /**
      * If `true`, the tab will be activated whenever it is focused.
      * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.

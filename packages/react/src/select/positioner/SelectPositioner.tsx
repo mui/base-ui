@@ -69,7 +69,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const mergedRef = useForkRef(ref, setPositionerElement);
 
-  const ownerState: SelectPositioner.OwnerState = React.useMemo(
+  const state: SelectPositioner.State = React.useMemo(
     () => ({
       open,
       side: positioner.side,
@@ -83,7 +83,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     render: render ?? 'div',
     ref: mergedRef,
     className,
-    ownerState,
+    state,
     customStyleHookMapping: popupOpenStateMapping,
     extraProps: otherProps,
   });
@@ -100,7 +100,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 });
 
 namespace SelectPositioner {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     side: Side | 'none';
     alignment: Alignment;
@@ -108,7 +108,7 @@ namespace SelectPositioner {
 
   export interface Props
     extends useSelectPositioner.SharedParameters,
-      BaseUIComponentProps<'div', OwnerState> {}
+      BaseUIComponentProps<'div', State> {}
 }
 
 SelectPositioner.propTypes /* remove-proptypes */ = {

@@ -7,7 +7,7 @@ import { useId } from '../../utils/useId';
 import { useMenuGroupRootContext } from '../group/MenuGroupContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
-const ownerState = {};
+const state = {};
 
 /**
  *
@@ -39,7 +39,7 @@ const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     extraProps: { role: 'presentation', id, ...other },
     ref: forwardedRef,
   });
@@ -71,9 +71,9 @@ MenuGroupLabel.propTypes /* remove-proptypes */ = {
 } as any;
 
 namespace MenuGroupLabel {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 
-  export interface OwnerState {}
+  export interface State {}
 }
 
 export { MenuGroupLabel };

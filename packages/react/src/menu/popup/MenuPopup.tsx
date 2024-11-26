@@ -12,7 +12,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
@@ -51,7 +51,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const ownerState: MenuPopup.OwnerState = React.useMemo(
+  const state: MenuPopup.State = React.useMemo(
     () => ({
       transitionStatus,
       side,
@@ -64,7 +64,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
     className,
-    ownerState,
+    state,
     extraProps: other,
     customStyleHookMapping,
     ref: mergedRef,
@@ -74,7 +74,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 });
 
 namespace MenuPopup {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
      * The id of the popup element.
@@ -82,7 +82,7 @@ namespace MenuPopup {
     id?: string;
   }
 
-  export type OwnerState = {
+  export type State = {
     transitionStatus: TransitionStatus;
     side: Side;
     alignment: 'start' | 'end' | 'center';

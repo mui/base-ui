@@ -34,7 +34,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
     hidden: hideWhenUncentered && arrowUncentered,
   });
 
-  const ownerState: TooltipArrow.OwnerState = React.useMemo(
+  const state: TooltipArrow.State = React.useMemo(
     () => ({
       open,
       side,
@@ -48,7 +48,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
   const { renderElement } = useComponentRenderer({
     propGetter: getArrowProps,
     render: render ?? 'div',
-    ownerState,
+    state,
     className,
     ref: mergedRef,
     extraProps: otherProps,
@@ -59,13 +59,13 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
 });
 
 namespace TooltipArrow {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     side: Side;
     alignment: Alignment;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * If `true`, the arrow will be hidden when it can't point to the center of the anchor element.
      * @default false

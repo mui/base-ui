@@ -37,16 +37,13 @@ const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
 
   const mergedRef = useForkRef(forwardedRef, orientation === 'vertical' ? thumbYRef : thumbXRef);
 
-  const ownerState: ScrollAreaThumb.OwnerState = React.useMemo(
-    () => ({ orientation }),
-    [orientation],
-  );
+  const state: ScrollAreaThumb.State = React.useMemo(() => ({ orientation }), [orientation]);
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     ref: mergedRef,
     className,
-    ownerState,
+    state,
     extraProps: mergeReactProps<'div'>(otherProps, {
       onPointerDown: handlePointerDown,
       onPointerMove: handlePointerMove,
@@ -65,11 +62,11 @@ const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
 });
 
 namespace ScrollAreaThumb {
-  export interface OwnerState {
+  export interface State {
     orientation?: 'horizontal' | 'vertical';
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 ScrollAreaThumb.propTypes /* remove-proptypes */ = {

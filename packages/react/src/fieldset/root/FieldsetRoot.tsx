@@ -25,7 +25,7 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
 
   const { legendId, setLegendId, getRootProps } = useFieldsetRoot();
 
-  const ownerState: FieldsetRoot.OwnerState = React.useMemo(
+  const state: FieldsetRoot.State = React.useMemo(
     () => ({
       disabled,
     }),
@@ -37,7 +37,7 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
     ref: forwardedRef,
     render: render ?? 'fieldset',
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
   });
 
@@ -58,11 +58,11 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
 });
 
 namespace FieldsetRoot {
-  export type OwnerState = {
+  export type State = {
     disabled: boolean;
   };
 
-  export interface Props extends BaseUIComponentProps<'fieldset', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'fieldset', State> {}
 }
 
 FieldsetRoot.propTypes /* remove-proptypes */ = {

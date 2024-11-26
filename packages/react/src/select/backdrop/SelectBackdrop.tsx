@@ -11,7 +11,7 @@ import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
   ...popupOpenStateMapping,
   transitionStatus(value): Record<string, string> | null {
     if (value === 'entering') {
@@ -46,7 +46,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 
   const { getBackdropProps } = useSelectBackdrop();
 
-  const ownerState: SelectBackdrop.OwnerState = React.useMemo(
+  const state: SelectBackdrop.State = React.useMemo(
     () => ({ open, transitionStatus }),
     [open, transitionStatus],
   );
@@ -55,7 +55,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     propGetter: getBackdropProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: forwardedRef,
     extraProps: otherProps,
     customStyleHookMapping,
@@ -70,7 +70,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 });
 
 namespace SelectBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * If `true`, the Backdrop remains mounted when the Select popup is closed.
      * @default false
@@ -83,7 +83,7 @@ namespace SelectBackdrop {
     container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     transitionStatus: TransitionStatus;
   }

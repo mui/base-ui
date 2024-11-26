@@ -190,7 +190,7 @@ namespace SelectRoot {
     children?: React.ReactNode;
   }
 
-  export interface OwnerState {}
+  export interface State {}
 }
 
 interface SelectRoot {

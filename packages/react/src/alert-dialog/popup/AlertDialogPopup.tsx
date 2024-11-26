@@ -13,7 +13,7 @@ import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenState
 import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 
-const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
   ...baseMapping,
   nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
   transitionStatus: (value) => {
@@ -87,7 +87,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     titleElementId,
   });
 
-  const ownerState: AlertDialogPopup.OwnerState = React.useMemo(
+  const state: AlertDialogPopup.State = React.useMemo(
     () => ({
       open,
       nestedOpenDialogCount,
@@ -99,7 +99,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     propGetter: getRootProps,
     extraProps: {
       ...other,
@@ -129,7 +129,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 });
 
 namespace AlertDialogPopup {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The container element to which the popup is appended to.
      */
@@ -155,7 +155,7 @@ namespace AlertDialogPopup {
     finalFocus?: React.RefObject<HTMLElement | null>;
   }
 
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     nestedOpenDialogCount: number;
     transitionStatus: TransitionStatus;

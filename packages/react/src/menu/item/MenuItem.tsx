@@ -38,7 +38,7 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
     typingRef,
   });
 
-  const ownerState: MenuItem.OwnerState = React.useMemo(
+  const state: MenuItem.State = React.useMemo(
     () => ({ disabled, highlighted }),
     [disabled, highlighted],
   );
@@ -46,7 +46,7 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
     className,
-    ownerState,
+    state,
     propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
     extraProps: other,
   });
@@ -191,12 +191,12 @@ interface InnerMenuItemProps extends MenuItem.Props {
 }
 
 namespace MenuItem {
-  export type OwnerState = {
+  export type State = {
     disabled: boolean;
     highlighted: boolean;
   };
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
      * The click handler for the menu item.

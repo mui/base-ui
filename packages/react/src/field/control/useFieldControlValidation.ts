@@ -21,7 +21,7 @@ export function useFieldControlValidation() {
     invalid,
     markedDirtyRef,
     controlId,
-    ownerState,
+    state,
   } = useFieldRootContext();
 
   const { formRef } = useFormRootContext();
@@ -112,9 +112,9 @@ export function useFieldControlValidation() {
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         ...(messageIds.length && { 'aria-describedby': messageIds.join(' ') }),
-        ...(ownerState.valid === false && { 'aria-invalid': true }),
+        ...(state.valid === false && { 'aria-invalid': true }),
       }),
-    [messageIds, ownerState.valid],
+    [messageIds, state.valid],
   );
 
   const getInputValidationProps = React.useCallback(

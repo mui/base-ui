@@ -64,7 +64,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     minStepsBetweenValues,
     name,
     orientation,
-    ownerState,
+    state,
     percentageValues,
     registerInputId,
     step,
@@ -113,13 +113,13 @@ const SliderThumb = React.forwardRef(function SliderThumb(
   const thumbProps = getRootProps({
     ...styleHooks,
     ...otherProps,
-    className: resolveClassName(className, ownerState),
+    className: resolveClassName(className, state),
   });
 
   const inputProps = getThumbInputProps({ disabled });
 
   if (typeof render === 'function') {
-    return render(thumbProps, inputProps, ownerState);
+    return render(thumbProps, inputProps, state);
   }
 
   const { children: renderPropsChildren, ...otherRenderProps } =
@@ -144,11 +144,11 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 });
 
 export namespace SliderThumb {
-  export interface OwnerState extends SliderRoot.OwnerState {}
+  export interface State extends SliderRoot.State {}
 
   export interface Props
     extends Partial<Omit<useSliderThumb.Parameters, 'rootRef'>>,
-      Omit<BaseUIComponentProps<'span', OwnerState>, 'render'> {
+      Omit<BaseUIComponentProps<'span', State>, 'render'> {
     onPointerLeave?: React.PointerEventHandler;
     onPointerOver?: React.PointerEventHandler;
     onBlur?: React.FocusEventHandler;
@@ -161,7 +161,7 @@ export namespace SliderThumb {
       | ((
           props: React.ComponentPropsWithRef<'span'>,
           inputProps: React.ComponentPropsWithRef<'input'>,
-          state: OwnerState,
+          state: State,
         ) => React.ReactElement)
       | (React.ReactElement & { ref: React.Ref<Element> });
   }

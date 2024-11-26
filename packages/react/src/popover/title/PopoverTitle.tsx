@@ -6,7 +6,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverTitle } from './usePopoverTitle';
 
-const ownerState = {};
+const state = {};
 
 /**
  * Renders a title element that labels the popover.
@@ -36,7 +36,7 @@ const PopoverTitle = React.forwardRef(function PopoverTitle(
     propGetter: getTitleProps,
     render: render ?? 'h2',
     className,
-    ownerState,
+    state,
     ref: forwardedRef,
     extraProps: otherProps,
   });
@@ -45,10 +45,10 @@ const PopoverTitle = React.forwardRef(function PopoverTitle(
 });
 
 namespace PopoverTitle {
-  export interface OwnerState {}
+  export interface State {}
 
   export interface Props
-    extends BaseUIComponentProps<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', OwnerState> {}
+    extends BaseUIComponentProps<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', State> {}
 }
 
 PopoverTitle.propTypes /* remove-proptypes */ = {

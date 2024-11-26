@@ -12,7 +12,7 @@ const accordionRootContextValue: AccordionRootContext = {
   handleValueChange: NOOP,
   hiddenUntilFound: false,
   orientation: 'vertical',
-  ownerState: {
+  state: {
     value: [0],
     disabled: false,
     orientation: 'vertical',

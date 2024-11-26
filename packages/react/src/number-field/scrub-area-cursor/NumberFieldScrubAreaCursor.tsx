@@ -27,7 +27,7 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { isScrubbing, scrubAreaCursorRef, ownerState, getScrubAreaCursorProps } =
+  const { isScrubbing, scrubAreaCursorRef, state, getScrubAreaCursorProps } =
     useNumberFieldRootContext();
 
   const [element, setElement] = React.useState<Element | null>(null);
@@ -38,7 +38,7 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
     propGetter: getScrubAreaCursorProps,
     ref: mergedRef,
     render: render ?? 'span',
-    ownerState,
+    state,
     className,
     extraProps: otherProps,
   });
@@ -51,8 +51,8 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
 });
 
 namespace NumberFieldScrubAreaCursor {
-  export interface OwnerState extends NumberFieldRoot.OwnerState {}
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+  export interface State extends NumberFieldRoot.State {}
+  export interface Props extends BaseUIComponentProps<'span', State> {}
 }
 
 NumberFieldScrubAreaCursor.propTypes /* remove-proptypes */ = {

@@ -36,20 +36,20 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
   const { getRootProps, getInputProps, checkedValue, setCheckedValue, touched, setTouched } =
     useRadioGroupRoot(props);
 
-  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
 
   const onValueChange = useEventCallback(onValueChangeProp ?? (() => {}));
 
-  const ownerState: RadioGroupRoot.OwnerState = React.useMemo(
+  const state: RadioGroupRoot.State = React.useMemo(
     () => ({
-      ...fieldOwnerState,
+      ...fieldState,
       disabled: disabled ?? false,
       required: required ?? false,
       readOnly: readOnly ?? false,
     }),
-    [fieldOwnerState, disabled, readOnly, required],
+    [fieldState, disabled, readOnly, required],
   );
 
   const contextValue: RadioGroupRootContext = React.useMemo(
@@ -80,7 +80,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
     render: render ?? 'div',
     ref: forwardedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
   });
 
@@ -93,13 +93,13 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
 });
 
 namespace RadioGroupRoot {
-  export interface OwnerState {
+  export interface State {
     disabled: boolean | undefined;
     readOnly: boolean | undefined;
   }
 
   export interface Props
-    extends Omit<BaseUIComponentProps<'div', OwnerState>, 'value' | 'defaultValue'> {
+    extends Omit<BaseUIComponentProps<'div', State>, 'value' | 'defaultValue'> {
     /**
      * Determines if the radio group is disabled.
      * @default false

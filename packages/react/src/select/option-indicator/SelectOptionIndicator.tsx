@@ -33,7 +33,7 @@ const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
     [],
   );
 
-  const ownerState: SelectOptionIndicator.OwnerState = React.useMemo(
+  const state: SelectOptionIndicator.State = React.useMemo(
     () => ({
       selected,
     }),
@@ -45,7 +45,7 @@ const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
     render: render ?? 'span',
     ref: forwardedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
   });
 
@@ -58,7 +58,7 @@ const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
 });
 
 namespace SelectOptionIndicator {
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'span', State> {
     children?: React.ReactNode;
     /**
      * If `true`, the item indicator remains mounted when the item is not
@@ -68,7 +68,7 @@ namespace SelectOptionIndicator {
     keepMounted?: boolean;
   }
 
-  export interface OwnerState {
+  export interface State {
     selected: boolean;
   }
 }

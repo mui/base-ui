@@ -70,7 +70,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
 
-  const ownerState: TooltipPositioner.OwnerState = React.useMemo(
+  const state: TooltipPositioner.State = React.useMemo(
     () => ({
       open,
       side: positioner.side,
@@ -81,19 +81,19 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 
   const contextValue: TooltipPositionerContext = React.useMemo(
     () => ({
-      ...ownerState,
+      ...state,
       arrowRef: positioner.arrowRef,
       arrowStyles: positioner.arrowStyles,
       arrowUncentered: positioner.arrowUncentered,
     }),
-    [ownerState, positioner.arrowRef, positioner.arrowStyles, positioner.arrowUncentered],
+    [state, positioner.arrowRef, positioner.arrowStyles, positioner.arrowUncentered],
   );
 
   const { renderElement } = useComponentRenderer({
     propGetter: positioner.getPositionerProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: mergedRef,
     extraProps: otherProps,
     customStyleHookMapping: popupOpenStateMapping,
@@ -112,14 +112,14 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 });
 
 namespace TooltipPositioner {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     side: Side;
     alignment: Alignment;
   }
 
   export interface Props
-    extends BaseUIComponentProps<'div', OwnerState>,
+    extends BaseUIComponentProps<'div', State>,
       useTooltipPositioner.SharedParameters {
     /**
      * The container element the tooltip positioner is appended to.

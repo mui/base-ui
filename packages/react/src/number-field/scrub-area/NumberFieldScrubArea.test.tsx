@@ -16,7 +16,7 @@ function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
 
 const testContext = {
   getScrubAreaProps: (externalProps) => externalProps,
-  ownerState: {
+  state: {
     value: null,
     required: false,
     disabled: false,

@@ -27,7 +27,7 @@ const SelectValue = React.forwardRef(function SelectValue(
 
   const mergedRef = useForkRef(forwardedRef, valueRef);
 
-  const ownerState: SelectValue.OwnerState = React.useMemo(() => ({}), []);
+  const state: SelectValue.State = React.useMemo(() => ({}), []);
 
   const getValueProps = React.useCallback(
     (externalProps = {}) =>
@@ -41,7 +41,7 @@ const SelectValue = React.forwardRef(function SelectValue(
     propGetter: getValueProps,
     render: render ?? 'span',
     className,
-    ownerState,
+    state,
     ref: mergedRef,
     extraProps: otherProps,
   });
@@ -50,7 +50,7 @@ const SelectValue = React.forwardRef(function SelectValue(
 });
 
 namespace SelectValue {
-  export interface Props extends Omit<BaseUIComponentProps<'span', OwnerState>, 'children'> {
+  export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
     children?: null | ((value: string) => React.ReactNode);
     /**
      * The placeholder value to display when the value is empty (such as during SSR).
@@ -58,7 +58,7 @@ namespace SelectValue {
     placeholder?: string;
   }
 
-  export interface OwnerState {}
+  export interface State {}
 }
 
 SelectValue.propTypes /* remove-proptypes */ = {

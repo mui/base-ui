@@ -31,7 +31,7 @@ const SliderControl = React.forwardRef(function SliderControl(
     handleValueChange,
     minStepsBetweenValues,
     onValueCommitted,
-    ownerState,
+    state,
     percentageValues,
     registerSliderControl,
     setActive,
@@ -62,7 +62,7 @@ const SliderControl = React.forwardRef(function SliderControl(
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: renderProp ?? 'span',
-    ownerState,
+    state,
     className,
     extraProps: otherProps,
     customStyleHookMapping: sliderStyleHookMapping,
@@ -72,7 +72,7 @@ const SliderControl = React.forwardRef(function SliderControl(
 });
 
 export namespace SliderControl {
-  export interface Props extends BaseUIComponentProps<'span', SliderRoot.OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'span', SliderRoot.State> {}
 }
 
 export { SliderControl };

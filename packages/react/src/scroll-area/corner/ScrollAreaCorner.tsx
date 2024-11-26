@@ -7,7 +7,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { useForkRef } from '../../utils/useForkRef';
 
-const ownerState = {};
+const state = {};
 
 /**
  *
@@ -33,7 +33,7 @@ const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
     render: render ?? 'div',
     ref: mergedRef,
     className,
-    ownerState,
+    state,
     extraProps: mergeReactProps(otherProps, {
       style: {
         position: 'absolute',
@@ -53,9 +53,9 @@ const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
 });
 
 namespace ScrollAreaCorner {
-  export interface OwnerState {}
+  export interface State {}
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 ScrollAreaCorner.propTypes /* remove-proptypes */ = {

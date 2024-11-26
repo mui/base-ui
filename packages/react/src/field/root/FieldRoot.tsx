@@ -72,7 +72,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
 
   const valid = !invalid && validityData.state.valid;
 
-  const ownerState: FieldRoot.OwnerState = React.useMemo(
+  const state: FieldRoot.State = React.useMemo(
     () => ({
       disabled,
       touched,
@@ -102,7 +102,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       validate,
       validationMode,
       validationDebounceTime,
-      ownerState,
+      state,
       markedDirtyRef,
     }),
     [
@@ -119,7 +119,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       validate,
       validationMode,
       validationDebounceTime,
-      ownerState,
+      state,
     ],
   );
 
@@ -127,7 +127,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     render: render ?? 'div',
     ref: forwardedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
     customStyleHookMapping: STYLE_HOOK_MAPPING,
   });
@@ -158,14 +158,14 @@ export interface FieldValidityData {
 }
 
 namespace FieldRoot {
-  export interface OwnerState {
+  export interface State {
     disabled: boolean;
     touched: boolean;
     dirty: boolean;
     valid: boolean | null;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Whether the field is disabled. Takes precedence over the `disabled` prop of the `Field.Control`
      * component.

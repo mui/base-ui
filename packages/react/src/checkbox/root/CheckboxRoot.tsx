@@ -72,7 +72,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const computedChecked = isGrouped ? Boolean(groupChecked) : checked;
   const computedIndeterminate = isGrouped ? groupIndeterminate : indeterminate;
 
-  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
 
   React.useEffect(() => {
@@ -81,25 +81,25 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }, [parentContext, disabled, name]);
 
-  const ownerState: CheckboxRoot.OwnerState = React.useMemo(
+  const state: CheckboxRoot.State = React.useMemo(
     () => ({
-      ...fieldOwnerState,
+      ...fieldState,
       checked: computedChecked,
       disabled,
       readOnly,
       required,
       indeterminate: computedIndeterminate,
     }),
-    [fieldOwnerState, computedChecked, disabled, readOnly, required, computedIndeterminate],
+    [fieldState, computedChecked, disabled, readOnly, required, computedIndeterminate],
   );
 
-  const customStyleHookMapping = useCustomStyleHookMapping(ownerState);
+  const customStyleHookMapping = useCustomStyleHookMapping(state);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getButtonProps,
     render: render ?? 'button',
     ref: forwardedRef,
-    ownerState,
+    state,
     className,
     customStyleHookMapping,
     extraProps: {
@@ -109,7 +109,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   });
 
   return (
-    <CheckboxRootContext.Provider value={ownerState}>
+    <CheckboxRootContext.Provider value={state}>
       {renderElement()}
       {!checked && props.name && <input type="hidden" name={props.name} value="off" />}
       <input {...getInputProps()} />
@@ -118,7 +118,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 });
 
 namespace CheckboxRoot {
-  export interface OwnerState extends FieldRoot.OwnerState {
+  export interface State extends FieldRoot.State {
     checked: boolean;
     disabled: boolean;
     readOnly: boolean;
@@ -127,7 +127,7 @@ namespace CheckboxRoot {
   }
   export interface Props
     extends UseCheckboxRoot.Parameters,
-      Omit<BaseUIComponentProps<'button', OwnerState>, 'onChange'> {}
+      Omit<BaseUIComponentProps<'button', State>, 'onChange'> {}
 }
 
 CheckboxRoot.propTypes /* remove-proptypes */ = {

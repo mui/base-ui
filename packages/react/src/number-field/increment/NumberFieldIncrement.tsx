@@ -23,13 +23,13 @@ const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { getIncrementButtonProps, ownerState } = useNumberFieldRootContext();
+  const { getIncrementButtonProps, state } = useNumberFieldRootContext();
 
   const { renderElement } = useComponentRenderer({
     propGetter: getIncrementButtonProps,
     ref: forwardedRef,
     render: render ?? 'button',
-    ownerState,
+    state,
     className,
     extraProps: otherProps,
   });
@@ -38,8 +38,8 @@ const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
 });
 
 namespace NumberFieldIncrement {
-  export interface OwnerState extends NumberFieldRoot.OwnerState {}
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+  export interface State extends NumberFieldRoot.State {}
+  export interface Props extends BaseUIComponentProps<'button', State> {}
 }
 
 NumberFieldIncrement.propTypes /* remove-proptypes */ = {

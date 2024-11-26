@@ -32,7 +32,7 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
     orientation === 'vertical' ? scrollbarYRef : scrollbarXRef,
   );
 
-  const ownerState: ScrollAreaScrollbar.OwnerState = React.useMemo(
+  const state: ScrollAreaScrollbar.State = React.useMemo(
     () => ({
       hovering,
       scrolling,
@@ -50,7 +50,7 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
     render: render ?? 'div',
     ref: mergedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
   });
 
@@ -72,13 +72,13 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
 });
 
 namespace ScrollAreaScrollbar {
-  export interface OwnerState {
+  export interface State {
     hovering: boolean;
     scrolling: boolean;
     orientation: 'vertical' | 'horizontal';
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The orientation of the scrollbar.
      * @default 'vertical'
