@@ -18,14 +18,14 @@
   },
   "name": "SliderThumb",
   "imports": [
-    "import { Slider } from '@base-ui-components/react/Slider';\nconst SliderThumb = Slider.Thumb;"
+    "import { Slider } from '@base-ui-components/react/slider';\nconst SliderThumb = Slider.Thumb;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SliderThumb",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/react/src/Slider/Thumb/SliderThumb.tsx",
+  "filename": "/packages/react/src/slider/thumb/SliderThumb.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-slider/\">Slider</a></li></ul>",
   "cssComponent": false

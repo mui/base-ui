@@ -3,9 +3,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSliderRootContext } from '../Root/SliderRootContext';
-import { sliderStyleHookMapping } from '../Root/styleHooks';
-import type { SliderRoot } from '../Root/SliderRoot';
+import { useSliderRootContext } from '../root/SliderRootContext';
+import { sliderStyleHookMapping } from '../root/styleHooks';
+import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderOutput } from './useSliderOutput';
 /**
  *

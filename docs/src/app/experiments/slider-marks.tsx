@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Slider } from '@base-ui-components/react/Slider';
+import { Slider } from '@base-ui-components/react/slider';
 import { useSliderRootContext } from '../../../../packages/react/src/Slider/Root/SliderRootContext';
 
 const STOPS = [

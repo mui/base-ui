@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSliderRootContext } from '../Root/SliderRootContext';
-import type { SliderRoot } from '../Root/SliderRoot';
-import { sliderStyleHookMapping } from '../Root/styleHooks';
+import { useSliderRootContext } from '../root/SliderRootContext';
+import { sliderStyleHookMapping } from '../root/styleHooks';
+import type { SliderRoot } from '../root/SliderRoot';
+import { useSliderControl } from './useSliderControl';
 /**
  *
  * Demos:
@@ -14,21 +15,55 @@ import { sliderStyleHookMapping } from '../Root/styleHooks';
  *
  * API:
  *
- * - [SliderTrack API](https://base-ui.com/components/react-slider/#api-reference-SliderTrack)
+ * - [SliderControl API](https://base-ui.com/components/react-slider/#api-reference-SliderControl)
  */
-const SliderTrack = React.forwardRef(function SliderTrack(
-  props: SliderTrack.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+const SliderControl = React.forwardRef(function SliderControl(
+  props: SliderControl.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render: renderProp, className, ...otherProps } = props;
 
-  const { ownerState } = useSliderRootContext();
+  const {
+    areValuesEqual,
+    disabled,
+    dragging,
+    getFingerNewValue,
+    handleValueChange,
+    minStepsBetweenValues,
+    onValueCommitted,
+    ownerState,
+    percentageValues,
+    registerSliderControl,
+    setActive,
+    setDragging,
+    setValueState,
+    step,
+    thumbRefs,
+  } = useSliderRootContext();
+
+  const { getRootProps } = useSliderControl({
+    areValuesEqual,
+    disabled,
+    dragging,
+    getFingerNewValue,
+    handleValueChange,
+    minStepsBetweenValues,
+    onValueCommitted,
+    percentageValues,
+    registerSliderControl,
+    rootRef: forwardedRef,
+    setActive,
+    setDragging,
+    setValueState,
+    step,
+    thumbRefs,
+  });
 
   const { renderElement } = useComponentRenderer({
-    render: render ?? 'span',
+    propGetter: getRootProps,
+    render: renderProp ?? 'span',
     ownerState,
     className,
-    ref: forwardedRef,
     extraProps: otherProps,
     customStyleHookMapping: sliderStyleHookMapping,
   });
@@ -36,13 +71,13 @@ const SliderTrack = React.forwardRef(function SliderTrack(
   return renderElement();
 });
 
-export namespace SliderTrack {
+export namespace SliderControl {
   export interface Props extends BaseUIComponentProps<'span', SliderRoot.OwnerState> {}
 }
 
-export { SliderTrack };
+export { SliderControl };
 
-SliderTrack.propTypes /* remove-proptypes */ = {
+SliderControl.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │

@@ -37,14 +37,14 @@
   },
   "name": "SliderRoot",
   "imports": [
-    "import { Slider } from '@base-ui-components/react/Slider';\nconst SliderRoot = Slider.Root;"
+    "import { Slider } from '@base-ui-components/react/slider';\nconst SliderRoot = Slider.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SliderRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/Slider/Root/SliderRoot.tsx",
+  "filename": "/packages/react/src/slider/root/SliderRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-slider/\">Slider</a></li></ul>",
   "cssComponent": false

@@ -3,7 +3,7 @@ import { Field } from '@base-ui-components/react/field';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { Switch } from '@base-ui-components/react/Switch';
 import { NumberField } from '@base-ui-components/react/number-field';
-import { Slider } from '@base-ui-components/react/Slider';
+import { Slider } from '@base-ui-components/react/slider';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
 import { Radio } from '@base-ui-components/react/radio';
 import { Select } from '@base-ui-components/react/select';

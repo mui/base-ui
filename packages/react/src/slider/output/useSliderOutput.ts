@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import type { useSliderRoot } from '../Root/useSliderRoot';
+import type { useSliderRoot } from '../root/useSliderRoot';
 
 export function useSliderOutput(
   parameters: useSliderOutput.Parameters,

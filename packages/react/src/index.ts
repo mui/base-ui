@@ -17,7 +17,7 @@ export * from './radio-group';
 export * from './scroll-area';
 export * from './select';
 export * from './separator';
-export * from './Slider';
+export * from './slider';
 export * from './Switch';
 export * from './Tabs';
 export * from './TextInput';

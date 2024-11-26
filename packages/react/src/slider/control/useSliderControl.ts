@@ -10,7 +10,7 @@ import {
   trackFinger,
   type useSliderRoot,
   validateMinimumDistance,
-} from '../Root/useSliderRoot';
+} from '../root/useSliderRoot';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;

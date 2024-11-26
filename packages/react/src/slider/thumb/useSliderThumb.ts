@@ -10,7 +10,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
-import type { useSliderRoot } from '../Root/useSliderRoot';
+import type { useSliderRoot } from '../root/useSliderRoot';
 
 function getNewValue(
   thumbValue: number,

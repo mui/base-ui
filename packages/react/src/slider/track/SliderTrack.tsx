@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSliderRootContext } from '../Root/SliderRootContext';
-import { sliderStyleHookMapping } from '../Root/styleHooks';
-import type { SliderRoot } from '../Root/SliderRoot';
-import { useSliderIndicator } from './useSliderIndicator';
+import { useSliderRootContext } from '../root/SliderRootContext';
+import type { SliderRoot } from '../root/SliderRoot';
+import { sliderStyleHookMapping } from '../root/styleHooks';
 /**
  *
  * Demos:
@@ -15,27 +14,17 @@ import { useSliderIndicator } from './useSliderIndicator';
  *
  * API:
  *
- * - [SliderIndicator API](https://base-ui.com/components/react-slider/#api-reference-SliderIndicator)
+ * - [SliderTrack API](https://base-ui.com/components/react-slider/#api-reference-SliderTrack)
  */
-const SliderIndicator = React.forwardRef(function SliderIndicator(
-  props: SliderIndicator.Props,
+const SliderTrack = React.forwardRef(function SliderTrack(
+  props: SliderTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { axis, direction, disabled, orientation, ownerState, percentageValues } =
-    useSliderRootContext();
-
-  const { getRootProps } = useSliderIndicator({
-    axis,
-    direction,
-    disabled,
-    orientation,
-    percentageValues,
-  });
+  const { ownerState } = useSliderRootContext();
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
     render: render ?? 'span',
     ownerState,
     className,
@@ -47,13 +36,13 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
   return renderElement();
 });
 
-export namespace SliderIndicator {
+export namespace SliderTrack {
   export interface Props extends BaseUIComponentProps<'span', SliderRoot.OwnerState> {}
 }
 
-export { SliderIndicator };
+export { SliderTrack };
 
-SliderIndicator.propTypes /* remove-proptypes */ = {
+SliderTrack.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │

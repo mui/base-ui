@@ -6,8 +6,8 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
-import type { SliderRoot } from '../Root/SliderRoot';
-import { useSliderRootContext } from '../Root/SliderRootContext';
+import type { SliderRoot } from '../root/SliderRoot';
+import { useSliderRootContext } from '../root/SliderRootContext';
 import { useSliderThumb } from './useSliderThumb';
 import { isReactVersionAtLeast } from '../../utils/reactVersion';
 

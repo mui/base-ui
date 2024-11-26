@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Slider } from '@base-ui-components/react/Slider';
+import { Slider } from '@base-ui-components/react/slider';
 import { createRenderer, describeConformance } from '#test-utils';
-import { SliderRootContext } from '../Root/SliderRootContext';
+import { SliderRootContext } from '../root/SliderRootContext';
 import { NOOP } from '../../utils/noop';
 
 const testRootContext: SliderRootContext = {
@@ -52,10 +52,10 @@ const testRootContext: SliderRootContext = {
   values: [0],
 };
 
-describe('<Slider.Track />', () => {
+describe('<Slider.Control />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Slider.Track />, () => ({
+  describeConformance(<Slider.Control />, () => ({
     render: (node) => {
       return render(
         <SliderRootContext.Provider value={testRootContext}>{node}</SliderRootContext.Provider>,
