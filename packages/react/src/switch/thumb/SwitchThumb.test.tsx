@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Switch } from '@base-ui-components/react/Switch';
+import { Switch } from '@base-ui-components/react/switch';
 import { createRenderer, describeConformance } from '#test-utils';
-import { SwitchRootContext } from '../Root/SwitchRootContext';
+import { SwitchRootContext } from '../root/SwitchRootContext';
 
 const testContext: SwitchRootContext = {
   checked: false,

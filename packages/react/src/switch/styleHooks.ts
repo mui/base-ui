@@ -1,4 +1,4 @@
-import type { SwitchRoot } from './Root/SwitchRoot';
+import type { SwitchRoot } from './root/SwitchRoot';
 import type { CustomStyleHookMapping } from '../utils/getStyleHookProps';
 
 export const styleHookMapping: CustomStyleHookMapping<SwitchRoot.OwnerState> = {

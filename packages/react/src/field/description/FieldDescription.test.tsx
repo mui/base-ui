@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
 import { Checkbox } from '@base-ui-components/react/checkbox';
-import { Switch } from '@base-ui-components/react/Switch';
+import { Switch } from '@base-ui-components/react/switch';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { Slider } from '@base-ui-components/react/slider';
 import { RadioGroup } from '@base-ui-components/react/radio-group';

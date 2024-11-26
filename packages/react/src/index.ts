@@ -18,7 +18,7 @@ export * from './scroll-area';
 export * from './select';
 export * from './separator';
 export * from './slider';
-export * from './Switch';
+export * from './switch';
 export * from './Tabs';
 export * from './TextInput';
 export * from './Tooltip';
