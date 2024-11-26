@@ -7,6 +7,7 @@
 @import 'tailwindcss/theme' layer(theme);
 @import 'tailwindcss/utilities' layer(utilities);
 
+@import './breakpoints.css';
 @import './fonts/index.css';
 @import './syntax-highlighting/index.css';
 @import './components/demo/index.css';
@@ -14,8 +15,10 @@
 @import './components/Code.css';
 @import './components/CodeBlock.css';
 @import './components/GhostButton.css';
+@import './components/Header.css';
 @import './components/Popup.css';
 @import './components/Select.css';
+@import './components/SideNav.css';
 @import './components/Table.css';
 
 /* Handy link to the default Tailwind theme:
@@ -43,7 +46,7 @@
   /* Functional colors */
   --color-content: white;
   --color-background: var(--color-gray-50);
-  --color-foreground: var(--color-gray-950);
+  --color-foreground: var(--color-gray-900);
   --color-popup: white;
   --color-gridline: oklch(91.6% 1% 264);
   --color-highlight: var(--color-blue);
@@ -67,7 +70,7 @@
   --text-xs--tracking: 0.0015em;
 
   --text-sm: 0.9375rem;
-  --text-sm--line-height: 1.25rem;
+  --text-sm--line-height: 1.375rem;
   --text-sm--tracking: 0.001em;
 
   --text-base: 1rem;

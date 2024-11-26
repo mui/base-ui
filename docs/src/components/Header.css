@@ -1,0 +1,38 @@
+@layer components {
+  .Header {
+    @apply text-sm;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: 1.5rem;
+    height: 3rem;
+  }
+
+  .HeaderLink {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem;
+    margin: -0.25rem;
+    border-radius: var(--radius-md);
+
+    @media (hover: hover) {
+      &:hover {
+        text-decoration: underline;
+        text-decoration-color: var(--color-gray-500);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+    }
+
+    &:focus-visible {
+      z-index: 1;
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+    }
+
+    & > * {
+      flex-shrink: 0;
+    }
+  }
+}

@@ -2,13 +2,17 @@
 import * as React from 'react';
 import clsx from 'clsx';
 
+export function Container({ className, ...props }: React.ComponentProps<'div'>) {
+  return <div className={clsx('QuickNavContainer', className)} {...props} />;
+}
+
 export function Root({ children, className, ...props }: React.ComponentProps<'div'>) {
   const ref = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => onMounted(ref), []);
   return (
-    <div ref={ref} className={clsx('QuickNavRoot', className)} {...props}>
+    <nav aria-label="On this page" ref={ref} className={clsx('QuickNavRoot', className)} {...props}>
       <div className="QuickNavInner">{children}</div>
-    </div>
+    </nav>
   );
 }
 
@@ -247,7 +251,7 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
 }
 
 export function Title({ className, ...props }: React.ComponentProps<'h2'>) {
-  return <h2 className={clsx('QuickNavTitle', className)} {...props} />;
+  return <div aria-hidden className={clsx('QuickNavTitle', className)} {...props} />;
 }
 
 export function List({ className, ...props }: React.ComponentProps<'ul'>) {
