@@ -14,12 +14,28 @@ function getAnimationNameFromComputedStyles(element: HTMLElement) {
   if (hasComputedStyleMapSupport()) {
     const styleMap = element.computedStyleMap();
     const animationName = styleMap.get('animation-name');
+    // console.log('animationName', animationName);
     return (animationName as CSSKeywordValue)?.value ?? undefined;
   }
 
   const containerWindow = ownerWindow(element);
   const computedStyles = containerWindow.getComputedStyle(element);
   return computedStyles.animationName;
+}
+
+function getTransitionDurationFromComputedStyles(element: HTMLElement) {
+  if (hasComputedStyleMapSupport()) {
+    const styleMap = element.computedStyleMap();
+    const transitionDuration = styleMap.get('transition-duration') as CSSUnitValue;
+    // console.log('transitionDuration', transitionDuration);
+    return transitionDuration?.value && transitionDuration?.unit
+      ? `${transitionDuration.value} ${transitionDuration.unit}`
+      : '0s';
+  }
+
+  const containerWindow = ownerWindow(element);
+  const computedStyles = containerWindow.getComputedStyle(element);
+  return computedStyles.transitionDuration;
 }
 
 let cachedSupportsHiddenUntilFound: boolean | undefined;
@@ -69,8 +85,9 @@ export function useCollapsiblePanel(
     width: 0,
   });
 
+  const originalAnimationNameRef = React.useRef<string | null>(null);
   const latestAnimationNameRef = React.useRef<string>('none');
-  const originalTransitionDurationStyleRef = React.useRef<string | null>(null);
+  const originalTransitionDurationRef = React.useRef<string>('0s');
 
   const isTransitioningRef = React.useRef(false);
 
@@ -90,8 +107,12 @@ export function useCollapsiblePanel(
 
     const computedAnimationName = getAnimationNameFromComputedStyles(element);
 
+    originalAnimationNameRef.current =
+      computedAnimationName === 'none' ? null : computedAnimationName;
     latestAnimationNameRef.current = computedAnimationName ?? 'none';
-    originalTransitionDurationStyleRef.current = element.style.transitionDuration;
+    // console.log('computed transitionDuration', getTransitionDurationFromComputedStyles(element));
+    // console.log('element.style.transitionDuration', element.style.transitionDuration);
+    originalTransitionDurationRef.current = getTransitionDurationFromComputedStyles(element);
   });
 
   const mergedRef = useForkRef(ref, handlePanelRef);
@@ -104,64 +125,157 @@ export function useCollapsiblePanel(
 
   const isBeforeMatchRef = React.useRef(false);
 
+  // handle animations
   useEnhancedEffect(() => {
+    if (originalTransitionDurationRef.current !== '0s') {
+      return undefined;
+    }
+
+    const latestAnimationName = latestAnimationNameRef.current;
+
     const { current: element } = panelRef;
+
+    if (!element) {
+      return undefined;
+    }
+
+    const isBeforeMatch = isBeforeMatchRef.current;
+    const isInitiallyOpen = isInitialOpenRef.current;
+
+    const originalAnimationName2 =
+      element.style.animationName === 'none' ? '' : element.style.animationName;
+
+    const shouldCancelAnimation = isBeforeMatch || isInitiallyOpen;
+    console.log('shouldCancelAnimation', shouldCancelAnimation);
+
+    const latestAnimationName2 = getAnimationNameFromComputedStyles(element);
+    console.log('latestAnimationName2', latestAnimationName2);
+
+    element.style.animationName = 'none';
+
+    const isClosed = !open && !contextMounted;
+
+    const rect = isClosed ? { height: 0, width: 0 } : element.getBoundingClientRect();
+
+    console.log(
+      'rect.height/width',
+      rect.height,
+      rect.width,
+      // 'transitioning',
+      // isTransitioning,
+      // 'isClosed',
+      // isClosed,
+      'open',
+      open,
+      'contextMounted',
+      contextMounted,
+    );
+
+    setDimensions({
+      height: rect.height,
+      width: rect.width,
+    });
+
+    element.style.animationName = shouldCancelAnimation ? 'none' : originalAnimationName2;
+
+    runOnceAnimationsFinish(() => {
+      ReactDOM.flushSync(() => {
+        setContextMounted(open);
+        if (isBeforeMatch) {
+          isBeforeMatchRef.current = false;
+        }
+      });
+    });
+
+    return undefined;
+  }, [open, contextMounted, runOnceAnimationsFinish, setContextMounted]);
+
+  // handle transitions
+  useEnhancedEffect(() => {
+    const originalTransitionDuration = originalTransitionDurationRef.current;
+    if (originalTransitionDuration === '0s') {
+      return undefined;
+    }
+
+    const { current: element } = panelRef;
+
+    if (!element) {
+      return undefined;
+    }
 
     let frame1 = -1;
     let frame2 = -1;
 
-    if (element) {
-      const isBeforeMatch = isBeforeMatchRef.current;
-      const isInitiallyOpen = isInitialOpenRef.current;
-      const isTransitioning = isTransitioningRef.current;
-      const originalAnimationName =
-        element.style.animationName === 'none' ? '' : element.style.animationName;
-      const originalTransitionDuration = originalTransitionDurationStyleRef.current;
-      // cancel animation/transitions for these specific instances:
-      // 1. when initially open, on mount/load, it should just appear fully open but remain animated per styles afterwards
-      // 2. when using `hidden='until-found'` and is opened by find-in-page, it should open instantly but remain animated //    as styled afterwards
-      const shouldCancelAnimation = isBeforeMatch || isInitiallyOpen;
+    const isBeforeMatch = isBeforeMatchRef.current;
+    const isInitiallyOpen = isInitialOpenRef.current;
+    const isTransitioning = isTransitioningRef.current;
+    // const originalAnimationName =
+    //   element.style.animationName === 'none' ? '' : element.style.animationName;
+    // cancel animation/transitions for these specific instances:
+    // 1. when initially open, on mount/load, it should just appear fully open but remain animated per styles afterwards
+    // 2. when using `hidden='until-found'` and is opened by find-in-page, it should open instantly but remain animated //    as styled afterwards
+    const shouldCancelAnimation = isBeforeMatch || isInitiallyOpen;
 
-      element.style.animationName = 'none';
+    // element.style.animationName = 'none';
 
-      const isClosed = !open && !contextMounted;
+    // const isClosed = !open && !contextMounted;
 
-      if (!isTransitioning || isClosed) {
-        const rect = isClosed ? { height: 0, width: 0 } : element.getBoundingClientRect();
-        setDimensions({
-          height: rect.height,
-          width: rect.width,
-        });
-      }
+    if (!isTransitioning || !open) {
+      const rect = !open ? { height: 0, width: 0 } : element.getBoundingClientRect();
 
-      element.style.animationName = shouldCancelAnimation ? 'none' : originalAnimationName;
-      element.style.transitionDuration = shouldCancelAnimation
-        ? '0s'
-        : (originalTransitionDuration ?? '');
+      // console.log(
+      //   'rect.height/width',
+      //   rect.height,
+      //   rect.width,
+      //   'transitioning',
+      //   isTransitioning,
+      //   // 'isClosed',
+      //   // isClosed,
+      //   'open',
+      //   open,
+      //   // 'contextMounted',
+      //   // contextMounted,
+      // );
 
-      runOnceAnimationsFinish(() => {
-        ReactDOM.flushSync(() => {
-          setContextMounted(open);
-          if (isBeforeMatch) {
-            isBeforeMatchRef.current = false;
-            frame1 = requestAnimationFrame(() => {
-              frame2 = requestAnimationFrame(() => {
-                element.style.transitionDuration = originalTransitionDurationStyleRef.current ?? '';
-              });
-            });
-          }
-        });
+      setDimensions({
+        height: rect.height,
+        width: rect.width,
       });
     }
+
+    // element.style.animationName = shouldCancelAnimation ? 'none' : originalAnimationName;
+    element.style.transitionDuration = shouldCancelAnimation
+      ? '0s'
+      : (originalTransitionDuration ?? '');
+
+    runOnceAnimationsFinish(() => {
+      ReactDOM.flushSync(() => {
+        setContextMounted(open);
+        if (isBeforeMatch) {
+          isBeforeMatchRef.current = false;
+          frame1 = requestAnimationFrame(() => {
+            frame2 = requestAnimationFrame(() => {
+              element.style.transitionDuration =
+                originalTransitionDurationRef.current === '0s'
+                  ? ''
+                  : originalTransitionDurationRef.current;
+            });
+          });
+        }
+      });
+    });
 
     return () => {
       cancelAnimationFrame(frame1);
       cancelAnimationFrame(frame2);
     };
-  }, [open, contextMounted, runOnceAnimationsFinish, setContextMounted]);
+  }, [open, runOnceAnimationsFinish, setContextMounted]);
 
   React.useEffect(() => {
     const { current: element } = panelRef;
+    if (!element) {
+      return undefined;
+    }
 
     let frame2 = -1;
     let frame3 = -1;
@@ -169,14 +283,21 @@ export function useCollapsiblePanel(
     const frame = requestAnimationFrame(() => {
       isInitialOpenRef.current = false;
 
-      if (element) {
-        frame2 = requestAnimationFrame(() => {
-          frame3 = requestAnimationFrame(() => {
-            // it takes 3 frames to unset `'0s'` from the initial open state correctly
-            element.style.transitionDuration = originalTransitionDurationStyleRef.current ?? '';
-          });
-        });
+      const originalTransitionDuration = originalTransitionDurationRef.current;
+      if (originalTransitionDuration === '0s') {
+        return undefined;
       }
+
+      frame2 = requestAnimationFrame(() => {
+        frame3 = requestAnimationFrame(() => {
+          // it takes 3 frames to unset `'0s'` from the initial open state correctly
+          element.style.transitionDuration =
+            originalTransitionDurationRef.current === '0s'
+              ? ''
+              : originalTransitionDurationRef.current;
+        });
+      });
+      return undefined;
     });
 
     return () => {
