@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import { usePopoverRootContext } from '../Root/PopoverRootContext';
+import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositioner } from './usePopoverPositioner';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';

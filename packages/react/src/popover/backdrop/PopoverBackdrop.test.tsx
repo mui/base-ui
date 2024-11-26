@@ -1,18 +1,16 @@
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/Popover';
+import { Popover } from '@base-ui-components/react/popover';
 import { createRenderer, describeConformance } from '#test-utils';
 
-describe('<Popover.Arrow />', () => {
+describe('<Popover.Backdrop />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Popover.Arrow />, () => ({
+  describeConformance(<Popover.Backdrop />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
         <Popover.Root open animated={false}>
-          <Popover.Positioner>
-            <Popover.Popup>{node}</Popover.Popup>
-          </Popover.Positioner>
+          {node}
         </Popover.Root>,
       );
     },

@@ -50,14 +50,14 @@
   },
   "name": "PopoverPositioner",
   "imports": [
-    "import { Popover } from '@base-ui-components/react/Popover';\nconst PopoverPositioner = Popover.Positioner;"
+    "import { Popover } from '@base-ui-components/react/popover';\nconst PopoverPositioner = Popover.Positioner;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "PopoverPositioner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/Popover/Positioner/PopoverPositioner.tsx",
+  "filename": "/packages/react/src/popover/positioner/PopoverPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

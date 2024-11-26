@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/Popover';
+import { Popover } from '@base-ui-components/react/popover';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';

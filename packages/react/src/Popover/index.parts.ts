@@ -1,9 +1,0 @@
-export { PopoverRoot as Root } from './Root/PopoverRoot';
-export { PopoverTrigger as Trigger } from './Trigger/PopoverTrigger';
-export { PopoverPositioner as Positioner } from './Positioner/PopoverPositioner';
-export { PopoverPopup as Popup } from './Popup/PopoverPopup';
-export { PopoverArrow as Arrow } from './Arrow/PopoverArrow';
-export { PopoverBackdrop as Backdrop } from './Backdrop/PopoverBackdrop';
-export { PopoverTitle as Title } from './Title/PopoverTitle';
-export { PopoverDescription as Description } from './Description/PopoverDescription';
-export { PopoverClose as Close } from './Close/PopoverClose';

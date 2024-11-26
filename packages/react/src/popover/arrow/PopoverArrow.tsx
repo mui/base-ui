@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { usePopoverPositionerContext } from '../Positioner/PopoverPositionerContext';
-import { usePopoverRootContext } from '../Root/PopoverRootContext';
+import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
+import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { usePopoverArrow } from './usePopoverArrow';

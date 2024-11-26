@@ -2,9 +2,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingFocusManager } from '@floating-ui/react';
-import { usePopoverRootContext } from '../Root/PopoverRootContext';
+import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { usePopoverPositionerContext } from '../Positioner/PopoverPositionerContext';
+import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import { usePopoverPopup } from './usePopoverPopup';
 import { useForkRef } from '../../utils/useForkRef';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';

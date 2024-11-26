@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { GenericHTMLProps } from '../../utils/types';
-import { usePopoverRootContext } from '../Root/PopoverRootContext';
+import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { InteractionType } from '../../utils/useEnhancedClickHandler';
 
 export function usePopoverPopup(params: usePopoverPopup.Parameters): usePopoverPopup.ReturnValue {

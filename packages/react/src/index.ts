@@ -9,7 +9,7 @@ export * from './fieldset';
 export * from './form';
 export * from './menu';
 export * from './number-field';
-export * from './Popover';
+export * from './popover';
 export * from './PreviewCard';
 export * from './Progress';
 export * from './RadioGroup';

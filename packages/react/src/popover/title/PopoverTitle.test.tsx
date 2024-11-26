@@ -1,14 +1,14 @@
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/Popover';
+import { Popover } from '@base-ui-components/react/popover';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
 
-describe('<Popover.Description />', () => {
+describe('<Popover.Title />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Popover.Description />, () => ({
-    refInstanceof: window.HTMLParagraphElement,
+  describeConformance(<Popover.Title />, () => ({
+    refInstanceof: window.HTMLHeadingElement,
     render(node) {
       return render(
         <Popover.Root open animated={false}>
@@ -20,18 +20,18 @@ describe('<Popover.Description />', () => {
     },
   }));
 
-  it('describes the popup element with its id', async () => {
+  it('labels the popup element with its id', async () => {
     await render(
       <Popover.Root open animated={false}>
         <Popover.Positioner>
           <Popover.Popup>
-            <Popover.Description>Title</Popover.Description>
+            <Popover.Title>Title</Popover.Title>
           </Popover.Popup>
         </Popover.Positioner>
       </Popover.Root>,
     );
 
-    const id = document.querySelector('p')?.id;
-    expect(screen.getByRole('dialog')).to.have.attribute('aria-describedby', id);
+    const id = document.querySelector('h2')?.id;
+    expect(screen.getByRole('dialog')).to.have.attribute('aria-labelledby', id);
   });
 });

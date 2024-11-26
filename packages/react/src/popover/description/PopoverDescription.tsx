@@ -2,14 +2,14 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { usePopoverRootContext } from '../root/PopoverRootContext';
+import { usePopoverDescription } from './usePopoverDescription';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { usePopoverRootContext } from '../Root/PopoverRootContext';
-import { usePopoverClose } from './usePopoverClose';
 
 const ownerState = {};
 
 /**
- * Renders a button that closes the popover when clicked.
+ * Renders a description element that describes the popover.
  *
  * Demos:
  *
@@ -17,41 +17,40 @@ const ownerState = {};
  *
  * API:
  *
- * - [PopoverClose API](https://base-ui.com/components/react-popover/#api-reference-PopoverClose)
+ * - [PopoverDescription API](https://base-ui.com/components/react-popover/#api-reference-PopoverDescription)
  */
-const PopoverClose = React.forwardRef(function PopoverClose(
-  props: PopoverClose.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+const PopoverDescription = React.forwardRef(function PopoverDescription(
+  props: PopoverDescription.Props,
+  forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { setOpen } = usePopoverRootContext();
+  const { setDescriptionId } = usePopoverRootContext();
 
-  const { getCloseProps } = usePopoverClose({
-    onClose() {
-      setOpen(false);
-    },
+  const { getDescriptionProps } = usePopoverDescription({
+    descriptionId: otherProps.id,
+    setDescriptionId,
   });
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getCloseProps,
-    render: render ?? 'button',
+    propGetter: getDescriptionProps,
+    render: render ?? 'p',
     className,
     ownerState,
-    extraProps: otherProps,
     ref: forwardedRef,
+    extraProps: otherProps,
   });
 
   return renderElement();
 });
 
-namespace PopoverClose {
+namespace PopoverDescription {
   export interface OwnerState {}
 
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'p', OwnerState> {}
 }
 
-PopoverClose.propTypes /* remove-proptypes */ = {
+PopoverDescription.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -65,9 +64,13 @@ PopoverClose.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * @ignore
+   */
+  id: PropTypes.string,
+  /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { PopoverClose };
+export { PopoverDescription };

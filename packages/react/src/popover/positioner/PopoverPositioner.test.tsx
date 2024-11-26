@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/Popover';
+import { Popover } from '@base-ui-components/react/popover';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
