@@ -79,7 +79,6 @@ module.exports = {
     ],
   },
   resolve: {
-    ...webpackBaseConfig.resolve,
     fallback: {
       // Exclude polyfill and treat 'fs' as an empty module since it is not required. next -> gzip-size relies on it.
       fs: false,
