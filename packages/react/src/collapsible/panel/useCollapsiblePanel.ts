@@ -157,17 +157,17 @@ export function useCollapsiblePanel(
 
     const rect = isClosed ? { height: 0, width: 0 } : element.getBoundingClientRect();
 
-    // console.log(
-    //   'rect.height/width',
-    //   rect.height,
-    //   rect.width,
-    //   'isClosed',
-    //   isClosed,
-    //   'open',
-    //   open,
-    //   'contextMounted',
-    //   contextMounted,
-    // );
+    console.log(
+      'rect.height/width',
+      rect.height,
+      rect.width,
+      'isClosed',
+      isClosed,
+      'open',
+      open,
+      'contextMounted',
+      contextMounted,
+    );
 
     setDimensions({
       height: rect.height,
@@ -219,22 +219,51 @@ export function useCollapsiblePanel(
     // const isClosed = !open && !contextMounted;
 
     if (!isTransitioning) {
-      const rect =
-        !open && !contextMounted ? { height: 0, width: 0 } : element.getBoundingClientRect();
+      if (!contextMounted) {
+        // initially closed
+        const rect = !open ? { height: 0, width: 0 } : element.getBoundingClientRect();
 
-      console.log(
-        'rect.height/width',
-        rect.height,
-        rect.width,
-        'transitioning',
-        isTransitioning,
-        'open',
-        open,
-      );
+        console.log(
+          '2A',
+          'rect.height/width',
+          rect.height,
+          rect.width,
+          'transitioning',
+          isTransitioning,
+          'open',
+          open,
+          'contextMounted',
+          contextMounted,
+        );
 
+        setDimensions({
+          height: rect.height,
+          width: rect.width,
+        });
+      } else if (/* contextMounted && open */ isInitiallyOpen) {
+        // initially open
+        const rect = element.getBoundingClientRect();
+        console.log(
+          '2B',
+          'rect.height/width',
+          rect.height,
+          rect.width,
+          'transitioning',
+          isTransitioning,
+          'open',
+          open,
+          'contextMounted',
+          contextMounted,
+        );
+        setDimensions({
+          height: rect.height,
+          width: rect.width,
+        });
+      }
+    } else if (!open && !contextMounted) {
       setDimensions({
-        height: rect.height,
-        width: rect.width,
+        height: 0,
+        width: 0,
       });
     }
 
@@ -290,10 +319,10 @@ export function useCollapsiblePanel(
       frame2 = requestAnimationFrame(() => {
         frame3 = requestAnimationFrame(() => {
           // it takes 3 frames to unset `'0s'` from the initial open state correctly
-          element.style.transitionDuration = '';
-          // originalTransitionDurationRef.current === '0s'
-          //   ? ''
-          //   : originalTransitionDurationRef.current;
+          element.style.transitionDuration =
+            originalTransitionDurationRef.current === '0s'
+              ? ''
+              : originalTransitionDurationRef.current;
         });
       });
       return undefined;

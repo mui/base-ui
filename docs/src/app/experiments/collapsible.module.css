@@ -1,6 +1,6 @@
 .wrapper {
   --width: 320px;
-  --duration: 200ms;
+  --duration: 2000ms;
 
   font-family: system-ui, sans-serif;
   line-height: 1.4;
@@ -19,6 +19,7 @@
 }
 
 .trigger {
+  width: 100%;
   display: flex;
   align-items: center;
   padding-left: 0;
@@ -57,6 +58,7 @@
 
 .panel.transition[data-open] {
   height: var(--collapsible-panel-height);
+  /*  height: 127.171875px;*/
   transition: height var(--duration) ease-out;
 }
 
@@ -95,4 +97,16 @@
   to {
     height: 0;
   }
+}
+
+.grid {
+  --width: 320px;
+  --duration: 2000ms;
+
+  font-family: system-ui, sans-serif;
+  line-height: 1.4;
+
+  display: grid;
+  grid: var(--width) var(--width) / var(--width) var(--width);
+  grid-gap: 4rem;
 }
