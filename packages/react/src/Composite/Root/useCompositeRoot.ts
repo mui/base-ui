@@ -85,16 +85,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const textDirectionRef = React.useRef<TextDirection | null>(null);
 
   const rootRef = React.useRef<HTMLElement | null>(null);
-  const handleRootRef = useEventCallback((element: HTMLElement) => {
-    if (!element) {
-      return;
-    }
-
-    rootRef.current = element;
-
-    textDirectionRef.current = getTextDirection(element);
-  });
-  const mergedRef = useForkRef(handleRootRef, externalRef);
+  const mergedRef = useForkRef(rootRef, externalRef);
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
 
@@ -105,12 +96,19 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         ref: mergedRef,
         onKeyDown(event) {
           const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
-
           if (!RELEVANT_KEYS.includes(event.key)) {
             return;
           }
 
-          const isRtl = textDirectionRef?.current === 'rtl';
+          const element = rootRef.current;
+          if (!element) {
+            return;
+          }
+
+          const isRtl =
+            textDirectionRef?.current == null
+              ? getTextDirection(element) === 'rtl'
+              : textDirectionRef.current === 'rtl';
 
           let nextIndex = highlightedIndex;
           const minIndex = getMinIndex(elementsRef, disabledIndices);
