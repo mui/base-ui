@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import { useTab } from './useTab';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { TabsOrientation, TabValue } from '../Root/TabsRoot';
-import { useTabsRootContext } from '../Root/TabsRootContext';
-import { useTabsListContext } from '../TabsList/TabsListContext';
+import type { TabsOrientation, TabValue } from '../root/TabsRoot';
+import { useTabsRootContext } from '../root/TabsRootContext';
+import { useTabsListContext } from '../tabs-list/TabsListContext';
 
 /**
  *

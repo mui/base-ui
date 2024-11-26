@@ -2,10 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTabPanel } from './useTabPanel';
-import { tabsStyleHookMapping } from '../Root/styleHooks';
-import { useTabsRootContext } from '../Root/TabsRootContext';
+import { tabsStyleHookMapping } from '../root/styleHooks';
+import { useTabsRootContext } from '../root/TabsRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { TabsRoot, type TabValue } from '../Root/TabsRoot';
+import { TabsRoot, type TabValue } from '../root/TabsRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**

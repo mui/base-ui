@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useOnMount } from '../../utils/useOnMount';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { TabsDirection, TabsOrientation, TabsRoot } from '../Root/TabsRoot';
-import { useTabsRootContext } from '../Root/TabsRootContext';
-import { tabsStyleHookMapping } from '../Root/styleHooks';
-import { useTabsListContext } from '../TabsList/TabsListContext';
+import type { TabsDirection, TabsOrientation, TabsRoot } from '../root/TabsRoot';
+import { useTabsRootContext } from '../root/TabsRootContext';
+import { tabsStyleHookMapping } from '../root/styleHooks';
+import { useTabsListContext } from '../tabs-list/TabsListContext';
 import { ActiveTabPosition, useTabIndicator } from './useTabIndicator';
 import { script as prehydrationScript } from './prehydrationScript.min';
 

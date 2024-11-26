@@ -5,8 +5,8 @@ import { GenericHTMLProps } from '../../utils/types';
 import { useId } from '../../utils/useId';
 import { useForkRef } from '../../utils/useForkRef';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import type { TabsRootContext } from '../Root/TabsRootContext';
-import type { TabValue } from '../Root/TabsRoot';
+import type { TabsRootContext } from '../root/TabsRootContext';
+import type { TabValue } from '../root/TabsRoot';
 
 export interface TabPanelMetadata {
   id?: string;

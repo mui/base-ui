@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { tabsStyleHookMapping } from '../Root/styleHooks';
-import { useTabsRootContext } from '../Root/TabsRootContext';
-import { TabsRoot } from '../Root/TabsRoot';
-import { type TabMetadata } from '../Tab/useTab';
+import { tabsStyleHookMapping } from '../root/styleHooks';
+import { useTabsRootContext } from '../root/TabsRootContext';
+import { TabsRoot } from '../root/TabsRoot';
+import { type TabMetadata } from '../tab/useTab';
 import { useTabsList } from './useTabsList';
 import { TabsListContext } from './TabsListContext';
 

@@ -4,8 +4,8 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useControlled } from '../../utils/useControlled';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
-import type { TabPanelMetadata } from '../TabPanel/useTabPanel';
-import type { TabMetadata } from '../Tab/useTab';
+import type { TabPanelMetadata } from '../tab-panel/useTabPanel';
+import type { TabMetadata } from '../tab/useTab';
 import type { TabActivationDirection, TabValue } from './TabsRoot';
 
 function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValue {

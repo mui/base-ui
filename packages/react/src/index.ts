@@ -19,6 +19,6 @@ export * from './select';
 export * from './separator';
 export * from './slider';
 export * from './switch';
-export * from './Tabs';
+export * from './tabs';
 export * from './TextInput';
 export * from './Tooltip';

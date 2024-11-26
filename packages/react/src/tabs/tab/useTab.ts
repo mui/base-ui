@@ -6,9 +6,9 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
 import { useButton } from '../../useButton';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
-import type { TabsRootContext } from '../Root/TabsRootContext';
-import type { useTabsList } from '../TabsList/useTabsList';
-import type { TabsList } from '../TabsList/TabsList';
+import type { TabsRootContext } from '../root/TabsRootContext';
+import type { useTabsList } from '../tabs-list/useTabsList';
+import type { TabsList } from '../tabs-list/TabsList';
 
 export interface TabMetadata {
   disabled: boolean;

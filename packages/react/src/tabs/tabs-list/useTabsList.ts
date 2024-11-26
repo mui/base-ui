@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { TabsRootContext } from '../Root/TabsRootContext';
-import { type TabsOrientation, type TabActivationDirection } from '../Root/TabsRoot';
+import type { TabsRootContext } from '../root/TabsRootContext';
+import { type TabsOrientation, type TabActivationDirection } from '../root/TabsRoot';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
