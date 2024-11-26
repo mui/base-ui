@@ -29,7 +29,7 @@ function getTransitionDurationFromComputedStyles(element: HTMLElement) {
     const transitionDuration = styleMap.get('transition-duration') as CSSUnitValue;
     // console.log('transitionDuration', transitionDuration);
     return transitionDuration?.value && transitionDuration?.unit
-      ? `${transitionDuration.value} ${transitionDuration.unit}`
+      ? `${transitionDuration.value}${transitionDuration.unit}`
       : '0s';
   }
 
@@ -131,7 +131,7 @@ export function useCollapsiblePanel(
       return undefined;
     }
 
-    const latestAnimationName = latestAnimationNameRef.current;
+    // const latestAnimationName = latestAnimationNameRef.current;
 
     const { current: element } = panelRef;
 
@@ -146,10 +146,10 @@ export function useCollapsiblePanel(
       element.style.animationName === 'none' ? '' : element.style.animationName;
 
     const shouldCancelAnimation = isBeforeMatch || isInitiallyOpen;
-    console.log('shouldCancelAnimation', shouldCancelAnimation);
+    // console.log('shouldCancelAnimation', shouldCancelAnimation);
 
-    const latestAnimationName2 = getAnimationNameFromComputedStyles(element);
-    console.log('latestAnimationName2', latestAnimationName2);
+    // const latestAnimationName2 = getAnimationNameFromComputedStyles(element);
+    // console.log('latestAnimationName2', latestAnimationName2);
 
     element.style.animationName = 'none';
 
@@ -157,19 +157,17 @@ export function useCollapsiblePanel(
 
     const rect = isClosed ? { height: 0, width: 0 } : element.getBoundingClientRect();
 
-    console.log(
-      'rect.height/width',
-      rect.height,
-      rect.width,
-      // 'transitioning',
-      // isTransitioning,
-      // 'isClosed',
-      // isClosed,
-      'open',
-      open,
-      'contextMounted',
-      contextMounted,
-    );
+    // console.log(
+    //   'rect.height/width',
+    //   rect.height,
+    //   rect.width,
+    //   'isClosed',
+    //   isClosed,
+    //   'open',
+    //   open,
+    //   'contextMounted',
+    //   contextMounted,
+    // );
 
     setDimensions({
       height: rect.height,
@@ -229,12 +227,8 @@ export function useCollapsiblePanel(
       //   rect.width,
       //   'transitioning',
       //   isTransitioning,
-      //   // 'isClosed',
-      //   // isClosed,
       //   'open',
       //   open,
-      //   // 'contextMounted',
-      //   // contextMounted,
       // );
 
       setDimensions({
@@ -253,15 +247,19 @@ export function useCollapsiblePanel(
         setContextMounted(open);
         if (isBeforeMatch) {
           isBeforeMatchRef.current = false;
-          frame1 = requestAnimationFrame(() => {
-            frame2 = requestAnimationFrame(() => {
-              element.style.transitionDuration =
-                originalTransitionDurationRef.current === '0s'
-                  ? ''
-                  : originalTransitionDurationRef.current;
-            });
-          });
         }
+        frame1 = requestAnimationFrame(() => {
+          frame2 = requestAnimationFrame(() => {
+            // console.log(
+            //   'originalTransitionDurationRef.current',
+            //   originalTransitionDurationRef.current,
+            // );
+            element.style.transitionDuration =
+              originalTransitionDurationRef.current === '0s'
+                ? ''
+                : originalTransitionDurationRef.current;
+          });
+        });
       });
     });
 
