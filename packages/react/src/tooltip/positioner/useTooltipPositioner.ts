@@ -3,7 +3,7 @@ import type { Padding, VirtualElement, FloatingRootContext } from '@floating-ui/
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
-import { useTooltipRootContext } from '../Root/TooltipRootContext';
+import { useTooltipRootContext } from '../root/TooltipRootContext';
 
 export function useTooltipPositioner(
   params: useTooltipPositioner.Parameters,

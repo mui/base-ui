@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import { useTooltipPositionerContext } from '../Positioner/TooltipPositionerContext';
+import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import { useTooltipArrow } from './useTooltipArrow';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Alignment } from '../../utils/useAnchorPositioning';

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Tooltip } from '@base-ui-components/react/Tooltip';
+import { Tooltip } from '@base-ui-components/react/tooltip';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Tooltip.Positioner />', () => {

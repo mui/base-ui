@@ -21,4 +21,4 @@ export * from './slider';
 export * from './switch';
 export * from './tabs';
 export * from './text-input';
-export * from './Tooltip';
+export * from './tooltip';

@@ -2,8 +2,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useTooltipRootContext } from '../Root/TooltipRootContext';
-import { useTooltipPositionerContext } from '../Positioner/TooltipPositionerContext';
+import { useTooltipRootContext } from '../root/TooltipRootContext';
+import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Alignment, Side } from '../../utils/useAnchorPositioning';
