@@ -48,28 +48,28 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
     value,
   });
 
-  const ownerState: ProgressRoot.OwnerState = React.useMemo(
+  const state: ProgressRoot.State = React.useMemo(
     () => ({
       direction,
       max,
       min,
-      status: progress.state,
+      status: progress.status,
     }),
-    [direction, max, min, progress.state],
+    [direction, max, min, progress.status],
   );
 
   const contextValue: ProgressRootContext = React.useMemo(
     () => ({
       ...progress,
-      ownerState,
+      state,
     }),
-    [progress, ownerState],
+    [progress, state],
   );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'div',
-    ownerState,
+    state,
     className,
     ref: forwardedRef,
     extraProps: otherProps,
@@ -84,16 +84,14 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
 });
 
 namespace ProgressRoot {
-  export type OwnerState = {
+  export type State = {
     direction: ProgressDirection;
     max: number;
     min: number;
     status: ProgressStatus;
   };
 
-  export interface Props
-    extends useProgressRoot.Parameters,
-      BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends useProgressRoot.Parameters, BaseUIComponentProps<'div', State> {}
 }
 
 ProgressRoot.propTypes /* remove-proptypes */ = {

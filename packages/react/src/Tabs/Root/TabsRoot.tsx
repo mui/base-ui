@@ -78,7 +78,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     ],
   );
 
-  const ownerState: TabsRoot.OwnerState = {
+  const state: TabsRoot.State = {
     orientation,
     direction,
     tabActivationDirection,
@@ -88,7 +88,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     propGetter: getRootProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     extraProps: other,
     ref: forwardedRef,
     customStyleHookMapping: tabsStyleHookMapping,
@@ -109,13 +109,13 @@ export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
 export type TabValue = any | null;
 
 namespace TabsRoot {
-  export type OwnerState = {
+  export type State = {
     orientation: TabsOrientation;
     direction: TabsDirection;
     tabActivationDirection: TabActivationDirection;
   };
 
-  export interface Props extends Omit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue'> {
+  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
      * The value of the currently selected `Tab`. Use when the component is controlled.
      * When the value is `null`, no Tab will be selected.

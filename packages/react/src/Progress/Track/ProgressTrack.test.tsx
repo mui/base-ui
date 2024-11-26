@@ -8,8 +8,8 @@ const contextValue: ProgressRootContext = {
   max: 100,
   min: 0,
   value: 30,
-  state: 'progressing',
-  ownerState: {
+  status: 'progressing',
+  state: {
     direction: 'ltr',
     max: 100,
     min: 0,

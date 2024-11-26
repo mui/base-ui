@@ -108,7 +108,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
 };
 
 namespace PopoverRoot {
-  export interface OwnerState {}
+  export interface State {}
 
   export interface Props extends Omit<usePopoverRoot.Parameters, 'floatingRootContext'> {
     children?: React.ReactNode;

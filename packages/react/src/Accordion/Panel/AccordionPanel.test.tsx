@@ -14,7 +14,7 @@ const accordionRootContextValue: AccordionRootContext = {
   handleValueChange: NOOP,
   hiddenUntilFound: false,
   orientation: 'vertical',
-  ownerState: {
+  state: {
     value: [0],
     disabled: false,
     orientation: 'vertical',
@@ -24,7 +24,7 @@ const accordionRootContextValue: AccordionRootContext = {
 
 const accordionItemContextValue: AccordionItemContext = {
   open: true,
-  ownerState: {
+  state: {
     value: [0],
     disabled: false,
     index: 0,
@@ -46,7 +46,7 @@ const collapsibleContextValue: CollapsibleRootContext = {
   setMounted: NOOP,
   setOpen: NOOP,
   transitionStatus: undefined,
-  ownerState: {
+  state: {
     open: true,
     disabled: false,
     transitionStatus: undefined,

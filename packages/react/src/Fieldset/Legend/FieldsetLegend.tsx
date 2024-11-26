@@ -27,7 +27,7 @@ const FieldsetLegend = React.forwardRef(function FieldsetLegend(
 
   const { disabled } = useFieldsetRootContext();
 
-  const ownerState: FieldsetLegend.OwnerState = React.useMemo(
+  const state: FieldsetLegend.State = React.useMemo(
     () => ({
       disabled: disabled ?? false,
     }),
@@ -39,7 +39,7 @@ const FieldsetLegend = React.forwardRef(function FieldsetLegend(
     ref: forwardedRef,
     render: render ?? 'span',
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
   });
 
@@ -47,11 +47,11 @@ const FieldsetLegend = React.forwardRef(function FieldsetLegend(
 });
 
 namespace FieldsetLegend {
-  export type OwnerState = {
+  export type State = {
     disabled: boolean;
   };
 
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'span', State> {}
 }
 
 FieldsetLegend.propTypes /* remove-proptypes */ = {

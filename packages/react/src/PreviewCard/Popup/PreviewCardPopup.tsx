@@ -12,7 +12,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
-const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
@@ -48,7 +48,7 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     getProps: getRootPopupProps,
   });
 
-  const ownerState: PreviewCardPopup.OwnerState = React.useMemo(
+  const state: PreviewCardPopup.State = React.useMemo(
     () => ({
       open,
       side,
@@ -65,7 +65,7 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     ref: mergedRef,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
     customStyleHookMapping,
   });
@@ -74,14 +74,14 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
 });
 
 namespace PreviewCardPopup {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     side: Side;
     alignment: Alignment;
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 PreviewCardPopup.propTypes /* remove-proptypes */ = {

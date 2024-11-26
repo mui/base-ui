@@ -4,7 +4,7 @@ import type { AccordionRoot } from './AccordionRoot';
 import type { useAccordionRoot } from './useAccordionRoot';
 
 export interface AccordionRootContext extends Omit<useAccordionRoot.ReturnValue, 'getRootProps'> {
-  ownerState: AccordionRoot.OwnerState;
+  state: AccordionRoot.State;
   hiddenUntilFound: boolean;
 }
 

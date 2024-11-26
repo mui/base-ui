@@ -11,7 +11,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
-const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
@@ -45,7 +45,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     useTooltipRootContext();
   const { side, alignment } = useTooltipPositionerContext();
 
-  const ownerState: TooltipPopup.OwnerState = React.useMemo(
+  const state: TooltipPopup.State = React.useMemo(
     () => ({
       open,
       side,
@@ -64,7 +64,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     propGetter: getRootPopupProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: mergedRef,
     extraProps: otherProps,
     customStyleHookMapping,
@@ -74,7 +74,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
 });
 
 namespace TooltipPopup {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     side: Side;
     alignment: Alignment;
@@ -82,7 +82,7 @@ namespace TooltipPopup {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 TooltipPopup.propTypes /* remove-proptypes */ = {

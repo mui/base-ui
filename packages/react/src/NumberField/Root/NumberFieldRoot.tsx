@@ -48,12 +48,12 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const numberField = useNumberFieldRoot(props);
 
-  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
 
-  const ownerState: NumberFieldRoot.OwnerState = React.useMemo(
+  const state: NumberFieldRoot.State = React.useMemo(
     () => ({
-      ...fieldOwnerState,
+      ...fieldState,
       disabled,
       invalid,
       readOnly,
@@ -63,7 +63,7 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       scrubbing: numberField.isScrubbing,
     }),
     [
-      fieldOwnerState,
+      fieldState,
       disabled,
       invalid,
       readOnly,
@@ -77,15 +77,15 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const contextValue = React.useMemo(
     () => ({
       ...numberField,
-      ownerState,
+      state,
     }),
-    [numberField, ownerState],
+    [numberField, state],
   );
 
   const { renderElement } = useComponentRenderer({
     ref: forwardedRef,
     render: render ?? 'div',
-    ownerState,
+    state,
     className,
     extraProps: otherProps,
   });
@@ -100,9 +100,9 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 export namespace NumberFieldRoot {
   export interface Props
     extends UseNumberFieldRoot.Parameters,
-      Omit<BaseUIComponentProps<'div', OwnerState>, 'onChange' | 'defaultValue'> {}
+      Omit<BaseUIComponentProps<'div', State>, 'onChange' | 'defaultValue'> {}
 
-  export interface OwnerState extends FieldRoot.OwnerState {
+  export interface State extends FieldRoot.State {
     /**
      * The raw number value of the input element.
      */

@@ -25,14 +25,14 @@ const DialogTrigger = React.forwardRef(function DialogTrigger(
   const { render, className, ...other } = props;
   const { open, setTriggerElement, getTriggerProps } = useDialogRootContext();
 
-  const ownerState: DialogTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
+  const state: DialogTrigger.State = React.useMemo(() => ({ open }), [open]);
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
     className,
-    ownerState,
+    state,
     propGetter: getTriggerProps,
     extraProps: other,
     customStyleHookMapping: triggerOpenStateMapping,
@@ -43,9 +43,9 @@ const DialogTrigger = React.forwardRef(function DialogTrigger(
 });
 
 namespace DialogTrigger {
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {}
 
-  export interface OwnerState {
+  export interface State {
     open: boolean;
   }
 }

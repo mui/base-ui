@@ -21,7 +21,7 @@ const SelectIcon = React.forwardRef(function SelectIcon(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const ownerState: SelectIcon.OwnerState = React.useMemo(() => ({}), []);
+  const state: SelectIcon.State = React.useMemo(() => ({}), []);
 
   const getIconProps = React.useCallback((externalProps: React.ComponentProps<'span'>) => {
     return mergeReactProps(externalProps, {
@@ -35,7 +35,7 @@ const SelectIcon = React.forwardRef(function SelectIcon(
     render: render ?? 'span',
     ref: forwardedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
   });
 
@@ -43,9 +43,9 @@ const SelectIcon = React.forwardRef(function SelectIcon(
 });
 
 namespace SelectIcon {
-  export interface OwnerState {}
+  export interface State {}
 
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'span', State> {}
 }
 
 SelectIcon.propTypes /* remove-proptypes */ = {

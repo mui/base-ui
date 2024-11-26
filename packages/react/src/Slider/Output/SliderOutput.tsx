@@ -23,7 +23,7 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { inputIdMap, ownerState, values } = useSliderRootContext();
+  const { inputIdMap, state, values } = useSliderRootContext();
 
   const { getRootProps } = useSliderOutput({
     inputIdMap,
@@ -32,7 +32,7 @@ const SliderOutput = React.forwardRef(function SliderOutput(
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'output',
-    ownerState,
+    state,
     className,
     ref: forwardedRef,
     extraProps: {
@@ -46,7 +46,7 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 });
 
 export namespace SliderOutput {
-  export interface Props extends BaseUIComponentProps<'output', SliderRoot.OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'output', SliderRoot.State> {}
 }
 
 export { SliderOutput };

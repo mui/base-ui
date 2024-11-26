@@ -14,7 +14,7 @@ const contextValue: CollapsibleRootContext = {
   setMounted() {},
   setOpen() {},
   transitionStatus: undefined,
-  ownerState: {
+  state: {
     open: true,
     disabled: false,
     transitionStatus: undefined,

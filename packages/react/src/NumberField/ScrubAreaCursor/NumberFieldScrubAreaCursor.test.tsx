@@ -9,7 +9,7 @@ import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';
 const testContext = {
   getScrubAreaCursorProps: (externalProps) => externalProps,
   isScrubbing: true,
-  ownerState: {
+  state: {
     value: null,
     required: false,
     disabled: false,

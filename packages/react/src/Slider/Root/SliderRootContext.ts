@@ -4,7 +4,7 @@ import type { SliderRoot } from './SliderRoot';
 import type { useSliderRoot } from './useSliderRoot';
 
 export interface SliderRootContext extends Omit<useSliderRoot.ReturnValue, 'getRootProps'> {
-  ownerState: SliderRoot.OwnerState;
+  state: SliderRoot.State;
 }
 
 export const SliderRootContext = React.createContext<SliderRootContext | undefined>(undefined);

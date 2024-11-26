@@ -1,13 +1,13 @@
 /**
  * If the provided className is a string, it will be returned as is.
- * Otherwise, the function will call the className function with the ownerState as the first argument.
+ * Otherwise, the function will call the className function with the state as the first argument.
  *
  * @param className
- * @param ownerState
+ * @param state
  */
-export function resolveClassName<OwnerState>(
-  className: string | ((state: OwnerState) => string) | undefined,
-  ownerState: OwnerState,
+export function resolveClassName<State>(
+  className: string | ((state: State) => string) | undefined,
+  state: State,
 ) {
-  return typeof className === 'function' ? className(ownerState) : className;
+  return typeof className === 'function' ? className(state) : className;
 }

@@ -57,7 +57,7 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
     ...otherProps
   } = props;
 
-  const ownerState: SelectOption.OwnerState = React.useMemo(
+  const state: SelectOption.State = React.useMemo(
     () => ({
       disabled,
       open,
@@ -100,7 +100,7 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
     render: render ?? 'div',
     ref: mergedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
   });
 
@@ -281,14 +281,14 @@ const SelectOption = React.forwardRef(function SelectOption(
 });
 
 namespace SelectOption {
-  export interface OwnerState {
+  export interface State {
     disabled: boolean;
     highlighted: boolean;
     selected: boolean;
     open: boolean;
   }
 
-  export interface Props extends Omit<BaseUIComponentProps<'div', OwnerState>, 'id'> {
+  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'id'> {
     children?: React.ReactNode;
     /**
      * The value of the select option.

@@ -39,7 +39,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
     [arrowStyles, hideWhenUncentered, arrowUncentered],
   );
 
-  const ownerState: SelectArrow.OwnerState = React.useMemo(
+  const state: SelectArrow.State = React.useMemo(
     () => ({
       open,
       side,
@@ -55,7 +55,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
     propGetter: getArrowProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: mergedRef,
     extraProps: otherProps,
     customStyleHookMapping: popupOpenStateMapping,
@@ -69,13 +69,13 @@ const SelectArrow = React.forwardRef(function SelectArrow(
 });
 
 namespace SelectArrow {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     side: 'top' | 'bottom' | 'left' | 'right' | 'none';
     alignment: 'start' | 'center' | 'end';
     arrowUncentered: boolean;
   }
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
      * @default false

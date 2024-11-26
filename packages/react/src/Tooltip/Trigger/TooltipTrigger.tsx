@@ -26,7 +26,7 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
 
   const { open, setTriggerElement, getRootTriggerProps } = useTooltipRootContext();
 
-  const ownerState: TooltipTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
+  const state: TooltipTrigger.State = React.useMemo(() => ({ open }), [open]);
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
 
@@ -34,7 +34,7 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     propGetter: getRootTriggerProps,
     render: render ?? 'button',
     className,
-    ownerState,
+    state,
     ref: mergedRef,
     extraProps: otherProps,
     customStyleHookMapping: triggerOpenStateMapping,
@@ -44,11 +44,11 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
 });
 
 namespace TooltipTrigger {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<any, OwnerState> {}
+  export interface Props extends BaseUIComponentProps<any, State> {}
 }
 
 TooltipTrigger.propTypes /* remove-proptypes */ = {

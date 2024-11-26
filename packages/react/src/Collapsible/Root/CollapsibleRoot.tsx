@@ -41,7 +41,7 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     disabled,
   });
 
-  const ownerState: CollapsibleRoot.OwnerState = React.useMemo(
+  const state: CollapsibleRoot.State = React.useMemo(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
@@ -53,15 +53,15 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   const contextValue: CollapsibleRootContext = React.useMemo(
     () => ({
       ...collapsible,
-      ownerState,
+      state,
     }),
-    [collapsible, ownerState],
+    [collapsible, state],
   );
 
   const { renderElement } = useComponentRenderer({
     render: renderProp ?? 'div',
     className,
-    ownerState,
+    state,
     ref: forwardedRef,
     extraProps: { children, ...otherProps },
     customStyleHookMapping: collapsibleStyleHookMapping,
@@ -85,12 +85,12 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
 export { CollapsibleRoot };
 
 export namespace CollapsibleRoot {
-  export interface OwnerState
+  export interface State
     extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
 
   export interface Props
     extends useCollapsibleRoot.Parameters,
-      BaseUIComponentProps<'div', OwnerState> {}
+      BaseUIComponentProps<'div', State> {}
 }
 
 CollapsibleRoot.propTypes /* remove-proptypes */ = {

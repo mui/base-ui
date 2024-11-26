@@ -22,8 +22,8 @@ const SelectScrollDownArrow = React.forwardRef(function SelectScrollDownArrow(
 });
 
 namespace SelectScrollDownArrow {
-  export interface OwnerState {}
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface State {}
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Whether the component should be kept mounted when it is not rendered.
      * @default false

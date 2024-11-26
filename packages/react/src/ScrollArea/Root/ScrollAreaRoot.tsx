@@ -6,7 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
 import { useScrollAreaRoot } from './useScrollAreaRoot';
 
-const ownerState = {};
+const state = {};
 
 /**
  *
@@ -33,7 +33,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     render: render ?? 'div',
     ref: forwardedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
   });
 
@@ -69,7 +69,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 });
 
 namespace ScrollAreaRoot {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Determines the space to account for inset scrollbars.
      * @default 0
@@ -77,7 +77,7 @@ namespace ScrollAreaRoot {
     gutter?: number | string;
   }
 
-  export interface OwnerState {}
+  export interface State {}
 }
 
 ScrollAreaRoot.propTypes /* remove-proptypes */ = {

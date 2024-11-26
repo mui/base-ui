@@ -2,7 +2,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { collapsibleOpenStateMapping as baseMapping } from '../../utils/collapsibleOpenStateMapping';
 import type { AccordionItem } from './AccordionItem';
 
-export const accordionStyleHookMapping: CustomStyleHookMapping<AccordionItem.OwnerState> = {
+export const accordionStyleHookMapping: CustomStyleHookMapping<AccordionItem.State> = {
   ...baseMapping,
   index: (value) => {
     return Number.isInteger(value) ? { 'data-index': String(value) } : null;

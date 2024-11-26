@@ -22,18 +22,18 @@ const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicatorC
 ) {
   const { render, className, keepMounted = true, ...other } = props;
 
-  const ownerState = useMenuRadioItemContext();
+  const state = useMenuRadioItemContext();
 
   const { renderElement } = useComponentRenderer({
     render: render || 'span',
     className,
-    ownerState,
+    state,
     customStyleHookMapping: itemMapping,
     extraProps: other,
     ref: forwardedRef,
   });
 
-  if (!keepMounted && !ownerState.checked) {
+  if (!keepMounted && !state.checked) {
     return null;
   }
 
@@ -66,7 +66,7 @@ MenuRadioItemIndicator.propTypes /* remove-proptypes */ = {
 } as any;
 
 namespace MenuRadioItemIndicator {
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * If `true`, the component is mounted even if the Radio is not checked.
      *
@@ -75,7 +75,7 @@ namespace MenuRadioItemIndicator {
     keepMounted?: boolean;
   }
 
-  export interface OwnerState {
+  export interface State {
     checked: boolean;
     disabled: boolean;
     highlighted: boolean;

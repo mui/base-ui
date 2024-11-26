@@ -7,7 +7,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import type { BaseUIComponentProps } from '../../utils/types';
 
-const ownerState = {};
+const state = {};
 
 /**
  * A paragraph with additional information about the dialog. Renders a `<p>` element.
@@ -39,7 +39,7 @@ const DialogDescription = React.forwardRef(function DialogDescription(
   const { renderElement } = useComponentRenderer({
     render: render ?? 'p',
     className,
-    ownerState,
+    state,
     ref: forwardedRef,
     extraProps: other,
   });
@@ -48,9 +48,9 @@ const DialogDescription = React.forwardRef(function DialogDescription(
 });
 
 namespace DialogDescription {
-  export interface Props extends BaseUIComponentProps<'p', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'p', State> {}
 
-  export interface OwnerState {}
+  export interface State {}
 }
 
 DialogDescription.propTypes /* remove-proptypes */ = {

@@ -15,7 +15,7 @@ import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenState
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { refType } from '../../utils/proptypes';
 
-const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
@@ -65,7 +65,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     initialFocus,
   });
 
-  const ownerState: PopoverPopup.OwnerState = React.useMemo(
+  const state: PopoverPopup.State = React.useMemo(
     () => ({
       open,
       side: positioner.side,
@@ -83,7 +83,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     ref: mergedRef,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
     customStyleHookMapping,
   });
@@ -102,14 +102,14 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
 });
 
 namespace PopoverPopup {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     side: Side;
     alignment: Alignment;
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Determines an element to focus when the popover is opened.
      * It can be either a ref to the element or a function that returns such a ref.

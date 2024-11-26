@@ -24,20 +24,20 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 ) {
   const { render, className, keepMounted = true, ...otherProps } = props;
 
-  const ownerState = useCheckboxRootContext();
+  const state = useCheckboxRootContext();
 
-  const customStyleHookMapping = useCustomStyleHookMapping(ownerState);
+  const customStyleHookMapping = useCustomStyleHookMapping(state);
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'span',
     ref: forwardedRef,
-    ownerState,
+    state,
     className,
     customStyleHookMapping,
     extraProps: otherProps,
   });
 
-  const shouldRender = keepMounted || ownerState.checked || ownerState.indeterminate;
+  const shouldRender = keepMounted || state.checked || state.indeterminate;
   if (!shouldRender) {
     return null;
   }
@@ -46,8 +46,8 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 });
 
 namespace CheckboxIndicator {
-  export interface OwnerState extends CheckboxRoot.OwnerState {}
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+  export interface State extends CheckboxRoot.State {}
+  export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * If `true`, the indicator stays mounted when unchecked. Useful for CSS animations.
      * @default true

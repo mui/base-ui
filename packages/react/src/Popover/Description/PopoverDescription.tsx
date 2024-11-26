@@ -6,7 +6,7 @@ import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { usePopoverDescription } from './usePopoverDescription';
 import type { BaseUIComponentProps } from '../../utils/types';
 
-const ownerState = {};
+const state = {};
 
 /**
  * Renders a description element that describes the popover.
@@ -36,7 +36,7 @@ const PopoverDescription = React.forwardRef(function PopoverDescription(
     propGetter: getDescriptionProps,
     render: render ?? 'p',
     className,
-    ownerState,
+    state,
     ref: forwardedRef,
     extraProps: otherProps,
   });
@@ -45,9 +45,9 @@ const PopoverDescription = React.forwardRef(function PopoverDescription(
 });
 
 namespace PopoverDescription {
-  export interface OwnerState {}
+  export interface State {}
 
-  export interface Props extends BaseUIComponentProps<'p', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'p', State> {}
 }
 
 PopoverDescription.propTypes /* remove-proptypes */ = {

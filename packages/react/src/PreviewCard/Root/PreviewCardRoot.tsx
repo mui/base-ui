@@ -89,7 +89,7 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
 };
 
 namespace PreviewCardRoot {
-  export interface OwnerState {}
+  export interface State {}
 
   export interface Props extends usePreviewCardRoot.Parameters {
     children?: React.ReactNode;

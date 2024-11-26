@@ -46,7 +46,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     animated,
     disabled: contextDisabled,
     handleValueChange,
-    ownerState: rootOwnerState,
+    state: rootState,
     value: openValues,
   } = useAccordionRootContext();
 
@@ -80,7 +80,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     disabled,
   });
 
-  const collapsibleOwnerState: CollapsibleRoot.OwnerState = React.useMemo(
+  const collapsibleState: CollapsibleRoot.State = React.useMemo(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
@@ -92,20 +92,20 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   const collapsibleContext: CollapsibleRootContext = React.useMemo(
     () => ({
       ...collapsible,
-      ownerState: collapsibleOwnerState,
+      state: collapsibleState,
     }),
-    [collapsible, collapsibleOwnerState],
+    [collapsible, collapsibleState],
   );
 
-  const ownerState: AccordionItem.OwnerState = React.useMemo(
+  const state: AccordionItem.State = React.useMemo(
     () => ({
-      ...rootOwnerState,
+      ...rootState,
       index,
       disabled,
       open: isOpen,
       transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.transitionStatus, disabled, index, isOpen, rootOwnerState],
+    [collapsible.transitionStatus, disabled, index, isOpen, rootState],
   );
 
   const [triggerId, setTriggerId] = React.useState<string | undefined>(useId());
@@ -113,17 +113,17 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   const accordionItemContext: AccordionItemContext = React.useMemo(
     () => ({
       open: isOpen,
-      ownerState,
+      state,
       setTriggerId,
       triggerId,
     }),
-    [isOpen, ownerState, setTriggerId, triggerId],
+    [isOpen, state, setTriggerId, triggerId],
   );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: mergedRef,
     extraProps: other,
     customStyleHookMapping: accordionStyleHookMapping,
@@ -141,14 +141,14 @@ const AccordionItem = React.forwardRef(function AccordionItem(
 export namespace AccordionItem {
   export type Value = number | string;
 
-  export interface OwnerState extends AccordionRoot.OwnerState {
+  export interface State extends AccordionRoot.State {
     index: number;
     open: boolean;
     transitionStatus: TransitionStatus;
   }
 
   export interface Props
-    extends BaseUIComponentProps<'div', OwnerState>,
+    extends BaseUIComponentProps<'div', State>,
       Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'> {
     value?: Value;
   }
