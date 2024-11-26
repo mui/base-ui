@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { RadioGroup } from '@base-ui-components/react/RadioGroup';
+import { RadioGroup } from '@base-ui-components/react/radio-group';
 import { Radio } from '@base-ui-components/react/radio';
 import { expect } from 'chai';
 import { spy } from 'sinon';

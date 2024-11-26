@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { RadioGroup } from '@base-ui-components/react/RadioGroup';
+import { RadioGroup } from '@base-ui-components/react/radio-group';
 import { Radio } from '@base-ui-components/react/radio';
 import { styled } from '@mui/system';
 

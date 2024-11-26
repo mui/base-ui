@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useRadioGroupRootContext } from '../../RadioGroup/Root/RadioGroupRootContext';
+import { useRadioGroupRootContext } from '../../radio-group/root/RadioGroupRootContext';
 import { useRadioRoot } from './useRadioRoot';
 import { RadioRootContext } from './RadioRootContext';
 import { CompositeItem } from '../../composite/item/CompositeItem';

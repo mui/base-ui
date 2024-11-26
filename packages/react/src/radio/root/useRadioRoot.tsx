@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { useRadioGroupRootContext } from '../../RadioGroup/Root/RadioGroupRootContext';
+import { useRadioGroupRootContext } from '../../radio-group/root/RadioGroupRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
 /**
