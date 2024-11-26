@@ -7,7 +7,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 import { type BaseUIComponentProps } from '../../utils/types';
 
-const ownerState = {};
+const state = {};
 
 /**
  * A heading that labels the dialog. Renders an `<h2>` element.
@@ -39,7 +39,7 @@ const DialogTitle = React.forwardRef(function DialogTitle(
   const { renderElement } = useComponentRenderer({
     render: render ?? 'h2',
     className,
-    ownerState,
+    state,
     ref: forwardedRef,
     extraProps: other,
   });
@@ -48,9 +48,9 @@ const DialogTitle = React.forwardRef(function DialogTitle(
 });
 
 namespace DialogTitle {
-  export interface Props extends BaseUIComponentProps<'h2', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'h2', State> {}
 
-  export interface OwnerState {}
+  export interface State {}
 }
 
 DialogTitle.propTypes /* remove-proptypes */ = {

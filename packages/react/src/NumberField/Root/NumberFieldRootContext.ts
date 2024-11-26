@@ -4,7 +4,7 @@ import type { UseNumberFieldRoot } from './useNumberFieldRoot';
 import type { NumberFieldRoot } from './NumberFieldRoot';
 
 export interface NumberFieldRootContext extends UseNumberFieldRoot.ReturnValue {
-  ownerState: NumberFieldRoot.OwnerState;
+  state: NumberFieldRoot.State;
 }
 
 export const NumberFieldRootContext = React.createContext<NumberFieldRootContext | undefined>(

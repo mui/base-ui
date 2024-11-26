@@ -4,8 +4,8 @@ import { evaluateRenderProp } from './evaluateRenderProp';
 
 describe('evaluateRenderProp', () => {
   describe('function', () => {
-    it('should call render function with props and ownerState', () => {
-      const render = (props: any, ownerState: any) => <span {...props} {...ownerState} />;
+    it('should call render function with props and state', () => {
+      const render = (props: any, state: any) => <span {...props} {...state} />;
       expect(evaluateRenderProp(render, { id: 'a' }, { 'data-test': 'b' })).to.deep.equal(
         <span id="a" data-test="b" />,
       );

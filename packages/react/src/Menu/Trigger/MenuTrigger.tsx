@@ -45,12 +45,12 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     setClickAndDragEnabled,
   });
 
-  const ownerState: MenuTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
+  const state: MenuTrigger.State = React.useMemo(() => ({ open }), [open]);
 
   const { renderElement } = useComponentRenderer({
     render: render || 'button',
     className,
-    ownerState,
+    state,
     propGetter: (externalProps) => getTriggerProps(getRootProps(externalProps)),
     customStyleHookMapping: pressableTriggerOpenStateMapping,
     extraProps: other,
@@ -60,7 +60,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
 });
 
 namespace MenuTrigger {
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'button', State> {
     children?: React.ReactNode;
     /**
      * If `true`, the component is disabled.
@@ -73,7 +73,7 @@ namespace MenuTrigger {
     label?: string;
   }
 
-  export type OwnerState = {
+  export type State = {
     open: boolean;
   };
 }

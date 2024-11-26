@@ -10,7 +10,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> = {
   ...baseMapping,
   transitionStatus: (value) => {
     if (value === 'entering') {
@@ -46,12 +46,12 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
     ref: forwardedRef,
   });
 
-  const ownerState: AlertDialogBackdrop.OwnerState = { open, transitionStatus };
+  const state: AlertDialogBackdrop.State = { open, transitionStatus };
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     propGetter: getRootProps,
     extraProps: other,
     customStyleHookMapping,
@@ -70,7 +70,7 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
 });
 
 namespace AlertDialogBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * If `true`, the backdrop element is kept in the DOM when closed.
      *
@@ -79,7 +79,7 @@ namespace AlertDialogBackdrop {
     keepMounted?: boolean;
   }
 
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     transitionStatus: TransitionStatus;
   }

@@ -30,7 +30,7 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const { open, setTriggerElement, getRootTriggerProps, openReason } = usePopoverRootContext();
 
-  const ownerState: PopoverTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
+  const state: PopoverTrigger.State = React.useMemo(() => ({ open }), [open]);
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
 
@@ -51,7 +51,7 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     propGetter: getRootTriggerProps,
     render: render ?? 'button',
     className,
-    ownerState,
+    state,
     ref: mergedRef,
     extraProps: otherProps,
     customStyleHookMapping,
@@ -61,11 +61,11 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 });
 
 namespace PopoverTrigger {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<any, OwnerState> {}
+  export interface Props extends BaseUIComponentProps<any, State> {}
 }
 
 PopoverTrigger.propTypes /* remove-proptypes */ = {

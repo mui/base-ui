@@ -38,18 +38,14 @@ const FieldControl = React.forwardRef(function FieldControl(
     ...otherProps
   } = props;
 
-  const {
-    ownerState: fieldOwnerState,
-    name: fieldName,
-    disabled: fieldDisabled,
-  } = useFieldRootContext();
+  const { state: fieldState, name: fieldName, disabled: fieldDisabled } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const ownerState: FieldControl.OwnerState = React.useMemo(
-    () => ({ ...fieldOwnerState, disabled }),
-    [fieldOwnerState, disabled],
+  const state: FieldControl.State = React.useMemo(
+    () => ({ ...fieldState, disabled }),
+    [fieldState, disabled],
   );
 
   const { getControlProps } = useFieldControl({
@@ -66,7 +62,7 @@ const FieldControl = React.forwardRef(function FieldControl(
     render: render ?? 'input',
     ref: forwardedRef,
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
     customStyleHookMapping: STYLE_HOOK_MAPPING,
   });
@@ -75,9 +71,9 @@ const FieldControl = React.forwardRef(function FieldControl(
 });
 
 namespace FieldControl {
-  export type OwnerState = FieldRoot.OwnerState;
+  export type State = FieldRoot.State;
 
-  export interface Props extends BaseUIComponentProps<'input' | 'textarea' | 'select', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'input' | 'textarea' | 'select', State> {
     /**
      * Callback fired when the `value` changes. Use when controlled.
      */

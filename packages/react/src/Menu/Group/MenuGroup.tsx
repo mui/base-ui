@@ -5,7 +5,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { MenuGroupContext } from './MenuGroupContext';
 
-const ownerState = {};
+const state = {};
 
 /**
  *
@@ -30,7 +30,7 @@ const MenuGroup = React.forwardRef(function MenuGroup(
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
     className,
-    ownerState,
+    state,
     extraProps: {
       role: 'group',
       'aria-labelledby': labelId,
@@ -62,14 +62,14 @@ MenuGroup.propTypes /* remove-proptypes */ = {
 } as any;
 
 namespace MenuGroup {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The content of the component.
      */
     children?: React.ReactNode;
   }
 
-  export interface OwnerState {}
+  export interface State {}
 }
 
 export { MenuGroup };

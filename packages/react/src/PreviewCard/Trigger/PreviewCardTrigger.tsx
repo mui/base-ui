@@ -25,7 +25,7 @@ const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
 
   const { open, getRootTriggerProps, setTriggerElement } = usePreviewCardRootContext();
 
-  const ownerState: PreviewCardTrigger.OwnerState = React.useMemo(() => ({ open }), [open]);
+  const state: PreviewCardTrigger.State = React.useMemo(() => ({ open }), [open]);
 
   const mergedRef = useForkRef(setTriggerElement, forwardedRef);
 
@@ -33,7 +33,7 @@ const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     propGetter: getRootTriggerProps,
     render: render ?? 'a',
     className,
-    ownerState,
+    state,
     ref: mergedRef,
     extraProps: otherProps,
     customStyleHookMapping: triggerOpenStateMapping,
@@ -43,11 +43,11 @@ const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
 });
 
 namespace PreviewCardTrigger {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'a', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'a', State> {}
 }
 
 PreviewCardTrigger.propTypes /* remove-proptypes */ = {

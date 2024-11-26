@@ -6,7 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { SelectGroupContext } from './SelectGroupContext';
 
-const ownerState = {};
+const state = {};
 
 /**
  *
@@ -47,7 +47,7 @@ const SelectGroup = React.forwardRef(function SelectGroup(
     propGetter: getSelectOptionGroupProps,
     render: render ?? 'div',
     ref: forwardedRef,
-    ownerState,
+    state,
     className,
     extraProps: otherProps,
   });
@@ -60,9 +60,9 @@ const SelectGroup = React.forwardRef(function SelectGroup(
 });
 
 namespace SelectGroup {
-  export interface OwnerState {}
+  export interface State {}
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 SelectGroup.propTypes /* remove-proptypes */ = {

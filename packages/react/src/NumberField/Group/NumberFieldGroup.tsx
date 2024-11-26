@@ -23,13 +23,13 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { getGroupProps, ownerState } = useNumberFieldRootContext();
+  const { getGroupProps, state } = useNumberFieldRootContext();
 
   const { renderElement } = useComponentRenderer({
     propGetter: getGroupProps,
     ref: forwardedRef,
     render: render ?? 'div',
-    ownerState,
+    state,
     className,
     extraProps: otherProps,
   });
@@ -38,8 +38,8 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
 });
 
 namespace NumberFieldGroup {
-  export interface OwnerState extends NumberFieldRoot.OwnerState {}
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface State extends NumberFieldRoot.State {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 NumberFieldGroup.propTypes /* remove-proptypes */ = {

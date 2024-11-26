@@ -40,7 +40,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     ...otherProps
   } = props;
 
-  const { labelId, ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const { labelId, state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
 
   const { getRootProps, ...slider } = useSliderRoot({
@@ -58,9 +58,9 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     ...otherProps,
   });
 
-  const ownerState: SliderRoot.OwnerState = React.useMemo(
+  const state: SliderRoot.State = React.useMemo(
     () => ({
-      ...fieldOwnerState,
+      ...fieldState,
       activeThumbIndex: slider.active,
       direction,
       disabled,
@@ -73,7 +73,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
       values: slider.values,
     }),
     [
-      fieldOwnerState,
+      fieldState,
       direction,
       disabled,
       orientation,
@@ -90,15 +90,15 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   const contextValue = React.useMemo(
     () => ({
       ...slider,
-      ownerState,
+      state,
     }),
-    [slider, ownerState],
+    [slider, state],
   );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'div',
-    ownerState,
+    state,
     className,
     extraProps: otherProps,
     customStyleHookMapping: sliderStyleHookMapping,
@@ -112,7 +112,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
 });
 
 export namespace SliderRoot {
-  export interface OwnerState extends FieldRoot.OwnerState {
+  export interface State extends FieldRoot.State {
     /**
      * The index of the active thumb.
      */
@@ -151,7 +151,7 @@ export namespace SliderRoot {
 
   export interface Props
     extends Omit<useSliderRoot.Parameters, 'rootRef'>,
-      Omit<BaseUIComponentProps<'span', OwnerState>, 'defaultValue' | 'onChange' | 'values'> {
+      Omit<BaseUIComponentProps<'span', State>, 'defaultValue' | 'onChange' | 'values'> {
     /**
      * The default value of the slider. Use when the component is not controlled.
      */

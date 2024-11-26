@@ -4,7 +4,7 @@ import type { useCollapsibleRoot } from './useCollapsibleRoot';
 import type { CollapsibleRoot } from './CollapsibleRoot';
 
 export interface CollapsibleRootContext extends useCollapsibleRoot.ReturnValue {
-  ownerState: CollapsibleRoot.OwnerState;
+  state: CollapsibleRoot.State;
 }
 
 export const CollapsibleRootContext = React.createContext<CollapsibleRootContext | undefined>(

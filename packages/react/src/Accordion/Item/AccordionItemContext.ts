@@ -4,7 +4,7 @@ import type { AccordionItem } from './AccordionItem';
 
 export interface AccordionItemContext {
   open: boolean;
-  ownerState: AccordionItem.OwnerState;
+  state: AccordionItem.State;
   setTriggerId: (id: string | undefined) => void;
   triggerId?: string;
 }

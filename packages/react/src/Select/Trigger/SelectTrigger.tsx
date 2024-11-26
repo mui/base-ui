@@ -31,7 +31,7 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
     ...otherProps
   } = props;
 
-  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
 
   const { getRootTriggerProps, disabled: selectDisabled, open } = useSelectRootContext();
 
@@ -42,18 +42,18 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
     rootRef: forwardedRef,
   });
 
-  const ownerState: SelectTrigger.OwnerState = React.useMemo(
+  const state: SelectTrigger.State = React.useMemo(
     () => ({
-      ...fieldOwnerState,
+      ...fieldState,
       open,
     }),
-    [fieldOwnerState, open],
+    [fieldState, open],
   );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     propGetter: (externalProps) => getTriggerProps(getRootTriggerProps(externalProps)),
     customStyleHookMapping: pressableTriggerOpenStateMapping,
     extraProps: otherProps,
@@ -63,7 +63,7 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
 });
 
 namespace SelectTrigger {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
      * If `true`, the component is disabled.
@@ -81,7 +81,7 @@ namespace SelectTrigger {
     label?: string;
   }
 
-  export interface OwnerState {
+  export interface State {
     open: boolean;
   }
 }

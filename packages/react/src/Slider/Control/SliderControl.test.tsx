@@ -24,7 +24,7 @@ const testRootContext: SliderRootContext = {
   min: 0,
   minStepsBetweenValues: 0,
   orientation: 'horizontal',
-  ownerState: {
+  state: {
     activeThumbIndex: -1,
     disabled: false,
     dragging: false,

@@ -46,7 +46,7 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
     typingRef,
   });
 
-  const ownerState: MenuCheckboxItem.OwnerState = React.useMemo(
+  const state: MenuCheckboxItem.State = React.useMemo(
     () => ({ disabled, highlighted, checked }),
     [disabled, highlighted, checked],
   );
@@ -54,14 +54,14 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
     className,
-    ownerState,
+    state,
     propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
     customStyleHookMapping: itemMapping,
     extraProps: other,
   });
 
   return (
-    <MenuCheckboxItemContext.Provider value={ownerState}>
+    <MenuCheckboxItemContext.Provider value={state}>
       {renderElement()}
     </MenuCheckboxItemContext.Provider>
   );
@@ -206,13 +206,13 @@ interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
 }
 
 namespace MenuCheckboxItem {
-  export type OwnerState = {
+  export type State = {
     disabled: boolean;
     highlighted: boolean;
     checked: boolean;
   };
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * If `true`, the checkbox is checked.
      */

@@ -10,7 +10,7 @@ import { type BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
   ...baseMapping,
   transitionStatus: (value) => {
     if (value === 'entering') {
@@ -47,7 +47,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     ref: forwardedRef,
   });
 
-  const ownerState: DialogBackdrop.OwnerState = React.useMemo(
+  const state: DialogBackdrop.State = React.useMemo(
     () => ({ open, transitionStatus }),
     [open, transitionStatus],
   );
@@ -55,7 +55,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     propGetter: getRootProps,
     extraProps: other,
     customStyleHookMapping,
@@ -74,7 +74,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
 });
 
 namespace DialogBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * If `true`, the backdrop element is kept in the DOM when closed.
      *
@@ -83,7 +83,7 @@ namespace DialogBackdrop {
     keepMounted?: boolean;
   }
 
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     transitionStatus: TransitionStatus;
   }

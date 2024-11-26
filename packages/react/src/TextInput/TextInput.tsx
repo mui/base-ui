@@ -23,9 +23,9 @@ const TextInput = React.forwardRef(function TextInput(
 });
 
 namespace TextInput {
-  export interface Props extends BaseUIComponentProps<'input', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'input', State> {}
 
-  export interface OwnerState {}
+  export interface State {}
 }
 
 TextInput.propTypes /* remove-proptypes */ = {

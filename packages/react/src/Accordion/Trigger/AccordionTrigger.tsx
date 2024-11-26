@@ -38,7 +38,7 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     setOpen,
   });
 
-  const { ownerState, setTriggerId, triggerId } = useAccordionItemContext();
+  const { state, setTriggerId, triggerId } = useAccordionItemContext();
 
   useEnhancedEffect(() => {
     setTriggerId(id);
@@ -50,7 +50,7 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'button',
-    ownerState,
+    state,
     className,
     extraProps: { ...otherProps, id: triggerId },
     customStyleHookMapping: triggerOpenStateMapping,
@@ -60,7 +60,7 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 });
 
 namespace AccordionTrigger {
-  export interface Props extends BaseUIComponentProps<'button', AccordionItem.OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'button', AccordionItem.State> {}
 }
 
 export { AccordionTrigger };

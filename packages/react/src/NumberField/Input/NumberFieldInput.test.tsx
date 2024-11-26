@@ -7,7 +7,7 @@ import { NumberFieldRootContext } from '../Root/NumberFieldRootContext';
 
 const testContext = {
   getInputProps: (externalProps) => externalProps,
-  ownerState: {
+  state: {
     value: null,
     required: false,
     disabled: false,

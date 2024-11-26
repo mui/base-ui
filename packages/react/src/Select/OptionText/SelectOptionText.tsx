@@ -21,7 +21,7 @@ const InnerSelectOptionText = React.forwardRef(function InnerSelectOptionText(
 
   const mergedRef = useForkRef<HTMLElement>(forwardedRef);
 
-  const ownerState: SelectOptionText.OwnerState = React.useMemo(() => ({}), []);
+  const state: SelectOptionText.State = React.useMemo(() => ({}), []);
 
   const ref = React.useCallback(
     (node: HTMLElement | null) => {
@@ -43,7 +43,7 @@ const InnerSelectOptionText = React.forwardRef(function InnerSelectOptionText(
     ref,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
   });
 
@@ -124,9 +124,9 @@ const SelectOptionText = React.forwardRef(function SelectOptionText(
 });
 
 namespace SelectOptionText {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 
-  export interface OwnerState {}
+  export interface State {}
 }
 
 SelectOptionText.propTypes /* remove-proptypes */ = {

@@ -31,8 +31,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
     ...otherProps
   } = props;
 
-  const { getScrubAreaProps, scrubAreaRef, scrubHandleRef, ownerState } =
-    useNumberFieldRootContext();
+  const { getScrubAreaProps, scrubAreaRef, scrubHandleRef, state } = useNumberFieldRootContext();
 
   React.useImperativeHandle(scrubHandleRef, () => ({
     direction,
@@ -46,7 +45,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
     propGetter: getScrubAreaProps,
     ref: mergedRef,
     render: render ?? 'span',
-    ownerState,
+    state,
     className,
     extraProps: otherProps,
   });
@@ -55,8 +54,8 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
 });
 
 namespace NumberFieldScrubArea {
-  export interface OwnerState extends NumberFieldRoot.OwnerState {}
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {
+  export interface State extends NumberFieldRoot.State {}
+  export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * The direction that the scrub area should change the value.
      * @default 'vertical'
