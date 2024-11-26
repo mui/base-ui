@@ -105,6 +105,8 @@
   --text-6xl: 3.75rem;
   --text-6xl--line-height: 0.95;
   --text-6xl--letter-spacing: -0.015em;
+
+  --transition-timing-function-natural-ease-out: cubic-beizier(0.545, 0.895, 0.01, 1.02);
 }
 
 :root {

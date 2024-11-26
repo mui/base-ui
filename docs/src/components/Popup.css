@@ -19,9 +19,9 @@
     }
 
     transform-origin: var(--transform-origin, center);
-    transition-duration: 150ms;
+    transition-duration: 120ms;
     transition-property: opacity, transform;
-    transition-timing-function: cubic-bezier(0.3, 1, 0.15, 1);
+    transition-timing-function: var(--transition-timing-function-natural-ease-out);
 
     &[data-entering],
     &[data-exiting] {
@@ -32,7 +32,7 @@
     }
 
     &[data-exiting] {
-      transition-duration: 275ms;
+      transition-duration: 200ms;
     }
   }
 }
