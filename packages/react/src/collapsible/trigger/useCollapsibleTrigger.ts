@@ -3,7 +3,7 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
-import { useButton } from '../../useButton';
+import { useButton } from '../../use-button';
 
 export function useCollapsibleTrigger(
   parameters: useCollapsibleTrigger.Parameters,

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
-import { useButton } from '../../useButton';
+import { useButton } from '../../use-button';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { SelectRootContext } from '../root/SelectRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';

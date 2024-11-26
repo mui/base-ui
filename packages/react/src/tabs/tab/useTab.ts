@@ -4,7 +4,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useId } from '../../utils/useId';
-import { useButton } from '../../useButton';
+import { useButton } from '../../use-button';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
 import type { TabsRootContext } from '../root/TabsRootContext';
 import type { useTabsList } from '../tabs-list/useTabsList';

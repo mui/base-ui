@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
-import { useButton } from '../../useButton';
+import { useButton } from '../../use-button';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';

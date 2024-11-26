@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
-import { useButton } from '../../useButton/useButton';
+import { useButton } from '../../use-button/useButton';
 import type { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useForkRef } from '../../utils/useForkRef';
