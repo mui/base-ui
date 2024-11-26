@@ -10,7 +10,7 @@ export * from './form';
 export * from './menu';
 export * from './number-field';
 export * from './popover';
-export * from './PreviewCard';
+export * from './preview-card';
 export * from './Progress';
 export * from './RadioGroup';
 export * from './ScrollArea';

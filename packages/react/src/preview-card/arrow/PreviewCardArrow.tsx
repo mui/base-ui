@@ -2,10 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { usePreviewCardPositionerContext } from '../Positioner/PreviewCardPositionerContext';
+import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import { usePreviewCardArrow } from './usePreviewCardArrow';
 import { useForkRef } from '../../utils/useForkRef';
-import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
+import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Alignment, Side } from '../../utils/useAnchorPositioning';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';

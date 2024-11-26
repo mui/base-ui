@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
+import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositioner } from './usePreviewCardPositioner';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { useForkRef } from '../../utils/useForkRef';

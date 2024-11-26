@@ -1,17 +1,18 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
-import { usePreviewCardBackdrop } from './usePreviewCardBackdrop';
-import { HTMLElementType } from '../../utils/proptypes';
+import { usePreviewCardRootContext } from '../root/PreviewCardContext';
+import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
+import { usePreviewCardPopup } from './usePreviewCardPopup';
+import { useForkRef } from '../../utils/useForkRef';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { Alignment, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
-const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.OwnerState> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
@@ -32,63 +33,58 @@ const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.OwnerSt
  *
  * API:
  *
- * - [PreviewCardBackdrop API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardBackdrop)
+ * - [PreviewCardPopup API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardPopup)
  */
-const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
-  props: PreviewCardBackdrop.Props,
+const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
+  props: PreviewCardPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = false, container, ...otherProps } = props;
+  const { className, render, ...otherProps } = props;
 
-  const { open, mounted, transitionStatus } = usePreviewCardRootContext();
-  const { getBackdropProps } = usePreviewCardBackdrop();
+  const { open, transitionStatus, getRootPopupProps, popupRef } = usePreviewCardRootContext();
+  const { side, alignment } = usePreviewCardPositionerContext();
 
-  const ownerState: PreviewCardBackdrop.OwnerState = React.useMemo(
+  const { getPopupProps } = usePreviewCardPopup({
+    getProps: getRootPopupProps,
+  });
+
+  const ownerState: PreviewCardPopup.OwnerState = React.useMemo(
     () => ({
       open,
+      side,
+      alignment,
       transitionStatus,
     }),
-    [open, transitionStatus],
+    [open, side, alignment, transitionStatus],
   );
 
+  const mergedRef = useForkRef(popupRef, forwardedRef);
+
   const { renderElement } = useComponentRenderer({
-    propGetter: getBackdropProps,
+    propGetter: getPopupProps,
+    ref: mergedRef,
     render: render ?? 'div',
     className,
     ownerState,
-    ref: forwardedRef,
     extraProps: otherProps,
     customStyleHookMapping,
   });
 
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
-
-  return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
+  return renderElement();
 });
 
-namespace PreviewCardBackdrop {
+namespace PreviewCardPopup {
   export interface OwnerState {
     open: boolean;
+    side: Side;
+    alignment: Alignment;
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
-    /**
-     * Whether the `Backdrop` remains mounted when the Preview Card `Popup` is closed.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
-     * The element the `Backdrop` is appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-  }
+  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
 }
 
-PreviewCardBackdrop.propTypes /* remove-proptypes */ = {
+PreviewCardPopup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -102,21 +98,9 @@ PreviewCardBackdrop.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The element the `Backdrop` is appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
-  ]),
-  /**
-   * Whether the `Backdrop` remains mounted when the Preview Card `Popup` is closed.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { PreviewCardBackdrop };
+export { PreviewCardPopup };

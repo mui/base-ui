@@ -8,7 +8,7 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { Boundary, useAnchorPositioning, type Side } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
-import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
+import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 
 export function usePreviewCardPositioner(
   params: usePreviewCardPositioner.Parameters,

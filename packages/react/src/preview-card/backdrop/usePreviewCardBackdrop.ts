@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { GenericHTMLProps } from '../../utils/types';
-import { usePreviewCardRootContext } from '../Root/PreviewCardContext';
+import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 
 export function usePreviewCardBackdrop(): usePreviewCardBackdrop.ReturnValue {
   const { mounted } = usePreviewCardRootContext();

@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { PreviewCard } from '@base-ui-components/react/PreviewCard';
+import { PreviewCard } from '@base-ui-components/react/preview-card';
 import { createRenderer, describeConformance } from '#test-utils';
 
-describe('<PreviewCard.Backdrop />', () => {
+describe('<PreviewCard.Positioner />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<PreviewCard.Backdrop />, () => ({
+  describeConformance(<PreviewCard.Positioner />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
