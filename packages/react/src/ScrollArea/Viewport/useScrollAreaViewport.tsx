@@ -23,6 +23,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     setHiddenState,
     hiddenState,
     handleScroll,
+    setHovering,
   } = useScrollAreaRootContext();
 
   const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
@@ -148,6 +149,14 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
   useEnhancedEffect(() => {
     computeThumb();
   }, [computeThumb, hiddenState, dir]);
+
+  useEnhancedEffect(() => {
+    // `onMouseEnter` doesn't fire upon load, so we need to check if the viewport is already
+    // being hovered.
+    if (viewportRef.current?.matches(':hover')) {
+      setHovering(true);
+    }
+  }, [viewportRef, setHovering]);
 
   React.useEffect(() => {
     if (
