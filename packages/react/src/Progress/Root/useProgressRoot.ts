@@ -27,9 +27,9 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
     value,
   } = parameters;
 
-  let state: ProgressStatus = 'indeterminate';
+  let status: ProgressStatus = 'indeterminate';
   if (Number.isFinite(value)) {
-    state = value === max ? 'complete' : 'progressing';
+    status = value === max ? 'complete' : 'progressing';
   }
 
   const getRootProps: useProgressRoot.ReturnValue['getRootProps'] = React.useCallback(
@@ -65,7 +65,7 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
     max,
     min,
     value,
-    state,
+    status,
   };
 }
 
@@ -137,7 +137,7 @@ namespace useProgressRoot {
      * Value of the component
      */
     value: number | null;
-    state: ProgressStatus;
+    status: ProgressStatus;
   }
 }
 

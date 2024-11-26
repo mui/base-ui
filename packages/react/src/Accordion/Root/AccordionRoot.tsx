@@ -63,7 +63,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     value,
   });
 
-  const ownerState: AccordionRoot.OwnerState = React.useMemo(
+  const state: AccordionRoot.State = React.useMemo(
     () => ({
       value: accordion.value,
       disabled: accordion.disabled,
@@ -76,16 +76,16 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     () => ({
       ...accordion,
       hiddenUntilFound,
-      ownerState,
+      state,
     }),
-    [accordion, hiddenUntilFound, ownerState],
+    [accordion, hiddenUntilFound, state],
   );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: forwardedRef,
     extraProps: otherProps,
     customStyleHookMapping: rootStyleHookMapping,
@@ -99,7 +99,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
 });
 
 export namespace AccordionRoot {
-  export interface OwnerState {
+  export interface State {
     value: useAccordionRoot.Value;
     disabled: boolean;
     orientation: useAccordionRoot.Orientation;
@@ -107,7 +107,7 @@ export namespace AccordionRoot {
 
   export interface Props
     extends useAccordionRoot.Parameters,
-      Omit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue'> {
+      Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     hiddenUntilFound?: boolean;
   }
 }

@@ -25,7 +25,7 @@ const SeparatorRoot = React.forwardRef(function SeparatorRootComponent(
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
-    ownerState: EMPTY_OBJECT,
+    state: EMPTY_OBJECT,
     extraProps: { role: 'separator', ...other },
     ref: forwardedRef,
   });
@@ -53,9 +53,9 @@ SeparatorRoot.propTypes /* remove-proptypes */ = {
 } as any;
 
 namespace SeparatorRoot {
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 
-  export interface OwnerState {}
+  export interface State {}
 }
 
 export { SeparatorRoot };

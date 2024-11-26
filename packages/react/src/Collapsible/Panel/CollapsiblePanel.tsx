@@ -24,7 +24,7 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 ) {
   const { className, hiddenUntilFound, render, ...otherProps } = props;
 
-  const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen, ownerState } =
+  const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen, state } =
     useCollapsibleRootContext();
 
   const { getRootProps, height, width } = useCollapsiblePanel({
@@ -42,7 +42,7 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'div',
-    ownerState,
+    state,
     className,
     extraProps: {
       ...otherProps,
@@ -62,7 +62,7 @@ export { CollapsiblePanel };
 
 namespace CollapsiblePanel {
   export interface Props
-    extends BaseUIComponentProps<'div', CollapsibleRoot.OwnerState>,
+    extends BaseUIComponentProps<'div', CollapsibleRoot.State>,
       Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {}
 }
 

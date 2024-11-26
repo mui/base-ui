@@ -6,7 +6,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { usePopoverRootContext } from '../Root/PopoverRootContext';
 import { usePopoverClose } from './usePopoverClose';
 
-const ownerState = {};
+const state = {};
 
 /**
  * Renders a button that closes the popover when clicked.
@@ -37,7 +37,7 @@ const PopoverClose = React.forwardRef(function PopoverClose(
     propGetter: getCloseProps,
     render: render ?? 'button',
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
     ref: forwardedRef,
   });
@@ -46,9 +46,9 @@ const PopoverClose = React.forwardRef(function PopoverClose(
 });
 
 namespace PopoverClose {
-  export interface OwnerState {}
+  export interface State {}
 
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {}
 }
 
 PopoverClose.propTypes /* remove-proptypes */ = {

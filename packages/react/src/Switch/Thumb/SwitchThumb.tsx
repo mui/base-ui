@@ -24,15 +24,15 @@ const SwitchThumb = React.forwardRef(function SwitchThumb(
 ) {
   const { render, className, ...other } = props;
 
-  const { ownerState: fieldOwnerState } = useFieldRootContext();
+  const { state: fieldState } = useFieldRootContext();
 
-  const ownerState = useSwitchRootContext();
-  const extendedOwnerState = { ...fieldOwnerState, ...ownerState };
+  const state = useSwitchRootContext();
+  const extendedState = { ...fieldState, ...state };
 
   const { renderElement } = useComponentRenderer({
     render: render || 'span',
     className,
-    ownerState: extendedOwnerState,
+    state: extendedState,
     extraProps: other,
     customStyleHookMapping: styleHookMapping,
     ref: forwardedRef,
@@ -42,9 +42,9 @@ const SwitchThumb = React.forwardRef(function SwitchThumb(
 });
 
 namespace SwitchThumb {
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'span', State> {}
 
-  export interface OwnerState extends SwitchRoot.OwnerState {}
+  export interface State extends SwitchRoot.State {}
 }
 
 SwitchThumb.propTypes /* remove-proptypes */ = {

@@ -24,7 +24,7 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { direction, max, min, value, ownerState } = useProgressRootContext();
+  const { direction, max, min, value, state } = useProgressRootContext();
 
   const { getRootProps } = useProgressIndicator({
     direction,
@@ -36,7 +36,7 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'span',
-    ownerState,
+    state,
     className,
     ref: forwardedRef,
     extraProps: otherProps,
@@ -47,9 +47,9 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
 });
 
 namespace ProgressIndicator {
-  export interface OwnerState extends ProgressRoot.OwnerState {}
+  export interface State extends ProgressRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'span', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'span', State> {}
 }
 
 ProgressIndicator.propTypes /* remove-proptypes */ = {

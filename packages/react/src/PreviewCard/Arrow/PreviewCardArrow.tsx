@@ -35,7 +35,7 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
     hidden: hideWhenUncentered && arrowUncentered,
   });
 
-  const ownerState: PreviewCardArrow.OwnerState = React.useMemo(
+  const state: PreviewCardArrow.State = React.useMemo(
     () => ({
       open,
       side,
@@ -50,7 +50,7 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
     propGetter: getArrowProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: mergedRef,
     extraProps: otherProps,
     customStyleHookMapping: popupOpenStateMapping,
@@ -60,13 +60,13 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
 });
 
 namespace PreviewCardArrow {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     side: Side;
     alignment: Alignment;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Whether the `Arrow` is hidden when it can't point to the center of the anchor element.
      * @default false

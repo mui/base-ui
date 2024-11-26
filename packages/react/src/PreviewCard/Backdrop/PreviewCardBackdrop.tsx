@@ -11,7 +11,7 @@ import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
-const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
@@ -43,7 +43,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   const { open, mounted, transitionStatus } = usePreviewCardRootContext();
   const { getBackdropProps } = usePreviewCardBackdrop();
 
-  const ownerState: PreviewCardBackdrop.OwnerState = React.useMemo(
+  const state: PreviewCardBackdrop.State = React.useMemo(
     () => ({
       open,
       transitionStatus,
@@ -55,7 +55,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
     propGetter: getBackdropProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: forwardedRef,
     extraProps: otherProps,
     customStyleHookMapping,
@@ -70,12 +70,12 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
 });
 
 namespace PreviewCardBackdrop {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Whether the `Backdrop` remains mounted when the Preview Card `Popup` is closed.
      * @default false

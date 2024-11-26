@@ -74,13 +74,13 @@ const FormRoot = React.forwardRef(function FormRoot(
     }
   }, [errors]);
 
-  const ownerState = React.useMemo<FormRoot.OwnerState>(() => ({}), []);
+  const state = React.useMemo<FormRoot.State>(() => ({}), []);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getFormProps,
     render: render ?? 'form',
     ref: forwardedRef,
-    ownerState,
+    state,
     className,
     extraProps: otherProps,
   });
@@ -96,7 +96,7 @@ const FormRoot = React.forwardRef(function FormRoot(
 });
 
 namespace FormRoot {
-  export interface Props extends BaseUIComponentProps<'form', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'form', State> {
     /**
      * Object of error messages with each key mapping to the `name` prop of a Field control, usually
      * from server-side validation.
@@ -107,7 +107,7 @@ namespace FormRoot {
      */
     onClearErrors?: FormRootContext['onClearErrors'];
   }
-  export interface OwnerState {}
+  export interface State {}
 }
 
 FormRoot.propTypes /* remove-proptypes */ = {

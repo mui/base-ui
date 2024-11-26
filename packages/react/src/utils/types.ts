@@ -40,17 +40,17 @@ export type ComponentRenderFn<Props, State> = (
  */
 export type BaseUIComponentProps<
   ElementType extends React.ElementType,
-  OwnerState,
+  State,
   RenderFunctionProps = React.HTMLAttributes<any>,
 > = Omit<WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>, 'className'> & {
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */
-  className?: string | ((state: OwnerState) => string);
+  className?: string | ((state: State) => string);
   /**
    * A function to customize rendering of the component.
    */
   render?:
-    | ComponentRenderFn<RenderFunctionProps, OwnerState>
+    | ComponentRenderFn<RenderFunctionProps, State>
     | React.ReactElement<Record<string, unknown>>;
 };

@@ -4,7 +4,7 @@ import type { ProgressRoot } from './ProgressRoot';
 import type { useProgressRoot } from './useProgressRoot';
 
 export type ProgressRootContext = Omit<useProgressRoot.ReturnValue, 'getRootProps'> & {
-  ownerState: ProgressRoot.OwnerState;
+  state: ProgressRoot.State;
 };
 
 /**

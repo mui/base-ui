@@ -40,32 +40,32 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const { getInputProps, getButtonProps, checked } = useSwitchRoot(props);
 
-  const { ownerState: fieldOwnerState, disabled: fieldDisabled } = useFieldRootContext();
+  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
 
-  const ownerState: SwitchRoot.OwnerState = React.useMemo(
+  const state: SwitchRoot.State = React.useMemo(
     () => ({
-      ...fieldOwnerState,
+      ...fieldState,
       checked,
       disabled,
       readOnly,
       required,
     }),
-    [fieldOwnerState, checked, disabled, readOnly, required],
+    [fieldState, checked, disabled, readOnly, required],
   );
 
   const { renderElement } = useComponentRenderer({
     render: render || 'button',
     className,
     propGetter: getButtonProps,
-    ownerState,
+    state,
     extraProps: other,
     customStyleHookMapping: styleHookMapping,
     ref: forwardedRef,
   });
 
   return (
-    <SwitchRootContext.Provider value={ownerState}>
+    <SwitchRootContext.Provider value={state}>
       {renderElement()}
       {!checked && props.name && <input type="hidden" name={props.name} value="off" />}
       <input {...getInputProps()} />
@@ -76,9 +76,9 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
 namespace SwitchRoot {
   export interface Props
     extends useSwitchRoot.Parameters,
-      Omit<BaseUIComponentProps<'button', SwitchRoot.OwnerState>, 'onChange'> {}
+      Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {}
 
-  export interface OwnerState extends FieldRoot.OwnerState {
+  export interface State extends FieldRoot.State {
     checked: boolean;
     disabled: boolean;
     readOnly: boolean;

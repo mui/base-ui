@@ -24,7 +24,7 @@ export interface FieldRootContext {
   validate: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
   validationMode: 'onBlur' | 'onChange';
   validationDebounceTime: number;
-  ownerState: FieldRoot.OwnerState;
+  state: FieldRoot.State;
   markedDirtyRef: React.MutableRefObject<boolean>;
 }
 
@@ -53,7 +53,7 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
   validate: () => null,
   validationMode: 'onBlur',
   validationDebounceTime: 0,
-  ownerState: {
+  state: {
     disabled: false,
     valid: null,
     touched: false,

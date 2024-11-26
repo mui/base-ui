@@ -6,7 +6,7 @@ import { useDialogClose } from '../../Dialog/Close/useDialogClose';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 
-const ownerState = {};
+const state = {};
 
 /**
  *
@@ -29,7 +29,7 @@ const AlertDialogClose = React.forwardRef(function AlertDialogClose(
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
     className,
-    ownerState,
+    state,
     propGetter: getRootProps,
     ref: forwardedRef,
     extraProps: other,
@@ -39,9 +39,9 @@ const AlertDialogClose = React.forwardRef(function AlertDialogClose(
 });
 
 namespace AlertDialogClose {
-  export interface Props extends BaseUIComponentProps<'button', OwnerState> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {}
 
-  export interface OwnerState {}
+  export interface State {}
 }
 
 AlertDialogClose.propTypes /* remove-proptypes */ = {

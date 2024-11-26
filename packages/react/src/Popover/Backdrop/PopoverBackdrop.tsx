@@ -11,7 +11,7 @@ import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
-const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
@@ -45,7 +45,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 
   const { getBackdropProps } = usePopoverBackdrop();
 
-  const ownerState = React.useMemo(
+  const state = React.useMemo(
     () => ({
       open,
       transitionStatus,
@@ -57,7 +57,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     propGetter: getBackdropProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: forwardedRef,
     extraProps: otherProps,
     customStyleHookMapping,
@@ -72,12 +72,12 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 });
 
 namespace PopoverBackdrop {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * If `true`, the backdrop remains mounted when the popover content is closed.
      * @default false

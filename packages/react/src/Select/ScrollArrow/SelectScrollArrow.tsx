@@ -31,7 +31,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   const frameRef = React.useRef(-1);
 
-  const ownerState: SelectScrollArrow.OwnerState = React.useMemo(
+  const state: SelectScrollArrow.State = React.useMemo(
     () => ({
       direction,
       visible,
@@ -114,7 +114,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     ref: forwardedRef,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     extraProps: otherProps,
   });
 
@@ -127,13 +127,13 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 });
 
 namespace SelectScrollArrow {
-  export interface OwnerState {
+  export interface State {
     direction: 'up' | 'down';
     visible: boolean;
     side: Side | 'none';
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     direction: 'up' | 'down';
     /**
      * Whether the component should be kept mounted when it is not rendered.

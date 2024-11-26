@@ -84,7 +84,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     nodeId,
   });
 
-  const ownerState: MenuPositioner.OwnerState = React.useMemo(
+  const state: MenuPositioner.State = React.useMemo(
     () => ({
       open,
       side: positioner.side,
@@ -119,7 +119,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
       positioner.getPositionerProps(getPositionerProps(externalProps)),
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     customStyleHookMapping: popupOpenStateMapping,
     ref: mergedRef,
     extraProps: otherProps,
@@ -154,7 +154,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 export { MenuPositioner };
 
 export namespace MenuPositioner {
-  export type OwnerState = {
+  export type State = {
     open: boolean;
     side: Side;
     alignment: 'start' | 'end' | 'center';
@@ -162,7 +162,7 @@ export namespace MenuPositioner {
 
   export interface Props
     extends useMenuPositioner.SharedParameters,
-      BaseUIComponentProps<'div', OwnerState> {}
+      BaseUIComponentProps<'div', State> {}
 }
 
 MenuPositioner.propTypes /* remove-proptypes */ = {

@@ -35,7 +35,7 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
     ...otherProps
   } = props;
 
-  const { disabled: fieldDisabled, ownerState: fieldOwnerState } = useFieldRootContext();
+  const { disabled: fieldDisabled, state: fieldState } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
 
@@ -47,19 +47,19 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
     preserveChildStates,
   });
 
-  const ownerState = React.useMemo(
+  const state = React.useMemo(
     () => ({
-      ...fieldOwnerState,
+      ...fieldState,
       disabled,
     }),
-    [fieldOwnerState, disabled],
+    [fieldState, disabled],
   );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: forwardedRef,
     extraProps: otherProps,
   });
@@ -82,10 +82,10 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
 });
 
 namespace CheckboxGroupRoot {
-  export interface OwnerState extends FieldRoot.OwnerState {
+  export interface State extends FieldRoot.State {
     disabled: boolean;
   }
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The currently checked values of the checkbox group. Use when controlled.
      */

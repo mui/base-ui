@@ -35,7 +35,7 @@ const MenuArrow = React.forwardRef(function MenuArrow(
     hidden: hideWhenUncentered && arrowUncentered,
   });
 
-  const ownerState: MenuArrow.OwnerState = React.useMemo(
+  const state: MenuArrow.State = React.useMemo(
     () => ({
       open,
       side,
@@ -51,7 +51,7 @@ const MenuArrow = React.forwardRef(function MenuArrow(
     propGetter: getArrowProps,
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: mergedRef,
     extraProps: otherProps,
     customStyleHookMapping: popupOpenStateMapping,
@@ -61,14 +61,14 @@ const MenuArrow = React.forwardRef(function MenuArrow(
 });
 
 namespace MenuArrow {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     side: Side;
     alignment: Alignment;
     arrowUncentered: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
      * @default false
