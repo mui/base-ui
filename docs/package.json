@@ -78,7 +78,7 @@
     "@mui/internal-docs-utils": "^1.0.15",
     "@mui/internal-scripts": "^1.0.27",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils",
-    "@tailwindcss/postcss": "4.0.0-alpha.36",
+    "@tailwindcss/postcss": "4.0.0-beta.2",
     "@types/chai": "^4.3.20",
     "@types/gtag.js": "^0.0.20",
     "@types/hast": "^3.0.4",
@@ -94,7 +94,7 @@
     "prettier": "^3.3.3",
     "rimraf": "^5.0.10",
     "serve": "^14.2.4",
-    "tailwindcss": "4.0.0-alpha.36",
+    "tailwindcss": "4.0.0-beta.2",
     "unified": "^11.0.5",
     "webpack-bundle-analyzer": "^4.10.2",
     "yargs": "^17.7.2"
