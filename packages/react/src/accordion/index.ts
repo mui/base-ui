@@ -1,2 +1,2 @@
 export * as Accordion from './index.parts';
-export * from './cssVars';
+export * from './panel/cssVars';

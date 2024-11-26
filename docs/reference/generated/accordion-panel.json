@@ -15,5 +15,15 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
     }
+  },
+  "cssVariables": {
+    "--accordion-panel-height": {
+      "description": "Description for the CSS Varaible.",
+      "type": "number"
+    },
+    "--accordion-panel-width": {
+      "description": "Description for the CSS Varaible.",
+      "type": "number"
+    }
   }
 }
