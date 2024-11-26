@@ -13,6 +13,10 @@
     table-layout: fixed;
     width: 100%;
     vertical-align: top;
+
+    /* Tailwind's border-collapse: collapse causes alpha blending issues in Safari */
+    border-collapse: separate;
+    border-spacing: 0;
   }
 
   .TableHead,
