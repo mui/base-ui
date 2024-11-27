@@ -28,7 +28,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     'aria-labelledby': ariaLabelledby,
     className,
     defaultValue,
-    direction = 'ltr',
+    dir: dirAttribute,
     disabled: disabledProp = false,
     largeStep,
     render,
@@ -47,7 +47,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     'aria-labelledby': ariaLabelledby ?? labelId,
     defaultValue,
     disabled,
-    direction,
+    dir: dirAttribute,
     largeStep,
     minStepsBetweenValues,
     onValueChange,
@@ -62,7 +62,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     () => ({
       ...fieldState,
       activeThumbIndex: slider.active,
-      direction,
+      dir: slider.dir,
       disabled,
       dragging: slider.dragging,
       orientation,
@@ -74,10 +74,10 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     }),
     [
       fieldState,
-      direction,
       disabled,
       orientation,
       slider.active,
+      slider.dir,
       slider.dragging,
       slider.max,
       slider.min,
@@ -125,7 +125,7 @@ export namespace SliderRoot {
      * If `true`, a thumb is being dragged by a pointer.
      */
     dragging: boolean;
-    direction: useSliderRoot.Direction;
+    dir: string | undefined;
     max: number;
     min: number;
     /**

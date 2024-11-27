@@ -8,6 +8,8 @@ import type { SliderRoot } from './SliderRoot';
 
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
 
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+
 const GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL = {
   width: 100,
   height: 10,
@@ -164,15 +166,17 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describe('rtl', () => {
+  describeSkipIf(isJSDOM)('rtl', () => {
     it('should handle RTL', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
-        <TestSlider direction="rtl" value={30} onValueChange={handleValueChange} />,
+        <div dir="rtl">
+          <TestSlider value={30} onValueChange={handleValueChange} />
+        </div>,
       );
       const sliderControl = getByTestId('control');
       const sliderThumb = getByTestId('thumb');
-      expect(sliderThumb.style.right).to.equal('30%');
+      expect(sliderThumb.style.insetInlineStart).to.equal('30%');
 
       stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
@@ -196,7 +200,9 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('increments on ArrowUp', async () => {
       const handleValueChange = spy();
       const { container } = await render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
+        <div dir="rtl">
+          <TestSlider defaultValue={20} onValueChange={handleValueChange} />
+        </div>,
       );
 
       const input = container.querySelector('input');
@@ -219,7 +225,9 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('increments on ArrowLeft', async () => {
       const handleValueChange = spy();
       const { container } = await render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
+        <div dir="rtl">
+          <TestSlider defaultValue={20} onValueChange={handleValueChange} />
+        </div>,
       );
 
       const input = container.querySelector('input');
@@ -242,7 +250,9 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('decrements on ArrowDown', async () => {
       const handleValueChange = spy();
       const { container } = await render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
+        <div dir="rtl">
+          <TestSlider defaultValue={20} onValueChange={handleValueChange} />
+        </div>,
       );
 
       const input = container.querySelector('input');
@@ -265,7 +275,9 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('decrements on ArrowRight', async () => {
       const handleValueChange = spy();
       const { container } = await render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} direction="rtl" />,
+        <div dir="rtl">
+          <TestSlider defaultValue={20} onValueChange={handleValueChange} />
+        </div>,
       );
 
       const input = container.querySelector('input');

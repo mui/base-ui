@@ -4,13 +4,9 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
-const axisProps = {
+const rangeStyles = {
   horizontal: {
-    offset: (percent: number) => ({ left: `${percent}%` }),
-    leap: (percent: number) => ({ width: `${percent}%`, height: 'inherit' }),
-  },
-  'horizontal-reverse': {
-    offset: (percent: number) => ({ right: `${percent}%` }),
+    offset: (percent: number) => ({ insetInlineStart: `${percent}%` }),
     leap: (percent: number) => ({ width: `${percent}%`, height: 'inherit' }),
   },
   vertical: {
@@ -32,11 +28,9 @@ const axisProps = {
 export function useSliderIndicator(
   parameters: useSliderIndicator.Parameters,
 ): useSliderIndicator.ReturnValue {
-  const { axis, direction, orientation, percentageValues } = parameters;
+  const { orientation, percentageValues } = parameters;
 
   const isRange = percentageValues.length > 1;
-
-  const isRtl = direction === 'rtl';
 
   let internalStyles;
 
@@ -46,8 +40,8 @@ export function useSliderIndicator(
 
     internalStyles = {
       position: 'absolute',
-      ...axisProps[axis].offset(trackOffset),
-      ...axisProps[axis].leap(trackLeap),
+      ...rangeStyles[orientation].offset(trackOffset),
+      ...rangeStyles[orientation].leap(trackLeap),
     };
   } else if (orientation === 'vertical') {
     internalStyles = {
@@ -59,7 +53,7 @@ export function useSliderIndicator(
   } else {
     internalStyles = {
       position: 'absolute',
-      [isRtl ? 'right' : 'left']: 0,
+      insetInlineStart: 0,
       width: `${percentageValues[0]}%`,
       height: 'inherit',
     };
@@ -84,10 +78,7 @@ export function useSliderIndicator(
 
 export namespace useSliderIndicator {
   export interface Parameters
-    extends Pick<
-      useSliderRoot.ReturnValue,
-      'axis' | 'direction' | 'disabled' | 'orientation' | 'percentageValues'
-    > {}
+    extends Pick<useSliderRoot.ReturnValue, 'disabled' | 'orientation' | 'percentageValues'> {}
 
   export interface ReturnValue {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;

@@ -1,8 +1,4 @@
 import * as React from 'react';
-import { hasComputedStyleMapSupport } from '../utils/hasComputedStyleMapSupport';
-import { ownerWindow } from '../utils/owner';
-
-export type TextDirection = 'ltr' | 'rtl';
 
 export interface Dimensions {
   width: number;
@@ -360,14 +356,4 @@ export function isDisabled(
     element.hasAttribute('disabled') ||
     element.getAttribute('aria-disabled') === 'true'
   );
-}
-
-export function getTextDirection(element: HTMLElement): TextDirection {
-  if (hasComputedStyleMapSupport()) {
-    const direction = element.computedStyleMap().get('direction');
-
-    return (direction as CSSKeywordValue)?.value as TextDirection;
-  }
-
-  return ownerWindow(element).getComputedStyle(element).direction as TextDirection;
 }

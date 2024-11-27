@@ -38,8 +38,8 @@ function MarkWithLabel(props: {
   inverted?: boolean;
 }) {
   const { index, value, label, inverted = false } = props;
-  const { direction, values } = useSliderRootContext();
-  const isRtl = direction === 'rtl';
+  const { dir, values } = useSliderRootContext();
+  const isRtl = dir === 'rtl';
   const isFilled = inverted ? value >= values[0] : values[0] >= value;
   return (
     <React.Fragment>
@@ -99,7 +99,7 @@ export default function App() {
         </Slider.Control>
       </Slider.Root>
 
-      <Slider.Root className="TempSlider" defaultValue={40} direction="rtl">
+      <Slider.Root className="TempSlider" defaultValue={40} dir="rtl">
         <pre>RTL</pre>
         <Slider.Output className="TempSlider-output" />
         <Slider.Control className="TempSlider-control">

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useId } from '../../utils/useId';
+import { useDir } from '../../utils/useDir';
 import { SCROLL_TIMEOUT } from '../constants';
 
 interface Size {
@@ -42,14 +42,7 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
     cornerHidden: false,
   });
 
-  const [autoDir, setAutoDir] = React.useState(dirParam);
-  const dir = dirParam ?? autoDir;
-
-  useEnhancedEffect(() => {
-    if (dirParam === undefined && viewportRef.current) {
-      setAutoDir(getComputedStyle(viewportRef.current).direction);
-    }
-  }, [dirParam]);
+  const dir = useDir(dirParam, viewportRef.current);
 
   React.useEffect(() => {
     return () => {

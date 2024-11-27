@@ -46,6 +46,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaLabel,
     getAriaValueText,
     id,
+    inputId,
     ...otherProps
   } = props;
 
@@ -54,9 +55,8 @@ const SliderThumb = React.forwardRef(function SliderThumb(
   const {
     active: activeIndex,
     'aria-labelledby': ariaLabelledby,
-    axis,
     changeValue,
-    direction,
+    dir,
     disabled: contextDisabled,
     largeStep,
     max,
@@ -84,13 +84,13 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    axis,
     changeValue,
-    direction,
+    dir,
     disabled: disabledProp || contextDisabled,
     getAriaLabel,
     getAriaValueText,
     id,
+    inputId,
     largeStep,
     max,
     min,

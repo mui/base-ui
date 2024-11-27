@@ -44,9 +44,8 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    axis,
     changeValue,
-    direction,
+    dir,
     disabled,
     getAriaLabel,
     getAriaValueText,
@@ -98,7 +97,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
   // for SSR, don't wait for the index if there's only one thumb
   const percent = percentageValues.length === 1 ? percentageValues[0] : percentageValues[index];
 
-  const isRtl = direction === 'rtl';
+  const isRtl = dir === 'rtl';
 
   const getThumbStyle = React.useCallback(() => {
     const isVertical = orientation === 'vertical';
@@ -110,17 +109,16 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     return {
       position: 'absolute',
       [{
-        horizontal: 'left',
-        'horizontal-reverse': 'right',
+        horizontal: 'insetInlineStart',
         vertical: 'bottom',
-      }[axis]]: `${percent}%`,
+      }[orientation]]: `${percent}%`,
       [isVertical ? 'left' : 'top']: '50%',
       transform: `translate(${(isVertical || !isRtl ? -1 : 1) * 50}%, ${(isVertical ? 1 : -1) * 50}%)`,
       // So the non active thumb doesn't show its label on hover.
       pointerEvents: activeIndex !== -1 && activeIndex !== index ? 'none' : undefined,
       zIndex: activeIndex === index ? 1 : undefined,
     };
-  }, [activeIndex, axis, isRtl, orientation, percent, index]);
+  }, [activeIndex, isRtl, orientation, percent, index]);
 
   const getRootProps: useSliderThumb.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) => {
@@ -262,7 +260,6 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
         step,
         style: {
           ...visuallyHidden,
-          direction: isRtl ? 'rtl' : 'ltr',
           // So that VoiceOver's focus indicator matches the thumb's dimensions
           width: '100%',
           height: '100%',
@@ -313,9 +310,8 @@ export namespace useSliderThumb {
       useSliderRoot.ReturnValue,
       | 'active'
       | 'aria-labelledby'
-      | 'axis'
       | 'changeValue'
-      | 'direction'
+      | 'dir'
       | 'largeStep'
       | 'max'
       | 'min'

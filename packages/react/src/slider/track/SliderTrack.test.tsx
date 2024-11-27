@@ -7,9 +7,8 @@ import { NOOP } from '../../utils/noop';
 const testRootContext: SliderRootContext = {
   active: -1,
   areValuesEqual: () => true,
-  axis: 'horizontal',
   changeValue: NOOP,
-  direction: 'ltr',
+  dir: 'ltr',
   dragging: false,
   disabled: false,
   getFingerNewValue: () => ({
@@ -28,7 +27,7 @@ const testRootContext: SliderRootContext = {
     activeThumbIndex: -1,
     disabled: false,
     dragging: false,
-    direction: 'ltr',
+    dir: 'ltr',
     max: 100,
     min: 0,
     minStepsBetweenValues: 0,

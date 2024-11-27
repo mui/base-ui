@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { getTextDirection, type TextDirection } from '../../utils/getTextDirection';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
@@ -19,7 +20,6 @@ import {
   getGridNavigatedIndex,
   getMaxIndex,
   getMinIndex,
-  getTextDirection,
   HORIZONTAL_KEYS,
   HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
   isDisabled,
@@ -27,7 +27,6 @@ import {
   VERTICAL_KEYS,
   VERTICAL_KEYS_WITH_EXTRA_KEYS,
   type Dimensions,
-  type TextDirection,
 } from '../composite';
 
 export interface UseCompositeRootParameters {
