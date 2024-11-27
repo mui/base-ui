@@ -2,6 +2,7 @@
 .nyc_output
 /coverage
 /docs/.next
+/docs/data/**/*.js
 /docs/export
 /docs/src/app/playground/
 /packages/react/**/*.min.*
