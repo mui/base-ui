@@ -11,17 +11,17 @@ import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import { type GenericHTMLProps } from '../../utils/types';
+import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useUnmountAfterExitAnimation } from '../../utils/useUnmountAfterCloseAnimation';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
-    animated = true,
-    defaultOpen = false,
-    dismissible = true,
-    modal = true,
+    animated,
+    defaultOpen,
+    dismissible,
+    modal,
     onNestedDialogClose,
     onNestedDialogOpen,
     onOpenChange,
@@ -190,7 +190,7 @@ export interface CommonParameters {
 }
 
 export namespace useDialogRoot {
-  export interface Parameters extends CommonParameters {
+  export interface Parameters extends RequiredExcept<CommonParameters, 'open' | 'onOpenChange'> {
     /**
      * Callback to invoke when a nested dialog is opened.
      */

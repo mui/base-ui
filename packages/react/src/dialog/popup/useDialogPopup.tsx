@@ -74,7 +74,6 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     mergeReactProps<'div'>(externalProps, {
       'aria-labelledby': titleElementId ?? undefined,
       'aria-describedby': descriptionElementId ?? undefined,
-      'aria-hidden': !open || undefined,
       'aria-modal': open && modal ? true : undefined,
       role: 'dialog',
       tabIndex: -1,
