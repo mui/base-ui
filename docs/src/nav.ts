@@ -61,14 +61,6 @@ export const nav = [
         href: '/new/components/collapsible',
       },
       {
-        label: 'Combobox',
-        href: '/new/components/combobox',
-      },
-      {
-        label: 'Datepicker',
-        href: '/new/components/datepicker',
-      },
-      {
         label: 'Dialog',
         href: '/new/components/dialog',
       },
