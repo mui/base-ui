@@ -1,4 +1,3 @@
-import * as ReactDOM from 'react-dom';
 import { useAnimationsFinished } from './useAnimationsFinished';
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useLatestRef } from './useLatestRef';
@@ -7,27 +6,14 @@ import { useLatestRef } from './useLatestRef';
  * Unmounts a component (by calling the provided `setMounted` function) when its CSS animation or transition completes.
  */
 export function useUnmountAfterExitAnimation(parameters: useUnmountAfterExitAnimation.Parameters) {
-  const {
-    open,
-    animated,
-    animatedElementRef,
-    setMounted,
-    flushUpdatesSynchronously = false,
-  } = parameters;
+  const { open, animated, animatedElementRef, setMounted } = parameters;
 
   const runOnceAnimationsFinish = useAnimationsFinished(animatedElementRef);
-
   const openRef = useLatestRef(open);
 
   useEnhancedEffect(() => {
     function unmount() {
-      if (flushUpdatesSynchronously) {
-        ReactDOM.flushSync(() => {
-          if (!openRef.current) {
-            setMounted(false);
-          }
-        });
-      } else if (!openRef.current) {
+      if (!openRef.current) {
         setMounted(false);
       }
     }
@@ -39,7 +25,7 @@ export function useUnmountAfterExitAnimation(parameters: useUnmountAfterExitAnim
         unmount();
       }
     }
-  }, [animated, open, openRef, runOnceAnimationsFinish, setMounted, flushUpdatesSynchronously]);
+  }, [animated, open, openRef, runOnceAnimationsFinish, setMounted]);
 }
 
 export namespace useUnmountAfterExitAnimation {
@@ -63,10 +49,5 @@ export namespace useUnmountAfterExitAnimation {
      * It is always called with a single parameter: `false`.
      */
     setMounted: (mounted: boolean) => void;
-    /**
-     * If `true`, forces React to flush all updates immediately after calling `setMounted`
-     * by using `flushSync` function.
-     */
-    flushUpdatesSynchronously?: boolean;
   }
 }
