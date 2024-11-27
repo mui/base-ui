@@ -22,7 +22,7 @@ export function Header() {
           </div>
           <div className="flex show-side-nav:hidden">
             <MobileNav.Root>
-              <MobileNav.Trigger>Menu</MobileNav.Trigger>
+              <MobileNav.Trigger>Navigation</MobileNav.Trigger>
               <MobileNav.Backdrop />
               <MobileNav.Popup>
                 {nav.map((section) => (

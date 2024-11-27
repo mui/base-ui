@@ -25,14 +25,7 @@ export function Backdrop({ className, ...props }: Dialog.Backdrop.Props) {
 }
 
 export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
-  const [open, setOpen] = React.useContext(MobileNavState);
-
-  // James/Michal: please uncomment this to test
-  // React.useEffect(() => {
-  //   if (open) {
-  //     setTimeout(() => setOpen(false), 2000);
-  //   }
-  // }, [open, setOpen]);
+  const [, setOpen] = React.useContext(MobileNavState);
 
   return (
     <Dialog.Popup className={clsx('MobileNavPopup', className)} {...props}>
@@ -48,13 +41,13 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
               'touchend',
               () => {
                 // If touch ended and we are overscrolling past a threshold...
-                if (viewport.scrollTop < -60) {
-                  // ...look at whether the system's intertia scrolling is continuing the motion
-                  // in the same direction. If so, the flick strong enough to close the dialog.
+                if (viewport.scrollTop < -32) {
                   const y = viewport.scrollTop;
                   viewport.addEventListener(
                     'scroll',
                     function handleScroll() {
+                      // ...look at whether the system's intertia scrolling is continuing the motion
+                      // in the same direction. If so, the flick is strong enough to close the dialog.
                       if (viewport.scrollTop <= y) {
                         // It's gonna eventually bounce back to scrollTop 0. We need to counteract this
                         // a bit so that the close transition doesn't appear slower than it should.
@@ -62,7 +55,7 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
                         viewport.style.transform = `200ms`;
                         setOpen(false);
 
-                        // TODO this is bullshit, the dialog should just unmount?
+                        // TODO this should be removed after https://github.com/mui/base-ui/pull/878
                         setTimeout(() => viewport.removeAttribute('style'), 400);
                       }
                     },
