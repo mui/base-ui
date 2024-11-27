@@ -21,7 +21,7 @@
     transform-origin: var(--transform-origin, center);
     transition-duration: 120ms;
     transition-property: opacity, transform;
-    transition-timing-function: var(--transition-timing-function-natural-ease-out);
+    transition-timing-function: var(--ease-fast);
 
     &[data-entering],
     &[data-exiting] {
