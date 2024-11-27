@@ -8,4 +8,4 @@ export type DialogPopupCssVars = {
   nestedDialogs: string;
 };
 
-export const cssVars: DialogPopupCssVars = generateCssVariables(['nestedDialogs']);
+export const dialogPopupCssVars: DialogPopupCssVars = generateCssVariables(['nestedDialogs']);
