@@ -45,14 +45,7 @@ export function Header() {
                   <MobileNav.List>
                     {section.links.map((link) => (
                       <MobileNav.Item key={link.href} href={link.href}>
-                        {link.label === 'Releases' ? (
-                          <span className="flex flex-grow-1 justify-between">
-                            {link.label}
-                            <span className="text-sm text-gray-600">v1.0.0-alpha.1</span>
-                          </span>
-                        ) : (
-                          link.label
-                        )}
+                        {link.label}
                       </MobileNav.Item>
                     ))}
                   </MobileNav.List>
@@ -62,8 +55,18 @@ export function Header() {
               <MobileNav.Section>
                 <MobileNav.Heading>Resources</MobileNav.Heading>
                 <MobileNav.List>
+                  <MobileNav.Item
+                    href="https://www.npmjs.com/package/@base-ui-components/react"
+                    rel="noopener"
+                  >
+                    <NpmIcon />
+                    <span className="flex flex-grow-1 justify-between">
+                      npm package
+                      <span className="text-sm text-gray-600">v1.0.0-alpha.1</span>
+                    </span>
+                  </MobileNav.Item>
                   <MobileNav.Item href="https://github.com/mui/base-ui" rel="noopener">
-                    <GitHubIcon />
+                    <GitHubIcon className="mt-[-2px]" />
                     GitHub
                   </MobileNav.Item>
                 </MobileNav.List>

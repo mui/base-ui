@@ -106,8 +106,9 @@
   --text-6xl--line-height: 0.95;
   --text-6xl--letter-spacing: -0.015em;
 
-  --ease-fast: cubic-bezier(0.55, 0.9, 0.01, 1.01);
   --default-transition-timing-function: var(--ease-fast);
+  --ease-fast: cubic-bezier(0.55, 0.9, 0.01, 1.01);
+  --header-height: 3rem;
 }
 
 :root {
