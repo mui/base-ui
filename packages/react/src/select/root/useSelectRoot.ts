@@ -98,7 +98,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     params.onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
+  });
 
+  useEnhancedEffect(() => {
     function handleUnmounted() {
       ReactDOM.flushSync(() => {
         if (!openRef.current) {
@@ -107,14 +109,14 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       });
     }
 
-    if (!nextOpen) {
+    if (!open) {
       if (params.animated) {
         runOnceAnimationsFinish(handleUnmounted);
       } else {
         handleUnmounted();
       }
     }
-  });
+  }, [open, openRef, params.animated, runOnceAnimationsFinish, setMounted]);
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
     params.onValueChange?.(nextValue, event);
