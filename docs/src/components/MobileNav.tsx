@@ -48,15 +48,20 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
                     function handleScroll() {
                       // ...look at whether the system's intertia scrolling is continuing the motion
                       // in the same direction. If so, the flick is strong enough to close the dialog.
-                      if (viewport.scrollTop <= y) {
+                      if (viewport.scrollTop < y) {
                         // It's gonna eventually bounce back to scrollTop 0. We need to counteract this
                         // a bit so that the close transition doesn't appear slower than it should.
                         viewport.style.translate = `0px -${y}px`;
-                        viewport.style.transform = `200ms`;
+                        viewport.style.transform = `400ms`;
                         setOpen(false);
 
                         // TODO this should be removed after https://github.com/mui/base-ui/pull/878
-                        setTimeout(() => viewport.removeAttribute('style'), 400);
+                        setTimeout(() => viewport.removeAttribute('style'), 600);
+
+                        // Sometimes the first scroll event comes with the same scroll position
+                        // If so, give it another chance, call ourselves recursively
+                      } else if (viewport.scrollTop === y) {
+                        viewport.addEventListener('scroll', handleScroll, { once: true });
                       }
                     },
                     { once: true },
@@ -124,9 +129,10 @@ interface ItemProps extends React.ComponentPropsWithoutRef<'li'> {
 }
 
 export function Item({ children, className, href, ...props }: ItemProps) {
+  const [, setOpen] = React.useContext(MobileNavState);
   return (
     <li className={clsx('MobileNavItem', className)} {...props}>
-      <NextLink className="MobileNavLink" href={href}>
+      <NextLink className="MobileNavLink" href={href} onClick={() => setOpen(false)}>
         {children}
       </NextLink>
     </li>
