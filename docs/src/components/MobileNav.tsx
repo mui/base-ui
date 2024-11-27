@@ -37,6 +37,7 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
   // const [open, setOpen] = React.useContext(MobileNavState);
   return (
     <Dialog.Popup className={clsx('MobileNavPopup', className)} {...props}>
+      <div className="MobileNavBottomOverscroll" />
       <div className="MobileNavViewport">
         <div className="MobileNavViewportInner">
           <Dialog.Close className="MobileNavBackdropTapArea" tabIndex={-1} render={<div />} />
