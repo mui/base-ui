@@ -92,16 +92,27 @@
     border-top-right-radius: var(--radius-xl);
 
     box-shadow:
-      0 20px 80px -10px rgba(35, 39, 52, 0.2),
+      0 10px 64px -10px rgba(35, 39, 52, 0.2),
       0 0.25px 0 1px var(--color-gray-200);
 
     @media (prefers-color-scheme: dark) {
       box-shadow: inset 0 0 0 1px var(--color-gray-200);
     }
 
-    /* huh */
-    background-color: var(--color-popup);
-    /* background-image: linear-gradient(to bottom, var(--color-popup) 90%, transparent); */
+    /* Make bottom overscroll edges soft; visible during extreme rubber band overscroll at the bottom */
+    background-image: linear-gradient(to bottom, var(--color-popup) calc(100% - 2rem), transparent);
+  }
+
+  /* Smoothly hides bottom overscroll edge */
+  .MobileNavBottomOverscroll {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(to bottom, transparent 30%, var(--color-popup) 50%);
+  }
+
+  /* Make the panel narrower on wider screens; sync overscroll element size and position too */
+  .MobileNavPanel,
+  .MobileNavBottomOverscroll {
     @media (--sm) {
       margin-top: 5rem;
       margin-inline: auto;
@@ -133,6 +144,7 @@
     }
   }
 
+  /* TODO Vlad should headings be considered items? */
   .MobileNavItem {
     /*
      * Border is a separate element so that links
