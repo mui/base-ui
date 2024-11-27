@@ -65,9 +65,6 @@ importers:
       '@mui/monorepo':
         specifier: github:mui/material-ui#v6.1.7
         version: https://codeload.github.com/mui/material-ui/tar.gz/13e5a0c75eea4fe3f7ce48b19bcab6ab1a7bb0bd(encoding@0.1.13)
-      '@mui/utils':
-        specifier: 6.1.8
-        version: 6.1.8(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
       '@next/eslint-plugin-next':
         specifier: ^14.2.17
         version: 14.2.17
@@ -395,9 +392,6 @@ importers:
       '@mui/system':
         specifier: 6.1.8
         version: 6.1.8(@emotion/react@11.13.3(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
-      '@mui/utils':
-        specifier: 6.1.8
-        version: 6.1.8(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
       '@next/mdx':
         specifier: ^15.0.2
         version: 15.0.2(@mdx-js/loader@3.1.0(acorn@8.14.0)(webpack@5.94.0(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.94.0))))(@mdx-js/react@3.1.0(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))
@@ -633,12 +627,6 @@ importers:
       '@floating-ui/utils':
         specifier: ^0.2.8
         version: 0.2.8
-      '@mui/types':
-        specifier: ^7.2.19
-        version: 7.2.19(types-react@19.0.0-rc.1)
-      '@mui/utils':
-        specifier: ^6.1.8
-        version: 6.1.8(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -7945,7 +7933,6 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
-
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qjobs@1.2.0:
