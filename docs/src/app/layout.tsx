@@ -19,7 +19,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
         />
         <meta
           name="theme-color"
-          content="oklch(0% 0% 0)"
+          content="oklch(17% 1% 264)"
           media="(prefers-color-scheme: dark)"
         />
       </head>

@@ -5,6 +5,8 @@ import * as MobileNav from './MobileNav';
 import { nav } from '../nav';
 import { NpmIcon } from '../icons/Npm';
 
+const VERSION = 'v1.0.0-alpha-1';
+
 export function Header() {
   return (
     <div className="Header">
@@ -20,7 +22,7 @@ export function Header() {
             rel="noopener"
           >
             <NpmIcon />
-            v1.0.0-alpha.1
+            {VERSION}
           </a>
           <a className="HeaderLink" href="https://github.com/mui/base-ui" rel="noopener">
             <GitHubIcon />
@@ -62,7 +64,7 @@ export function Header() {
                     <NpmIcon />
                     <span className="flex flex-grow-1 justify-between">
                       npm package
-                      <span className="text-sm text-gray-600">v1.0.0-alpha.1</span>
+                      <span className="text-sm text-gray-600">{VERSION}</span>
                     </span>
                   </MobileNav.Item>
                   <MobileNav.Item href="https://github.com/mui/base-ui" rel="noopener">
