@@ -83,7 +83,7 @@ const MenuPopup = styled(Menu.Popup)(
       transform: scale(0.8);
     }
   }
-
+      
   &[data-ending-style] {
     opacity: 0;
     transform: scale(0.8);

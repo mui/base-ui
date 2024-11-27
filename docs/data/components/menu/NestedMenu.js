@@ -144,7 +144,7 @@ const MenuPopup = styled(Menu.Popup)(
       transform: scale(0.8);
     }
   }
-
+      
   &[data-ending-style] {
     opacity: 0;
     transform: scale(0.8);
@@ -166,11 +166,11 @@ const MenuItem = styled(Menu.Item)(
   border-radius: 8px;
   cursor: default;
   user-select: none;
-
+  
   &:last-of-type {
     border-bottom: none;
   }
-
+    
   &:focus,
   &:hover {
     background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
