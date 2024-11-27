@@ -51,8 +51,8 @@
     "./tabs": "./src/tabs/index.ts",
     "./text-input": "./src/text-input/index.ts",
     "./tooltip": "./src/tooltip/index.ts",
-    "./unstable-no-ssr": "./src/no-ssr/index.ts",
-    "./unstable-use-media-query": "./src/use-media-query/index.ts",
+    "./unstable-no-ssr": "./src/unstable-no-ssr/index.ts",
+    "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
     "./utils": "./src/utils/index.ts"
   },
   "imports": {
