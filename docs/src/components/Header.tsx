@@ -6,6 +6,7 @@ import { nav } from '../nav';
 import { NpmIcon } from '../icons/Npm';
 
 const VERSION = 'v1.0.0-alpha-1';
+export const HEADER_HEIGHT = 48;
 
 export function Header() {
   return (
