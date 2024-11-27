@@ -1,0 +1,198 @@
+@layer components {
+  .MobileNavBackdrop {
+    position: fixed;
+    inset: 0;
+
+    transition: all 500ms;
+    transition-timing-function: var(--transition-timing-function-natural-ease-out);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+
+    &[data-entering],
+    &[data-exiting] {
+      -webkit-backdrop-filter: blur(0px);
+      backdrop-filter: blur(0px);
+    }
+  }
+
+  .MobileNavPopup {
+    /* TODO remove when backdrop order bug is fixed */
+    z-index: 1;
+    outline: 0;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100dvh;
+
+    transition-duration: 500ms, 250ms;
+    transform-origin: top center;
+    transition-property: transform, filter;
+    transition-timing-function: var(--transition-timing-function-natural-ease-out);
+
+    &[data-entering],
+    &[data-exiting] {
+      transform: translateY(100dvh);
+      filter: blur(1px);
+    }
+
+    &[data-exiting] {
+      transition-delay: 0ms, 250ms;
+    }
+  }
+
+  .MobileNavViewport {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100dvh;
+
+    height: 100dvh;
+    overflow-y: auto;
+
+    /* huh */
+    background-image: linear-gradient(to bottom, transparent 20%, var(--color-popup) 40%);
+
+    --mobile-nav-item-height: 2.5rem;
+    --mobile-nav-item-padding-x: 1.5rem;
+    @apply text-base;
+
+    /* Native apps don't show scrollbars on sheets like this */
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .MobileNavBackdropTapArea {
+    display: block;
+    width: 100%;
+    height: 3rem;
+  }
+
+  .MobileNavPanel {
+    /* margin-top: 3rem; */
+    position: relative;
+    padding-block: 1rem;
+
+    /* huh */
+    /* background-color: var(--color-popup); */
+    background-image: linear-gradient(to bottom, var(--color-popup) 90%, transparent);
+
+    border-top-left-radius: var(--radius-xl);
+    border-top-right-radius: var(--radius-xl);
+
+    box-shadow:
+      0 0 60px rgba(35, 39, 52, 0.1),
+      0 -1px var(--color-gridline);
+
+    @media (prefers-color-scheme: dark) {
+      box-shadow: inset 0 2px 1px -1px var(--color-gray-200);
+    }
+  }
+
+  .MobileNavSection {
+    margin-bottom: 1rem;
+  }
+
+  .MobileNavHeading {
+    @apply text-lg;
+    font-weight: 500;
+    padding-inline: var(--mobile-nav-item-padding-x);
+
+    .MobileNavHeadingInner {
+      display: flex;
+      align-items: center;
+      height: var(--mobile-nav-item-height);
+    }
+
+    &::after {
+      content: '';
+      display: block;
+      margin-top: -1px;
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+  }
+
+  .MobileNavItem {
+    /*
+     * Border is a separate element so that links
+     * span the entire screen width and have the
+     * tap-highlight-color applied edge to edge.
+     */
+    &::after {
+      content: '';
+      display: block;
+      margin-inline: var(--mobile-nav-item-padding-x);
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+  }
+
+  .MobileNavLink {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    height: var(--mobile-nav-item-height);
+    padding-inline: var(--mobile-nav-item-padding-x);
+
+    @media (hover: hover) {
+      &:hover {
+        text-decoration: underline;
+        text-decoration-color: var(--color-gray-500);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+    }
+
+    &:active {
+      -webkit-tap-highlight-color: var(--color-gray-300);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+    }
+  }
+}
+
+.MobileNavCloseContainer {
+  position: sticky;
+  top: 0.75rem;
+  left: 100%;
+  margin-right: 0.75rem;
+  height: 0;
+  width: fit-content;
+}
+
+.MobileNavClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gray-500);
+  outline: 0;
+
+  /* Visible circle */
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 100%;
+  background-color: var(--color-gray-200);
+
+  /* Blur the dividers behind */
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+
+  /* Tap target */
+  &::after {
+    content: '';
+    width: 3rem;
+    height: 3rem;
+    position: absolute;
+  }
+}
