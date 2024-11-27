@@ -5,7 +5,7 @@ import { NOOP } from '../../utils/noop';
 import { GenericHTMLProps } from '../../utils/types';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useButton } from '../../useButton/useButton';
+import { useButton } from '../../use-button/useButton';
 
 export function useToggleButtonRoot(
   parameters: useToggleButtonRoot.Parameters,

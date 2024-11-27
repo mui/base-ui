@@ -3,7 +3,7 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useToggleButtonRoot } from '../../ToggleButton/Root/useToggleButtonRoot';
+import { useToggleButtonRoot } from '../../toggle-button/root/useToggleButtonRoot';
 
 export function useToggleButtonGroupItem(
   parameters: useToggleButtonGroupItem.Parameters,

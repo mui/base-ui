@@ -3,47 +3,54 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useToggleButtonRoot } from './useToggleButtonRoot';
+import { CompositeItem } from '../../composite/item/CompositeItem';
+import { useToggleButtonGroupRootContext } from '../root/ToggleButtonGroupRootContext';
+import { useToggleButtonGroupItem } from './useToggleButtonGroupItem';
 
 const customStyleHookMapping = {
   disabled: () => null,
 };
-
 /**
  *
  * Demos:
  *
- * - [ToggleButton](https://base-ui.com/components/react-toggle-button/)
+ * - [ToggleButtonGroup](https://base-ui.com/components/react-toggle-button-group/)
  *
  * API:
  *
- * - [ToggleButtonRoot API](https://base-ui.com/components/react-toggle-button/#api-reference-ToggleButtonRoot)
+ * - [ToggleButtonGroupItem API](https://base-ui.com/components/react-toggle-button-group/#api-reference-ToggleButtonGroupItem)
  */
-const ToggleButtonRoot = React.forwardRef(function ToggleButtonRoot(
-  props: ToggleButtonRoot.Props,
+const ToggleButtonGroupItem = React.forwardRef(function ToggleButtonGroupItem(
+  props: ToggleButtonGroupItem.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
-    pressed: pressedProp,
-    defaultPressed: defaultPressedProp,
+    value,
     disabled: disabledProp,
     onPressedChange,
     className,
     render,
-    type,
-    form,
+    type, // cannot change button type
+    form, // never participates in form validation
     ...otherProps
   } = props;
 
-  const { disabled, pressed, getRootProps } = useToggleButtonRoot({
-    pressed: pressedProp,
-    defaultPressed: defaultPressedProp,
-    disabled: disabledProp,
+  const {
+    value: groupValue,
+    setGroupValue,
+    disabled: groupDisabled,
+  } = useToggleButtonGroupRootContext();
+
+  const { disabled, pressed, getRootProps } = useToggleButtonGroupItem({
+    value,
+    groupValue,
+    setGroupValue,
+    disabled: groupDisabled || disabledProp,
     onPressedChange,
-    buttonRef: forwardedRef,
+    itemRef: forwardedRef,
   });
 
-  const ownerState: ToggleButtonRoot.OwnerState = React.useMemo(
+  const state: ToggleButtonGroupItem.State = React.useMemo(
     () => ({
       disabled,
       pressed,
@@ -55,51 +62,48 @@ const ToggleButtonRoot = React.forwardRef(function ToggleButtonRoot(
     propGetter: getRootProps,
     render: render ?? 'button',
     ref: forwardedRef,
-    ownerState,
+    state,
     className,
     customStyleHookMapping,
     extraProps: otherProps,
   });
 
-  return renderElement();
+  return <CompositeItem render={renderElement()} />;
 });
 
-export { ToggleButtonRoot };
+export { ToggleButtonGroupItem };
 
-export namespace ToggleButtonRoot {
-  export interface OwnerState {
+export namespace ToggleButtonGroupItem {
+  export interface State {
     pressed: boolean;
     disabled: boolean;
   }
 
   export interface Props
-    extends Pick<
-        useToggleButtonRoot.Parameters,
-        'pressed' | 'defaultPressed' | 'disabled' | 'onPressedChange'
-      >,
-      BaseUIComponentProps<'button', OwnerState> {
+    extends Pick<useToggleButtonGroupItem.Parameters, 'value' | 'onPressedChange'>,
+      Omit<BaseUIComponentProps<'button', State>, 'value'> {
     /**
-     * The label for the ToggleButton.
+     * The label for the toggle button.
      */
     'aria-label'?: React.AriaAttributes['aria-label'];
     /**
-     * An id or space-separated list of ids of elements that label the ToggleButton.
+     * An id or space-separated list of ids of elements that label the toggle button.
      */
     'aria-labelledby'?: React.AriaAttributes['aria-labelledby'];
   }
 }
 
-ToggleButtonRoot.propTypes /* remove-proptypes */ = {
+ToggleButtonGroupItem.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The label for the ToggleButton.
+   * The label for the toggle button.
    */
   'aria-label': PropTypes.string,
   /**
-   * An id or space-separated list of ids of elements that label the ToggleButton.
+   * An id or space-separated list of ids of elements that label the toggle button.
    */
   'aria-labelledby': PropTypes.string,
   /**
@@ -111,15 +115,7 @@ ToggleButtonRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default pressed state. Use when the component is not controlled.
-   *
-   * @default false
-   */
-  defaultPressed: PropTypes.bool,
-  /**
-   * If `true`, the component is disabled.
-   *
-   * @default false
+   * @ignore
    */
   disabled: PropTypes.bool,
   /**
@@ -134,12 +130,6 @@ ToggleButtonRoot.propTypes /* remove-proptypes */ = {
    */
   onPressedChange: PropTypes.func,
   /**
-   * If `true`, the component is pressed.
-   *
-   * @default undefined
-   */
-  pressed: PropTypes.bool,
-  /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
@@ -147,4 +137,9 @@ ToggleButtonRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   type: PropTypes.oneOf(['button', 'reset', 'submit']),
+  /**
+   * A unique string that identifies the component when used
+   * inside a ToggleButtonGroup
+   */
+  value: PropTypes.string.isRequired,
 } as any;

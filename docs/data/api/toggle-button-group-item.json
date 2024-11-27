@@ -15,14 +15,14 @@
   },
   "name": "ToggleButtonGroupItem",
   "imports": [
-    "import { ToggleButtonGroup } from '@base-ui-components/react/ToggleButtonGroup';\nconst ToggleButtonGroupItem = ToggleButtonGroup.Item;"
+    "import { ToggleButtonGroup } from '@base-ui-components/react/toggle-button-group';\nconst ToggleButtonGroupItem = ToggleButtonGroup.Item;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "ToggleButtonGroupItem",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/react/src/ToggleButtonGroup/Item/ToggleButtonGroupItem.tsx",
+  "filename": "/packages/react/src/toggle-button-group/item/ToggleButtonGroupItem.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-toggle-button-group/\">ToggleButtonGroup</a></li></ul>",
   "cssComponent": false

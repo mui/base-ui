@@ -21,6 +21,6 @@ export * from './slider';
 export * from './switch';
 export * from './tabs';
 export * from './text-input';
-export * from './ToggleButton';
-export * from './ToggleButtonGroup';
+export * from './toggle-button';
+export * from './toggle-button-group';
 export * from './tooltip';

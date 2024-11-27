@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
-import { ToggleButtonGroup } from '@base-ui-components/react/ToggleButtonGroup';
+import { ToggleButtonGroup } from '@base-ui-components/react/toggle-button-group';
 import { createRenderer, describeConformance } from '#test-utils';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);

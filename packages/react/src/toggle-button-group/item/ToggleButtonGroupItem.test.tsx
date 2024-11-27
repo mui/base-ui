@@ -2,11 +2,11 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act } from '@mui/internal-test-utils';
-import { ToggleButtonGroup } from '@base-ui-components/react/ToggleButtonGroup';
+import { ToggleButtonGroup } from '@base-ui-components/react/toggle-button-group';
 import { createRenderer, describeConformance } from '#test-utils';
 import { NOOP } from '../../utils/noop';
-import { CompositeRoot } from '../../Composite/Root/CompositeRoot';
-import { ToggleButtonGroupRootContext } from '../Root/ToggleButtonGroupRootContext';
+import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { ToggleButtonGroupRootContext } from '../root/ToggleButtonGroupRootContext';
 
 const contextValue: ToggleButtonGroupRootContext = {
   value: [],

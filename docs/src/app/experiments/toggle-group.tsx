@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { ToggleButtonGroup } from '@base-ui-components/react/ToggleButtonGroup';
+import { ToggleButtonGroup } from '@base-ui-components/react/toggle-button-group';
 import classes from './toggle.module.css';
 
 export default function ToggleButtonGroupDemo() {

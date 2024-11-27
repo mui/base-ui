@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act } from '@mui/internal-test-utils';
-import { ToggleButton } from '@base-ui-components/react/ToggleButton';
+import { ToggleButton } from '@base-ui-components/react/toggle-button';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<ToggleButton />', () => {

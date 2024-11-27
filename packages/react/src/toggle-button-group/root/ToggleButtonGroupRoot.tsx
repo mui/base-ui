@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { CompositeRoot } from '../../Composite/Root/CompositeRoot';
+import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import {
   useToggleButtonGroupRoot,
   type UseToggleButtonGroupRoot,
@@ -61,7 +61,7 @@ const ToggleButtonGroupRoot = React.forwardRef(function ToggleButtonGroupRoot(
     onValueChange,
   });
 
-  const ownerState: ToggleButtonGroupRoot.OwnerState = React.useMemo(
+  const state: ToggleButtonGroupRoot.State = React.useMemo(
     () => ({ disabled, multiple: toggleMultiple }),
     [disabled, toggleMultiple],
   );
@@ -79,7 +79,7 @@ const ToggleButtonGroupRoot = React.forwardRef(function ToggleButtonGroupRoot(
     propGetter: getRootProps,
     render: render ?? 'div',
     ref: forwardedRef,
-    ownerState,
+    state,
     className,
     customStyleHookMapping,
     extraProps: otherProps,
@@ -95,7 +95,7 @@ const ToggleButtonGroupRoot = React.forwardRef(function ToggleButtonGroupRoot(
 export { ToggleButtonGroupRoot };
 
 export namespace ToggleButtonGroupRoot {
-  export interface OwnerState {
+  export interface State {
     disabled: boolean;
     multiple: boolean;
   }
@@ -105,7 +105,7 @@ export namespace ToggleButtonGroupRoot {
         UseToggleButtonGroupRoot.Parameters,
         'value' | 'defaultValue' | 'onValueChange' | 'disabled' | 'toggleMultiple' | 'direction'
       >,
-      Omit<BaseUIComponentProps<'div', OwnerState>, 'defaultValue'> {
+      Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
      * @default false
      */
