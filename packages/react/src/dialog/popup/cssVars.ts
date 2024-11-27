@@ -1,3 +1,5 @@
+import { generateCssVariables } from '../../utils/generateCssVariables';
+
 export type DialogPopupCssVars = {
   /**
    * Indicates how many dialogs are nested within.
@@ -6,6 +8,4 @@ export type DialogPopupCssVars = {
   nestedDialogs: string;
 };
 
-export const cssVars: DialogPopupCssVars = {
-  nestedDialogs: '--nested-dialogs',
-};
+export const cssVars: DialogPopupCssVars = generateCssVariables(['nestedDialogs']);
