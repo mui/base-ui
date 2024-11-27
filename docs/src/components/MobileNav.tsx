@@ -3,7 +3,6 @@ import * as React from 'react';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { Dialog } from '@base-ui-components/react/dialog';
-import { useMediaQuery } from '@base-ui-components/react/use-media-query';
 
 type MobileNavState = [boolean, (open: boolean) => void];
 const MobileNavState = React.createContext<MobileNavState>([false, () => undefined]);
@@ -11,14 +10,6 @@ const MobileNavState = React.createContext<MobileNavState>([false, () => undefin
 export function Root(props: Dialog.Root.Props) {
   const state = React.useState(false);
   const [open, setOpen] = state;
-
-  // @media (--show-side-nav)
-  // const showSideNav = useMediaQuery('@media (width >= 64rem)', { noSsr: true });
-  // React.useEffect(() => {
-  //   if (showSideNav) {
-  //     setOpen(false);
-  //   }
-  // }, [setOpen, showSideNav]);
 
   return (
     <MobileNavState.Provider value={state}>
@@ -34,13 +25,60 @@ export function Backdrop({ className, ...props }: Dialog.Backdrop.Props) {
 }
 
 export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
-  // const [open, setOpen] = React.useContext(MobileNavState);
+  const [open, setOpen] = React.useContext(MobileNavState);
+
+  // James/Michal: please uncomment this to test
+  // React.useEffect(() => {
+  //   if (open) {
+  //     setTimeout(() => setOpen(false), 2000);
+  //   }
+  // }, [open, setOpen]);
+
   return (
     <Dialog.Popup className={clsx('MobileNavPopup', className)} {...props}>
       <div className="MobileNavBottomOverscroll" />
-      <div className="MobileNavViewport">
+      <div
+        className="MobileNavViewport"
+        onTouchStart={(event) => {
+          const viewport = event.currentTarget;
+          // Consider flicks from scroll top only (iOS does the same with its sheets)
+          if (viewport.scrollTop <= 0) {
+            // TODO Vlad touchcancel?
+            viewport.addEventListener(
+              'touchend',
+              () => {
+                // If touch ended and we are overscrolling past a threshold...
+                if (viewport.scrollTop < -60) {
+                  // ...look at whether the system's intertia scrolling is continuing the motion
+                  // in the same direction. If so, the flick strong enough to close the dialog.
+                  const y = viewport.scrollTop;
+                  viewport.addEventListener(
+                    'scroll',
+                    function handleScroll() {
+                      if (viewport.scrollTop <= y) {
+                        // It's gonna eventually bounce back to scrollTop 0. We need to counteract this
+                        // a bit so that the close transition doesn't appear slower than it should.
+                        viewport.style.translate = `0px -${y}px`;
+                        viewport.style.transform = `200ms`;
+                        setOpen(false);
+
+                        // TODO this is bullshit, the dialog should just unmount?
+                        setTimeout(() => viewport.removeAttribute('style'), 400);
+                      }
+                    },
+                    { once: true },
+                  );
+                }
+              },
+              { once: true },
+            );
+          }
+        }}
+      >
         <div className="MobileNavViewportInner">
+          {/* We need the area behind the panel to close on tap but also to scroll the viewport. */}
           <Dialog.Close className="MobileNavBackdropTapArea" tabIndex={-1} render={<div />} />
+
           <nav aria-label="Main navigation" className="MobileNavPanel">
             <div className="flex flex-col-reverse">
               <div>{children}</div>
