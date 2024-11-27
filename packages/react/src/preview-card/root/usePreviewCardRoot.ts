@@ -21,6 +21,7 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,
@@ -29,7 +30,6 @@ export function usePreviewCardRoot(
     open: externalOpen,
     onOpenChange: onOpenChangeProp = () => {},
     defaultOpen = false,
-    keepMounted = false,
     animated = true,
     delay,
     closeDelay,
@@ -63,19 +63,22 @@ export function usePreviewCardRoot(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
-      if (!keepMounted && !nextOpen) {
-        if (animated) {
-          runOnceAnimationsFinish(() => {
-            if (!openRef.current) {
-              setMounted(false);
-            }
-          });
-        } else {
-          setMounted(false);
-        }
-      }
     },
   );
+
+  useEnhancedEffect(() => {
+    if (!open) {
+      if (animated) {
+        runOnceAnimationsFinish(() => {
+          if (!openRef.current) {
+            setMounted(false);
+          }
+        });
+      } else {
+        setMounted(false);
+      }
+    }
+  }, [animated, open, openRef, runOnceAnimationsFinish, setMounted]);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -187,11 +190,6 @@ export namespace usePreviewCardRoot {
      * @default 300
      */
     closeDelay?: number;
-    /**
-     * Whether the preview card popup element stays mounted in the DOM when closed.
-     * @default false
-     */
-    keepMounted?: boolean;
     /**
      * Whether the preview card can animate, adding animation-related attributes and allowing for exit
      * animations to play. Useful to disable in tests to remove async behavior.
