@@ -1,21 +1,18 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { MeterDirection } from '../root/useMeterRoot';
 
 function useMeterIndicator(
   parameters: useMeterIndicator.Parameters,
 ): useMeterIndicator.ReturnValue {
-  const { direction, percentageValue } = parameters;
-
-  const isRtl = direction === 'rtl';
+  const { percentageValue } = parameters;
 
   const getStyles = React.useCallback(() => {
     return {
-      [isRtl ? 'right' : 'left']: 0,
+      insetInlineStart: 0,
       width: `${percentageValue}%`,
     };
-  }, [isRtl, percentageValue]);
+  }, [percentageValue]);
 
   const getRootProps: useMeterIndicator.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
@@ -32,11 +29,6 @@ function useMeterIndicator(
 
 namespace useMeterIndicator {
   export interface Parameters {
-    /**
-     * The direction that the meter fills towards
-     * @default 'ltr'
-     */
-    direction?: MeterDirection;
     /**
      * The current value.
      */

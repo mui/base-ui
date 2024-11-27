@@ -1,0 +1,64 @@
+{
+  "name": "MeterRoot",
+  "description": "",
+  "props": {
+    "value": {
+      "type": "number",
+      "required": true,
+      "description": "The current value."
+    },
+    "aria-label": {
+      "type": "string",
+      "description": "The label for the Indicator component."
+    },
+    "aria-labelledby": {
+      "type": "string",
+      "description": "An id or space-separated list of ids of elements that label the Indicator component."
+    },
+    "aria-valuetext": {
+      "type": "string",
+      "description": "A string value that provides a human-readable text alternative for the current value of the meter indicator."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "getAriaLabel": {
+      "type": "function(value: number) => string",
+      "description": "Accepts a function which returns a string value that provides an accessible name for the Indicator component"
+    },
+    "getAriaValueText": {
+      "type": "function(value: number) => string",
+      "description": "Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the meter indicator."
+    },
+    "high": {
+      "type": "number",
+      "default": "100",
+      "description": "Sets the lower boundary of the high end of the numeric range represented by the component.\nIf unspecified, or greater than `max`, it will fall back to `max`."
+    },
+    "low": {
+      "type": "number",
+      "default": "0",
+      "description": "Sets the upper boundary of the low end of the numeric range represented by the component.\nIf unspecified, or less than `min`, it will fall back to `min`."
+    },
+    "max": {
+      "type": "number",
+      "default": "100",
+      "description": "The maximum value"
+    },
+    "min": {
+      "type": "number",
+      "default": "0",
+      "description": "The minimum value"
+    },
+    "optimum": {
+      "type": "number",
+      "default": "50",
+      "description": "Indicates the optimal point in the numeric range represented by the component.\nIf unspecified, it will fall back to the midpoint between `min` and `max`."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    }
+  }
+}

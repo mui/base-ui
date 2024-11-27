@@ -1,6 +1,13 @@
-.grid {
-  background-color: var(--gray-container-1);
+.wrapper {
   font-family: system-ui, sans-serif;
+  background-color: var(--gray-container-1);
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 3rem;
+  padding: 3rem;
+}
+
+.grid {
   display: grid;
   grid-template-columns: 40rem 40rem;
   width: 100%;

@@ -4,7 +4,6 @@ import { createRenderer, describeConformance } from '#test-utils';
 import { MeterRootContext } from '../root/MeterRootContext';
 
 const contextValue: MeterRootContext = {
-  direction: 'ltr',
   max: 100,
   min: 0,
   value: 30,
@@ -12,7 +11,6 @@ const contextValue: MeterRootContext = {
   segment: 'low',
   isOptimal: false,
   state: {
-    direction: 'ltr',
     max: 100,
     min: 0,
     segment: 'low',

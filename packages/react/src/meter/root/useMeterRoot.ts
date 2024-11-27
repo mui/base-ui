@@ -3,14 +3,11 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { valueToPercent } from '../../utils/valueToPercent';
 
-export type MeterDirection = 'ltr' | 'rtl';
-
 function useMeterRoot(parameters: useMeterRoot.Parameters): useMeterRoot.ReturnValue {
   const {
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    direction = 'ltr',
     getAriaLabel,
     getAriaValueText,
     max = 100,
@@ -57,15 +54,13 @@ function useMeterRoot(parameters: useMeterRoot.Parameters): useMeterRoot.ReturnV
         'aria-valuenow': percentageValue / 100,
         'aria-valuetext': getAriaValueText
           ? getAriaValueText(value)
-          : ariaValuetext ?? `${percentageValue}%`,
-        dir: direction,
+          : (ariaValuetext ?? `${percentageValue}%`),
         role: 'meter',
       }),
     [
       ariaLabel,
       ariaLabelledby,
       ariaValuetext,
-      direction,
       getAriaLabel,
       getAriaValueText,
       max,
@@ -77,7 +72,6 @@ function useMeterRoot(parameters: useMeterRoot.Parameters): useMeterRoot.ReturnV
 
   return {
     getRootProps,
-    direction,
     max,
     min,
     value,
@@ -103,11 +97,6 @@ namespace useMeterRoot {
      * A string value that provides a human-readable text alternative for the current value of the meter indicator.
      */
     'aria-valuetext'?: string;
-    /**
-     * The direction that the meter fills towards
-     * @default 'ltr'
-     */
-    direction?: MeterDirection;
     /**
      * Accepts a function which returns a string value that provides an accessible name for the Indicator component
      * @param {number} value The component's value
@@ -158,10 +147,6 @@ namespace useMeterRoot {
     getRootProps: (
       externalProps?: React.ComponentPropsWithRef<'div'>,
     ) => React.ComponentPropsWithRef<'div'>;
-    /**
-     * The direction that the meter fills towards
-     */
-    direction: MeterDirection;
     /**
      * The maximum value
      */

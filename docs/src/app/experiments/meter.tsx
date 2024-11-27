@@ -34,8 +34,44 @@ export default function MeterIntroduction() {
   }
 
   return (
-    <div className={classes.grid}>
-      <div className={classes.demo}>
+    <div className={classes.wrapper}>
+      <div className={classes.grid}>
+        <div className={classes.demo}>
+          <Meter.Root
+            className={classes.meter}
+            aria-label="Battery Life"
+            value={range.value}
+            min={range.min}
+            max={range.max}
+            high={range.high}
+            low={range.low}
+            optimum={range.optimum}
+          >
+            <Meter.Track className={classes.track}>
+              <Meter.Indicator className={classes.indicator} />
+            </Meter.Track>
+          </Meter.Root>
+        </div>
+        <div className={classes.controls}>
+          {['value', 'min', 'max', 'high', 'low', 'optimum'].map((v) => {
+            return (
+              <Input
+                key={v}
+                name={v}
+                label={v}
+                value={range[v as keyof Range]}
+                setValue={setValue}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      <div dir="rtl">
+        <pre>
+          This is the same meter as above but wrapped in a div with the `dir="rtl"`
+          attribute so it fills from right-to-left
+        </pre>
         <Meter.Root
           className={classes.meter}
           aria-label="Battery Life"
@@ -50,19 +86,6 @@ export default function MeterIntroduction() {
             <Meter.Indicator className={classes.indicator} />
           </Meter.Track>
         </Meter.Root>
-      </div>
-      <div className={classes.controls}>
-        {['value', 'min', 'max', 'high', 'low', 'optimum'].map((v) => {
-          return (
-            <Input
-              key={v}
-              name={v}
-              label={v}
-              value={range[v as keyof Range]}
-              setValue={setValue}
-            />
-          );
-        })}
       </div>
     </div>
   );

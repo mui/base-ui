@@ -4,8 +4,9 @@ import { Meter } from '@base-ui-components/react/meter';
 import { createRenderer, describeConformance } from '#test-utils';
 import { MeterRootContext } from '../root/MeterRootContext';
 
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+
 const contextValue: MeterRootContext = {
-  direction: 'ltr',
   max: 100,
   min: 0,
   value: 30,
@@ -13,7 +14,6 @@ const contextValue: MeterRootContext = {
   segment: 'low',
   isOptimal: false,
   state: {
-    direction: 'ltr',
     max: 100,
     min: 0,
     segment: 'low',
@@ -35,7 +35,7 @@ describe('<Meter.Indicator />', () => {
 
   describe('internal styles', () => {
     it('sets positioning styles', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();

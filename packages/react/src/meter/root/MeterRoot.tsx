@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { type MeterDirection, useMeterRoot } from './useMeterRoot';
+import { useMeterRoot } from './useMeterRoot';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { meterStyleHookMapping } from './styleHooks';
@@ -25,7 +25,6 @@ const MeterRoot = React.forwardRef(function MeterRoot(
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    direction = 'ltr',
     getAriaLabel,
     getAriaValueText,
     max = 100,
@@ -43,7 +42,6 @@ const MeterRoot = React.forwardRef(function MeterRoot(
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    direction,
     getAriaLabel,
     getAriaValueText,
     max,
@@ -56,13 +54,12 @@ const MeterRoot = React.forwardRef(function MeterRoot(
 
   const state: MeterRoot.State = React.useMemo(
     () => ({
-      direction,
       max,
       min,
       segment: meter.segment,
       isOptimal: meter.isOptimal,
     }),
-    [direction, max, min, meter.segment, meter.isOptimal],
+    [max, min, meter.segment, meter.isOptimal],
   );
 
   const contextValue: MeterRootContext = React.useMemo(
@@ -90,7 +87,6 @@ const MeterRoot = React.forwardRef(function MeterRoot(
 
 namespace MeterRoot {
   export type State = {
-    direction: MeterDirection;
     max: number;
     min: number;
     segment: useMeterRoot.Segment;
@@ -127,11 +123,6 @@ MeterRoot.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * The direction that the meter fills towards
-   * @default 'ltr'
-   */
-  direction: PropTypes.oneOf(['ltr', 'rtl']),
   /**
    * Accepts a function which returns a string value that provides an accessible name for the Indicator component
    * @param {number} value The component's value

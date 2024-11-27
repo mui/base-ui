@@ -23,10 +23,9 @@ const MeterIndicator = React.forwardRef(function MeterIndicator(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { direction, percentageValue, state } = useMeterRootContext();
+  const { percentageValue, state } = useMeterRootContext();
 
   const { getRootProps } = useMeterIndicator({
-    direction,
     percentageValue,
   });
 

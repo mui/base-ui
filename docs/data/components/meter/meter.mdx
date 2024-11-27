@@ -86,10 +86,14 @@ The optimum prop defines whether the low, medium, or high segment of the range i
 
 ## RTL
 
-Set the `direction` prop to `'rtl'` to change the direction that the `Indicator` fills towards for right-to-left languages:
+Place the component inside any HTML element or component with the HTML dir attribute to change the direction that the `Indicator` fills towards for right-to-left languages:
 
 ```jsx
-<Meter.Root direction="rtl">{/* Subcomponents */}</Meter.Root>
+<html dir="rtl">
+  <body>
+    <Meter.Root>{/* Subcomponents */}</Meter.Root>
+  </body>
+</html>
 ```
 
 ## Overriding default components

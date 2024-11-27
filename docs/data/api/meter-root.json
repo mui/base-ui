@@ -5,10 +5,6 @@
     "aria-labelledby": { "type": { "name": "string" } },
     "aria-valuetext": { "type": { "name": "string" } },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "direction": {
-      "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
-      "default": "'ltr'"
-    },
     "getAriaLabel": {
       "type": { "name": "func" },
       "signature": { "type": "function(value: number) => string", "describedArgs": ["value"] }
@@ -33,11 +29,7 @@
   "themeDefaultProps": true,
   "muiName": "MeterRoot",
   "forwardsRefTo": "HTMLDivElement",
-<<<<<<< HEAD
   "filename": "/packages/react/src/meter/root/MeterRoot.tsx",
-=======
-  "filename": "/packages/react/src/Meter/Root/MeterRoot.tsx",
->>>>>>> 8ac5427ed7 (Fix proptypes and docs)
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-meter/\">Meter</a></li></ul>",
   "cssComponent": false
