@@ -28,7 +28,7 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
   return (
     <Dialog.Popup className={clsx('MobileNavPopup', className)} {...props}>
       <div className="MobileNavViewport">
-        <Dialog.Close className="MobileNavBackdropTapArea" tabIndex={-1} />
+        <Dialog.Close className="MobileNavBackdropTapArea" tabIndex={-1} render={<div />} />
         <nav aria-label="Main navigation" className="MobileNavPanel">
           <div className="flex flex-col-reverse">
             <div>{children}</div>
