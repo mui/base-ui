@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import { useMenuRootContext } from '../Root/MenuRootContext';
+import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -10,7 +10,7 @@ import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
-const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.OwnerState> = {
+const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
@@ -41,7 +41,7 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   const { className, render, keepMounted = false, container, ...other } = props;
   const { open, mounted, transitionStatus } = useMenuRootContext();
 
-  const ownerState: MenuBackdrop.OwnerState = React.useMemo(
+  const state: MenuBackdrop.State = React.useMemo(
     () => ({
       open,
       transitionStatus,
@@ -52,7 +52,7 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
-    ownerState,
+    state,
     ref: forwardedRef,
     extraProps: { role: 'presentation', hidden: !mounted, ...other },
     customStyleHookMapping,
@@ -67,12 +67,12 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
 });
 
 namespace MenuBackdrop {
-  export interface OwnerState {
+  export interface State {
     open: boolean;
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', OwnerState> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * If `true`, the backdrop remains mounted when the menu popup is closed.
      * @default false

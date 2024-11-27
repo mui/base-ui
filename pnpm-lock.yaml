@@ -65,9 +65,6 @@ importers:
       '@mui/monorepo':
         specifier: github:mui/material-ui#v6.1.7
         version: https://codeload.github.com/mui/material-ui/tar.gz/13e5a0c75eea4fe3f7ce48b19bcab6ab1a7bb0bd(encoding@0.1.13)
-      '@mui/utils':
-        specifier: 6.1.8
-        version: 6.1.8(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
       '@next/eslint-plugin-next':
         specifier: ^14.2.17
         version: 14.2.17
@@ -78,8 +75,8 @@ importers:
         specifier: 1.49.0
         version: 1.49.0
       '@tailwindcss/postcss':
-        specifier: 4.0.0-alpha.36
-        version: 4.0.0-alpha.36
+        specifier: 4.0.0-beta.2
+        version: 4.0.0-beta.2
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4
@@ -321,8 +318,8 @@ importers:
         specifier: ^36.0.1
         version: 36.0.1(stylelint@16.4.0(typescript@5.6.3))
       tailwindcss:
-        specifier: 4.0.0-alpha.36
-        version: 4.0.0-alpha.36
+        specifier: 4.0.0-beta.2
+        version: 4.0.0-beta.2
       terser:
         specifier: ^5.31.0
         version: 5.31.0
@@ -395,9 +392,6 @@ importers:
       '@mui/system':
         specifier: 6.1.8
         version: 6.1.8(@emotion/react@11.13.3(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
-      '@mui/utils':
-        specifier: 6.1.8
-        version: 6.1.8(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
       '@next/mdx':
         specifier: ^15.0.2
         version: 15.0.2(@mdx-js/loader@3.1.0(acorn@8.14.0)(webpack@5.94.0(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.94.0))))(@mdx-js/react@3.1.0(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))
@@ -461,6 +455,9 @@ importers:
       postcss:
         specifier: ^8.4.47
         version: 8.4.47
+      postcss-custom-media:
+        specifier: ^11.0.5
+        version: 11.0.5(postcss@8.4.47)
       postcss-import:
         specifier: ^16.1.0
         version: 16.1.0(postcss@8.4.47)
@@ -509,6 +506,9 @@ importers:
       remark-rehype:
         specifier: ^11.1.1
         version: 11.1.1
+      scroll-into-view-if-needed:
+        specifier: 3.1.0
+        version: 3.1.0
       shiki:
         specifier: ^1.22.2
         version: 1.22.2
@@ -541,8 +541,8 @@ importers:
         specifier: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils
         version: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils(@babel/core@7.26.0)(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)
       '@tailwindcss/postcss':
-        specifier: 4.0.0-alpha.36
-        version: 4.0.0-alpha.36
+        specifier: 4.0.0-beta.2
+        version: 4.0.0-beta.2
       '@types/chai':
         specifier: ^4.3.20
         version: 4.3.20
@@ -589,8 +589,8 @@ importers:
         specifier: ^14.2.4
         version: 14.2.4
       tailwindcss:
-        specifier: 4.0.0-alpha.36
-        version: 4.0.0-alpha.36
+        specifier: 4.0.0-beta.2
+        version: 4.0.0-beta.2
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -627,12 +627,6 @@ importers:
       '@floating-ui/utils':
         specifier: ^0.2.8
         version: 0.2.8
-      '@mui/types':
-        specifier: ^7.2.19
-        version: 7.2.19(types-react@19.0.0-rc.1)
-      '@mui/utils':
-        specifier: ^6.1.8
-        version: 6.1.8(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -1448,15 +1442,32 @@ packages:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
 
+  '@csstools/cascade-layer-name-parser@2.0.4':
+    resolution: {integrity: sha512-7DFHlPuIxviKYZrOiwVU/PiHLm3lLUR23OMuEEtfEOQTOp9hzQ2JjdY6X5H18RVuUPJqSCI+qNnD5iOLMVE0bA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@csstools/css-parser-algorithms': ^3.0.4
+      '@csstools/css-tokenizer': ^3.0.3
+
   '@csstools/css-parser-algorithms@2.6.1':
     resolution: {integrity: sha512-ubEkAaTfVZa+WwGhs5jbo5Xfqpeaybr/RvWzvFxRs4jfq16wH8l8Ty/QEEpINxll4xhuGfdMbipRyz5QZh9+FA==}
     engines: {node: ^14 || ^16 || >=18}
     peerDependencies:
       '@csstools/css-tokenizer': ^2.2.4
 
+  '@csstools/css-parser-algorithms@3.0.4':
+    resolution: {integrity: sha512-Up7rBoV77rv29d3uKHUIVubz1BTcgyUK72IvCQAbfbMv584xHcGKCKbWh7i8hPrRJ7qU4Y8IO3IY9m+iTB7P3A==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@csstools/css-tokenizer': ^3.0.3
+
   '@csstools/css-tokenizer@2.2.4':
     resolution: {integrity: sha512-PuWRAewQLbDhGeTvFuq2oClaSCKPIBmHyIobCV39JHRYN0byDcUWJl5baPeNUcqrjtdMNqFooE0FGl31I3JOqw==}
     engines: {node: ^14 || ^16 || >=18}
+
+  '@csstools/css-tokenizer@3.0.3':
+    resolution: {integrity: sha512-UJnjoFsmxfKUdNYdWgOB0mWUypuLvAfQPH1+pyvRJs6euowbFkFC6P13w1l8mJyi3vxYMxc9kld5jZEGRQs6bw==}
+    engines: {node: '>=18'}
 
   '@csstools/media-query-list-parser@2.1.9':
     resolution: {integrity: sha512-qqGuFfbn4rUmyOB0u8CVISIp5FfJ5GAR3mBrZ9/TKndHakdnm6pY0L/fbLcpPnrzwCyyTEZl1nUcXAYHEWneTA==}
@@ -1464,6 +1475,13 @@ packages:
     peerDependencies:
       '@csstools/css-parser-algorithms': ^2.6.1
       '@csstools/css-tokenizer': ^2.2.4
+
+  '@csstools/media-query-list-parser@4.0.2':
+    resolution: {integrity: sha512-EUos465uvVvMJehckATTlNqGj4UJWkTmdWuDMjqvSUkjGpmOyFZBVwb4knxCm/k2GMTXY+c/5RkdndzFYWeX5A==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@csstools/css-parser-algorithms': ^3.0.4
+      '@csstools/css-tokenizer': ^3.0.3
 
   '@csstools/selector-specificity@3.0.3':
     resolution: {integrity: sha512-KEPNw4+WW5AVEIyzC80rTbWEUatTW2lXpN8+8ILC8PiPeWPjwUzrPZDIOZ2wwqDmeqOYTdSGyL3+vE5GC3FB3Q==}
@@ -2917,81 +2935,81 @@ packages:
   '@swc/helpers@0.5.13':
     resolution: {integrity: sha512-UoKGxQ3r5kYI9dALKJapMmuK+1zWM/H17Z1+iwnNmzcJRnfFuevZs375TA5rW31pu4BS4NoSy1fRsexDXfWn5w==}
 
-  '@tailwindcss/node@4.0.0-alpha.36':
-    resolution: {integrity: sha512-SQDP+Dxx6R3uMvgSIFm/gfZT4wK5pl3P2cJO2FfEHyO2NebRED4+QhP4FG2voTLfZiukRFESkuOjte1618Rc0w==}
+  '@tailwindcss/node@4.0.0-beta.2':
+    resolution: {integrity: sha512-rcWgGqmvm+YfRhRUyYZZfbtGtP940r9oBigPOzdZGr6r8WoAfOPGhPBN0lTW94NzJWT34hKIsVz6+7jHQcwt+A==}
 
-  '@tailwindcss/oxide-android-arm64@4.0.0-alpha.36':
-    resolution: {integrity: sha512-sDA2JOnxX7o1kQMJzWEOqPBsgstpnYLlyMCsh78ZF+cdcnTzBuarMRBCmLbrdIKALlQLRHWCR/yccaXNxh6plQ==}
+  '@tailwindcss/oxide-android-arm64@4.0.0-beta.2':
+    resolution: {integrity: sha512-Vk7IBMA/gVGupl3+j++oeKxN2xmif1ET3LF+tuE3TzEE31P28+tS1tLuqfpA5NZLDGfHhuomhukS8PPa7CFGZw==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [android]
 
-  '@tailwindcss/oxide-darwin-arm64@4.0.0-alpha.36':
-    resolution: {integrity: sha512-rqF0A99RDcLz4EOsIdSHU2OfyGSXhGNZ9UTN2qvhHuaDYGWIOm4OAiAhpRRSQL9bh5DNEtEwQT0eWnMpOmCeDQ==}
+  '@tailwindcss/oxide-darwin-arm64@4.0.0-beta.2':
+    resolution: {integrity: sha512-qihv6iGezmM4M5GW+y45InlXC4FB6DVdxq2kk8tihPocTCHThO4+kDifIEh4KuqD8viuWAkTZQ9T1LXbo+9buQ==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
 
-  '@tailwindcss/oxide-darwin-x64@4.0.0-alpha.36':
-    resolution: {integrity: sha512-FiEWPxxaMCuudXnxglfpeI9hu7OJ1zyn2ZPRFna92GI2jCKhQmYkyrbcKtgZRx/GDUcTRSq4Wx16XMfCCNxP2g==}
+  '@tailwindcss/oxide-darwin-x64@4.0.0-beta.2':
+    resolution: {integrity: sha512-P/cRt2cs09QqwBMQMYB2LeB5fpllNdIH5fSqjA2iMzT1IPsIeWETAn9sAuVZb140p55sD1PUfvl5Cjap5MNRUw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
 
-  '@tailwindcss/oxide-freebsd-x64@4.0.0-alpha.36':
-    resolution: {integrity: sha512-COCw/4AIgcDmWJBpk+hpU03DNcnb2yoanMSy1wMwrwc2OnXMvxOVY3SjcsSYbP2E2wcQJXn/kGgMPvQa0yzdmw==}
+  '@tailwindcss/oxide-freebsd-x64@4.0.0-beta.2':
+    resolution: {integrity: sha512-UMfZx0K6PoMcH/zMlrPG5O68nGtxeYUn7Sg2LXDNfvE5YtX5JuJqLxdoMxdER4thE34Ni/KViK0njQBUtTNOsw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [freebsd]
 
-  '@tailwindcss/oxide-linux-arm-gnueabihf@4.0.0-alpha.36':
-    resolution: {integrity: sha512-+gRJ1jmJs4yi1tjsSi5nODLA6jpW35KuPp+iq5a/HU3LsnVwRH0kRx2XCOVWzpDUjZZJTRw9vCDEHSUZ434hcw==}
+  '@tailwindcss/oxide-linux-arm-gnueabihf@4.0.0-beta.2':
+    resolution: {integrity: sha512-MXzGuHdBcyhBlmRuKBYqfUcck2xLKT6MZsyjIev1WSUNATLY88jXODI0+jizMb30RgfcbirKHecDkP1fBcT5MQ==}
     engines: {node: '>= 10'}
     cpu: [arm]
     os: [linux]
 
-  '@tailwindcss/oxide-linux-arm64-gnu@4.0.0-alpha.36':
-    resolution: {integrity: sha512-uaXXFNn3bzbFmylRuHtRIIXGl6b14Ufk+ZTOHhBLnzOnXZd01Gs0QgYbxG9UP1mqQUm90MFFb1yQq03c5tuqeg==}
+  '@tailwindcss/oxide-linux-arm64-gnu@4.0.0-beta.2':
+    resolution: {integrity: sha512-UajegPqU7In0+FAHDBJ/yYgeTM+OydJPqidw1zFhtJCJeT2niAKqtExksbwgP8t6AX/1TcucNKQHE+AXIQWnWQ==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
 
-  '@tailwindcss/oxide-linux-arm64-musl@4.0.0-alpha.36':
-    resolution: {integrity: sha512-j9oazW3+3AHGWDkCXEOvATBjPrr9Db+Ynj3QR20/5BAF8Cxz4I+YZRa2Gt1A02ZeEfjRFOJN0joVkpMkhdJXvQ==}
+  '@tailwindcss/oxide-linux-arm64-musl@4.0.0-beta.2':
+    resolution: {integrity: sha512-82qo9PEr7CgSywYNUQrMLN6olt2KYn/zH2Wz5oCMbtmK8jp9IFanosbRjHwLwTqBlKX4NCGIJOqm6LkqPyDOSg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
 
-  '@tailwindcss/oxide-linux-x64-gnu@4.0.0-alpha.36':
-    resolution: {integrity: sha512-dgEAweIuIhhDTYyaT7FOKpsP/UsOv/uZAQFwAXTEtn348x8VO3sO/O4exDmZ0/4WbrQ2inE+T8iHZSdmoC65KQ==}
+  '@tailwindcss/oxide-linux-x64-gnu@4.0.0-beta.2':
+    resolution: {integrity: sha512-+ZoVg6iQ8ApPdNX5u2a7Y0w2utPmmR0WWc3tJIvm7iyCC5+BdPp2MYw6HAmlfMOYwI781+77u98u5tU+VS1rHg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
 
-  '@tailwindcss/oxide-linux-x64-musl@4.0.0-alpha.36':
-    resolution: {integrity: sha512-rwY1Y5n1NCZe8q+eyeZAwDXvw+cjPTBqfoWPF9eYjxQHyL+9FT1J9aUMKCPhbuMqn8BkaP54vEvGsqG39ccCmA==}
+  '@tailwindcss/oxide-linux-x64-musl@4.0.0-beta.2':
+    resolution: {integrity: sha512-vfsFHh2PIAcCGOVrfwIHWFidIpcoqeKmyaz0ZsS2ZOO64aXCAAe9VZwLUJtzA+L7BTkJd0PnhCDJL1dcTTCCGw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
 
-  '@tailwindcss/oxide-win32-arm64-msvc@4.0.0-alpha.36':
-    resolution: {integrity: sha512-5nZYJUu2mhY1guBABAHjWHsYQHn+XjFlDYC3JOU53FKrT8jhbFcePWvrBDPf85ykzGsabbpphCMKrfGR5A30Gg==}
+  '@tailwindcss/oxide-win32-arm64-msvc@4.0.0-beta.2':
+    resolution: {integrity: sha512-fCvsXiFKHg304wHprQhpX0O3QT8McC7pyXnc9x2MDs0l0/mG+8ibMzguAbObnRP5GZ5JbbVJ2sQe6JnMyxWWQw==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [win32]
 
-  '@tailwindcss/oxide-win32-x64-msvc@4.0.0-alpha.36':
-    resolution: {integrity: sha512-ykj5jLuWZwL6MF/UU46eZ97r8qmUZEwXKzJS9lK4Cktg9W9iBkDBXdX0/MKYLmsZGGtt4kj4KmYWqUAVgIWwZg==}
+  '@tailwindcss/oxide-win32-x64-msvc@4.0.0-beta.2':
+    resolution: {integrity: sha512-wFSERR9EpTu8OYqPb36Js1DeuC+8LuQxywnyEOnhzOKQZ4FQm+dfGBzHpQ/7MogBdS31Zahe42UteqCwujbzVQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
 
-  '@tailwindcss/oxide@4.0.0-alpha.36':
-    resolution: {integrity: sha512-vFnXcKgMsbWpU4iy5TYA1SOl1vkQYbZXmHj7uQbTRnGaSn3LirumO0uideaciF4NIx+Gb99GnB5ro6G8uXN90Q==}
+  '@tailwindcss/oxide@4.0.0-beta.2':
+    resolution: {integrity: sha512-Ety2iN7vYZs2kyx02fMgmaxpvKoGtlfqsJRAjtalD+EZzT4r2GksNu7Bb/KAVQCGPLBDCWjQ89qBseBHJfxKbg==}
     engines: {node: '>= 10'}
 
-  '@tailwindcss/postcss@4.0.0-alpha.36':
-    resolution: {integrity: sha512-xpf4N8yne/QqdXWoTR0jrkRVruDnRglLJ4kXxU5ig6FY9mauEueyh+Lo2HJgSU9JZRRQ8skEYGIGTfIK3B0WvQ==}
+  '@tailwindcss/postcss@4.0.0-beta.2':
+    resolution: {integrity: sha512-CVWu8jCPz1fBdZxXPgc9IdLAO/Evpr87l/InGlJT+EGN7T/I5DzEeZ1nSV7ZhP6Aj96qSJNL83FEJ4007pYHtQ==}
 
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -4207,6 +4225,9 @@ packages:
   compression@1.7.4:
     resolution: {integrity: sha512-jaSIDzP9pZVS4ZfQ+TzvtiWhdpFhE2RDHz8QJkpX9SIpLq88VueF5jJw6t+6CUQcAoA6t+x89MLrWAqpfDE8iQ==}
     engines: {node: '>= 0.8.0'}
+
+  compute-scroll-into-view@3.1.0:
+    resolution: {integrity: sha512-rj8l8pD4bJ1nx+dAkMhV1xB5RuZEyVysfxJqB1pRchh1KVvwOv9b7CGB8ZfjTImVv2oF+sYMUkMZq6Na5Ftmbg==}
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
@@ -7653,6 +7674,12 @@ packages:
     resolution: {integrity: sha512-d7Uw+eZoloe0EHDIYoe+bQ5WXnGMOpmiZFTuMWCwpjzzkL2nTjcKiAk4hh8TjnGye2TwWOk3UXucZ+3rbmBa8Q==}
     engines: {node: '>= 0.4'}
 
+  postcss-custom-media@11.0.5:
+    resolution: {integrity: sha512-SQHhayVNgDvSAdX9NQ/ygcDQGEY+aSF4b/96z7QUX6mqL5yl/JgG/DywcF6fW9XbnCRE+aVYk+9/nqGuzOPWeQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      postcss: ^8.4
+
   postcss-import@16.1.0:
     resolution: {integrity: sha512-7hsAZ4xGXl4MW+OKEWCnF6T5jqBw80/EE9aXg1r2yyn1RsVEU8EtKXbijEODa+rg7iih4bKf7vlvTGYR4CnPNg==}
     engines: {node: '>=18.0.0'}
@@ -7906,7 +7933,6 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
-
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qjobs@1.2.0:
@@ -8323,6 +8349,9 @@ packages:
   schema-utils@4.2.0:
     resolution: {integrity: sha512-L0jRsrPpjdckP3oPug3/VxNKt2trR8TcabrM6FOAAlvC/9Phcmm+cuAgTlxBqdBR1WJx7Naj9WHw+aOmheSVbw==}
     engines: {node: '>= 12.13.0'}
+
+  scroll-into-view-if-needed@3.1.0:
+    resolution: {integrity: sha512-49oNpRjWRvnU8NyGVmUaYG4jtTkNonFZI86MmGRDqBphEK2EXT9gdEUoQPZhuBM8yWHxCWbobltqYO5M4XrUvQ==}
 
   semver@5.7.2:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
@@ -8760,8 +8789,8 @@ packages:
     resolution: {integrity: sha512-w2sfv80nrAh2VCbqR5AK27wswXhqcck2AhfnNW76beQXskGZ1V12GwS//yYVa3d3fcvAip2OUnbDAjW2k3v9fA==}
     engines: {node: '>=10.0.0'}
 
-  tailwindcss@4.0.0-alpha.36:
-    resolution: {integrity: sha512-dbI1o+KJ+anCe/RI7/RuaG8IReQromxF2DLgPQCIQALzfXrosfX9UovahoNRXvyCaAqRP5KWQGagvvTmW44irQ==}
+  tailwindcss@4.0.0-beta.2:
+    resolution: {integrity: sha512-uZ+vgVsy6i18Glc3XYMkTq7dl4GsU4m8X8qRTVlU4+g8Uit7g+wttwfDCl3p+ZOq5KCB09th9XgVDx1zFLCeHA==}
 
   tapable@0.1.10:
     resolution: {integrity: sha512-jX8Et4hHg57mug1/079yitEKWGB3LCwoxByLsNim89LABq8NqgiX+6iYVOsq0vX8uJHkU+DZ5fnq95f800bEsQ==}
@@ -10480,16 +10509,32 @@ snapshots:
 
   '@colors/colors@1.5.0': {}
 
+  '@csstools/cascade-layer-name-parser@2.0.4(@csstools/css-parser-algorithms@3.0.4(@csstools/css-tokenizer@3.0.3))(@csstools/css-tokenizer@3.0.3)':
+    dependencies:
+      '@csstools/css-parser-algorithms': 3.0.4(@csstools/css-tokenizer@3.0.3)
+      '@csstools/css-tokenizer': 3.0.3
+
   '@csstools/css-parser-algorithms@2.6.1(@csstools/css-tokenizer@2.2.4)':
     dependencies:
       '@csstools/css-tokenizer': 2.2.4
 
+  '@csstools/css-parser-algorithms@3.0.4(@csstools/css-tokenizer@3.0.3)':
+    dependencies:
+      '@csstools/css-tokenizer': 3.0.3
+
   '@csstools/css-tokenizer@2.2.4': {}
+
+  '@csstools/css-tokenizer@3.0.3': {}
 
   '@csstools/media-query-list-parser@2.1.9(@csstools/css-parser-algorithms@2.6.1(@csstools/css-tokenizer@2.2.4))(@csstools/css-tokenizer@2.2.4)':
     dependencies:
       '@csstools/css-parser-algorithms': 2.6.1(@csstools/css-tokenizer@2.2.4)
       '@csstools/css-tokenizer': 2.2.4
+
+  '@csstools/media-query-list-parser@4.0.2(@csstools/css-parser-algorithms@3.0.4(@csstools/css-tokenizer@3.0.3))(@csstools/css-tokenizer@3.0.3)':
+    dependencies:
+      '@csstools/css-parser-algorithms': 3.0.4(@csstools/css-tokenizer@3.0.3)
+      '@csstools/css-tokenizer': 3.0.3
 
   '@csstools/selector-specificity@3.0.3(postcss-selector-parser@6.0.16)':
     dependencies:
@@ -12092,67 +12137,67 @@ snapshots:
     dependencies:
       tslib: 2.6.2
 
-  '@tailwindcss/node@4.0.0-alpha.36':
+  '@tailwindcss/node@4.0.0-beta.2':
     dependencies:
       enhanced-resolve: 5.17.1
       jiti: 2.4.0
-      tailwindcss: 4.0.0-alpha.36
+      tailwindcss: 4.0.0-beta.2
 
-  '@tailwindcss/oxide-android-arm64@4.0.0-alpha.36':
+  '@tailwindcss/oxide-android-arm64@4.0.0-beta.2':
     optional: true
 
-  '@tailwindcss/oxide-darwin-arm64@4.0.0-alpha.36':
+  '@tailwindcss/oxide-darwin-arm64@4.0.0-beta.2':
     optional: true
 
-  '@tailwindcss/oxide-darwin-x64@4.0.0-alpha.36':
+  '@tailwindcss/oxide-darwin-x64@4.0.0-beta.2':
     optional: true
 
-  '@tailwindcss/oxide-freebsd-x64@4.0.0-alpha.36':
+  '@tailwindcss/oxide-freebsd-x64@4.0.0-beta.2':
     optional: true
 
-  '@tailwindcss/oxide-linux-arm-gnueabihf@4.0.0-alpha.36':
+  '@tailwindcss/oxide-linux-arm-gnueabihf@4.0.0-beta.2':
     optional: true
 
-  '@tailwindcss/oxide-linux-arm64-gnu@4.0.0-alpha.36':
+  '@tailwindcss/oxide-linux-arm64-gnu@4.0.0-beta.2':
     optional: true
 
-  '@tailwindcss/oxide-linux-arm64-musl@4.0.0-alpha.36':
+  '@tailwindcss/oxide-linux-arm64-musl@4.0.0-beta.2':
     optional: true
 
-  '@tailwindcss/oxide-linux-x64-gnu@4.0.0-alpha.36':
+  '@tailwindcss/oxide-linux-x64-gnu@4.0.0-beta.2':
     optional: true
 
-  '@tailwindcss/oxide-linux-x64-musl@4.0.0-alpha.36':
+  '@tailwindcss/oxide-linux-x64-musl@4.0.0-beta.2':
     optional: true
 
-  '@tailwindcss/oxide-win32-arm64-msvc@4.0.0-alpha.36':
+  '@tailwindcss/oxide-win32-arm64-msvc@4.0.0-beta.2':
     optional: true
 
-  '@tailwindcss/oxide-win32-x64-msvc@4.0.0-alpha.36':
+  '@tailwindcss/oxide-win32-x64-msvc@4.0.0-beta.2':
     optional: true
 
-  '@tailwindcss/oxide@4.0.0-alpha.36':
+  '@tailwindcss/oxide@4.0.0-beta.2':
     optionalDependencies:
-      '@tailwindcss/oxide-android-arm64': 4.0.0-alpha.36
-      '@tailwindcss/oxide-darwin-arm64': 4.0.0-alpha.36
-      '@tailwindcss/oxide-darwin-x64': 4.0.0-alpha.36
-      '@tailwindcss/oxide-freebsd-x64': 4.0.0-alpha.36
-      '@tailwindcss/oxide-linux-arm-gnueabihf': 4.0.0-alpha.36
-      '@tailwindcss/oxide-linux-arm64-gnu': 4.0.0-alpha.36
-      '@tailwindcss/oxide-linux-arm64-musl': 4.0.0-alpha.36
-      '@tailwindcss/oxide-linux-x64-gnu': 4.0.0-alpha.36
-      '@tailwindcss/oxide-linux-x64-musl': 4.0.0-alpha.36
-      '@tailwindcss/oxide-win32-arm64-msvc': 4.0.0-alpha.36
-      '@tailwindcss/oxide-win32-x64-msvc': 4.0.0-alpha.36
+      '@tailwindcss/oxide-android-arm64': 4.0.0-beta.2
+      '@tailwindcss/oxide-darwin-arm64': 4.0.0-beta.2
+      '@tailwindcss/oxide-darwin-x64': 4.0.0-beta.2
+      '@tailwindcss/oxide-freebsd-x64': 4.0.0-beta.2
+      '@tailwindcss/oxide-linux-arm-gnueabihf': 4.0.0-beta.2
+      '@tailwindcss/oxide-linux-arm64-gnu': 4.0.0-beta.2
+      '@tailwindcss/oxide-linux-arm64-musl': 4.0.0-beta.2
+      '@tailwindcss/oxide-linux-x64-gnu': 4.0.0-beta.2
+      '@tailwindcss/oxide-linux-x64-musl': 4.0.0-beta.2
+      '@tailwindcss/oxide-win32-arm64-msvc': 4.0.0-beta.2
+      '@tailwindcss/oxide-win32-x64-msvc': 4.0.0-beta.2
 
-  '@tailwindcss/postcss@4.0.0-alpha.36':
+  '@tailwindcss/postcss@4.0.0-beta.2':
     dependencies:
       '@alloc/quick-lru': 5.2.0
-      '@tailwindcss/node': 4.0.0-alpha.36
-      '@tailwindcss/oxide': 4.0.0-alpha.36
+      '@tailwindcss/node': 4.0.0-beta.2
+      '@tailwindcss/oxide': 4.0.0-beta.2
       lightningcss: 1.27.0
       postcss: 8.4.47
-      tailwindcss: 4.0.0-alpha.36
+      tailwindcss: 4.0.0-beta.2
 
   '@testing-library/dom@10.4.0':
     dependencies:
@@ -13571,6 +13616,8 @@ snapshots:
       vary: 1.1.2
     transitivePeerDependencies:
       - supports-color
+
+  compute-scroll-into-view@3.1.0: {}
 
   concat-map@0.0.1: {}
 
@@ -17988,6 +18035,14 @@ snapshots:
 
   possible-typed-array-names@1.0.0: {}
 
+  postcss-custom-media@11.0.5(postcss@8.4.47):
+    dependencies:
+      '@csstools/cascade-layer-name-parser': 2.0.4(@csstools/css-parser-algorithms@3.0.4(@csstools/css-tokenizer@3.0.3))(@csstools/css-tokenizer@3.0.3)
+      '@csstools/css-parser-algorithms': 3.0.4(@csstools/css-tokenizer@3.0.3)
+      '@csstools/css-tokenizer': 3.0.3
+      '@csstools/media-query-list-parser': 4.0.2(@csstools/css-parser-algorithms@3.0.4(@csstools/css-tokenizer@3.0.3))(@csstools/css-tokenizer@3.0.3)
+      postcss: 8.4.47
+
   postcss-import@16.1.0(postcss@8.4.47):
     dependencies:
       postcss: 8.4.47
@@ -18705,6 +18760,10 @@ snapshots:
       ajv-formats: 2.1.1(ajv@8.12.0)
       ajv-keywords: 5.1.0(ajv@8.12.0)
 
+  scroll-into-view-if-needed@3.1.0:
+    dependencies:
+      compute-scroll-into-view: 3.1.0
+
   semver@5.7.2: {}
 
   semver@6.3.1: {}
@@ -19303,7 +19362,7 @@ snapshots:
       string-width: 4.2.3
       strip-ansi: 6.0.1
 
-  tailwindcss@4.0.0-alpha.36: {}
+  tailwindcss@4.0.0-beta.2: {}
 
   tapable@0.1.10: {}
 

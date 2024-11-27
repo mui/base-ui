@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Accordion } from '@base-ui-components/react/Accordion';
+import { Accordion } from '@base-ui-components/react/accordion';
 import classes from './styles.module.css';
 
 export default function UnstyledAccordionIntroduction() {

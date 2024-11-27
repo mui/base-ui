@@ -50,14 +50,14 @@
   },
   "name": "PreviewCardPositioner",
   "imports": [
-    "import { PreviewCard } from '@base-ui-components/react/PreviewCard';\nconst PreviewCardPositioner = PreviewCard.Positioner;"
+    "import { PreviewCard } from '@base-ui-components/react/preview-card';\nconst PreviewCardPositioner = PreviewCard.Positioner;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "PreviewCardPositioner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/PreviewCard/Positioner/PreviewCardPositioner.tsx",
+  "filename": "/packages/react/src/preview-card/positioner/PreviewCardPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-preview-card/\">Preview Card</a></li></ul>",
   "cssComponent": false

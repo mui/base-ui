@@ -65,6 +65,17 @@ function merge<T extends React.ElementType>(
         if (value || internalProps.style) {
           acc[key] = { ...internalProps.style, ...(value || {}) };
         }
+      } else if (key === 'className') {
+        if (value) {
+          if (internalProps.className) {
+            // eslint-disable-next-line prefer-template
+            acc[key] = value + ' ' + internalProps.className;
+          } else {
+            acc[key] = value;
+          }
+        } else {
+          acc[key] = internalProps.className;
+        }
       } else {
         acc[key] = value;
       }

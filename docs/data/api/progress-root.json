@@ -29,14 +29,14 @@
   },
   "name": "ProgressRoot",
   "imports": [
-    "import { Progress } from '@base-ui-components/react/Progress';\nconst ProgressRoot = Progress.Root;"
+    "import { Progress } from '@base-ui-components/react/progress';\nconst ProgressRoot = Progress.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "ProgressRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/Progress/Root/ProgressRoot.tsx",
+  "filename": "/packages/react/src/progress/root/ProgressRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-progress/\">Progress</a></li></ul>",
   "cssComponent": false

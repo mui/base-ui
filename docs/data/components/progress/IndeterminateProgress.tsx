@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Progress as BaseProgress } from '@base-ui-components/react/Progress';
+import { Progress as BaseProgress } from '@base-ui-components/react/progress';
 import { Box, styled, keyframes, css } from '@mui/system';
 
 export default function IndeterminateProgress() {
