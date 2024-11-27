@@ -8,8 +8,8 @@ export function Header() {
   return (
     <div className="Header">
       <div className="HeaderInner">
-        <NextLink href="/" className="HeaderLink text-base font-bold tracking-wider">
-          BASE UI
+        <NextLink href="/" className="HeaderLink text-lg font-bold tracking-tight">
+          base ui
         </NextLink>
 
         <div className="flex gap-6">

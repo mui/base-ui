@@ -4,15 +4,21 @@
     inset: 0;
     height: 100dvh;
 
-    transition: all 500ms;
+    transition: all 400ms;
     transition-timing-function: var(--transition-timing-function-natural-ease-out);
-    -webkit-backdrop-filter: blur(2px);
-    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(1.5px);
+    backdrop-filter: blur(1.5px);
+    background-image: linear-gradient(to bottom, transparent 2rem, rgb(0 0 0 / 5%) 50%);
+
+    @media (prefers-color-scheme: dark) {
+      background-image: linear-gradient(to bottom, transparent 2rem, rgb(0 0 0 / 50%) 50%);
+    }
 
     &[data-entering],
     &[data-exiting] {
       -webkit-backdrop-filter: blur(0px);
       backdrop-filter: blur(0px);
+      opacity: 0;
     }
   }
 
@@ -25,7 +31,8 @@
     inset: 0;
     height: 100dvh;
 
-    transition-duration: 500ms, 250ms;
+    /* Half the transition duration for blur so the element sort of comes into the focus when it's halfway in */
+    transition-duration: 400ms, 200ms;
     transform-origin: top center;
     transition-property: transform, filter;
     transition-timing-function: var(--transition-timing-function-natural-ease-out);
@@ -37,7 +44,8 @@
     }
 
     &[data-exiting] {
-      transition-delay: 0ms, 250ms;
+      /* Delay blur transition so it doesn't feel unfocused until halway out */
+      transition-delay: 0ms, 200ms;
     }
   }
 
@@ -49,7 +57,7 @@
     overflow-y: auto;
 
     /* huh */
-    background-image: linear-gradient(to bottom, transparent 20%, var(--color-popup) 40%);
+    /* background-image: linear-gradient(to bottom, transparent 20%, var(--color-popup) 40%); */
 
     --mobile-nav-item-height: 2.5rem;
     --mobile-nav-item-padding-x: 1.5rem;
@@ -62,10 +70,17 @@
     }
   }
 
+  .MobileNavViewportInner {
+    position: relative;
+
+    /* Prevent children's margin collapse */
+    display: flex;
+    flex-direction: column;
+  }
+
   .MobileNavBackdropTapArea {
-    position: fixed;
+    position: absolute;
     inset: 0;
-    height: 100dvh;
   }
 
   .MobileNavPanel {
@@ -73,21 +88,25 @@
     position: relative;
     padding-block: 1rem;
 
-    /* huh */
-    /* margin-inline: auto; */
-    /* max-width: 40rem; */
-    /* background-color: var(--color-popup); */
-    background-image: linear-gradient(to bottom, var(--color-popup) 90%, transparent);
-
     border-top-left-radius: var(--radius-xl);
     border-top-right-radius: var(--radius-xl);
 
     box-shadow:
-      0 0 60px rgba(35, 39, 52, 0.1),
-      0 -1px var(--color-gridline);
+      0 20px 80px -10px rgba(35, 39, 52, 0.2),
+      0 0.25px 0 1px var(--color-gray-200);
 
     @media (prefers-color-scheme: dark) {
-      box-shadow: inset 0 2px 1px -1px var(--color-gray-200);
+      box-shadow: inset 0 0 0 1px var(--color-gray-200);
+    }
+
+    /* huh */
+    background-color: var(--color-popup);
+    /* background-image: linear-gradient(to bottom, var(--color-popup) 90%, transparent); */
+    @media (--sm) {
+      margin-top: 5rem;
+      margin-inline: auto;
+      width: calc(100% - 6rem);
+      max-width: 40rem;
     }
   }
 
