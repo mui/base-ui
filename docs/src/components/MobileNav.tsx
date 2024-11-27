@@ -3,16 +3,26 @@ import * as React from 'react';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { Dialog } from '@base-ui-components/react/dialog';
+import { useMediaQuery } from '@base-ui-components/react/use-media-query';
 
 type MobileNavState = [boolean, (open: boolean) => void];
 const MobileNavState = React.createContext<MobileNavState>([false, () => undefined]);
 
 export function Root(props: Dialog.Root.Props) {
   const state = React.useState(false);
-  const [open, onOpenChange] = state;
+  const [open, setOpen] = state;
+
+  // @media (--show-side-nav)
+  // const showSideNav = useMediaQuery('@media (width >= 64rem)', { noSsr: true });
+  // React.useEffect(() => {
+  //   if (showSideNav) {
+  //     setOpen(false);
+  //   }
+  // }, [setOpen, showSideNav]);
+
   return (
     <MobileNavState.Provider value={state}>
-      <Dialog.Root open={open} onOpenChange={onOpenChange} {...props} />
+      <Dialog.Root open={open} onOpenChange={setOpen} {...props} />
     </MobileNavState.Provider>
   );
 }
@@ -28,31 +38,33 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
   return (
     <Dialog.Popup className={clsx('MobileNavPopup', className)} {...props}>
       <div className="MobileNavViewport">
-        <Dialog.Close className="MobileNavBackdropTapArea" tabIndex={-1} render={<div />} />
-        <nav aria-label="Main navigation" className="MobileNavPanel">
-          <div className="flex flex-col-reverse">
-            <div>{children}</div>
-            <div className="MobileNavCloseContainer">
-              <Dialog.Close aria-label="Close the navigation" className="MobileNavClose">
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M0.75 0.75L6 6M11.25 11.25L6 6M6 6L0.75 11.25M6 6L11.25 0.75"
-                    stroke="currentcolor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Dialog.Close>
+        <div className="MobileNavViewportInner">
+          <Dialog.Close className="MobileNavBackdropTapArea" tabIndex={-1} render={<div />} />
+          <nav aria-label="Main navigation" className="MobileNavPanel">
+            <div className="flex flex-col-reverse">
+              <div>{children}</div>
+              <div className="MobileNavCloseContainer">
+                <Dialog.Close aria-label="Close the navigation" className="MobileNavClose">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M0.75 0.75L6 6M11.25 11.25L6 6M6 6L0.75 11.25M6 6L11.25 0.75"
+                      stroke="currentcolor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Dialog.Close>
+              </div>
             </div>
-          </div>
-        </nav>
+          </nav>
+        </div>
       </div>
     </Dialog.Popup>
   );
