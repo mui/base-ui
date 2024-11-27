@@ -3,6 +3,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { Dialog } from '@base-ui-components/react/dialog';
+import { HEADER_HEIGHT } from './Header';
 
 type MobileNavState = [boolean, (open: boolean) => void];
 const MobileNavState = React.createContext<MobileNavState>([false, () => undefined]);
@@ -26,25 +27,39 @@ export function Backdrop({ className, ...props }: Dialog.Backdrop.Props) {
 
 export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
   const [, setOpen] = React.useContext(MobileNavState);
+  const rem = React.useRef(16);
+
+  React.useEffect(() => {
+    rem.current = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  }, []);
 
   return (
     <Dialog.Popup className={clsx('MobileNavPopup', className)} {...props}>
       <div className="MobileNavBottomOverscroll" />
       <div
         className="MobileNavViewport"
+        onScroll={(event) => {
+          const viewport = event.currentTarget;
+          if (viewport.scrollTop > (HEADER_HEIGHT * rem.current) / 16) {
+            viewport.setAttribute('data-clipped', '');
+          } else {
+            viewport.removeAttribute('data-clipped');
+          }
+        }}
         onTouchStart={(event) => {
           const viewport = event.currentTarget;
+
           // Consider flicks from scroll top only (iOS does the same with its sheets)
           if (viewport.scrollTop <= 0) {
             viewport.addEventListener(
               'touchend',
-              () => {
+              function handleTouchEnd() {
                 // If touch ended and we are overscrolling past a threshold...
                 if (viewport.scrollTop < -32) {
                   const y = viewport.scrollTop;
                   viewport.addEventListener(
                     'scroll',
-                    function handleScroll() {
+                    function handleNextScroll() {
                       // ...look at whether the system's intertia scrolling is continuing the motion
                       // in the same direction. If so, the flick is strong enough to close the dialog.
                       if (viewport.scrollTop < y) {
@@ -60,7 +75,7 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
                         // Sometimes the first scroll event comes with the same scroll position
                         // If so, give it another chance, call ourselves recursively
                       } else if (viewport.scrollTop === y) {
-                        viewport.addEventListener('scroll', handleScroll, { once: true });
+                        viewport.addEventListener('scroll', handleNextScroll, { once: true });
                       }
                     },
                     { once: true },
