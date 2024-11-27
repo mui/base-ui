@@ -72,6 +72,8 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
       if (nextOpen) {
         setOpenReason(reason ?? null);
+      } else {
+        setOpenReason(null);
       }
     },
   );
@@ -82,12 +84,10 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
         runOnceAnimationsFinish(() => {
           if (!openRef.current) {
             setMounted(false);
-            setOpenReason(null);
           }
         });
       } else {
         setMounted(false);
-        setOpenReason(null);
       }
     }
   }, [animated, open, openRef, runOnceAnimationsFinish, setMounted]);
