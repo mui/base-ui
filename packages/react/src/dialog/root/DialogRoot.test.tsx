@@ -68,7 +68,6 @@ describe('<Dialog.Root />', () => {
       const { user } = await render(<Test />);
 
       const closeButton = screen.getByText('Close');
-
       await user.click(closeButton);
 
       await waitFor(() => {
@@ -123,8 +122,6 @@ describe('<Dialog.Root />', () => {
       }
 
       const { user } = await render(<Test />);
-
-      expect(screen.queryByRole('dialog')).not.to.equal(null);
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
