@@ -2,6 +2,7 @@
   .MobileNavBackdrop {
     position: fixed;
     inset: 0;
+    height: 100dvh;
 
     transition: all 500ms;
     transition-timing-function: var(--transition-timing-function-natural-ease-out);
@@ -21,9 +22,7 @@
     outline: 0;
 
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    inset: 0;
     height: 100dvh;
 
     transition-duration: 500ms, 250ms;
@@ -44,10 +43,7 @@
 
   .MobileNavViewport {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 100dvh;
+    inset: 0;
 
     height: 100dvh;
     overflow-y: auto;
@@ -67,17 +63,19 @@
   }
 
   .MobileNavBackdropTapArea {
-    display: block;
-    width: 100%;
-    height: 3rem;
+    position: fixed;
+    inset: 0;
+    height: 100dvh;
   }
 
   .MobileNavPanel {
-    /* margin-top: 3rem; */
+    margin-top: 3rem;
     position: relative;
     padding-block: 1rem;
 
     /* huh */
+    /* margin-inline: auto; */
+    /* max-width: 40rem; */
     /* background-color: var(--color-popup); */
     background-image: linear-gradient(to bottom, var(--color-popup) 90%, transparent);
 
