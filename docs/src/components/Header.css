@@ -1,7 +1,7 @@
 @layer components {
   .Header {
     @apply text-sm;
-    height: 3rem;
+    height: var(--root-layout-header-height);
     width: 100%;
   }
 
@@ -26,20 +26,18 @@
     }
   }
 
-  .HeaderLink {
+  .HeaderLink,
+  .HeaderButton {
     display: flex;
     align-items: center;
     gap: 0.375rem;
-    padding: 0.25rem;
-    margin: -0.25rem;
+    padding: 0.25rem 0.5rem;
+    margin: -0.25rem -0.5rem;
     border-radius: var(--radius-md);
 
-    @media (hover: hover) {
-      &:hover {
-        text-decoration: underline;
-        text-decoration-color: var(--color-gray-500);
-        text-decoration-thickness: 1px;
-        text-underline-offset: 2px;
+    @media not (hover: hover) {
+      &:active {
+        color: var(--color-gray-500);
       }
     }
 
@@ -51,6 +49,30 @@
 
     & > * {
       flex-shrink: 0;
+    }
+  }
+
+  .HeaderButton {
+    @media (hover: hover) {
+      &:hover {
+        background-color: var(--color-gray-100);
+      }
+    }
+    @media not (hover: hover) {
+      &:active {
+        background-color: var(--color-gray-100);
+      }
+    }
+  }
+
+  .HeaderLink {
+    @media (hover: hover) {
+      &:hover {
+        text-decoration: underline;
+        text-decoration-color: var(--color-gray-500);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
     }
   }
 }

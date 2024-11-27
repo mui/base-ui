@@ -24,7 +24,7 @@
   }
 
   .MobileNavPopup {
-    /* TODO remove when backdrop order bug is fixed */
+    /* TODO Vlad remove when the backdrop order bug is fixed */
     z-index: 1;
     outline: 0;
 
@@ -51,17 +51,14 @@
   }
 
   .MobileNavViewport {
+    --mobile-nav-item-height: 2.5rem;
+    --mobile-nav-item-padding-x: 1.5rem;
+
     position: absolute;
     inset: 0;
-
     height: 100dvh;
     overflow-y: auto;
 
-    /* huh */
-    /* background-image: linear-gradient(to bottom, transparent 20%, var(--color-popup) 40%); */
-
-    --mobile-nav-item-height: 2.5rem;
-    --mobile-nav-item-padding-x: 1.5rem;
     @apply text-base;
 
     /* Native apps don't show scrollbars on sheets like this */
@@ -85,7 +82,7 @@
   }
 
   .MobileNavPanel {
-    margin-top: 3rem;
+    margin-top: var(--root-layout-header-height);
     position: relative;
     padding-block: 1rem;
 
@@ -102,6 +99,17 @@
 
     /* Make bottom overscroll edges soft; visible during extreme rubber band overscroll at the bottom */
     background-image: linear-gradient(to bottom, var(--color-popup) calc(100% - 2rem), transparent);
+
+    /* Make the panel narrower on wider screens and lose the overscroll gradient hocus pocus for a bottom margin */
+    @media (--sm) {
+      margin-block: 5rem;
+      margin-inline: auto;
+      width: calc(100% - 6rem);
+      max-width: 40rem;
+      background-image: none;
+      background-color: var(--color-popup);
+      border-radius: var(--radius-xl);
+    }
   }
 
   /* Smoothly hides bottom overscroll edge */
@@ -109,16 +117,9 @@
     position: absolute;
     inset: 0;
     background-image: linear-gradient(to bottom, transparent 30%, var(--color-popup) 50%);
-  }
 
-  /* Make the panel narrower on wider screens; sync overscroll element size and position too */
-  .MobileNavPanel,
-  .MobileNavBottomOverscroll {
     @media (--sm) {
-      margin-top: 5rem;
-      margin-inline: auto;
-      width: calc(100% - 6rem);
-      max-width: 40rem;
+      display: none;
     }
   }
 
@@ -145,7 +146,7 @@
     }
   }
 
-  /* TODO Vlad should headings be considered items? */
+  /* TODO Vlad should headings be just items? */
   .MobileNavItem {
     /*
      * Border is a separate element so that links
@@ -163,20 +164,19 @@
   .MobileNavLink {
     flex-grow: 1;
     display: flex;
+    gap: 0.5rem;
     align-items: center;
     height: var(--mobile-nav-item-height);
     padding-inline: var(--mobile-nav-item-padding-x);
 
-    @media (hover: hover) {
-      &:hover {
-        text-decoration: underline;
-        text-decoration-color: var(--color-gray-500);
-        text-decoration-thickness: 1px;
-        text-underline-offset: 2px;
+    @supports not (-webkit-tap-highlight-color: black) {
+      &:active {
+        background-color: var(--color-gray-100);
       }
     }
-
-    &:active {
+    @supports (-webkit-tap-highlight-color: black) {
+      /* Applying background-color on :active shows it when touching items while scrolling */
+      /* This activates only on real link taps */
       -webkit-tap-highlight-color: var(--color-gray-300);
     }
 
@@ -210,8 +210,8 @@
   background-color: var(--color-gray-200);
 
   /* Blur the dividers behind */
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(1rem);
+  backdrop-filter: blur(1rem);
 
   &:focus-visible {
     outline: 2px solid var(--color-blue);

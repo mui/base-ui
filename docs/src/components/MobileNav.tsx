@@ -36,7 +36,6 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
           const viewport = event.currentTarget;
           // Consider flicks from scroll top only (iOS does the same with its sheets)
           if (viewport.scrollTop <= 0) {
-            // TODO Vlad touchcancel?
             viewport.addEventListener(
               'touchend',
               () => {
@@ -77,7 +76,8 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
           {/* We need the area behind the panel to close on tap but also to scroll the viewport. */}
           <Dialog.Close className="MobileNavBackdropTapArea" tabIndex={-1} render={<div />} />
 
-          <nav aria-label="Main navigation" className="MobileNavPanel">
+          <nav className="MobileNavPanel">
+            {/* Reverse order to place the close button at the end of the DOM, but at sticky top visually */}
             <div className="flex flex-col-reverse">
               <div>{children}</div>
               <div className="MobileNavCloseContainer">
@@ -126,13 +126,14 @@ export function List({ className, ...props }: React.ComponentProps<'ul'>) {
 interface ItemProps extends React.ComponentPropsWithoutRef<'li'> {
   active?: boolean;
   href: string;
+  rel?: string;
 }
 
-export function Item({ children, className, href, ...props }: ItemProps) {
+export function Item({ children, className, href, rel, ...props }: ItemProps) {
   const [, setOpen] = React.useContext(MobileNavState);
   return (
     <li className={clsx('MobileNavItem', className)} {...props}>
-      <NextLink className="MobileNavLink" href={href} onClick={() => setOpen(false)}>
+      <NextLink className="MobileNavLink" href={href} rel={rel} onClick={() => setOpen(false)}>
         {children}
       </NextLink>
     </li>
