@@ -20,6 +20,7 @@ import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useControlled } from '../../utils/useControlled';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { useLatestRef } from '../../utils/useLatestRef';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -62,7 +63,10 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
-    if (!nextOpen) {
+  });
+
+  useEnhancedEffect(() => {
+    if (!open) {
       if (animated) {
         runOnceAnimationsFinish(() => {
           if (!openRef.current) {
@@ -73,7 +77,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         setMounted(false);
       }
     }
-  });
+  }, [animated, open, openRef, runOnceAnimationsFinish, setMounted]);
 
   const floatingRootContext = useFloatingRootContext({
     elements: {
