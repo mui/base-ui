@@ -25,6 +25,7 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -69,23 +70,27 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
-      if (!nextOpen) {
-        if (animated) {
-          runOnceAnimationsFinish(() => {
-            if (!openRef.current) {
-              setMounted(false);
-              setOpenReason(null);
-            }
-          });
-        } else {
-          setMounted(false);
-          setOpenReason(null);
-        }
-      } else {
+      if (nextOpen) {
         setOpenReason(reason ?? null);
       }
     },
   );
+
+  useEnhancedEffect(() => {
+    if (!open) {
+      if (animated) {
+        runOnceAnimationsFinish(() => {
+          if (!openRef.current) {
+            setMounted(false);
+            setOpenReason(null);
+          }
+        });
+      } else {
+        setMounted(false);
+        setOpenReason(null);
+      }
+    }
+  }, [animated, open, openRef, runOnceAnimationsFinish, setMounted]);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
