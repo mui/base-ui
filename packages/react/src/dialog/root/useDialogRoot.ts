@@ -23,7 +23,6 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     animated = true,
     defaultOpen = false,
     dismissible = true,
-    keepMounted = false,
     modal = true,
     onNestedDialogClose,
     onNestedDialogOpen,
@@ -60,7 +59,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   });
 
   useEnhancedEffect(() => {
-    if (!keepMounted && !open) {
+    if (!open) {
       if (animated) {
         runOnceAnimationsFinish(() => {
           if (!openRef.current) {
@@ -71,7 +70,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
         setMounted(false);
       }
     }
-  }, [keepMounted, animated, open, openRef, runOnceAnimationsFinish, setMounted]);
+  }, [animated, open, openRef, runOnceAnimationsFinish, setMounted]);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: popupElement },
@@ -201,11 +200,6 @@ export interface CommonParameters {
    * @default true
    */
   dismissible?: boolean;
-  /**
-   * Whether the dialog element stays mounted in the DOM when closed.
-   * @default false
-   */
-  keepMounted?: boolean;
 }
 
 export namespace useDialogRoot {
