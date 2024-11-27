@@ -2,7 +2,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { Dialog } from '@base-ui-components/react/dialog';
-// eslint-disable-next-line no-restricted-imports
 import { useTransitionStatus } from '@base-ui-components/react/utils';
 import {
   animated as springAnimated,

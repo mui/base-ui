@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-// eslint-disable-next-line no-restricted-imports
 import { useEnhancedEffect } from '@base-ui-components/react/utils';
 
 export interface DemoVariantSelectorContext {

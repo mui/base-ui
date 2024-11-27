@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { Tabs } from '@base-ui-components/react/tabs';
-// eslint-disable-next-line no-restricted-imports
 import { useEnhancedEffect } from '@base-ui-components/react/utils';
 import { usePackageManagerSnippetContext } from './PackageManagerSnippetProvider';
 
