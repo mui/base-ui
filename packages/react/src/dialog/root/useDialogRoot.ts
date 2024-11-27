@@ -16,6 +16,7 @@ import { type GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useLatestRef } from '../../utils/useLatestRef';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -56,8 +57,10 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
+  });
 
-    if (!keepMounted && !nextOpen) {
+  useEnhancedEffect(() => {
+    if (!keepMounted && !open) {
       if (animated) {
         runOnceAnimationsFinish(() => {
           if (!openRef.current) {
@@ -68,7 +71,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
         setMounted(false);
       }
     }
-  });
+  }, [keepMounted, animated, open, openRef, runOnceAnimationsFinish, setMounted]);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: popupElement },
