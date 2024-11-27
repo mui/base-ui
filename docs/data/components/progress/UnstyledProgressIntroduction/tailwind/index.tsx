@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import { Progress as BaseProgress } from '@base-ui-components/react/Progress';
+import { Progress as BaseProgress } from '@base-ui-components/react/progress';
 
 export default function UnstyledProgressIntroduction() {
   // Replace this with your app logic for determining dark mode

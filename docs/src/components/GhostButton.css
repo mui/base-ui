@@ -1,12 +1,5 @@
 @layer components {
   .GhostButton {
-    /* Reset browser defaults */
-    background: none;
-    border-radius: 0;
-    border: none;
-    color: inherit;
-    padding: 0;
-
     @apply text-xs;
     color: var(--color-gray);
     cursor: default;
@@ -63,7 +56,8 @@
         }
       }
 
-      &:active {
+      /* No pressed state for menus */
+      &:not([aria-haspopup]):active {
         &::before {
           background-color: var(--color-gray-200);
         }

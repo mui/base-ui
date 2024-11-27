@@ -34,9 +34,5 @@
     &[data-exiting] {
       transition-duration: 275ms;
     }
-
-    &[data-instant] {
-      transition-duration: 0s;
-    }
   }
 }

@@ -51,9 +51,9 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 100%;
   transform: translate(-50%, -50%);
-  max-width: min(100vw - 48px, 320px);
+  width: 320px;
+  max-width: calc(100vw - 48px);
   margin-top: -2rem;
   padding: 1.5rem;
   border-radius: 0.5rem;

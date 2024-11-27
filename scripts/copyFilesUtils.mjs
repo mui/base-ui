@@ -119,6 +119,16 @@ export async function createPackageFile() {
           default: './esm/index.js',
         },
       },
+      './utils': {
+        require: {
+          types: './cjs/utils/index.d.ts',
+          default: './cjs/utils/index.js',
+        },
+        import: {
+          types: './esm/utils/index.d.ts',
+          default: './esm/utils/index.js',
+        },
+      },
       './*': {
         require: {
           types: './cjs/*/index.d.ts',

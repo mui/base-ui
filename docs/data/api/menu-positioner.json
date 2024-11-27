@@ -50,14 +50,14 @@
   },
   "name": "MenuPositioner",
   "imports": [
-    "import { Menu } from '@base-ui-components/react/Menu';\nconst MenuPositioner = Menu.Positioner;"
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuPositioner = Menu.Positioner;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "MenuPositioner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/Menu/Positioner/MenuPositioner.tsx",
+  "filename": "/packages/react/src/menu/positioner/MenuPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

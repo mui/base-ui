@@ -38,7 +38,6 @@ module.exports = {
       },
     ],
     '@typescript-eslint/no-redeclare': 'off',
-
     // We LOVE non-breaking spaces, and both straight and curly quotes here
     'no-irregular-whitespace': [1, { skipJSXText: true, skipStrings: true }],
     'react/no-unescaped-entities': [1, { forbid: ['>', '}'] }],
@@ -52,12 +51,13 @@ module.exports = {
       (ruleSet) => !ruleSet.rules.hasOwnProperty('filenames/match-exported'),
     ),
     {
-      files: ['docs/pages/experiments/**/*{.tsx,.js}', 'docs/pages/playground/**/*{.tsx,.js}'],
+      files: ['docs/src/app/experiments/**/*{.tsx,.js}', 'docs/pages/playground/**/*{.tsx,.js}'],
       rules: {
         '@typescript-eslint/no-use-before-define': 'off',
         'react/prop-types': 'off',
         'no-alert': 'off',
         'no-console': 'off',
+        'import/no-relative-packages': 'off',
       },
     },
     {

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { PreviewCard } from '@base-ui-components/react/PreviewCard';
+import { PreviewCard } from '@base-ui-components/react/preview-card';
 import { styled } from '@mui/system';
 
 export default function UnstyledPreviewCardTransition() {

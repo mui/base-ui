@@ -86,13 +86,6 @@
   }
 
   .DemoTab {
-    /* Reset browser defaults */
-    background: none;
-    border-radius: 0;
-    border: none;
-    color: inherit;
-    padding: 0;
-
     font-family: var(--font-mono);
     letter-spacing: normal;
     cursor: default;
@@ -163,6 +156,7 @@
     & pre {
       @apply text-xs;
       padding: 0.5rem 0.75rem;
+      display: flex;
       cursor: text;
 
       /* Closed state */
@@ -199,7 +193,6 @@
         max-height: none;
 
         /* Scroll */
-        display: flex;
         overflow: auto;
         overscroll-behavior-x: contain;
         scrollbar-width: thin;
@@ -226,13 +219,6 @@
   }
 
   .DemoCollapseButton {
-    /* Reset browser defaults */
-    background: none;
-    border-radius: 0;
-    border: none;
-    color: inherit;
-    padding: 0;
-
     @apply text-xs;
     background-color: var(--color-gray-50);
     cursor: default;
