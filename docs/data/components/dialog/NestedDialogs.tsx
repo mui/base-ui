@@ -146,7 +146,7 @@ const Backdrop = styled(BaseDialog.Backdrop)`
     transition-timing-function: ease-out;
   }
 
-  &[data-entering] {
+  &[data-starting-style] {
     backdrop-filter: blur(0);
     opacity: 0;
   }

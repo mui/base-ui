@@ -83,8 +83,8 @@ const MenuPopup = styled(Menu.Popup)(
       transform: scale(0.8);
     }
   }
-      
-  &[data-exiting] {
+
+  &[data-ending-style] {
     opacity: 0;
     transform: scale(0.8);
     transition: opacity 200ms ease-in, transform 200ms ease-in;

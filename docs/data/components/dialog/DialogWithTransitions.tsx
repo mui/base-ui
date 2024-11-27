@@ -57,7 +57,7 @@ const Popup = styled(BaseDialog.Popup)(
     transition-timing-function: ease-out;
   }
 
-  &[data-entering] {
+  &[data-starting-style] {
     opacity: 0;
     transform: translate(-50%, -35%) scale(0.8);
   }
@@ -81,7 +81,7 @@ const Backdrop = styled(BaseDialog.Backdrop)`
     transition-timing-function: ease-out;
   }
 
-  &[data-entering] {
+  &[data-starting-style] {
     backdrop-filter: blur(0);
     opacity: 0;
   }

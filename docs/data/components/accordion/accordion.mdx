@@ -211,8 +211,8 @@ Accordion uses [`Collapsible`](/components/react-collapsible) internally, and ca
 Three states are available as data attributes to animate the `Accordion.Panel`:
 
 - `[data-open]` - `open` state is `true`.
-- `[data-entering]` - the `hidden` attribute was just removed from the DOM and the panel element participates in page layout. The `data-entering` attribute will be removed 1 animation frame later.
-- `[data-exiting]` - the panel element is in the process of being hidden from the DOM, but is still mounted.
+- `[data-starting-style]` - the `hidden` attribute was just removed from the DOM and the panel element participates in page layout. The `data-starting-style` attribute will be removed 1 animation frame later.
+- `[data-ending-style]` - the panel element is in the process of being hidden from the DOM, but is still mounted.
 
 The component can be animate when opening or closing using either:
 
@@ -266,7 +266,7 @@ When using CSS transitions, styles for the `Panel` must be applied to three stat
 
 - The exiting styles, placed on the base element class
 - The open styles, placed on the base element class with `[data-state="open"]`
-- The entering styles, placed on the base element class with `[data-entering]`
+- The entering styles, placed on the base element class with `[data-starting-style]`
 
 ```css
 .AccordionPanel {
@@ -283,7 +283,7 @@ When using CSS transitions, styles for the `Panel` must be applied to three stat
 }
 
 /* The initial styles when opening/entering */
-.AccordionPanel[data-entering] {
+.AccordionPanel[data-starting-style] {
   height: 0;
 }
 ```

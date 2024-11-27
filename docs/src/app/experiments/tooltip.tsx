@@ -44,7 +44,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
       animation: ${scaleIn} 0.2s forwards;
     }
 
-    &[data-exiting] {
+    &[data-ending-style] {
       animation: ${scaleOut} 0.2s forwards;
     }
   }
@@ -54,7 +54,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
       animation: ${scaleIn} 0.2s forwards;
     }
 
-    &[data-exiting] {
+    &[data-ending-style] {
       animation: ${scaleOut} 0.2s forwards;
     }
   }
@@ -70,7 +70,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
       transform: scale(1);
     }
 
-    &[data-entering] {
+    &[data-starting-style] {
       opacity: 0;
       transform: scale(0.8);
     }
@@ -85,12 +85,12 @@ export const TooltipPopup = styled(Tooltip.Popup)`
       transform: scale(1);
     }
 
-    &[data-entering] {
+    &[data-starting-style] {
       opacity: 0;
       transform: scale(0.8);
     }
 
-    &[data-exiting] {
+    &[data-ending-style] {
       opacity: 0;
       transform: scale(0);
     }

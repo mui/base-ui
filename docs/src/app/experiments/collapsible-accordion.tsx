@@ -155,7 +155,7 @@ export function Styles() {
       transition: height ${TRANSITION_DURATION};
     }
 
-    .MyCollapsible2-content[data-entering] {
+    .MyCollapsible2-content[data-starting-style] {
       height: 0;
     }
 

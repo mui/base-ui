@@ -19,10 +19,10 @@ const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
-      return { 'data-entering': '' } as Record<string, string>;
+      return { 'data-starting-style': '' } as Record<string, string>;
     }
     if (value === 'exiting') {
-      return { 'data-exiting': '' };
+      return { 'data-ending-style': '' };
     }
     return null;
   },

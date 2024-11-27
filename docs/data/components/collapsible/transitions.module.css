@@ -8,6 +8,6 @@
   transition: height 200ms ease-in;
 }
 
-.panel[data-entering] {
+.panel[data-starting-style] {
   height: 0;
 }
