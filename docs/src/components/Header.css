@@ -1,7 +1,7 @@
 @layer components {
   .Header {
     @apply text-sm;
-    height: var(--root-layout-header-height);
+    height: var(--header-height);
     width: 100%;
   }
 
