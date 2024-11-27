@@ -30,7 +30,7 @@
         "name": "next"
       }
     ],
-    "strictNullChecks": true,
+    "strictNullChecks": true
   },
   "exclude": ["node_modules"],
   "references": [
