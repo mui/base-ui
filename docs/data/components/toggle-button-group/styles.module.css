@@ -22,19 +22,19 @@
 
 .button:first-child {
   border-radius: var(--border-radius-left);
-  border-right-color: transparent;
+  border-inline-end-color: transparent;
 }
 
 .button:last-child {
   border-radius: var(--border-radius-right);
-  border-left-color: transparent;
+  border-inline-start-color: transparent;
 }
 
-[dir='rtl'] .button:first-child {
+.button:first-child:dir(rtl) {
   border-radius: var(--border-radius-right);
 }
 
-[dir='rtl'] .button:last-child {
+.button:last-child:dir(rtl) {
   border-radius: var(--border-radius-left);
 }
 

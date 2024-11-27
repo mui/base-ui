@@ -10,11 +10,6 @@
       "type": "string[]",
       "description": "The open state of the ToggleButtonGroup represented by an array of\nthe values of all pressed `<ToggleButtonGroup.Item/>`s\nThis is the uncontrolled counterpart of `value`."
     },
-    "direction": {
-      "type": "'ltr' | 'rtl'",
-      "default": "'ltr'",
-      "description": "Text direction"
-    },
     "onValueChange": {
       "type": "function(groupValue: Array<string>, event: Event) => void",
       "description": "Callback fired when the pressed states of the ToggleButtonGroup changes."

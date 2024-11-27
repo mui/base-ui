@@ -11,7 +11,6 @@ export function useToggleButtonGroupRoot(
   const {
     value,
     defaultValue,
-    // direction = 'ltr',
     disabled = false,
     onValueChange,
     toggleMultiple = false,
@@ -46,7 +45,6 @@ export function useToggleButtonGroupRoot(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
         role: 'group',
-        // dir: direction,
       }),
     [],
   );
@@ -63,8 +61,6 @@ export function useToggleButtonGroupRoot(
 }
 
 export namespace UseToggleButtonGroupRoot {
-  export type Direction = 'ltr' | 'rtl';
-
   export interface Parameters {
     /**
      * The open state of the ToggleButtonGroup represented by an array of
@@ -97,11 +93,6 @@ export namespace UseToggleButtonGroupRoot {
      * @default false
      */
     toggleMultiple?: boolean;
-    /**
-     * Text direction
-     * @default 'ltr'
-     */
-    direction?: Direction;
   }
 
   export interface ReturnValue {

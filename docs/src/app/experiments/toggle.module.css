@@ -39,17 +39,17 @@
   border-left-color: transparent;
 }
 
-[dir='rtl'] .button:first-child {
+.button:first-child:dir(rtl) {
   border-radius: var(--border-radius-right);
 }
 
-[dir='rtl'] .button:last-child {
+.button:last-child:dir(rtl) {
   border-radius: var(--border-radius-left);
 }
 
 .button:not(:disabled):hover {
   background-color: var(--gray-surface-1);
-  outline: 1px solid var(--gray-500);
+  outline: 1px solid #444;
   outline-offset: -1px;
   color: var(--gray-text-2);
   cursor: pointer;
@@ -57,7 +57,7 @@
 }
 
 .button:focus-visible {
-  outline: 2px solid var(--gray-900);
+  outline: 2px solid black;
   z-index: 1;
 }
 
