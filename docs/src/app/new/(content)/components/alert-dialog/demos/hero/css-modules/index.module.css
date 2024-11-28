@@ -8,18 +8,22 @@
   background-color: var(--color-gray-50);
   font: inherit;
   font-weight: 500;
-  color: var(--color-gray-950);
+  color: var(--color-gray-900);
   outline: 1px solid var(--color-gray-200);
   user-select: none;
 
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
+  &[data-color='red'] {
+    color: var(--color-red);
   }
 
   @media (hover: hover) {
     &:hover {
       background-color: var(--color-gray-100);
     }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
   }
 
   &:active {
@@ -32,7 +36,7 @@
   inset: 0;
   background-color: black;
   opacity: 0.2;
-  transition: opacity 150ms cubic-bezier(0.45, 1.005, 0, 1.005);
+  transition: opacity 150ms;
 
   @media (prefers-color-scheme: dark) {
     opacity: 0.7;
