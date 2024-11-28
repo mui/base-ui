@@ -32,7 +32,6 @@ describe('<Tabs.Tab />', () => {
     getTabIdByPanelValueOrIndex: () => '',
     getTabPanelIdByTabValueOrIndex: () => '',
     orientation: 'horizontal',
-    direction: 'ltr',
     tabActivationDirection: 'none',
   };
 

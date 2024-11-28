@@ -26,7 +26,6 @@ const TabsRoot = React.forwardRef(function TabsRoot(
   const {
     className,
     defaultValue = 0,
-    direction: directionProp = 'ltr',
     onValueChange: onValueChangeProp,
     orientation = 'horizontal',
     render,
@@ -35,8 +34,6 @@ const TabsRoot = React.forwardRef(function TabsRoot(
   } = props;
 
   const {
-    getRootProps,
-    direction,
     getTabElementBySelectedValue,
     getTabIdByPanelValueOrIndex,
     getTabPanelIdByTabValueOrIndex,
@@ -50,12 +47,10 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     value: valueProp,
     defaultValue,
     onValueChange: onValueChangeProp,
-    direction: directionProp,
   });
 
   const tabsContextValue: TabsRootContext = React.useMemo(
     () => ({
-      direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValueOrIndex,
       getTabPanelIdByTabValueOrIndex,
@@ -66,7 +61,6 @@ const TabsRoot = React.forwardRef(function TabsRoot(
       value,
     }),
     [
-      direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValueOrIndex,
       getTabPanelIdByTabValueOrIndex,
@@ -80,12 +74,10 @@ const TabsRoot = React.forwardRef(function TabsRoot(
 
   const state: TabsRoot.State = {
     orientation,
-    direction,
     tabActivationDirection,
   };
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
     render: render ?? 'div',
     className,
     state,
@@ -104,14 +96,12 @@ const TabsRoot = React.forwardRef(function TabsRoot(
 });
 
 export type TabsOrientation = 'horizontal' | 'vertical';
-export type TabsDirection = 'ltr' | 'rtl';
 export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
 export type TabValue = any | null;
 
 namespace TabsRoot {
   export type State = {
     orientation: TabsOrientation;
-    direction: TabsDirection;
     tabActivationDirection: TabActivationDirection;
   };
 
@@ -132,11 +122,6 @@ namespace TabsRoot {
      * @default 'horizontal'
      */
     orientation?: TabsOrientation;
-    /**
-     * The direction of the text.
-     * @default 'ltr'
-     */
-    direction?: TabsDirection;
     /**
      * Callback invoked when new value is being set.
      */
@@ -165,11 +150,6 @@ TabsRoot.propTypes /* remove-proptypes */ = {
    * @default 0
    */
   defaultValue: PropTypes.any,
-  /**
-   * The direction of the text.
-   * @default 'ltr'
-   */
-  direction: PropTypes.oneOf(['ltr', 'rtl']),
   /**
    * Callback invoked when new value is being set.
    */
