@@ -23,7 +23,7 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useUnmountAfterExitAnimation } from '../../utils/useUnmountAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -66,17 +66,18 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
       if (nextOpen) {
         setOpenReason(reason ?? null);
-      } else {
-        setOpenReason(null);
       }
     },
   );
 
-  useUnmountAfterExitAnimation({
+  useAfterExitAnimation({
     open,
     animated,
     animatedElementRef: popupRef,
-    setMounted,
+    onFinished: () => {
+      setMounted(false);
+      setOpenReason(null);
+    },
   });
 
   const context = useFloatingRootContext({

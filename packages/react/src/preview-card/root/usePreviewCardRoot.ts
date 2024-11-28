@@ -19,7 +19,7 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useUnmountAfterExitAnimation } from '../../utils/useUnmountAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,
@@ -60,11 +60,11 @@ export function usePreviewCardRoot(
     },
   );
 
-  useUnmountAfterExitAnimation({
+  useAfterExitAnimation({
     open,
     animated,
     animatedElementRef: popupRef,
-    setMounted,
+    onFinished: () => setMounted(false),
   });
 
   const context = useFloatingRootContext({
