@@ -1,2 +1,2 @@
 export * as Dialog from './index.parts';
-export * from './popup/dialogPopupCssVars';
+export * from './popup/DialogPopupCssVars';
