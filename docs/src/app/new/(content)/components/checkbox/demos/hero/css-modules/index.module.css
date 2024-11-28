@@ -19,6 +19,11 @@
     border: 1px solid var(--color-gray-300);
     background-color: transparent;
   }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+  }
 }
 
 .Indicator {

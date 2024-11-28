@@ -17,7 +17,7 @@ export default function ExampleCheckboxGroup() {
         <Checkbox.Root
           id="fuji-apple"
           name="fuji-apple"
-          className="flex size-5 items-center justify-center rounded-sm data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
+          className="flex size-5 items-center justify-center rounded-sm outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
         >
           <Checkbox.Indicator className="size-3 text-gray-50 data-[unchecked]:hidden">
             <CheckIcon className="h-full w-full" />
@@ -30,7 +30,7 @@ export default function ExampleCheckboxGroup() {
         <Checkbox.Root
           id="gala-apple"
           name="gala-apple"
-          className="flex size-5 items-center justify-center rounded-sm data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
+          className="flex size-5 items-center justify-center rounded-sm outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
         >
           <Checkbox.Indicator className="size-3 text-gray-50 data-[unchecked]:hidden">
             <CheckIcon className="h-full w-full" />
@@ -43,7 +43,7 @@ export default function ExampleCheckboxGroup() {
         <Checkbox.Root
           id="granny-smith-apple"
           name="granny-smith-apple"
-          className="flex size-5 items-center justify-center rounded-sm data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
+          className="flex size-5 items-center justify-center rounded-sm outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
         >
           <Checkbox.Indicator className="size-3 text-gray-50 data-[unchecked]:hidden">
             <CheckIcon className="h-full w-full" />
