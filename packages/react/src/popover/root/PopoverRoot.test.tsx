@@ -1,3 +1,4 @@
+/* eslint-disable react/no-danger */
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -453,16 +454,29 @@ describe('<Popover.Root />', () => {
       expect(close).not.to.toHaveFocus();
     });
 
-    it('does not change focus when opened with hover and closed', async () => {
+    it.only('does not change focus when opened with hover and closed', async () => {
+      const style = `
+        .popup {
+          width: 100px;
+          height: 100px;
+          background-color: red;
+          opacity: 1;
+          transition: opacity 50ms;
+        }
+
+        .popup[data-exiting] {
+          opacity: 0;
+        }
+      `;
+
       await render(
         <div>
+          <style dangerouslySetInnerHTML={{ __html: style }} />
           <input type="text" data-testid="first-input" />
           <Popover.Root openOnHover delay={0} closeDelay={0}>
             <Popover.Trigger>Toggle</Popover.Trigger>
             <Popover.Positioner>
-              <Popover.Popup>
-                <Popover.Close>Close</Popover.Close>
-              </Popover.Popup>
+              <Popover.Popup className="popup" />
             </Popover.Positioner>
           </Popover.Root>
           <input type="text" data-testid="last-input" />
@@ -480,6 +494,10 @@ describe('<Popover.Root />', () => {
 
       await user.hover(firstInput);
       await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
 
       expect(lastInput).toHaveFocus();
     });
