@@ -1,10 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
-const webpackBaseConfig = require('../../webpackBaseConfig');
 
 module.exports = {
-  ...webpackBaseConfig,
   entry: path.resolve(__dirname, 'index.js'),
   mode: process.env.NODE_ENV || 'development',
   optimization: {
