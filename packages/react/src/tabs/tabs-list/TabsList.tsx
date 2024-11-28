@@ -92,6 +92,7 @@ const TabsList = React.forwardRef(function TabsList(
         highlightedIndex={highlightedTabIndex}
         enableHomeAndEndKeys
         loop={loop}
+        orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
         render={renderElement()}
