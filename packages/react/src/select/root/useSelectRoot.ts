@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import {
   useClick,
   useDismiss,
@@ -14,13 +13,12 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useId } from '../../utils/useId';
 import { useControlled } from '../../utils/useControlled';
 import { type TransitionStatus, useTransitionStatus } from '../../utils';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
-import { useLatestRef } from '../../utils/useLatestRef';
+import { useUnmountAfterExitAnimation } from '../../utils/useUnmountAfterCloseAnimation';
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
@@ -76,10 +74,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, params.animated);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
-
-  const openRef = useLatestRef(open);
-
   const alignOptionToTrigger = Boolean(mounted && controlledAlignOptionToTrigger && !touchModality);
 
   if (!mounted && controlledAlignOptionToTrigger !== alignOptionToTriggerParam) {
@@ -98,22 +92,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     params.onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
+  });
 
-    function handleUnmounted() {
-      ReactDOM.flushSync(() => {
-        if (!openRef.current) {
-          setMounted(false);
-        }
-      });
-    }
-
-    if (!nextOpen) {
-      if (params.animated) {
-        runOnceAnimationsFinish(handleUnmounted);
-      } else {
-        handleUnmounted();
-      }
-    }
+  useUnmountAfterExitAnimation({
+    open,
+    animated: params.animated || true,
+    animatedElementRef: popupRef,
+    setMounted,
   });
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {

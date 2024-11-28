@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
-import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -194,6 +194,98 @@ describe('<Select.Root />', () => {
       await flushMicrotasks();
 
       expect(screen.queryByRole('listbox')).not.to.equal(null);
+    });
+
+    it('when `false`, should remove the popup when animated=true and there is no exit animation defined', async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Select.Root open={open}>
+              <Select.Positioner>
+                <Select.Popup />
+              </Select.Positioner>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+    });
+
+    it('when `false`, should remove the popup when animated=true and the animation finishes', async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
+      let animationFinished = false;
+      const notifyAnimationFinished = () => {
+        animationFinished = true;
+      };
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-popup[data-open] {
+            opacity: 1;
+          }
+
+          .animation-test-popup[data-exiting] {
+            animation: test-anim 50ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Select.Root open={open}>
+              <Select.Positioner>
+                <Select.Popup
+                  className="animation-test-popup"
+                  onAnimationEnd={notifyAnimationFinished}
+                />
+              </Select.Positioner>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+
+      expect(animationFinished).to.equal(true);
     });
   });
 
