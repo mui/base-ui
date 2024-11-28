@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { NOOP } from '../../utils/noop';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
@@ -22,12 +23,12 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    animated,
+    animated = true,
     children,
     className,
-    defaultOpen,
-    disabled,
-    onOpenChange,
+    defaultOpen = true,
+    disabled = false,
+    onOpenChange = NOOP,
     open,
     render: renderProp,
     ...otherProps
@@ -89,7 +90,7 @@ export namespace CollapsibleRoot {
     extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
 
   export interface Props
-    extends useCollapsibleRoot.Parameters,
+    extends Partial<useCollapsibleRoot.Parameters>,
       BaseUIComponentProps<'div', State> {}
 }
 
@@ -124,6 +125,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   disabled: PropTypes.bool,
   /**
    * Callback fired when the Collapsible is opened or closed.
+   * @default NOOP
    */
   onOpenChange: PropTypes.func,
   /**

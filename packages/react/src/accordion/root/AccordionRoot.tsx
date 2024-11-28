@@ -1,12 +1,17 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { NOOP } from '../../utils/noop';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { warn } from '../../utils/warn';
 import { CompositeList } from '../../composite/list/CompositeList';
-import { useAccordionRoot } from './useAccordionRoot';
+import {
+  useAccordionRoot,
+  type AccordionOrientation,
+  type AccordionValue,
+} from './useAccordionRoot';
 import { AccordionRootContext } from './AccordionRootContext';
 
 const rootStyleHookMapping = {
@@ -28,16 +33,16 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    animated,
+    animated = true,
     className,
-    direction,
+    direction = 'ltr',
     disabled = false,
     hiddenUntilFound: hiddenUntilFoundProp,
     keepMounted: keepMountedProp,
-    loop,
-    onValueChange,
+    loop = true,
+    onValueChange = NOOP,
     openMultiple = true,
-    orientation,
+    orientation = 'vertical',
     value,
     defaultValue: defaultValueProp,
     render,
@@ -115,13 +120,13 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
 
 export namespace AccordionRoot {
   export interface State {
-    value: useAccordionRoot.Value;
+    value: AccordionValue;
     disabled: boolean;
-    orientation: useAccordionRoot.Orientation;
+    orientation: AccordionOrientation;
   }
 
   export interface Props
-    extends useAccordionRoot.Parameters,
+    extends Partial<useAccordionRoot.Parameters>,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
      * If `true`, sets `hidden="until-found"` when closed. Accordion panels
@@ -200,6 +205,7 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   /**
    * Callback fired when an Accordion section is opened or closed.
    * The value representing the involved section is provided as an argument.
+   * @default NOOP
    */
   onValueChange: PropTypes.func,
   /**

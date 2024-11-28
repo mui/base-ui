@@ -4,7 +4,7 @@
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "defaultOpen": { "type": { "name": "bool" }, "default": "true" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
-    "onOpenChange": { "type": { "name": "func" } },
+    "onOpenChange": { "type": { "name": "func" }, "default": "NOOP" },
     "open": { "type": { "name": "bool" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },

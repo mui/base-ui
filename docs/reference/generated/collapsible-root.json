@@ -23,6 +23,7 @@
     },
     "onOpenChange": {
       "type": "(open) => void",
+      "default": "NOOP",
       "description": "Callback fired when the Collapsible is opened or closed."
     },
     "open": {

@@ -37,9 +37,6 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     ...otherProps
   } = props;
 
-  const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen } =
-    useCollapsibleRootContext();
-
   const { hiddenUntilFound: contextHiddenUntilFound, keepMounted: contextKeepMounted } =
     useAccordionRootContext();
 
@@ -56,12 +53,15 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     }, [hiddenUntilFound, keepMountedProp]);
   }
 
+  const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen } =
+    useCollapsibleRootContext();
+
   const keepMounted = keepMountedProp ?? contextKeepMounted;
 
   const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
     animated,
     hiddenUntilFound,
-    id: idProp ?? panelId,
+    panelId: idProp ?? panelId,
     keepMounted,
     mounted,
     open,

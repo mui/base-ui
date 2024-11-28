@@ -10,7 +10,7 @@
     "hiddenUntilFound": { "type": { "name": "bool" }, "default": "false" },
     "keepMounted": { "type": { "name": "bool" }, "default": "false" },
     "loop": { "type": { "name": "bool" }, "default": "true" },
-    "onValueChange": { "type": { "name": "func" } },
+    "onValueChange": { "type": { "name": "func" }, "default": "NOOP" },
     "openMultiple": { "type": { "name": "bool" }, "default": "true" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "value": {

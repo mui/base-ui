@@ -52,7 +52,7 @@ export function useCollapsiblePanel(
   const {
     animated = false,
     hiddenUntilFound = false,
-    id: idParam,
+    panelId,
     keepMounted = false,
     open,
     mounted,
@@ -62,7 +62,7 @@ export function useCollapsiblePanel(
     setOpen,
   } = parameters;
 
-  const id = useId(idParam);
+  const id = useId(panelId);
 
   const panelRef = React.useRef<HTMLElement | null>(null);
 
@@ -314,15 +314,15 @@ export namespace useCollapsiblePanel {
      * If `true`, the component supports CSS/JS-based animations and transitions.
      * @default false
      */
-    animated?: boolean;
+    animated: boolean;
     /**
      * If `true`, sets the hidden state using `hidden="until-found"`. The panel
      * remains mounted in the DOM when closed and overrides `keepMounted`.
      * If `false`, sets the hidden state using `hidden`.
      * @default false
      */
-    hiddenUntilFound?: boolean;
-    id?: React.HTMLAttributes<Element>['id'];
+    hiddenUntilFound: boolean;
+    panelId: React.HTMLAttributes<Element>['id'];
     /**
      * If `true` the panel remains mounted in the DOM when closed and is hidden
      * using the HTML `hidden` attribute.

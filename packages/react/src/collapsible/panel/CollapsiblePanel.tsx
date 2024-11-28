@@ -26,7 +26,8 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 ) {
   const {
     className,
-    hiddenUntilFound,
+    hiddenUntilFound: hiddenUntilFoundProp,
+    id: idProp,
     keepMounted: keepMountedProp,
     render,
     ...otherProps
@@ -35,21 +36,29 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useEnhancedEffect(() => {
-      if (hiddenUntilFound && keepMountedProp === false) {
+      if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
           'The `keepMounted={false}` prop on a Collapsible will be ignored when using `hiddenUntilFound` since it requires the Panel to remain mounted even when closed.',
         );
       }
-    }, [hiddenUntilFound, keepMountedProp]);
+    }, [hiddenUntilFoundProp, keepMountedProp]);
   }
 
   const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen, state } =
     useCollapsibleRootContext();
 
+  useEnhancedEffect(() => {
+    if (idProp) {
+      setPanelId(idProp);
+    }
+  }, [idProp, setPanelId]);
+
+  const hiddenUntilFound = hiddenUntilFoundProp ?? false;
+
   const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
     animated,
     hiddenUntilFound,
-    id: panelId,
+    panelId,
     keepMounted: keepMountedProp ?? false,
     mounted,
     open,
@@ -87,7 +96,7 @@ export { CollapsiblePanel };
 namespace CollapsiblePanel {
   export interface Props
     extends BaseUIComponentProps<'div', CollapsibleRoot.State>,
-      Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {
+      Partial<Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'>> {
     /**
      * If `true`, the panel remains mounted when closed and is instead
      * hidden using the `hidden` attribute
