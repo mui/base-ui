@@ -65,6 +65,12 @@ export const mdxComponents: MDXComponents = {
   QuickNav,
   AttributesTable: (props) => <AttributesTable className="mt-5 mb-6" {...props} />,
   CssVariablesTable: (props) => <CssVariablesTable className="mt-5 mb-6" {...props} />,
+  Meta: (props: React.ComponentProps<'meta'>) => {
+    if (props.name === 'description' && String(props.content).length > 170) {
+      throw new Error('Meta description shouldn’t be longer than 170 chars');
+    }
+    return <meta {...props} />;
+  },
   PropsTable: (props) => <PropsTable className="mt-5 mb-6" {...props} />,
   Subtitle: (props) => <p className="-mt-2 mb-5 text-lg text-balance text-gray" {...props} />,
 };
