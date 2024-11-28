@@ -3,10 +3,6 @@ import * as React from 'react';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import classes from './collapsible.module.css';
 
-function classNames(...c: Array<string | undefined | null | false>) {
-  return c.filter(Boolean).join(' ');
-}
-
 export default function CollapsibleHiddenUntilFound() {
   return (
     <React.Fragment>
@@ -30,46 +26,50 @@ export default function CollapsibleHiddenUntilFound() {
         animations.
       </pre>
       <div className={classes.wrapper}>
-        <Collapsible.Root defaultOpen={false}>
-          <Collapsible.Trigger className={classes.trigger}>
-            <ExpandMoreIcon className={classes.icon} />
-            Trigger 1
-          </Collapsible.Trigger>
-          <Collapsible.Panel
-            className={classNames(classes.panel, classes.transition)}
-          >
-            <p>This is the collapsed content</p>
-            <p>May the force be with you</p>
-          </Collapsible.Panel>
-        </Collapsible.Root>
+        <div className={classes.transition}>
+          <div className={classes.collapsible}>
+            <Collapsible.Root defaultOpen={false}>
+              <Collapsible.Trigger>
+                <ExpandMoreIcon />
+                Trigger 1
+              </Collapsible.Trigger>
+              <Collapsible.Panel>
+                <p>This is the collapsed content</p>
+                <p>May the force be with you</p>
+              </Collapsible.Panel>
+            </Collapsible.Root>
+          </div>
+        </div>
 
-        <Collapsible.Root defaultOpen={false}>
-          <Collapsible.Trigger className={classes.trigger}>
-            <ExpandMoreIcon className={classes.icon} />
-            Trigger 2
-          </Collapsible.Trigger>
-          <Collapsible.Panel
-            className={classNames(classes.panel, classes.animation)}
-            hiddenUntilFound
-          >
-            <p>This is the collapsed content</p>
-            <p>May the force be with you</p>
-          </Collapsible.Panel>
-        </Collapsible.Root>
+        <div className={classes.animation}>
+          <div className={classes.collapsible}>
+            <Collapsible.Root defaultOpen={false}>
+              <Collapsible.Trigger>
+                <ExpandMoreIcon />
+                Trigger 2
+              </Collapsible.Trigger>
+              <Collapsible.Panel hiddenUntilFound>
+                <p>This is the collapsed content</p>
+                <p>May the force be with you</p>
+              </Collapsible.Panel>
+            </Collapsible.Root>
+          </div>
+        </div>
 
-        <Collapsible.Root defaultOpen={false}>
-          <Collapsible.Trigger className={classes.trigger}>
-            <ExpandMoreIcon className={classes.icon} />
-            Trigger 3
-          </Collapsible.Trigger>
-          <Collapsible.Panel
-            className={classNames(classes.panel, classes.transition)}
-            hiddenUntilFound
-          >
-            <p>This is the collapsed content</p>
-            <p>May the force be with you</p>
-          </Collapsible.Panel>
-        </Collapsible.Root>
+        <div className={classes.transition}>
+          <div className={classes.collapsible}>
+            <Collapsible.Root defaultOpen={false}>
+              <Collapsible.Trigger>
+                <ExpandMoreIcon />
+                Trigger 3
+              </Collapsible.Trigger>
+              <Collapsible.Panel hiddenUntilFound>
+                <p>This is the collapsed content</p>
+                <p>May the force be with you</p>
+              </Collapsible.Panel>
+            </Collapsible.Root>
+          </div>
+        </div>
       </div>
     </React.Fragment>
   );
