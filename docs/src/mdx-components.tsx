@@ -66,12 +66,7 @@ export const mdxComponents: MDXComponents = {
   AttributesTable: (props) => <AttributesTable className="mt-5 mb-6" {...props} />,
   CssVariablesTable: (props) => <CssVariablesTable className="mt-5 mb-6" {...props} />,
   PropsTable: (props) => <PropsTable className="mt-5 mb-6" {...props} />,
-  Subtitle: (props) => (
-    <React.Fragment>
-      <p className="-mt-2 mb-5 text-lg text-balance text-gray" {...props} />
-      <meta name="description" content={getChildrenText(props.children)} />
-    </React.Fragment>
-  ),
+  Subtitle: (props) => <p className="-mt-2 mb-5 text-lg text-balance text-gray" {...props} />,
 };
 
 export const inlineMdxComponents: MDXComponents = {

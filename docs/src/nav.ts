@@ -35,15 +35,15 @@ export const nav = [
         label: 'Composition',
         href: '/new/handbook/composition',
       },
-      {
-        label: 'Migrating from Radix',
-        href: '/new/handbook/migrating-from-radix',
-      },
     ],
   },
   {
     label: 'Components',
     links: [
+      {
+        label: 'Accordion',
+        href: '/new/components/accordion',
+      },
       {
         label: 'Alert Dialog',
         href: '/new/components/alert-dialog',

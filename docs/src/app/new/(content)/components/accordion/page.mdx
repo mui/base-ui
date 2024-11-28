@@ -1,0 +1,25 @@
+# Accordion
+
+<Subtitle>A set of headings with collapsible panels.</Subtitle>
+<meta name="description" content="A high-quality unstyled accordion component for React." />
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component and place its parts the following way:
+
+```jsx title="Anatomy"
+import { Accordion } from '@base-ui-components/react/accordion';
+
+<Accordion.Root>
+  <Accordion.Item>
+    <Accordion.Header>
+      <Accordion.Trigger />
+    </Accordion.Header>
+    <Accordion.Panel />
+  </Accordion.Item>
+</Accordion.Root>;
+```
+
+<Reference component="Accordion" parts="Root, Item, Header, Trigger, Panel" />
