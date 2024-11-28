@@ -26,7 +26,7 @@ describe('<Accordion.Root />', () => {
             <Accordion.Header>
               <Accordion.Trigger id="Trigger1">Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel id="Panel1">Panel contents 1</Accordion.Panel>
+            <Accordion.Panel id="Panel1">{PANEL_CONTENT_1}</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );
@@ -58,7 +58,7 @@ describe('<Accordion.Root />', () => {
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>Panel contents 1</Accordion.Panel>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );
@@ -90,13 +90,13 @@ describe('<Accordion.Root />', () => {
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>Panel contents 1</Accordion.Panel>
+              <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
             </Accordion.Item>
             <Accordion.Item>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 2</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>Panel contents 2</Accordion.Panel>
+              <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
             </Accordion.Item>
           </Accordion.Root>,
         );
@@ -114,13 +114,13 @@ describe('<Accordion.Root />', () => {
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>Panel contents 1</Accordion.Panel>
+              <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
             </Accordion.Item>
             <Accordion.Item value="second">
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 2</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>Panel contents 2</Accordion.Panel>
+              <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
             </Accordion.Item>
           </Accordion.Root>,
         );
@@ -142,7 +142,7 @@ describe('<Accordion.Root />', () => {
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>Panel contents 1</Accordion.Panel>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );
@@ -176,13 +176,13 @@ describe('<Accordion.Root />', () => {
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>Panel contents 1</Accordion.Panel>
+              <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
             </Accordion.Item>
             <Accordion.Item>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 2</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>Panel contents 2</Accordion.Panel>
+              <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
             </Accordion.Item>
           </Accordion.Root>,
         );
@@ -200,13 +200,13 @@ describe('<Accordion.Root />', () => {
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>Panel contents 1</Accordion.Panel>
+              <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
             </Accordion.Item>
             <Accordion.Item value="second">
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 2</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>Panel contents 2</Accordion.Panel>
+              <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
             </Accordion.Item>
           </Accordion.Root>,
         );
@@ -228,13 +228,13 @@ describe('<Accordion.Root />', () => {
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>Panel contents 1</Accordion.Panel>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
           </Accordion.Item>
           <Accordion.Item data-testid="item2">
             <Accordion.Header>
               <Accordion.Trigger>Trigger 2</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>Panel contents 2</Accordion.Panel>
+            <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );
@@ -257,13 +257,13 @@ describe('<Accordion.Root />', () => {
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>Panel contents 1</Accordion.Panel>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
           </Accordion.Item>
           <Accordion.Item data-testid="item2">
             <Accordion.Header>
               <Accordion.Trigger>Trigger 2</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>Panel contents 2</Accordion.Panel>
+            <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );
@@ -292,7 +292,7 @@ describe('<Accordion.Root />', () => {
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>Panel contents 1</Accordion.Panel>
+              <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
             </Accordion.Item>
           </Accordion.Root>,
         );
@@ -327,13 +327,13 @@ describe('<Accordion.Root />', () => {
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>This is the contents of Accordion.Panel 1</Accordion.Panel>
+            <Accordion.Panel>1</Accordion.Panel>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 2</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>This is the contents of Accordion.Panel 2</Accordion.Panel>
+            <Accordion.Panel>2</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );
@@ -363,13 +363,13 @@ describe('<Accordion.Root />', () => {
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>This is the contents of Accordion.Panel 1</Accordion.Panel>
+            <Accordion.Panel>1</Accordion.Panel>
           </Accordion.Item>
           <Accordion.Item disabled>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 2</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>This is the contents of Accordion.Panel 2</Accordion.Panel>
+            <Accordion.Panel>2</Accordion.Panel>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
@@ -400,13 +400,13 @@ describe('<Accordion.Root />', () => {
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>This is the contents of Accordion.Panel 1</Accordion.Panel>
+              <Accordion.Panel>1</Accordion.Panel>
             </Accordion.Item>
             <Accordion.Item disabled>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 2</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>This is the contents of Accordion.Panel 2</Accordion.Panel>
+              <Accordion.Panel>2</Accordion.Panel>
             </Accordion.Item>
             <Accordion.Item>
               <Accordion.Header>
@@ -439,13 +439,13 @@ describe('<Accordion.Root />', () => {
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>This is the contents of Accordion.Panel 1</Accordion.Panel>
+              <Accordion.Panel>1</Accordion.Panel>
             </Accordion.Item>
             <Accordion.Item disabled>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 2</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>This is the contents of Accordion.Panel 2</Accordion.Panel>
+              <Accordion.Panel>2</Accordion.Panel>
             </Accordion.Item>
             <Accordion.Item>
               <Accordion.Header>
@@ -480,13 +480,13 @@ describe('<Accordion.Root />', () => {
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>This is the contents of Accordion.Panel 1</Accordion.Panel>
+              <Accordion.Panel>1</Accordion.Panel>
             </Accordion.Item>
             <Accordion.Item>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 2</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>This is the contents of Accordion.Panel 2</Accordion.Panel>
+              <Accordion.Panel>2</Accordion.Panel>
             </Accordion.Item>
           </Accordion.Root>,
         );
@@ -513,13 +513,13 @@ describe('<Accordion.Root />', () => {
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>Panel contents 1</Accordion.Panel>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 2</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>Panel contents 2</Accordion.Panel>
+            <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );
@@ -547,13 +547,13 @@ describe('<Accordion.Root />', () => {
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>Panel contents 1</Accordion.Panel>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 2</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>Panel contents 2</Accordion.Panel>
+            <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );
@@ -587,13 +587,13 @@ describe('<Accordion.Root />', () => {
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>This is the contents of Accordion.Panel 1</Accordion.Panel>
+            <Accordion.Panel>1</Accordion.Panel>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 2</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>This is the contents of Accordion.Panel 2</Accordion.Panel>
+            <Accordion.Panel>2</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );
@@ -624,13 +624,13 @@ describe('<Accordion.Root />', () => {
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>This is the contents of Accordion.Panel 1</Accordion.Panel>
+              <Accordion.Panel>1</Accordion.Panel>
             </Accordion.Item>
             <Accordion.Item>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 2</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel>This is the contents of Accordion.Panel 2</Accordion.Panel>
+              <Accordion.Panel>2</Accordion.Panel>
             </Accordion.Item>
           </Accordion.Root>,
         );
@@ -665,13 +665,13 @@ describe('<Accordion.Root />', () => {
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>This is the contents of Accordion.Panel 1</Accordion.Panel>
+            <Accordion.Panel>1</Accordion.Panel>
           </Accordion.Item>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 2</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>This is the contents of Accordion.Panel 2</Accordion.Panel>
+            <Accordion.Panel>2</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );
@@ -700,13 +700,13 @@ describe('<Accordion.Root />', () => {
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>This is the contents of Accordion.Panel 1</Accordion.Panel>
+            <Accordion.Panel>1</Accordion.Panel>
           </Accordion.Item>
           <Accordion.Item value="two">
             <Accordion.Header>
               <Accordion.Trigger>Trigger 2</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>This is the contents of Accordion.Panel 2</Accordion.Panel>
+            <Accordion.Panel>2</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );
@@ -735,13 +735,13 @@ describe('<Accordion.Root />', () => {
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>This is the contents of Accordion.Panel 1</Accordion.Panel>
+            <Accordion.Panel>1</Accordion.Panel>
           </Accordion.Item>
           <Accordion.Item value="two">
             <Accordion.Header>
               <Accordion.Trigger>Trigger 2</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel>This is the contents of Accordion.Panel 2</Accordion.Panel>
+            <Accordion.Panel>2</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );

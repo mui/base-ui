@@ -4,6 +4,7 @@ import { spy } from 'sinon';
 import { act, describeSkipIf, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import { createRenderer, describeConformance } from '#test-utils';
+import { NOOP } from '../../utils/noop';
 import { CollapsibleRootContext } from '../root/CollapsibleRootContext';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
@@ -16,9 +17,9 @@ const contextValue: CollapsibleRootContext = {
   disabled: false,
   mounted: true,
   open: true,
-  setPanelId() {},
-  setMounted() {},
-  setOpen() {},
+  setPanelId: NOOP,
+  setMounted: NOOP,
+  setOpen: NOOP,
   transitionStatus: undefined,
   state: {
     open: true,
@@ -48,7 +49,7 @@ describe('<Collapsible.Panel />', () => {
         return (
           <Collapsible.Root open={open} onOpenChange={setOpen} animated={false}>
             <Collapsible.Trigger />
-            <Collapsible.Panel keepMounted>This is panel content</Collapsible.Panel>
+            <Collapsible.Panel keepMounted>{PANEL_CONTENT}</Collapsible.Panel>
           </Collapsible.Root>
         );
       }
@@ -87,12 +88,12 @@ describe('<Collapsible.Panel />', () => {
         <Collapsible.Root defaultOpen={false} animated={false} onOpenChange={handleOpenChange}>
           <Collapsible.Trigger />
           <Collapsible.Panel hiddenUntilFound keepMounted>
-            This is panel content
+            {PANEL_CONTENT}
           </Collapsible.Panel>
         </Collapsible.Root>,
       );
 
-      const panel = queryByText('This is panel content');
+      const panel = queryByText(PANEL_CONTENT);
 
       act(() => {
         const event = new window.Event('beforematch', {

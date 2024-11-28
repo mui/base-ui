@@ -3,6 +3,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { warn } from '../../utils/warn';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCollapsiblePanel } from '../../collapsible/panel/useCollapsiblePanel';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
@@ -38,13 +40,27 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen } =
     useCollapsibleRootContext();
 
-  const { hiddenUntilFound, keepMounted: contextKeepMounted } = useAccordionRootContext();
+  const { hiddenUntilFound: contextHiddenUntilFound, keepMounted: contextKeepMounted } =
+    useAccordionRootContext();
+
+  const hiddenUntilFound = hiddenUntilFoundProp ?? contextHiddenUntilFound;
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEnhancedEffect(() => {
+      if (keepMountedProp === false && hiddenUntilFound) {
+        warn(
+          'The `keepMounted={false}` prop on a Accordion.Panel will be ignored when using `contextHiddenUntilFound` on the Panel or the Root since it requires the panel to remain mounted when closed.',
+        );
+      }
+    }, [hiddenUntilFound, keepMountedProp]);
+  }
 
   const keepMounted = keepMountedProp ?? contextKeepMounted;
 
   const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
     animated,
-    hiddenUntilFound: hiddenUntilFoundProp || hiddenUntilFound,
+    hiddenUntilFound,
     id: idProp ?? panelId,
     keepMounted,
     mounted,
@@ -75,7 +91,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     customStyleHookMapping: accordionStyleHookMapping,
   });
 
-  if (!keepMounted && !isOpen) {
+  if (!isOpen && !keepMounted && !hiddenUntilFound) {
     return null;
   }
 
@@ -104,8 +120,8 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, sets `hidden="until-found"` when closed.
-   * Requires setting `keepMounted` to `true`.
+   * If `true`, sets `hidden="until-found"` when closed. Accordion panels
+   * will remain mounted in the DOM when closed and overrides `keepMounted`.
    * If `false`, sets `hidden` when closed.
    * @default false
    */
@@ -115,9 +131,9 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * If `true`, accordion items remains mounted when closed and is instead
+   * If `true`, accordion panels remains mounted when closed and is instead
    * hidden using the `hidden` attribute.
-   * If `false`, accordion items are unmounted when closed.
+   * If `false`, accordion panels are unmounted when closed.
    * @default false
    */
   keepMounted: PropTypes.bool,

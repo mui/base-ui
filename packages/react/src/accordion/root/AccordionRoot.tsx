@@ -3,6 +3,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { warn } from '../../utils/warn';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useAccordionRoot } from './useAccordionRoot';
 import { AccordionRootContext } from './AccordionRootContext';
@@ -30,8 +32,8 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     className,
     direction,
     disabled = false,
-    hiddenUntilFound = false,
-    keepMounted = false,
+    hiddenUntilFound: hiddenUntilFoundProp,
+    keepMounted: keepMountedProp,
     loop,
     onValueChange,
     openMultiple = true,
@@ -41,6 +43,17 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     render,
     ...otherProps
   } = props;
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEnhancedEffect(() => {
+      if (hiddenUntilFoundProp && keepMountedProp === false) {
+        warn(
+          'The `keepMounted={false}` prop on a Accordion.Root will be ignored when using `hiddenUntilFound` since it requires Panels to remain mounted when closed.',
+        );
+      }
+    }, [hiddenUntilFoundProp, keepMountedProp]);
+  }
 
   // memoized to allow omitting both defaultValue and value
   // which would otherwise trigger a warning in useControlled
@@ -76,11 +89,11 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   const contextValue: AccordionRootContext = React.useMemo(
     () => ({
       ...accordion,
-      hiddenUntilFound,
-      keepMounted,
+      hiddenUntilFound: hiddenUntilFoundProp ?? false,
+      keepMounted: keepMountedProp ?? false,
       state,
     }),
-    [accordion, hiddenUntilFound, keepMounted, state],
+    [accordion, hiddenUntilFoundProp, keepMountedProp, state],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -111,16 +124,16 @@ export namespace AccordionRoot {
     extends useAccordionRoot.Parameters,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
-     * If `true`, sets `hidden="until-found"` when closed.
-     * Requires setting `keepMounted` to `true`.
+     * If `true`, sets `hidden="until-found"` when closed. Accordion panels
+     * will remain mounted in the DOM when closed and overrides `keepMounted`.
      * If `false`, sets `hidden` when closed.
      * @default false
      */
     hiddenUntilFound?: boolean;
     /**
-     * If `true`, accordion items remains mounted when closed and is instead
+     * If `true`, accordion panels remains mounted when closed and is instead
      * hidden using the `hidden` attribute.
-     * If `false`, accordion items are unmounted when closed.
+     * If `false`, accordion panels are unmounted when closed.
      * @default false
      */
     keepMounted?: boolean;
@@ -165,16 +178,16 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * If `true`, sets `hidden="until-found"` when closed.
-   * Requires setting `keepMounted` to `true`.
+   * If `true`, sets `hidden="until-found"` when closed. Accordion panels
+   * will remain mounted in the DOM when closed and overrides `keepMounted`.
    * If `false`, sets `hidden` when closed.
    * @default false
    */
   hiddenUntilFound: PropTypes.bool,
   /**
-   * If `true`, accordion items remains mounted when closed and is instead
+   * If `true`, accordion panels remains mounted when closed and is instead
    * hidden using the `hidden` attribute.
-   * If `false`, accordion items are unmounted when closed.
+   * If `false`, accordion panels are unmounted when closed.
    * @default false
    */
   keepMounted: PropTypes.bool,
