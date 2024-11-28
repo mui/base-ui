@@ -6,7 +6,7 @@
 
     transition-duration: 600ms;
     transition-property: -webkit-backdrop-filter, backdrop-filter, opacity;
-    transition-timing-function: var(--ease-fast);
+    transition-timing-function: var(--ease-out-fast);
     -webkit-backdrop-filter: blur(1.5px);
     backdrop-filter: blur(1.5px);
     background-image: linear-gradient(to bottom, transparent 2rem, rgb(0 0 0 / 5%) 50%);
@@ -20,6 +20,11 @@
       -webkit-backdrop-filter: blur(0px);
       backdrop-filter: blur(0px);
       opacity: 0;
+    }
+
+    &[data-exiting] {
+      transition-duration: 300ms;
+      transition-timing-function: var(--ease-in-slow);
     }
   }
 
@@ -36,7 +41,7 @@
     transition-duration: 600ms, 300ms;
     transform-origin: top center;
     transition-property: transform, filter;
-    transition-timing-function: var(--ease-fast);
+    transition-timing-function: var(--ease-out-fast);
 
     &[data-entering],
     &[data-exiting] {
@@ -45,8 +50,10 @@
     }
 
     &[data-exiting] {
-      /* Delay blur transition so it doesn't feel unfocused until halway out */
-      transition-delay: 0ms, 300ms;
+      /* Delay the blur transition so it doesn't feel unfocused until halway out */
+      transition-delay: 0ms, 150ms;
+      transition-duration: 300ms;
+      transition-timing-function: var(--ease-in-slow);
     }
   }
 
