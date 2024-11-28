@@ -54,7 +54,6 @@
   box-sizing: border-box;
   height: var(--accordion-panel-height);
   overflow: hidden;
-  padding-bottom: 0.5rem;
   color: var(--color-gray-600);
   font-size: 0.9375rem;
   line-height: 1.375rem;
@@ -65,4 +64,8 @@
   &[data-exiting] {
     height: 0;
   }
+}
+
+.Content {
+  padding-bottom: 0.5rem;
 }

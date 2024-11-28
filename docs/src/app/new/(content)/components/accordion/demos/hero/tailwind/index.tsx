@@ -11,9 +11,11 @@ export default function ExampleAccordion() {
             <PlusIcon className="mr-2 size-3 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
-        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden pb-3 text-sm text-gray-600 transition-[height] ease-out [[data-entering],[data-exiting]]:h-0">
-          Base UI is a library of high-quality, accessible, unstyled React components
-          for design systems and web apps.
+        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm text-gray-600 transition-[height] ease-out [[data-entering],[data-exiting]]:h-0">
+          <div className="pb-3">
+            Base UI is a library of high-quality, accessible, unstyled React
+            components for design systems and web apps.
+          </div>
         </Accordion.Panel>
       </Accordion.Item>
 
@@ -24,9 +26,11 @@ export default function ExampleAccordion() {
             <PlusIcon className="mr-2 size-3 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
-        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden pb-3 text-sm text-gray-600 transition-[height] ease-out [[data-entering],[data-exiting]]:h-0">
-          Head to the “Quick start” guide in the docs. If you’ve used unstyled
-          libraries before, you’ll feel right at home.
+        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm text-gray-600 transition-[height] ease-out [[data-entering],[data-exiting]]:h-0">
+          <div className="pb-3">
+            Head to the “Quick start” guide in the docs. If you’ve used unstyled
+            libraries before, you’ll feel right at home.
+          </div>
         </Accordion.Panel>
       </Accordion.Item>
 
@@ -37,8 +41,8 @@ export default function ExampleAccordion() {
             <PlusIcon className="mr-2 size-3 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
-        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden pb-3 text-sm text-gray-600 transition-[height] ease-out [[data-entering],[data-exiting]]:h-0">
-          Of course! Base UI is free and open source.
+        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm text-gray-600 transition-[height] ease-out [[data-entering],[data-exiting]]:h-0">
+          <div className="pb-3">Of course! Base UI is free and open source.</div>
         </Accordion.Panel>
       </Accordion.Item>
     </Accordion.Root>
