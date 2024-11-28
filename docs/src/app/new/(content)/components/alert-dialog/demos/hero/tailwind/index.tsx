@@ -15,7 +15,7 @@ export default function ExampleAlertDialog() {
         <AlertDialog.Description className="mb-6 text-gray-600">
           You can’t undo this action.
         </AlertDialog.Description>
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-4">
           <AlertDialog.Close className="flex rounded-md bg-gray-50 px-3.5 py-2 font-medium text-gray-900 outline-1 outline-gray-200 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue active:bg-gray-100">
             Cancel
           </AlertDialog.Close>
