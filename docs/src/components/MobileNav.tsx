@@ -69,9 +69,6 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
                         viewport.style.transform = `400ms`;
                         setOpen(false);
 
-                        // TODO this should be removed after https://github.com/mui/base-ui/pull/878
-                        setTimeout(() => viewport.removeAttribute('style'), 600);
-
                         // Sometimes the first scroll event comes with the same scroll position
                         // If so, give it another chance, call ourselves recursively
                       } else if (viewport.scrollTop === y) {
