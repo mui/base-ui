@@ -14,10 +14,11 @@ export default function CollapsibleTransitions() {
         <Collapsible.Root defaultOpen={false}>
           <Collapsible.Trigger className={classes.trigger}>
             <ExpandMoreIcon className={classes.icon} />
-            Trigger 1A
+            Trigger 1A (keepMounted false)
           </Collapsible.Trigger>
           <Collapsible.Panel
             className={classNames(classes.panel, classes.transition)}
+            keepMounted={false}
           >
             <p>This is the collapsed content</p>
             <p>
@@ -38,10 +39,61 @@ export default function CollapsibleTransitions() {
         <Collapsible.Root>
           <Collapsible.Trigger className={classes.trigger}>
             <ExpandMoreIcon className={classes.icon} />
-            Trigger 1B
+            Trigger 1B (keepMounted false)
           </Collapsible.Trigger>
           <Collapsible.Panel
             className={classNames(classes.panel, classes.transition)}
+            keepMounted={false}
+          >
+            <p>This is the collapsed content</p>
+            <p>
+              You can find the Base UI repository{' '}
+              <a
+                href="https://github.com/mui/base-ui"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                here
+              </a>
+            </p>
+          </Collapsible.Panel>
+        </Collapsible.Root>
+      </div>
+
+      <div>
+        <Collapsible.Root defaultOpen={false}>
+          <Collapsible.Trigger className={classes.trigger}>
+            <ExpandMoreIcon className={classes.icon} />
+            Trigger 2A (keepMounted true)
+          </Collapsible.Trigger>
+          <Collapsible.Panel
+            className={classNames(classes.panel, classes.transition)}
+            keepMounted
+          >
+            <p>This is the collapsed content</p>
+            <p>
+              You can find the Base UI repository{' '}
+              <a
+                href="https://github.com/mui/base-ui"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                here
+              </a>
+            </p>
+          </Collapsible.Panel>
+        </Collapsible.Root>
+      </div>
+
+      <div>
+        <Collapsible.Root>
+          <Collapsible.Trigger className={classes.trigger}>
+            <ExpandMoreIcon className={classes.icon} />
+            Trigger 2B (keepMounted true)
+          </Collapsible.Trigger>
+          <Collapsible.Panel
+            className={classNames(classes.panel, classes.transition)}
+            keepMounted
           >
             <p>This is the collapsed content</p>
             <p>

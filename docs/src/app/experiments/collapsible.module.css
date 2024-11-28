@@ -1,6 +1,6 @@
 .wrapper {
   --width: 320px;
-  --duration: 300ms;
+  --duration: 1000ms;
 
   font-family: system-ui, sans-serif;
   line-height: 1.4;

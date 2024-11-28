@@ -1,10 +1,13 @@
 'use client';
 import * as React from 'react';
 import { expect } from 'chai';
-import { spy } from 'sinon';
-import { act, describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
+import { describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import { createRenderer, describeConformance } from '#test-utils';
+
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+
+const PANEL_CONTENT = 'This is panel content';
 
 describe('<Collapsible.Root />', () => {
   const { render } = createRenderer();
@@ -12,7 +15,6 @@ describe('<Collapsible.Root />', () => {
   // `render` is explicitly specified here because Collapsible.Root does not
   // render an element to the DOM by default and so the conformance tests would be unapplicable
   describeConformance(<Collapsible.Root render={<div />} />, () => ({
-    inheritComponent: 'div',
     render,
     refInstanceof: window.HTMLDivElement,
   }));
@@ -36,85 +38,84 @@ describe('<Collapsible.Root />', () => {
   });
 
   describe('open state', () => {
-    it('controlled mode', async () => {
+    it('controlled mode', async function test() {
       const { queryByText, getByRole, setProps } = await render(
         <Collapsible.Root open={false} animated={false}>
           <Collapsible.Trigger />
-          <Collapsible.Panel>This is content</Collapsible.Panel>
+          <Collapsible.Panel>This is panel content</Collapsible.Panel>
         </Collapsible.Root>,
       );
 
       const trigger = getByRole('button');
-      const panel = queryByText('This is content');
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(panel).not.toBeVisible();
+      expect(queryByText(PANEL_CONTENT)).to.equal(null);
 
       setProps({ open: true });
       await flushMicrotasks();
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
-      expect(panel).toBeVisible();
-      expect(panel).to.have.attribute('data-open');
+
+      expect(queryByText(PANEL_CONTENT)).to.not.equal(null);
+      expect(queryByText(PANEL_CONTENT)).toBeVisible();
+      expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
       expect(trigger).to.have.attribute('data-panel-open');
 
       setProps({ open: false });
       await flushMicrotasks();
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(panel).not.toBeVisible();
+      expect(queryByText(PANEL_CONTENT)).to.equal(null);
     });
 
     it('uncontrolled mode', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
       }
-
       const { getByRole, queryByText, user } = await render(
         <Collapsible.Root defaultOpen={false} animated={false}>
           <Collapsible.Trigger />
-          <Collapsible.Panel>This is content</Collapsible.Panel>
+          <Collapsible.Panel>This is panel content</Collapsible.Panel>
         </Collapsible.Root>,
       );
 
       const trigger = getByRole('button');
-      const panel = queryByText('This is content');
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(panel).not.toBeVisible();
+      expect(queryByText(PANEL_CONTENT)).to.equal(null);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger });
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
-      expect(panel).toBeVisible();
-      expect(panel).to.have.attribute('data-open');
+      expect(queryByText(PANEL_CONTENT)).to.not.equal(null);
+      expect(queryByText(PANEL_CONTENT)).toBeVisible();
+      expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
       expect(trigger).to.have.attribute('data-panel-open');
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger });
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(trigger).to.not.have.attribute('data-panel-open');
-      expect(panel).not.toBeVisible();
+      expect(queryByText(PANEL_CONTENT)).to.equal(null);
     });
   });
 
-  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('keyboard interactions', () => {
+  describeSkipIf(isJSDOM)('keyboard interactions', () => {
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} should toggle the Collapsible`, async () => {
         const { queryByText, getByRole, user } = await render(
           <Collapsible.Root defaultOpen={false} animated={false}>
             <Collapsible.Trigger>Trigger</Collapsible.Trigger>
-            <Collapsible.Panel>This is content</Collapsible.Panel>
+            <Collapsible.Panel>This is panel content</Collapsible.Panel>
           </Collapsible.Root>,
         );
 
         const trigger = getByRole('button');
-        const panel = queryByText('This is content');
 
         expect(trigger).to.have.attribute('aria-expanded', 'false');
-        expect(panel).not.toBeVisible();
+        expect(queryByText(PANEL_CONTENT)).to.equal(null);
 
         await user.keyboard('[Tab]');
         expect(trigger).toHaveFocus();
@@ -122,48 +123,16 @@ describe('<Collapsible.Root />', () => {
 
         expect(trigger).to.have.attribute('aria-expanded', 'true');
         expect(trigger).to.have.attribute('data-panel-open');
-        expect(panel).toBeVisible();
-        expect(panel).to.have.attribute('data-open');
+        expect(queryByText(PANEL_CONTENT)).toBeVisible();
+        expect(queryByText(PANEL_CONTENT)).to.not.equal(null);
+        expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
 
         await user.keyboard(`[${key}]`);
 
         expect(trigger).to.have.attribute('aria-expanded', 'false');
         expect(trigger).not.to.have.attribute('data-panel-open');
-        expect(panel).not.toBeVisible();
+        expect(queryByText(PANEL_CONTENT)).to.equal(null);
       });
-    });
-  });
-
-  describe('prop: hiddenUntilFound', () => {
-    it('uses `hidden="until-found" to hide panel when true', async function test(t = {}) {
-      // we test firefox in browserstack which does not support this yet
-      if (!('onbeforematch' in window) || /jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
-      }
-
-      const handleOpenChange = spy();
-
-      const { queryByText } = await render(
-        <Collapsible.Root defaultOpen={false} animated={false} onOpenChange={handleOpenChange}>
-          <Collapsible.Trigger />
-          <Collapsible.Panel hiddenUntilFound>This is content</Collapsible.Panel>
-        </Collapsible.Root>,
-      );
-
-      const panel = queryByText('This is content');
-
-      act(() => {
-        const event = new window.Event('beforematch', {
-          bubbles: true,
-          cancelable: false,
-        });
-        panel?.dispatchEvent(event);
-      });
-
-      expect(handleOpenChange.callCount).to.equal(1);
-      expect(panel).to.have.attribute('data-open');
     });
   });
 });

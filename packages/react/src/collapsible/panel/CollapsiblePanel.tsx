@@ -22,15 +22,16 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   props: CollapsiblePanel.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, hiddenUntilFound, render, ...otherProps } = props;
+  const { className, hiddenUntilFound, keepMounted = false, render, ...otherProps } = props;
 
   const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen, state } =
     useCollapsibleRootContext();
 
-  const { getRootProps, height, width } = useCollapsiblePanel({
+  const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
     animated,
     hiddenUntilFound,
     id: panelId,
+    keepMounted,
     mounted,
     open,
     ref: forwardedRef,
@@ -55,6 +56,10 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
+  if (!keepMounted && !isOpen) {
+    return null;
+  }
+
   return renderElement();
 });
 
@@ -63,7 +68,15 @@ export { CollapsiblePanel };
 namespace CollapsiblePanel {
   export interface Props
     extends BaseUIComponentProps<'div', CollapsibleRoot.State>,
-      Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {}
+      Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {
+    /**
+     * If `true`, the panel remains mounted when closed and is instead
+     * hidden using the `hidden` attribute
+     * If `false`, the panel is unmounted when closed.
+     * @default false
+     */
+    keepMounted?: boolean;
+  }
 }
 
 CollapsiblePanel.propTypes /* remove-proptypes */ = {
