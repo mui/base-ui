@@ -63,7 +63,7 @@ export function Header() {
                     rel="noopener"
                   >
                     <NpmIcon />
-                    <span className="flex flex-grow-1 justify-between">
+                    <span className="flex flex-grow-1 items-baseline justify-between">
                       npm package
                       <span className="text-sm text-gray-600">{VERSION}</span>
                     </span>
