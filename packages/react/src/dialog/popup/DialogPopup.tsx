@@ -90,11 +90,15 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     titleElementId,
   });
 
-  const state: DialogPopup.State = {
-    open,
-    nestedOpenDialogCount,
-    transitionStatus,
-  };
+  const state: DialogPopup.State = React.useMemo(
+    () => ({
+      open,
+      mounted,
+      nestedOpenDialogCount,
+      transitionStatus,
+    }),
+    [open, mounted, nestedOpenDialogCount, transitionStatus],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
@@ -157,6 +161,7 @@ namespace DialogPopup {
 
   export interface State {
     open: boolean;
+    mounted: boolean;
     nestedOpenDialogCount: number;
     transitionStatus: TransitionStatus;
   }

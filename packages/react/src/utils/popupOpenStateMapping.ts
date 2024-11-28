@@ -40,6 +40,15 @@ export const popupOpenStateMapping = {
     if (value) {
       return POPUP_OPEN_HOOK;
     }
-    return POPUP_CLOSED_HOOK;
+    return null;
   },
-} satisfies CustomStyleHookMapping<{ open: boolean }>;
+  mounted(value) {
+    if (!value) {
+      return POPUP_CLOSED_HOOK;
+    }
+    return null;
+  },
+} satisfies CustomStyleHookMapping<{
+  open: boolean;
+  mounted: boolean;
+}>;

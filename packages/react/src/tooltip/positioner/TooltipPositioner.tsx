@@ -73,10 +73,11 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const state: TooltipPositioner.State = React.useMemo(
     () => ({
       open,
+      mounted,
       side: positioner.side,
       alignment: positioner.alignment,
     }),
-    [open, positioner.side, positioner.alignment],
+    [open, mounted, positioner.side, positioner.alignment],
   );
 
   const contextValue: TooltipPositionerContext = React.useMemo(
@@ -114,6 +115,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 namespace TooltipPositioner {
   export interface State {
     open: boolean;
+    mounted: boolean;
     side: Side;
     alignment: Alignment;
   }

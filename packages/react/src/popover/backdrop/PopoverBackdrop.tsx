@@ -45,12 +45,13 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 
   const { getBackdropProps } = usePopoverBackdrop();
 
-  const state = React.useMemo(
+  const state: PopoverBackdrop.State = React.useMemo(
     () => ({
       open,
+      mounted,
       transitionStatus,
     }),
-    [open, transitionStatus],
+    [open, mounted, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -74,6 +75,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 namespace PopoverBackdrop {
   export interface State {
     open: boolean;
+    mounted: boolean;
     transitionStatus: TransitionStatus;
   }
 

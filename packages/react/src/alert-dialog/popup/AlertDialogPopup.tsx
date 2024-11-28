@@ -90,10 +90,11 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   const state: AlertDialogPopup.State = React.useMemo(
     () => ({
       open,
+      mounted,
       nestedOpenDialogCount,
       transitionStatus,
     }),
-    [open, nestedOpenDialogCount, transitionStatus],
+    [open, mounted, nestedOpenDialogCount, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -157,6 +158,7 @@ namespace AlertDialogPopup {
 
   export interface State {
     open: boolean;
+    mounted: boolean;
     nestedOpenDialogCount: number;
     transitionStatus: TransitionStatus;
   }

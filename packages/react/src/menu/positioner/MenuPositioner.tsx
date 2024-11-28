@@ -87,10 +87,11 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   const state: MenuPositioner.State = React.useMemo(
     () => ({
       open,
+      mounted,
       side: positioner.side,
       alignment: positioner.alignment,
     }),
-    [open, positioner.side, positioner.alignment],
+    [open, mounted, positioner.side, positioner.alignment],
   );
 
   const contextValue: MenuPositionerContext = React.useMemo(
@@ -151,14 +152,13 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   );
 });
 
-export { MenuPositioner };
-
 export namespace MenuPositioner {
-  export type State = {
+  export interface State {
     open: boolean;
+    mounted: boolean;
     side: Side;
     alignment: 'start' | 'end' | 'center';
-  };
+  }
 
   export interface Props
     extends useMenuPositioner.SharedParameters,
@@ -274,3 +274,5 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   sticky: PropTypes.bool,
 } as any;
+
+export { MenuPositioner };

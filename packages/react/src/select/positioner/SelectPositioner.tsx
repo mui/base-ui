@@ -72,10 +72,11 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   const state: SelectPositioner.State = React.useMemo(
     () => ({
       open,
+      mounted,
       side: positioner.side,
       alignment: positioner.alignment,
     }),
-    [open, positioner.side, positioner.alignment],
+    [open, mounted, positioner.side, positioner.alignment],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -102,6 +103,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 namespace SelectPositioner {
   export interface State {
     open: boolean;
+    mounted: boolean;
     side: Side | 'none';
     alignment: Alignment;
   }

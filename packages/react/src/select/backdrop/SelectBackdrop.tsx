@@ -47,8 +47,12 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   const { getBackdropProps } = useSelectBackdrop();
 
   const state: SelectBackdrop.State = React.useMemo(
-    () => ({ open, transitionStatus }),
-    [open, transitionStatus],
+    () => ({
+      open,
+      mounted,
+      transitionStatus,
+    }),
+    [open, mounted, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -85,6 +89,7 @@ namespace SelectBackdrop {
 
   export interface State {
     open: boolean;
+    mounted: boolean;
     transitionStatus: TransitionStatus;
   }
 }
