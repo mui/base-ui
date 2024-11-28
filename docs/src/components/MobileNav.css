@@ -190,6 +190,9 @@
     height: var(--mobile-nav-item-height);
     padding-inline: var(--mobile-nav-item-padding-x);
 
+    -webkit-user-select: none;
+    user-select: none;
+
     @supports not (-webkit-tap-highlight-color: black) {
       &:active {
         background-color: var(--color-gray-100);
