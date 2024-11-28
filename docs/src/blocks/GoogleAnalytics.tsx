@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useMediaQuery } from '@base-ui-components/react/use-media-query';
+import { useMediaQuery } from '@base-ui-components/react/unstable-use-media-query';
 import { useEnhancedEffect } from '@base-ui-components/react/utils';
 
 let boundDataGaListener = false;
