@@ -3,6 +3,7 @@ import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { clamp } from '../../utils/clamp';
 import { MIN_THUMB_SIZE } from '../constants';
 
 export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) {
@@ -97,9 +98,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       const maxThumbOffsetX =
         scrollbarXEl.offsetWidth - clampedNextWidth - (paddingLeft + paddingRight);
       const scrollRatioX = scrollLeft / (scrollableContentWidth - viewportWidth);
-
-      const clamp = (value: number, min: number, max: number) =>
-        Math.min(Math.max(value, min), max);
 
       // In Safari, don't allow it to go negative or too far as `scrollLeft` considers the rubber
       // band effect.
