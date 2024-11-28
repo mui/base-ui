@@ -4,10 +4,6 @@
     "aria-labelledby": { "type": { "name": "string" } },
     "aria-valuetext": { "type": { "name": "string" } },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "direction": {
-      "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
-      "default": "'ltr'"
-    },
     "getAriaLabel": {
       "type": { "name": "func" },
       "signature": {
