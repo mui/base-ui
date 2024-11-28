@@ -395,7 +395,7 @@ describe('<Popover.Root />', () => {
     });
   });
 
-  describe('focus manangment', () => {
+  describe('focus management', () => {
     it('focuses the trigger after the popover is closed but not unmounted', async () => {
       await render(
         <div>
@@ -454,7 +454,7 @@ describe('<Popover.Root />', () => {
       expect(close).not.to.toHaveFocus();
     });
 
-    it.only('does not change focus when opened with hover and closed', async () => {
+    it('does not change focus when opened with hover and closed', async () => {
       const style = `
         .popup {
           width: 100px;
