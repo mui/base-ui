@@ -1,4 +1,3 @@
-/* eslint-disable react/no-danger */
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -471,6 +470,7 @@ describe('<Popover.Root />', () => {
 
       await render(
         <div>
+          {/* eslint-disable-next-line react/no-danger */}
           <style dangerouslySetInnerHTML={{ __html: style }} />
           <input type="text" data-testid="first-input" />
           <Popover.Root openOnHover delay={0} closeDelay={0}>
