@@ -7,6 +7,8 @@
 
   .QuickNavRoot {
     --quick-nav-margin-x: 2rem;
+
+    /* Use line height instead of fixed item height in case text breaks into multiple lines */
     --quick-nav-item-height: 2rem;
     --quick-nav-item-line-height: var(--text-sm--line-height);
     --quick-nav-item-padding-y: calc(
