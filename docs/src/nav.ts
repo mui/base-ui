@@ -54,7 +54,7 @@ export const nav = [
       },
       {
         label: 'Checkbox Group',
-        href: '/new/components/checkbox group',
+        href: '/new/components/checkbox-group',
       },
       {
         label: 'Collapsible',
