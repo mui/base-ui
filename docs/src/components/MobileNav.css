@@ -23,7 +23,7 @@
     }
 
     &[data-exiting] {
-      transition-duration: 300ms;
+      transition-duration: 250ms;
       transition-timing-function: var(--ease-in-slow);
     }
   }
@@ -51,8 +51,8 @@
 
     &[data-exiting] {
       /* Delay the blur transition so it doesn't feel unfocused until halway out */
-      transition-delay: 0ms, 150ms;
-      transition-duration: 300ms;
+      transition-delay: 0ms, 125ms;
+      transition-duration: 250ms;
       transition-timing-function: var(--ease-in-slow);
     }
   }
