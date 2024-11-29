@@ -12,13 +12,13 @@
   width: 100%;
   height: 4px;
   border-radius: 9999px;
-  background-color: var(--color-gray-400);
+  background-color: var(--color-gray-400, oklch(12% 8% 264 / 38%));
   display: flex;
   overflow: hidden;
 }
 
 .indicator {
-  background-color: var(--code-6);
+  background-color: var(--code-6, #00749e);
   border-radius: inherit;
 }
 
@@ -31,7 +31,7 @@
 .label {
   cursor: unset;
   font-weight: bold;
-  color: var(--color-gray-700);
+  color: var(--color-gray-700, oklch(12% 6% 264 / 77%));
 }
 
 @keyframes indeterminateProgress {
