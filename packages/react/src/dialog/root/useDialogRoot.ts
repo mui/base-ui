@@ -14,7 +14,7 @@ import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useUnmountAfterExitAnimation } from '../../utils/useUnmountAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -52,11 +52,11 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     setOpenUnwrapped(nextOpen);
   });
 
-  useUnmountAfterExitAnimation({
+  useAfterExitAnimation({
     open,
     animated,
     animatedElementRef: popupRef,
-    setMounted,
+    onFinished: () => setMounted(false),
   });
 
   const context = useFloatingRootContext({

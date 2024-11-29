@@ -18,7 +18,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useControlled } from '../../utils/useControlled';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
-import { useUnmountAfterExitAnimation } from '../../utils/useUnmountAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -59,11 +59,11 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     setOpenUnwrapped(nextOpen);
   });
 
-  useUnmountAfterExitAnimation({
+  useAfterExitAnimation({
     open,
     animated,
     animatedElementRef: popupRef,
-    setMounted,
+    onFinished: () => setMounted(false),
   });
 
   const floatingRootContext = useFloatingRootContext({
