@@ -28,29 +28,29 @@
   width: var(--width);
 
   /* trigger  */
-  & [type='button'] {
+  & .trigger {
     display: flex;
     width: 100%;
     align-items: center;
     padding-left: 0;
   }
 
-  & [type='button']:not(:first-of-type) {
+  & .trigger:not(:first-of-type) {
     margin-top: 3rem;
   }
 
-  & [type='button'] svg {
+  & .trigger svg {
     transform: rotate(-90deg);
     transition: transform var(--duration) ease-in;
   }
 
-  & [type='button'][data-panel-open] svg {
+  & .trigger[data-panel-open] svg {
     transform: rotate(0);
     transition: transform var(--duration) ease-out;
   }
 
   /* panel  */
-  & [type='button'] + div {
+  & .panel {
     background-color: #eaeaea;
     overflow: hidden;
     box-sizing: border-box;
@@ -59,40 +59,40 @@
     padding-right: 1rem;
   }
 
-  & [type='button'] + div p {
+  & .panel p {
     margin: 1.25rem auto;
     overflow-wrap: break-word;
   }
 }
 
 .transition .collapsible {
-  & [type='button'] + div[data-open] {
+  & .panel[data-open] {
     height: var(--collapsible-panel-height);
     transition: height var(--duration) ease-out;
   }
 
-  & [type='button'] + div {
+  & .panel {
     height: 0;
     transition: height var(--duration) ease-in;
   }
 
-  & [type='button'] + div[data-entering] {
+  & .panel[data-starting-style] {
     height: 0;
   }
 }
 
 .animation .collapsible {
-  & [type='button'] + div[data-open] {
+  & .panel[data-open] {
     animation: slideDown var(--duration) ease-out;
   }
 
-  & [type='button'] + div {
+  & .panel {
     animation: slideUp var(--duration) ease-in;
   }
 }
 
 .framer .collapsible {
-  & [type='button'] + div {
+  & .panel {
     display: flex;
     flex-direction: column;
   }

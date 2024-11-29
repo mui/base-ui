@@ -24,6 +24,7 @@ const contextValue: CollapsibleRootContext = {
   state: {
     open: true,
     disabled: false,
+    hidden: false,
     transitionStatus: undefined,
   },
 };

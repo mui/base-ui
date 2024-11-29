@@ -11,12 +11,21 @@ export const triggerOpenStateMapping: CustomStyleHookMapping<{ open: boolean }> 
   },
 };
 
-export const collapsibleOpenStateMapping: CustomStyleHookMapping<{ open: boolean }> = {
+export const collapsibleOpenStateMapping: CustomStyleHookMapping<{
+  open: boolean;
+  hidden: boolean;
+}> = {
   open(value) {
     if (value) {
       return {
         'data-open': '',
       };
+    }
+    return null;
+  },
+  hidden(value) {
+    if (value) {
+      return { 'data-closed': '' };
     }
     return null;
   },
