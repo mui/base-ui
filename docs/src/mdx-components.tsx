@@ -18,20 +18,22 @@ export const mdxComponents: MDXComponents = {
   code: (props) => <Code className="mx-[0.1em]" {...props} />,
   h1: (props) => (
     <React.Fragment>
-      <h1 className="mb-4 text-3xl font-bold" {...props} />
+      <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />
       <title>{`${getChildrenText(props.children)} · Base UI`}</title>
     </React.Fragment>
   ),
   h2: (props) => (
     <div className="mt-10 mb-5">
-      <h2 className="mb-4 scroll-mt-6 text-xl font-medium" {...props} />
+      <h2 className="mb-4 scroll-mt-6 text-xl font-medium text-balance" {...props} />
       <div className="border-t border-gray-200" />
     </div>
   ),
-  h3: (props) => <h3 className="mt-8 mb-1.5 scroll-mt-6 text-lg font-medium" {...props} />,
-  h4: (props) => <h4 className="mt-8 mb-1.5 scroll-mt-6 font-medium" {...props} />,
-  h5: (props) => <h5 className="mt-8 mb-1.5 scroll-mt-6 font-medium" {...props} />,
-  h6: (props) => <h6 className="mt-8 mb-1.5 scroll-mt-6 font-medium" {...props} />,
+  h3: (props) => (
+    <h3 className="mt-8 mb-1.5 scroll-mt-6 text-lg font-medium text-balance" {...props} />
+  ),
+  h4: (props) => <h4 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
+  h5: (props) => <h5 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
+  h6: (props) => <h6 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
   p: (props) => <p className="mb-4" {...props} />,
   figure: (props) => {
     if ('data-rehype-pretty-code-figure' in props) {
@@ -63,13 +65,14 @@ export const mdxComponents: MDXComponents = {
   QuickNav,
   AttributesTable: (props) => <AttributesTable className="mt-5 mb-6" {...props} />,
   CssVariablesTable: (props) => <CssVariablesTable className="mt-5 mb-6" {...props} />,
+  Meta: (props: React.ComponentProps<'meta'>) => {
+    if (props.name === 'description' && String(props.content).length > 170) {
+      throw new Error('Meta description shouldn’t be longer than 170 chars');
+    }
+    return <meta {...props} />;
+  },
   PropsTable: (props) => <PropsTable className="mt-5 mb-6" {...props} />,
-  Subtitle: (props) => (
-    <React.Fragment>
-      <p className="-mt-2 mb-5 text-lg text-gray" {...props} />
-      <meta name="description" content={getChildrenText(props.children)} />
-    </React.Fragment>
-  ),
+  Subtitle: (props) => <p className="-mt-2 mb-5 text-lg text-balance text-gray" {...props} />,
 };
 
 export const inlineMdxComponents: MDXComponents = {
