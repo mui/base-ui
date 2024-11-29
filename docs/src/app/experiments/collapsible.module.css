@@ -33,7 +33,7 @@
   transition: transform var(--duration) ease-in;
 }
 
-.trigger[data-open] .icon {
+.trigger[data-panel-open] .icon {
   transform: rotate(0);
   transition: transform var(--duration) ease-out;
 }
@@ -95,4 +95,16 @@
   to {
     height: 0;
   }
+}
+
+.grid {
+  --width: 320px;
+  --duration: 2000ms;
+
+  font-family: system-ui, sans-serif;
+  line-height: 1.4;
+
+  display: grid;
+  grid: var(--width) var(--width) / var(--width) var(--width);
+  grid-gap: 4rem;
 }

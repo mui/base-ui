@@ -1,7 +1,7 @@
 @layer components {
   .Popup {
-    max-width: var(--available-width);
-    max-height: var(--available-height);
+    max-width: var(--available-width, none);
+    max-height: var(--available-height, none);
     border-radius: var(--radius-md);
     background-color: var(--color-popup);
     overflow: hidden;
@@ -18,10 +18,10 @@
       outline-offset: -1px;
     }
 
-    transform-origin: var(--transform-origin);
-    transition-duration: 150ms;
+    transform-origin: var(--transform-origin, center);
+    transition-duration: 120ms;
     transition-property: opacity, transform;
-    transition-timing-function: cubic-bezier(0.3, 1.065, 0.01, 0.975);
+    transition-timing-function: var(--ease-out-fast);
 
     &[data-entering],
     &[data-exiting] {
@@ -32,7 +32,7 @@
     }
 
     &[data-exiting] {
-      transition-duration: 275ms;
+      transition-timing-function: var(--ease-in-slow);
     }
   }
 }
