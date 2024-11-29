@@ -33,6 +33,10 @@ export function rehypeQuickNav() {
       children: toc.flatMap(getNodeFromEntry).filter(Boolean),
     });
 
+    if (!toc.length) {
+      return;
+    }
+
     // Place quick nav after the `<Subtitle>` that immediately follows the first `<h1>`,
     // or after the first `<h1>` if a matching `<Subtitle>` wasn't found.
     let index = tree.children.indexOf(h1) + 2; // Adding "2" because there's also a line break below h1

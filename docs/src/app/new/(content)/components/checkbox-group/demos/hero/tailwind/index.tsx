@@ -5,52 +5,49 @@ import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 export default function ExampleCheckboxGroup() {
   return (
     <CheckboxGroup.Root
-      aria-labelledby="apples"
+      aria-labelledby="apples-caption"
       defaultValue={['fuji-apple']}
       className="flex flex-col gap-1"
     >
-      <div className="font-medium" id="apples">
+      <div className="font-medium" id="apples-caption">
         Apples
       </div>
 
-      <div className="flex items-center gap-2">
+      <label className="flex items-center gap-2">
         <Checkbox.Root
-          id="fuji-apple"
           name="fuji-apple"
-          className="flex size-5 items-center justify-center rounded-sm outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
+          className="flex size-5 items-center justify-center rounded-sm outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
         >
-          <Checkbox.Indicator className="size-3 text-gray-50 data-[unchecked]:hidden">
-            <CheckIcon className="h-full w-full" />
+          <Checkbox.Indicator className="flex text-gray-50 data-[unchecked]:hidden">
+            <CheckIcon className="size-3" />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        <label htmlFor="fuji-apple">Fuji</label>
-      </div>
+        Fuji
+      </label>
 
-      <div className="flex items-center gap-2">
+      <label className="flex items-center gap-2">
         <Checkbox.Root
-          id="gala-apple"
           name="gala-apple"
-          className="flex size-5 items-center justify-center rounded-sm outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
+          className="flex size-5 items-center justify-center rounded-sm outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
         >
-          <Checkbox.Indicator className="size-3 text-gray-50 data-[unchecked]:hidden">
-            <CheckIcon className="h-full w-full" />
+          <Checkbox.Indicator className="flex text-gray-50 data-[unchecked]:hidden">
+            <CheckIcon className="size-3" />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        <label htmlFor="gala-apple">Gala</label>
-      </div>
+        Gala
+      </label>
 
-      <div className="flex items-center gap-2">
+      <label className="flex items-center gap-2">
         <Checkbox.Root
-          id="granny-smith-apple"
           name="granny-smith-apple"
-          className="flex size-5 items-center justify-center rounded-sm outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
+          className="flex size-5 items-center justify-center rounded-sm outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
         >
-          <Checkbox.Indicator className="size-3 text-gray-50 data-[unchecked]:hidden">
-            <CheckIcon className="h-full w-full" />
+          <Checkbox.Indicator className="flex text-gray-50 data-[unchecked]:hidden">
+            <CheckIcon className="size-3" />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        <label htmlFor="granny-smith-apple">Granny Smith</label>
-      </div>
+        Granny Smith
+      </label>
     </CheckboxGroup.Root>
   );
 }
