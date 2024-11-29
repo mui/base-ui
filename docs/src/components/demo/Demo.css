@@ -29,6 +29,9 @@
     /* Center the contents */
     display: grid;
     place-content: center;
+
+    /* Debugging red text? You just forgot to set the text color in your demo. */
+    color: red;
   }
 
   .DemoToolbar {

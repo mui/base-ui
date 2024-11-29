@@ -1,11 +1,11 @@
 .Root {
   box-sizing: border-box;
   display: flex;
-  min-height: 12rem;
   width: 24rem;
   max-width: calc(100vw - 8rem);
   flex-direction: column;
   justify-content: center;
+  color: var(--color-gray-900);
 }
 
 .Item {

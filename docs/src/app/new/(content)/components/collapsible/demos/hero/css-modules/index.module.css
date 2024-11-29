@@ -4,6 +4,7 @@
   min-height: 9rem;
   flex-direction: column;
   justify-content: center;
+  color: var(--color-gray-900);
 }
 
 .Trigger {
@@ -14,7 +15,7 @@
   border: 0;
   outline: 0;
   padding: 0.25rem 0.5rem;
-  border-radius: 0.125rem;
+  border-radius: 0.25rem;
   background-color: var(--color-gray-100);
   font: inherit;
   font-size: 0.9375rem;
@@ -70,7 +71,7 @@
   gap: 0.5rem;
   margin-top: 0.25rem;
   padding: 0.5rem 0 0.5rem 1.75rem;
-  border-radius: 0.125rem;
+  border-radius: 0.25rem;
   background-color: var(--color-gray-100);
   cursor: text;
 }

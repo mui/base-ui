@@ -9,12 +9,15 @@ import { AttributesTable } from './components/reference/AttributesTable';
 import { CssVariablesTable } from './components/reference/CssVariablesTable';
 import { TableCode } from './components/TableCode';
 import { getChildrenText } from './getChildrenText';
+import { Link } from './components/Link';
+import { Subtitle } from './components/subtitle/Subtitle';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
 }
 
 export const mdxComponents: MDXComponents = {
+  a: (props) => <Link {...props} />,
   code: (props) => <Code className="mx-[0.1em]" {...props} />,
   h1: (props) => (
     <React.Fragment>
@@ -72,7 +75,7 @@ export const mdxComponents: MDXComponents = {
     return <meta {...props} />;
   },
   PropsTable: (props) => <PropsTable className="mt-5 mb-6" {...props} />,
-  Subtitle: (props) => <p className="-mt-2 mb-5 text-lg text-balance text-gray" {...props} />,
+  Subtitle: (props) => <Subtitle className="-mt-2 mb-5" {...props} />,
 };
 
 export const inlineMdxComponents: MDXComponents = {
