@@ -64,11 +64,19 @@
   }
 
   .SelectArrow {
-    top: -6px;
+    &[data-side='bottom'] {
+      top: -6px;
+    }
+    &[data-side='top'] {
+      bottom: -6px;
+      transform: scaleY(-1);
+    }
   }
+
   .SelectArrowFill {
     fill: var(--color-popup);
   }
+
   .SelectArrowStroke {
     @media (prefers-color-scheme: dark) {
       fill: var(--color-gray-300);
