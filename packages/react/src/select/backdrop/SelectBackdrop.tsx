@@ -49,7 +49,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   const state: SelectBackdrop.State = React.useMemo(
     () => ({
       open,
-      mounted,
+      hidden: !mounted,
       transitionStatus,
     }),
     [open, mounted, transitionStatus],
@@ -89,7 +89,7 @@ namespace SelectBackdrop {
 
   export interface State {
     open: boolean;
-    mounted: boolean;
+    hidden: boolean;
     transitionStatus: TransitionStatus;
   }
 }

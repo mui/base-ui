@@ -72,7 +72,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const state: PopoverPositioner.State = React.useMemo(
     () => ({
       open,
-      mounted,
+      hidden: !mounted,
       side: positioner.side,
       alignment: positioner.alignment,
     }),
@@ -106,7 +106,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 namespace PopoverPositioner {
   export interface State {
     open: boolean;
-    mounted: boolean;
+    hidden: boolean;
     side: Side;
     alignment: Alignment;
   }

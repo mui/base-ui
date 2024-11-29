@@ -87,7 +87,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   const state: MenuPositioner.State = React.useMemo(
     () => ({
       open,
-      mounted,
+      hidden: !mounted,
       side: positioner.side,
       alignment: positioner.alignment,
     }),
@@ -155,7 +155,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 export namespace MenuPositioner {
   export interface State {
     open: boolean;
-    mounted: boolean;
+    hidden: boolean;
     side: Side;
     alignment: 'start' | 'end' | 'center';
   }

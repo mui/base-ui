@@ -42,13 +42,13 @@ export const popupOpenStateMapping = {
     }
     return null;
   },
-  mounted(value) {
-    if (!value) {
+  hidden(value) {
+    if (value) {
       return POPUP_CLOSED_HOOK;
     }
     return null;
   },
 } satisfies CustomStyleHookMapping<{
   open: boolean;
-  mounted: boolean;
+  hidden: boolean;
 }>;

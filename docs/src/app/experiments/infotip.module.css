@@ -1,0 +1,10 @@
+.popup {
+  background: lightgray;
+  padding: 10px;
+  transition: opacity 0.5s;
+
+  &[data-entering],
+  &[data-exiting] {
+    opacity: 0;
+  }
+}
