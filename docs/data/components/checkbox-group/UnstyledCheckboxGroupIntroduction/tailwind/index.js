@@ -17,7 +17,7 @@ function useIsDarkMode() {
 
 function Label(props) {
   return (
-    // eslint-disable-next-line  jsx-a11y/no-noninteractive-element-interactions
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <label
       className="mb-2 flex gap-2"
       onMouseDown={(event) => event.preventDefault()}
