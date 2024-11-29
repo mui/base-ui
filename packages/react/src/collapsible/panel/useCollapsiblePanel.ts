@@ -103,7 +103,6 @@ export function useCollapsiblePanel(
   const isOpen = animated ? open || mounted : open;
 
   const isBeforeMatchRef = React.useRef(false);
-  const isInitiallyOpenRef = React.useRef(isOpen);
   const isInitialOpenAnimationRef = React.useRef(isOpen);
 
   const registerCssTransitionListeners = React.useCallback(() => {
@@ -144,7 +143,6 @@ export function useCollapsiblePanel(
 
     if (element) {
       const isBeforeMatch = isBeforeMatchRef.current;
-      const isInitiallyOpen = isInitiallyOpenRef.current;
       const isInitialOpenAnimation = isInitialOpenAnimationRef.current;
       const isTransitioning = isTransitioningRef.current;
 
@@ -163,14 +161,12 @@ export function useCollapsiblePanel(
 
       const isClosed = !open && !mounted;
 
-      if (!keepMounted && !isInitiallyOpen) {
-        // when keepMounted is false and the initial state is closed, the panel
-        // does not exist in the DOM so transition listeners were never registered
-        // they need to be manually registered before any state changes
-        registerCssTransitionListeners();
-      }
-
       if (!isTransitioning || isClosed) {
+        if (!keepMounted) {
+          // when keepMounted is false the panel does not exist in the DOM so transition
+          // listeners need to be eagerly registered here before any state change
+          registerCssTransitionListeners();
+        }
         const rect = isClosed ? { height: 0, width: 0 } : element.getBoundingClientRect();
         setDimensions({
           height: rect.height,
