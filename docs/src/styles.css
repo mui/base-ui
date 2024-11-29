@@ -10,10 +10,8 @@
  *   - "@layer base" is Tailwind’s reset that is reverted in non-Tailwind demos
  *   - We rely on both to build the docs docs
  * - Docs and demos are built using the same theme
- *   - Theme tokens use Tailwind v4 @theme naming convention
- *   - Don't use our custom tokens in the Tailwind demos.
- *   - The demos must work when copy-pasted into a project with their default theme
- *   - CSS Modules demos must use only the tokens referenced in `demo-colors.css`
+ *   - Theme tokens use Tailwind v4 "@theme" naming convention
+ *   - Don't use our custom tokens in the demos – only what's available in the default theme.
  */
 
 @layer all;
@@ -129,7 +127,6 @@
   --text-6xl--line-height: 0.95;
   --text-6xl--letter-spacing: -0.015em;
 
-  --default-transition-timing-function: var(--ease-out-fast);
   --ease-out-fast: cubic-bezier(0.45, 1.005, 0, 1.005);
   --ease-in-slow: cubic-bezier(0.375, 0.015, 0.545, 0.455);
   --header-height: 3rem;
@@ -168,6 +165,46 @@
     --color-purple: oklch(85% 30% 360);
     --color-red: oklch(80% 55% 31);
     --color-violet: oklch(80% 60% 280);
+  }
+}
+
+/* Disable docs-specific variables in the demos. Keep this in sync with the "@theme" block above */
+@layer theme {
+  [data-demo] {
+    --color-gray: initial;
+    --color-navy: initial;
+    --color-green: initial;
+    --color-purple: initial;
+    --color-violet: initial;
+    --color-content: initial;
+    --color-background: initial;
+    --color-foreground: initial;
+    --color-popup: initial;
+    --color-gridline: initial;
+    --color-highlight: initial;
+    --color-selection: initial;
+    --color-gray-75: initial;
+    --ease-out-fast: initial;
+    --ease-in-slow: initial;
+    --header-height: initial;
+
+    /* These variables are available in the default Tailwind theme */
+    &:not([data-demo='tailwind']) {
+      --color-white: initial;
+      --color-black: initial;
+    }
+    /* These variables are exposed in "demo-colors.css" for CSS Modules demos */
+    &:not([data-demo='css-modules']) {
+      --color-blue: initial;
+      --color-red: initial;
+    }
+  }
+}
+
+/* Remove the Tailwind reset in non-Tailwind demos */
+@layer base {
+  [data-demo]:not([data-demo='tailwind']) * {
+    all: revert-layer;
   }
 }
 
