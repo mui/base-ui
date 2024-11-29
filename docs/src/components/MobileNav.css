@@ -190,20 +190,21 @@
     height: var(--mobile-nav-item-height);
     padding-inline: var(--mobile-nav-item-padding-x);
 
+    &:focus-visible {
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+    }
+
     @supports not (-webkit-tap-highlight-color: black) {
       &:active {
         background-color: var(--color-gray-100);
       }
     }
+
     @supports (-webkit-tap-highlight-color: black) {
       /* Applying background-color on :active shows it when touching items while scrolling */
       /* This activates only on real link taps */
       -webkit-tap-highlight-color: var(--color-gray-300);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--color-blue);
-      outline-offset: -1px;
     }
   }
 }

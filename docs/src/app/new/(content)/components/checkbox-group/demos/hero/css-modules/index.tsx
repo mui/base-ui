@@ -6,44 +6,40 @@ import styles from './index.module.css';
 export default function ExampleCheckboxGroup() {
   return (
     <CheckboxGroup.Root
-      aria-labelledby="apples"
+      aria-labelledby="apples-caption"
       defaultValue={['fuji-apple']}
       className={styles.Group}
     >
-      <div className={styles.Label} id="apples">
+      <div className={styles.Caption} id="apples-caption">
         Apples
       </div>
 
-      <div className={styles.Item}>
-        <Checkbox.Root id="fuji-apple" name="fuji-apple" className={styles.Checkbox}>
+      <label className={styles.Item}>
+        <Checkbox.Root name="fuji-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        <label htmlFor="fuji-apple">Fuji</label>
-      </div>
+        Fuji
+      </label>
 
-      <div className={styles.Item}>
-        <Checkbox.Root id="gala-apple" name="gala-apple" className={styles.Checkbox}>
+      <label className={styles.Item}>
+        <Checkbox.Root name="gala-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        <label htmlFor="gala-apple">Gala</label>
-      </div>
+        Gala
+      </label>
 
-      <div className={styles.Item}>
-        <Checkbox.Root
-          id="granny-smith-apple"
-          name="granny-smith-apple"
-          className={styles.Checkbox}
-        >
+      <label className={styles.Item}>
+        <Checkbox.Root name="granny-smith-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        <label htmlFor="granny-smith-apple">Granny Smith</label>
-      </div>
+        Granny Smith
+      </label>
     </CheckboxGroup.Root>
   );
 }

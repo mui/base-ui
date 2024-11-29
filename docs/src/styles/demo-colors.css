@@ -10,6 +10,8 @@
   --color-gray-800: oklch(12% 5% 264 / 85%);
   --color-gray-900: oklch(12% 5% 264 / 90%);
   --color-gray-950: oklch(12% 5% 264 / 95%);
+  --color-blue: oklch(45% 50% 264);
+  --color-red: oklch(50% 55% 31);
 
   @media (prefers-color-scheme: dark) {
     --color-gray-50: oklch(17% 1% 264);
@@ -24,5 +26,7 @@
     --color-gray-800: oklch(93% 3.5% 264 / 85%);
     --color-gray-900: oklch(95% 2% 264 / 90%);
     --color-gray-950: oklch(94% 1.5% 264 / 95%);
+    --color-blue: oklch(69% 50% 264);
+    --color-red: oklch(80% 55% 31);
   }
 }

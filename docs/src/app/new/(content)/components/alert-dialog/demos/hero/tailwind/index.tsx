@@ -4,7 +4,7 @@ import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 export default function ExampleAlertDialog() {
   return (
     <AlertDialog.Root>
-      <AlertDialog.Trigger className="flex rounded-md bg-gray-50 px-3.5 py-2 font-medium text-red outline-1 outline-gray-200 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue active:bg-gray-100">
+      <AlertDialog.Trigger className="focus-visible:outline-blue-800 text-red-800 flex rounded-md bg-gray-50 px-3.5 py-2 font-medium outline-1 outline-gray-200 select-none hover:bg-gray-100 focus-visible:outline-2 active:bg-gray-100">
         Discard draft
       </AlertDialog.Trigger>
       <AlertDialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-all duration-150 dark:opacity-70 [[data-starting-style],[data-ending-style]]:opacity-0" />
@@ -16,10 +16,10 @@ export default function ExampleAlertDialog() {
           You can’t undo this action.
         </AlertDialog.Description>
         <div className="flex justify-end gap-4">
-          <AlertDialog.Close className="flex rounded-md bg-gray-50 px-3.5 py-2 font-medium text-gray-900 outline-1 outline-gray-200 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue active:bg-gray-100">
+          <AlertDialog.Close className="focus-visible:outline-blue-800 flex rounded-md bg-gray-50 px-3.5 py-2 font-medium text-gray-900 outline-1 outline-gray-200 select-none hover:bg-gray-100 focus-visible:outline-2 active:bg-gray-100">
             Cancel
           </AlertDialog.Close>
-          <AlertDialog.Close className="flex rounded-md bg-gray-50 px-3.5 py-2 font-medium text-red outline-1 outline-gray-200 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue active:bg-gray-100">
+          <AlertDialog.Close className="focus-visible:outline-blue-800 text-red-800 flex rounded-md bg-gray-50 px-3.5 py-2 font-medium outline-1 outline-gray-200 select-none hover:bg-gray-100 focus-visible:outline-2 active:bg-gray-100">
             Discard
           </AlertDialog.Close>
         </div>

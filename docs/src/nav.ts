@@ -101,6 +101,14 @@ export const nav = [
         href: '/new/components/radio-group',
       },
       {
+        label: 'Scroll Area',
+        href: '/new/components/scroll-area',
+      },
+      {
+        label: 'Select',
+        href: '/new/components/select',
+      },
+      {
         label: 'Separator',
         href: '/new/components/separator',
       },
@@ -115,6 +123,10 @@ export const nav = [
       {
         label: 'Tabs',
         href: '/new/components/tabs',
+      },
+      {
+        label: 'Text Input',
+        href: '/new/components/text-input',
       },
       {
         label: 'Tooltip',

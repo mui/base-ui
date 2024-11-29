@@ -4,7 +4,7 @@
   gap: 0.25rem;
 }
 
-.Label {
+.Caption {
   font-weight: 500;
 }
 
@@ -43,8 +43,7 @@
 }
 
 .Indicator {
-  width: 0.75rem;
-  height: 0.75rem;
+  display: flex;
   color: var(--color-gray-50);
 
   &[data-unchecked] {
@@ -53,6 +52,6 @@
 }
 
 .Icon {
-  width: 100%;
-  height: 100%;
+  width: 0.75rem;
+  height: 0.75rem;
 }

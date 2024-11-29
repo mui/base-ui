@@ -1,3 +1,22 @@
+/*
+ * README
+ * - Use plain CSS to create docs component styles
+ *   - Component CSS must use "@layer components" to work correctly with Tailwind
+ *   - Use component name as the prefix to avoid conflicts, e.g. ".SelectTriggerIcon"
+ *   - Prefix CSS variables with component name too, e.g. "--root-layout-padding-x"
+ * - Use Tailwind for layout utils
+ * - There is two reset layers:
+ *   - "@layer all" is a truly global reset
+ *   - "@layer base" is Tailwind’s reset that is reverted in non-Tailwind demos
+ *   - We rely on both to build the docs docs
+ * - Docs and demos are built using the same theme
+ *   - Theme tokens use Tailwind v4 @theme naming convention
+ *   - Don't use our custom tokens in the Tailwind demos.
+ *   - The demos must work when copy-pasted into a project with their default theme
+ *   - CSS Modules demos must use only the tokens referenced in `demo-colors.css`
+ */
+
+@layer all;
 @layer base;
 @layer theme;
 @layer components;
@@ -44,7 +63,11 @@
   --color-gray-900: oklch(12% 5% 264 / 90%);
   --color-gray-950: oklch(12% 5% 264 / 95%);
 
-  /* Functional colors */
+  /* Other colors used in Tailwind demos */
+  --color-blue-800: var(--color-blue);
+  --color-red-800: var(--color-red);
+
+  /* Functional colors for the docs */
   --color-content: white;
   --color-background: var(--color-gray-50);
   --color-foreground: var(--color-gray-900);
@@ -53,7 +76,7 @@
   --color-highlight: var(--color-blue);
   --color-selection: oklch(80% 50% 264 / 25%);
 
-  /* Text colors */
+  /* Text colors for the docs */
   --color-gray: var(--color-gray-600);
   --color-navy: oklch(31% 25% 264);
   --color-blue: oklch(45% 50% 264);
@@ -148,7 +171,15 @@
   }
 }
 
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer all {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  svg {
+    /* Safari messes up geometry of many basic SVGs, such as check icons in checkboxes or chevrons on menus */
+    /* Putting them on the GPU fixes that */
+    transform: translateZ(0);
+  }
 }
