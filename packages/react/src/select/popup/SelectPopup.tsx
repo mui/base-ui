@@ -16,11 +16,11 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupOpenStateMapping,
   transitionStatus(value): Record<string, string> | null {
     if (value === 'entering') {
-      return { 'data-entering': '' };
+      return { 'data-starting-style': '' };
     }
 
     if (value === 'exiting') {
-      return { 'data-exiting': '' };
+      return { 'data-ending-style': '' };
     }
 
     return null;

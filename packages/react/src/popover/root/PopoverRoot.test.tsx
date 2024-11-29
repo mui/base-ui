@@ -231,7 +231,7 @@ describe('<Popover.Root />', () => {
             opacity: 1;
           }
 
-          .animation-test-popup[data-exiting] {
+          .animation-test-popup[data-ending-style] {
             animation: test-anim 50ms;
           }
         `;

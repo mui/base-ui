@@ -15,14 +15,14 @@
       background-image: linear-gradient(to bottom, transparent, rgb(0 0 0 / 25%) 6rem);
     }
 
-    &[data-entering],
-    &[data-exiting] {
+    &[data-starting-style],
+    &[data-ending-style] {
       -webkit-backdrop-filter: blur(0px);
       backdrop-filter: blur(0px);
       opacity: 0;
     }
 
-    &[data-exiting] {
+    &[data-ending-style] {
       transition-duration: 250ms;
       transition-timing-function: var(--ease-in-slow);
     }
@@ -43,13 +43,13 @@
     transition-property: transform, filter;
     transition-timing-function: var(--ease-out-fast);
 
-    &[data-entering],
-    &[data-exiting] {
+    &[data-starting-style],
+    &[data-ending-style] {
       transform: translateY(100dvh);
       filter: blur(1px);
     }
 
-    &[data-exiting] {
+    &[data-ending-style] {
       /* Delay the blur transition so it doesn't feel unfocused until halway out */
       transition-delay: 0ms, 125ms;
       transition-duration: 250ms;
