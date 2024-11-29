@@ -3,32 +3,29 @@ import { Collapsible } from '@base-ui-components/react/collapsible';
 
 export default function ExampleCollapsible() {
   return (
-    <Collapsible.Root className="flex w-48 flex-col gap-2" render={<div />}>
-      <Collapsible.Trigger className="flex items-center justify-between">
-        Resources
+    <Collapsible.Root
+      className="flex min-h-36 w-56 flex-col justify-center"
+      render={<div />}
+    >
+      <Collapsible.Trigger className="group flex items-center gap-2 rounded-sm bg-gray-100 px-2 py-1 text-sm font-medium hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-blue-800 active:bg-gray-200">
+        <ChevronIcon className="size-3 transition-all ease-out group-data-[panel-open]:rotate-90" />
+        Recovery keys
       </Collapsible.Trigger>
-      <Collapsible.Panel className="flex flex-col gap-2">
-        <a href="https://github.com/mui/base-ui/" rel="noreferrer">
-          GitHub
-        </a>
-        <a
-          href="https://www.npmjs.com/package/@base-ui-components/react"
-          rel="noreferrer"
-        >
-          npm package
-        </a>
-        <a href="https://x.com/base_ui" rel="noreferrer">
-          @base_ui
-        </a>
+      <Collapsible.Panel className="flex h-[var(--collapsible-panel-height)] flex-col justify-end overflow-hidden text-sm transition-all ease-out [[data-starting-style],[data-ending-style]]:h-0">
+        <div className="mt-1 flex cursor-text flex-col gap-2 rounded-sm bg-gray-100 py-2 pl-7">
+          <div>alien-bean-pasta</div>
+          <div>wild-irish-burrito</div>
+          <div>horse-battery-staple</div>
+        </div>
       </Collapsible.Panel>
     </Collapsible.Root>
   );
 }
 
-function PlusIcon(props: React.ComponentProps<'svg'>) {
+export function ChevronIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 12 12" fill="currentcolor" {...props}>
-      <path d="M6.75 0H5.25V5.25H0V6.75L5.25 6.75V12H6.75V6.75L12 6.75V5.25H6.75V0Z" />
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
+      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentcolor" />
     </svg>
   );
 }

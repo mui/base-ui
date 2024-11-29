@@ -1,61 +1,29 @@
 import * as React from 'react';
-import { Accordion } from '@base-ui-components/react/accordion';
+import { Collapsible } from '@base-ui-components/react/collapsible';
 import styles from './index.module.css';
 
-export default function ExampleAccordion() {
+export default function ExampleCollapsible() {
   return (
-    <Accordion.Root className={styles.Root}>
-      <Accordion.Item className={styles.Item}>
-        <Accordion.Header className={styles.Header}>
-          <Accordion.Trigger className={styles.Trigger}>
-            What is Base UI?
-            <PlusIcon className={styles.TriggerIcon} />
-          </Accordion.Trigger>
-        </Accordion.Header>
-        <Accordion.Panel className={styles.Panel}>
-          <div className={styles.Content}>
-            Base UI is a library of high-quality, accessible, unstyled React
-            components for design systems and web apps.
-          </div>
-        </Accordion.Panel>
-      </Accordion.Item>
-
-      <Accordion.Item className={styles.Item}>
-        <Accordion.Header className={styles.Header}>
-          <Accordion.Trigger className={styles.Trigger}>
-            How do I get started?
-            <PlusIcon className={styles.TriggerIcon} />
-          </Accordion.Trigger>
-        </Accordion.Header>
-        <Accordion.Panel className={styles.Panel}>
-          <div className={styles.Content}>
-            Head to the “Quick start” guide in the docs. If you’ve used unstyled
-            libraries before, you’ll feel right at home.
-          </div>
-        </Accordion.Panel>
-      </Accordion.Item>
-
-      <Accordion.Item className={styles.Item}>
-        <Accordion.Header className={styles.Header}>
-          <Accordion.Trigger className={styles.Trigger}>
-            Can I use it for my next project?
-            <PlusIcon className={styles.TriggerIcon} />
-          </Accordion.Trigger>
-        </Accordion.Header>
-        <Accordion.Panel className={styles.Panel}>
-          <div className={styles.Content}>
-            Of course! Base UI is free and open source.
-          </div>
-        </Accordion.Panel>
-      </Accordion.Item>
-    </Accordion.Root>
+    <Collapsible.Root className={styles.Root} render={<div />}>
+      <Collapsible.Trigger className={styles.Trigger}>
+        <ChevronIcon className={styles.Icon} />
+        Recovery keys
+      </Collapsible.Trigger>
+      <Collapsible.Panel className={styles.Panel}>
+        <div className={styles.Content}>
+          <div>alien-bean-pasta</div>
+          <div>wild-irish-burrito</div>
+          <div>horse-battery-staple</div>
+        </div>
+      </Collapsible.Panel>
+    </Collapsible.Root>
   );
 }
 
-function PlusIcon(props: React.ComponentProps<'svg'>) {
+export function ChevronIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 12 12" fill="currentcolor" {...props}>
-      <path d="M6.75 0H5.25V5.25H0V6.75L5.25 6.75V12H6.75V6.75L12 6.75V5.25H6.75V0Z" />
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
+      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentcolor" />
     </svg>
   );
 }
