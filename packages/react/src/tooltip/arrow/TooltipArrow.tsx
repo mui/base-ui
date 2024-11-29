@@ -6,7 +6,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import { useTooltipArrow } from './useTooltipArrow';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
@@ -26,7 +26,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
 ) {
   const { className, render, hideWhenUncentered = false, ...otherProps } = props;
 
-  const { open, arrowRef, side, alignment, arrowUncentered, arrowStyles } =
+  const { open, arrowRef, side, align, arrowUncentered, arrowStyles } =
     useTooltipPositionerContext();
 
   const { getArrowProps } = useTooltipArrow({
@@ -38,9 +38,9 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
     () => ({
       open,
       side,
-      alignment,
+      align,
     }),
-    [open, side, alignment],
+    [open, side, align],
   );
 
   const mergedRef = useForkRef(arrowRef, forwardedRef);
@@ -62,7 +62,7 @@ namespace TooltipArrow {
   export interface State {
     open: boolean;
     side: Side;
-    alignment: Alignment;
+    align: Align;
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {

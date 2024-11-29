@@ -211,7 +211,7 @@
     }
 
     & code {
-      /* Different fonts may introduce vertical alignment issues */
+      /* Different fonts may introduce vertical align issues */
       display: block;
       /* Make sure selection highlight spans full container width in Safari */
       flex-grow: 1;

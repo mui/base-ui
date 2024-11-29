@@ -57,7 +57,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
       open,
       transitionStatus,
       side: positioner.side,
-      alignment: positioner.alignment,
+      align: positioner.align,
     }),
     [open, transitionStatus, positioner],
   );
@@ -111,7 +111,7 @@ namespace SelectPopup {
 
   export interface State {
     side: Side | 'none';
-    alignment: 'start' | 'end' | 'center';
+    align: 'start' | 'end' | 'center';
     open: boolean;
     transitionStatus: TransitionStatus;
   }

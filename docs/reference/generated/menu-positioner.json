@@ -2,15 +2,15 @@
   "name": "MenuPositioner",
   "description": "Renders the element that positions the Menu popup.",
   "props": {
-    "alignment": {
+    "align": {
       "type": "'start' | 'center' | 'end'",
       "default": "'center'",
-      "description": "The alignment of the Menu element to the anchor element along its cross axis."
+      "description": "The align of the Menu element to the anchor element along its cross axis."
     },
-    "alignmentOffset": {
+    "alignOffset": {
       "type": "number",
       "default": "0",
-      "description": "The offset of the Menu element along its alignment axis."
+      "description": "The offset of the Menu element along its align axis."
     },
     "anchor": {
       "type": "React.Ref | Element | VirtualElement | (() => Element | VirtualElement | null) | null",

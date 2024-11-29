@@ -13,11 +13,11 @@ export default function NestedMenu() {
   return (
     <Menu.Root>
       <MenuButton>Format</MenuButton>
-      <MenuPositioner side="bottom" alignment="start">
+      <MenuPositioner side="bottom" align="start">
         <MenuPopup>
           <Menu.Root>
             <SubmenuTrigger>Text color</SubmenuTrigger>
-            <MenuPositioner alignment="start" side="right">
+            <MenuPositioner align="start" side="right">
               <MenuPopup>
                 <MenuItem onClick={createHandleMenuClick('Text color/Black')}>
                   Black
@@ -34,11 +34,11 @@ export default function NestedMenu() {
 
           <Menu.Root>
             <SubmenuTrigger>Style</SubmenuTrigger>
-            <MenuPositioner alignment="start" side="right">
+            <MenuPositioner align="start" side="right">
               <MenuPopup>
                 <Menu.Root>
                   <SubmenuTrigger>Heading</SubmenuTrigger>
-                  <MenuPositioner alignment="start" side="right">
+                  <MenuPositioner align="start" side="right">
                     <MenuPopup>
                       <MenuItem
                         onClick={createHandleMenuClick('Style/Heading/Level 1')}
@@ -63,7 +63,7 @@ export default function NestedMenu() {
                 </MenuItem>
                 <Menu.Root disabled>
                   <SubmenuTrigger disabled>List</SubmenuTrigger>
-                  <MenuPositioner alignment="start" side="right">
+                  <MenuPositioner align="start" side="right">
                     <MenuPopup>
                       <MenuItem
                         onClick={createHandleMenuClick('Style/List/Ordered')}

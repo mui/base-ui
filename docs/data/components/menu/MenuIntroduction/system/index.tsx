@@ -13,7 +13,7 @@ export default function MenuIntroduction() {
   return (
     <Menu.Root>
       <MenuButton>My account</MenuButton>
-      <MenuPositioner alignment="start" sideOffset={8}>
+      <MenuPositioner align="start" sideOffset={8}>
         <MenuPopup>
           <Menu.Group>
             <MenuGroupLabel>Settings</MenuGroupLabel>

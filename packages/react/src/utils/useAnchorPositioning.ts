@@ -21,7 +21,7 @@ import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
 export type Side = 'top' | 'bottom' | 'left' | 'right';
-export type Alignment = 'start' | 'center' | 'end';
+export type Align = 'start' | 'center' | 'end';
 export type Boundary = 'clipping-ancestors' | Element | Element[] | Rect;
 
 interface UseAnchorPositioningParameters {
@@ -34,8 +34,8 @@ interface UseAnchorPositioningParameters {
   positionMethod?: 'absolute' | 'fixed';
   side?: Side;
   sideOffset?: number;
-  alignment?: 'start' | 'center' | 'end';
-  alignmentOffset?: number;
+  align?: Align;
+  alignOffset?: number;
   fallbackAxisSideDirection?: 'start' | 'end' | 'none';
   collisionBoundary?: Boundary;
   collisionPadding?: Padding;
@@ -56,7 +56,7 @@ interface UseAnchorPositioningReturnValue {
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
   renderedSide: Side;
-  renderedAlignment: 'start' | 'center' | 'end';
+  renderedAlign: Align;
   hidden: boolean;
   refs: ReturnType<typeof useFloating>['refs'];
   positionerContext: FloatingContext;
@@ -77,8 +77,8 @@ export function useAnchorPositioning(
     positionMethod = 'absolute',
     side = 'top',
     sideOffset = 0,
-    alignment = 'center',
-    alignmentOffset = 0,
+    align = 'center',
+    alignOffset = 0,
     collisionBoundary,
     collisionPadding = 5,
     hideWhenDetached = false,
@@ -92,7 +92,7 @@ export function useAnchorPositioning(
     nodeId,
   } = params;
 
-  const placement = alignment === 'center' ? side : (`${side}-${alignment}` as Placement);
+  const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
 
   const commonCollisionProps = {
     boundary: collisionBoundary === 'clipping-ancestors' ? 'clippingAncestors' : collisionBoundary,
@@ -107,8 +107,8 @@ export function useAnchorPositioning(
   const middleware: UseFloatingOptions['middleware'] = [
     offset({
       mainAxis: sideOffset,
-      crossAxis: alignmentOffset,
-      alignmentAxis: alignmentOffset,
+      crossAxis: alignOffset,
+      alignmentAxis: alignOffset,
     }),
   ];
 
@@ -133,7 +133,7 @@ export function useAnchorPositioning(
   });
 
   // https://floating-ui.com/docs/flip#combining-with-shift
-  if (alignment !== 'center') {
+  if (align !== 'center') {
     middleware.push(flipMiddleware, shiftMiddleware);
   } else {
     middleware.push(shiftMiddleware, flipMiddleware);
@@ -271,7 +271,7 @@ export function useAnchorPositioning(
   }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
 
   const renderedSide = getSide(renderedPlacement);
-  const renderedAlignment = getAlignment(renderedPlacement) || 'center';
+  const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const hidden = Boolean(hideWhenDetached && middlewareData.hide?.referenceHidden);
 
   const positionerStyles = React.useMemo(
@@ -300,7 +300,7 @@ export function useAnchorPositioning(
       arrowRef,
       arrowUncentered,
       renderedSide,
-      renderedAlignment,
+      renderedAlign,
       hidden,
       refs,
       positionerContext,
@@ -312,7 +312,7 @@ export function useAnchorPositioning(
       arrowRef,
       arrowUncentered,
       renderedSide,
-      renderedAlignment,
+      renderedAlign,
       hidden,
       refs,
       positionerContext,

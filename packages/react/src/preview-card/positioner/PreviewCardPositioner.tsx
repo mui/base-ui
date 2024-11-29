@@ -8,7 +8,7 @@ import { usePreviewCardPositioner } from './usePreviewCardPositioner';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { useForkRef } from '../../utils/useForkRef';
 import { HTMLElementType } from '../../utils/proptypes';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
@@ -32,9 +32,9 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     anchor,
     positionMethod = 'absolute',
     side = 'bottom',
-    alignment = 'center',
+    align = 'center',
     sideOffset = 0,
-    alignmentOffset = 0,
+    alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
@@ -57,8 +57,8 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     keepMounted,
     side,
     sideOffset,
-    alignment,
-    alignmentOffset,
+    align,
+    alignOffset,
     arrowPadding,
     collisionBoundary,
     collisionPadding,
@@ -70,22 +70,22 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     () => ({
       open,
       side: positioner.side,
-      alignment: positioner.alignment,
+      align: positioner.align,
     }),
-    [open, positioner.side, positioner.alignment],
+    [open, positioner.side, positioner.align],
   );
 
   const contextValue: PreviewCardPositionerContext = React.useMemo(
     () => ({
       side: positioner.side,
-      alignment: positioner.alignment,
+      align: positioner.align,
       arrowRef: positioner.arrowRef,
       arrowUncentered: positioner.arrowUncentered,
       arrowStyles: positioner.arrowStyles,
     }),
     [
       positioner.side,
-      positioner.alignment,
+      positioner.align,
       positioner.arrowRef,
       positioner.arrowUncentered,
       positioner.arrowStyles,
@@ -120,7 +120,7 @@ namespace PreviewCardPositioner {
   export interface State {
     open: boolean;
     side: Side;
-    alignment: Alignment;
+    align: Align;
   }
 
   export interface Props
@@ -134,15 +134,15 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The alignment of the preview card element to the anchor element along its cross axis.
+   * The align of the preview card element to the anchor element along its cross axis.
    * @default 'center'
    */
-  alignment: PropTypes.oneOf(['center', 'end', 'start']),
+  align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the preview card element along its alignment axis.
+   * The offset of the preview card element along its align axis.
    * @default 0
    */
-  alignmentOffset: PropTypes.number,
+  alignOffset: PropTypes.number,
   /**
    * The anchor element to which the preview card popup will be placed at.
    */

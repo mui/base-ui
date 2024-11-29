@@ -28,7 +28,7 @@ export function DocsVersionSelector(props: DocsVersionSelectorProps) {
       <Menu.Positioner
         className={classes.positioner}
         side="bottom"
-        alignment="start"
+        align="start"
         sideOffset={5}
         positionMethod="fixed"
       >
