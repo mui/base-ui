@@ -15,7 +15,6 @@ export function useTooltipPositioner(
   const {
     positionerStyles,
     arrowStyles,
-    hidden: hiddenAndMounted,
     arrowRef,
     arrowUncentered,
     renderedSide,
@@ -27,7 +26,7 @@ export function useTooltipPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || hiddenAndMounted || trackCursorAxis === 'both') {
+        if ((keepMounted && !open) || trackCursorAxis === 'both') {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -42,7 +41,7 @@ export function useTooltipPositioner(
           },
         });
       },
-      [keepMounted, open, hiddenAndMounted, trackCursorAxis, mounted, positionerStyles],
+      [keepMounted, open, trackCursorAxis, mounted, positionerStyles],
     );
 
   return React.useMemo(

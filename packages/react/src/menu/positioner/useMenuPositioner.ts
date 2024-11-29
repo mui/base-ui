@@ -22,7 +22,6 @@ export function useMenuPositioner(
   const {
     positionerStyles,
     arrowStyles,
-    hidden: hiddenAndMounted,
     arrowRef,
     arrowUncentered,
     renderedSide,
@@ -34,7 +33,7 @@ export function useMenuPositioner(
     (externalProps = {}) => {
       const hiddenStyles: React.CSSProperties = {};
 
-      if ((keepMounted && !open) || hiddenAndMounted) {
+      if (keepMounted && !open) {
         hiddenStyles.pointerEvents = 'none';
       }
 
@@ -49,7 +48,7 @@ export function useMenuPositioner(
         },
       });
     },
-    [keepMounted, open, hiddenAndMounted, positionerStyles, mounted],
+    [keepMounted, open, positionerStyles, mounted],
   );
 
   return React.useMemo(

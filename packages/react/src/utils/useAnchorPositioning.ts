@@ -57,7 +57,7 @@ interface UseAnchorPositioningReturnValue {
   arrowUncentered: boolean;
   renderedSide: Side;
   renderedAlignment: 'start' | 'center' | 'end';
-  hidden: boolean;
+  anchorHidden: boolean;
   refs: ReturnType<typeof useFloating>['refs'];
   positionerContext: FloatingContext;
   isPositioned: boolean;
@@ -272,14 +272,17 @@ export function useAnchorPositioning(
 
   const renderedSide = getSide(renderedPlacement);
   const renderedAlignment = getAlignment(renderedPlacement) || 'center';
-  const hidden = Boolean(hideWhenDetached && middlewareData.hide?.referenceHidden);
+  const anchorHidden = Boolean(hideWhenDetached && middlewareData.hide?.referenceHidden);
 
   const positionerStyles = React.useMemo(
     () => ({
       ...floatingStyles,
-      ...(hidden && { visibility: 'hidden' as const }),
+      ...(anchorHidden && {
+        visibility: 'hidden' as const,
+        pointerEvents: 'none' as const,
+      }),
     }),
-    [floatingStyles, hidden],
+    [floatingStyles, anchorHidden],
   );
 
   const arrowStyles = React.useMemo(
@@ -301,7 +304,7 @@ export function useAnchorPositioning(
       arrowUncentered,
       renderedSide,
       renderedAlignment,
-      hidden,
+      anchorHidden,
       refs,
       positionerContext,
       isPositioned,
@@ -313,7 +316,7 @@ export function useAnchorPositioning(
       arrowUncentered,
       renderedSide,
       renderedAlignment,
-      hidden,
+      anchorHidden,
       refs,
       positionerContext,
       isPositioned,

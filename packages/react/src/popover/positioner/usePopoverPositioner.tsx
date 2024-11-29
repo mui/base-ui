@@ -18,7 +18,6 @@ export function usePopoverPositioner(
   const {
     positionerStyles,
     arrowStyles,
-    hidden: hiddenAndMounted,
     arrowRef,
     arrowUncentered,
     renderedSide,
@@ -31,7 +30,7 @@ export function usePopoverPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || hiddenAndMounted) {
+        if (keepMounted && !open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -46,7 +45,7 @@ export function usePopoverPositioner(
           },
         });
       },
-      [keepMounted, open, hiddenAndMounted, mounted, positionerStyles],
+      [keepMounted, open, mounted, positionerStyles],
     );
 
   return React.useMemo(
