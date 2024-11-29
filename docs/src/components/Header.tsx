@@ -13,9 +13,20 @@ export function Header() {
     <div className="Header">
       <div className="HeaderInner">
         <NextLink href="#" className="HeaderLogoLink">
-          <svg width="17" height="24" viewBox="0 0 17 24" fill="currentcolor">
-            <path d="M9.5001 7.01537C9.2245 6.99837 9 7.22385 9 7.49999V23C13.4183 23 17 19.4183 17 15C17 10.7497 13.6854 7.27351 9.5001 7.01537Z" />
-            <path d="M8 9.8V12V23C3.58172 23 0 19.0601 0 14.2V12V1C4.41828 1 8 4.93989 8 9.8Z" />
+          <svg
+            width="70"
+            height="16"
+            viewBox="0 0 70 16"
+            fill="currentcolor"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fillRule="evenodd"
+              d="M12 0H4H0V4V6V10V12V16H4H12H16V12V10L14 8L16 6V4V0H12ZM12 12V10H4V12H12ZM12 6H4V4H12V6Z"
+            />
+            <path d="M17.5 0H29.5H30.5L33.5 3V6V10V12V16H29.5H21.5H17.5V12V10V6H21.5H29.5V4H17.5V0ZM29.5 10H21.5V12H29.5V10Z" />
+            <path d="M39 0H51V4H39V6H47H51V10V12V16H47H35V12H47V10H39H35V6V4V0H39Z" />
+            <path d="M68.5 0H56.5H52.5V4V6V10V12V16H56.5H68.5V12H56.5V10H68.5V6H56.5V4H68.5V0Z" />
           </svg>
         </NextLink>
 

@@ -84,9 +84,5 @@
     &:active {
       color: var(--color-gray-500);
     }
-
-    & svg {
-      margin-top: -0.125rem;
-    }
   }
 }
