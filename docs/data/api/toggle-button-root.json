@@ -7,6 +7,7 @@
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "onPressedChange": {
       "type": { "name": "func" },
+      "default": "NOOP",
       "signature": {
         "type": "function(pressed: boolean, event: Event) => void",
         "describedArgs": ["pressed", "event"]

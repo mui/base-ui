@@ -80,19 +80,19 @@ export namespace UseToggleButtonGroupRoot {
      * @param {string[]} groupValue An array of the `value`s of all the pressed items.
      * @param {Event} event The event source of the callback.
      */
-    onValueChange?: (groupValue: string[], event: Event) => void;
+    onValueChange: (groupValue: string[], event: Event) => void;
     /**
      * When `true` the component is disabled
      * @false
      */
-    disabled?: boolean;
+    disabled: boolean;
     /**
      * When `false` only one item in the group can be pressed. If any item in
      * the group becomes pressed, the others will become unpressed.
      * When `true` multiple items can be pressed.
      * @default false
      */
-    toggleMultiple?: boolean;
+    toggleMultiple: boolean;
   }
 
   export interface ReturnValue {

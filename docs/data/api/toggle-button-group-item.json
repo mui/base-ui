@@ -6,6 +6,7 @@
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "onPressedChange": {
       "type": { "name": "func" },
+      "default": "NOOP",
       "signature": {
         "type": "function(pressed: boolean, event: Event) => void",
         "describedArgs": ["pressed", "event"]

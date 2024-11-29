@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { NOOP } from '../../utils/noop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToggleButtonRoot } from './useToggleButtonRoot';
@@ -26,8 +27,8 @@ const ToggleButtonRoot = React.forwardRef(function ToggleButtonRoot(
   const {
     pressed: pressedProp,
     defaultPressed: defaultPressedProp,
-    disabled: disabledProp,
-    onPressedChange,
+    disabled: disabledProp = false,
+    onPressedChange = NOOP,
     className,
     render,
     type,
@@ -73,9 +74,11 @@ export namespace ToggleButtonRoot {
   }
 
   export interface Props
-    extends Pick<
-        useToggleButtonRoot.Parameters,
-        'pressed' | 'defaultPressed' | 'disabled' | 'onPressedChange'
+    extends Partial<
+        Pick<
+          useToggleButtonRoot.Parameters,
+          'pressed' | 'defaultPressed' | 'disabled' | 'onPressedChange'
+        >
       >,
       BaseUIComponentProps<'button', State> {
     /**
@@ -131,6 +134,8 @@ ToggleButtonRoot.propTypes /* remove-proptypes */ = {
    *
    * @param {boolean} pressed The new pressed state.
    * @param {Event} event The event source of the callback.
+   *
+   * @default NOOP
    */
   onPressedChange: PropTypes.func,
   /**

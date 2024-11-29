@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { NOOP } from '../../utils/noop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { CompositeItem } from '../../composite/item/CompositeItem';
@@ -27,7 +28,7 @@ const ToggleButtonGroupItem = React.forwardRef(function ToggleButtonGroupItem(
   const {
     value,
     disabled: disabledProp,
-    onPressedChange,
+    onPressedChange = NOOP,
     className,
     render,
     type, // cannot change button type
@@ -45,7 +46,7 @@ const ToggleButtonGroupItem = React.forwardRef(function ToggleButtonGroupItem(
     value,
     groupValue,
     setGroupValue,
-    disabled: groupDisabled || disabledProp,
+    disabled: disabledProp || groupDisabled,
     onPressedChange,
     itemRef: forwardedRef,
   });
@@ -80,7 +81,7 @@ export namespace ToggleButtonGroupItem {
   }
 
   export interface Props
-    extends Pick<useToggleButtonGroupItem.Parameters, 'value' | 'onPressedChange'>,
+    extends Pick<useToggleButtonGroupItem.Parameters, 'value'>,
       Omit<BaseUIComponentProps<'button', State>, 'value'> {
     /**
      * The label for the toggle button.
@@ -90,6 +91,13 @@ export namespace ToggleButtonGroupItem {
      * An id or space-separated list of ids of elements that label the toggle button.
      */
     'aria-labelledby'?: React.AriaAttributes['aria-labelledby'];
+    /**
+     * Callback fired when the pressed state is changed.
+     *
+     * @param {boolean} pressed The new pressed state.
+     * @param {Event} event The event source of the callback.
+     */
+    onPressedChange?: (pressed: boolean, event: Event) => void;
   }
 }
 
@@ -127,6 +135,8 @@ ToggleButtonGroupItem.propTypes /* remove-proptypes */ = {
    *
    * @param {boolean} pressed The new pressed state.
    * @param {Event} event The event source of the callback.
+   *
+   * @default NOOP
    */
   onPressedChange: PropTypes.func,
   /**

@@ -12,6 +12,7 @@
     },
     "onValueChange": {
       "type": "function(groupValue: Array<string>, event: Event) => void",
+      "default": "NOOP",
       "description": "Callback fired when the pressed states of the ToggleButtonGroup changes."
     },
     "render": {

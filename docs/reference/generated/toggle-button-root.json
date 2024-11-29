@@ -26,6 +26,7 @@
     },
     "onPressedChange": {
       "type": "function(pressed: boolean, event: Event) => void",
+      "default": "NOOP",
       "description": "Callback fired when the pressed state is changed."
     },
     "pressed": {

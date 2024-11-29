@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { NOOP } from '../../utils/noop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
@@ -35,9 +36,9 @@ const ToggleButtonGroupRoot = React.forwardRef(function ToggleButtonGroupRoot(
   const {
     value: valueProp,
     defaultValue: defaultValueProp,
-    disabled: disabledProp,
+    disabled: disabledProp = false,
     toggleMultiple = false,
-    onValueChange,
+    onValueChange = NOOP,
     className,
     render,
     ...otherProps
@@ -99,9 +100,11 @@ export namespace ToggleButtonGroupRoot {
   }
 
   export interface Props
-    extends Pick<
-        UseToggleButtonGroupRoot.Parameters,
-        'value' | 'defaultValue' | 'onValueChange' | 'disabled' | 'toggleMultiple'
+    extends Partial<
+        Pick<
+          UseToggleButtonGroupRoot.Parameters,
+          'value' | 'defaultValue' | 'onValueChange' | 'disabled' | 'toggleMultiple'
+        >
       >,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
@@ -139,6 +142,8 @@ ToggleButtonGroupRoot.propTypes /* remove-proptypes */ = {
    *
    * @param {string[]} groupValue An array of the `value`s of all the pressed items.
    * @param {Event} event The event source of the callback.
+   *
+   * @default NOOP
    */
   onValueChange: PropTypes.func,
   /**

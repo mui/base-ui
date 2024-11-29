@@ -82,14 +82,14 @@ export namespace useToggleButtonRoot {
      *
      * @default false
      */
-    disabled?: boolean;
+    disabled: boolean;
     /**
      * Callback fired when the pressed state is changed.
      *
      * @param {boolean} pressed The new pressed state.
      * @param {Event} event The event source of the callback.
      */
-    onPressedChange?: (pressed: boolean, event: Event) => void;
+    onPressedChange: (pressed: boolean, event: Event) => void;
     // TODO: a prop to indicate `aria-pressed='mixed'` is supported
   }
 
