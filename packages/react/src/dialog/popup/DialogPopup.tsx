@@ -90,14 +90,16 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     titleElementId,
   });
 
+  const hidden = !mounted;
+
   const state: DialogPopup.State = React.useMemo(
     () => ({
       open,
-      hidden: !mounted,
+      hidden,
       nestedOpenDialogCount,
       transitionStatus,
     }),
-    [open, mounted, nestedOpenDialogCount, transitionStatus],
+    [open, hidden, nestedOpenDialogCount, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({

@@ -8,8 +8,9 @@ export function usePreviewCardBackdrop(): usePreviewCardBackdrop.ReturnValue {
 
   const getBackdropProps = React.useCallback(
     (externalProps = {}) => {
+      const hidden = !mounted;
       return mergeReactProps<'div'>(externalProps, {
-        hidden: !mounted,
+        hidden,
         style: {
           overflow: 'auto',
           position: 'fixed',

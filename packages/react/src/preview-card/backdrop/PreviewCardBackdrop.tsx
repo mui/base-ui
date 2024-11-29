@@ -43,13 +43,15 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   const { open, mounted, transitionStatus } = usePreviewCardRootContext();
   const { getBackdropProps } = usePreviewCardBackdrop();
 
+  const hidden = !mounted;
+
   const state: PreviewCardBackdrop.State = React.useMemo(
     () => ({
       open,
-      hidden: !mounted,
+      hidden,
       transitionStatus,
     }),
-    [open, mounted, transitionStatus],
+    [open, hidden, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({

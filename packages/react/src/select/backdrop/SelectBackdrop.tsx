@@ -46,13 +46,15 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 
   const { getBackdropProps } = useSelectBackdrop();
 
+  const hidden = !mounted;
+
   const state: SelectBackdrop.State = React.useMemo(
     () => ({
       open,
-      hidden: !mounted,
+      hidden,
       transitionStatus,
     }),
-    [open, mounted, transitionStatus],
+    [open, hidden, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({

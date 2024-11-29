@@ -69,14 +69,16 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const mergedRef = useForkRef(ref, setPositionerElement);
 
+  const hidden = !mounted;
+
   const state: SelectPositioner.State = React.useMemo(
     () => ({
       open,
-      hidden: !mounted,
+      hidden,
       side: positioner.side,
       alignment: positioner.alignment,
     }),
-    [open, mounted, positioner.side, positioner.alignment],
+    [open, hidden, positioner.side, positioner.alignment],
   );
 
   const { renderElement } = useComponentRenderer({

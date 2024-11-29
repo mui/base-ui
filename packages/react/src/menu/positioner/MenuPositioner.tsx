@@ -84,14 +84,16 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     nodeId,
   });
 
+  const hidden = !mounted;
+
   const state: MenuPositioner.State = React.useMemo(
     () => ({
       open,
-      hidden: !mounted,
+      hidden,
       side: positioner.side,
       alignment: positioner.alignment,
     }),
-    [open, mounted, positioner.side, positioner.alignment],
+    [open, hidden, positioner.side, positioner.alignment],
   );
 
   const contextValue: MenuPositionerContext = React.useMemo(

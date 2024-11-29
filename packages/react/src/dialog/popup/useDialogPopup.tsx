@@ -70,6 +70,8 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     };
   }, [id, setPopupElementId]);
 
+  const hidden = !mounted;
+
   const getRootProps = (externalProps: React.HTMLAttributes<any>) =>
     mergeReactProps<'div'>(externalProps, {
       'aria-labelledby': titleElementId ?? undefined,
@@ -81,7 +83,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
       ...getPopupProps(),
       id,
       ref: handleRef,
-      hidden: !mounted,
+      hidden,
     });
 
   return {

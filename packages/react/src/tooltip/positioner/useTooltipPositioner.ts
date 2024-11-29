@@ -15,7 +15,7 @@ export function useTooltipPositioner(
   const {
     positionerStyles,
     arrowStyles,
-    hidden,
+    hidden: hiddenAndMounted,
     arrowRef,
     arrowUncentered,
     renderedSide,
@@ -27,24 +27,22 @@ export function useTooltipPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || hidden) {
+        if ((keepMounted && !open) || hiddenAndMounted || trackCursorAxis === 'both') {
           hiddenStyles.pointerEvents = 'none';
         }
 
-        if (trackCursorAxis === 'both') {
-          hiddenStyles.pointerEvents = 'none';
-        }
+        const hidden = !mounted;
 
         return mergeReactProps<'div'>(externalProps, {
           role: 'presentation',
-          hidden: !mounted,
+          hidden,
           style: {
             ...positionerStyles,
             ...hiddenStyles,
           },
         });
       },
-      [keepMounted, open, hidden, trackCursorAxis, mounted, positionerStyles],
+      [keepMounted, open, hiddenAndMounted, trackCursorAxis, mounted, positionerStyles],
     );
 
   return React.useMemo(

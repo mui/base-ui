@@ -45,13 +45,15 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 
   const { getBackdropProps } = usePopoverBackdrop();
 
+  const hidden = !mounted;
+
   const state: PopoverBackdrop.State = React.useMemo(
     () => ({
       open,
-      hidden: !mounted,
+      hidden,
       transitionStatus,
     }),
-    [open, mounted, transitionStatus],
+    [open, hidden, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({

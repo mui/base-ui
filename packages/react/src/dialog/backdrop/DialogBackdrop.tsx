@@ -47,13 +47,15 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     ref: forwardedRef,
   });
 
+  const hidden = !mounted;
+
   const state: DialogBackdrop.State = React.useMemo(
     () => ({
       open,
-      hidden: !mounted,
+      hidden,
       transitionStatus,
     }),
-    [open, mounted, transitionStatus],
+    [open, hidden, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({
