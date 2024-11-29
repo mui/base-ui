@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { exactProp, unstable_useEnhancedEffect as useEnhancedEffect } from '@mui/utils';
+import { useEnhancedEffect } from '../utils/useEnhancedEffect';
+import { exactProp } from '../utils/proptypes';
 import { NoSsrProps } from './NoSsr.types';
 
 /**

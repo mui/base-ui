@@ -7,6 +7,7 @@ import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import scrollIntoView from 'scroll-into-view-if-needed';
 // eslint-disable-next-line no-restricted-imports
 import { SCROLL_TIMEOUT } from '@base-ui-components/react/scroll-area/constants';
+import { HEADER_HEIGHT } from './Header';
 
 interface SideNavContextValue {
   /**
@@ -74,17 +75,23 @@ interface ItemProps extends React.ComponentProps<'li'> {
   href: string;
 }
 
+const SCROLL_MARGIN = 48;
+
 export function Item({ children, className, href, ...props }: ItemProps) {
   const { setScrollingIntoView } = React.useContext(SideNavContext);
   const ref = React.useRef<HTMLLIElement>(null);
   const pathname = usePathname();
   const active = pathname === href;
+  const rem = React.useRef(16);
+
+  React.useEffect(() => {
+    rem.current = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  }, []);
 
   React.useEffect(() => {
     if (ref.current && active) {
-      // TODO Vlad this should be rem, not 48px
-      const HEADER_HEIGHT = 48;
-      const SCROLL_MARGIN = 48;
+      const scrollMargin = (SCROLL_MARGIN * rem.current) / 16;
+      const headerHeight = (HEADER_HEIGHT * rem.current) / 16;
       const viewport = document.querySelector('[data-side-nav-viewport]');
 
       if (!viewport) {
@@ -104,8 +111,8 @@ export function Item({ children, className, href, ...props }: ItemProps) {
           }
           actions.forEach(({ top }) => {
             const dir = viewport.scrollTop > top ? -1 : 1;
-            const offset = Math.max(0, HEADER_HEIGHT - Math.max(0, window.scrollY));
-            viewport.scrollTop = top + offset + SCROLL_MARGIN * dir;
+            const offset = Math.max(0, headerHeight - Math.max(0, window.scrollY));
+            viewport.scrollTop = top + offset + scrollMargin * dir;
           });
         },
       });

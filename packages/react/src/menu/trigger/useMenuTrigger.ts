@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { unstable_useForkRef as useForkRef } from '@mui/utils';
 import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../use-button/useButton';
+import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';

@@ -12,7 +12,9 @@ export default function ExampleDialog() {
         <Dialog.Description className={styles.Description}>
           You are all caught up. Good job!
         </Dialog.Description>
-        <Dialog.Close className={styles.Close}>Close</Dialog.Close>
+        <div className={styles.Actions}>
+          <Dialog.Close className={styles.Close}>Close</Dialog.Close>
+        </div>
       </Dialog.Popup>
     </Dialog.Root>
   );
