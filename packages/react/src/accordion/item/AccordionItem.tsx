@@ -150,7 +150,7 @@ export namespace AccordionItem {
 
   export interface Props
     extends BaseUIComponentProps<'div', State>,
-      Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'> {
+      Partial<Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'>> {
     value?: Value;
   }
 }
