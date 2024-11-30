@@ -76,7 +76,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
 export namespace AccordionPanel {
   export interface Props
     extends BaseUIComponentProps<'div', AccordionItem.State>,
-      Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {}
+      Partial<Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'>> {}
 }
 
 export { AccordionPanel };
