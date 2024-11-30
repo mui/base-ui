@@ -286,19 +286,20 @@ describe('<Tabs.Root />', () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
                 const { getAllByRole } = await render(
-                  <Tabs.Root
-                    direction={direction as Tabs.Root.Props['direction']}
-                    onValueChange={handleChange}
-                    onKeyDown={handleKeyDown}
-                    orientation={orientation as Tabs.Root.Props['orientation']}
-                    value={0}
-                  >
-                    <Tabs.List activateOnFocus={false}>
-                      <Tabs.Tab value={0} />
-                      <Tabs.Tab value={1} />
-                      <Tabs.Tab value={2} />
-                    </Tabs.List>
-                  </Tabs.Root>,
+                  <div dir={direction}>
+                    <Tabs.Root
+                      onValueChange={handleChange}
+                      onKeyDown={handleKeyDown}
+                      orientation={orientation as Tabs.Root.Props['orientation']}
+                      value={0}
+                    >
+                      <Tabs.List activateOnFocus={false}>
+                        <Tabs.Tab value={0} />
+                        <Tabs.Tab value={1} />
+                        <Tabs.Tab value={2} />
+                      </Tabs.List>
+                    </Tabs.Root>
+                  </div>,
                 );
                 const [firstTab, , lastTab] = getAllByRole('tab');
                 await act(async () => {
@@ -318,19 +319,20 @@ describe('<Tabs.Root />', () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
                 const { getAllByRole } = await render(
-                  <Tabs.Root
-                    direction={direction as Tabs.Root.Props['direction']}
-                    onValueChange={handleChange}
-                    onKeyDown={handleKeyDown}
-                    orientation={orientation as Tabs.Root.Props['orientation']}
-                    value={1}
-                  >
-                    <Tabs.List activateOnFocus={false}>
-                      <Tabs.Tab value={0} />
-                      <Tabs.Tab value={1} />
-                      <Tabs.Tab value={2} />
-                    </Tabs.List>
-                  </Tabs.Root>,
+                  <div dir={direction}>
+                    <Tabs.Root
+                      onValueChange={handleChange}
+                      onKeyDown={handleKeyDown}
+                      orientation={orientation as Tabs.Root.Props['orientation']}
+                      value={1}
+                    >
+                      <Tabs.List activateOnFocus={false}>
+                        <Tabs.Tab value={0} />
+                        <Tabs.Tab value={1} />
+                        <Tabs.Tab value={2} />
+                      </Tabs.List>
+                    </Tabs.Root>
+                  </div>,
                 );
                 const [firstTab, secondTab] = getAllByRole('tab');
                 await act(async () => {
@@ -352,19 +354,20 @@ describe('<Tabs.Root />', () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
                 const { getAllByRole } = await render(
-                  <Tabs.Root
-                    direction={direction as Tabs.Root.Props['direction']}
-                    onValueChange={handleChange}
-                    onKeyDown={handleKeyDown}
-                    orientation={orientation as Tabs.Root.Props['orientation']}
-                    value={0}
-                  >
-                    <Tabs.List>
-                      <Tabs.Tab value={0} />
-                      <Tabs.Tab value={1} />
-                      <Tabs.Tab value={2} />
-                    </Tabs.List>
-                  </Tabs.Root>,
+                  <div dir={direction}>
+                    <Tabs.Root
+                      onValueChange={handleChange}
+                      onKeyDown={handleKeyDown}
+                      orientation={orientation as Tabs.Root.Props['orientation']}
+                      value={0}
+                    >
+                      <Tabs.List>
+                        <Tabs.Tab value={0} />
+                        <Tabs.Tab value={1} />
+                        <Tabs.Tab value={2} />
+                      </Tabs.List>
+                    </Tabs.Root>
+                  </div>,
                 );
                 const [firstTab, , lastTab] = getAllByRole('tab');
                 await act(async () => {
@@ -385,19 +388,20 @@ describe('<Tabs.Root />', () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
                 const { getAllByRole } = await render(
-                  <Tabs.Root
-                    direction={direction as Tabs.Root.Props['direction']}
-                    onValueChange={handleChange}
-                    onKeyDown={handleKeyDown}
-                    orientation={orientation as Tabs.Root.Props['orientation']}
-                    value={1}
-                  >
-                    <Tabs.List>
-                      <Tabs.Tab value={0} />
-                      <Tabs.Tab value={1} />
-                      <Tabs.Tab value={2} />
-                    </Tabs.List>
-                  </Tabs.Root>,
+                  <div dir={direction}>
+                    <Tabs.Root
+                      onValueChange={handleChange}
+                      onKeyDown={handleKeyDown}
+                      orientation={orientation as Tabs.Root.Props['orientation']}
+                      value={1}
+                    >
+                      <Tabs.List>
+                        <Tabs.Tab value={0} />
+                        <Tabs.Tab value={1} />
+                        <Tabs.Tab value={2} />
+                      </Tabs.List>
+                    </Tabs.Root>
+                  </div>,
                 );
                 const [firstTab, secondTab] = getAllByRole('tab');
                 await act(async () => {
@@ -418,18 +422,19 @@ describe('<Tabs.Root />', () => {
             it('skips over disabled tabs', async () => {
               const handleKeyDown = spy();
               const { getAllByRole } = await render(
-                <Tabs.Root
-                  direction={direction as Tabs.Root.Props['direction']}
-                  onKeyDown={handleKeyDown}
-                  orientation={orientation as Tabs.Root.Props['orientation']}
-                  value={2}
-                >
-                  <Tabs.List>
-                    <Tabs.Tab value={0} />
-                    <Tabs.Tab value={1} disabled />
-                    <Tabs.Tab value={2} />
-                  </Tabs.List>
-                </Tabs.Root>,
+                <div dir={direction}>
+                  <Tabs.Root
+                    onKeyDown={handleKeyDown}
+                    orientation={orientation as Tabs.Root.Props['orientation']}
+                    value={2}
+                  >
+                    <Tabs.List>
+                      <Tabs.Tab value={0} />
+                      <Tabs.Tab value={1} disabled />
+                      <Tabs.Tab value={2} />
+                    </Tabs.List>
+                  </Tabs.Root>
+                </div>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
               await act(async () => {
@@ -451,19 +456,20 @@ describe('<Tabs.Root />', () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
                 const { getAllByRole } = await render(
-                  <Tabs.Root
-                    direction={direction as Tabs.Root.Props['direction']}
-                    onValueChange={handleChange}
-                    onKeyDown={handleKeyDown}
-                    orientation={orientation as Tabs.Root.Props['orientation']}
-                    value={2}
-                  >
-                    <Tabs.List activateOnFocus={false}>
-                      <Tabs.Tab value={0} />
-                      <Tabs.Tab value={1} />
-                      <Tabs.Tab value={2} />
-                    </Tabs.List>
-                  </Tabs.Root>,
+                  <div dir={direction}>
+                    <Tabs.Root
+                      onValueChange={handleChange}
+                      onKeyDown={handleKeyDown}
+                      orientation={orientation as Tabs.Root.Props['orientation']}
+                      value={2}
+                    >
+                      <Tabs.List activateOnFocus={false}>
+                        <Tabs.Tab value={0} />
+                        <Tabs.Tab value={1} />
+                        <Tabs.Tab value={2} />
+                      </Tabs.List>
+                    </Tabs.Root>
+                  </div>,
                 );
                 const [firstTab, , lastTab] = getAllByRole('tab');
                 await act(async () => {
@@ -483,19 +489,20 @@ describe('<Tabs.Root />', () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
                 const { getAllByRole } = await render(
-                  <Tabs.Root
-                    direction={direction as Tabs.Root.Props['direction']}
-                    onValueChange={handleChange}
-                    onKeyDown={handleKeyDown}
-                    orientation={orientation as Tabs.Root.Props['orientation']}
-                    value={1}
-                  >
-                    <Tabs.List activateOnFocus={false}>
-                      <Tabs.Tab value={0} />
-                      <Tabs.Tab value={1} />
-                      <Tabs.Tab value={2} />
-                    </Tabs.List>
-                  </Tabs.Root>,
+                  <div dir={direction}>
+                    <Tabs.Root
+                      onValueChange={handleChange}
+                      onKeyDown={handleKeyDown}
+                      orientation={orientation as Tabs.Root.Props['orientation']}
+                      value={1}
+                    >
+                      <Tabs.List activateOnFocus={false}>
+                        <Tabs.Tab value={0} />
+                        <Tabs.Tab value={1} />
+                        <Tabs.Tab value={2} />
+                      </Tabs.List>
+                    </Tabs.Root>
+                  </div>,
                 );
                 const [, secondTab, lastTab] = getAllByRole('tab');
                 await act(async () => {
@@ -517,19 +524,20 @@ describe('<Tabs.Root />', () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
                 const { getAllByRole } = await render(
-                  <Tabs.Root
-                    direction={direction as Tabs.Root.Props['direction']}
-                    onValueChange={handleChange}
-                    onKeyDown={handleKeyDown}
-                    orientation={orientation as Tabs.Root.Props['orientation']}
-                    value={2}
-                  >
-                    <Tabs.List>
-                      <Tabs.Tab value={0} />
-                      <Tabs.Tab value={1} />
-                      <Tabs.Tab value={2} />
-                    </Tabs.List>
-                  </Tabs.Root>,
+                  <div dir={direction}>
+                    <Tabs.Root
+                      onValueChange={handleChange}
+                      onKeyDown={handleKeyDown}
+                      orientation={orientation as Tabs.Root.Props['orientation']}
+                      value={2}
+                    >
+                      <Tabs.List>
+                        <Tabs.Tab value={0} />
+                        <Tabs.Tab value={1} />
+                        <Tabs.Tab value={2} />
+                      </Tabs.List>
+                    </Tabs.Root>
+                  </div>,
                 );
                 const [firstTab, , lastTab] = getAllByRole('tab');
                 await act(async () => {
@@ -550,19 +558,20 @@ describe('<Tabs.Root />', () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
                 const { getAllByRole } = await render(
-                  <Tabs.Root
-                    direction={direction as Tabs.Root.Props['direction']}
-                    onValueChange={handleChange}
-                    onKeyDown={handleKeyDown}
-                    orientation={orientation as Tabs.Root.Props['orientation']}
-                    value={1}
-                  >
-                    <Tabs.List>
-                      <Tabs.Tab value={0} />
-                      <Tabs.Tab value={1} />
-                      <Tabs.Tab value={2} />
-                    </Tabs.List>
-                  </Tabs.Root>,
+                  <div dir={direction}>
+                    <Tabs.Root
+                      onValueChange={handleChange}
+                      onKeyDown={handleKeyDown}
+                      orientation={orientation as Tabs.Root.Props['orientation']}
+                      value={1}
+                    >
+                      <Tabs.List>
+                        <Tabs.Tab value={0} />
+                        <Tabs.Tab value={1} />
+                        <Tabs.Tab value={2} />
+                      </Tabs.List>
+                    </Tabs.Root>
+                  </div>,
                 );
                 const [, secondTab, lastTab] = getAllByRole('tab');
                 await act(async () => {
@@ -583,18 +592,19 @@ describe('<Tabs.Root />', () => {
             it('skips over disabled tabs', async () => {
               const handleKeyDown = spy();
               const { getAllByRole } = await render(
-                <Tabs.Root
-                  direction={direction as Tabs.Root.Props['direction']}
-                  onKeyDown={handleKeyDown}
-                  orientation={orientation as Tabs.Root.Props['orientation']}
-                  value={0}
-                >
-                  <Tabs.List>
-                    <Tabs.Tab value={0} />
-                    <Tabs.Tab value={1} disabled />
-                    <Tabs.Tab value={2} />
-                  </Tabs.List>
-                </Tabs.Root>,
+                <div dir={direction}>
+                  <Tabs.Root
+                    onKeyDown={handleKeyDown}
+                    orientation={orientation as Tabs.Root.Props['orientation']}
+                    value={0}
+                  >
+                    <Tabs.List>
+                      <Tabs.Tab value={0} />
+                      <Tabs.Tab value={1} disabled />
+                      <Tabs.Tab value={2} />
+                    </Tabs.List>
+                  </Tabs.Root>
+                </div>,
               );
               const [firstTab, , lastTab] = getAllByRole('tab');
               await act(async () => {
