@@ -13,20 +13,12 @@
 /.nyc_output
 /coverage
 /docs/.env.local
+/docs/.next
 /docs/export
-/docs/app/playground/*
-!/docs/app/playground/\[slug\]
+/docs/src/app/playground/*
+!/docs/src/app/playground/\[slug\]
 /docs/public/feed/
-/test/bundling/fixtures/*/yarn.lock
-/test/bundling/fixtures/*/pnpm-lock.yaml
-# created by test/bundling/scripts/createFixture
-/test/bundling/fixtures/**/*.fixture.js
-# created by test/bundling/fixtures/gatsby gatsby build
-/test/bundling/fixtures/gatsby/.cache
-/test/bundling/fixtures/gatsby/public
 /test/regressions/screenshots
-/tmp
-.next
 # created by netlify dev (to perform local debug)
 .netlify
 build

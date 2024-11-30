@@ -8,15 +8,11 @@ function resolveAliasPath(relativeToBabelConf) {
   return `./${resolvedPath.replace('\\', '/')}`;
 }
 
-const productionPlugins = [
-  ['babel-plugin-react-remove-properties', { properties: ['data-mui-test'] }],
-];
-
 module.exports = function getBabelConfig(api) {
-  const useESModules = api.env(['regressions', 'stable', 'rollup']);
+  const useESModules = !api.env(['node']);
 
   const defaultAlias = {
-    '@base_ui/react': resolveAliasPath('./packages/mui-base/src'),
+    '@base-ui-components/react': resolveAliasPath('./packages/react/src'),
     docs: resolveAliasPath('./docs'),
     test: resolveAliasPath('./test'),
     '@mui-internal/api-docs-builder': resolveAliasPath(
@@ -70,9 +66,16 @@ module.exports = function getBabelConfig(api) {
     ],
   ];
 
-  if (process.env.NODE_ENV === 'production') {
-    plugins.push(...productionPlugins);
-  }
+  const devPlugins = [
+    [
+      'babel-plugin-module-resolver',
+      {
+        root: ['./'],
+        alias: defaultAlias,
+      },
+    ],
+    'babel-plugin-add-import-extension',
+  ];
 
   return {
     assumptions: {
@@ -98,39 +101,17 @@ module.exports = function getBabelConfig(api) {
     ],
     env: {
       coverage: {
-        plugins: [
-          'babel-plugin-istanbul',
-          [
-            'babel-plugin-module-resolver',
-            {
-              root: ['./'],
-              alias: defaultAlias,
-            },
-          ],
-        ],
+        plugins: ['babel-plugin-istanbul', ...devPlugins],
       },
       development: {
-        plugins: [
-          [
-            'babel-plugin-module-resolver',
-            {
-              root: ['./'],
-              alias: defaultAlias,
-            },
-          ],
-        ],
+        plugins: devPlugins,
       },
       test: {
         sourceMaps: 'both',
-        plugins: [
-          [
-            'babel-plugin-module-resolver',
-            {
-              root: ['./'],
-              alias: defaultAlias,
-            },
-          ],
-        ],
+        plugins: devPlugins,
+      },
+      production: {
+        plugins: ['babel-plugin-add-import-extension'],
       },
     },
   };

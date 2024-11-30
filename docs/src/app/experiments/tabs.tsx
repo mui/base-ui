@@ -2,7 +2,7 @@
 /* eslint-disable react/no-danger */
 import * as React from 'react';
 import { css, styled } from '@mui/system';
-import { Tabs as BaseTabs } from '@base_ui/react/Tabs';
+import { Tabs as BaseTabs } from '@base-ui-components/react/tabs';
 
 export default function UnstyledTabsIntroduction() {
   const [v, sv] = React.useState<string | number | null>(0);
@@ -193,7 +193,7 @@ const Tab = styled(BaseTabs.Tab)`
     outline: none;
   }
 
-  &[data-disabled='true'] {
+  &[data-disabled] {
     opacity: 0.5;
     cursor: not-allowed;
   }

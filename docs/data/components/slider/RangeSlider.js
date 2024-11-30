@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import { Slider } from '@base_ui/react/Slider';
+import { Slider } from '@base-ui-components/react/slider';
 import classes from './styles.module.css';
 
 export default function RangeSlider() {

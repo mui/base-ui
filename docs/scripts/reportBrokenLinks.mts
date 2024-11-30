@@ -6,9 +6,9 @@ import glob from 'fast-glob';
 
 import * as jsxRuntime from 'react/jsx-runtime';
 import { evaluate } from '@mdx-js/mdx';
-import rehypeSlug from 'rehype-slug';
 import extractToc, { Toc, TocEntry } from '@stefanprobst/rehype-extract-toc';
 import exportToc from '@stefanprobst/rehype-extract-toc/mdx';
+import { rehypeSlug } from 'docs/src/components/quick-nav/rehypeSlug.mjs';
 import { rehypeExtractLinkUrls } from './rehypeExtractLinkUrls.mts';
 
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -79,7 +79,7 @@ async function processMarkdownPage(filePath: string) {
   }
 }
 
-function pagePathToUrl(pagePath: string): string | null {
+function pagePathToUrl(pagePath: string, trailingSlash = false): string | null {
   // data/($1)/($2)/*.mdx
   const parts = /^data\/([^/]*)\/([^/]*)\/[^/]*.mdx?$/.exec(pagePath);
 
@@ -88,10 +88,10 @@ function pagePathToUrl(pagePath: string): string | null {
   }
 
   if (parts[1] === 'components') {
-    return `/components/react-${parts[2]}/`;
+    return `/components/react-${parts[2]}${trailingSlash ? '/' : ''}`;
   }
 
-  return `/${parts[1]}/${parts[2]}/`;
+  return `/${parts[1]}/${parts[2]}${trailingSlash ? '/' : ''}`;
 }
 
 async function getLinksAndAnchors(

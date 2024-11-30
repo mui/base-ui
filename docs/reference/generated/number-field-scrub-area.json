@@ -1,0 +1,28 @@
+{
+  "name": "NumberFieldScrubArea",
+  "description": "The scrub area element.",
+  "props": {
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "direction": {
+      "type": "'horizontal' | 'vertical'",
+      "default": "'vertical'",
+      "description": "The direction that the scrub area should change the value."
+    },
+    "pixelSensitivity": {
+      "type": "number",
+      "default": "2",
+      "description": "Determines the number of pixels the cursor must move before the value changes. A higher value\nwill make the scrubbing less sensitive."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "teleportDistance": {
+      "type": "number",
+      "description": "If specified, how much the cursor can move around the center of the scrub area element before\nit will loop back around."
+    }
+  }
+}

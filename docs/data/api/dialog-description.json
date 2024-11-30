@@ -5,14 +5,14 @@
   },
   "name": "DialogDescription",
   "imports": [
-    "import { Dialog } from '@base_ui/react/Dialog';\nconst DialogDescription = Dialog.Description;"
+    "import { Dialog } from '@base-ui-components/react/dialog';\nconst DialogDescription = Dialog.Description;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "DialogDescription",
   "forwardsRefTo": "HTMLParagraphElement",
-  "filename": "/packages/mui-base/src/Dialog/Description/DialogDescription.tsx",
+  "filename": "/packages/react/src/dialog/description/DialogDescription.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
   "cssComponent": false

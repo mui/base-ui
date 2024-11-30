@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { NumberField as BaseNumberField } from '@base_ui/react/NumberField';
+import { NumberField as BaseNumberField } from '@base-ui-components/react/number-field';
 import { styled } from '@mui/system';
 
 export default function UnstyledNumberFieldWheelScrub() {

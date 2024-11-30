@@ -33,14 +33,14 @@
   },
   "name": "NumberFieldRoot",
   "imports": [
-    "import { NumberField } from '@base_ui/react/NumberField';\nconst NumberFieldRoot = NumberField.Root;"
+    "import { NumberField } from '@base-ui-components/react/number-field';\nconst NumberFieldRoot = NumberField.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "NumberFieldRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/NumberField/Root/NumberFieldRoot.tsx",
+  "filename": "/packages/react/src/number-field/root/NumberFieldRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-number-field/\">Number Field</a></li></ul>",
   "cssComponent": false

@@ -93,22 +93,53 @@ export async function typescriptCopy({ from, to }) {
 
 export async function createPackageFile() {
   const packageData = await fse.readFile(path.resolve(packagePath, './package.json'), 'utf8');
-  const { nyc, scripts, devDependencies, workspaces, ...packageDataOther } =
+  const { imports, exports, nyc, scripts, devDependencies, workspaces, ...packageDataOther } =
     JSON.parse(packageData);
 
   const newPackageData = {
     ...packageDataOther,
     private: false,
-    ...(packageDataOther.main
-      ? {
-          main: fse.existsSync(path.resolve(buildPath, './node/index.js'))
-            ? './node/index.js'
-            : './index.js',
-          module: fse.existsSync(path.resolve(buildPath, './esm/index.js'))
-            ? './esm/index.js'
-            : './index.js',
-        }
-      : {}),
+    main: './cjs/index.js',
+    module: './esm/index.js',
+    types: 'index',
+    typesVersions: {
+      '*': {
+        index: ['./cjs/index.d.ts'],
+        '*': ['./cjs/*/index.d.ts'],
+      },
+    },
+    exports: {
+      '.': {
+        require: {
+          types: './cjs/index.d.ts',
+          default: './cjs/index.js',
+        },
+        import: {
+          types: './esm/index.d.ts',
+          default: './esm/index.js',
+        },
+      },
+      './utils': {
+        require: {
+          types: './cjs/utils/index.d.ts',
+          default: './cjs/utils/index.js',
+        },
+        import: {
+          types: './esm/utils/index.d.ts',
+          default: './esm/utils/index.js',
+        },
+      },
+      './*': {
+        require: {
+          types: './cjs/*/index.d.ts',
+          default: './cjs/*/index.js',
+        },
+        import: {
+          types: './esm/*/index.d.ts',
+          default: './esm/*/index.js',
+        },
+      },
+    },
   };
 
   const typeDefinitionsFilePath = path.resolve(buildPath, './index.d.ts');

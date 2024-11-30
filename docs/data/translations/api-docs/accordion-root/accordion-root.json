@@ -1,0 +1,29 @@
+{
+  "componentDescription": "",
+  "propDescriptions": {
+    "animated": {
+      "description": "If <code>true</code>, the component supports CSS/JS-based animations and transitions."
+    },
+    "className": {
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
+    },
+    "defaultValue": {
+      "description": "The default value representing the currently open <code>Accordion.Item</code> This is the uncontrolled counterpart of <code>value</code>."
+    },
+    "disabled": { "description": "If <code>true</code>, the component is disabled." },
+    "loop": {
+      "description": "If <code>true</code>, focus will loop when moving focus between <code>Trigger</code>s using the arrow keys."
+    },
+    "onValueChange": {
+      "description": "Callback fired when an Accordion section is opened or closed. The value representing the involved section is provided as an argument."
+    },
+    "openMultiple": {
+      "description": "Whether multiple Accordion sections can be opened at the same time"
+    },
+    "render": { "description": "A function to customize rendering of the component." },
+    "value": {
+      "description": "The value of the currently open <code>Accordion.Item</code> This is the controlled counterpart of <code>defaultValue</code>."
+    }
+  },
+  "classDescriptions": {}
+}

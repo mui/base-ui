@@ -2,13 +2,13 @@
   "props": {},
   "name": "FieldValidity",
   "imports": [
-    "import { Field } from '@base_ui/react/Field';\nconst FieldValidity = Field.Validity;"
+    "import { Field } from '@base-ui-components/react/field';\nconst FieldValidity = Field.Validity;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "FieldValidity",
-  "filename": "/packages/mui-base/src/Field/Validity/FieldValidity.tsx",
+  "filename": "/packages/react/src/field/validity/FieldValidity.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-field/\">Field</a></li></ul>",
   "cssComponent": false

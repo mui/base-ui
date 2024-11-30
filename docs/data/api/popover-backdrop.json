@@ -10,14 +10,14 @@
   },
   "name": "PopoverBackdrop",
   "imports": [
-    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverBackdrop = Popover.Backdrop;"
+    "import { Popover } from '@base-ui-components/react/popover';\nconst PopoverBackdrop = Popover.Backdrop;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "PopoverBackdrop",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Popover/Backdrop/PopoverBackdrop.tsx",
+  "filename": "/packages/react/src/popover/backdrop/PopoverBackdrop.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

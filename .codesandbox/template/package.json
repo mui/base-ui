@@ -3,7 +3,7 @@
   "version": "5.0.0",
   "private": true,
   "dependencies": {
-    "@base_ui/react": "latest",
+    "@base-ui-components/react": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "react": "latest",

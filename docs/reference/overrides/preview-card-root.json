@@ -1,0 +1,8 @@
+{
+  "name": "PreviewCardRoot",
+  "props": {
+    "onOpenChange": {
+      "type": "(open, event, reason) => void"
+    }
+  }
+}

@@ -6,7 +6,7 @@ components: ProgressRoot, ProgressTrack, ProgressIndicator
 hooks: useProgressRoot, useProgressIndicator
 githubLabel: 'component: progress'
 waiAria: https://www.w3.org/TR/wai-aria-1.2/#progressbar
-packageName: '@base_ui/react'
+packageName: '@base-ui-components/react'
 ---
 
 # Progress
@@ -41,7 +41,7 @@ Progress
 
 ### Determinate
 
-The `value` prop represents the percentage value of the Progress component. The default minimum and maximum values are `0` and `100`, and can be changed with the `min` and `max` props. When progress is determinate the `data-state` attribute is initially `'progressing'`, changing to `'complete'` when `value` equals `max`.
+The `value` prop represents the percentage value of the Progress component. The default minimum and maximum values are `0` and `100`, and can be changed with the `min` and `max` props. When progress is determinate the `data-progressing` attribute exists, changing to `data-complete` when `value` equals `max`.
 
 ```tsx
 function App() {
@@ -58,7 +58,7 @@ function App() {
 
 ### Indeterminate
 
-Set `value` to `null` to configure an indeterminate progress bar. The `data-state` attribute will be set to `indeterminate`.
+Set `value` to `null` to configure an indeterminate progress bar. The `data-indeterminate` attribute will exist.
 
 ```tsx
 <Progress.Root value={null}>
@@ -72,10 +72,18 @@ Set `value` to `null` to configure an indeterminate progress bar. The `data-stat
 
 ## RTL
 
-Set the `direction` prop to `'rtl'` to change the direction that the `Indicator` fills towards for right-to-left languages:
+Place the component inside an HTML element or component with the HTML `dir="rtl"` attribute to change the direction that the `Indicator` fills towards for right-to-left languages:
 
 ```jsx
-<Progress.Root direction="rtl">{/* Subcomponents */}</Progress.Root>
+<html dir="rtl">
+  <body>
+    <Progress.Root>
+      <Progress.Track>
+        <Progress.Indicator /> {/* fills from right to left */}
+      </Progress.Track>
+    <Progress.Root/>
+  </body>
+</html>
 ```
 
 <Demo demo="RtlProgress" />

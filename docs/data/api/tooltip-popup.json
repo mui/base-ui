@@ -5,14 +5,14 @@
   },
   "name": "TooltipPopup",
   "imports": [
-    "import { Tooltip } from '@base_ui/react/Tooltip';\nconst TooltipPopup = Tooltip.Popup;"
+    "import { Tooltip } from '@base-ui-components/react/tooltip';\nconst TooltipPopup = Tooltip.Popup;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "TooltipPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Tooltip/Popup/TooltipPopup.tsx",
+  "filename": "/packages/react/src/tooltip/popup/TooltipPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false

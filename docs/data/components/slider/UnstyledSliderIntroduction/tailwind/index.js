@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTheme } from '@mui/system';
-import { Slider as BaseSlider } from '@base_ui/react/Slider';
+import { Slider as BaseSlider } from '@base-ui-components/react/slider';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');

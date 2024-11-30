@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Tooltip } from '@base_ui/react/Tooltip';
+import { Tooltip } from '@base-ui-components/react/tooltip';
 import { styled } from '@mui/system';
 
 export default function UnstyledTooltipDelayGroup() {

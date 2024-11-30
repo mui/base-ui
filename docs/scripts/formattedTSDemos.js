@@ -105,7 +105,7 @@ async function transpileFile(tsxPath, project) {
       project,
       filePath: tsxPath,
       shouldResolveObject: ({ name }) => {
-        if (name === 'classes' || name === 'ownerState') {
+        if (name === 'classes' || name === 'state') {
           return false;
         }
 

@@ -5,13 +5,15 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "MenuArrow",
-  "imports": ["import { Menu } from '@base_ui/react/Menu';\nconst MenuArrow = Menu.Arrow;"],
+  "imports": [
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuArrow = Menu.Arrow;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "MenuArrow",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Menu/Arrow/MenuArrow.tsx",
+  "filename": "/packages/react/src/menu/arrow/MenuArrow.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

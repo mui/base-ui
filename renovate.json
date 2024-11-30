@@ -26,6 +26,10 @@
       "matchPackagePatterns": "@emotion/*"
     },
     {
+      "groupName": "Tailwind CSS",
+      "matchPackageNames": ["tailwindcss", "@tailwindcss/*", "prettier-plugin-tailwindcss"]
+    },
+    {
       "groupName": "core-js",
       "matchPackageNames": ["core-js"],
       "allowedVersions": "< 2.0.0"
@@ -34,6 +38,16 @@
       "groupName": "eslint",
       "matchPackagePatterns": ["eslint", "eslint-*", "@typescript-eslint/*"],
       "automerge": true
+    },
+    {
+      "groupName": "React RC types - broken versions",
+      "matchPackageNames": [
+        "types-react-dom",
+        "types-react-is",
+        "@types/react-dom",
+        "@types/react-is"
+      ],
+      "enabled": false
     },
     {
       "automerge": true,
@@ -73,6 +87,10 @@
       "allowedVersions": "< 19.0.0"
     },
     {
+      "groupName": "Vitest",
+      "matchPackagePatterns": ["^vitest$", "^@vitest/"]
+    },
+    {
       "matchDepTypes": ["engines"],
       "matchFileNames": ["packages/*/package.json"],
       "enabled": false
@@ -89,10 +107,6 @@
     {
       "groupName": "GitHub Actions",
       "matchManagers": ["github-actions"]
-    },
-    {
-      "groupName": "@definitelytyped tools",
-      "matchPackagePatterns": ["@definitelytyped/*"]
     },
     {
       "groupName": "chai - incompatible versions",

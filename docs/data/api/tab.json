@@ -5,13 +5,13 @@
     "value": { "type": { "name": "any" } }
   },
   "name": "Tab",
-  "imports": ["import { Tabs } from '@base_ui/react/Tabs';\nconst Tab = Tabs.Tab;"],
+  "imports": ["import { Tabs } from '@base-ui-components/react/tabs';\nconst Tab = Tabs.Tab;"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "Tab",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Tabs/Tab/Tab.tsx",
+  "filename": "/packages/react/src/tabs/tab/Tab.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tabs/\">Tabs</a></li></ul>",
   "cssComponent": false

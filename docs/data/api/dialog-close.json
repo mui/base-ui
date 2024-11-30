@@ -4,13 +4,15 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "DialogClose",
-  "imports": ["import { Dialog } from '@base_ui/react/Dialog';\nconst DialogClose = Dialog.Close;"],
+  "imports": [
+    "import { Dialog } from '@base-ui-components/react/dialog';\nconst DialogClose = Dialog.Close;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "DialogClose",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Dialog/Close/DialogClose.tsx",
+  "filename": "/packages/react/src/dialog/close/DialogClose.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
   "cssComponent": false

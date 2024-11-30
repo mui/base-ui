@@ -1,9 +1,8 @@
 import { existsSync, statSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import { basename, dirname, extname, resolve } from 'node:path';
-import { codeToHtml } from 'shiki';
-import { config } from 'docs/config';
 import { DemoFile, DemoVariant } from 'docs/src/blocks/Demo';
+import { highlighter } from 'docs/src/syntax-highlighting';
 
 const COMPONENTS_BASE_PATH = 'data/components';
 
@@ -64,9 +63,9 @@ async function getThemeFile(): Promise<DemoFile> {
 
   const path = 'src/styles/demo-colors.css';
   const content = await readFile(path, 'utf-8');
-  const prettyContent = await codeToHtml(content, {
+  const prettyContent = highlighter.codeToHtml(content, {
     lang: 'css',
-    themes: config.shikiThemes,
+    theme: 'base-ui',
   });
 
   return {
@@ -99,9 +98,9 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
   const mainFilePath = `${COMPONENTS_BASE_PATH}/${path}`;
   const mainFileLanguage = /\.tsx?$/.test(mainFilePath) ? 'ts' : 'js';
   const mainContent = await readFile(mainFilePath, 'utf-8');
-  const mainPrettyContent = await codeToHtml(mainContent, {
+  const mainPrettyContent = highlighter.codeToHtml(mainContent, {
     lang: `${mainFileLanguage}x`,
-    themes: config.shikiThemes,
+    theme: 'base-ui',
   });
 
   const localImports = getLocalImports(mainContent, dirname(mainFilePath));
@@ -127,9 +126,9 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
   const jsFilePath = mainFilePath.replace(/\.tsx?$/, '.js');
   if (mainFileLanguage === 'ts' && existsSync(jsFilePath)) {
     const jsContent = await readFile(jsFilePath, 'utf-8');
-    const jsPrettyPromise = await codeToHtml(jsContent, {
+    const jsPrettyContent = highlighter.codeToHtml(jsContent, {
       lang: 'jsx',
-      themes: config.shikiThemes,
+      theme: 'base-ui',
     });
 
     const jsLocalImports = getLocalImports(mainContent, dirname(jsFilePath));
@@ -142,7 +141,7 @@ async function loadSimpleDemo(path: string, variantName: string): Promise<DemoVa
         {
           name: basename(jsFilePath),
           content: jsContent,
-          prettyContent: jsPrettyPromise,
+          prettyContent: jsPrettyContent,
           path: jsFilePath,
           type: 'js',
         },
@@ -200,9 +199,9 @@ async function getDependencyFiles(paths: string[], preferTs: boolean): Promise<D
       }
 
       const content = await readFile(path, 'utf-8');
-      const prettyContent = await codeToHtml(content, {
+      const prettyContent = highlighter.codeToHtml(content, {
         lang: extension.slice(1),
-        themes: config.shikiThemes,
+        theme: 'base-ui',
       });
 
       const canHaveDependencies = type === 'ts' || type === 'js';

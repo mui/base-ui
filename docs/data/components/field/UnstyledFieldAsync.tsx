@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Field } from '@base_ui/react/Field';
+import { Field } from '@base-ui-components/react/field';
 import { styled } from '@mui/system';
 
 const cache = new Map<string, string | null>();
@@ -102,12 +102,12 @@ const FieldControl = styled(Field.Control)`
   padding: 6px;
   font-size: 100%;
 
-  &[data-field='invalid']:not([data-pending]) {
+  &[data-invalid]:not([data-pending]) {
     border-color: red;
     background-color: rgb(255 0 0 / 0.1);
   }
 
-  &[data-field='valid']:not([data-pending]) {
+  &[data-valid]:not([data-pending]) {
     border-color: green;
     background-color: rgb(0 255 0 / 0.1);
   }
@@ -117,12 +117,12 @@ const FieldControl = styled(Field.Control)`
     border-color: #0078d4;
     box-shadow: 0 0 0 3px rgba(0 100 255 / 0.3);
 
-    &[data-field='invalid']:not([data-pending]) {
+    &[data-invalid]:not([data-pending]) {
       border-color: red;
       box-shadow: 0 0 0 3px rgba(255 0 0 / 0.3);
     }
 
-    &[data-field='valid']:not([data-pending]) {
+    &[data-valid]:not([data-pending]) {
       box-shadow: 0 0 0 3px rgba(100 200 100 / 0.3);
     }
   }

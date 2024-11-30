@@ -19,12 +19,14 @@
     }
   },
   "name": "MenuRoot",
-  "imports": ["import { Menu } from '@base_ui/react/Menu';\nconst MenuRoot = Menu.Root;"],
+  "imports": [
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuRoot = Menu.Root;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "MenuRoot",
-  "filename": "/packages/mui-base/src/Menu/Root/MenuRoot.tsx",
+  "filename": "/packages/react/src/menu/root/MenuRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

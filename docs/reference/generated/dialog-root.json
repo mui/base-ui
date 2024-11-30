@@ -1,0 +1,34 @@
+{
+  "name": "DialogRoot",
+  "description": "Groups all parts of the dialog. Doesn’t render its own HTML element.",
+  "props": {
+    "animated": {
+      "type": "boolean",
+      "default": "true",
+      "description": "If `true`, the dialog supports CSS-based animations and transitions.\nIt is kept in the DOM until the animation completes."
+    },
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Determines whether the dialog is initally open.\nThis is an uncontrolled equivalent of the `open` prop."
+    },
+    "dismissible": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Determines whether the dialog should close when clicking outside of it."
+    },
+    "modal": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Determines whether the dialog is modal."
+    },
+    "onOpenChange": {
+      "type": "(open, event) => void",
+      "description": "Callback invoked when the dialog is being opened or closed."
+    },
+    "open": {
+      "type": "boolean",
+      "description": "Determines whether the dialog is open."
+    }
+  }
+}

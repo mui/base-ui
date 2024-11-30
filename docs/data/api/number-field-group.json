@@ -5,14 +5,14 @@
   },
   "name": "NumberFieldGroup",
   "imports": [
-    "import { NumberField } from '@base_ui/react/NumberField';\nconst NumberFieldGroup = NumberField.Group;"
+    "import { NumberField } from '@base-ui-components/react/number-field';\nconst NumberFieldGroup = NumberField.Group;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "NumberFieldGroup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/NumberField/Group/NumberFieldGroup.tsx",
+  "filename": "/packages/react/src/number-field/group/NumberFieldGroup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-number-field/\">Number Field</a></li></ul>",
   "cssComponent": false

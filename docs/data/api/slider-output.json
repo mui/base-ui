@@ -5,14 +5,14 @@
   },
   "name": "SliderOutput",
   "imports": [
-    "import { Slider } from '@base_ui/react/Slider';\nconst SliderOutput = Slider.Output;"
+    "import { Slider } from '@base-ui-components/react/slider';\nconst SliderOutput = Slider.Output;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SliderOutput",
   "forwardsRefTo": "HTMLOutputElement",
-  "filename": "/packages/mui-base/src/Slider/Output/SliderOutput.tsx",
+  "filename": "/packages/react/src/slider/output/SliderOutput.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-slider/\">Slider</a></li></ul>",
   "cssComponent": false

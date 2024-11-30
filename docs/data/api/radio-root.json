@@ -8,13 +8,15 @@
     "required": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "RadioRoot",
-  "imports": ["import { Radio } from '@base_ui/react/Radio';\nconst RadioRoot = Radio.Root;"],
+  "imports": [
+    "import { Radio } from '@base-ui-components/react/radio';\nconst RadioRoot = Radio.Root;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "RadioRoot",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Radio/Root/RadioRoot.tsx",
+  "filename": "/packages/react/src/radio/root/RadioRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-radio-group/\">Radio Group</a></li></ul>",
   "cssComponent": false

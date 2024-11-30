@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { NoSsr } from '@base_ui/react/NoSsr';
+import { NoSsr } from '@base-ui-components/react/no-ssr';
 import { Box } from '@mui/system';
 
 function LargeTree(): any {

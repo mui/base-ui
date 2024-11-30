@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Menu as BaseMenu } from '@base_ui/react/Menu';
+import { Menu as BaseMenu } from '@base-ui-components/react/menu';
 import classes from './Menu.module.css';
 
 export const Menu = BaseMenu.Root;

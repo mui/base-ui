@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { NumberField as BaseNumberField } from '@base_ui/react/NumberField';
+import { NumberField as BaseNumberField } from '@base-ui-components/react/number-field';
 import { useTheme } from '@mui/system';
 
 function classNames(...classes) {
@@ -71,7 +71,7 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(props, ref) 
         classNames(
           'mt-1 flex items-center rounded border border-solid border-gray-300 dark:border-gray-700',
           'overflow-hidden',
-          'focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 dark:focus-within:border-blue-400/80 dark:focus-within:ring-blue-500/50',
+          'focus-within:border-gray-500 focus-within:ring-2 focus-within:ring-gray-200 dark:focus-within:border-gray-400/80 dark:focus-within:ring-gray-500/50',
           state.disabled && 'cursor-not-allowed opacity-40',
           typeof props.className === 'function'
             ? props.className(state)
@@ -97,7 +97,7 @@ const NumberFieldScrubArea = React.forwardRef(
         ref={ref}
         className={(state) =>
           classNames(
-            'cursor-ns-resize select-none font-bold',
+            'cursor-ns-resize font-bold select-none',
             typeof props.className === 'function'
               ? props.className(state)
               : props.className,
@@ -156,7 +156,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(props, ref) 
           'shadow',
           'max-w-[150px] overflow-hidden',
           'focus:z-10 focus:outline-none',
-          'focus:border-blue-600 dark:focus:border-blue-400',
+          'focus:border-gray-600 dark:focus:border-gray-400',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,

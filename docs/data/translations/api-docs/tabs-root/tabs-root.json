@@ -5,14 +5,13 @@
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
     "defaultValue": {
-      "description": "The default value. Use when the component is not controlled."
+      "description": "The default value. Use when the component is not controlled. When the value is <code>null</code>, no Tab will be selected."
     },
-    "direction": { "description": "The direction of the text." },
     "onValueChange": { "description": "Callback invoked when new value is being set." },
     "orientation": { "description": "The component orientation (layout flow direction)." },
     "render": { "description": "A function to customize rendering of the component." },
     "value": {
-      "description": "The value of the currently selected <code>Tab</code>. If you don&#39;t want any selected <code>Tab</code>, you can set this prop to <code>null</code>."
+      "description": "The value of the currently selected <code>Tab</code>. Use when the component is controlled. When the value is <code>null</code>, no Tab will be selected."
     }
   },
   "classDescriptions": {}

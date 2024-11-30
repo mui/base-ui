@@ -4,8 +4,8 @@ import { GitHubIcon } from 'docs/src/icons/GitHub';
 import { SettingsIcon } from 'docs/src/icons/Settings';
 import { IconButton } from 'docs/src/design-system/IconButton';
 import { IconLinkButton } from 'docs/src/design-system/IconLinkButton';
+import packageJson from 'docs/package.json';
 import { DocsVersionSelector } from './DocsVersionSelector';
-import packageJson from '../../../package.json';
 import classes from './AppBar.module.css';
 
 const currentVersion = packageJson.version;

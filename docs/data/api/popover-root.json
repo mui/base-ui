@@ -10,13 +10,13 @@
   },
   "name": "PopoverRoot",
   "imports": [
-    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverRoot = Popover.Root;"
+    "import { Popover } from '@base-ui-components/react/popover';\nconst PopoverRoot = Popover.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "PopoverRoot",
-  "filename": "/packages/mui-base/src/Popover/Root/PopoverRoot.tsx",
+  "filename": "/packages/react/src/popover/root/PopoverRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

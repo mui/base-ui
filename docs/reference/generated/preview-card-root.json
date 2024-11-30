@@ -1,0 +1,35 @@
+{
+  "name": "PreviewCardRoot",
+  "description": "",
+  "props": {
+    "animated": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the preview card can animate, adding animation-related attributes and allowing for exit\nanimations to play. Useful to disable in tests to remove async behavior."
+    },
+    "closeDelay": {
+      "type": "number",
+      "default": "300",
+      "description": "The delay in milliseconds until the preview card popup is closed when `openOnHover` is `true`."
+    },
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the preview card popup is open by default. Use when uncontrolled."
+    },
+    "delay": {
+      "type": "number",
+      "default": "600",
+      "description": "The delay in milliseconds until the preview card popup is opened when `openOnHover` is `true`."
+    },
+    "onOpenChange": {
+      "type": "(open, event, reason) => void",
+      "description": "Callback fired when the preview card popup is requested to be opened or closed. Use when\ncontrolled."
+    },
+    "open": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the preview card popup is open. Use when controlled."
+    }
+  }
+}

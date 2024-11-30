@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Slider } from '@base_ui/react/Slider';
+import { Slider } from '@base-ui-components/react/slider';
 import { useTheme } from '@mui/system';
 import classes from './vertical.module.css';
 

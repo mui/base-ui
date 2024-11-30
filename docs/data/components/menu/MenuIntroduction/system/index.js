@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Menu } from '@base_ui/react/Menu';
+import { Menu } from '@base-ui-components/react/menu';
 import { styled } from '@mui/system';
 
 export default function MenuIntroduction() {
@@ -84,7 +84,7 @@ const MenuPopup = styled(Menu.Popup)(
     }
   }
       
-  &[data-exiting] {
+  &[data-ending-style] {
     opacity: 0;
     transform: scale(0.8);
     transition: opacity 200ms ease-in, transform 200ms ease-in;
@@ -151,10 +151,6 @@ const MenuButton = styled(Menu.Trigger)(
 const MenuPositioner = styled(Menu.Positioner)`
   &:focus-visible {
     outline: 0;
-  }
-
-  &[data-state='closed'] {
-    pointer-events: none;
   }
 `;
 

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Separator } from '@base_ui/react/Separator';
+import { Separator } from '@base-ui-components/react/separator';
 import { styled } from '@mui/system';
 
 export default function SeparatorIntroduction() {

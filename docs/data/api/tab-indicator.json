@@ -5,13 +5,15 @@
     "renderBeforeHydration": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "TabIndicator",
-  "imports": ["import { Tabs } from '@base_ui/react/Tabs';\nconst TabIndicator = Tabs.Indicator;"],
+  "imports": [
+    "import { Tabs } from '@base-ui-components/react/tabs';\nconst TabIndicator = Tabs.Indicator;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "TabIndicator",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Tabs/TabIndicator/TabIndicator.tsx",
+  "filename": "/packages/react/src/tabs/tab-indicator/TabIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tabs/\">Tabs</a></li></ul>",
   "cssComponent": false

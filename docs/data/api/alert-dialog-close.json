@@ -5,14 +5,14 @@
   },
   "name": "AlertDialogClose",
   "imports": [
-    "import { AlertDialog } from '@base_ui/react/AlertDialog';\nconst AlertDialogClose = AlertDialog.Close;"
+    "import { AlertDialog } from '@base-ui-components/react/alert-dialog';\nconst AlertDialogClose = AlertDialog.Close;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "AlertDialogClose",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/AlertDialog/Close/AlertDialogClose.tsx",
+  "filename": "/packages/react/src/alert-dialog/close/AlertDialogClose.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-alert-dialog/\">Alert Dialog</a></li></ul>",
   "cssComponent": false

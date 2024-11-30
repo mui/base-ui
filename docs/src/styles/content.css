@@ -104,28 +104,6 @@
       top: -0.5px;
     }
 
-    figure {
-      box-sizing: border-box;
-      margin-left: 0;
-      margin-right: 0;
-      margin-top: var(--space-5);
-      margin-bottom: var(--space-5);
-    }
-
-    pre {
-      box-sizing: border-box;
-      overflow: hidden;
-      margin: 0;
-      padding: var(--space-3) var(--space-4);
-      font-family: var(--ff-code);
-      font-size: var(--fs-2);
-      line-height: 20px;
-      white-space: pre;
-      color: var(--gray-text-1);
-      border: 1px solid var(--gray-outline-2);
-      border-radius: 12px;
-    }
-
     kbd {
       padding: 6px;
       display: inline-block;
@@ -155,14 +133,6 @@
     td {
       border-bottom: 1px solid var(--gray-outline-2);
       padding: var(--space-3);
-
-      &:first-child {
-        padding-left: 0;
-      }
-
-      &:last-child {
-        padding-right: 0;
-      }
     }
 
     strong {

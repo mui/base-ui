@@ -6,14 +6,14 @@
   },
   "name": "PopoverArrow",
   "imports": [
-    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverArrow = Popover.Arrow;"
+    "import { Popover } from '@base-ui-components/react/popover';\nconst PopoverArrow = Popover.Arrow;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "PopoverArrow",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Popover/Arrow/PopoverArrow.tsx",
+  "filename": "/packages/react/src/popover/arrow/PopoverArrow.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

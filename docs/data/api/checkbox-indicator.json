@@ -6,14 +6,14 @@
   },
   "name": "CheckboxIndicator",
   "imports": [
-    "import { Checkbox } from '@base_ui/react/Checkbox';\nconst CheckboxIndicator = Checkbox.Indicator;"
+    "import { Checkbox } from '@base-ui-components/react/checkbox';\nconst CheckboxIndicator = Checkbox.Indicator;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "CheckboxIndicator",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Checkbox/Indicator/CheckboxIndicator.tsx",
+  "filename": "/packages/react/src/checkbox/indicator/CheckboxIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-checkbox/\">Checkbox</a></li></ul>",
   "cssComponent": false

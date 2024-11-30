@@ -5,14 +5,14 @@
   },
   "name": "ProgressTrack",
   "imports": [
-    "import { Progress } from '@base_ui/react/Progress';\nconst ProgressTrack = Progress.Track;"
+    "import { Progress } from '@base-ui-components/react/progress';\nconst ProgressTrack = Progress.Track;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "ProgressTrack",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Progress/Track/ProgressTrack.tsx",
+  "filename": "/packages/react/src/progress/track/ProgressTrack.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-progress/\">Progress</a></li></ul>",
   "cssComponent": false

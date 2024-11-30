@@ -13,13 +13,15 @@
     }
   },
   "name": "FieldRoot",
-  "imports": ["import { Field } from '@base_ui/react/Field';\nconst FieldRoot = Field.Root;"],
+  "imports": [
+    "import { Field } from '@base-ui-components/react/field';\nconst FieldRoot = Field.Root;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "FieldRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Field/Root/FieldRoot.tsx",
+  "filename": "/packages/react/src/field/root/FieldRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-field/\">Field</a></li></ul>",
   "cssComponent": false

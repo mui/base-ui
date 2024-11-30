@@ -1,0 +1,11 @@
+{
+  "name": "DialogTrigger",
+  "attributes": {
+    "[data-modal]": {
+      "description": "Present when the corresponding dialog is modal."
+    },
+    "[data-popup-open]": {
+      "description": "Present when the corresponding dialog is open."
+    }
+  }
+}

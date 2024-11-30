@@ -1,18 +1,24 @@
 import childProcess from 'child_process';
-import glob from 'fast-glob';
 import path from 'path';
+import { writeFile } from 'fs/promises';
 import { promisify } from 'util';
 import yargs from 'yargs';
 import { getWorkspaceRoot } from './utils.mjs';
 
 const exec = promisify(childProcess.exec);
 
-const validBundles = [
-  // build for node using commonJS modules
-  'node',
-  // build with a hardcoded target using ES6 modules
-  'stable',
-];
+const bundleConfig = {
+  node: {
+    moduleType: 'commonjs',
+    outDirectory: './cjs',
+  },
+  stable: {
+    moduleType: 'module',
+    outDirectory: './esm',
+  },
+};
+
+const validBundles = Object.keys(bundleConfig);
 
 async function run(argv) {
   const { bundle, largeFiles, outDir: relativeOutDir, verbose } = argv;
@@ -40,28 +46,7 @@ async function run(argv) {
     '**/*.d.ts',
   ];
 
-  const topLevelNonIndexFiles = glob
-    .sync(`*{${extensions.join(',')}}`, { cwd: srcDir, ignore })
-    .filter((file) => {
-      return path.basename(file, path.extname(file)) !== 'index';
-    });
-  const topLevelPathImportsCanBePackages = topLevelNonIndexFiles.length === 0;
-
-  const outDir = path.resolve(
-    relativeOutDir,
-    // We generally support top level path imports e.g.
-    // 1. `import ArrowDownIcon from '@mui/icons-material/ArrowDown'`.
-    // 2. `import Typography from '@mui/material/Typography'`.
-    // The first case resolves to a file while the second case resolves to a package first i.e. a package.json
-    // This means that only in the second case the bundler can decide whether it uses ES modules or CommonJS modules.
-    // Different extensions are not viable yet since they require additional bundler config for users and additional transpilation steps in our repo.
-    //
-    // TODO v6: Switch to `exports` field.
-    {
-      node: topLevelPathImportsCanBePackages ? './node' : './',
-      stable: topLevelPathImportsCanBePackages ? './' : './esm',
-    }[bundle],
-  );
+  const outDir = path.resolve(relativeOutDir, bundleConfig[bundle].outDirectory);
 
   const babelArgs = [
     '--config-file',
@@ -90,6 +75,9 @@ async function run(argv) {
   if (stderr) {
     throw new Error(`'${command}' failed with \n${stderr}`);
   }
+
+  const rootBundlePackageJson = path.join(outDir, 'package.json');
+  await writeFile(rootBundlePackageJson, JSON.stringify({ type: bundleConfig[bundle].moduleType }));
 
   if (verbose) {
     // eslint-disable-next-line no-console

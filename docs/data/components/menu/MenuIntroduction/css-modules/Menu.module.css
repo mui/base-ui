@@ -4,10 +4,6 @@
   &:focus-visible {
     outline: 0;
   }
-
-  &[data-state='closed'] {
-    pointer-events: none;
-  }
 }
 
 .popup {
@@ -21,24 +17,21 @@
   overflow: auto;
   outline: 0;
   background: #fff;
-  border: 1px solid var(--gray-200);
-  color: var(--gray-900);
-  box-shadow: 0px 4px 30px var(--gray-200);
+  border: 1px solid var(--color-gray-200);
+  color: var(--color-gray-900);
+  box-shadow: 0px 4px 30px var(--color-gray-200);
   transform-origin: var(--transform-origin);
+  opacity: 0;
+  transform: scale(0.95, 0.8);
+  transition:
+    opacity 200ms ease-in,
+    transform 200ms ease-in;
 
   :global(.dark) & {
-    background: var(--gray-900);
-    border: 1px solid var(--gray-700);
-    color: var(--gray-300);
-    box-shadow: 0px 4px 30px var(--gray-900);
-  }
-
-  &[data-state='closed'] {
-    opacity: 0;
-    transform: scale(0.95, 0.8);
-    transition:
-      opacity 200ms ease-in,
-      transform 200ms ease-in;
+    background: var(--color-gray-900);
+    border: 1px solid var(--color-gray-700);
+    color: var(--color-gray-300);
+    box-shadow: 0px 4px 30px var(--color-gray-900);
   }
 
   &[data-open] {
@@ -61,31 +54,31 @@
   transition: all 150ms ease;
   cursor: pointer;
   background: #fff;
-  border: 1px solid var(--gray-200);
-  color: var(--gray-900);
+  border: 1px solid var(--color-gray-200);
+  color: var(--color-gray-900);
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 
   :global(.dark) & {
-    background: var(--gray-900);
-    border-color: var(--gray-200);
-    color: var(--gray-200);
+    background: var(--color-gray-900);
+    border-color: var(--color-gray-200);
+    color: var(--color-gray-200);
   }
 
   &:hover {
-    background: var(--gray-50);
-    border-color: var(--gray-300);
+    background: var(--color-gray-50);
+    border-color: var(--color-gray-300);
 
     :global(.dark) & {
-      background: var(--gray-800);
-      border-color: var(--gray-600);
+      background: var(--color-gray-800);
+      border-color: var(--color-gray-600);
     }
   }
 
   &:active {
-    background: var(--gray-100);
+    background: var(--color-gray-100);
 
     :global(.dark) & {
-      background: var(--gray-700);
+      background: var(--color-gray-700);
     }
   }
 
@@ -107,32 +100,32 @@
   }
 
   &[data-disabled] {
-    color: var(--gray-400);
+    color: var(--color-gray-400);
 
     :global(.dark) & {
-      color: var(--gray-700);
+      color: var(--color-gray-700);
     }
   }
 
   &:focus {
     outline: 3px solid var(--cyan-200);
-    background-color: var(--gray-100);
-    color: var(--gray-900);
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-900);
 
     :global(.dark) & {
       outline: 3px solid var(--cyan-600);
-      background-color: var(--gray-800);
-      color: var(--gray-300);
+      background-color: var(--color-gray-800);
+      color: var(--color-gray-300);
     }
   }
 }
 
 .separator {
-  border-top: 1px solid var(--gray-200);
+  border-top: 1px solid var(--color-gray-200);
   margin: 8px 0;
 
   :global(.dark) & {
-    border-color: var(--gray-700);
+    border-color: var(--color-gray-700);
   }
 }
 
@@ -140,11 +133,11 @@
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  color: var(--gray-700);
+  color: var(--color-gray-700);
   padding: 8px;
   user-select: none;
 
   :global(.dark) & {
-    color: var(--gray-200);
+    color: var(--color-gray-200);
   }
 }

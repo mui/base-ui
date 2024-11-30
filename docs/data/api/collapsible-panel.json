@@ -1,0 +1,20 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "hiddenUntilFound": { "type": { "name": "bool" }, "default": "false" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "CollapsiblePanel",
+  "imports": [
+    "import { Collapsible } from '@base-ui-components/react/collapsible';\nconst CollapsiblePanel = Collapsible.Panel;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "CollapsiblePanel",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/react/src/collapsible/panel/CollapsiblePanel.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-collapsible/\">Collapsible</a></li></ul>",
+  "cssComponent": false
+}

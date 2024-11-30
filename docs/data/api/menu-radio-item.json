@@ -8,13 +8,15 @@
     "onClick": { "type": { "name": "func" } }
   },
   "name": "MenuRadioItem",
-  "imports": ["import { Menu } from '@base_ui/react/Menu';\nconst MenuRadioItem = Menu.RadioItem;"],
+  "imports": [
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuRadioItem = Menu.RadioItem;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "MenuRadioItem",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Menu/RadioItem/MenuRadioItem.tsx",
+  "filename": "/packages/react/src/menu/radio-item/MenuRadioItem.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

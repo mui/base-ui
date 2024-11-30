@@ -51,6 +51,8 @@ const getSortLiteralUnions: InjectPropTypesInFileOptions['getSortLiteralUnions']
 };
 
 async function generateProptypes(project: TypeScriptProject, sourceFile: string): Promise<void> {
+  console.log('generating proptypes', { project, sourceFile });
+
   const components = getPropTypesFromFile({
     filePath: sourceFile,
     project,
@@ -167,7 +169,7 @@ async function run(argv: HandlerArgv) {
   // Matches files where the folder and file both start with uppercase letters
   // Example: AppBar/AppBar.d.ts
   const allFiles = await Promise.all(
-    [path.resolve(__dirname, '../packages/mui-base/src')].map((folderPath) =>
+    [path.resolve(__dirname, '../packages/react/src')].map((folderPath) =>
       glob(['[A-Z]*/[A-Z]*.*@(d.ts|ts|tsx)', '[A-Z]*/[A-Z]*/[A-Z]*.*@(d.ts|ts|tsx)'], {
         absolute: true,
         cwd: folderPath,
@@ -187,7 +189,7 @@ async function run(argv: HandlerArgv) {
 
   const promises = files.map<Promise<void>>(async (sourceFile) => {
     try {
-      const projectName = sourceFile.match(/packages\/mui-([a-zA-Z-]+)\/src/)![1];
+      const projectName = sourceFile.match(/packages\/([a-zA-Z-]+)\/src/)![1];
       const project = buildProject(projectName);
       await generateProptypes(project, sourceFile);
     } catch (error: any) {

@@ -14,16 +14,13 @@ import { EditPageGithubLink } from 'docs/src/components/EditPageGithubLink';
 const CATEGORY_SEGMENT = 'getting-started';
 
 interface Props {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default async function DocsPage(props: Props) {
-  const {
-    params: { slug },
-  } = props;
-
+  const { slug } = await props.params;
   const { MDXContent, tableOfContents, metadata } = await getMarkdownPage(
     CATEGORY_SEGMENT,
     slug,
@@ -62,7 +59,8 @@ export async function generateStaticParams() {
   return getSlugs(`/${CATEGORY_SEGMENT}`).map((slug) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const { slug } = params;
   const { title = 'Getting started', description } = await getMarkdownPageMetadata(
     CATEGORY_SEGMENT,

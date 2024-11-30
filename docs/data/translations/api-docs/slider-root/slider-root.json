@@ -24,8 +24,8 @@
       "description": "Callback function that is fired when the slider&#39;s value changed.",
       "typeDescriptions": {
         "value": "The new value.",
-        "activeThumb": "Index of the currently moved thumb.",
-        "event": "The event source of the callback. You can pull out the new value by accessing <code>event.target.value</code> (any). <strong>Warning</strong>: This is a generic event not a change event."
+        "event": "The event source of the callback. You can pull out the new value by accessing <code>event.target.value</code> (any).",
+        "activeThumbIndex": "Index of the currently moved thumb."
       }
     },
     "onValueCommitted": {

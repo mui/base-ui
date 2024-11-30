@@ -5,14 +5,14 @@
   },
   "name": "NumberFieldIncrement",
   "imports": [
-    "import { NumberField } from '@base_ui/react/NumberField';\nconst NumberFieldIncrement = NumberField.Increment;"
+    "import { NumberField } from '@base-ui-components/react/number-field';\nconst NumberFieldIncrement = NumberField.Increment;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "NumberFieldIncrement",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/NumberField/Increment/NumberFieldIncrement.tsx",
+  "filename": "/packages/react/src/number-field/increment/NumberFieldIncrement.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-number-field/\">Number Field</a></li></ul>",
   "cssComponent": false

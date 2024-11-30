@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { styled, useTheme, Box } from '@mui/system';
-import { Slider as BaseSlider } from '@base_ui/react/Slider';
+import { Slider as BaseSlider } from '@base-ui-components/react/slider';
 
 export default function UnstyledSliderIntroduction() {
   // Replace this with your app logic for determining dark mode
@@ -132,7 +132,7 @@ const SliderThumb = styled(BaseSlider.Thumb)`
     outline-offset: 3px;
   }
 
-  &[data-dragging='true'] {
+  &[data-dragging] {
     background-color: pink;
   }
 
@@ -141,7 +141,7 @@ const SliderThumb = styled(BaseSlider.Thumb)`
     background-color: ${grey[600]};
   }
 
-  .dark &[data-dragging='true'] {
+  .dark &[data-dragging] {
     background-color: pink;
   }
 `;
@@ -150,7 +150,7 @@ const Label = styled(BaseLabel)`
   cursor: unset;
   font-weight: bold;
 
-  &[data-disabled='true'] {
+  &[data-disabled] {
     color: ${grey[600]};
   }
 `;

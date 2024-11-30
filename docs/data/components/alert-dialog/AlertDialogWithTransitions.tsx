@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { AlertDialog as BaseAlertDialog } from '@base_ui/react/AlertDialog';
+import { AlertDialog as BaseAlertDialog } from '@base-ui-components/react/alert-dialog';
 import { styled } from '@mui/system';
 
 export default function AlertDialogWithTransitions() {
@@ -57,7 +57,7 @@ const Popup = styled(BaseAlertDialog.Popup)(
     transition-timing-function: ease-out;
   }
 
-  &[data-entering] {
+  &[data-starting-style] {
     opacity: 0;
     transform: translate(-50%, -35%) scale(0.8);
   }
@@ -81,7 +81,7 @@ const Backdrop = styled(BaseAlertDialog.Backdrop)`
     transition-timing-function: ease-out;
   }
 
-  &[data-entering] {
+  &[data-starting-style] {
     backdrop-filter: blur(0);
     opacity: 0;
   }

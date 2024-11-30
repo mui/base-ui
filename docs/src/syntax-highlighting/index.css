@@ -1,0 +1,27 @@
+:root {
+  --syntax-default: var(--color-foreground);
+  --syntax-comment: var(--color-gray);
+  --syntax-constant: var(--color-blue);
+  --syntax-entity: var(--color-violet);
+  --syntax-parameter: var(--color-navy);
+  --syntax-tag: var(--color-green);
+  --syntax-keyword: var(--color-red);
+  --syntax-string: var(--color-navy);
+  --syntax-variable: var(--color-red);
+  --syntax-invalid: var(--color-red);
+}
+
+[data-language='css'] {
+  --syntax-variable: var(--color-navy);
+
+  /* Target CSS property names – ugly but works */
+  & [style='color:var(--syntax-constant)']:first-child {
+    --syntax-constant: var(--color-foreground);
+  }
+}
+
+[data-inline] {
+  --syntax-entity: var(--color-blue);
+  --syntax-parameter: var(--color-blue);
+  --syntax-variable: var(--color-blue);
+}

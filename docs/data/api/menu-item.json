@@ -7,13 +7,15 @@
     "onClick": { "type": { "name": "func" } }
   },
   "name": "MenuItem",
-  "imports": ["import { Menu } from '@base_ui/react/Menu';\nconst MenuItem = Menu.Item;"],
+  "imports": [
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuItem = Menu.Item;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "MenuItem",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Menu/Item/MenuItem.tsx",
+  "filename": "/packages/react/src/menu/item/MenuItem.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

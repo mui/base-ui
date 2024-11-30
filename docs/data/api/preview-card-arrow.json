@@ -6,14 +6,14 @@
   },
   "name": "PreviewCardArrow",
   "imports": [
-    "import { PreviewCard } from '@base_ui/react/PreviewCard';\nconst PreviewCardArrow = PreviewCard.Arrow;"
+    "import { PreviewCard } from '@base-ui-components/react/preview-card';\nconst PreviewCardArrow = PreviewCard.Arrow;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "PreviewCardArrow",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/PreviewCard/Arrow/PreviewCardArrow.tsx",
+  "filename": "/packages/react/src/preview-card/arrow/PreviewCardArrow.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-preview-card/\">Preview Card</a></li></ul>",
   "cssComponent": false

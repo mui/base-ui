@@ -1,0 +1,28 @@
+{
+  "props": {
+    "alignOptionToTrigger": { "type": { "name": "bool" }, "default": "true" },
+    "animated": { "type": { "name": "bool" }, "default": "true" },
+    "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
+    "defaultValue": { "type": { "name": "any" }, "default": "null" },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "name": { "type": { "name": "string" } },
+    "onOpenChange": { "type": { "name": "func" } },
+    "onValueChange": { "type": { "name": "func" } },
+    "open": { "type": { "name": "bool" } },
+    "readOnly": { "type": { "name": "bool" }, "default": "false" },
+    "required": { "type": { "name": "bool" }, "default": "false" },
+    "value": { "type": { "name": "any" } }
+  },
+  "name": "SelectRoot",
+  "imports": [
+    "import { Select } from '@base-ui-components/react/select';\nconst SelectRoot = Select.Root;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
+  "muiName": "SelectRoot",
+  "filename": "/packages/react/src/select/root/SelectRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
+  "cssComponent": false
+}

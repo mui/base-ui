@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
 import { createCodeSandbox } from 'docs/src/blocks/sandbox/createCodeSandbox';
-import { CodesandboxIcon } from 'docs/src/icons/Codesandbox';
-import { IconButton } from 'docs/src/design-system/IconButton';
+import { ExternalLinkIcon } from 'docs/src/icons/ExternalLink';
+import { GhostButton } from '../GhostButton';
 
 const COMMIT_REF = process.env.PULL_REQUEST_ID ? process.env.COMMIT_REF : undefined;
 const SOURCE_CODE_REPO = process.env.SOURCE_CODE_REPO;
@@ -22,15 +22,12 @@ const tailwindSetup = `
 const cssThemeSetup = `
     <link rel="stylesheet" href="theme.css" />`;
 
-interface CodeSandboxLinkProps {
-  className?: string;
+interface CodeSandboxLinkProps extends React.ComponentProps<'button'> {
   title: string;
   description?: string;
 }
 
-export function CodeSandboxLink(props: CodeSandboxLinkProps) {
-  const { className, title, description } = props;
-
+export function CodeSandboxLink({ title, description, ...props }: CodeSandboxLinkProps) {
   const {
     selectedVariant: { files, language, name },
   } = useDemoContext();
@@ -71,30 +68,25 @@ export function CodeSandboxLink(props: CodeSandboxLinkProps) {
   }, [files, language, name, title, description]);
 
   return (
-    <IconButton
-      className={className}
-      onClick={handleClick}
-      label="Open in CodeSandbox"
-      withTooltip
-      size={2}
-    >
-      <CodesandboxIcon />
-    </IconButton>
+    <GhostButton aria-label="Open in CodeSandbox" type="button" onClick={handleClick} {...props}>
+      CodeSandbox
+      <ExternalLinkIcon />
+    </GhostButton>
   );
 }
 
 function resolveDependencies(packageName: string): Record<string, string> {
   switch (packageName) {
-    case '@base_ui/react': {
+    case '@base-ui-components/react': {
       if (COMMIT_REF === undefined || SOURCE_CODE_REPO !== 'https://github.com/mui/base-ui') {
         // #default-branch-switch
         return {
-          '@base_ui/react': 'latest',
+          '@base-ui-components/react': 'latest',
         };
       }
       const shortSha = COMMIT_REF.slice(0, 8);
       return {
-        '@base_ui/react': `https://pkg.csb.dev/mui/base-ui/commit/${shortSha}/@base_ui/react`,
+        '@base-ui-components/react': `https://pkg.csb.dev/mui/base-ui/commit/${shortSha}/@base-ui-components/react`,
       };
     }
 

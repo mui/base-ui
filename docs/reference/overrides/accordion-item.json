@@ -1,0 +1,8 @@
+{
+  "name": "AccordionItem",
+  "props": {
+    "onOpenChange": {
+      "type": "(open) => void"
+    }
+  }
+}

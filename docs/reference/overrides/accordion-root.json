@@ -1,0 +1,8 @@
+{
+  "name": "AccordionRoot",
+  "props": {
+    "onValueChange": {
+      "type": "(value) => void"
+    }
+  }
+}

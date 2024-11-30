@@ -1,0 +1,19 @@
+{
+  "name": "TabIndicator",
+  "description": "",
+  "props": {
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "renderBeforeHydration": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the indicator will include code to render itself before React hydrates.\nThis will minimize the time the indicator is not visible after the SSR-generated content is downloaded."
+    }
+  }
+}

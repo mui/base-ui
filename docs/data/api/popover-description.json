@@ -5,14 +5,14 @@
   },
   "name": "PopoverDescription",
   "imports": [
-    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverDescription = Popover.Description;"
+    "import { Popover } from '@base-ui-components/react/popover';\nconst PopoverDescription = Popover.Description;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "PopoverDescription",
   "forwardsRefTo": "HTMLParagraphElement",
-  "filename": "/packages/mui-base/src/Popover/Description/PopoverDescription.tsx",
+  "filename": "/packages/react/src/popover/description/PopoverDescription.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

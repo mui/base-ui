@@ -5,13 +5,15 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "MenuGroup",
-  "imports": ["import { Menu } from '@base_ui/react/Menu';\nconst MenuGroup = Menu.Group;"],
+  "imports": [
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuGroup = Menu.Group;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "MenuGroup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Menu/Group/MenuGroup.tsx",
+  "filename": "/packages/react/src/menu/group/MenuGroup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Switch as BaseSwitch } from '@base_ui/react/Switch';
+import { Switch as BaseSwitch } from '@base-ui-components/react/switch';
 
 export default function UnstyledSwitchIntroduction() {
   return (

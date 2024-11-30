@@ -1,6 +1,5 @@
 @import 'theme.css';
 @import 'reset.css';
-@import 'shiki.css';
 
 @import 'demo-colors.css';
 @import 'content.css';
@@ -19,11 +18,6 @@
 @import 'components/search-button.css';
 @import 'components/select.css';
 @import 'components/separator.css';
-@import 'components/table.css';
 @import 'components/text.css';
 @import 'components/textarea.css';
 @import 'components/toggle.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;

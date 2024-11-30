@@ -2,9 +2,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTheme } from '@mui/system';
-import { Checkbox as BaseCheckbox } from '@base_ui/react/Checkbox';
-import { CheckboxGroup } from '@base_ui/react/CheckboxGroup';
-import { Field } from '@base_ui/react/Field';
+import { Checkbox as BaseCheckbox } from '@base-ui-components/react/checkbox';
+import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+import { Field } from '@base-ui-components/react/field';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -17,7 +17,7 @@ function useIsDarkMode() {
 
 function Label(props) {
   return (
-    // eslint-disable-next-line jsx-a11y/label-has-associated-control, jsx-a11y/no-noninteractive-element-interactions
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <label
       className="mb-2 flex gap-2"
       onMouseDown={(event) => event.preventDefault()}
@@ -75,11 +75,11 @@ const Checkbox = React.forwardRef(function Checkbox(props, ref) {
       className={(state) =>
         classNames(
           'h-6 w-6 rounded-md p-0',
-          'border-2 border-solid border-purple-500',
-          'outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-opacity-60 focus-visible:ring-offset-2',
+          'border-2 border-solid border-gray-500',
+          'focus-visible:ring-opacity-60 outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2',
           'transition-colors duration-150',
           state.disabled && 'cursor-not-allowed opacity-40',
-          state.checked && 'bg-purple-500',
+          state.checked && 'bg-gray-500',
           !state.checked && 'bg-transparent',
           typeof props.className === 'function'
             ? props.className(state)

@@ -1,0 +1,24 @@
+{
+  "name": "AlertDialogRoot",
+  "description": "",
+  "props": {
+    "animated": {
+      "type": "boolean",
+      "default": "true",
+      "description": "If `true`, the dialog supports CSS-based animations and transitions.\nIt is kept in the DOM until the animation completes."
+    },
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Determines whether the dialog is initally open.\nThis is an uncontrolled equivalent of the `open` prop."
+    },
+    "onOpenChange": {
+      "type": "(open, event) => void",
+      "description": "Callback invoked when the dialog is being opened or closed."
+    },
+    "open": {
+      "type": "boolean",
+      "description": "Determines whether the dialog is open."
+    }
+  }
+}

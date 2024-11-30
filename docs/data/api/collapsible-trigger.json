@@ -5,14 +5,14 @@
   },
   "name": "CollapsibleTrigger",
   "imports": [
-    "import { Collapsible } from '@base_ui/react/Collapsible';\nconst CollapsibleTrigger = Collapsible.Trigger;"
+    "import { Collapsible } from '@base-ui-components/react/collapsible';\nconst CollapsibleTrigger = Collapsible.Trigger;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "CollapsibleTrigger",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Collapsible/Trigger/CollapsibleTrigger.tsx",
+  "filename": "/packages/react/src/collapsible/trigger/CollapsibleTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-collapsible/\">Collapsible</a></li></ul>",
   "cssComponent": false

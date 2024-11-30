@@ -121,7 +121,7 @@
       transition: transform var(--transition-duration) ease-out;
     }
 
-    &[data-exiting] {
+    &[data-ending-style] {
       animation: dialog-closing var(--transition-duration) ease-in forwards;
     }
   }
@@ -171,7 +171,7 @@
       animation: backdrop-opening 500ms ease-out forwards;
     }
 
-    &[data-exiting] {
+    &[data-ending-style] {
       animation: backdrop-closing 500ms ease-in forwards;
     }
   }
@@ -188,22 +188,22 @@
   padding: 16px;
   font-family: IBM Plex Sans;
 
-  h1 {
+  & h1 {
     font-family: General Sans;
     font-weight: 600;
     font-size: 2rem;
   }
 
-  h2 {
+  & h2 {
     font-size: 1.5rem;
     font-weight: 600;
   }
 
-  label {
+  & label {
     font-size: 0.8333rem;
   }
 
-  label + label {
+  & label + label {
     margin-left: 16px;
   }
 }
@@ -246,8 +246,8 @@
   margin-top: 24px;
   flex-wrap: wrap;
 
-  input[type='text'],
-  textarea {
+  & input[type='text'],
+  & textarea {
     padding: 8px;
     border: 1px solid #d8d8d8;
     border-radius: 4px;
@@ -255,7 +255,7 @@
     box-sizing: border-box;
   }
 
-  textarea {
+  & textarea {
     resize: vertical;
     min-height: 100px;
     width: 100%;

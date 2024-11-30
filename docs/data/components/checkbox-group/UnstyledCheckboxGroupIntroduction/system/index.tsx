@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { css, styled } from '@mui/system';
-import { Checkbox as BaseCheckbox } from '@base_ui/react/Checkbox';
-import { CheckboxGroup } from '@base_ui/react/CheckboxGroup';
-import { Field } from '@base_ui/react/Field';
+import { Checkbox as BaseCheckbox } from '@base-ui-components/react/checkbox';
+import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+import { Field } from '@base-ui-components/react/field';
 
 export default function UnstyledCheckboxIndeterminateGroup() {
   return (

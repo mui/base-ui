@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Field } from '@base_ui/react/Field';
+import { Field } from '@base-ui-components/react/field';
+import { TextInput } from '@base-ui-components/react/text-input';
 import { styled } from '@mui/system';
 
 function validate(value: string) {
@@ -31,7 +32,7 @@ export default function UnstyledFieldPassword() {
   return (
     <FieldRoot invalid={errors.length > 0}>
       <Field.Label>Password</Field.Label>
-      <FieldControl
+      <Input
         type="password"
         value={value}
         onChange={(event) => setValue(event.currentTarget.value)}
@@ -51,19 +52,19 @@ const FieldRoot = styled(Field.Root)`
   width: 275px;
 `;
 
-const FieldControl = styled(Field.Control)`
+const Input = styled(TextInput)`
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;
   padding: 6px;
   font-size: 100%;
 
-  &[data-field='valid'][data-dirty] {
+  &[data-valid][data-dirty] {
     border-color: green;
     background-color: rgb(0 255 0 / 0.1);
   }
 
-  &[data-field='invalid'][data-touched][data-dirty] {
+  &[data-invalid][data-touched][data-dirty] {
     border-color: red;
     background-color: rgb(255 0 0 / 0.1);
   }
@@ -73,12 +74,12 @@ const FieldControl = styled(Field.Control)`
     border-color: #0078d4;
     box-shadow: 0 0 0 3px rgba(0 100 255 / 0.3);
 
-    &[data-field='valid'][data-dirty] {
+    &[data-valid][data-dirty] {
       border-color: green;
       box-shadow: 0 0 0 3px rgba(100 200 100 / 0.3);
     }
 
-    &[data-field='invalid'][data-touched][data-dirty] {
+    &[data-invalid][data-touched][data-dirty] {
       border-color: red;
       box-shadow: 0 0 0 3px rgba(255 0 0 / 0.3);
     }

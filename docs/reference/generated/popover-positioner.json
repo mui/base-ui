@@ -1,0 +1,77 @@
+{
+  "name": "PopoverPositioner",
+  "description": "The popover positioner element.",
+  "props": {
+    "alignment": {
+      "type": "'start' | 'center' | 'end'",
+      "default": "'center'",
+      "description": "The alignment of the popover element to the anchor element along its cross axis."
+    },
+    "alignmentOffset": {
+      "type": "number",
+      "default": "0",
+      "description": "The offset of the popover element along its alignment axis."
+    },
+    "anchor": {
+      "type": "React.Ref | Element | VirtualElement | (() => Element | VirtualElement | null) | null",
+      "description": "The element to which the popover element is anchored to."
+    },
+    "arrowPadding": {
+      "type": "number",
+      "default": "5",
+      "description": "Determines the padding between the arrow and the popover edges. Useful when the popover\nelement has rounded corners via `border-radius`."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "collisionBoundary": {
+      "type": "'clippingAncestors' | Element | Element[] | Rect",
+      "default": "'clipping-ancestors'",
+      "description": "The boundary that the popover element should be constrained to."
+    },
+    "collisionPadding": {
+      "type": "number | Rect",
+      "default": "5",
+      "description": "The padding between the popover element and the edges of the collision boundary to add\nwhitespace between them to prevent them from touching."
+    },
+    "container": {
+      "type": "React.Ref | HTMLElement | null",
+      "description": "The element the popover positioner element is appended to."
+    },
+    "hideWhenDetached": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the popover element is hidden if it appears detached from its anchor element due\nto the anchor element being clipped (or hidden) from view."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the popover remains mounted in the DOM while closed."
+    },
+    "positionMethod": {
+      "type": "'absolute' | 'fixed'",
+      "default": "'absolute'",
+      "description": "The CSS position strategy for positioning the popover element."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "side": {
+      "type": "'top' | 'bottom' | 'left' | 'right'",
+      "default": "'bottom'",
+      "description": "The side of the anchor element that the popover element should be placed at."
+    },
+    "sideOffset": {
+      "type": "number",
+      "default": "0",
+      "description": "The gap between the anchor element and the popover element."
+    },
+    "sticky": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to allow the popover to remain stuck in view while the anchor element is scrolled out\nof view."
+    }
+  }
+}

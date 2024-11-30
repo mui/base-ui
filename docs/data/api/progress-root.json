@@ -4,10 +4,6 @@
     "aria-labelledby": { "type": { "name": "string" } },
     "aria-valuetext": { "type": { "name": "string" } },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "direction": {
-      "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
-      "default": "'ltr'"
-    },
     "getAriaLabel": {
       "type": { "name": "func" },
       "signature": {
@@ -29,14 +25,14 @@
   },
   "name": "ProgressRoot",
   "imports": [
-    "import { Progress } from '@base_ui/react/Progress';\nconst ProgressRoot = Progress.Root;"
+    "import { Progress } from '@base-ui-components/react/progress';\nconst ProgressRoot = Progress.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "ProgressRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Progress/Root/ProgressRoot.tsx",
+  "filename": "/packages/react/src/progress/root/ProgressRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-progress/\">Progress</a></li></ul>",
   "cssComponent": false

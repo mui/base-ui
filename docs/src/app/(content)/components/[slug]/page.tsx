@@ -21,9 +21,9 @@ import { getApiReferenceData } from './getApiReferenceData';
 const CATEGORY_SEGMENT = 'components';
 
 interface Props {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 function componentNameFromSlug(slug: string) {
@@ -31,10 +31,7 @@ function componentNameFromSlug(slug: string) {
 }
 
 export default async function ComponentPage(props: Props) {
-  const {
-    params: { slug },
-  } = props;
-
+  const { slug } = await props.params;
   const componentName = componentNameFromSlug(slug);
 
   const { MDXContent, metadata, tableOfContents } = await getMarkdownPage(
@@ -53,7 +50,9 @@ export default async function ComponentPage(props: Props) {
     ...components,
     // eslint-disable-next-line react/no-unstable-nested-components
     Demo: (demoProps: Omit<DemoLoaderProps, 'componentName'>) => (
-      <DemoLoader componentName={componentName} {...demoProps} />
+      <div className="my-5">
+        <DemoLoader componentName={componentName} {...demoProps} />
+      </div>
     ),
     // eslint-disable-next-line react/no-unstable-nested-components
     Description: () => <Description text={metadata.description} />,
@@ -93,7 +92,8 @@ export async function generateStaticParams() {
   return getSlugs(`/${CATEGORY_SEGMENT}`).map((slug) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const { slug } = params;
   const componentName = componentNameFromSlug(slug);
   const { title = 'Components', description } = await getMarkdownPageMetadata(

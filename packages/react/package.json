@@ -1,0 +1,101 @@
+{
+  "name": "@base-ui-components/react",
+  "version": "1.0.0-alpha.3",
+  "private": false,
+  "author": "MUI Team",
+  "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
+  "keywords": [
+    "react",
+    "react-component",
+    "mui",
+    "unstyled",
+    "a11y"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mui/base-ui.git",
+    "directory": "packages/react"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mui/base-ui/issues"
+  },
+  "homepage": "https://mui.com/base-ui/",
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/mui-org"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    },
+    "./utils": {
+      "import": "./src/utils/index.ts"
+    },
+    "./*": {
+      "import": "./src/*/index.ts"
+    }
+  },
+  "imports": {
+    "#test-utils": "./test/index.ts"
+  },
+  "type": "commonjs",
+  "scripts": {
+    "build": "pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
+    "build:node": "node ../../scripts/build.mjs node",
+    "build:stable": "node ../../scripts/build.mjs stable",
+    "build:copy-files": "node ../../scripts/copyFiles.mjs",
+    "build:types": "tsx ../../scripts/buildTypes.mjs --project tsconfig.build.json --copy build/cjs",
+    "test:package-types": "attw --pack ./build --include-entrypoints ./accordion ./menu ./tooltip",
+    "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
+    "release": "pnpm build && pnpm publish",
+    "test": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/react/**/*.test.{js,ts,tsx}'",
+    "typescript": "tsc -b tsconfig.json"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.26.0",
+    "@floating-ui/react": "^0.26.28",
+    "@floating-ui/react-dom": "^2.1.2",
+    "@floating-ui/utils": "^0.2.8",
+    "clsx": "^2.1.1",
+    "prop-types": "^15.8.1",
+    "use-sync-external-store": "^1.2.2"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.17.0",
+    "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/chai": "^4.3.20",
+    "@types/chai-dom": "^1.11.3",
+    "@types/prop-types": "^15.7.13",
+    "@types/react": "npm:types-react@19.0.0-rc.1",
+    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
+    "@types/sinon": "^17.0.3",
+    "@types/use-sync-external-store": "^0.0.6",
+    "chai": "^4.5.0",
+    "lodash": "^4.17.21",
+    "react": "19.0.0-rc-fb9a90fa48-20240614",
+    "react-dom": "19.0.0-rc-fb9a90fa48-20240614",
+    "sinon": "^19.0.2",
+    "typescript": "^5.7.2"
+  },
+  "peerDependencies": {
+    "@types/react": "^17.0.0 || ^18.0.0 || ^19.0 || ^19.0.0-rc",
+    "react": "^17.0.0 || ^18.0.0 || ^19.0 || ^19.0.0-rc",
+    "react-dom": "^17.0.0 || ^18.0.0 || ^19.0 || ^19.0.0-rc"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "directory": "build"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

@@ -5,14 +5,14 @@
   },
   "name": "AlertDialogTitle",
   "imports": [
-    "import { AlertDialog } from '@base_ui/react/AlertDialog';\nconst AlertDialogTitle = AlertDialog.Title;"
+    "import { AlertDialog } from '@base-ui-components/react/alert-dialog';\nconst AlertDialogTitle = AlertDialog.Title;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "AlertDialogTitle",
   "forwardsRefTo": "HTMLHeadingElement",
-  "filename": "/packages/mui-base/src/AlertDialog/Title/AlertDialogTitle.tsx",
+  "filename": "/packages/react/src/alert-dialog/title/AlertDialogTitle.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-alert-dialog/\">Alert Dialog</a></li></ul>",
   "cssComponent": false

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Menu } from '@base_ui/react/Menu';
+import { Menu } from '@base-ui-components/react/menu';
 
 export default function Page() {
   const [anchorEl, setAnchor] = React.useState<HTMLDivElement | null>(null);

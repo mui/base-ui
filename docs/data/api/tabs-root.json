@@ -1,11 +1,7 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "defaultValue": { "type": { "name": "any" } },
-    "direction": {
-      "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
-      "default": "'ltr'"
-    },
+    "defaultValue": { "type": { "name": "any" }, "default": "0" },
     "onValueChange": { "type": { "name": "func" } },
     "orientation": {
       "type": { "name": "enum", "description": "'horizontal'<br>&#124;&nbsp;'vertical'" },
@@ -15,13 +11,15 @@
     "value": { "type": { "name": "any" } }
   },
   "name": "TabsRoot",
-  "imports": ["import { Tabs } from '@base_ui/react/Tabs';\nconst TabsRoot = Tabs.Root;"],
+  "imports": [
+    "import { Tabs } from '@base-ui-components/react/tabs';\nconst TabsRoot = Tabs.Root;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "TabsRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Tabs/Root/TabsRoot.tsx",
+  "filename": "/packages/react/src/tabs/root/TabsRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tabs/\">Tabs</a></li></ul>",
   "cssComponent": false

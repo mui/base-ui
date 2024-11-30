@@ -1,0 +1,8 @@
+{
+  "name": "RadioGroupRoot",
+  "props": {
+    "onValueChange": {
+      "type": "(value, event) => void"
+    }
+  }
+}

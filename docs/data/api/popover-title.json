@@ -5,14 +5,14 @@
   },
   "name": "PopoverTitle",
   "imports": [
-    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverTitle = Popover.Title;"
+    "import { Popover } from '@base-ui-components/react/popover';\nconst PopoverTitle = Popover.Title;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "PopoverTitle",
   "forwardsRefTo": "HTMLHeadingElement",
-  "filename": "/packages/mui-base/src/Popover/Title/PopoverTitle.tsx",
+  "filename": "/packages/react/src/popover/title/PopoverTitle.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

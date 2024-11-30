@@ -4,7 +4,7 @@ title: React Field component and hook
 description: Fields represent an individual section of a form containing an associated control and label, as well as any description or validation messages.
 components: FieldRoot, FieldLabel, FieldDescription, FieldError, FieldControl, FieldValidity
 githubLabel: 'component: field'
-packageName: '@base_ui/react'
+packageName: '@base-ui-components/react'
 ---
 
 # Field
@@ -24,7 +24,7 @@ packageName: '@base_ui/react'
 Fields are implemented using a collection of related components:
 
 - `<Field.Root />` is a top-level component that wraps all other components.
-- `<Field.Control />` renders the control when not using a native Base UI input component.
+- `<Field.Control />` renders a control when not using a native Base UI input component.
 - `<Field.Label />` renders a label for the control.
 - `<Field.Description />` renders an optional description for the control to provide additional information.
 - `<Field.Error />` renders error messages for the control.
@@ -54,7 +54,7 @@ All Base UI input components are aware of Base UI's `Field` component. The lab
 </Field.Root>
 ```
 
-When using a native control like `input` or a custom component which is not aware of Base UI's `Field`, use `Field.Control`:
+When using a custom component which is not aware of Base UI's `Field`, use `Field.Control`:
 
 ```jsx
 <Field.Root>
@@ -220,7 +220,7 @@ The `onChange` validation is debounced by 500ms to avoid firing a network reques
 
 ## Styling
 
-The `[data-field="valid"]` and `[data-field="invalid"]` style hooks determine if the field is invalid or not:
+The `[data-valid]` and `[data-invalid]` style hooks determine if the field is valid or not:
 
 ```jsx
 <Field.Root>
@@ -229,7 +229,7 @@ The `[data-field="valid"]` and `[data-field="invalid"]` style hooks determine if
 ```
 
 ```css
-.FieldControl[data-field='invalid'] {
+.FieldControl[data-invalid] {
   color: red;
 }
 ```

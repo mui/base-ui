@@ -1,0 +1,62 @@
+{
+  "name": "CheckboxRoot",
+  "description": "The foundation for building custom-styled checkboxes.",
+  "props": {
+    "checked": {
+      "type": "boolean",
+      "default": "undefined",
+      "description": "If `true`, the component is checked."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "defaultChecked": {
+      "type": "boolean",
+      "default": "false",
+      "description": "The default checked state. Use when the component is not controlled."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the component is disabled."
+    },
+    "indeterminate": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the checkbox will be indeterminate."
+    },
+    "inputRef": {
+      "type": "React.Ref",
+      "description": "The ref to the input element."
+    },
+    "name": {
+      "type": "string",
+      "default": "undefined",
+      "description": "Name of the underlying input element."
+    },
+    "onCheckedChange": {
+      "type": "(checked, event) => void",
+      "description": "Callback fired when the checked state is changed."
+    },
+    "parent": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the checkbox is a parent checkbox for a group of child checkboxes."
+    },
+    "readOnly": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the component is read only."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "required": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the `input` element is required."
+    }
+  }
+}

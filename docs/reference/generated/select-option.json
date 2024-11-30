@@ -1,0 +1,20 @@
+{
+  "name": "SelectOption",
+  "description": "",
+  "props": {
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the select option will be disabled."
+    },
+    "label": {
+      "type": "string",
+      "description": "A text representation of the select option's content.\nUsed for keyboard text navigation matching."
+    },
+    "value": {
+      "type": "any",
+      "default": "null",
+      "description": "The value of the select option."
+    }
+  }
+}

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Field } from '@base_ui/react/Field';
+import { Field } from '@base-ui-components/react/field';
+import { TextInput } from '@base-ui-components/react/text-input';
 import { styled } from '@mui/system';
 
 type Status = 'initial' | 'loading' | 'success' | 'error';
@@ -42,7 +43,7 @@ export default function UnstyledFieldServerError() {
     <form onSubmit={handleSubmit} noValidate>
       <FieldRoot invalid={error} name="email">
         <Field.Label>Email address</Field.Label>
-        <FieldControl
+        <Input
           ref={controlRef}
           type="email"
           required
@@ -56,8 +57,6 @@ export default function UnstyledFieldServerError() {
             <FieldSubmit
               type="submit"
               aria-disabled={status === 'loading'}
-              // The aria-description attribute is not a standard ARIA attribute (it's defined in ARIA 1.3 Editor's Draft).
-              // eslint-disable-next-line jsx-a11y/aria-props
               aria-description={
                 !state.validity.valid ? 'Field has errors' : undefined
               }
@@ -91,14 +90,14 @@ const FieldRoot = styled(Field.Root)`
   width: 275px;
 `;
 
-const FieldControl = styled(Field.Control)`
+const Input = styled(TextInput)`
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;
   padding: 6px;
   font-size: 100%;
 
-  &[data-field='invalid'] {
+  &[data-invalid] {
     border-color: red;
     background-color: rgb(255 0 0 / 0.1);
   }
@@ -108,7 +107,7 @@ const FieldControl = styled(Field.Control)`
     border-color: #0078d4;
     box-shadow: 0 0 0 3px rgba(0 100 255 / 0.3);
 
-    &[data-field='invalid'] {
+    &[data-invalid] {
       border-color: red;
       box-shadow: 0 0 0 3px rgba(255 0 0 / 0.3);
     }

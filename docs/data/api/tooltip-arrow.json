@@ -6,14 +6,14 @@
   },
   "name": "TooltipArrow",
   "imports": [
-    "import { Tooltip } from '@base_ui/react/Tooltip';\nconst TooltipArrow = Tooltip.Arrow;"
+    "import { Tooltip } from '@base-ui-components/react/tooltip';\nconst TooltipArrow = Tooltip.Arrow;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "TooltipArrow",
   "forwardsRefTo": "Element",
-  "filename": "/packages/mui-base/src/Tooltip/Arrow/TooltipArrow.tsx",
+  "filename": "/packages/react/src/tooltip/arrow/TooltipArrow.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false

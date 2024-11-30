@@ -2,7 +2,7 @@
   "props": {
     "checked": { "type": { "name": "bool" } },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "defaultChecked": { "type": { "name": "bool" } },
+    "defaultChecked": { "type": { "name": "bool" }, "default": "false" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "inputRef": { "type": { "name": "custom", "description": "ref" } },
     "name": { "type": { "name": "string" } },
@@ -18,13 +18,15 @@
     "required": { "type": { "name": "bool" }, "default": "false" }
   },
   "name": "SwitchRoot",
-  "imports": ["import { Switch } from '@base_ui/react/Switch';\nconst SwitchRoot = Switch.Root;"],
+  "imports": [
+    "import { Switch } from '@base-ui-components/react/switch';\nconst SwitchRoot = Switch.Root;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SwitchRoot",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Switch/Root/SwitchRoot.tsx",
+  "filename": "/packages/react/src/switch/root/SwitchRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-switch/\">Switch</a></li></ul>",
   "cssComponent": false

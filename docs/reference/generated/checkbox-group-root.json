@@ -1,0 +1,40 @@
+{
+  "name": "CheckboxGroupRoot",
+  "description": "The foundation for building custom-styled checkbox groups.",
+  "props": {
+    "allValues": {
+      "type": "string[]",
+      "description": "All values of the checkboxes in the group."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "defaultValue": {
+      "type": "string[]",
+      "description": "The default checked values of the checkbox group. Use when uncontrolled."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the checkbox group is disabled."
+    },
+    "onValueChange": {
+      "type": "(value, event) => void",
+      "description": "A callback function that is called when the value of the checkbox group changes.\nUse when controlled."
+    },
+    "preserveChildStates": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the parent checkbox should preserve its child states when checked/unchecked, leading\nto a tri-state checkbox group."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "value": {
+      "type": "string[]",
+      "description": "The currently checked values of the checkbox group. Use when controlled."
+    }
+  }
+}

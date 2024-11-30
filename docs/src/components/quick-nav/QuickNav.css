@@ -1,0 +1,81 @@
+@layer components {
+  .QuickNavContainer {
+    /* Quick Nav's container shouldn't have any paddings to maintain correct positioning */
+    padding: 0;
+    position: relative;
+  }
+
+  .QuickNavRoot {
+    --quick-nav-margin-x: 2rem;
+
+    /* Use line height instead of fixed item height in case text breaks into multiple lines */
+    --quick-nav-item-height: 2rem;
+    --quick-nav-item-line-height: var(--text-sm--line-height);
+    --quick-nav-item-padding-y: calc(
+      var(--quick-nav-item-height) / 2 - var(--quick-nav-item-line-height) / 2
+    );
+
+    /* The variable is used in JS positioning logic */
+    --top: -1px;
+    @apply text-sm;
+    z-index: 1;
+    position: sticky;
+    top: var(--top);
+    width: 0;
+    float: right;
+    contain: layout;
+
+    display: none;
+    @media (--show-quick-nav) {
+      display: block;
+    }
+  }
+
+  .QuickNavInner {
+    border-top: 1px solid var(--color-gray-200);
+    position: relative;
+    left: var(--quick-nav-margin-x);
+    padding-top: 0.75rem;
+    padding-bottom: 1.5rem;
+    pointer-events: auto;
+    width: calc(var(--sidebar-width) - var(--quick-nav-margin-x) * 2);
+  }
+
+  .QuickNavTitle {
+    padding-block: var(--quick-nav-item-padding-y);
+    font-weight: 500;
+  }
+
+  .QuickNavList {
+    color: var(--color-gray);
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+
+    & & {
+      padding-left: 0.75rem;
+    }
+  }
+
+  .QuickNavLink {
+    display: flex;
+    padding: var(--quick-nav-item-padding-y) 0.5rem;
+    margin-inline: -0.5rem;
+
+    &:focus-visible {
+      color: var(--color-foreground);
+      outline: 2px solid var(--color-blue);
+      outline-offset: -2px;
+      border-radius: var(--radius-sm);
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        text-decoration-thickness: 1px;
+        text-decoration-color: var(--color-gray-500);
+      }
+    }
+  }
+}

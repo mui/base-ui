@@ -6,13 +6,13 @@
   },
   "name": "TooltipProvider",
   "imports": [
-    "import { Tooltip } from '@base_ui/react/Tooltip';\nconst TooltipProvider = Tooltip.Provider;"
+    "import { Tooltip } from '@base-ui-components/react/tooltip';\nconst TooltipProvider = Tooltip.Provider;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "TooltipProvider",
-  "filename": "/packages/mui-base/src/Tooltip/Provider/TooltipProvider.tsx",
+  "filename": "/packages/react/src/tooltip/provider/TooltipProvider.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false

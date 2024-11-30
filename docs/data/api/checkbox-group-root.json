@@ -11,14 +11,14 @@
   },
   "name": "CheckboxGroupRoot",
   "imports": [
-    "import { CheckboxGroup } from '@base_ui/react/CheckboxGroup';\nconst CheckboxGroupRoot = CheckboxGroup.Root;"
+    "import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';\nconst CheckboxGroupRoot = CheckboxGroup.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "CheckboxGroupRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/CheckboxGroup/Root/CheckboxGroupRoot.tsx",
+  "filename": "/packages/react/src/checkbox-group/root/CheckboxGroupRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-checkbox-group/\">Checkbox Group</a></li></ul>",
   "cssComponent": false

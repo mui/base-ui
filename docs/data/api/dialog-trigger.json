@@ -5,14 +5,14 @@
   },
   "name": "DialogTrigger",
   "imports": [
-    "import { Dialog } from '@base_ui/react/Dialog';\nconst DialogTrigger = Dialog.Trigger;"
+    "import { Dialog } from '@base-ui-components/react/dialog';\nconst DialogTrigger = Dialog.Trigger;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "DialogTrigger",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Dialog/Trigger/DialogTrigger.tsx",
+  "filename": "/packages/react/src/dialog/trigger/DialogTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
   "cssComponent": false

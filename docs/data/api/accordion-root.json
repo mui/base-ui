@@ -1,0 +1,31 @@
+{
+  "props": {
+    "animated": { "type": { "name": "bool" }, "default": "true" },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "defaultValue": {
+      "type": { "name": "arrayOf", "description": "Array&lt;number<br>&#124;&nbsp;string&gt;" },
+      "default": "0"
+    },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "loop": { "type": { "name": "bool" }, "default": "true" },
+    "onValueChange": { "type": { "name": "func" } },
+    "openMultiple": { "type": { "name": "bool" }, "default": "true" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "value": {
+      "type": { "name": "arrayOf", "description": "Array&lt;number<br>&#124;&nbsp;string&gt;" }
+    }
+  },
+  "name": "AccordionRoot",
+  "imports": [
+    "import { Accordion } from '@base-ui-components/react/accordion';\nconst AccordionRoot = Accordion.Root;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "AccordionRoot",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/react/src/accordion/root/AccordionRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-accordion/\">Accordion</a></li></ul>",
+  "cssComponent": false
+}

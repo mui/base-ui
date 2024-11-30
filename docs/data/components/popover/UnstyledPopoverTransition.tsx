@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Popover } from '@base_ui/react/Popover';
+import { Popover } from '@base-ui-components/react/popover';
 import { styled } from '@mui/system';
 
 export default function UnstyledPopoverTransition() {
@@ -45,7 +45,7 @@ export const PopoverPopup = styled(Popover.Popup)`
     transform: scale(1);
   }
 
-  &[data-entering] {
+  &[data-starting-style] {
     opacity: 0;
     transform: scale(0.9);
   }

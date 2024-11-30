@@ -1,18 +1,20 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "finalFocus": { "type": { "name": "custom", "description": "ref" } },
+    "initialFocus": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;ref" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "PopoverPopup",
   "imports": [
-    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverPopup = Popover.Popup;"
+    "import { Popover } from '@base-ui-components/react/popover';\nconst PopoverPopup = Popover.Popup;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "PopoverPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Popover/Popup/PopoverPopup.tsx",
+  "filename": "/packages/react/src/popover/popup/PopoverPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

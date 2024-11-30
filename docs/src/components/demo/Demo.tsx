@@ -1,104 +1,90 @@
 'use client';
 import * as React from 'react';
-import clsx from 'clsx';
-import { Collapsible } from '@base_ui/react/Collapsible';
-import { ErrorBoundary } from 'react-error-boundary';
+import { Collapsible } from '@base-ui-components/react/collapsible';
 import * as BaseDemo from 'docs/src/blocks/Demo';
 import { CopyIcon } from 'docs/src/icons/Copy';
-import { ResetIcon } from 'docs/src/icons/Reset';
-import { ResetFocusIcon } from 'docs/src/icons/ResetFocus';
-import { ChevronDownIcon } from 'docs/src/icons/ChevronDown';
-import { IconButton } from 'docs/src/design-system/IconButton';
-import { Button } from 'docs/src/design-system/Button';
+import clsx from 'clsx';
+import { CheckIcon } from 'docs/src/icons/Check';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { CodeSandboxLink } from './CodeSandboxLink';
-import { DemoErrorFallback } from './DemoErrorFallback';
-import { GitHubLink } from './GitHubLink';
-import { StackBlitzLink } from './StackBlitzLink';
-import classes from './Demo.module.css';
+import { GhostButton } from '../GhostButton';
+import { DemoPlayground } from './DemoPlayground';
 
-export interface DemoProps {
-  componentName: string;
-  demoName: string;
+export interface DemoProps extends React.ComponentProps<typeof BaseDemo.Root> {
   variants: BaseDemo.DemoVariant[];
-  defaultCodeOpen?: boolean;
+  defaultOpen?: boolean;
 }
 
-export function Demo(props: DemoProps) {
-  const { componentName, demoName, variants: demoVariants, defaultCodeOpen = true } = props;
-
-  const focusTargetRef = React.useRef<HTMLButtonElement>(null);
-
-  const [key, setKey] = React.useState(0);
-
-  const [codeOpen, setCodeOpen] = React.useState(defaultCodeOpen);
-
-  const resetFocus = React.useCallback(() => {
-    if (focusTargetRef.current) {
-      focusTargetRef.current.focus();
-    }
-  }, []);
-
-  const resetDemo = React.useCallback(() => {
-    setKey((prevKey) => prevKey + 1);
-  }, []);
-
-  const title = `Base UI ${componentName} demo`;
-  const description = `Base UI ${componentName} ${demoName} demo`;
+export function Demo({ className, defaultOpen = false, title, ...props }: DemoProps) {
+  const [open, setOpen] = React.useState(defaultOpen);
+  const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
+  const expandCollapsible = React.useCallback(() => setOpen(true), []);
 
   return (
-    <BaseDemo.Root
-      variants={demoVariants}
-      className={clsx(classes.root, codeOpen ? classes.codeOpen : classes.codeClosed)}
-    >
-      <ErrorBoundary FallbackComponent={DemoErrorFallback}>
-        <button
-          className={classes.focusTarget}
-          type="button"
-          tabIndex={-1}
-          aria-label="A generic control that is programmatically focused to test keyboard navigation of our components."
-          ref={focusTargetRef}
-        />
-        <BaseDemo.Playground className={classes.playground} key={key} />
-      </ErrorBoundary>
+    <BaseDemo.Root className={clsx('DemoRoot', className)} {...props}>
+      <DemoPlayground />
+      <Collapsible.Root open={open} onOpenChange={setOpen}>
+        <div role="figure" aria-label="Component demo code">
+          <div className="DemoToolbar">
+            <DemoFileSelector onTabChange={expandCollapsible} />
 
-      <Collapsible.Root open={codeOpen} onOpenChange={setCodeOpen}>
-        <div className={classes.toolbar}>
-          <DemoVariantSelector showLanguageSelector={codeOpen} />
-          <div className={classes.buttons}>
-            <Collapsible.Trigger className={classes.toggleCodeVisibility} render={<Button />}>
-              {codeOpen ? 'Hide' : 'Show'} code
-              <ChevronDownIcon />
+            <div className="ml-auto flex items-center gap-4">
+              <DemoVariantSelector className="contents" onVariantChange={expandCollapsible} />
+              <CodeSandboxLink title="Base UI example" description="Base UI example" />
+              <BaseDemo.SourceCopy
+                aria-label="Copy code"
+                render={<GhostButton />}
+                onCopied={() => {
+                  const newTimeout = window.setTimeout(() => {
+                    window.clearTimeout(newTimeout);
+                    setCopyTimeout(0);
+                  }, 2000);
+                  window.clearTimeout(copyTimeout);
+                  setCopyTimeout(newTimeout);
+                }}
+              >
+                Copy
+                <span className="flex size-3.5 items-center justify-center">
+                  {copyTimeout ? <CheckIcon /> : <CopyIcon />}
+                </span>
+              </BaseDemo.SourceCopy>
+            </div>
+          </div>
+
+          {/*
+           * The trigger has to appear before the panel in the DOM in order
+           * for the screen reader cursor navigation to make sense.
+           */}
+          <div className="flex flex-col-reverse">
+            <Collapsible.Trigger className="DemoCollapseButton">
+              {open ? 'Hide' : 'Show'} code
             </Collapsible.Trigger>
 
-            <BaseDemo.SourceCopy render={<IconButton label="Copy Code" size={2} withTooltip />}>
-              <CopyIcon />
-            </BaseDemo.SourceCopy>
-
-            <IconButton onClick={resetFocus} label="Reset Focus" withTooltip size={2}>
-              <ResetFocusIcon />
-            </IconButton>
-
-            <IconButton onClick={resetDemo} label="Reset Demo" withTooltip size={2}>
-              <ResetIcon />
-            </IconButton>
-
-            <CodeSandboxLink title={title} description={description} />
-
-            <StackBlitzLink title={title} description={description} />
-
-            <GitHubLink />
+            <Collapsible.Panel
+              hidden={false}
+              aria-hidden={!open}
+              render={
+                <BaseDemo.SourceBrowser
+                  className="DemoCodeBlockContainer"
+                  // Select code block contents on Ctrl/Cmd + A
+                  tabIndex={-1}
+                  onKeyDown={(event) => {
+                    if (
+                      event.key === 'a' &&
+                      (event.metaKey || event.ctrlKey) &&
+                      !event.shiftKey &&
+                      !event.altKey
+                    ) {
+                      event.preventDefault();
+                      window.getSelection()?.selectAllChildren(event.currentTarget);
+                    }
+                  }}
+                />
+              }
+            />
           </div>
         </div>
-
-        <Collapsible.Content className={classes.collapsible}>
-          <DemoFileSelector className={classes.fileTabs} />
-
-          <div className={classes.source}>
-            <BaseDemo.SourceBrowser className={classes.scrollArea} />
-          </div>
-        </Collapsible.Content>
       </Collapsible.Root>
     </BaseDemo.Root>
   );

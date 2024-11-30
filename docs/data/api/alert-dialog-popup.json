@@ -2,19 +2,21 @@
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "container": { "type": { "name": "union", "description": "HTML element<br>&#124;&nbsp;ref" } },
+    "finalFocus": { "type": { "name": "custom", "description": "ref" } },
+    "initialFocus": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;ref" } },
     "keepMounted": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "AlertDialogPopup",
   "imports": [
-    "import { AlertDialog } from '@base_ui/react/AlertDialog';\nconst AlertDialogPopup = AlertDialog.Popup;"
+    "import { AlertDialog } from '@base-ui-components/react/alert-dialog';\nconst AlertDialogPopup = AlertDialog.Popup;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "AlertDialogPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/AlertDialog/Popup/AlertDialogPopup.tsx",
+  "filename": "/packages/react/src/alert-dialog/popup/AlertDialogPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-alert-dialog/\">Alert Dialog</a></li></ul>",
   "cssComponent": false

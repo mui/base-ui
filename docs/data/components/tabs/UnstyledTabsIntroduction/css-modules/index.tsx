@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import { Tabs } from '@base_ui/react/Tabs';
+import { Tabs } from '@base-ui-components/react/tabs';
 
 export default function UnstyledTabsIntroduction() {
   return (
@@ -107,12 +107,12 @@ function Styles() {
         outline: 3px solid ${cyan[200]};
       }
 
-      .CustomTabIntroduction[data-selected='true'] {
+      .CustomTabIntroduction[data-selected] {
         background-color: #fff;
         color: ${cyan[600]};
       }
 
-      .CustomTabIntroduction[data-disabled='true'] {
+      .CustomTabIntroduction[data-disabled] {
         opacity: 0.5;
         cursor: not-allowed;
       }

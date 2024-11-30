@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Tooltip } from '@base_ui/react/Tooltip';
+import { Tooltip } from '@base-ui-components/react/tooltip';
 import { styled } from '@mui/system';
 
 export default function UnstyledTooltipTransition() {
@@ -41,7 +41,7 @@ export const TooltipPopup = styled(Tooltip.Popup)`
       transform: scale(1);
     }
 
-    &[data-entering] {
+    &[data-starting-style] {
       opacity: 0;
       transform: scale(0.9);
     }

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { Tabs } from '@base_ui/react/Tabs';
+import { Tabs } from '@base-ui-components/react/tabs';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {
@@ -35,7 +35,7 @@ const TabsList = React.forwardRef<HTMLDivElement, Tabs.List.Props>((props, ref) 
     <Tabs.List
       ref={ref}
       className={clsx(
-        'mb-4 rounded-xl bg-purple-500 flex font-sans items-center justify-center content-between min-w-tabs-list shadow-lg',
+        'min-w-tabs-list mb-4 flex content-between items-center justify-center rounded-xl bg-gray-500 font-sans shadow-lg',
         className,
       )}
       {...other}
@@ -53,11 +53,11 @@ const Tab = React.forwardRef<HTMLButtonElement, Tabs.Tab.Props>((props, ref) => 
         clsx(
           `font-sans ${
             selected
-              ? 'text-purple-500 bg-white'
-              : 'text-white bg-transparent focus:text-white hover:bg-purple-400'
+              ? 'bg-white text-gray-500'
+              : 'bg-transparent text-white hover:bg-gray-400 focus:text-white'
           } ${
             disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
-          } text-sm leading-[1.3] font-semibold w-full py-2.5 px-3 m-1.5 border-0 rounded-md flex justify-center focus:outline-0 focus:shadow-outline-purple-light`,
+          } focus:shadow-outline-gray-light m-1.5 flex w-full justify-center rounded-md border-0 px-3 py-2.5 text-sm leading-[1.3] font-semibold focus:outline-0`,
           className,
         )
       }
@@ -71,7 +71,7 @@ const TabPanel = React.forwardRef<HTMLDivElement, Tabs.Panel.Props>((props, ref)
     <Tabs.Panel
       ref={ref}
       className={clsx(
-        'py-5 px-3 bg-white dark:bg-slate-900 border border-solid border-slate-200 dark:border-slate-700 rounded-xl opacity-60 w-full font-sans text-sm',
+        'w-full rounded-xl border border-solid border-gray-200 bg-white px-3 py-5 font-sans text-sm opacity-60 dark:border-gray-700 dark:bg-gray-900',
         className,
       )}
       {...other}

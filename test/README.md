@@ -42,7 +42,7 @@ In addition to the core matchers from `chai` we also use matchers from [`chai-do
 
 Deciding where to put a test is (like naming things) a hard problem:
 
-- When in doubt, put the new test case directly in the unit test file for that component, for example `packages/mui-base/src/Button/Button.test.tsx`.
+- When in doubt, put the new test case directly in the unit test file for that component, for example `packages/react/src/Accordion/Root/AccordionRoot.test.tsx`.
 - If your test requires multiple components from the library create a new integration test.
 - If you find yourself using a lot of `data-testid` attributes or you're accessing
   a lot of styles consider adding a component (that doesn't require any interaction)
@@ -117,7 +117,7 @@ trade-off, mainly completeness vs. speed.
 If you want to debug tests with the, for example Chrome inspector (chrome://inspect) you can run `pnpm t <testFilePattern> --debug`.
 Note that the test will not get executed until you start code execution in the inspector.
 
-We have a dedicated task to use VSCode's integrated debugger to debug the currently opened test file.
+We have a dedicated task to use VS Code's integrated debugger to debug the currently opened test file.
 Open the test you want to run and press F5 (launch "Test Current File").
 
 #### Run the core mocha unit/integration test suite

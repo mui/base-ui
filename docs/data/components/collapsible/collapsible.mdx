@@ -2,10 +2,10 @@
 productId: base-ui
 title: React Collapsible components
 description: Collapsible is a component that shows or hides content.
-components: CollapsibleRoot, CollapsibleTrigger, CollapsibleContent
+components: CollapsibleRoot, CollapsibleTrigger, CollapsiblePanel
 githubLabel: 'component: collapsible'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
-packageName: '@base_ui/react'
+packageName: '@base-ui-components/react'
 ---
 
 # Collapsible
@@ -23,13 +23,13 @@ packageName: '@base_ui/react'
 ## Anatomy
 
 - `<Collapsible.Root />` is a top-level component that facilitates communication between other components. It does not render to the DOM by default.
-- `<Collapsible.Trigger />` is the trigger element, a `<button>` by default, that toggles the open/closed state of the content
-- `<Collapsible.Content />` is component that contains the Collapsible's content
+- `<Collapsible.Trigger />` is the trigger element, a `<button>` by default, that toggles the open/closed state of the panel
+- `<Collapsible.Panel />` is component that contains the Collapsible's contents
 
 ```js
 <Collapsible.Root>
   <Collapsible.Trigger>Toggle</Collapsible.Trigger>
-  <Collapsible.Content>This is the content</Collapsible.Content>
+  <Collapsible.Panel>This is the content</Collapsible.Panel>
 </Collapsible.Root>
 ```
 
@@ -41,15 +41,15 @@ packageName: '@base_ui/react'
   Firefox as of August 2024 and will fall back to the default `hidden` behavior.
 </Callout>
 
-Content hidden in the `Collapsible.Content` component can be made accessible only to a browser's find-in-page functionality with the `htmlHidden` prop to improve searchability:
+Content hidden in the `Collapsible.Panel` component can be made accessible only to a browser's find-in-page functionality with the `hiddenUntilFound` prop to improve searchability:
 
 ```js
 <Collapsible.Root defaultOpen={false}>
   <Collapsible.Trigger>Toggle</Collapsible.Trigger>
-  <Collapsible.Content htmlHidden="until-found">
+  <Collapsible.Panel hiddenUntilFound>
     When this component is closed, this sentence will only be accessible to the browser's native
     find-in-page functionality
-  </Collapsible.Content>
+  </Collapsible.Panel>
 </Collapsible.Root>
 ```
 
@@ -61,12 +61,11 @@ This relies on the HTML `hidden="until-found"` attribute which only has [partial
 
 ### Animation states
 
-Four states are available as data attributes to animate the Collapsible:
+Three states are available as data attributes to animate the Collapsible:
 
-- `[data-state="open"]` - `open` state is `true`.
-- `[data-state="closed"]` - `open` state is `false`. Can still be mounted to the DOM if closing.
-- `[data-entering]` - the `hidden` attribute was just removed from the DOM and the content element participates in page layout. The `data-entering` attribute will be removed 1 animation frame later.
-- `[data-exiting]` - the content element is in the process of being hidden from the DOM, but is still mounted.
+- `[data-open]` - `open` state is `true`.
+- `[data-starting-style]` - the `hidden` attribute was just removed from the DOM and the panel element participates in page layout. The `data-starting-style` attribute will be removed 1 animation frame later.
+- `[data-ending-style]` - the panel element is in the process of being hidden from the DOM, but is still mounted.
 
 The component can be animate when opening or closing using either:
 
@@ -74,23 +73,25 @@ The component can be animate when opening or closing using either:
 - CSS transitions
 - JavaScript animations
 
-The height of the `Content` subcomponent is provided as the `--collapsible-content-height` CSS variable
+### Styling
+
+The `Collapsible.Panel` element receives the following CSS variables about its dimensions, which can be used to style animations or transitions:
+
+- `--collapsible-panel-height`: Specifies the height of the `Panel`.
+- `--collapsible-panel-width`: Specifies the width of the `Panel`.
 
 ### CSS Animations
 
 CSS animations can be used with two declarations:
 
 ```css
-.Collapsible-content {
+.CollapsiblePanel {
   overflow: hidden;
-}
-
-.Collapsible-content[data-state='open'] {
-  animation: slideDown 300ms ease-out;
-}
-
-.Collapsible-content[data-state='closed'] {
   animation: slideUp 300ms ease-in;
+}
+
+.CollapsiblePanel[data-open] {
+  animation: slideDown 300ms ease-out;
 }
 
 @keyframes slideDown {
@@ -98,13 +99,13 @@ CSS animations can be used with two declarations:
     height: 0;
   }
   to {
-    height: var(--collapsible-content-height);
+    height: var(--collapsible-panel-height);
   }
 }
 
 @keyframes slideUp {
   from {
-    height: var(--collapsible-content-height);
+    height: var(--collapsible-panel-height);
   }
   to {
     height: 0;
@@ -116,29 +117,29 @@ CSS animations can be used with two declarations:
 
 ### CSS Transitions
 
-When using CSS transitions, styles for the `Content` subcomponent must be applied to three states:
+When using CSS transitions, styles for the `Panel` must be applied to three states:
 
-- The closed styles with `[data-state="closed"]`
-- The open styles with `[data-state="open"]`
-- The entering styles with `[data-entering]`
+- The exiting styles, placed on the base element class
+- The open styles, placed on the base element class with `[data-state="open"]`
+- The entering styles, placed on the base element class with `[data-starting-style]`
 
 ```css
-.Collapsible-content {
+.CollapsiblePanel {
   overflow: hidden;
+  /* The final styles once closed/exited  */
+  height: 0;
+  transition: height 300ms ease-in;
 }
 
-.Collapsible2-content[data-state='open'] {
-  height: var(--collapsible-content-height);
+/* The final styles once opened/entered */
+.CollapsiblePanel[data-open] {
+  height: var(--collapsible-panel-height);
   transition: height 300ms ease-out;
 }
 
-.Collapsible-content[data-entering] {
+/* The initial styles when opening/entering */
+.CollapsiblePanel[data-starting-style] {
   height: 0;
-}
-
-.Collapsible2-content[data-state='closed'] {
-  height: 0;
-  transition: height 300ms ease-in;
 }
 ```
 
@@ -146,7 +147,7 @@ When using CSS transitions, styles for the `Content` subcomponent must be applie
 
 ### JavaScript Animations
 
-When using external libraries for animation, for example `framer-motion`, be aware that Collapsible hides content using the html `hidden` attribute in the closed state, and does not unmount the `Collapsible.Content` subcomponent.
+When using external libraries for animation, for example `framer-motion`, be aware that Collapsible hides content using the HTML `hidden` attribute in the closed state, and does not unmount the `Collapsible.Panel` subcomponent.
 
 ```js
 function App() {
@@ -154,10 +155,10 @@ function App() {
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       <Collapsible.Trigger>Toggle</Collapsible.Trigger>
-      <Collapsible.Content
+      <Collapsible.Panel
         render={
           <motion.div
-            key="CollapsibleContent"
+            key="CollapsiblePanel"
             initial={false}
             animate={open ? 'open' : 'closed'}
             exit={!open ? 'open' : 'closed'}
@@ -176,7 +177,7 @@ function App() {
         }
       >
         This is the content
-      </Collapsible.Content>
+      </Collapsible.Panel>
     </Collapsible.Root>
   );
 }

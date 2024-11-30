@@ -4,14 +4,14 @@
   padding: var(--space-4);
   margin: var(--space-6) 0;
 
-  p {
+  & p {
     color: var(--gray-text-1);
     font-size: var(--fs-3);
     line-height: 20px;
     margin-bottom: var(--space-2);
   }
 
-  > :last-child {
+  & > :last-child {
     margin-bottom: 0;
   }
 }

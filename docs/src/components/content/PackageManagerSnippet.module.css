@@ -1,16 +1,3 @@
-.root {
-  margin-top: var(--space-5) !important;
-  margin-bottom: var(--space-5) !important;
-  border: 1px solid var(--gray-outline-2);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.header {
-  padding: 4px;
-  border-bottom: 1px solid var(--gray-outline-1);
-}
-
 .tabsList {
   box-sizing: border-box;
   background-color: var(--gray-container-1);
@@ -44,7 +31,7 @@
   width: var(--space-9);
   letter-spacing: 0.18px;
 
-  &[data-selected='true'] {
+  &[data-selected] {
     border-radius: var(--br-pill);
     background-color: white;
     box-shadow:
@@ -55,13 +42,8 @@
   }
 
   @media (hover: hover) {
-    &:not([data-selected='true']):hover {
+    &:not([data-selected]):hover {
       background-color: var(--gray-container-3);
     }
   }
-}
-
-.code {
-  border: none;
-  border-radius: 0;
 }

@@ -1,0 +1,332 @@
+---
+productId: base-ui
+title: React Select component
+description: Select provides users with a floating element containing a list of options to choose from.
+components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectBackdrop, SelectPositioner, SelectPopup, SelectOption, SelectOptionText, SelectOptionIndicator, SelectGroup, SelectGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectArrow
+githubLabel: 'component: select'
+waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
+---
+
+# Select
+
+<Description />
+
+<ComponentLinkHeader design={false} />
+
+## Introduction
+
+<Demo demo="SelectIntroduction" defaultCodeOpen="false" bg="gradient" />
+
+## Installation
+
+<InstallationInstructions componentName={['Select']} />
+
+## Anatomy
+
+Selects are implemented using a collection of related components:
+
+- `<Select.Root />` is a top-level component that wraps the other components.
+- `<Select.Trigger />` renders the trigger element that opens the select popup on click.
+- `<Select.Value />` renders the value of the select.
+- `<Select.Icon />` renders a caret icon.
+- `<Select.Backdrop />` renders a backdrop element behind the popup.
+- `<Select.Positioner />` renders the select popup's positioning element.
+- `<Select.Popup />` renders the select popup itself.
+- `<Select.Option />` renders an option, placed inside the popup.
+- `<Select.OptionText />` renders the text of an option.
+- `<Select.OptionIndicator />` renders an option indicator inside an option to indicate it's selected (e.g. a check icon).
+- `<Select.Group />` renders a group for a set of options, wrapping `<Select.Option>` components.
+- `<Select.GroupLabel />` renders a label for a group of options.
+- `<Select.ScrollUpArrow />` renders a scrolling arrow for the `alignOptionToTrigger` anchoring mode.
+- `<Select.ScrollDownArrow />` renders a scrolling arrow for the `alignOptionToTrigger` anchoring mode.
+- `<Select.Separator />` renders a separator between option groups.
+- `<Select.Arrow />` renders the select popup's arrow when disabling `alignOptionToTrigger`.
+
+```jsx
+<Select.Root>
+  <Select.Trigger>
+    <Select.Value />
+    <Select.Icon />
+  </Select.Trigger>
+
+  <Select.Backdrop />
+
+  <Select.Positioner>
+    <Select.ScrollUpArrow />
+
+    <Select.Popup>
+      <Select.Group>
+        <Select.GroupLabel />
+        <Select.Option>
+          <Select.OptionText />
+          <Select.OptionIndicator />
+        </Select.Option>
+      </Select.Group>
+      <Select.Separator />
+    </Select.Popup>
+
+    <Select.ScrollDownArrow />
+
+    <Select.Arrow />
+  </Select.Positioner>
+</Select.Root>
+```
+
+## Default value
+
+To set an initial value when uncontrolled, use `defaultValue`:
+
+```jsx
+<Select.Root defaultValue="system">
+```
+
+## Empty value
+
+The select's value is empty (`null`) by default, which enables an empty `Option` to be initially selected when it has no `value` prop:
+
+<Demo demo="SelectEmpty" defaultCodeOpen="false" />
+
+## Controlled
+
+To control the value with external state, specify the `value` and `onValueChange` props:
+
+```jsx
+const [value, setValue] = React.useState('system');
+
+return (
+  <Select.Root value={value} onValueChange={setValue}>
+    {/* subcomponents */}
+  </Select.Root>
+);
+```
+
+## Option indicator
+
+The `Select.OptionIndicator` subcomponent renders an indicator inside an option to indicate it's selected. By default, it renders a check icon, but this can be customized:
+
+```jsx
+<Select.OptionIndicator>
+  <MyCheckIcon />
+</Select.OptionIndicator>
+```
+
+## Grouped options
+
+`Select.Group` can be used to group options together with a label. The `Select.GroupLabel` subcomponent renders the label:
+
+```jsx
+<Select.Group>
+  <Select.GroupLabel>Label</Select.GroupLabel>
+  <Select.Option value="option1">Option 1</Select.Option>
+  <Select.Option value="option2">Option 2</Select.Option>
+</Select.Group>
+```
+
+<Demo demo="SelectGroup" defaultCodeOpen="false" />
+
+## Align method
+
+By default, the selected option inside the popup is aligned to the trigger element. This can be disabled with the `alignOptionToTrigger` prop:
+
+```jsx
+<Select.Root alignOptionToTrigger={false}>
+```
+
+- **`alignOptionToTrigger={true}`**: aligns the popup such that the selected option inside of it appears centered over the trigger. If there's not enough space, it falls back to standard anchoring. This method is useful as it allows the user to select an option in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS; the scroll arrow components must be used to ensure a single pointer cycle can be used. The `[data-side]` attribute value is `none` on both `Select.Positioner` and `Select.Popup` when in this mode, allowing it to be styled differently.
+- **`alignOptionToTrigger={false}`**: aligns the popup to the trigger itself on its top or bottom side, which is the standard form of anchor positioning used in Tooltip, Popover, Menu, etc.
+
+<Callout type="warning">
+  `alignOptionToTrigger` is always `false` on touch devices or touch input.
+</Callout>
+
+<Callout type="info">
+  Scrolling is locked when `alignOptionToTrigger` is `true` to prevent unwanted scrolling of the
+  background when expanding the popup, ensuring positioning remains correct.
+</Callout>
+
+<Demo demo="SelectAlign" defaultCodeOpen="false" />
+
+### Scrollable popup
+
+The select's height needs to be manually limited by its available space using CSS.
+
+This can be achieved by using the `--available-height` CSS variable:
+
+```jsx
+<Select.Popup className="SelectPopup">
+```
+
+```css
+.SelectPopup {
+  max-height: var(--available-height);
+}
+```
+
+## Value component
+
+The `Select.Value` subcomponent renders the selected value. This is the text content or `label` of `Select.Option` by default.
+
+The `placeholder` prop can be used when the value is empty. During SSR, if a default value is specified as the selected option, the value isn't available until hydration:
+
+```jsx
+<Select.Trigger>
+  <Select.Value placeholder="Select value..." />
+</Select.Trigger>
+```
+
+A function can be specified as a child to customize the rendering of the value:
+
+```jsx
+<Select.Value>{(value) => value.toLowerCase()}</Select.Value>
+```
+
+## Arrow
+
+To add an arrow (caret or triangle) inside the select popup that points toward the center of the anchor element, use the `Select.Arrow` component:
+
+<Callout type="warning">This is not supported when `alignOptionToTrigger` is `true`.</Callout>
+
+```jsx
+<Select.Positioner>
+  <Select.Popup />
+  <Select.Arrow />
+</Select.Positioner>
+```
+
+It automatically positions a wrapper element that can be styled or contain a custom SVG shape.
+
+## Animations
+
+The select can animate when opening or closing with either:
+
+- CSS transitions
+- CSS animations
+- JavaScript animations
+
+### CSS transitions
+
+Here is an example of how to apply a symmetric scale and fade transition with the default conditionally-rendered behavior:
+
+```jsx
+<Select.Popup className="SelectPopup">
+  <Select.Option>Option 1</Select.Option>
+</Select.Popup>
+```
+
+```css
+.SelectPopup {
+  transform-origin: var(--transform-origin);
+  transition-property: opacity, transform;
+  transition-duration: 0.2s;
+}
+
+/* Represents the initial styles when entering */
+.SelectPopup[data-starting-style],
+.SelectPopup[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.9);
+}
+```
+
+`[data-starting-style]` and `[data-ending-style]` are attributes that are added to the popup when it is first inserted to the DOM and when it is about to be removed, respectively. In these states, you can specify the initial and final styles of the popup, which for symmetric transitions should be the same.
+
+In newer browsers, there is a feature called `@starting-style` which allows transitions to occur on open for conditionally-mounted components:
+
+```css
+/* Base UI API - Polyfill */
+.SelectPopup[data-starting-style] {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+/* Official Browser API */
+@starting-style {
+  .SelectPopup[data-open] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+```
+
+### CSS animations
+
+CSS animations can also be used, requiring only two separate declarations:
+
+```css
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes scale-out {
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.SelectPopup {
+  animation: scale-in 0.2s forwards;
+}
+
+.SelectPopup[data-ending-style] {
+  animation: scale-out 0.2s forwards;
+}
+```
+
+### JavaScript animations
+
+The `keepMounted` prop lets an external library control the mounting, for example `framer-motion`'s `AnimatePresence` component.
+
+```js
+function App() {
+  const [open, setOpen] = useState(false);
+  return (
+    <Select.Root open={open} onOpenChange={setOpen}>
+      <Select.Trigger>Trigger</Select.Trigger>
+      <AnimatePresence>
+        {open && (
+          <Select.Positioner keepMounted>
+            <Select.Popup
+              render={
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                />
+              }
+            >
+              <Select.Option>Option 1</Select.Option>
+              <Select.Option>Option 2</Select.Option>
+            </Select.Popup>
+          </Select.Positioner>
+        )}
+      </AnimatePresence>
+    </Select.Root>
+  );
+}
+```
+
+### Animation states
+
+Four states are available as data attributes to animate the popup, which enables full control depending on whether the popup is being animated with CSS transitions or animations, JavaScript, or is using the `keepMounted` prop.
+
+- `[data-open]` - `open` state is `true`.
+- `[data-starting-style]` - the popup was just inserted to the DOM. The attribute is removed 1 animation frame later.
+- `[data-ending-style]` - the popup's final styles once it closes.
+
+## Overriding default components
+
+Use the `render` prop to override the rendered elements with your own components.
+
+```jsx
+// Element shorthand
+<Select.Popup render={<MySelectPopup />} />
+```
+
+```jsx
+// Function
+<Select.Popup render={(props) => <MySelectPopup {...props} />} />
+```

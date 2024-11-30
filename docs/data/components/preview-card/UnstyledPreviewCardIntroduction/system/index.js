@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { PreviewCard } from '@base_ui/react/PreviewCard';
+import { PreviewCard } from '@base-ui-components/react/preview-card';
 import { styled } from '@mui/system';
 
 export default function UnstyledPreviewCardIntroduction() {
@@ -17,7 +17,10 @@ export default function UnstyledPreviewCardIntroduction() {
             style={{ borderRadius: '50%' }}
           />
           <h2 style={{ fontSize: 20, margin: 0 }}>Base UI</h2>
-          <p>Unstyled React components and hooks (@base_ui/react), by @MUI_hq.</p>
+          <p>
+            Unstyled React components and hooks (@base-ui-components/react), by
+            @MUI_hq.
+          </p>
           <div style={{ display: 'flex', gap: 10 }}>
             <span>
               <strong>1</strong> Following

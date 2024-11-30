@@ -2,17 +2,21 @@
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "container": { "type": { "name": "union", "description": "HTML element<br>&#124;&nbsp;ref" } },
+    "finalFocus": { "type": { "name": "custom", "description": "ref" } },
+    "initialFocus": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;ref" } },
     "keepMounted": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "DialogPopup",
-  "imports": ["import { Dialog } from '@base_ui/react/Dialog';\nconst DialogPopup = Dialog.Popup;"],
+  "imports": [
+    "import { Dialog } from '@base-ui-components/react/dialog';\nconst DialogPopup = Dialog.Popup;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "DialogPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Dialog/Popup/DialogPopup.tsx",
+  "filename": "/packages/react/src/dialog/popup/DialogPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
   "cssComponent": false

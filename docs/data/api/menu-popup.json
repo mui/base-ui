@@ -5,13 +5,15 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "MenuPopup",
-  "imports": ["import { Menu } from '@base_ui/react/Menu';\nconst MenuPopup = Menu.Popup;"],
+  "imports": [
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuPopup = Menu.Popup;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "MenuPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Menu/Popup/MenuPopup.tsx",
+  "filename": "/packages/react/src/menu/popup/MenuPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

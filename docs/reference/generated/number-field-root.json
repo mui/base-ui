@@ -1,0 +1,90 @@
+{
+  "name": "NumberFieldRoot",
+  "description": "The foundation for building custom-styled number fields.",
+  "props": {
+    "allowWheelScrub": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to allow the user to scrub the input value with the mouse wheel while focused and\nhovering over the input."
+    },
+    "autoFocus": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the input element is focused on mount."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "defaultValue": {
+      "type": "number",
+      "description": "The default value of the input element. Use when the component is not controlled."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the input element is disabled."
+    },
+    "format": {
+      "type": "Intl.NumberFormatOptions",
+      "description": "Options to format the input value."
+    },
+    "id": {
+      "type": "string",
+      "description": "The id of the input element."
+    },
+    "invalid": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the input element is invalid."
+    },
+    "largeStep": {
+      "type": "number",
+      "default": "10",
+      "description": "The large step value of the input element when incrementing while the shift key is held. Snaps\nto multiples of this value."
+    },
+    "max": {
+      "type": "number",
+      "description": "The maximum value of the input element."
+    },
+    "min": {
+      "type": "number",
+      "description": "The minimum value of the input element."
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the input element."
+    },
+    "onValueChange": {
+      "type": "(value, event) => void",
+      "description": "Callback fired when the number value changes."
+    },
+    "readOnly": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the input element is read only."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "required": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the input element is required."
+    },
+    "smallStep": {
+      "type": "number",
+      "default": "0.1",
+      "description": "The small step value of the input element when incrementing while the meta key is held. Snaps\nto multiples of this value."
+    },
+    "step": {
+      "type": "number",
+      "description": "The step value of the input element when incrementing, decrementing, or scrubbing. It will snap\nto multiples of this value. When unspecified, decimal values are allowed, but the stepper\nbuttons will increment or decrement by `1`."
+    },
+    "value": {
+      "type": "number",
+      "description": "The raw number value of the input element."
+    }
+  }
+}

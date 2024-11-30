@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { styled } from '@mui/system';
-import { Checkbox as BaseCheckbox } from '@base_ui/react/Checkbox';
+import { Checkbox as BaseCheckbox } from '@base-ui-components/react/checkbox';
 
 export default function UnstyledCheckboxIndeterminate() {
   return (

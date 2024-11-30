@@ -17,13 +17,13 @@
   },
   "name": "TooltipRoot",
   "imports": [
-    "import { Tooltip } from '@base_ui/react/Tooltip';\nconst TooltipRoot = Tooltip.Root;"
+    "import { Tooltip } from '@base-ui-components/react/tooltip';\nconst TooltipRoot = Tooltip.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "TooltipRoot",
-  "filename": "/packages/mui-base/src/Tooltip/Root/TooltipRoot.tsx",
+  "filename": "/packages/react/src/tooltip/root/TooltipRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false

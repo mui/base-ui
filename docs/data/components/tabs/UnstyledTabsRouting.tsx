@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Tabs } from '@base_ui/react/Tabs';
+import { Tabs } from '@base-ui-components/react/tabs';
 import {
   MemoryRouter,
   Route,
@@ -141,7 +141,7 @@ const Tab = styled(Tabs.Tab)`
     outline: 3px solid ${blue[200]};
   }
 
-  &[data-selected='true'] {
+  &[data-selected] {
     background-color: #fff;
     color: ${blue[600]};
   }

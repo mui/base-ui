@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Collapsible } from '@base_ui/react/Collapsible';
+import { Collapsible } from '@base-ui-components/react/collapsible';
 
 const DURATION = '350ms';
 
@@ -21,12 +21,12 @@ export default function CollapsibleDemo() {
             </span>
             Trigger (CSS animation)
           </Collapsible.Trigger>
-          <Collapsible.Content className="MyCollapsible-content cssanimation">
+          <Collapsible.Panel className="MyCollapsible-content cssanimation">
             <p>This is the collapsed content</p>
             <p>This component is animated with CSS @keyframe animations</p>
             <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
             <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
-          </Collapsible.Content>
+          </Collapsible.Panel>
         </Collapsible.Root>
       </div>
 
@@ -44,16 +44,16 @@ export default function CollapsibleDemo() {
             </span>
             Trigger (CSS transition)
           </Collapsible.Trigger>
-          <Collapsible.Content className="MyCollapsible-content csstransition">
+          <Collapsible.Panel className="MyCollapsible-content csstransition">
             <p>This is the collapsed content</p>
             <p>This component is animated with CSS transitions</p>
             <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
             <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
-          </Collapsible.Content>
+          </Collapsible.Panel>
         </Collapsible.Root>
       </div>
 
-      <Collapsible.Root render="span" className="MyCollapsible-root">
+      <Collapsible.Root render={<span />} className="MyCollapsible-root">
         <Collapsible.Trigger className="MyCollapsible-trigger">
           <span className="icon">
             <svg
@@ -66,12 +66,12 @@ export default function CollapsibleDemo() {
           </span>
           Trigger (root renders a span + CSS transition)
         </Collapsible.Trigger>
-        <Collapsible.Content className="MyCollapsible-content csstransition">
+        <Collapsible.Panel className="MyCollapsible-content csstransition">
           <p>This is the collapsed content</p>
           <p>This component is animated with CSS transitions</p>
           <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
           <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
-        </Collapsible.Content>
+        </Collapsible.Panel>
       </Collapsible.Root>
       <Styles />
     </div>
@@ -152,7 +152,7 @@ export function Styles() {
       fill: #00f;
     }
 
-    .MyCollapsible-trigger[data-state='open'] svg {
+    .MyCollapsible-trigger[data-open] svg {
       transform: rotate(90deg);
     }
 
@@ -161,25 +161,25 @@ export function Styles() {
       overflow: hidden;
     }
 
-    .MyCollapsible-content.cssanimation[data-state='open'] {
+    .MyCollapsible-content.cssanimation[data-open] {
       animation: slideDown ${DURATION} ease-out;
     }
 
-    .MyCollapsible-content.cssanimation[data-state='closed'] {
+    .MyCollapsible-content.cssanimation[data-closed] {
       animation: slideUp ${DURATION} ease-out;
     }
 
-    .MyCollapsible-content.csstransition[data-state='open'] {
+    .MyCollapsible-content.csstransition[data-open] {
       height: var(--collapsible-content-height);
       transition: height ${DURATION} ease-out;
     }
 
-    .MyCollapsible-content.csstransition[data-state='closed'] {
+    .MyCollapsible-content.csstransition[data-closed] {
       height: 0;
       transition: height ${DURATION} ease-in;
     }
 
-    .MyCollapsible-content.csstransition[data-entering] {
+    .MyCollapsible-content.csstransition[data-starting-style] {
       height: 0;
     }
 

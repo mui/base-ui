@@ -1,0 +1,20 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "hideWhenUncentered": { "type": { "name": "bool" }, "default": "false" },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "SelectArrow",
+  "imports": [
+    "import { Select } from '@base-ui-components/react/select';\nconst SelectArrow = Select.Arrow;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "SelectArrow",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/react/src/select/arrow/SelectArrow.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
+  "cssComponent": false
+}

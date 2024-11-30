@@ -1,0 +1,59 @@
+{
+  "name": "SliderRoot",
+  "description": "",
+  "props": {
+    "aria-labelledby": {
+      "type": "string",
+      "description": "The id of the element containing a label for the slider."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "defaultValue": {
+      "type": "Array<number> | number",
+      "description": "The default value of the slider. Use when the component is not controlled."
+    },
+    "direction": {
+      "type": "'ltr' | 'rtl'",
+      "default": "'ltr'",
+      "description": "Sets the direction. For right-to-left languages, the lowest value is on the right-hand side."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the component is disabled."
+    },
+    "largeStep": {
+      "type": "number",
+      "default": "10",
+      "description": "The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down."
+    },
+    "minStepsBetweenValues": {
+      "type": "number",
+      "default": "0",
+      "description": "The minimum steps between values in a range slider."
+    },
+    "onValueChange": {
+      "type": "(value, event, activeThumbIndex) => void",
+      "description": "Callback function that is fired when the slider's value changed."
+    },
+    "onValueCommitted": {
+      "type": "(value, event) => void",
+      "description": "Callback function that is fired when the `pointerup` is triggered."
+    },
+    "orientation": {
+      "type": "'horizontal' | 'vertical'",
+      "default": "'horizontal'",
+      "description": "The component orientation."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "value": {
+      "type": "Array<number> | number",
+      "description": "The value of the slider.\nFor ranged sliders, provide an array with two values."
+    }
+  }
+}

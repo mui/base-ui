@@ -15,8 +15,8 @@
     "onValueChange": {
       "type": { "name": "func" },
       "signature": {
-        "type": "function(value: number | Array<number>, activeThumb: number, event: Event) => void",
-        "describedArgs": ["value", "activeThumb", "event"]
+        "type": "function(value: number | Array<number>, event: Event, activeThumbIndex: number) => void",
+        "describedArgs": ["value", "event", "activeThumbIndex"]
       }
     },
     "onValueCommitted": {
@@ -36,13 +36,15 @@
     }
   },
   "name": "SliderRoot",
-  "imports": ["import { Slider } from '@base_ui/react/Slider';\nconst SliderRoot = Slider.Root;"],
+  "imports": [
+    "import { Slider } from '@base-ui-components/react/slider';\nconst SliderRoot = Slider.Root;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SliderRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Slider/Root/SliderRoot.tsx",
+  "filename": "/packages/react/src/slider/root/SliderRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-slider/\">Slider</a></li></ul>",
   "cssComponent": false

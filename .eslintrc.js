@@ -8,7 +8,7 @@ const OneLevelImportMessage = [
 
 const NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED = [
   {
-    group: ['@base_ui/react/*/*'],
+    group: ['@base-ui-components/react/*/*'],
     message: OneLevelImportMessage,
   },
 ];
@@ -38,18 +38,29 @@ module.exports = {
       },
     ],
     '@typescript-eslint/no-redeclare': 'off',
+    // We LOVE non-breaking spaces, and both straight and curly quotes here
+    'no-irregular-whitespace': [1, { skipJSXText: true, skipStrings: true }],
+    'react/no-unescaped-entities': [1, { forbid: ['>', '}'] }],
+    'material-ui/straight-quotes': 'off',
+    // This prevents us from creating components like `<h1 {...props} />`
+    'jsx-a11y/heading-has-content': 'off',
+    'jsx-a11y/anchor-has-content': 'off',
+
+    // This rule doesn't recognise <label> wrapped around custom controls
+    'jsx-a11y/label-has-associated-control': 'off',
   },
   overrides: [
     ...baseline.overrides.filter(
       (ruleSet) => !ruleSet.rules.hasOwnProperty('filenames/match-exported'),
     ),
     {
-      files: ['docs/pages/experiments/**/*{.tsx,.js}', 'docs/pages/playground/**/*{.tsx,.js}'],
+      files: ['docs/src/app/experiments/**/*{.tsx,.js}', 'docs/pages/playground/**/*{.tsx,.js}'],
       rules: {
         '@typescript-eslint/no-use-before-define': 'off',
         'react/prop-types': 'off',
         'no-alert': 'off',
         'no-console': 'off',
+        'import/no-relative-packages': 'off',
       },
     },
     {

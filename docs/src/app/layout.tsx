@@ -1,23 +1,26 @@
-import * as React from 'react';
 import { Metadata } from 'next';
-import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
+import * as React from 'react';
 import { DocsProviders } from './DocsProviders';
+import { Favicons } from './Favicons';
+import { GoogleAnalytics } from '../components/GoogleAnalytics';
 
-interface Props {
-  children: React.ReactNode;
-}
-
-export default function Layout({ children }: Props) {
+export default function Layout({ children }: React.PropsWithChildren) {
   return (
     <html lang="en">
       <head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
-        <link rel="manifest" href="/static/manifest.json" />
-        <link rel="shortcut icon" href="/static/favicon.ico" />
-        <link
-          rel="apple-touch-icon"
-          sizes="180x180"
-          href="/static/icons/180x180.png"
+        <Favicons />
+
+        {/* iOS header background */}
+        <meta
+          name="theme-color"
+          content="oklch(98% 0.25% 264)"
+          media="(prefers-color-scheme: light)"
+        />
+        <meta
+          name="theme-color"
+          content="oklch(17% 1% 264)"
+          media="(prefers-color-scheme: dark)"
         />
       </head>
       <body>

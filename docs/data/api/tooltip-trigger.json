@@ -5,14 +5,14 @@
   },
   "name": "TooltipTrigger",
   "imports": [
-    "import { Tooltip } from '@base_ui/react/Tooltip';\nconst TooltipTrigger = Tooltip.Trigger;"
+    "import { Tooltip } from '@base-ui-components/react/tooltip';\nconst TooltipTrigger = Tooltip.Trigger;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "TooltipTrigger",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Tooltip/Trigger/TooltipTrigger.tsx",
+  "filename": "/packages/react/src/tooltip/trigger/TooltipTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false

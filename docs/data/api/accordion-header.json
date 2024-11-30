@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "AccordionHeader",
+  "imports": [
+    "import { Accordion } from '@base-ui-components/react/accordion';\nconst AccordionHeader = Accordion.Header;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "AccordionHeader",
+  "forwardsRefTo": "HTMLHeadingElement",
+  "filename": "/packages/react/src/accordion/header/AccordionHeader.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-accordion/\">Accordion</a></li></ul>",
+  "cssComponent": false
+}

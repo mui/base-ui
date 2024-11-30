@@ -1,0 +1,81 @@
+@layer components {
+  .CodeBlockRoot {
+    background-color: var(--color-content);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+  }
+
+  .CodeBlockPanel {
+    @apply text-xs;
+    line-height: 1;
+    background-color: var(--color-gray-50);
+    background-clip: padding-box;
+    color: var(--color-gray);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    white-space: nowrap;
+    padding: 0 0.75rem;
+    height: 2.25rem;
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+    border-bottom: 1px solid var(--color-gray-200);
+
+    /* Scroll */
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Scroll containers may be focusable */
+    &:focus-visible {
+      position: relative;
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+      z-index: 1;
+    }
+  }
+
+  .CodeBlockPanelTitle {
+    color: var(--color-foreground);
+    font-weight: 500;
+  }
+
+  .CodeBlockPre {
+    @apply text-xs;
+    cursor: text;
+    color: var(--color-foreground);
+    background-color: var(--color-content);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md);
+    outline: 0;
+
+    /* Scroll */
+    display: flex;
+    overflow: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+
+    /* Scroll containers may be focusable */
+    &:focus-visible {
+      position: relative;
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+      z-index: 1;
+    }
+
+    & code {
+      /* Different fonts may introduce vertical alignment issues */
+      display: block;
+      /* Make sure selection highlight spans full container width in Safari */
+      flex-grow: 1;
+    }
+  }
+
+  .CodeBlockPreContainer {
+    outline: 0;
+  }
+}

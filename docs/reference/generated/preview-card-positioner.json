@@ -1,0 +1,77 @@
+{
+  "name": "PreviewCardPositioner",
+  "description": "",
+  "props": {
+    "alignment": {
+      "type": "'start' | 'center' | 'end'",
+      "default": "'center'",
+      "description": "The alignment of the preview card element to the anchor element along its cross axis."
+    },
+    "alignmentOffset": {
+      "type": "number",
+      "default": "0",
+      "description": "The offset of the preview card element along its alignment axis."
+    },
+    "anchor": {
+      "type": "React.Ref | Element | VirtualElement | (() => Element | VirtualElement | null) | null",
+      "description": "The anchor element to which the preview card popup will be placed at."
+    },
+    "arrowPadding": {
+      "type": "number",
+      "default": "5",
+      "description": "Determines the padding between the arrow and the preview card popup's edges. Useful when the\npreview card popup has rounded corners via `border-radius`."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "collisionBoundary": {
+      "type": "'clippingAncestors' | Element | Element[] | Rect",
+      "default": "'clipping-ancestors'",
+      "description": "The boundary that the preview card element should be constrained to."
+    },
+    "collisionPadding": {
+      "type": "number | Rect",
+      "default": "5",
+      "description": "The padding of the collision boundary."
+    },
+    "container": {
+      "type": "React.Ref | HTMLElement | null",
+      "description": "The container element to which the preview card popup will be appended to."
+    },
+    "hideWhenDetached": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the preview card will be hidden if it is detached from its anchor element due to\ndiffering clipping contexts."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, preview card stays mounted in the DOM when closed."
+    },
+    "positionMethod": {
+      "type": "'absolute' | 'fixed'",
+      "default": "'absolute'",
+      "description": "The CSS position strategy for positioning the preview card popup element."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "side": {
+      "type": "'top' | 'bottom' | 'left' | 'right'",
+      "default": "'bottom'",
+      "description": "The side of the anchor element that the preview card element should align to."
+    },
+    "sideOffset": {
+      "type": "number",
+      "default": "0",
+      "description": "The gap between the anchor element and the preview card element."
+    },
+    "sticky": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, allow the preview card to remain in stuck view while the anchor element is scrolled\nout of view."
+    }
+  }
+}

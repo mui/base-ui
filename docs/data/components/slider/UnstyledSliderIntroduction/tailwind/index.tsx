@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import { Slider as BaseSlider } from '@base_ui/react/Slider';
+import { Slider as BaseSlider } from '@base-ui-components/react/slider';
 
 function classNames(...classes: Array<string | boolean | undefined | null>) {
   return classes.filter(Boolean).join(' ');
@@ -47,7 +47,7 @@ const Slider = React.forwardRef(function Slider(
       ref={ref}
       className={(state) =>
         classNames(
-          'font-sans relative w-full items-center grid grid-cols-2 gap-4',
+          'relative grid w-full grid-cols-2 items-center gap-4 font-sans',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,
@@ -87,7 +87,7 @@ const SliderControl = React.forwardRef(function SliderControl(
       ref={ref}
       className={(state) =>
         classNames(
-          'col-span-2 relative flex items-center w-full h-4',
+          'relative col-span-2 flex h-4 w-full items-center',
           state.disabled && 'cursor-not-allowed',
           typeof props.className === 'function'
             ? props.className(state)
@@ -108,7 +108,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
       ref={ref}
       className={(state) =>
         classNames(
-          'w-full h-0.5 rounded-full bg-gray-400 touch-none dark:bg-gray-700',
+          'h-0.5 w-full touch-none rounded-full bg-gray-400 dark:bg-gray-700',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,
@@ -128,7 +128,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
       ref={ref}
       className={(state) =>
         classNames(
-          'w-4 h-4 box-border rounded-[50%] bg-black touch-none focus-visible:outline focus-visible:outline-black focus-visible:outline-2 focus-visible:outline-offset-2 dark:bg-gray-100 dark:focus-visible:outline-gray-300 dark:focus-visible:outline-1 dark:focus-visible:outline-offset-[3px]',
+          'box-border h-4 w-4 touch-none rounded-[50%] bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black dark:bg-gray-100 dark:focus-visible:outline-1 dark:focus-visible:outline-offset-[3px] dark:focus-visible:outline-gray-300',
           state.dragging && 'bg-pink-400',
           state.disabled && 'bg-gray-400',
           typeof props.className === 'function'

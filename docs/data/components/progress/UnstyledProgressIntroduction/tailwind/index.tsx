@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import { Progress as BaseProgress } from '@base_ui/react/Progress';
+import { Progress as BaseProgress } from '@base-ui-components/react/progress';
 
 export default function UnstyledProgressIntroduction() {
   // Replace this with your app logic for determining dark mode
@@ -48,7 +48,7 @@ const ProgressTrack = React.forwardRef(function ProgressTrack(
       ref={ref}
       className={(state) =>
         classNames(
-          'relative w-full h-1 rounded-full bg-gray-400 flex overflow-hidden',
+          'relative flex h-1 w-full overflow-hidden rounded-full bg-gray-400',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,
@@ -68,7 +68,7 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
       ref={ref}
       className={(state) =>
         classNames(
-          'bg-blue-500 dark:bg-blue-400 rounded-[inherit]',
+          'rounded-[inherit] bg-[background-color:var(--code-6)]',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,
@@ -79,7 +79,12 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
 });
 
 function Label(props: React.HTMLAttributes<HTMLElement>) {
-  return <span className="cursor-[unset] font-bold" {...props} />;
+  return (
+    <span
+      className="cursor-[unset] font-bold text-[color:var(--color-gray-700)]"
+      {...props}
+    />
+  );
 }
 
 function classNames(...classes: Array<string | boolean | undefined | null>) {

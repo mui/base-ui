@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { styled, useTheme, Box } from '@mui/system';
-import { Progress as BaseProgress } from '@base_ui/react/Progress';
+import { Progress as BaseProgress } from '@base-ui-components/react/progress';
 
 export default function UnstyledProgressIntroduction() {
   // Replace this with your app logic for determining dark mode
@@ -62,6 +62,7 @@ const ProgressIndicator = styled(BaseProgress.Indicator)`
 const Label = styled('span')`
   cursor: unset;
   font-weight: bold;
+  color: var(--color-gray-700);
 `;
 
 function useIsDarkMode() {

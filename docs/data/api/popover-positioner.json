@@ -21,7 +21,7 @@
         "name": "union",
         "description": "HTML element<br>&#124;&nbsp;Array&lt;HTML element&gt;<br>&#124;&nbsp;string<br>&#124;&nbsp;{ height?: number, width?: number, x?: number, y?: number }"
       },
-      "default": "'clippingAncestors'"
+      "default": "'clipping-ancestors'"
     },
     "collisionPadding": {
       "type": {
@@ -50,14 +50,14 @@
   },
   "name": "PopoverPositioner",
   "imports": [
-    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverPositioner = Popover.Positioner;"
+    "import { Popover } from '@base-ui-components/react/popover';\nconst PopoverPositioner = Popover.Positioner;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "PopoverPositioner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Popover/Positioner/PopoverPositioner.tsx",
+  "filename": "/packages/react/src/popover/positioner/PopoverPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

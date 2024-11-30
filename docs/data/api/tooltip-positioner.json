@@ -21,7 +21,7 @@
         "name": "union",
         "description": "HTML element<br>&#124;&nbsp;Array&lt;HTML element&gt;<br>&#124;&nbsp;string<br>&#124;&nbsp;{ height?: number, width?: number, x?: number, y?: number }"
       },
-      "default": "'clippingAncestors'"
+      "default": "'clipping-ancestors'"
     },
     "collisionPadding": {
       "type": {
@@ -50,14 +50,14 @@
   },
   "name": "TooltipPositioner",
   "imports": [
-    "import { Tooltip } from '@base_ui/react/Tooltip';\nconst TooltipPositioner = Tooltip.Positioner;"
+    "import { Tooltip } from '@base-ui-components/react/tooltip';\nconst TooltipPositioner = Tooltip.Positioner;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "TooltipPositioner",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Tooltip/Positioner/TooltipPositioner.tsx",
+  "filename": "/packages/react/src/tooltip/positioner/TooltipPositioner.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
   "cssComponent": false

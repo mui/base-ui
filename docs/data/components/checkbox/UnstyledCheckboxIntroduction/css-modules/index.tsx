@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Checkbox } from '@base_ui/react/Checkbox';
+import { Checkbox } from '@base-ui-components/react/checkbox';
 import { useTheme } from '@mui/system';
 
 export default function UnstyledCheckboxIntroduction() {

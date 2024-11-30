@@ -6,14 +6,14 @@
   },
   "name": "MenuCheckboxItemIndicator",
   "imports": [
-    "import { Menu } from '@base_ui/react/Menu';\nconst MenuCheckboxItemIndicator = Menu.CheckboxItemIndicator;"
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuCheckboxItemIndicator = Menu.CheckboxItemIndicator;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "MenuCheckboxItemIndicator",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Menu/CheckboxItemIndicator/MenuCheckboxItemIndicator.tsx",
+  "filename": "/packages/react/src/menu/checkbox-item-indicator/MenuCheckboxItemIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

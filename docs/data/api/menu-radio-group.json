@@ -9,14 +9,14 @@
   },
   "name": "MenuRadioGroup",
   "imports": [
-    "import { Menu } from '@base_ui/react/Menu';\nconst MenuRadioGroup = Menu.RadioGroup;"
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuRadioGroup = Menu.RadioGroup;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "MenuRadioGroup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/Menu/RadioGroup/MenuRadioGroup.tsx",
+  "filename": "/packages/react/src/menu/radio-group/MenuRadioGroup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

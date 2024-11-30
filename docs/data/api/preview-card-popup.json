@@ -5,14 +5,14 @@
   },
   "name": "PreviewCardPopup",
   "imports": [
-    "import { PreviewCard } from '@base_ui/react/PreviewCard';\nconst PreviewCardPopup = PreviewCard.Popup;"
+    "import { PreviewCard } from '@base-ui-components/react/preview-card';\nconst PreviewCardPopup = PreviewCard.Popup;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "PreviewCardPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/PreviewCard/Popup/PreviewCardPopup.tsx",
+  "filename": "/packages/react/src/preview-card/popup/PreviewCardPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-preview-card/\">Preview Card</a></li></ul>",
   "cssComponent": false

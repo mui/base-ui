@@ -4,13 +4,15 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "SwitchThumb",
-  "imports": ["import { Switch } from '@base_ui/react/Switch';\nconst SwitchThumb = Switch.Thumb;"],
+  "imports": [
+    "import { Switch } from '@base-ui-components/react/switch';\nconst SwitchThumb = Switch.Thumb;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SwitchThumb",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Switch/Thumb/SwitchThumb.tsx",
+  "filename": "/packages/react/src/switch/thumb/SwitchThumb.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-switch/\">Switch</a></li></ul>",
   "cssComponent": false

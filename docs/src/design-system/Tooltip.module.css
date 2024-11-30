@@ -1,5 +1,5 @@
 .popup {
-  background: var(--gray-900);
+  background: var(--color-gray-900);
   color: white;
   padding: 8px;
   border-radius: 6px;
@@ -13,7 +13,7 @@
   width: 10px;
   height: 10px;
   transform: rotate(45deg);
-  background: var(--gray-900);
+  background: var(--color-gray-900);
 
   &[data-side='top'] {
     bottom: -11px;

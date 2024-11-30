@@ -1,0 +1,17 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "TextInput",
+  "imports": ["import { TextInput } from '@base-ui-components/react/text-input';"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "TextInput",
+  "forwardsRefTo": "HTMLInputElement",
+  "filename": "/packages/react/src/text-input/TextInput.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-text-input/\">Text Input</a></li></ul>",
+  "cssComponent": false
+}

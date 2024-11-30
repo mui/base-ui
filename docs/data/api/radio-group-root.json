@@ -12,14 +12,14 @@
   },
   "name": "RadioGroupRoot",
   "imports": [
-    "import { RadioGroup } from '@base_ui/react/RadioGroup';\nconst RadioGroupRoot = RadioGroup.Root;"
+    "import { RadioGroup } from '@base-ui-components/react/radio-group';\nconst RadioGroupRoot = RadioGroup.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "RadioGroupRoot",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/RadioGroup/Root/RadioGroupRoot.tsx",
+  "filename": "/packages/react/src/radio-group/root/RadioGroupRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-radio-group/\">Radio Group</a></li></ul>",
   "cssComponent": false

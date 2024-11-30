@@ -6,14 +6,14 @@
   },
   "name": "RadioIndicator",
   "imports": [
-    "import { Radio } from '@base_ui/react/Radio';\nconst RadioIndicator = Radio.Indicator;"
+    "import { Radio } from '@base-ui-components/react/radio';\nconst RadioIndicator = Radio.Indicator;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "RadioIndicator",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Radio/Indicator/RadioIndicator.tsx",
+  "filename": "/packages/react/src/radio/indicator/RadioIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-radio-group/\">Radio Group</a></li></ul>",
   "cssComponent": false

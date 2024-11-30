@@ -1,24 +1,32 @@
 :root {
-  --gray-950: #020617;
-  --gray-900: #0f172a;
-  --gray-800: #1e293b;
-  --gray-700: #334155;
-  --gray-600: #475569;
-  --gray-500: #64748b;
-  --gray-400: #94a3b8;
-  --gray-300: #cbd5e1;
-  --gray-200: #e2e8f0;
-  --gray-100: #f1f5f9;
-  --gray-50: #f8fafc;
+  --color-gray-50: oklch(98% 0.25% 264);
+  --color-gray-100: oklch(12% 9.5% 264 / 5%);
+  --color-gray-200: oklch(12% 9% 264 / 8%);
+  --color-gray-300: oklch(12% 8.5% 264 / 17%);
+  --color-gray-400: oklch(12% 8% 264 / 38%);
+  --color-gray-500: oklch(12% 7.5% 264 / 50%);
+  --color-gray-600: oklch(12% 7% 264 / 67%);
+  --color-gray-700: oklch(12% 6% 264 / 77%);
+  --color-gray-800: oklch(12% 5% 264 / 85%);
+  --color-gray-900: oklch(12% 5% 264 / 90%);
+  --color-gray-950: oklch(12% 5% 264 / 95%);
+  --color-blue: oklch(45% 50% 264);
+  --color-red: oklch(50% 55% 31);
 
-  --cyan-900: #022127;
-  --cyan-800: #043039;
-  --cyan-700: #063c47;
-  --cyan-600: #094855;
-  --cyan-500: #0d5463;
-  --cyan-400: #1f94ad;
-  --cyan-300: #66bacc;
-  --cyan-200: #99d8e5;
-  --cyan-100: #bdebf4;
-  --cyan-50: #e9f8fc;
+  @media (prefers-color-scheme: dark) {
+    --color-gray-50: oklch(17% 1% 264);
+    --color-gray-100: oklch(28% 3% 264 / 65%);
+    --color-gray-200: oklch(31% 3% 264 / 80%);
+    --color-gray-300: oklch(35% 3% 264 / 80%);
+    --color-gray-400: oklch(47% 3.5% 264 / 80%);
+    --color-gray-500: oklch(64% 4% 264 / 80%);
+    --color-gray-600: oklch(82% 4% 264 / 80%);
+    --color-gray-700: oklch(92% 4.5% 264 / 80%);
+    --color-gray-800: oklch(92% 4.5% 264 / 80%);
+    --color-gray-800: oklch(93% 3.5% 264 / 85%);
+    --color-gray-900: oklch(95% 2% 264 / 90%);
+    --color-gray-950: oklch(94% 1.5% 264 / 95%);
+    --color-blue: oklch(69% 50% 264);
+    --color-red: oklch(80% 55% 31);
+  }
 }

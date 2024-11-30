@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { SelectIcon } from 'docs/src/icons/Select';
-import { Menu } from '@base_ui/react/Menu';
+import { Menu } from '@base-ui-components/react/menu';
 import classes from './DocsVersionSelector.module.css';
 
 export interface DocumentationVersion {

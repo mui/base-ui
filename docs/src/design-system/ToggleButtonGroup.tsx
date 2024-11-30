@@ -1,7 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-// eslint-disable-next-line no-restricted-imports
-import { useControlled } from '@base_ui/react/utils/useControlled';
+import { useControlled } from '@base-ui-components/react/utils';
 import classes from './ToggleButtonGroup.module.css';
 
 export interface ToggleButtonGroupProps<Option extends { value: string; label: string }>
@@ -32,7 +31,7 @@ export const ToggleButtonGroup = React.forwardRef(function ToggleButtonGroup<
           type="button"
           key={option.value}
           value={option.value}
-          data-selected={value === option.value}
+          data-selected={value === option.value || undefined}
           aria-pressed={value === option.value || undefined}
           onClick={() => {
             setValue(option.value);

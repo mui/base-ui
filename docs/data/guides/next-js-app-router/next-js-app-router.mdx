@@ -167,11 +167,7 @@ export default function Page() {
   return (
     <React.Fragment>
       {/* Next.js won't render this button without 'use-client'*/}
-      <Button
-        className={(ownerState: ButtonOwnerState) =>
-          ownerState.disabled ? 'bg-gray-400' : 'bg-blue-400'
-        }
-      >
+      <Button className={(state: ButtonState) => (state.disabled ? 'bg-gray-400' : 'bg-blue-400')}>
         Submit
       </Button>
 

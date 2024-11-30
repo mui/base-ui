@@ -5,14 +5,14 @@
   },
   "name": "PopoverTrigger",
   "imports": [
-    "import { Popover } from '@base_ui/react/Popover';\nconst PopoverTrigger = Popover.Trigger;"
+    "import { Popover } from '@base-ui-components/react/popover';\nconst PopoverTrigger = Popover.Trigger;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "PopoverTrigger",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Popover/Trigger/PopoverTrigger.tsx",
+  "filename": "/packages/react/src/popover/trigger/PopoverTrigger.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-popover/\">Popover</a></li></ul>",
   "cssComponent": false

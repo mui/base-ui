@@ -2,15 +2,13 @@
   "extends": "../tsconfig.base.json",
   "include": [
     "data",
-    "pages",
     "scripts/*.mts",
     "src",
-    "types",
+    "types.d.ts",
     "next-env.d.ts",
     "next.config.mjs",
     ".next/types/**/*.ts",
-    "export/types/**/*.ts",
-    "config.ts"
+    "export/types/**/*.ts"
   ],
   "compilerOptions": {
     "allowJs": true,
@@ -37,7 +35,7 @@
   "exclude": ["node_modules"],
   "references": [
     {
-      "path": "../packages/mui-base/tsconfig.build.json"
+      "path": "../packages/react/tsconfig.build.json"
     }
   ]
 }

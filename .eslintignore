@@ -1,25 +1,11 @@
-/.git
+.git
+.nyc_output
 /coverage
+/docs/.next
 /docs/export
-/docs/pages/playground/
-/packages/mui-base/**/*.min.*
-/packages/mui-utils/macros/__fixtures__/
-# Ignore fixtures
-/test/bundling/fixtures/**/*.fixture.js
-# just an import that reports eslint errors depending on whether the fixture (which is not checked in) exists
-/test/bundling/fixtures/create-react-app/src/index.js
-/test/bundling/fixtures/gatsby/.cache
-/test/bundling/fixtures/gatsby/public
-/tmp
-.next
+/docs/src/app/playground/
+/packages/react/**/*.min.*
 build
 build-tests
 node_modules
-.nyc_output
 pnpm-lock.yaml
-
-# These come from crowdin.
-# If we would commit changes crowdin would immediately try to revert.
-# If we want to format these files we'd need to do it in crowdin
-docs/**/*-pt.md
-docs/**/*-zh.md

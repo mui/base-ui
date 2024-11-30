@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { RadioGroup } from '@base_ui/react/RadioGroup';
-import { Radio } from '@base_ui/react/Radio';
+import { RadioGroup } from '@base-ui-components/react/radio-group';
+import { Radio } from '@base-ui-components/react/radio';
 import { styled } from '@mui/system';
 
 export default function UnstyledRadioGroupIntroduction() {

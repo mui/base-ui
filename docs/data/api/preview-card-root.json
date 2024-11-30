@@ -9,13 +9,13 @@
   },
   "name": "PreviewCardRoot",
   "imports": [
-    "import { PreviewCard } from '@base_ui/react/PreviewCard';\nconst PreviewCardRoot = PreviewCard.Root;"
+    "import { PreviewCard } from '@base-ui-components/react/preview-card';\nconst PreviewCardRoot = PreviewCard.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "PreviewCardRoot",
-  "filename": "/packages/mui-base/src/PreviewCard/Root/PreviewCardRoot.tsx",
+  "filename": "/packages/react/src/preview-card/root/PreviewCardRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-preview-card/\">Preview Card</a></li></ul>",
   "cssComponent": false

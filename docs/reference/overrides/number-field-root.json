@@ -1,0 +1,11 @@
+{
+  "name": "NumberFieldRoot",
+  "props": {
+    "format": {
+      "type": "Intl.NumberFormatOptions"
+    },
+    "onValueChange": {
+      "type": "(value, event) => void"
+    }
+  }
+}

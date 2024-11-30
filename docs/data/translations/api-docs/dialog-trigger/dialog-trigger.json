@@ -1,5 +1,5 @@
 {
-  "componentDescription": "",
+  "componentDescription": "A button that opens the dialog. Renders a `<button>` element.",
   "propDescriptions": {
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."

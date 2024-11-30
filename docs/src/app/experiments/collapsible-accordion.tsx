@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Collapsible } from '@base_ui/react/Collapsible';
+import { Collapsible } from '@base-ui-components/react/collapsible';
 
 const TRANSITION_DURATION = '350ms';
 
@@ -28,11 +28,11 @@ function AccordionSection(props: {
         </span>
         {isOpen ? 'Close' : 'Open'} Panel {index}
       </Collapsible.Trigger>
-      <Collapsible.Content className="MyCollapsible2-content">
+      <Collapsible.Panel className="MyCollapsible2-content">
         <p>This is the collapsed content of Panel {index}</p>
         <p>This is the second paragraph</p>
         <p>This is the third paragraph</p>
-      </Collapsible.Content>
+      </Collapsible.Panel>
       <Styles />
     </Collapsible.Root>
   );
@@ -139,7 +139,7 @@ export function Styles() {
       fill: #00f;
     }
 
-    .MyCollapsible2-trigger[data-state='open'] svg {
+    .MyCollapsible2-trigger[data-open] svg {
       transform: rotate(90deg);
     }
 
@@ -150,12 +150,12 @@ export function Styles() {
       height: 0;
     }
 
-    .MyCollapsible2-content[data-state='open'] {
+    .MyCollapsible2-content[data-open] {
       height: var(--collapsible-content-height);
       transition: height ${TRANSITION_DURATION};
     }
 
-    .MyCollapsible2-content[data-entering] {
+    .MyCollapsible2-content[data-starting-style] {
       height: 0;
     }
 

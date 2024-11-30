@@ -39,6 +39,5 @@ export function DemoRoot(props: DemoRoot.Props) {
 export namespace DemoRoot {
   export interface Props extends React.HTMLAttributes<HTMLDivElement> {
     variants: DemoVariant[];
-    children: React.ReactNode;
   }
 }

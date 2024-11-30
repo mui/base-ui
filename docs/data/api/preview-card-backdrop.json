@@ -7,14 +7,14 @@
   },
   "name": "PreviewCardBackdrop",
   "imports": [
-    "import { PreviewCard } from '@base_ui/react/PreviewCard';\nconst PreviewCardBackdrop = PreviewCard.Backdrop;"
+    "import { PreviewCard } from '@base-ui-components/react/preview-card';\nconst PreviewCardBackdrop = PreviewCard.Backdrop;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "PreviewCardBackdrop",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/mui-base/src/PreviewCard/Backdrop/PreviewCardBackdrop.tsx",
+  "filename": "/packages/react/src/preview-card/backdrop/PreviewCardBackdrop.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-preview-card/\">Preview Card</a></li></ul>",
   "cssComponent": false

@@ -6,7 +6,7 @@ components: TabsRoot, TabPanel, Tab, TabsList, TabIndicator
 hooks: useTabsRoot, useTabPanel, useTab, useTabsList, useTabIndicator
 githubLabel: 'component: tabs'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
-packageName: '@base_ui/react'
+packageName: '@base-ui-components/react'
 ---
 
 # Tabs
@@ -153,6 +153,18 @@ Base UI Tabs follow the [Tabs WAI-ARIA design pattern](https://www.w3.org/WAI/A
 | <kbd>Up Arrow</kbd>                | Moves focus to the previous tab (when `orientation="vertical"`) and activates it if `activateOnFocus` is set.   |
 | <kbd>Down Arrow</kbd>              | Moves focus to the next tab (when `orientation="vertical"`) and activates it if `activateOnFocus` is set.       |
 | <kbd>Space</kbd>, <kbd>Enter</kbd> | Activates the focused tab.                                                                                      |
+
+## RTL
+
+Place horizontal tabs inside an HTML element or component with the HTML `dir="rtl"` attribute to reverse arrow key navigation for right-to-left languages:
+
+```jsx
+<html dir="rtl">
+  <body>
+    <Tabs.Root orientation="horizontal" /> {/* RTL keyboard behavior */}
+  </body>
+</html>
+```
 
 ### Labeling
 

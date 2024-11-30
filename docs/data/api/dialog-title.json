@@ -4,13 +4,15 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "DialogTitle",
-  "imports": ["import { Dialog } from '@base_ui/react/Dialog';\nconst DialogTitle = Dialog.Title;"],
+  "imports": [
+    "import { Dialog } from '@base-ui-components/react/dialog';\nconst DialogTitle = Dialog.Title;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "DialogTitle",
   "forwardsRefTo": "HTMLHeadingElement",
-  "filename": "/packages/mui-base/src/Dialog/Title/DialogTitle.tsx",
+  "filename": "/packages/react/src/dialog/title/DialogTitle.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
   "cssComponent": false

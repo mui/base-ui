@@ -23,14 +23,14 @@
   },
   "name": "CheckboxRoot",
   "imports": [
-    "import { Checkbox } from '@base_ui/react/Checkbox';\nconst CheckboxRoot = Checkbox.Root;"
+    "import { Checkbox } from '@base-ui-components/react/checkbox';\nconst CheckboxRoot = Checkbox.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "CheckboxRoot",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/mui-base/src/Checkbox/Root/CheckboxRoot.tsx",
+  "filename": "/packages/react/src/checkbox/root/CheckboxRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-checkbox/\">Checkbox</a></li></ul>",
   "cssComponent": false

@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@4.2.3
-  aws-s3: circleci/aws-s3@4.0
+  aws-s3: circleci/aws-s3@4.1.0
 
 parameters:
   browserstack-force:
@@ -150,17 +150,17 @@ jobs:
       - install_js:
           react-version: << parameters.react-version >>
       - run:
-          name: Tests fake browser
-          command: pnpm test:coverage:ci
+          name: Run tests on JSDOM
+          command: pnpm test:jsdom --coverage
       - run:
-          name: Check coverage generated
+          name: Check if coverage report is generated
           command: |
             if ! [[ -s coverage/lcov.info ]]
             then
               exit 1
             fi
       - run:
-          name: Coverage
+          name: Upload coverage report to Codecov
           command: |
             curl -Os https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
@@ -240,7 +240,7 @@ jobs:
           key: typescript-declaration-files-{{ .Branch }}-{{ .Revision }}
           paths:
             # packages with generated declaration files
-            - packages/mui-base/build
+            - packages/react/build
   test_types_next:
     <<: *default-job
     resource_class: 'medium+'
@@ -272,7 +272,7 @@ jobs:
       - run:
           name: Diff declaration files
           command: |
-            git add -f packages/mui-base/build || echo '/base declarations do not exist'
+            git add -f packages/react/build || echo 'Base UI declarations do not exist'
             pnpm -r build:types
             git --no-pager diff
       - run:
@@ -288,24 +288,24 @@ jobs:
     <<: *default-job
     resource_class: 'medium+'
     docker:
-      - image: mcr.microsoft.com/playwright:v1.48.0-focal
+      - image: mcr.microsoft.com/playwright:v1.49.0-noble
     steps:
       - checkout
       - install_js:
           react-version: << parameters.react-version >>
           browsers: true
       - run:
-          name: Tests real browsers
-          command: pnpm test:karma
+          name: Run tests on headless Chromium
+          command: pnpm test:chromium --coverage
       - run:
-          name: Check coverage generated
+          name: Check if coverage report is generated
           command: |
             if ! [[ -s coverage/lcov.info ]]
             then
               exit 1
             fi
       - run:
-          name: Coverage
+          name: Upload coverage report to Codecov
           command: |
             curl -Os https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
@@ -317,7 +317,7 @@ jobs:
   test_profile:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.48.0-focal
+      - image: mcr.microsoft.com/playwright:v1.49.0-noble
     steps:
       - checkout
       - install_js:
@@ -343,7 +343,7 @@ jobs:
   test_regressions:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.48.0-focal
+      - image: mcr.microsoft.com/playwright:v1.49.0-noble
     steps:
       - checkout
       - install_js:
@@ -358,7 +358,7 @@ jobs:
   test_e2e:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.48.0-focal
+      - image: mcr.microsoft.com/playwright:v1.49.0-noble
     steps:
       - checkout
       - install_js:
@@ -375,6 +375,19 @@ jobs:
           name: Run danger on PRs
           command: pnpm danger ci --fail-on-errors
       # TODO test bundle size https://github.com/mui/base-ui/issues/201
+  test_package:
+    <<: *default-job
+    steps:
+      - checkout
+      - install_js:
+          react-version: << parameters.react-version >>
+      - run:
+          name: Build packages
+          command: pnpm release:build
+      - run:
+          name: Are the types wrong?
+          command: pnpm -r test:package-types
+
 workflows:
   version: 2
   pipeline:
@@ -385,6 +398,7 @@ workflows:
           <<: *default-context
       - test_unit:
           <<: *default-context
+          name: 'JSDOM tests'
           requires:
             - checkout
       - test_lint:
@@ -397,14 +411,17 @@ workflows:
             - checkout
       - test_types:
           <<: *default-context
+          name: 'Typechecking'
           requires:
             - checkout
       - test_browser:
           <<: *default-context
+          name: 'Browser tests'
           requires:
             - checkout
       - test_regressions:
           <<: *default-context
+          name: 'Regression tests'
           requires:
             - checkout
       - test_e2e:
@@ -412,6 +429,10 @@ workflows:
           requires:
             - checkout
       - test_bundle_size_monitor:
+          <<: *default-context
+          requires:
+            - checkout
+      - test_package:
           <<: *default-context
           requires:
             - checkout
@@ -439,24 +460,26 @@ workflows:
       - test_regressions:
           <<: *default-context
           react-version: ^17.0.0
-  react-next:
-    triggers:
-      - schedule:
-          cron: '0 0 * * *'
-          filters:
-            branches:
-              only:
-                - master
+  react-18:
+    when:
+      equal: [pipeline, << pipeline.parameters.workflow >>]
     jobs:
       - test_unit:
           <<: *default-context
-          react-version: next
+          name: 'JSDOM tests (React 18)'
+          react-version: '^18'
       - test_browser:
           <<: *default-context
-          react-version: next
+          name: 'Browser tests (React 18)'
+          react-version: '^18'
       - test_regressions:
           <<: *default-context
-          react-version: next
+          name: 'Regression tests (React 18)'
+          react-version: '^18'
+      - test_types:
+          <<: *default-context
+          name: 'Typechecking (React 18)'
+          react-version: '^18'
   typescript-next:
     triggers:
       - schedule:
@@ -468,3 +491,4 @@ workflows:
     jobs:
       - test_types_next:
           <<: *default-context
+          name: 'Typechecking (typescript@next)'

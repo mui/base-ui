@@ -12,13 +12,12 @@ export const projectSettings: ProjectSettings = {
   typeScriptProjects: [
     {
       name: 'base',
-      rootPath: path.join(process.cwd(), 'packages/mui-base'),
+      rootPath: path.join(process.cwd(), 'packages/react'),
       entryPointPath: 'src/index.ts',
       tsConfigPath: 'tsconfig.build.json',
     },
   ],
-  // TODO: Update when we have the domain set up
-  baseApiUrl: 'https://base-ui.netlify.app',
+  baseApiUrl: 'https://base-ui.com',
   getApiPages: () => findApiPages('docs/data/api'),
   getComponentInfo: getBaseUiComponentInfo,
   getComponentImports,
@@ -31,4 +30,39 @@ export const projectSettings: ProjectSettings = {
   translationPagesDirectory: 'docs/data/translations/api-docs',
   generateClassName: () => '',
   isGlobalClassName: () => false,
+};
+
+// Temporary: the old settings will be removed soon
+export const newProjectSettings: ProjectSettings = {
+  typeScriptProjects: [
+    {
+      name: 'base',
+      rootPath: path.join(process.cwd(), 'packages/react'),
+      entryPointPath: 'src/index.ts',
+      tsConfigPath: 'tsconfig.build.json',
+    },
+  ],
+  // TODO update domain and routing when we are ready
+  baseApiUrl: 'https://base-ui.com',
+  getComponentInfo: (filename) => ({
+    ...getBaseUiComponentInfo(filename),
+    apiPagesDirectory: path.join(process.cwd(), `docs/reference/temp/components`),
+  }),
+  translationPagesDirectory: 'docs/reference/temp/translations',
+
+  // Disabled features
+  generateClassName: () => '',
+  generateJsonFileOnly: true,
+  getApiPages: () => [],
+  getComponentImports: () => [],
+  isGlobalClassName: () => false,
+  skipAnnotatingComponentDefinition: false,
+  skipComponent: () => false,
+  skipHook: () => true,
+  skipSlotsAndClasses: true,
+  translationLanguages: ['en'],
+  output: {
+    apiManifestPath: '',
+    writeApiManifest: false,
+  },
 };

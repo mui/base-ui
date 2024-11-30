@@ -1,0 +1,82 @@
+@layer components {
+  .TableRoot {
+    @apply text-xs;
+    color: var(--color-gray);
+    border: 1px solid var(--color-gray-200);
+    border-collapse: separate;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .TableRootTable {
+    table-layout: fixed;
+    width: 100%;
+    vertical-align: top;
+
+    /* Tailwind's border-collapse: collapse causes alpha blending issues in Safari */
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .TableHead,
+  .TableBody {
+    vertical-align: inherit;
+  }
+
+  .TableColumnHeader {
+    text-align: initial;
+    font-weight: 500;
+    color: var(--color-foreground);
+    background-color: var(--color-gray-50);
+    border-bottom: 1px solid var(--color-gray-200);
+  }
+
+  .TableCell {
+    text-align: initial;
+    font-weight: normal;
+
+    :not(:last-child) > & {
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    &[data-scrollable] {
+      position: relative;
+
+      /* Overscroll overlay */
+      &::after {
+        content: '';
+        position: absolute;
+        pointer-events: none;
+        top: 1px;
+        bottom: 1px;
+        right: 0;
+        width: 1.25rem;
+        background-image: linear-gradient(to right, transparent, var(--color-content));
+        animation: table-cell-overscroll-overlay 500ms;
+      }
+    }
+  }
+
+  @keyframes table-cell-overscroll-overlay {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .TableCellInner {
+    /* Ensure consistent height of the cells */
+    display: flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0.5rem 0.75rem 0.5rem;
+
+    /* Make individual cells scrollable */
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}

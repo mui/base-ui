@@ -5,14 +5,14 @@
   },
   "name": "FieldsetRoot",
   "imports": [
-    "import { Fieldset } from '@base_ui/react/Fieldset';\nconst FieldsetRoot = Fieldset.Root;"
+    "import { Fieldset } from '@base-ui-components/react/fieldset';\nconst FieldsetRoot = Fieldset.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "FieldsetRoot",
   "forwardsRefTo": "HTMLFieldSetElement",
-  "filename": "/packages/mui-base/src/Fieldset/Root/FieldsetRoot.tsx",
+  "filename": "/packages/react/src/fieldset/root/FieldsetRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-fieldset/\">Fieldset</a></li></ul>",
   "cssComponent": false

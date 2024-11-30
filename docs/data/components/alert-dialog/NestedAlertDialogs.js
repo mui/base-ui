@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { AlertDialog as BaseAlertDialog } from '@base_ui/react/AlertDialog';
+import { AlertDialog as BaseAlertDialog } from '@base-ui-components/react/alert-dialog';
 import { styled } from '@mui/system';
 
 export default function NestedAlertDialogs() {
@@ -130,7 +130,7 @@ const Backdrop = styled(BaseAlertDialog.Backdrop)`
     transition-timing-function: ease-out;
   }
 
-  &[data-entering] {
+  &[data-starting-style] {
     backdrop-filter: blur(0);
     opacity: 0;
   }

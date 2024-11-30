@@ -17,13 +17,15 @@
     "render": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;node" } }
   },
   "name": "SliderThumb",
-  "imports": ["import { Slider } from '@base_ui/react/Slider';\nconst SliderThumb = Slider.Thumb;"],
+  "imports": [
+    "import { Slider } from '@base-ui-components/react/slider';\nconst SliderThumb = Slider.Thumb;"
+  ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SliderThumb",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/mui-base/src/Slider/Thumb/SliderThumb.tsx",
+  "filename": "/packages/react/src/slider/thumb/SliderThumb.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-slider/\">Slider</a></li></ul>",
   "cssComponent": false

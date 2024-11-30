@@ -1,9 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { Form } from '@base_ui/react/Form';
-import { Fieldset } from '@base_ui/react/Fieldset';
-import { Field } from '@base_ui/react/Field';
+import { Form } from '@base-ui-components/react/form';
+import { Fieldset } from '@base-ui-components/react/fieldset';
+import { Field } from '@base-ui-components/react/field';
+import { TextInput } from '@base-ui-components/react/text-input';
 import { styled } from '@mui/system';
 
 type Status = 'initial' | 'loading' | 'success' | 'error';
@@ -55,12 +56,12 @@ export default function FormIntroduction() {
         </p>
         <Field.Root name="username">
           <Field.Label>Username</Field.Label>
-          <FieldControl required />
+          <Input required />
           <FieldError />
         </Field.Root>
         <Field.Root name="password">
           <Field.Label>Password</Field.Label>
-          <FieldControl type="password" required />
+          <Input type="password" required />
           <FieldError />
         </Field.Root>
       </FieldsetRoot>
@@ -80,14 +81,14 @@ const FormRoot = styled(Form.Root)`
   width: 275px;
 `;
 
-const FieldControl = styled(Field.Control)`
+const Input = styled(TextInput)`
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;
   padding: 6px;
   font-size: 100%;
 
-  &[data-field='invalid'] {
+  &[data-invalid] {
     border-color: red;
     background-color: rgb(255 0 0 / 0.1);
   }
@@ -97,7 +98,7 @@ const FieldControl = styled(Field.Control)`
     border-color: #0078d4;
     box-shadow: 0 0 0 3px rgba(0 100 255 / 0.3);
 
-    &[data-field='invalid'] {
+    &[data-invalid] {
       border-color: red;
       box-shadow: 0 0 0 3px rgba(255 0 0 / 0.3);
     }

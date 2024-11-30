@@ -1,0 +1,24 @@
+{
+  "name": "ScrollAreaScrollbar",
+  "description": "",
+  "props": {
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the scrollbars remain mounted in the DOM when there is no overflow."
+    },
+    "orientation": {
+      "type": "'horizontal' | 'vertical'",
+      "default": "'vertical'",
+      "description": "The orientation of the scrollbar."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    }
+  }
+}

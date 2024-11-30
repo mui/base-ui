@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Switch as BaseSwitch } from '@base_ui/react/Switch';
+import { Switch as BaseSwitch } from '@base-ui-components/react/switch';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {
@@ -36,10 +36,10 @@ const Switch = React.forwardRef(function Switch(
 ) {
   const className = ({ checked }) =>
     `group relative inline-block w-[38px] h-[24px] m-2.5 p-0 transition rounded-full
-    border border-solid outline-none border-slate-300 dark:border-gray-700
+    border border-solid outline-none border-gray-300 dark:border-gray-700
     focus-visible:shadow-outline-switch
     cursor-pointer data-[disabled]:cursor-not-allowed data-[disabled]:opacity-40
-    ${checked ? 'bg-purple-500' : 'bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800'}
+    ${checked ? 'bg-gray-500' : 'bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800'}
     ${classNameProp}`;
 
   return <BaseSwitch.Root {...props} ref={ref} className={className} />;
@@ -50,7 +50,7 @@ const Thumb = React.forwardRef(function Thumb(
   ref,
 ) {
   const className = ({ checked }) =>
-    `block w-4 h-4 rounded-2xl border border-solid outline-none border-slate-300 dark:border-gray-700 transition
+    `block w-4 h-4 rounded-2xl border border-solid outline-none border-gray-300 dark:border-gray-700 transition
   shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:shadow-[0_1px_2px_rgb(0_0_0_/_0.25)]
   relative transition-all
   ${checked ? 'left-[18px] bg-white shadow-[0_0_0_rgb(0_0_0_/_0.3)]' : 'left-[4px] bg-white'}
