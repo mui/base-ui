@@ -22,7 +22,7 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   props: CollapsiblePanel.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, hiddenUntilFound, render, ...otherProps } = props;
+  const { className, hiddenUntilFound=false, render, ...otherProps } = props;
 
   const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen, state } =
     useCollapsibleRootContext();

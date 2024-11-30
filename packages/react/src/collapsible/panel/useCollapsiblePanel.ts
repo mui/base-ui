@@ -57,8 +57,8 @@ export function useCollapsiblePanel(
   parameters: useCollapsiblePanel.Parameters,
 ): useCollapsiblePanel.ReturnValue {
   const {
-    animated = false,
-    hiddenUntilFound = false,
+    animated,
+    hiddenUntilFound,
     id: idParam,
     open,
     mounted: contextMounted,
@@ -295,16 +295,14 @@ export namespace useCollapsiblePanel {
   export interface Parameters {
     /**
      * If `true`, the component supports CSS/JS-based animations and transitions.
-     * @default false
      */
-    animated?: boolean;
+    animated: boolean;
     /**
      * If `true`, sets `hidden="until-found"` when closed.
      * If `false`, sets `hidden` when closed.
-     * @default false
      */
-    hiddenUntilFound?: boolean;
-    id?: React.HTMLAttributes<Element>['id'];
+    hiddenUntilFound: boolean;
+    id: React.HTMLAttributes<Element>['id'];
     mounted: boolean;
     /**
      * The open state of the Collapsible

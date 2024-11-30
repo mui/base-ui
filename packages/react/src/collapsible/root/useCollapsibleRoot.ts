@@ -8,13 +8,7 @@ import { useId } from '../../utils/useId';
 export function useCollapsibleRoot(
   parameters: useCollapsibleRoot.Parameters,
 ): useCollapsibleRoot.ReturnValue {
-  const {
-    animated = true,
-    open: openParam,
-    defaultOpen = true,
-    onOpenChange,
-    disabled = false,
-  } = parameters;
+  const { animated, open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
 
   const [open, setOpenState] = useControlled({
     controlled: openParam,
@@ -52,29 +46,26 @@ export namespace useCollapsibleRoot {
   export interface Parameters {
     /**
      * If `true`, the component supports CSS/JS-based animations and transitions.
-     * @default true
      */
-    animated?: boolean;
+    animated: boolean;
     /**
      * If `true`, the Collapsible is initially open.
      * This is the controlled counterpart of `defaultOpen`.
      */
-    open?: boolean;
+    open: boolean;
     /**
      * If `true`, the Collapsible is initially open.
      * This is the uncontrolled counterpart of `open`.
-     * @default true
      */
-    defaultOpen?: boolean;
+    defaultOpen: boolean;
     /**
      * Callback fired when the Collapsible is opened or closed.
      */
-    onOpenChange?: (open: boolean) => void;
+    onOpenChange: (open: boolean) => void;
     /**
      * If `true`, the component is disabled.
-     * @default false
      */
-    disabled?: boolean;
+    disabled: boolean;
   }
 
   export interface ReturnValue {
