@@ -86,7 +86,7 @@ export { CollapsibleRoot };
 
 export namespace CollapsibleRoot {
   export interface State
-    extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
+    extends Partial<Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'>> {}
 
   export interface Props
     extends useCollapsibleRoot.Parameters,

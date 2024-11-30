@@ -63,7 +63,7 @@ export { CollapsiblePanel };
 namespace CollapsiblePanel {
   export interface Props
     extends BaseUIComponentProps<'div', CollapsibleRoot.State>,
-      Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {}
+      Partial<Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'>> {}
 }
 
 CollapsiblePanel.propTypes /* remove-proptypes */ = {
