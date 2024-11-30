@@ -78,6 +78,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     open: isOpen,
     onOpenChange,
     disabled,
+    defaultOpen: true,
   });
 
   const collapsibleState: CollapsibleRoot.State = React.useMemo(
