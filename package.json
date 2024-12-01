@@ -178,7 +178,7 @@
   },
   "packageManager": "pnpm@9.11.0",
   "engines": {
-    "pnpm": "^9.11.0"
+    "pnpm": "9.11.0"
   },
   "resolutions": {
     "@babel/core": "^7.26.0",

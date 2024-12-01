@@ -4,8 +4,6 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 
 export type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 
-export type ProgressDirection = 'ltr' | 'rtl';
-
 function getDefaultAriaValueText(value: number | null) {
   if (value === null) {
     return 'indeterminate progress';
@@ -19,7 +17,6 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    direction = 'ltr',
     getAriaLabel,
     getAriaValueText,
     max = 100,
@@ -43,25 +40,14 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
         'aria-valuetext': getAriaValueText
           ? getAriaValueText(value)
           : (ariaValuetext ?? getDefaultAriaValueText(value)),
-        dir: direction,
         role: 'progressbar',
       }),
-    [
-      ariaLabel,
-      ariaLabelledby,
-      ariaValuetext,
-      direction,
-      getAriaLabel,
-      getAriaValueText,
-      max,
-      min,
-      value,
-    ],
+    [ariaLabel, ariaLabelledby, ariaValuetext, getAriaLabel, getAriaValueText, max, min, value],
   );
 
   return {
     getRootProps,
-    direction,
+
     max,
     min,
     value,
@@ -83,11 +69,6 @@ namespace useProgressRoot {
      * A string value that provides a human-readable text alternative for the current value of the progress indicator.
      */
     'aria-valuetext'?: string;
-    /**
-     * The direction that progress bars fill in
-     * @default 'ltr'
-     */
-    direction?: ProgressDirection;
     /**
      * Accepts a function which returns a string value that provides an accessible name for the Indicator component
      * @param {number | null} value The component's value
@@ -121,10 +102,6 @@ namespace useProgressRoot {
     getRootProps: (
       externalProps?: React.ComponentPropsWithRef<'div'>,
     ) => React.ComponentPropsWithRef<'div'>;
-    /**
-     * The direction that progress bars fill in
-     */
-    direction: ProgressDirection;
     /**
      * The maximum value
      */

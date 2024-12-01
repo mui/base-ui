@@ -18,7 +18,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
-import { useUnmountAfterExitAnimation } from '../../utils/useUnmountAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
@@ -94,11 +94,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     setOpenUnwrapped(nextOpen);
   });
 
-  useUnmountAfterExitAnimation({
+  useAfterExitAnimation({
     open,
     animated: params.animated || true,
     animatedElementRef: popupRef,
-    setMounted,
+    onFinished: () => setMounted(false),
   });
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {

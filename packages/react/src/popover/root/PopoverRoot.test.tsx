@@ -231,7 +231,7 @@ describe('<Popover.Root />', () => {
             opacity: 1;
           }
 
-          .animation-test-popup[data-exiting] {
+          .animation-test-popup[data-ending-style] {
             animation: test-anim 50ms;
           }
         `;
@@ -394,61 +394,112 @@ describe('<Popover.Root />', () => {
     });
   });
 
-  it('focuses the trigger after the popover is closed but not unmounted', async () => {
-    await render(
-      <div>
-        <input type="text" />
-        <Popover.Root animated={false}>
+  describe('focus management', () => {
+    it('focuses the trigger after the popover is closed but not unmounted', async () => {
+      await render(
+        <div>
+          <input type="text" />
+          <Popover.Root animated={false}>
+            <Popover.Trigger>Toggle</Popover.Trigger>
+            <Popover.Positioner keepMounted>
+              <Popover.Popup>
+                <Popover.Close>Close</Popover.Close>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Root>
+          <input type="text" />
+        </div>,
+      );
+
+      const toggle = screen.getByRole('button', { name: 'Toggle' });
+
+      await user.click(toggle);
+      await flushMicrotasks();
+
+      const close = screen.getByRole('button', { name: 'Close' });
+
+      await user.click(close);
+
+      await waitFor(
+        () => {
+          expect(toggle).toHaveFocus();
+        },
+        { timeout: 1500 },
+      );
+    });
+
+    it('does not move focus to the popover when opened with hover', async () => {
+      await render(
+        <Popover.Root openOnHover delay={0}>
           <Popover.Trigger>Toggle</Popover.Trigger>
-          <Popover.Positioner keepMounted>
+          <Popover.Positioner>
             <Popover.Popup>
               <Popover.Close>Close</Popover.Close>
             </Popover.Popup>
           </Popover.Positioner>
-        </Popover.Root>
-        <input type="text" />
-      </div>,
-    );
+        </Popover.Root>,
+      );
 
-    const toggle = screen.getByRole('button', { name: 'Toggle' });
+      const toggle = screen.getByRole('button', { name: 'Toggle' });
 
-    await user.click(toggle);
-    await flushMicrotasks();
+      act(() => toggle.focus());
 
-    const close = screen.getByRole('button', { name: 'Close' });
+      await user.hover(toggle);
+      await flushMicrotasks();
 
-    await user.click(close);
+      const close = screen.getByRole('button', { name: 'Close' });
 
-    await waitFor(
-      () => {
-        expect(toggle).toHaveFocus();
-      },
-      { timeout: 1500 },
-    );
-  });
+      expect(close).not.to.equal(null);
+      expect(close).not.to.toHaveFocus();
+    });
 
-  it('does not move focus to the popover when opened with hover', async () => {
-    await render(
-      <Popover.Root openOnHover delay={0}>
-        <Popover.Trigger>Toggle</Popover.Trigger>
-        <Popover.Positioner>
-          <Popover.Popup>
-            <Popover.Close>Close</Popover.Close>
-          </Popover.Popup>
-        </Popover.Positioner>
-      </Popover.Root>,
-    );
+    it('does not change focus when opened with hover and closed', async () => {
+      const style = `
+        .popup {
+          width: 100px;
+          height: 100px;
+          background-color: red;
+          opacity: 1;
+          transition: opacity 50ms;
+        }
 
-    const toggle = screen.getByRole('button', { name: 'Toggle' });
+        .popup[data-exiting] {
+          opacity: 0;
+        }
+      `;
 
-    act(() => toggle.focus());
+      await render(
+        <div>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <input type="text" data-testid="first-input" />
+          <Popover.Root openOnHover delay={0} closeDelay={0}>
+            <Popover.Trigger>Toggle</Popover.Trigger>
+            <Popover.Positioner>
+              <Popover.Popup className="popup" />
+            </Popover.Positioner>
+          </Popover.Root>
+          <input type="text" data-testid="last-input" />
+        </div>,
+      );
 
-    await user.hover(toggle);
-    await flushMicrotasks();
+      const toggle = screen.getByRole('button', { name: 'Toggle' });
+      const firstInput = screen.getByTestId('first-input');
+      const lastInput = screen.getByTestId('last-input');
 
-    const close = screen.getByRole('button', { name: 'Close' });
+      await act(async () => lastInput.focus());
 
-    expect(close).not.to.equal(null);
-    expect(close).not.to.toHaveFocus();
+      await user.hover(toggle);
+      await flushMicrotasks();
+
+      await user.hover(firstInput);
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+
+      expect(lastInput).toHaveFocus();
+    });
   });
 });

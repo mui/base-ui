@@ -28,7 +28,6 @@ const TabPanel = React.forwardRef(function TabPanel(
     value: selectedValue,
     getTabIdByPanelValueOrIndex,
     orientation,
-    direction,
     tabActivationDirection,
   } = useTabsRootContext();
 
@@ -41,12 +40,11 @@ const TabPanel = React.forwardRef(function TabPanel(
 
   const state: TabPanel.State = React.useMemo(
     () => ({
-      direction,
       hidden,
       orientation,
       tabActivationDirection,
     }),
-    [direction, hidden, orientation, tabActivationDirection],
+    [hidden, orientation, tabActivationDirection],
   );
 
   const { renderElement } = useComponentRenderer({

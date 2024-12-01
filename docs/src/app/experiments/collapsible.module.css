@@ -65,7 +65,7 @@
   transition: height var(--duration) ease-in;
 }
 
-.panel.transition[data-entering] {
+.panel.transition[data-starting-style] {
   height: 0;
 }
 

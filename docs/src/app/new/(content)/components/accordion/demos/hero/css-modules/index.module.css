@@ -60,8 +60,8 @@
   letter-spacing: 0.001em;
   transition: height 150ms ease-out;
 
-  &[data-entering],
-  &[data-exiting] {
+  &[data-starting-style],
+  &[data-ending-style] {
     height: 0;
   }
 }

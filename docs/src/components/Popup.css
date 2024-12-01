@@ -23,15 +23,15 @@
     transition-property: opacity, transform;
     transition-timing-function: var(--ease-out-fast);
 
-    &[data-entering],
-    &[data-exiting] {
+    &[data-starting-style],
+    &[data-ending-style] {
       opacity: 0;
       @media (prefers-reduced-motion: no-preference) {
         transform: scale(0.98);
       }
     }
 
-    &[data-exiting] {
+    &[data-ending-style] {
       transition-timing-function: var(--ease-in-slow);
     }
   }

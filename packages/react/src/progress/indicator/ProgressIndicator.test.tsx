@@ -1,17 +1,18 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { Progress } from '@base-ui-components/react/progress';
+import { describeSkipIf } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { ProgressRootContext } from '../root/ProgressRootContext';
 
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+
 const contextValue: ProgressRootContext = {
-  direction: 'ltr',
   max: 100,
   min: 0,
   value: 30,
   status: 'progressing',
   state: {
-    direction: 'ltr',
     max: 100,
     min: 0,
     status: 'progressing',
@@ -30,14 +31,8 @@ describe('<Progress.Indicator />', () => {
     refInstanceof: window.HTMLSpanElement,
   }));
 
-  describe('internal styles', () => {
-    it('determinate', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
-      }
-
+  describeSkipIf(isJSDOM)('internal styles', () => {
+    it('determinate', async () => {
       const { getByTestId } = await render(
         <Progress.Root value={33}>
           <Progress.Track>
@@ -54,13 +49,7 @@ describe('<Progress.Indicator />', () => {
       });
     });
 
-    it('indeterminate', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
-      }
-
+    it('indeterminate', async () => {
       const { getByTestId } = await render(
         <Progress.Root value={null}>
           <Progress.Track>

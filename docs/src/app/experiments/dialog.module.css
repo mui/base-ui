@@ -121,7 +121,7 @@
       transition: transform var(--transition-duration) ease-out;
     }
 
-    &[data-exiting] {
+    &[data-ending-style] {
       animation: dialog-closing var(--transition-duration) ease-in forwards;
     }
   }
@@ -171,7 +171,7 @@
       animation: backdrop-opening 500ms ease-out forwards;
     }
 
-    &[data-exiting] {
+    &[data-ending-style] {
       animation: backdrop-closing 500ms ease-in forwards;
     }
   }

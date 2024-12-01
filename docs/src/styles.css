@@ -1,3 +1,20 @@
+/*
+ * README
+ * - Use plain CSS to create docs component styles
+ *   - Component CSS must use "@layer components" to work correctly with Tailwind
+ *   - Use component name as the prefix to avoid conflicts, e.g. ".SelectTriggerIcon"
+ *   - Prefix CSS variables with component name too, e.g. "--root-layout-padding-x"
+ * - Use Tailwind for layout utils
+ * - There is two reset layers:
+ *   - "@layer all" is a truly global reset
+ *   - "@layer base" is Tailwind’s reset that is reverted in non-Tailwind demos
+ *   - We rely on both to build the docs docs
+ * - Docs and demos are built using the same theme
+ *   - Theme tokens use Tailwind v4 "@theme" naming convention
+ *   - Don't use our custom tokens in the demos – only what's available in the default theme.
+ */
+
+@layer all;
 @layer base;
 @layer theme;
 @layer components;
@@ -44,7 +61,11 @@
   --color-gray-900: oklch(12% 5% 264 / 90%);
   --color-gray-950: oklch(12% 5% 264 / 95%);
 
-  /* Functional colors */
+  /* Other colors used in Tailwind demos */
+  --color-blue-800: var(--color-blue);
+  --color-red-800: var(--color-red);
+
+  /* Functional colors for the docs */
   --color-content: white;
   --color-background: var(--color-gray-50);
   --color-foreground: var(--color-gray-900);
@@ -53,7 +74,7 @@
   --color-highlight: var(--color-blue);
   --color-selection: oklch(80% 50% 264 / 25%);
 
-  /* Text colors */
+  /* Text colors for the docs */
   --color-gray: var(--color-gray-600);
   --color-navy: oklch(31% 25% 264);
   --color-blue: oklch(45% 50% 264);
@@ -106,7 +127,6 @@
   --text-6xl--line-height: 0.95;
   --text-6xl--letter-spacing: -0.015em;
 
-  --default-transition-timing-function: var(--ease-out-fast);
   --ease-out-fast: cubic-bezier(0.45, 1.005, 0, 1.005);
   --ease-in-slow: cubic-bezier(0.375, 0.015, 0.545, 0.455);
   --header-height: 3rem;
@@ -148,7 +168,54 @@
   }
 }
 
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Disable docs-specific variables in the demos. Keep this in sync with the "@theme" block above */
+@layer theme {
+  [data-demo] {
+    --color-gray: initial;
+    --color-navy: initial;
+    --color-green: initial;
+    --color-purple: initial;
+    --color-violet: initial;
+    --color-content: initial;
+    --color-background: initial;
+    --color-foreground: initial;
+    --color-popup: initial;
+    --color-gridline: initial;
+    --color-highlight: initial;
+    --color-gray-75: initial;
+    --ease-out-fast: initial;
+    --ease-in-slow: initial;
+    --header-height: initial;
+
+    /* These variables are available in the default Tailwind theme */
+    &:not([data-demo='tailwind']) {
+      --color-white: initial;
+      --color-black: initial;
+    }
+    /* These variables are exposed in "demo-colors.css" for CSS Modules demos */
+    &:not([data-demo='css-modules']) {
+      --color-blue: initial;
+      --color-red: initial;
+    }
+  }
+}
+
+/* Remove the Tailwind reset in non-Tailwind demos */
+@layer base {
+  [data-demo]:not([data-demo='tailwind']) * {
+    all: revert-layer;
+  }
+}
+
+@layer all {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  svg {
+    /* Safari messes up geometry of many basic SVGs, such as check icons in checkboxes or chevrons on menus */
+    /* Putting them on the GPU fixes that */
+    transform: translateZ(0);
+  }
 }

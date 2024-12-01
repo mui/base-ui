@@ -16,7 +16,7 @@ export function Trigger({ className, ssrFallback, placeholder, ...props }: Trigg
   return (
     <Select.Trigger {...props}>
       <Select.Value placeholder={placeholder}>{(value) => value || ssrFallback}</Select.Value>
-      <Select.Icon render={<ChevronDownIcon className="-mt-[0.5px] -ml-0.5" />} />
+      <Select.Icon render={<ChevronDownIcon className="-ml-0.5" />} />
     </Select.Trigger>
   );
 }
@@ -50,10 +50,7 @@ export function Popup({ children, className, ...props }: Select.Positioner.Props
 export function Option({ children, className, ...props }: Select.Option.Props) {
   return (
     <Select.Option className={clsx('SelectOption', className)} {...props}>
-      <Select.OptionIndicator
-        className="SelectOptionIndicator"
-        render={<ThickCheckIcon width="10" height="10" />}
-      />
+      <Select.OptionIndicator className="SelectOptionIndicator" render={<ThickCheckIcon />} />
       <Select.OptionText className="SelectOptionText">{children}</Select.OptionText>
     </Select.Option>
   );

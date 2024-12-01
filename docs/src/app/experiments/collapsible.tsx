@@ -179,7 +179,7 @@ export function Styles() {
       transition: height ${DURATION} ease-in;
     }
 
-    .MyCollapsible-content.csstransition[data-entering] {
+    .MyCollapsible-content.csstransition[data-starting-style] {
       height: 0;
     }
 

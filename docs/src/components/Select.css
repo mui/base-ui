@@ -38,7 +38,7 @@
     white-space: nowrap;
 
     /* Spacing is built into the grid */
-    grid-template-columns: 0.375rem 0.625rem 0.375rem auto 1.5rem;
+    grid-template-columns: 0.375rem 0.75rem 0.375rem auto 1.5rem;
 
     &[data-highlighted] {
       color: white;
@@ -48,7 +48,7 @@
     @media (pointer: coarse) {
       @apply text-sm;
       height: 2.25rem;
-      grid-template-columns: 0.5rem 0.625rem 0.5rem auto 1.5rem;
+      grid-template-columns: 0.5rem 0.75rem 0.5rem auto 1.5rem;
     }
   }
 
@@ -64,11 +64,19 @@
   }
 
   .SelectArrow {
-    top: -6px;
+    &[data-side='bottom'] {
+      top: -6px;
+    }
+    &[data-side='top'] {
+      bottom: -6px;
+      transform: scaleY(-1);
+    }
   }
+
   .SelectArrowFill {
     fill: var(--color-popup);
   }
+
   .SelectArrowStroke {
     @media (prefers-color-scheme: dark) {
       fill: var(--color-gray-300);
