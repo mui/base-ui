@@ -393,8 +393,8 @@ importers:
         specifier: 6.1.8
         version: 6.1.8(@emotion/react@11.13.3(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
       '@next/mdx':
-        specifier: ^15.0.2
-        version: 15.0.2(@mdx-js/loader@3.1.0(acorn@8.14.0)(webpack@5.94.0(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.94.0))))(@mdx-js/react@3.1.0(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))
+        specifier: ^15.0.3
+        version: 15.0.3(@mdx-js/loader@3.1.0(acorn@8.14.0)(webpack@5.94.0(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.94.0))))(@mdx-js/react@3.1.0(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))
       '@react-spring/web':
         specifier: ^9.7.5
         version: 9.7.5(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)
@@ -2324,8 +2324,8 @@ packages:
   '@next/eslint-plugin-next@14.2.17':
     resolution: {integrity: sha512-fW6/u1jjlBQrMs1ExyINehaK3B+LEW5UqdF6QYL07QK+SECkX0hnEyPMaNKj0ZFzirQ9D8jLWQ00P8oua4yx9g==}
 
-  '@next/mdx@15.0.2':
-    resolution: {integrity: sha512-CANCD3snLdLJxCcqn0DBAl5qMUBvAPdWA2cWljt+lnVtcvIfGXRVLwraqSOHBjddvZ3ClCYcf3AvjEBHA4NBxA==}
+  '@next/mdx@15.0.3':
+    resolution: {integrity: sha512-EwCJKDeJqfbHbsS7rIdWpKDOZsOPsif9AX4PaIhy5ghSMsZvi+/vIZVc07pZT7BdwCIoL9XM1KZMd/vzxCxF5A==}
     peerDependencies:
       '@mdx-js/loader': '>=0.15.0'
       '@mdx-js/react': '>=0.15.0'
@@ -7933,6 +7933,7 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qjobs@1.2.0:
@@ -11402,7 +11403,7 @@ snapshots:
     dependencies:
       glob: 10.3.10
 
-  '@next/mdx@15.0.2(@mdx-js/loader@3.1.0(acorn@8.14.0)(webpack@5.94.0(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.94.0))))(@mdx-js/react@3.1.0(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))':
+  '@next/mdx@15.0.3(@mdx-js/loader@3.1.0(acorn@8.14.0)(webpack@5.94.0(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.94.0))))(@mdx-js/react@3.1.0(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))':
     dependencies:
       source-map: 0.7.4
     optionalDependencies:
