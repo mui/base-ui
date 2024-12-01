@@ -26,10 +26,11 @@ export const mdxComponents: MDXComponents = {
     </React.Fragment>
   ),
   h2: (props) => (
-    <div className="mt-10 mb-5">
-      <h2 className="mb-4 scroll-mt-6 text-xl font-medium text-balance" {...props} />
-      <div className="border-t border-gray-200" />
-    </div>
+    // Do not wrap heading tags in divs, that confuses Safari Reader
+    <React.Fragment>
+      <h2 className="mt-10 mb-4 scroll-mt-6 text-xl font-medium text-balance" {...props} />
+      <div className="mb-5 border-t border-gray-200" />
+    </React.Fragment>
   ),
   h3: (props) => (
     <h3 className="mt-8 mb-1.5 scroll-mt-6 text-lg font-medium text-balance" {...props} />
