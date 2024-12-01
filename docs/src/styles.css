@@ -91,11 +91,11 @@
 
   --text-xs: 0.8125rem;
   --text-xs--line-height: 1.25rem;
-  --text-xs--letter-spacing: 0.0015em;
+  --text-xs--letter-spacing: 0.001em;
 
   --text-sm: 0.9375rem;
   --text-sm--line-height: 1.375rem;
-  --text-sm--letter-spacing: 0.001em;
+  --text-sm--letter-spacing: 0em;
 
   --text-base: 1rem;
   --text-base--line-height: 1.5rem;

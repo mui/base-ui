@@ -8,7 +8,6 @@
 .Label {
   font-size: 0.9375rem;
   line-height: 1.375rem;
-  letter-spacing: 0.001em;
   font-weight: 500;
   color: var(--color-gray-900);
 }
@@ -34,7 +33,6 @@
 .Error {
   font-size: 0.9375rem;
   line-height: 1.375rem;
-  letter-spacing: 0.001em;
   color: var(--color-red-800);
 }
 
@@ -42,6 +40,5 @@
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.375rem;
-  letter-spacing: 0.001em;
   color: var(--color-gray-600);
 }
