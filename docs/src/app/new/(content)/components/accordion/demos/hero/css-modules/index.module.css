@@ -23,7 +23,8 @@
   align-items: baseline;
   justify-content: space-between;
   padding: 0.5rem 0;
-  font: inherit;
+  color: var(--color-gray-900);
+  font-family: inherit;
   font-weight: 500;
   font-size: 1rem;
   line-height: 1.5rem;

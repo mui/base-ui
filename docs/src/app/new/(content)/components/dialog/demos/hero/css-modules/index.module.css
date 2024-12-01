@@ -6,7 +6,7 @@
   border: none;
   border-radius: 0.375rem;
   background-color: var(--color-gray-50);
-  font: inherit;
+  font-family: inherit;
   font-weight: 500;
   color: var(--color-gray-950);
   outline: 1px solid var(--color-gray-200);

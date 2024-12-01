@@ -17,7 +17,8 @@
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   background-color: var(--color-gray-100);
-  font: inherit;
+  color: var(--color-gray-900);
+  font-family: inherit;
   font-size: 0.9375rem;
   line-height: 1.375rem;
   letter-spacing: 0.001em;

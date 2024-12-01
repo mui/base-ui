@@ -141,11 +141,17 @@ interface ItemProps extends React.ComponentPropsWithoutRef<'li'> {
   rel?: string;
 }
 
-export function Item({ children, className, href, rel, ...props }: ItemProps) {
+export function Item({ active, children, className, href, rel, ...props }: ItemProps) {
   const [, setOpen] = React.useContext(MobileNavState);
   return (
     <li className={clsx('MobileNavItem', className)} {...props}>
-      <NextLink className="MobileNavLink" href={href} rel={rel} onClick={() => setOpen(false)}>
+      <NextLink
+        aria-current={active ? 'page' : undefined}
+        className="MobileNavLink"
+        href={href}
+        rel={rel}
+        onClick={() => setOpen(false)}
+      >
         {children}
       </NextLink>
     </li>
