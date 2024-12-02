@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
@@ -40,7 +39,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   props: SelectBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, container, ...otherProps } = props;
+  const { className, render, keepMounted = false, ...otherProps } = props;
 
   const { open, mounted, transitionStatus } = useSelectRootContext();
 
@@ -66,7 +65,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     return null;
   }
 
-  return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
+  return renderElement();
 });
 
 namespace SelectBackdrop {
@@ -76,11 +75,6 @@ namespace SelectBackdrop {
      * @default false
      */
     keepMounted?: boolean;
-    /**
-     * The container element to which the Backdrop is appended to.
-     * @default false
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 
   export interface State {

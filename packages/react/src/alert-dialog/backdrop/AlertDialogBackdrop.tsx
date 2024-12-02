@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useDialogBackdrop } from '../../dialog/backdrop/useDialogBackdrop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -66,7 +65,7 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
     return null;
   }
 
-  return <FloatingPortal>{renderElement()}</FloatingPortal>;
+  return renderElement();
 });
 
 namespace AlertDialogBackdrop {

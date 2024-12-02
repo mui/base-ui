@@ -1,0 +1,13 @@
+{
+  "props": {},
+  "name": "TooltipPortal",
+  "imports": [
+    "import { Tooltip } from '@base-ui-components/react/tooltip';\nconst TooltipPortal = Tooltip.Portal;"
+  ],
+  "classes": [],
+  "muiName": "TooltipPortal",
+  "filename": "/packages/react/src/tooltip/portal/TooltipPortal.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-tooltip/\">Tooltip</a></li></ul>",
+  "cssComponent": false
+}

@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardBackdrop } from './usePreviewCardBackdrop';
@@ -38,7 +37,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   props: PreviewCardBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = false, container, ...otherProps } = props;
+  const { render, className, keepMounted = false, ...otherProps } = props;
 
   const { open, mounted, transitionStatus } = usePreviewCardRootContext();
   const { getBackdropProps } = usePreviewCardBackdrop();
@@ -66,7 +65,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
     return null;
   }
 
-  return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
+  return renderElement();
 });
 
 namespace PreviewCardBackdrop {
@@ -81,10 +80,6 @@ namespace PreviewCardBackdrop {
      * @default false
      */
     keepMounted?: boolean;
-    /**
-     * The element the `Backdrop` is appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 }
 

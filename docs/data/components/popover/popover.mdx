@@ -61,9 +61,11 @@ By default, the popover is placed on the bottom side of its trigger, the default
 ```jsx
 <Popover.Root>
   <Popover.Trigger />
-  <Popover.Positioner side="right">
-    <Popover.Popup>Popover</Popover.Popup>
-  </Popover.Positioner>
+  <Popover.Portal>
+    <Popover.Positioner side="right">
+      <Popover.Popup>Popover</Popover.Popup>
+    </Popover.Positioner>
+  </Popover.Portal>
 </Popover.Root>
 ```
 
@@ -365,7 +367,7 @@ function App() {
       <Popover.Trigger>Trigger</Popover.Trigger>
       <AnimatePresence>
         {open && (
-          <Popover.Portal>
+          <Popover.Portal keepMounted>
             <Popover.Positioner keepMounted>
               <Popover.Popup
                 render={

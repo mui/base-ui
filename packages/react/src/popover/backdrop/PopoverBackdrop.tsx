@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
@@ -68,7 +67,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     return null;
   }
 
-  return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
+  return renderElement();
 });
 
 namespace PopoverBackdrop {

@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useDialogBackdrop } from './useDialogBackdrop';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -70,7 +69,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     return null;
   }
 
-  return <FloatingPortal>{renderElement()}</FloatingPortal>;
+  return renderElement();
 });
 
 namespace DialogBackdrop {

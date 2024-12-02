@@ -1,0 +1,13 @@
+{
+  "props": {},
+  "name": "DialogPortal",
+  "imports": [
+    "import { Dialog } from '@base-ui-components/react/dialog';\nconst DialogPortal = Dialog.Portal;"
+  ],
+  "classes": [],
+  "muiName": "DialogPortal",
+  "filename": "/packages/react/src/dialog/portal/DialogPortal.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-dialog/\">Dialog</a></li></ul>",
+  "cssComponent": false
+}

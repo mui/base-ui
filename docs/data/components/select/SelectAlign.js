@@ -10,28 +10,30 @@ function AlignOptionToTriggerTrue() {
         <Select.Value placeholder="Align option to trigger" />
         <SelectDropdownArrow />
       </SelectTrigger>
-      <SelectPositioner sideOffset={5}>
-        <SelectScrollUpArrow />
-        <SelectPopup>
-          <SelectOption>
-            <SelectOptionIndicator render={<CheckIcon />} />
-            <Select.OptionText>Align option to trigger</Select.OptionText>
-          </SelectOption>
-          <SelectOption value="system">
-            <SelectOptionIndicator render={<CheckIcon />} />
-            <Select.OptionText>System font</Select.OptionText>
-          </SelectOption>
-          <SelectOption value="arial">
-            <SelectOptionIndicator render={<CheckIcon />} />
-            <Select.OptionText>Arial</Select.OptionText>
-          </SelectOption>
-          <SelectOption value="roboto">
-            <SelectOptionIndicator render={<CheckIcon />} />
-            <Select.OptionText>Roboto</Select.OptionText>
-          </SelectOption>
-        </SelectPopup>
-        <SelectScrollDownArrow />
-      </SelectPositioner>
+      <Select.Portal>
+        <SelectPositioner sideOffset={5}>
+          <SelectScrollUpArrow />
+          <SelectPopup>
+            <SelectOption>
+              <SelectOptionIndicator render={<CheckIcon />} />
+              <Select.OptionText>Align option to trigger</Select.OptionText>
+            </SelectOption>
+            <SelectOption value="system">
+              <SelectOptionIndicator render={<CheckIcon />} />
+              <Select.OptionText>System font</Select.OptionText>
+            </SelectOption>
+            <SelectOption value="arial">
+              <SelectOptionIndicator render={<CheckIcon />} />
+              <Select.OptionText>Arial</Select.OptionText>
+            </SelectOption>
+            <SelectOption value="roboto">
+              <SelectOptionIndicator render={<CheckIcon />} />
+              <Select.OptionText>Roboto</Select.OptionText>
+            </SelectOption>
+          </SelectPopup>
+          <SelectScrollDownArrow />
+        </SelectPositioner>
+      </Select.Portal>
     </Select.Root>
   );
 }

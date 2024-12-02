@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Alert Dialog component
 description: Dialogs inform users about a task and can contain critical information, require decisions, or involve multiple tasks.
-components: AlertDialogBackdrop, AlertDialogClose, AlertDialogDescription, AlertDialogPopup, AlertDialogRoot, AlertDialogTitle, AlertDialogTrigger
+components: AlertDialogBackdrop, AlertDialogClose, AlertDialogDescription, AlertDialogPopup, AlertDialogPortal, AlertDialogRoot, AlertDialogTitle, AlertDialogTrigger
 githubLabel: 'component: alert-dialog'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/
 ---
@@ -37,11 +37,13 @@ Alert Dialogs are implemented using a collection of related components:
 
   <AlertDialog.Backdrop />
 
-  <AlertDialog.Popup>
-    <AlertDialog.Title />
-    <AlertDialog.Description />
-    <AlertDialog.Close />
-  </AlertDialog.Popup>
+  <AlertDialog.Portal>
+    <AlertDialog.Popup>
+      <AlertDialog.Title />
+      <AlertDialog.Description />
+      <AlertDialog.Close />
+    </AlertDialog.Popup>
+  </AlertDialog.Portal>
 </AlertDialog.Root>
 ```
 
@@ -60,10 +62,12 @@ You can set the initial state with the `defaultOpen` prop.
 ```tsx
 <AlertDialog.Root>
   <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-  <AlertDialog.Popup>
-    <AlertDialog.Title>Demo dialog</AlertDialog.Title>
-    <AlertDialog.Close>Close</AlertDialog.Close>
-  </AlertDialog.Popup>
+  <AlertDialog.Portal>
+    <AlertDialog.Popup>
+      <AlertDialog.Title>Demo dialog</AlertDialog.Title>
+      <AlertDialog.Close>Close</AlertDialog.Close>
+    </AlertDialog.Popup>
+  </AlertDialog.Portal>
 </AlertDialog.Root>
 ```
 
@@ -78,10 +82,12 @@ const [open, setOpen] = React.useState(false);
 return (
   <AlertDialog.Root open={open} onOpenChange={setOpen}>
     <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-    <AlertDialog.Popup>
-      <AlertDialog.Title>Demo dialog</AlertDialog.Title>
-      <AlertDialog.Close>Close</AlertDialog.Close>
-    </AlertDialog.Popup>
+    <AlertDialog.Portal>
+      <AlertDialog.Popup>
+        <AlertDialog.Title>Demo dialog</AlertDialog.Title>
+        <AlertDialog.Close>Close</AlertDialog.Close>
+      </AlertDialog.Popup>
+    </AlertDialog.Portal>
   </AlertDialog.Root>
 );
 ```
@@ -194,14 +200,20 @@ function App() {
       <AlertDialog.Trigger>Trigger</AlertDialog.Trigger>
       <AnimatePresence>
         {open && (
-          <AlertDialog.Popup
-            keepMounted
-            render={
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
-            }
-          >
-            Alert Dialog
-          </AlertDialog.Popup>
+          <AlertDialog.Portal keepMounted>
+            <AlertDialog.Popup
+              keepMounted
+              render={
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                />
+              }
+            >
+              Alert Dialog
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
         )}
       </AnimatePresence>
     </AlertDialog.Root>

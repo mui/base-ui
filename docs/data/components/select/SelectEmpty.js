@@ -10,28 +10,30 @@ export default function SelectEmpty() {
         <Select.Value placeholder="Select font..." />
         <SelectDropdownArrow />
       </SelectTrigger>
-      <SelectPositioner sideOffset={5}>
-        <SelectScrollUpArrow />
-        <SelectPopup>
-          <SelectOption>
-            <SelectOptionIndicator render={<CheckIcon />} />
-            <Select.OptionText>Select font...</Select.OptionText>
-          </SelectOption>
-          <SelectOption value="system">
-            <SelectOptionIndicator render={<CheckIcon />} />
-            <Select.OptionText>System font</Select.OptionText>
-          </SelectOption>
-          <SelectOption value="arial">
-            <SelectOptionIndicator render={<CheckIcon />} />
-            <Select.OptionText>Arial</Select.OptionText>
-          </SelectOption>
-          <SelectOption value="roboto">
-            <SelectOptionIndicator render={<CheckIcon />} />
-            <Select.OptionText>Roboto</Select.OptionText>
-          </SelectOption>
-        </SelectPopup>
-        <SelectScrollDownArrow />
-      </SelectPositioner>
+      <Select.Portal>
+        <SelectPositioner sideOffset={5}>
+          <SelectScrollUpArrow />
+          <SelectPopup>
+            <SelectOption>
+              <SelectOptionIndicator render={<CheckIcon />} />
+              <Select.OptionText>Select font...</Select.OptionText>
+            </SelectOption>
+            <SelectOption value="system">
+              <SelectOptionIndicator render={<CheckIcon />} />
+              <Select.OptionText>System font</Select.OptionText>
+            </SelectOption>
+            <SelectOption value="arial">
+              <SelectOptionIndicator render={<CheckIcon />} />
+              <Select.OptionText>Arial</Select.OptionText>
+            </SelectOption>
+            <SelectOption value="roboto">
+              <SelectOptionIndicator render={<CheckIcon />} />
+              <Select.OptionText>Roboto</Select.OptionText>
+            </SelectOption>
+          </SelectPopup>
+          <SelectScrollDownArrow />
+        </SelectPositioner>
+      </Select.Portal>
     </Select.Root>
   );
 }

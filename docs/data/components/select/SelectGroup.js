@@ -31,34 +31,36 @@ export default function SelectGroup() {
         <Select.Value placeholder="Select food..." />
         <SelectDropdownArrow />
       </SelectTrigger>
-      <SelectPositioner sideOffset={5}>
-        <SelectScrollUpArrow />
-        <SelectPopup>
-          <SelectOption>
-            <SelectOptionIndicator render={<CheckIcon />} />
-            <Select.OptionText>Select food...</Select.OptionText>
-          </SelectOption>
-          {entries.map(([group, items]) => (
-            <React.Fragment key={group}>
-              <SelectSeparator />
-              <Select.Group key={group}>
-                <SelectGroupLabel>{group}</SelectGroupLabel>
-                {items.map((item) => (
-                  <SelectOption
-                    key={item.value}
-                    value={item.value}
-                    disabled={item.value === 'banana'}
-                  >
-                    <SelectOptionIndicator render={<CheckIcon />} />
-                    <Select.OptionText>{item.label}</Select.OptionText>
-                  </SelectOption>
-                ))}
-              </Select.Group>
-            </React.Fragment>
-          ))}
-        </SelectPopup>
-        <SelectScrollDownArrow />
-      </SelectPositioner>
+      <Select.Portal>
+        <SelectPositioner sideOffset={5}>
+          <SelectScrollUpArrow />
+          <SelectPopup>
+            <SelectOption>
+              <SelectOptionIndicator render={<CheckIcon />} />
+              <Select.OptionText>Select food...</Select.OptionText>
+            </SelectOption>
+            {entries.map(([group, items]) => (
+              <React.Fragment key={group}>
+                <SelectSeparator />
+                <Select.Group key={group}>
+                  <SelectGroupLabel>{group}</SelectGroupLabel>
+                  {items.map((item) => (
+                    <SelectOption
+                      key={item.value}
+                      value={item.value}
+                      disabled={item.value === 'banana'}
+                    >
+                      <SelectOptionIndicator render={<CheckIcon />} />
+                      <Select.OptionText>{item.label}</Select.OptionText>
+                    </SelectOption>
+                  ))}
+                </Select.Group>
+              </React.Fragment>
+            ))}
+          </SelectPopup>
+          <SelectScrollDownArrow />
+        </SelectPositioner>
+      </Select.Portal>
     </Select.Root>
   );
 }

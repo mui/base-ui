@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
+import { FloatingFocusManager } from '@floating-ui/react';
 import { useDialogPopup } from './useDialogPopup';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -43,16 +43,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    className,
-    container,
-    finalFocus,
-    id,
-    initialFocus,
-    keepMounted = false,
-    render,
-    ...other
-  } = props;
+  const { className, finalFocus, id, initialFocus, keepMounted = false, render, ...other } = props;
 
   const {
     descriptionElementId,
@@ -114,27 +105,21 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   }
 
   return (
-    <FloatingPortal root={container}>
-      <FloatingFocusManager
-        context={floatingContext}
-        modal={modal}
-        disabled={!mounted}
-        closeOnFocusOut={dismissible}
-        initialFocus={resolvedInitialFocus}
-        returnFocus={finalFocus}
-      >
-        {renderElement()}
-      </FloatingFocusManager>
-    </FloatingPortal>
+    <FloatingFocusManager
+      context={floatingContext}
+      modal={modal}
+      disabled={!mounted}
+      closeOnFocusOut={dismissible}
+      initialFocus={resolvedInitialFocus}
+      returnFocus={finalFocus}
+    >
+      {renderElement()}
+    </FloatingFocusManager>
   );
 });
 
 namespace DialogPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * The container element to which the popup is appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
     /**
      * If `true`, the dialog element is kept in the DOM when closed.
      *

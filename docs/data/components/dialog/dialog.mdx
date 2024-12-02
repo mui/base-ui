@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Dialog component
 description: Dialogs inform users about a task and can contain critical information, require decisions, or involve multiple tasks.
-components: DialogBackdrop, DialogClose, DialogDescription, DialogPopup, DialogRoot, DialogTitle, DialogTrigger
+components: DialogBackdrop, DialogPortal, DialogClose, DialogDescription, DialogPopup, DialogRoot, DialogTitle, DialogTrigger
 hooks: useDialogClose, useDialogPopup, useDialogRoot, useDialogTrigger
 githubLabel: 'component: dialog'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
@@ -25,6 +25,7 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
 Dialogs are implemented using a collection of related components:
 
 - `<Dialog.Root />` is a top-level component that facilitates communication between other components. It does not render to the DOM.
+- `<Dialog.Portal>` is a component that renders the dialog content into a portal.
 - `<Dialog.Popup />` is the dialog panel itself.
 - `<Dialog.Backdrop />` is the background element appearing when a popup is visible. Use it to indicate that the page is inert when using a modal dialog. The Backdrop must be a sibling of the Popup component. It is mandatory for modal dialogs.
 - `<Dialog.Trigger />` is the component (a button by default) that, when clicked, shows the popup. When it's not provided, the visibility of the Dialog can be controlled with its `open` prop (see [Controlled vs. uncontrolled behavior](#controlled-vs-uncontrolled-behavior)).
@@ -38,11 +39,13 @@ Dialogs are implemented using a collection of related components:
 
   <Dialog.Backdrop />
 
-  <Dialog.Popup>
-    <Dialog.Title />
-    <Dialog.Description />
-    <Dialog.Close />
-  </Dialog.Popup>
+  <Dialog.Portal>
+    <Dialog.Popup>
+      <Dialog.Title />
+      <Dialog.Description />
+      <Dialog.Close />
+    </Dialog.Popup>
+  </Dialog.Portal>
 </Dialog.Root>
 ```
 
@@ -83,10 +86,12 @@ You can set the initial state with the `defaultOpen` prop.
 ```tsx
 <Dialog.Root>
   <Dialog.Trigger>Open</Dialog.Trigger>
-  <Dialog.Popup>
-    <Dialog.Title>Demo dialog</Dialog.Title>
-    <Dialog.Close>Close</Dialog.Close>
-  </Dialog.Popup>
+  <Dialog.Portal>
+    <Dialog.Popup>
+      <Dialog.Title>Demo dialog</Dialog.Title>
+      <Dialog.Close>Close</Dialog.Close>
+    </Dialog.Popup>
+  </Dialog.Portal>
 </Dialog.Root>
 ```
 
@@ -101,10 +106,12 @@ const [open, setOpen] = React.useState(false);
 return (
   <Dialog.Root open={open} onOpenChange={setOpen}>
     <Dialog.Trigger>Open</Dialog.Trigger>
-    <Dialog.Popup>
-      <Dialog.Title>Demo dialog</Dialog.Title>
-      <Dialog.Close>Close</Dialog.Close>
-    </Dialog.Popup>
+    <Dialog.Portal>
+      <Dialog.Popup>
+        <Dialog.Title>Demo dialog</Dialog.Title>
+        <Dialog.Close>Close</Dialog.Close>
+      </Dialog.Popup>
+    </Dialog.Portal>
   </Dialog.Root>
 );
 ```
@@ -217,14 +224,20 @@ function App() {
       <Dialog.Trigger>Trigger</Dialog.Trigger>
       <AnimatePresence>
         {open && (
-          <Dialog.Popup
-            keepMounted
-            render={
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
-            }
-          >
-            Dialog
-          </Dialog.Popup>
+          <Dialog.Portal keepMounted>
+            <Dialog.Popup
+              keepMounted
+              render={
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                />
+              }
+            >
+              Dialog
+            </Dialog.Popup>
+          </Dialog.Portal>
         )}
       </AnimatePresence>
     </Dialog.Root>
@@ -270,10 +283,12 @@ return (
     </button>
 
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Popup id="my-popup">
-        <Dialog.Title>Demo dialog</Dialog.Title>
-        <Dialog.Close>Close</Dialog.Close>
-      </Dialog.Popup>
+      <Dialog.Portal>
+        <Dialog.Popup id="my-popup">
+          <Dialog.Title>Demo dialog</Dialog.Title>
+          <Dialog.Close>Close</Dialog.Close>
+        </Dialog.Popup>
+      </Dialog.Portal>
     </Dialog.Root>
   </div>
 );
