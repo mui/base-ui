@@ -1,0 +1,35 @@
+import * as React from 'react';
+import { Field } from '@base-ui-components/react/field';
+import { Fieldset } from '@base-ui-components/react/fieldset';
+
+export default function ExampleField() {
+  return (
+    <Fieldset.Root className="flex flex-col gap-4">
+      <Fieldset.Legend className="border-b border-gray-200 pb-3 text-lg font-medium text-gray-900">
+        Billing details
+      </Fieldset.Legend>
+
+      <Field.Root className="flex flex-col items-start gap-1">
+        <Field.Label className="text-sm font-medium text-gray-900">
+          Company
+        </Field.Label>
+        <Field.Control
+          // @ts-expect-error
+          placeholder="Enter company name"
+          className="h-10 w-64 rounded-md border border-gray-200 py-2 pl-3.5 text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+        />
+      </Field.Root>
+
+      <Field.Root className="flex flex-col items-start gap-1">
+        <Field.Label className="text-sm font-medium text-gray-900">
+          Tax ID
+        </Field.Label>
+        <Field.Control
+          // @ts-expect-error
+          placeholder="Enter fiscal number"
+          className="h-10 w-64 rounded-md border border-gray-200 py-2 pl-3.5 text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+        />
+      </Field.Root>
+    </Fieldset.Root>
+  );
+}

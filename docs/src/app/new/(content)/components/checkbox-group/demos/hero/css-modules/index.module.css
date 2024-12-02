@@ -1,7 +1,9 @@
-.Group {
+.CheckboxGroup {
   display: flex;
   flex-direction: column;
+  align-items: start;
   gap: 0.25rem;
+  color: var(--color-gray-900);
 }
 
 .Caption {

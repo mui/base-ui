@@ -27,16 +27,18 @@
 @import './breakpoints.css';
 @import './fonts/index.css';
 @import './syntax-highlighting/index.css';
-@import './components/demo/index.css';
-@import './components/quick-nav/QuickNav.css';
 @import './components/Code.css';
 @import './components/CodeBlock.css';
+@import './components/demo/Demo.css';
 @import './components/GhostButton.css';
-@import './components/MobileNav.css';
 @import './components/Header.css';
+@import './components/Link.css';
+@import './components/MobileNav.css';
 @import './components/Popup.css';
+@import './components/quick-nav/QuickNav.css';
 @import './components/Select.css';
 @import './components/SideNav.css';
+@import './components/subtitle/Subtitle.css';
 @import './components/Table.css';
 
 /* Handy link to the default Tailwind theme:
@@ -89,11 +91,11 @@
 
   --text-xs: 0.8125rem;
   --text-xs--line-height: 1.25rem;
-  --text-xs--letter-spacing: 0.0015em;
+  --text-xs--letter-spacing: 0.001em;
 
   --text-sm: 0.9375rem;
   --text-sm--line-height: 1.375rem;
-  --text-sm--letter-spacing: 0.001em;
+  --text-sm--letter-spacing: 0em;
 
   --text-base: 1rem;
   --text-base--line-height: 1.5rem;
@@ -217,5 +219,13 @@
     /* Safari messes up geometry of many basic SVGs, such as check icons in checkboxes or chevrons on menus */
     /* Putting them on the GPU fixes that */
     transform: translateZ(0);
+  }
+
+  /* Debugging red text? You just forgot to set or inherit color in your demo. */
+  [data-demo] {
+    &,
+    :where(&) :where(button, input, textarea) {
+      color: red;
+    }
   }
 }
