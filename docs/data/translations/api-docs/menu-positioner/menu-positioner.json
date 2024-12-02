@@ -1,12 +1,10 @@
 {
   "componentDescription": "Renders the element that positions the Menu popup.",
   "propDescriptions": {
-    "alignment": {
-      "description": "The alignment of the Menu element to the anchor element along its cross axis."
+    "align": {
+      "description": "The align of the Menu element to the anchor element along its cross axis."
     },
-    "alignmentOffset": {
-      "description": "The offset of the Menu element along its alignment axis."
-    },
+    "alignOffset": { "description": "The offset of the Menu element along its align axis." },
     "anchor": { "description": "The anchor element to which the Menu popup will be placed at." },
     "arrowPadding": {
       "description": "Determines the padding between the arrow and the Menu popup&#39;s edges. Useful when the popover popup has rounded corners via <code>border-radius</code>."

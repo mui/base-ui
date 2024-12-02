@@ -1,12 +1,10 @@
 {
   "componentDescription": "The tooltip positioner element.",
   "propDescriptions": {
-    "alignment": {
-      "description": "The alignment of the tooltip element to the anchor element along its cross axis."
+    "align": {
+      "description": "The align of the tooltip element to the anchor element along its cross axis."
     },
-    "alignmentOffset": {
-      "description": "The offset of the tooltip element along its alignment axis."
-    },
+    "alignOffset": { "description": "The offset of the tooltip element along its align axis." },
     "anchor": { "description": "The element to which the tooltip element is anchored to." },
     "arrowPadding": {
       "description": "Determines the padding between the arrow and the tooltip edges. Useful when the tooltip element has rounded corners via <code>border-radius</code>."
