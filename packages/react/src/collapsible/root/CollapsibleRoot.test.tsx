@@ -20,7 +20,7 @@ describe('<Collapsible.Root />', () => {
   describe('ARIA attributes', () => {
     it('sets ARIA attributes', async () => {
       const { getByTestId, getByRole } = await render(
-        <Collapsible.Root animated={false}>
+        <Collapsible.Root defaultOpen animated={false}>
           <Collapsible.Trigger />
           <Collapsible.Panel data-testid="panel" />
         </Collapsible.Root>,

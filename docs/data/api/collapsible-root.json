@@ -2,7 +2,7 @@
   "props": {
     "animated": { "type": { "name": "bool" }, "default": "true" },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "defaultOpen": { "type": { "name": "bool" }, "default": "true" },
+    "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "onOpenChange": { "type": { "name": "func" }, "default": "NOOP" },
     "open": { "type": { "name": "bool" } },

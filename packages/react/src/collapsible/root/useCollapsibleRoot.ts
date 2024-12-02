@@ -57,7 +57,7 @@ export namespace useCollapsibleRoot {
     /**
      * If `true`, the Collapsible is initially open.
      * This is the uncontrolled counterpart of `open`.
-     * @default true
+     * @default false
      */
     defaultOpen?: boolean;
     /**

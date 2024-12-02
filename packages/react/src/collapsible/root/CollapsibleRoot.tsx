@@ -26,7 +26,7 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     animated = true,
     children,
     className,
-    defaultOpen = true,
+    defaultOpen = false,
     disabled = false,
     onOpenChange = NOOP,
     open,
@@ -120,7 +120,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   /**
    * If `true`, the Collapsible is initially open.
    * This is the uncontrolled counterpart of `open`.
-   * @default true
+   * @default false
    */
   defaultOpen: PropTypes.bool,
   /**
