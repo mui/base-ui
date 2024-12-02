@@ -40,21 +40,17 @@ export const TooltipPopup = styled(Tooltip.Popup)`
   }
 
   &[data-type='css-animation'] {
-    &[data-open] {
-      animation: ${scaleIn} 0.2s forwards;
-    }
+    animation: ${scaleIn} 0.2s forwards;
 
-    &[data-exiting] {
+    &[data-ending-style] {
       animation: ${scaleOut} 0.2s forwards;
     }
   }
 
   &[data-type='css-animation-keep-mounted'] {
-    &[data-open] {
-      animation: ${scaleIn} 0.2s forwards;
-    }
+    animation: ${scaleIn} 0.2s forwards;
 
-    &[data-exiting] {
+    &[data-ending-style] {
       animation: ${scaleOut} 0.2s forwards;
     }
   }
@@ -62,15 +58,13 @@ export const TooltipPopup = styled(Tooltip.Popup)`
   &[data-type='css-transition'] {
     transition-property: opacity, transform;
     transition-duration: 0.2s;
-    opacity: 0;
-    transform: scale(0);
 
-    &[data-open] {
-      opacity: 1;
-      transform: scale(1);
+    &[data-ending-style] {
+      opacity: 0;
+      transform: scale(0);
     }
 
-    &[data-entering] {
+    &[data-starting-style] {
       opacity: 0;
       transform: scale(0.8);
     }
@@ -80,31 +74,24 @@ export const TooltipPopup = styled(Tooltip.Popup)`
     transition-property: opacity, transform;
     transition-duration: 0.2s;
 
-    &[data-open] {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    &[data-entering] {
-      opacity: 0;
-      transform: scale(0.8);
-    }
-
-    &[data-exiting] {
+    &[data-ending-style] {
       opacity: 0;
       transform: scale(0);
+    }
+
+    &[data-starting-style] {
+      opacity: 0;
+      transform: scale(0.8);
     }
   }
 
   &[data-type='css-transition-starting-style'] {
     transition-property: opacity, transform, visibility;
     transition-duration: 0.2s;
-    opacity: 0;
-    transform: scale(0);
 
-    &[data-open] {
-      opacity: 1;
-      transform: scale(1);
+    &[data-ending-style] {
+      opacity: 0;
+      transform: scale(0);
     }
 
     @starting-style {

@@ -10,17 +10,16 @@ import {
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFocusExtended } from '../utils/useFocusExtended';
 import { OPEN_DELAY, CLOSE_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { useLatestRef } from '../../utils/useLatestRef';
 import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,
@@ -29,7 +28,6 @@ export function usePreviewCardRoot(
     open: externalOpen,
     onOpenChange: onOpenChangeProp = () => {},
     defaultOpen = false,
-    keepMounted = false,
     animated = true,
     delay,
     closeDelay,
@@ -55,27 +53,19 @@ export function usePreviewCardRoot(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
-
-  const openRef = useLatestRef(open);
-
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
-      if (!keepMounted && !nextOpen) {
-        if (animated) {
-          runOnceAnimationsFinish(() => {
-            if (!openRef.current) {
-              setMounted(false);
-            }
-          });
-        } else {
-          setMounted(false);
-        }
-      }
     },
   );
+
+  useAfterExitAnimation({
+    open,
+    animated,
+    animatedElementRef: popupRef,
+    onFinished: () => setMounted(false),
+  });
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -187,11 +177,6 @@ export namespace usePreviewCardRoot {
      * @default 300
      */
     closeDelay?: number;
-    /**
-     * Whether the preview card popup element stays mounted in the DOM when closed.
-     * @default false
-     */
-    keepMounted?: boolean;
     /**
      * Whether the preview card can animate, adding animation-related attributes and allowing for exit
      * animations to play. Useful to disable in tests to remove async behavior.

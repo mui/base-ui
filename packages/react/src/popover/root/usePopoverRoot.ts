@@ -13,18 +13,17 @@ import {
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { OPEN_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { useLatestRef } from '../../utils/useLatestRef';
 import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -60,32 +59,26 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
-
-  const openRef = useLatestRef(open);
-
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
-      if (!nextOpen) {
-        if (animated) {
-          runOnceAnimationsFinish(() => {
-            if (!openRef.current) {
-              setMounted(false);
-              setOpenReason(null);
-            }
-          });
-        } else {
-          setMounted(false);
-          setOpenReason(null);
-        }
-      } else {
+      if (nextOpen) {
         setOpenReason(reason ?? null);
       }
     },
   );
+
+  useAfterExitAnimation({
+    open,
+    animated,
+    animatedElementRef: popupRef,
+    onFinished: () => {
+      setMounted(false);
+      setOpenReason(null);
+    },
+  });
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },

@@ -1,10 +1,3 @@
-@layer base {
-  /* Remove the Tailwind reset in non-Tailwind demos */
-  .DemoPlayground:not([data-variant='tailwind']) * {
-    all: revert-layer;
-  }
-}
-
 @layer components {
   .DemoRoot {
     background-color: var(--color-content);
@@ -211,7 +204,7 @@
     }
 
     & code {
-      /* Different fonts may introduce vertical alignment issues */
+      /* Different fonts may introduce vertical align issues */
       display: block;
       /* Make sure selection highlight spans full container width in Safari */
       flex-grow: 1;

@@ -16,10 +16,9 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useControlled } from '../../utils/useControlled';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
-import { useLatestRef } from '../../utils/useLatestRef';
+import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -55,24 +54,16 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
-
-  const openRef = useLatestRef(open);
-
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
-    if (!nextOpen) {
-      if (animated) {
-        runOnceAnimationsFinish(() => {
-          if (!openRef.current) {
-            setMounted(false);
-          }
-        });
-      } else {
-        setMounted(false);
-      }
-    }
+  });
+
+  useAfterExitAnimation({
+    open,
+    animated,
+    animatedElementRef: popupRef,
+    onFinished: () => setMounted(false),
   });
 
   const floatingRootContext = useFloatingRootContext({

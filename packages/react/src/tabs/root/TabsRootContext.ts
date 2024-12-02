@@ -21,10 +21,6 @@ export interface TabsRootContext {
    */
   orientation: 'horizontal' | 'vertical';
   /**
-   * The direction of the tabs.
-   */
-  direction: 'ltr' | 'rtl';
-  /**
    * Gets the element of the Tab with the given value.
    * @param {any | undefined} value Value to find the tab for.
    */

@@ -62,6 +62,7 @@ const ProgressIndicator = styled(BaseProgress.Indicator)`
 const Label = styled('span')`
   cursor: unset;
   font-weight: bold;
+  color: var(--color-gray-700);
 `;
 
 function useIsDarkMode() {

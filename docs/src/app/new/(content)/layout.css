@@ -10,7 +10,7 @@
     grid-template-columns: 1fr;
 
     @media (--sm) {
-      padding-inline: 3rem;
+      padding-inline: 2.5rem;
     }
 
     @media (--show-side-nav) {
@@ -24,11 +24,13 @@
   }
 
   .ContentLayoutMain {
+    min-width: 0;
+    max-width: 48rem;
+    width: 100%;
+
     padding-top: 1.5rem;
     padding-bottom: 5rem;
-    min-width: 0;
     margin: 0 auto;
-    width: 100%;
 
     @media (--sm) {
       padding-top: 2rem;

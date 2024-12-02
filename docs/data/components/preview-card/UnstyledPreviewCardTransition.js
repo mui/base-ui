@@ -62,7 +62,7 @@ export const PreviewCardPopup = styled(PreviewCard.Popup)`
     transform: scale(1);
   }
 
-  &[data-entering] {
+  &[data-starting-style] {
     opacity: 0;
     transform: scale(0.95);
   }

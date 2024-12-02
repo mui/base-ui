@@ -45,7 +45,7 @@ export const PopoverPopup = styled(Popover.Popup)`
     transform: scale(1);
   }
 
-  &[data-entering] {
+  &[data-starting-style] {
     opacity: 0;
     transform: scale(0.9);
   }

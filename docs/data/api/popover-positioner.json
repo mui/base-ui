@@ -1,13 +1,13 @@
 {
   "props": {
-    "alignment": {
+    "align": {
       "type": {
         "name": "enum",
         "description": "'center'<br>&#124;&nbsp;'end'<br>&#124;&nbsp;'start'"
       },
       "default": "'center'"
     },
-    "alignmentOffset": { "type": { "name": "number" }, "default": "0" },
+    "alignOffset": { "type": { "name": "number" }, "default": "0" },
     "anchor": {
       "type": {
         "name": "union",

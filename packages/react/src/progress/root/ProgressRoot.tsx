@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { type ProgressDirection, ProgressStatus, useProgressRoot } from './useProgressRoot';
+import { ProgressStatus, useProgressRoot } from './useProgressRoot';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStyleHookMapping } from './styleHooks';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -25,7 +25,6 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    direction = 'ltr',
     getAriaLabel,
     getAriaValueText,
     max = 100,
@@ -40,7 +39,6 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    direction,
     getAriaLabel,
     getAriaValueText,
     max,
@@ -50,12 +48,11 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
 
   const state: ProgressRoot.State = React.useMemo(
     () => ({
-      direction,
       max,
       min,
       status: progress.status,
     }),
-    [direction, max, min, progress.status],
+    [max, min, progress.status],
   );
 
   const contextValue: ProgressRootContext = React.useMemo(
@@ -85,7 +82,6 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
 
 namespace ProgressRoot {
   export type State = {
-    direction: ProgressDirection;
     max: number;
     min: number;
     status: ProgressStatus;
@@ -119,11 +115,6 @@ ProgressRoot.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * The direction that progress bars fill in
-   * @default 'ltr'
-   */
-  direction: PropTypes.oneOf(['ltr', 'rtl']),
   /**
    * Accepts a function which returns a string value that provides an accessible name for the Indicator component
    * @param {number | null} value The component's value

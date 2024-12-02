@@ -7,7 +7,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import { usePopoverPopup } from './usePopoverPopup';
 import { useForkRef } from '../../utils/useForkRef';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
@@ -19,10 +19,10 @@ const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
-      return { 'data-entering': '' } as Record<string, string>;
+      return { 'data-starting-style': '' } as Record<string, string>;
     }
     if (value === 'exiting') {
-      return { 'data-exiting': '' };
+      return { 'data-ending-style': '' };
     }
     return null;
   },
@@ -69,11 +69,11 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     () => ({
       open,
       side: positioner.side,
-      alignment: positioner.alignment,
+      align: positioner.align,
       instant: instantType,
       transitionStatus,
     }),
-    [open, positioner.side, positioner.alignment, instantType, transitionStatus],
+    [open, positioner.side, positioner.align, instantType, transitionStatus],
   );
 
   const mergedRef = useForkRef(popupRef, forwardedRef);
@@ -105,7 +105,7 @@ namespace PopoverPopup {
   export interface State {
     open: boolean;
     side: Side;
-    alignment: Alignment;
+    align: Align;
     transitionStatus: TransitionStatus;
   }
 

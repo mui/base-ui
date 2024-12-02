@@ -7,7 +7,7 @@ import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositi
 import { usePreviewCardPopup } from './usePreviewCardPopup';
 import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import type { Alignment, Side } from '../../utils/useAnchorPositioning';
+import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
@@ -16,10 +16,10 @@ const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
-      return { 'data-entering': '' } as Record<string, string>;
+      return { 'data-starting-style': '' } as Record<string, string>;
     }
     if (value === 'exiting') {
-      return { 'data-exiting': '' };
+      return { 'data-ending-style': '' };
     }
     return null;
   },
@@ -42,7 +42,7 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   const { className, render, ...otherProps } = props;
 
   const { open, transitionStatus, getRootPopupProps, popupRef } = usePreviewCardRootContext();
-  const { side, alignment } = usePreviewCardPositionerContext();
+  const { side, align } = usePreviewCardPositionerContext();
 
   const { getPopupProps } = usePreviewCardPopup({
     getProps: getRootPopupProps,
@@ -52,10 +52,10 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     () => ({
       open,
       side,
-      alignment,
+      align,
       transitionStatus,
     }),
-    [open, side, alignment, transitionStatus],
+    [open, side, align, transitionStatus],
   );
 
   const mergedRef = useForkRef(popupRef, forwardedRef);
@@ -77,7 +77,7 @@ namespace PreviewCardPopup {
   export interface State {
     open: boolean;
     side: Side;
-    alignment: Alignment;
+    align: Align;
     transitionStatus: TransitionStatus;
   }
 
