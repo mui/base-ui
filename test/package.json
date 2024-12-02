@@ -8,8 +8,8 @@
   "devDependencies": {
     "@babel/runtime": "^7.26.0",
     "@base-ui-components/react": "workspace:*",
-    "@emotion/cache": "^11.13.1",
-    "@emotion/react": "^11.13.3",
+    "@emotion/cache": "^11.13.5",
+    "@emotion/react": "^11.13.5",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils",
     "@playwright/test": "1.49.0",
     "@testing-library/dom": "^10.4.0",
