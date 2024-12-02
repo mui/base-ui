@@ -63,8 +63,8 @@ importers:
         specifier: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils
         version: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils(@babel/core@7.26.0)(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#v6.1.7
-        version: https://codeload.github.com/mui/material-ui/tar.gz/13e5a0c75eea4fe3f7ce48b19bcab6ab1a7bb0bd(encoding@0.1.13)
+        specifier: github:mui/material-ui#f85a1b552c571480c9bef36d180b9d43d4c22955
+        version: https://codeload.github.com/mui/material-ui/tar.gz/f85a1b552c571480c9bef36d180b9d43d4c22955(encoding@0.1.13)
       '@next/eslint-plugin-next':
         specifier: ^14.2.17
         version: 14.2.17
@@ -2144,10 +2144,10 @@ packages:
       react: ^18.2.0
       react-dom: ^18.2.0
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/13e5a0c75eea4fe3f7ce48b19bcab6ab1a7bb0bd':
-    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/13e5a0c75eea4fe3f7ce48b19bcab6ab1a7bb0bd}
-    version: 6.1.7
-    engines: {pnpm: 9.12.3}
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/f85a1b552c571480c9bef36d180b9d43d4c22955':
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/f85a1b552c571480c9bef36d180b9d43d4c22955}
+    version: 6.1.8
+    engines: {pnpm: 9.14.2}
 
   '@mui/private-theming@6.1.8':
     resolution: {integrity: sha512-TuKl7msynCNCVvhX3c0ef1sF0Qb3VHcPs8XOGB/8bdOGBr/ynmIG1yTMjZeiFQXk8yN9fzK/FDEKMFxILNn3wg==}
@@ -5513,8 +5513,8 @@ packages:
   globjoin@0.1.4:
     resolution: {integrity: sha512-xYfnw62CKG8nLkZBfWbhWwDw02CHty86jfPcc2cr3ZfeuK9ysoVPPEUxf21bAD/rWAgk52SuBrLJlefNy8mvFg==}
 
-  google-auth-library@9.14.2:
-    resolution: {integrity: sha512-R+FRIfk1GBo3RdlRYWPdwk8nmtVUOn6+BkDomAC46KoU8kzXzE1HLmOasSCbWUByMMAGkknVF0G5kQ69Vj7dlA==}
+  google-auth-library@9.15.0:
+    resolution: {integrity: sha512-7ccSEJFDFO7exFbO6NRyC+xH8/mZ1GZGG2xxx9iHxZWcjUjJpjWxIMw3cofAKcueZ6DATiukmmprD7yavQHOyQ==}
     engines: {node: '>=14'}
 
   googleapis-common@7.1.0:
@@ -11250,13 +11250,13 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/13e5a0c75eea4fe3f7ce48b19bcab6ab1a7bb0bd(encoding@0.1.13)':
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/f85a1b552c571480c9bef36d180b9d43d4c22955(encoding@0.1.13)':
     dependencies:
       '@googleapis/sheets': 9.3.1(encoding@0.1.13)
       '@netlify/functions': 2.8.2
       '@slack/bolt': 4.1.0
       execa: 9.5.1
-      google-auth-library: 9.14.2(encoding@0.1.13)
+      google-auth-library: 9.15.0(encoding@0.1.13)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -15258,7 +15258,7 @@ snapshots:
 
   globjoin@0.1.4: {}
 
-  google-auth-library@9.14.2(encoding@0.1.13):
+  google-auth-library@9.15.0(encoding@0.1.13):
     dependencies:
       base64-js: 1.5.1
       ecdsa-sig-formatter: 1.0.11
@@ -15274,7 +15274,7 @@ snapshots:
     dependencies:
       extend: 3.0.2
       gaxios: 6.5.0(encoding@0.1.13)
-      google-auth-library: 9.14.2(encoding@0.1.13)
+      google-auth-library: 9.15.0(encoding@0.1.13)
       qs: 6.13.0
       url-template: 2.0.8
       uuid: 9.0.1
