@@ -47,7 +47,7 @@ export function useMenuPositioner(
         },
       });
     },
-    [keepMounted, open, anchorHidden, positionerStyles, mounted],
+    [keepMounted, open, positionerStyles, mounted],
   );
 
   return React.useMemo(

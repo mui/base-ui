@@ -16,7 +16,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useMenuPositioner } from './useMenuPositioner';
 import { HTMLElementType } from '../../utils/proptypes';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * Renders the element that positions the Menu popup.
@@ -119,7 +119,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     render: render ?? 'div',
     className,
     state,
-    customStyleHookMapping: popupOpenStateMapping,
+    customStyleHookMapping: popupStateMapping,
     ref: mergedRef,
     extraProps: otherProps,
   });

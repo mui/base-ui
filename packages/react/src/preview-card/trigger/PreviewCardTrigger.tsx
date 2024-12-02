@@ -5,7 +5,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
  *

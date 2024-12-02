@@ -7,7 +7,7 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useSelectPositioner } from './useSelectPositioner';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
@@ -83,7 +83,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     ref: mergedRef,
     className,
     state,
-    customStyleHookMapping: popupOpenStateMapping,
+    customStyleHookMapping: popupStateMapping,
     extraProps: otherProps,
   });
 

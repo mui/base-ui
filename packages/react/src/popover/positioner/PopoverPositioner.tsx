@@ -10,7 +10,7 @@ import { PopoverPositionerContext } from './PopoverPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * The popover positioner element.
@@ -86,7 +86,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     state,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: popupOpenStateMapping,
+    customStyleHookMapping: popupStateMapping,
   });
 
   const shouldRender = keepMounted || mounted;
