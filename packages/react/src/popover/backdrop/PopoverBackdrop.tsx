@@ -38,7 +38,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   props: PopoverBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, container, ...otherProps } = props;
+  const { className, render, keepMounted = false, ...otherProps } = props;
 
   const { open, mounted, transitionStatus } = usePopoverRootContext();
 
@@ -82,11 +82,6 @@ namespace PopoverBackdrop {
      * @default false
      */
     keepMounted?: boolean;
-    /**
-     * The container element to which the backdrop is appended to.
-     * @default false
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 }
 
