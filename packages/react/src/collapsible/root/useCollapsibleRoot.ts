@@ -23,7 +23,7 @@ export function useCollapsibleRoot(
     state: 'open',
   });
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated, true);
 
   const [panelId, setPanelId] = React.useState<string | undefined>(useId());
 

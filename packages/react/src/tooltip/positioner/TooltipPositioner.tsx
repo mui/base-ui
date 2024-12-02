@@ -9,7 +9,7 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
 import { useTooltipPositioner } from './useTooltipPositioner';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
@@ -35,9 +35,9 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     keepMounted = false,
     positionMethod = 'absolute',
     side = 'top',
-    alignment = 'center',
+    align = 'center',
     sideOffset = 0,
-    alignmentOffset = 0,
+    alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
@@ -58,8 +58,8 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     keepMounted,
     side,
     sideOffset,
-    alignment,
-    alignmentOffset,
+    align,
+    alignOffset,
     collisionBoundary,
     collisionPadding,
     hideWhenDetached,
@@ -77,9 +77,9 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
       open,
       hidden,
       side: positioner.side,
-      alignment: positioner.alignment,
+      align: positioner.align,
     }),
-    [open, hidden, positioner.side, positioner.alignment],
+    [open, hidden, positioner.side, positioner.align],
   );
 
   const contextValue: TooltipPositionerContext = React.useMemo(
@@ -119,7 +119,7 @@ namespace TooltipPositioner {
     open: boolean;
     hidden: boolean;
     side: Side;
-    alignment: Alignment;
+    align: Align;
   }
 
   export interface Props
@@ -138,15 +138,15 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The alignment of the tooltip element to the anchor element along its cross axis.
+   * The align of the tooltip element to the anchor element along its cross axis.
    * @default 'center'
    */
-  alignment: PropTypes.oneOf(['center', 'end', 'start']),
+  align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the tooltip element along its alignment axis.
+   * The offset of the tooltip element along its align axis.
    * @default 0
    */
-  alignmentOffset: PropTypes.number,
+  alignOffset: PropTypes.number,
   /**
    * The element to which the tooltip element is anchored to.
    */

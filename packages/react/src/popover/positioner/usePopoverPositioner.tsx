@@ -21,7 +21,7 @@ export function usePopoverPositioner(
     arrowRef,
     arrowUncentered,
     renderedSide,
-    renderedAlignment,
+    renderedAlign,
     positionerContext,
   } = useAnchorPositioning(params);
 
@@ -55,7 +55,7 @@ export function usePopoverPositioner(
       arrowUncentered,
       arrowStyles,
       side: renderedSide,
-      alignment: renderedAlignment,
+      align: renderedAlign,
       positionerContext,
     }),
     [
@@ -64,7 +64,7 @@ export function usePopoverPositioner(
       arrowUncentered,
       arrowStyles,
       renderedSide,
-      renderedAlignment,
+      renderedAlign,
       positionerContext,
     ],
   );
@@ -97,15 +97,15 @@ export namespace usePopoverPositioner {
      */
     sideOffset?: number;
     /**
-     * The alignment of the popover element to the anchor element along its cross axis.
+     * The align of the popover element to the anchor element along its cross axis.
      * @default 'center'
      */
-    alignment?: 'start' | 'end' | 'center';
+    align?: 'start' | 'end' | 'center';
     /**
-     * The offset of the popover element along its alignment axis.
+     * The offset of the popover element along its align axis.
      * @default 0
      */
-    alignmentOffset?: number;
+    alignOffset?: number;
     /**
      * The boundary that the popover element should be constrained to.
      * @default 'clipping-ancestors'
@@ -189,9 +189,9 @@ export namespace usePopoverPositioner {
      */
     side: 'top' | 'right' | 'bottom' | 'left';
     /**
-     * The rendered alignment of the popover element.
+     * The rendered align of the popover element.
      */
-    alignment: 'start' | 'end' | 'center';
+    align: 'start' | 'end' | 'center';
     /**
      * The styles to apply to the popover arrow element.
      */

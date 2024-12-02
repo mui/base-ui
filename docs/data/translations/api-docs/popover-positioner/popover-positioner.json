@@ -1,12 +1,10 @@
 {
   "componentDescription": "The popover positioner element.",
   "propDescriptions": {
-    "alignment": {
-      "description": "The alignment of the popover element to the anchor element along its cross axis."
+    "align": {
+      "description": "The align of the popover element to the anchor element along its cross axis."
     },
-    "alignmentOffset": {
-      "description": "The offset of the popover element along its alignment axis."
-    },
+    "alignOffset": { "description": "The offset of the popover element along its align axis." },
     "anchor": { "description": "The element to which the popover element is anchored to." },
     "arrowPadding": {
       "description": "Determines the padding between the arrow and the popover edges. Useful when the popover element has rounded corners via <code>border-radius</code>."

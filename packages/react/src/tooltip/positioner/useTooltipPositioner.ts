@@ -18,7 +18,7 @@ export function useTooltipPositioner(
     arrowRef,
     arrowUncentered,
     renderedSide,
-    renderedAlignment,
+    renderedAlign,
   } = useAnchorPositioning(params);
 
   const getPositionerProps: useTooltipPositioner.ReturnValue['getPositionerProps'] =
@@ -51,9 +51,9 @@ export function useTooltipPositioner(
       arrowRef,
       arrowUncentered,
       side: renderedSide,
-      alignment: renderedAlignment,
+      align: renderedAlign,
     }),
-    [getPositionerProps, arrowRef, arrowUncentered, renderedSide, renderedAlignment, arrowStyles],
+    [getPositionerProps, arrowRef, arrowUncentered, renderedSide, renderedAlign, arrowStyles],
   );
 }
 
@@ -89,15 +89,15 @@ export namespace useTooltipPositioner {
      */
     sideOffset?: number;
     /**
-     * The alignment of the tooltip element to the anchor element along its cross axis.
+     * The align of the tooltip element to the anchor element along its cross axis.
      * @default 'center'
      */
-    alignment?: 'start' | 'end' | 'center';
+    align?: 'start' | 'end' | 'center';
     /**
-     * The offset of the tooltip element along its alignment axis.
+     * The offset of the tooltip element along its align axis.
      * @default 0
      */
-    alignmentOffset?: number;
+    alignOffset?: number;
     /**
      * The boundary that the tooltip element should be constrained to.
      * @default 'clipping-ancestors'
@@ -187,8 +187,8 @@ export namespace useTooltipPositioner {
      */
     side: 'top' | 'right' | 'bottom' | 'left';
     /**
-     * The rendered alignment of the tooltip element.
+     * The rendered align of the tooltip element.
      */
-    alignment: 'start' | 'end' | 'center';
+    align: 'start' | 'end' | 'center';
   }
 }

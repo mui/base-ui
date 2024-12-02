@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, waitFor, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
@@ -683,6 +683,100 @@ describe('<Menu.Root />', () => {
       });
 
       expect(menus[0].id).to.equal('parent-menu');
+    });
+  });
+
+  describe('controlled mode', () => {
+    it('should remove the popup when animated=true and there is no exit animation defined', async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Menu.Root open={open}>
+              <Menu.Positioner>
+                <Menu.Popup />
+              </Menu.Positioner>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).to.equal(null);
+      });
+    });
+
+    it('should remove the popup when animated=true and the animation finishes', async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
+      let animationFinished = false;
+      const notifyAnimationFinished = () => {
+        animationFinished = true;
+      };
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-popup[data-open] {
+            opacity: 1;
+          }
+
+          .animation-test-popup[data-ending-style] {
+            animation: test-anim 50ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Menu.Root open={open}>
+              <Menu.Positioner>
+                <Menu.Popup
+                  className="animation-test-popup"
+                  onAnimationEnd={notifyAnimationFinished}
+                />
+              </Menu.Positioner>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).to.equal(null);
+      });
+
+      expect(animationFinished).to.equal(true);
     });
   });
 });

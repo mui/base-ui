@@ -1,11 +1,11 @@
 {
   "componentDescription": "",
   "propDescriptions": {
-    "alignment": {
-      "description": "The alignment of the preview card element to the anchor element along its cross axis."
+    "align": {
+      "description": "The align of the preview card element to the anchor element along its cross axis."
     },
-    "alignmentOffset": {
-      "description": "The offset of the preview card element along its alignment axis."
+    "alignOffset": {
+      "description": "The offset of the preview card element along its align axis."
     },
     "anchor": {
       "description": "The anchor element to which the preview card popup will be placed at."

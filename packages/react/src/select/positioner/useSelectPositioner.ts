@@ -32,7 +32,7 @@ export function useSelectPositioner(
     arrowRef,
     arrowUncentered,
     renderedSide,
-    renderedAlignment,
+    renderedAlign,
     positionerContext,
     isPositioned,
   } = useAnchorPositioning({
@@ -77,7 +77,7 @@ export function useSelectPositioner(
         arrowUncentered,
         arrowStyles,
         side: alignOptionToTrigger ? 'none' : renderedSide,
-        alignment: renderedAlignment,
+        align: renderedAlign,
         positionerContext,
         isPositioned,
       }) as const,
@@ -88,7 +88,7 @@ export function useSelectPositioner(
       arrowUncentered,
       isPositioned,
       positionerContext,
-      renderedAlignment,
+      renderedAlign,
       renderedSide,
     ],
   );
@@ -133,15 +133,15 @@ export namespace useSelectPositioner {
      */
     sideOffset?: number;
     /**
-     * The alignment of the Select element to the anchor element along its cross axis.
+     * The align of the Select element to the anchor element along its cross axis.
      * @default 'start'
      */
-    alignment?: 'start' | 'end' | 'center';
+    align?: 'start' | 'end' | 'center';
     /**
-     * The offset of the Select element along its alignment axis.
+     * The offset of the Select element along its align axis.
      * @default 0
      */
-    alignmentOffset?: number;
+    alignOffset?: number;
     /**
      * The boundary that the Select element should be constrained to.
      * @default 'clipping-ancestors'
@@ -244,9 +244,9 @@ export namespace useSelectPositioner {
        */
       side: 'top' | 'right' | 'bottom' | 'left' | 'none';
       /**
-       * The rendered alignment of the Select element.
+       * The rendered align of the Select element.
        */
-      alignment: 'start' | 'end' | 'center';
+      align: 'start' | 'end' | 'center';
       /**
        * The styles to apply to the Select arrow element.
        */

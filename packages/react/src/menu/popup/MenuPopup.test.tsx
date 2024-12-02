@@ -30,7 +30,7 @@ const testRootContext: MenuRootContext = {
 
 const testPositionerContext: MenuPositionerContext = {
   side: 'bottom',
-  alignment: 'start',
+  align: 'start',
   arrowRef: { current: null },
   arrowStyles: {},
   arrowUncentered: false,

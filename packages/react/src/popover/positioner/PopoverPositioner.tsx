@@ -9,7 +9,7 @@ import { usePopoverPositioner } from './usePopoverPositioner';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 
 /**
@@ -35,9 +35,9 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     keepMounted = false,
     positionMethod = 'absolute',
     side = 'bottom',
-    alignment = 'center',
+    align = 'center',
     sideOffset = 0,
-    alignmentOffset = 0,
+    alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
@@ -58,8 +58,8 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     keepMounted,
     side,
     sideOffset,
-    alignment,
-    alignmentOffset,
+    align,
+    alignOffset,
     arrowPadding,
     collisionBoundary,
     collisionPadding,
@@ -76,9 +76,9 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
       open,
       hidden,
       side: positioner.side,
-      alignment: positioner.alignment,
+      align: positioner.align,
     }),
-    [open, hidden, positioner.side, positioner.alignment],
+    [open, hidden, positioner.side, positioner.align],
   );
 
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
@@ -110,7 +110,7 @@ namespace PopoverPositioner {
     open: boolean;
     hidden: boolean;
     side: Side;
-    alignment: Alignment;
+    align: Align;
   }
 
   export interface Props
@@ -129,15 +129,15 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The alignment of the popover element to the anchor element along its cross axis.
+   * The align of the popover element to the anchor element along its cross axis.
    * @default 'center'
    */
-  alignment: PropTypes.oneOf(['center', 'end', 'start']),
+  align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the popover element along its alignment axis.
+   * The offset of the popover element along its align axis.
    * @default 0
    */
-  alignmentOffset: PropTypes.number,
+  alignOffset: PropTypes.number,
   /**
    * The element to which the popover element is anchored to.
    */

@@ -28,7 +28,6 @@ const TabsList = React.forwardRef(function TabsList(
   const { activateOnFocus = true, className, loop = true, render, ...other } = props;
 
   const {
-    direction = 'ltr',
     getTabElementBySelectedValue,
     onValueChange,
     orientation = 'horizontal',
@@ -53,11 +52,10 @@ const TabsList = React.forwardRef(function TabsList(
 
   const state: TabsList.State = React.useMemo(
     () => ({
-      direction,
       orientation,
       tabActivationDirection,
     }),
-    [direction, orientation, tabActivationDirection],
+    [orientation, tabActivationDirection],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -94,6 +92,7 @@ const TabsList = React.forwardRef(function TabsList(
         highlightedIndex={highlightedTabIndex}
         enableHomeAndEndKeys
         loop={loop}
+        orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
         render={renderElement()}

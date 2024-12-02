@@ -1,7 +1,5 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { GenericHTMLProps } from '../../utils/types';
 import { useControlled } from '../../utils/useControlled';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { TabPanelMetadata } from '../tab-panel/useTabPanel';
@@ -9,12 +7,7 @@ import type { TabMetadata } from '../tab/useTab';
 import type { TabActivationDirection, TabValue } from './TabsRoot';
 
 function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValue {
-  const {
-    value: valueProp,
-    defaultValue,
-    onValueChange: onValueChangeProp,
-    direction = 'ltr',
-  } = parameters;
+  const { value: valueProp, defaultValue, onValueChange: onValueChangeProp } = parameters;
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
 
@@ -122,17 +115,7 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
     [tabMap],
   );
 
-  const getRootProps: useTabsRoot.ReturnValue['getRootProps'] = React.useCallback(
-    (otherProps = {}) =>
-      mergeReactProps<'div'>(otherProps, {
-        dir: direction,
-      }),
-    [direction],
-  );
-
   return {
-    getRootProps,
-    direction,
     getTabElementBySelectedValue,
     getTabIdByPanelValueOrIndex,
     getTabPanelIdByTabValueOrIndex,
@@ -158,27 +141,12 @@ namespace useTabsRoot {
      */
     defaultValue?: TabValue;
     /**
-     * The direction of the text.
-     * @default 'ltr'
-     */
-    direction?: 'ltr' | 'rtl';
-    /**
      * Callback invoked when new value is being set.
      */
     onValueChange?: (value: TabValue, event?: Event) => void;
   }
 
   export interface ReturnValue {
-    /**
-     * Resolver for the Root component's props.
-     * @param externalProps additional props for Tabs.Root
-     * @returns props that should be spread on Tabs.Root
-     */
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    /**
-     * The direction of the text.
-     */
-    direction: 'ltr' | 'rtl';
     /**
      * Gets the element of the Tab with the given value.
      * @param {any | undefined} value Value to find the tab for.

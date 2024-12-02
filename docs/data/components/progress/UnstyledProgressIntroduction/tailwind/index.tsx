@@ -68,7 +68,7 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
       ref={ref}
       className={(state) =>
         classNames(
-          'rounded-[inherit] bg-gray-500 dark:bg-gray-400',
+          'rounded-[inherit] bg-[background-color:var(--code-6)]',
           typeof props.className === 'function'
             ? props.className(state)
             : props.className,
@@ -79,7 +79,12 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
 });
 
 function Label(props: React.HTMLAttributes<HTMLElement>) {
-  return <span className="cursor-[unset] font-bold" {...props} />;
+  return (
+    <span
+      className="cursor-[unset] font-bold text-[color:var(--color-gray-700)]"
+      {...props}
+    />
+  );
 }
 
 function classNames(...classes: Array<string | boolean | undefined | null>) {

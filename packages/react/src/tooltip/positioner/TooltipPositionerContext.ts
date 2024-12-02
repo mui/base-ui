@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../utils/useAnchorPositioning';
 
 export interface TooltipPositionerContext {
   open: boolean;
   side: Side;
-  alignment: Alignment;
+  align: Align;
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;

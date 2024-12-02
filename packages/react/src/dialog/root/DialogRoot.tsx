@@ -29,6 +29,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
   const parentDialogRootContext = React.useContext(DialogRootContext);
 
   const dialogRoot = useDialogRoot({
+    animated,
     open,
     defaultOpen,
     onOpenChange,

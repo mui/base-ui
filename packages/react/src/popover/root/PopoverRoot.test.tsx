@@ -173,6 +173,99 @@ describe('<Popover.Root />', () => {
       expect(handleChange.callCount).to.equal(1);
       expect(handleChange.firstCall.args[0]).to.equal(false);
     });
+
+    it('should remove the popup when animated=true and there is no exit animation defined', async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Popover.Root open={open}>
+              <Popover.Positioner>
+                <Popover.Popup />
+              </Popover.Positioner>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+    });
+
+    it('should remove the popup when animated=true and the animation finishes', async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
+      let animationFinished = false;
+      const notifyAnimationFinished = () => {
+        animationFinished = true;
+      };
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-popup[data-open] {
+            opacity: 1;
+          }
+
+          .animation-test-popup[data-ending-style] {
+            animation: test-anim 50ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Popover.Root open={open}>
+              <Popover.Positioner>
+                <Popover.Popup
+                  className="animation-test-popup"
+                  onAnimationEnd={notifyAnimationFinished}
+                />
+              </Popover.Positioner>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+
+      expect(animationFinished).to.equal(true);
+    });
   });
 
   describe('prop: defaultOpen', () => {
@@ -301,61 +394,112 @@ describe('<Popover.Root />', () => {
     });
   });
 
-  it('focuses the trigger after the popover is closed but not unmounted', async () => {
-    await render(
-      <div>
-        <input type="text" />
-        <Popover.Root animated={false}>
+  describe('focus management', () => {
+    it('focuses the trigger after the popover is closed but not unmounted', async () => {
+      await render(
+        <div>
+          <input type="text" />
+          <Popover.Root animated={false}>
+            <Popover.Trigger>Toggle</Popover.Trigger>
+            <Popover.Positioner keepMounted>
+              <Popover.Popup>
+                <Popover.Close>Close</Popover.Close>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Root>
+          <input type="text" />
+        </div>,
+      );
+
+      const toggle = screen.getByRole('button', { name: 'Toggle' });
+
+      await user.click(toggle);
+      await flushMicrotasks();
+
+      const close = screen.getByRole('button', { name: 'Close' });
+
+      await user.click(close);
+
+      await waitFor(
+        () => {
+          expect(toggle).toHaveFocus();
+        },
+        { timeout: 1500 },
+      );
+    });
+
+    it('does not move focus to the popover when opened with hover', async () => {
+      await render(
+        <Popover.Root openOnHover delay={0}>
           <Popover.Trigger>Toggle</Popover.Trigger>
-          <Popover.Positioner keepMounted>
+          <Popover.Positioner>
             <Popover.Popup>
               <Popover.Close>Close</Popover.Close>
             </Popover.Popup>
           </Popover.Positioner>
-        </Popover.Root>
-        <input type="text" />
-      </div>,
-    );
+        </Popover.Root>,
+      );
 
-    const toggle = screen.getByRole('button', { name: 'Toggle' });
+      const toggle = screen.getByRole('button', { name: 'Toggle' });
 
-    await user.click(toggle);
-    await flushMicrotasks();
+      act(() => toggle.focus());
 
-    const close = screen.getByRole('button', { name: 'Close' });
+      await user.hover(toggle);
+      await flushMicrotasks();
 
-    await user.click(close);
+      const close = screen.getByRole('button', { name: 'Close' });
 
-    await waitFor(
-      () => {
-        expect(toggle).toHaveFocus();
-      },
-      { timeout: 1500 },
-    );
-  });
+      expect(close).not.to.equal(null);
+      expect(close).not.to.toHaveFocus();
+    });
 
-  it('does not move focus to the popover when opened with hover', async () => {
-    await render(
-      <Popover.Root openOnHover delay={0}>
-        <Popover.Trigger>Toggle</Popover.Trigger>
-        <Popover.Positioner>
-          <Popover.Popup>
-            <Popover.Close>Close</Popover.Close>
-          </Popover.Popup>
-        </Popover.Positioner>
-      </Popover.Root>,
-    );
+    it('does not change focus when opened with hover and closed', async () => {
+      const style = `
+        .popup {
+          width: 100px;
+          height: 100px;
+          background-color: red;
+          opacity: 1;
+          transition: opacity 50ms;
+        }
 
-    const toggle = screen.getByRole('button', { name: 'Toggle' });
+        .popup[data-exiting] {
+          opacity: 0;
+        }
+      `;
 
-    act(() => toggle.focus());
+      await render(
+        <div>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <input type="text" data-testid="first-input" />
+          <Popover.Root openOnHover delay={0} closeDelay={0}>
+            <Popover.Trigger>Toggle</Popover.Trigger>
+            <Popover.Positioner>
+              <Popover.Popup className="popup" />
+            </Popover.Positioner>
+          </Popover.Root>
+          <input type="text" data-testid="last-input" />
+        </div>,
+      );
 
-    await user.hover(toggle);
-    await flushMicrotasks();
+      const toggle = screen.getByRole('button', { name: 'Toggle' });
+      const firstInput = screen.getByTestId('first-input');
+      const lastInput = screen.getByTestId('last-input');
 
-    const close = screen.getByRole('button', { name: 'Close' });
+      await act(async () => lastInput.focus());
 
-    expect(close).not.to.equal(null);
-    expect(close).not.to.toHaveFocus();
+      await user.hover(toggle);
+      await flushMicrotasks();
+
+      await user.hover(firstInput);
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+
+      expect(lastInput).toHaveFocus();
+    });
   });
 });

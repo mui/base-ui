@@ -154,6 +154,18 @@ Base UI Tabs follow the [Tabs WAI-ARIA design pattern](https://www.w3.org/WAI/A
 | <kbd>Down Arrow</kbd>              | Moves focus to the next tab (when `orientation="vertical"`) and activates it if `activateOnFocus` is set.       |
 | <kbd>Space</kbd>, <kbd>Enter</kbd> | Activates the focused tab.                                                                                      |
 
+## RTL
+
+Place horizontal tabs inside an HTML element or component with the HTML `dir="rtl"` attribute to reverse arrow key navigation for right-to-left languages:
+
+```jsx
+<html dir="rtl">
+  <body>
+    <Tabs.Root orientation="horizontal" /> {/* RTL keyboard behavior */}
+  </body>
+</html>
+```
+
 ### Labeling
 
 To make the Tabs component suite accessible to assistive technology, label the `<Tabs.List />` element with `aria-label`.

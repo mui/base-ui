@@ -8,7 +8,7 @@ import { Popup } from '../Popup';
 export function ReferenceTablePopover({ children }: React.PropsWithChildren) {
   const isMobile = useMediaQuery('@media (width < 48rem)', { noSsr: true });
   return (
-    <Popover.Root openOnHover delay={0}>
+    <Popover.Root openOnHover delay={100}>
       <Popover.Trigger
         render={
           <GhostButton layout="icon">
@@ -29,9 +29,9 @@ export function ReferenceTablePopover({ children }: React.PropsWithChildren) {
         }
       />
       <Popover.Positioner
-        alignment={isMobile ? 'end' : 'start'}
+        align={isMobile ? 'end' : 'start'}
         side={isMobile ? 'bottom' : 'left'}
-        alignmentOffset={-4}
+        alignOffset={-4}
         sideOffset={9}
         collisionPadding={16}
       >
