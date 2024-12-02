@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { NOOP } from '../../utils/noop';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStyleHookMapping } from './styleHooks';
@@ -27,7 +28,7 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     className,
     defaultOpen = true,
     disabled = false,
-    onOpenChange,
+    onOpenChange =NOOP,
     open,
     render: renderProp,
     ...otherProps
@@ -90,7 +91,7 @@ export namespace CollapsibleRoot {
       Partial<Pick<useCollapsibleRoot.ReturnValue, 'disabled' | 'transitionStatus'>> {}
 
   export interface Props
-    extends useCollapsibleRoot.Parameters,
+    extends Partial<useCollapsibleRoot.Parameters>,
       BaseUIComponentProps<'div', State> {}
 }
 
