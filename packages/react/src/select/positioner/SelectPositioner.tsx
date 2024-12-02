@@ -103,6 +103,7 @@ namespace SelectPositioner {
     open: boolean;
     side: Side | 'none';
     align: Align;
+    anchorHidden: boolean;
   }
 
   export interface Props

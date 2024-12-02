@@ -150,14 +150,13 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   );
 });
 
-export { MenuPositioner };
-
 export namespace MenuPositioner {
-  export type State = {
+  export interface State {
     open: boolean;
     side: Side;
     align: 'start' | 'end' | 'center';
-  };
+    anchorHidden: boolean;
+  }
 
   export interface Props
     extends useMenuPositioner.SharedParameters,
@@ -267,3 +266,5 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   sticky: PropTypes.bool,
 } as any;
+
+export { MenuPositioner };

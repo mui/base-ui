@@ -120,6 +120,7 @@ namespace PreviewCardPositioner {
     open: boolean;
     side: Side;
     align: Align;
+    anchorHidden: boolean;
   }
 
   export interface Props
