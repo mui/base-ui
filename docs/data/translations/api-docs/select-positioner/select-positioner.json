@@ -1,12 +1,10 @@
 {
   "componentDescription": "",
   "propDescriptions": {
-    "alignment": {
-      "description": "The alignment of the Select element to the anchor element along its cross axis."
+    "align": {
+      "description": "The align of the Select element to the anchor element along its cross axis."
     },
-    "alignmentOffset": {
-      "description": "The offset of the Select element along its alignment axis."
-    },
+    "alignOffset": { "description": "The offset of the Select element along its align axis." },
     "anchor": { "description": "The anchor element to which the Select popup will be placed at." },
     "arrowPadding": {
       "description": "Determines the padding between the arrow and the Select popup&#39;s edges. Useful when the popover popup has rounded corners via <code>border-radius</code>."

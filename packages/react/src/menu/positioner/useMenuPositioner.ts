@@ -26,7 +26,7 @@ export function useMenuPositioner(
     arrowRef,
     arrowUncentered,
     renderedSide,
-    renderedAlignment,
+    renderedAlign,
     positionerContext: floatingContext,
   } = useAnchorPositioning(params);
 
@@ -57,7 +57,7 @@ export function useMenuPositioner(
       arrowUncentered,
       arrowStyles,
       side: renderedSide,
-      alignment: renderedAlignment,
+      align: renderedAlign,
       floatingContext,
     }),
     [
@@ -66,7 +66,7 @@ export function useMenuPositioner(
       arrowUncentered,
       arrowStyles,
       renderedSide,
-      renderedAlignment,
+      renderedAlign,
       floatingContext,
     ],
   );
@@ -107,15 +107,15 @@ export namespace useMenuPositioner {
      */
     sideOffset?: number;
     /**
-     * The alignment of the Menu element to the anchor element along its cross axis.
+     * The align of the Menu element to the anchor element along its cross axis.
      * @default 'center'
      */
-    alignment?: 'start' | 'end' | 'center';
+    align?: 'start' | 'end' | 'center';
     /**
-     * The offset of the Menu element along its alignment axis.
+     * The offset of the Menu element along its align axis.
      * @default 0
      */
-    alignmentOffset?: number;
+    alignOffset?: number;
     /**
      * The boundary that the Menu element should be constrained to.
      * @default 'clipping-ancestors'
@@ -184,9 +184,9 @@ export namespace useMenuPositioner {
      */
     side: 'top' | 'right' | 'bottom' | 'left';
     /**
-     * The rendered alignment of the Menu element.
+     * The rendered align of the Menu element.
      */
-    alignment: 'start' | 'end' | 'center';
+    align: 'start' | 'end' | 'center';
     /**
      * The styles to apply to the Menu arrow element.
      */

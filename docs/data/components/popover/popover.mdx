@@ -64,35 +64,35 @@ By default, the popover is placed on the bottom side of its trigger, the default
 </Popover.Root>
 ```
 
-You can also change the alignment of the popover in relation to its anchor. By default, it is centered, but it can be aligned to an edge of the anchor using the `alignment` prop:
+You can also change the align of the popover in relation to its anchor. By default, it is centered, but it can be aligned to an edge of the anchor using the `align` prop:
 
 ```jsx
-<Popover.Positioner side="right" alignment="start">
+<Popover.Positioner side="right" align="start">
   <Popover.Popup>Popover</Popover.Popup>
 </Popover.Positioner>
 ```
 
-Due to collision detection, the popover may change its placement to avoid overflow. Therefore, your explicitly specified `side` and `alignment` props act as "ideal", or preferred, values.
+Due to collision detection, the popover may change its placement to avoid overflow. Therefore, your explicitly specified `side` and `align` props act as "ideal", or preferred, values.
 
 To access the true rendered values, which may change as the result of a collision, the popup element receives data attributes:
 
 ```jsx
 // Rendered HTML (simplified)
 <div>
-  <div data-side="left" data-alignment="end">
+  <div data-side="left" data-align="end">
     Popover
   </div>
 </div>
 ```
 
-This allows you to conditionally style the popover based on its rendered side or alignment.
+This allows you to conditionally style the popover based on its rendered side or align.
 
 ## Offset
 
-The `sideOffset` prop creates a gap between the anchor and popover popup, while `alignmentOffset` slides the popover popup from its alignment, acting logically for `start` and `end` alignments.
+The `sideOffset` prop creates a gap between the anchor and popover popup, while `alignOffset` slides the popover popup from its align, acting logically for `start` and `end` aligns.
 
 ```jsx
-<Popover.Positioner sideOffset={10} alignmentOffset={10}>
+<Popover.Positioner sideOffset={10} alignOffset={10}>
 ```
 
 ## Hover
