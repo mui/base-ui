@@ -1,0 +1,141 @@
+---
+productId: base-ui
+title: React ToggleGroup component
+description: ToggleGroup provides a set of two-state buttons that can either be off (not pressed) or on (pressed).
+components: ToggleGroupRoot
+githubLabel: 'component: toggle button'
+waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/radio-group/
+packageName: '@base-ui-components/react'
+---
+
+# ToggleGroup
+
+<Description />
+
+<ComponentLinkHeader design={false} />
+
+<Demo demo="ToggleGroupIntroduction" defaultCodeOpen="false" bg="gradient" />
+
+## Installation
+
+<InstallationInstructions componentName="ToggleGroup" />
+
+## Anatomy
+
+ToggleGroups are composed with two components:
+
+- `<ToggleGroup />` is the outer component that wraps a set of [`toggle buttons`](/components/react-toggle)
+- `<ToggleButton />`s renders the `<button>`
+
+```tsx
+<ToggleGroup>
+  <ToggleButton value="bold">Bold</ToggleButton>
+  <ToggleButton value="italics">Italics</ToggleButton>
+  <ToggleButton value="underline">Underline</ToggleButton>
+</ToggleGroup>
+```
+
+## Value
+
+Each `Item` in the group must be given a unique value, e.g. a string like `'bold'`, `'italics'` in the examples above.
+
+### Uncontrolled
+
+When uncontrolled, use the `defaultValue` prop to set the initial state of the group:
+
+```tsx
+// only the "Italics" button is initially pressed
+<ToggleGroup defaultValue={['italics']}>
+  <ToggleButton value="bold">Bold</ToggleButton>
+  <ToggleButton value="italics">Italics</ToggleButton>
+  <ToggleButton value="underline">Underline</ToggleButton>
+</ToggleGroup>
+```
+
+### Controlled
+
+When controlled, pass the `value` and `onValueChange` props to `ToggleGroup`:
+
+```tsx
+const [value, setValue] = React.useState(['align-center']);
+
+return (
+  <ToggleGroup value={value} onValueChange={setValue}>
+    <ToggleButton value="align-left" />
+    <ToggleButton value="align-center" />
+    <ToggleButton value="align-right" />
+  </ToggleGroup>
+);
+```
+
+## Customization
+
+### Allow multiple buttons to be pressed
+
+Use the `toggleMultiple` prop to allow multiple buttons to be pressed at the same time:
+
+```tsx
+<ToggleGroup toggleMultiple>
+  <ToggleButton value="bold" />
+  <ToggleButton value="italics" />
+  <ToggleButton value="underline" />
+</ToggleGroup>
+```
+
+<Demo demo="ToggleGroupToggleMultiple" />
+
+### One button must be pressed
+
+Use controlled mode to always keep one button in the pressed state:
+
+```tsx
+const [value, setValue] = React.useState(['align-left']);
+
+const handleValueChange = (newValue) => {
+  if (newValue.length > 0) {
+    setValue(newValue);
+  }
+};
+
+return (
+  <ToggleGroup value={value} onValueChange={handleValueChange}>
+    <ToggleButton value="align-left" />
+    <ToggleButton value="align-center" />
+    <ToggleButton value="align-right" />
+  </ToggleGroup>
+);
+```
+
+## RTL
+
+Place the toggle button group within any HTML element or component with the HTML `dir="rtl"` attribute to reverse directional keys for RTL languages:
+
+```jsx
+<html dir="rtl">
+  <body>
+    <ToggleGroup /> {/* RTL keyboard behavior */}
+  </body>
+<html>
+```
+
+This can also be applied to part of your app:
+
+```jsx
+<html dir="ltr">
+  <body>
+    <div>
+      <ToggleGroup /> {/* LTR keyboard behavior */}
+      <div dir="rtl">
+        <ToggleGroup /> {/* RTL keyboard behavior */}
+      </div>
+    </div>
+  </body>
+<html>
+```
+
+<Demo demo="ToggleGroupRtl" />
+
+## Accessibility
+
+- The `Root` component, and every `Item` must be given must be given an accessible name with `aria-label` or `aria-labelledby`.
+- The `Item`'s label or accessible name _must not_ change based on the pressed state to ensure a smooth screen-reader experience, otherwise it may duplicate the announcement of the pressed state based on `aria-pressed`.
