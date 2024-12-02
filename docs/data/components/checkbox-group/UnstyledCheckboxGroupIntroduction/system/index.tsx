@@ -6,10 +6,18 @@ import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Field } from '@base-ui-components/react/field';
 
 export default function UnstyledCheckboxIndeterminateGroup() {
+  const [value, setValue] = React.useState(['red']);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <Field.Root>
-        <CheckboxGroup.Root defaultValue={['red']}>
+        <CheckboxGroup.Root
+          value={value}
+          onValueChange={(newValues) => {
+            setValue(newValues);
+            console.log(newValues);
+          }}
+        >
           <CheckboxGroupLabel>Colors</CheckboxGroupLabel>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <FieldRoot>
