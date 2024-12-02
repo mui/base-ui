@@ -1,6 +1,6 @@
 {
   "name": "FieldControl",
-  "description": "The field's control element. This is not necessary to use when using a native Base UI input\ncomponent (Checkbox, Switch, Number Field, Slider, Radio Group etc).",
+  "description": "The field's control element. This is not necessary to use when using a native Base UI input\ncomponent (Checkbox, Switch, NumberField, Slider, Radio Group etc).",
   "props": {
     "className": {
       "type": "string | (state) => string",

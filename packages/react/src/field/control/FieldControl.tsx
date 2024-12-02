@@ -10,7 +10,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * The field's control element. This is not necessary to use when using a native Base UI input
- * component (Checkbox, Switch, Number Field, Slider, Radio Group etc).
+ * component (Checkbox, Switch, NumberField, Slider, Radio Group etc).
  *
  * Demos:
  *
