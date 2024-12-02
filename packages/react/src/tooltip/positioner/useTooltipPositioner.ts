@@ -27,7 +27,7 @@ export function useTooltipPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || anchorHidden) {
+        if (keepMounted && !open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -44,7 +44,7 @@ export function useTooltipPositioner(
           },
         });
       },
-      [keepMounted, open, anchorHidden, trackCursorAxis, mounted, positionerStyles],
+      [keepMounted, open, trackCursorAxis, mounted, positionerStyles],
     );
 
   return React.useMemo(

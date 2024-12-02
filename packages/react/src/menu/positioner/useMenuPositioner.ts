@@ -34,7 +34,7 @@ export function useMenuPositioner(
     (externalProps = {}) => {
       const hiddenStyles: React.CSSProperties = {};
 
-      if ((keepMounted && !open) || anchorHidden) {
+      if (keepMounted && !open) {
         hiddenStyles.pointerEvents = 'none';
       }
 

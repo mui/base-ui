@@ -31,7 +31,7 @@ export function usePopoverPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || anchorHidden) {
+        if (keepMounted && !open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -44,7 +44,7 @@ export function usePopoverPositioner(
           },
         });
       },
-      [keepMounted, open, anchorHidden, mounted, positionerStyles],
+      [keepMounted, open, mounted, positionerStyles],
     );
 
   return React.useMemo(

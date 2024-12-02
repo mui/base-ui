@@ -33,7 +33,7 @@ export function usePreviewCardPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || anchorHidden) {
+        if (keepMounted && !open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -46,7 +46,7 @@ export function usePreviewCardPositioner(
           },
         });
       },
-      [positionerStyles, open, keepMounted, anchorHidden, mounted],
+      [positionerStyles, open, keepMounted, mounted],
     );
 
   return React.useMemo(

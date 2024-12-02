@@ -53,7 +53,7 @@ export function useSelectPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if (!open || anchorHidden) {
+        if (!open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -66,7 +66,7 @@ export function useSelectPositioner(
           },
         });
       },
-      [open, anchorHidden, mounted, positionerStyles],
+      [open, mounted, positionerStyles],
     );
 
   const positioner = React.useMemo(
