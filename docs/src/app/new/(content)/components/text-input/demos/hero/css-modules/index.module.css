@@ -1,13 +1,14 @@
 .TextInput {
   box-sizing: border-box;
-  padding: 0.5rem 0.875rem;
+  padding-block: 0.5rem;
+  padding-left: 0.875rem;
   margin: 0;
   border: 1px solid var(--color-gray-200);
   width: 16rem;
   height: 2.5rem;
   border-radius: 0.375rem;
-  font-size: 1rem;
   font-family: inherit;
+  font-size: 1rem;
   font-weight: normal;
   color: var(--color-gray-900);
 

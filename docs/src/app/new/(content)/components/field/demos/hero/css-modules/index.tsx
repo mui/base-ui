@@ -8,7 +8,7 @@ export default function ExampleField() {
       <Field.Label className={styles.Label}>Name</Field.Label>
       <Field.Control
         required
-        // @ts-ignore
+        // @ts-expect-error
         placeholder="Required"
         className={styles.TextInput}
       />

@@ -7,7 +7,7 @@ export default function ExampleCheckboxGroup() {
     <CheckboxGroup.Root
       aria-labelledby="apples-caption"
       defaultValue={['fuji-apple']}
-      className="flex flex-col gap-1 text-gray-900"
+      className="flex flex-col items-start gap-1 text-gray-900"
     >
       <div className="font-medium" id="apples-caption">
         Apples
