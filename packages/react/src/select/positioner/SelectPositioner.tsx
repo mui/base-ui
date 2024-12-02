@@ -9,7 +9,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 import { useSelectPositioner } from './useSelectPositioner';
-import type { Alignment, Side } from '../../utils/useAnchorPositioning';
+import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 
 /**
@@ -32,9 +32,9 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     className,
     render,
     side = 'bottom',
-    alignment = 'start',
+    align = 'start',
     sideOffset = 0,
-    alignmentOffset = 0,
+    alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding,
     arrowPadding = 5,
@@ -56,8 +56,8 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     mounted,
     side,
     sideOffset,
-    alignment,
-    alignmentOffset,
+    align,
+    alignOffset,
     arrowPadding,
     collisionBoundary,
     collisionPadding,
@@ -73,9 +73,9 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     () => ({
       open,
       side: positioner.side,
-      alignment: positioner.alignment,
+      align: positioner.align,
     }),
-    [open, positioner.side, positioner.alignment],
+    [open, positioner.side, positioner.align],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -103,7 +103,7 @@ namespace SelectPositioner {
   export interface State {
     open: boolean;
     side: Side | 'none';
-    alignment: Alignment;
+    align: Align;
   }
 
   export interface Props
@@ -117,15 +117,15 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The alignment of the Select element to the anchor element along its cross axis.
+   * The align of the Select element to the anchor element along its cross axis.
    * @default 'start'
    */
-  alignment: PropTypes.oneOf(['center', 'end', 'start']),
+  align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the Select element along its alignment axis.
+   * The offset of the Select element along its align axis.
    * @default 0
    */
-  alignmentOffset: PropTypes.number,
+  alignOffset: PropTypes.number,
   /**
    * The anchor element to which the Select popup will be placed at.
    */

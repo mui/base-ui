@@ -24,10 +24,9 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { direction, max, min, value, state } = useProgressRootContext();
+  const { max, min, value, state } = useProgressRootContext();
 
   const { getRootProps } = useProgressIndicator({
-    direction,
     max,
     min,
     value,

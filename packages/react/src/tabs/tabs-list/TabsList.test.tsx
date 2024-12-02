@@ -20,7 +20,6 @@ describe('<Tabs.List />', () => {
             getTabIdByPanelValueOrIndex: () => '',
             getTabPanelIdByTabValueOrIndex: () => '',
             orientation: 'horizontal',
-            direction: 'ltr',
             tabActivationDirection: 'none',
           }}
         >

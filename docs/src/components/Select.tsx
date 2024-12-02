@@ -23,7 +23,7 @@ export function Trigger({ className, ssrFallback, placeholder, ...props }: Trigg
 
 export function Popup({ children, className, ...props }: Select.Positioner.Props) {
   return (
-    <Select.Positioner alignment="center" sideOffset={7} className="SelectPositioner" {...props}>
+    <Select.Positioner align="center" sideOffset={7} className="SelectPositioner" {...props}>
       <Select.Popup className={clsx('SelectPopup', className)}>{children}</Select.Popup>
 
       {/* Used on mobile */}
