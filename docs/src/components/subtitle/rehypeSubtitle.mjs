@@ -9,10 +9,6 @@ export function rehypeSubtitle() {
     visitParents(tree, (node, ancestors) => {
       const parent = ancestors.slice(-1)[0];
 
-      if (node.tagName === 'p') {
-        console.log(parent?.name, node.tagName, !parent?.name !== 'Subtitle', node.tagName !== 'p');
-      }
-
       if (parent?.name !== 'Subtitle' || node.tagName !== 'p') {
         return;
       }
