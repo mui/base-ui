@@ -12,14 +12,8 @@ export function useTooltipPositioner(
 
   const { open, trackCursorAxis } = useTooltipRootContext();
 
-  const {
-    positionerStyles,
-    arrowStyles,
-    arrowRef,
-    arrowUncentered,
-    renderedSide,
-    renderedAlign,
-  } = useAnchorPositioning(params);
+  const { positionerStyles, arrowStyles, arrowRef, arrowUncentered, renderedSide, renderedAlign } =
+    useAnchorPositioning(params);
 
   const getPositionerProps: useTooltipPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(
