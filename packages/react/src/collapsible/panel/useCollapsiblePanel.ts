@@ -50,10 +50,10 @@ export function useCollapsiblePanel(
   parameters: useCollapsiblePanel.Parameters,
 ): useCollapsiblePanel.ReturnValue {
   const {
-    animated = false,
-    hiddenUntilFound = false,
+    animated,
+    hiddenUntilFound,
     panelId,
-    keepMounted = false,
+    keepMounted,
     open,
     mounted,
     ref,
@@ -308,14 +308,12 @@ export namespace useCollapsiblePanel {
   export interface Parameters {
     /**
      * If `true`, the component supports CSS/JS-based animations and transitions.
-     * @default false
      */
     animated: boolean;
     /**
      * If `true`, sets the hidden state using `hidden="until-found"`. The panel
      * remains mounted in the DOM when closed and overrides `keepMounted`.
      * If `false`, sets the hidden state using `hidden`.
-     * @default false
      */
     hiddenUntilFound: boolean;
     panelId: React.HTMLAttributes<Element>['id'];
@@ -323,7 +321,6 @@ export namespace useCollapsiblePanel {
      * If `true` the panel remains mounted in the DOM when closed and is hidden
      * using the HTML `hidden` attribute.
      * Using `hiddenUntilFound` overrides this and forces `keepMounted={true}`
-     * @default false
      */
     keepMounted: boolean;
     mounted: boolean;

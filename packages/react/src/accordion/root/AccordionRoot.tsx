@@ -40,7 +40,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     hiddenUntilFound: hiddenUntilFoundProp,
     keepMounted: keepMountedProp,
     loop = true,
-    onValueChange = NOOP,
+    onValueChange: onValueChangeProp,
     openMultiple = true,
     orientation = 'vertical',
     value,
@@ -77,7 +77,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     defaultValue,
     loop,
     orientation,
-    onValueChange,
+    onValueChange: onValueChangeProp ?? NOOP,
     openMultiple,
     value,
   });
@@ -205,7 +205,6 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   /**
    * Callback fired when an Accordion section is opened or closed.
    * The value representing the involved section is provided as an argument.
-   * @default NOOP
    */
   onValueChange: PropTypes.func,
   /**

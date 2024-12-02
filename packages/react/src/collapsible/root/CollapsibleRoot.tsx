@@ -28,7 +28,7 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     className,
     defaultOpen = false,
     disabled = false,
-    onOpenChange = NOOP,
+    onOpenChange: onOpenChangeProp,
     open,
     render: renderProp,
     ...otherProps
@@ -38,7 +38,7 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     animated,
     open,
     defaultOpen,
-    onOpenChange,
+    onOpenChange: onOpenChangeProp ?? NOOP,
     disabled,
   });
 
@@ -130,7 +130,6 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   disabled: PropTypes.bool,
   /**
    * Callback fired when the Collapsible is opened or closed.
-   * @default NOOP
    */
   onOpenChange: PropTypes.func,
   /**

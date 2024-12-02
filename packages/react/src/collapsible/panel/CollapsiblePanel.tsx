@@ -94,9 +94,14 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 export { CollapsiblePanel };
 
 namespace CollapsiblePanel {
-  export interface Props
-    extends BaseUIComponentProps<'div', CollapsibleRoot.State>,
-      Partial<Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'>> {
+  export interface Props extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
+    /**
+     * If `true`, sets the hidden state using `hidden="until-found"`. The panel
+     * remains mounted in the DOM when closed and overrides `keepMounted`.
+     * If `false`, sets the hidden state using `hidden`.
+     * @default false
+     */
+    hiddenUntilFound?: boolean;
     /**
      * If `true`, the panel remains mounted when closed and is instead
      * hidden using the `hidden` attribute

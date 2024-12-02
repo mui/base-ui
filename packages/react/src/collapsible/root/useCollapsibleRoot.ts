@@ -46,7 +46,6 @@ export namespace useCollapsibleRoot {
   export interface Parameters {
     /**
      * If `true`, the component supports CSS/JS-based animations and transitions.
-     * @default true
      */
     animated: boolean;
     /**
@@ -62,12 +61,10 @@ export namespace useCollapsibleRoot {
     defaultOpen?: boolean;
     /**
      * Callback fired when the Collapsible is opened or closed.
-     * @default undefined
      */
     onOpenChange: (open: boolean) => void;
     /**
      * If `true`, the component is disabled.
-     * @default false
      */
     disabled: boolean;
   }

@@ -205,42 +205,33 @@ export namespace useAccordionRoot {
     /**
      * The default value representing the currently open `Accordion.Item`
      * This is the uncontrolled counterpart of `value`.
-     * @default 0
      */
     defaultValue?: AccordionValue;
     /**
      * If `true`, the component supports CSS/JS-based animations and transitions.
-     * @default true
      */
     animated: boolean;
     /**
      * If `true`, the component is disabled.
-     * @default false
      */
     disabled: boolean;
-    /**
-     * @default 'ltr'
-     */
     direction: Direction;
     /**
      * If `true`, focus will loop when moving focus between `Trigger`s using
      * the arrow keys.
-     * @default true
      */
     loop: boolean;
     /**
      * Callback fired when an Accordion section is opened or closed.
      * The value representing the involved section is provided as an argument.
-     * @default undefined
      */
-    onValueChange?: (value: AccordionValue) => void;
+    onValueChange: (value: AccordionValue) => void;
     /**
-     * Whether multiple Accordion sections can be opened at the same time
-     * @default true
+     * Whether multiple Accordion sections can be opened at the same time.
      */
     openMultiple: boolean;
     /**
-     * @default 'vertical'
+     * The orientation of the accordion.
      */
     orientation: AccordionOrientation;
   }

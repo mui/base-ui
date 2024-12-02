@@ -38,7 +38,6 @@
     },
     "onValueChange": {
       "type": "(value) => void",
-      "default": "NOOP",
       "description": "Callback fired when an Accordion section is opened or closed.\nThe value representing the involved section is provided as an argument."
     },
     "openMultiple": {
