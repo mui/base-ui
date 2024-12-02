@@ -99,14 +99,3 @@ function App() {
 ```
 
 <Demo demo="UnstyledCheckboxGroupNested" />
-
-To preserve the initial state of the child checkboxes when the parent checkbox is toggled, set the `preserveChildStates` prop to `true`:
-
-```tsx
-<CheckboxGroup.Root preserveChildStates>
-  <Checkbox.Root parent />
-  {allValues.map((value) => (
-    <Checkbox.Root key={value} name={value} />
-  ))}
-</CheckboxGroup.Root>
-```
