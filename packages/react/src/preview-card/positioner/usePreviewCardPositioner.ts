@@ -20,7 +20,7 @@ export function usePreviewCardPositioner(
   const {
     positionerStyles,
     arrowStyles,
-    hidden,
+    anchorHidden,
     arrowRef,
     arrowUncentered,
     renderedSide,
@@ -33,7 +33,7 @@ export function usePreviewCardPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || hidden) {
+        if ((keepMounted && !open) || anchorHidden) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -46,7 +46,7 @@ export function usePreviewCardPositioner(
           },
         });
       },
-      [positionerStyles, open, keepMounted, hidden, mounted],
+      [positionerStyles, open, keepMounted, anchorHidden, mounted],
     );
 
   return React.useMemo(
@@ -58,6 +58,7 @@ export function usePreviewCardPositioner(
       side: renderedSide,
       align: renderedAlign,
       positionerContext,
+      anchorHidden,
     }),
     [
       getPositionerProps,
@@ -67,6 +68,7 @@ export function usePreviewCardPositioner(
       renderedSide,
       renderedAlign,
       positionerContext,
+      anchorHidden,
     ],
   );
 }
@@ -121,12 +123,6 @@ export namespace usePreviewCardPositioner {
      * @default 5
      */
     collisionPadding?: Padding;
-    /**
-     * If `true`, the preview card will be hidden if it is detached from its anchor element due to
-     * differing clipping contexts.
-     * @default false
-     */
-    hideWhenDetached?: boolean;
     /**
      * If `true`, allow the preview card to remain in stuck view while the anchor element is scrolled
      * out of view.
@@ -196,5 +192,9 @@ export namespace usePreviewCardPositioner {
      * The floating context.
      */
     positionerContext: FloatingContext;
+    /**
+     * Determines if the anchor element is hidden.
+     */
+    anchorHidden: boolean;
   }
 }

@@ -41,7 +41,6 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
-    hideWhenDetached = false,
     sticky = false,
     ...otherProps
   } = props;
@@ -63,7 +62,6 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     arrowPadding,
     collisionBoundary,
     collisionPadding,
-    hideWhenDetached,
     sticky,
     popupRef,
     openMethod,
@@ -74,8 +72,9 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
       open,
       side: positioner.side,
       align: positioner.align,
+      anchorHidden: positioner.anchorHidden,
     }),
-    [open, positioner.side, positioner.align],
+    [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
@@ -192,12 +191,6 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
     HTMLElementType,
     PropTypes.func,
   ]),
-  /**
-   * Whether the popover element is hidden if it appears detached from its anchor element due
-   * to the anchor element being clipped (or hidden) from view.
-   * @default false
-   */
-  hideWhenDetached: PropTypes.bool,
   /**
    * Whether the popover remains mounted in the DOM while closed.
    * @default false

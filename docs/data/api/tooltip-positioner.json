@@ -31,7 +31,6 @@
       "default": "5"
     },
     "container": { "type": { "name": "union", "description": "HTML element<br>&#124;&nbsp;func" } },
-    "hideWhenDetached": { "type": { "name": "bool" }, "default": "false" },
     "keepMounted": { "type": { "name": "bool" }, "default": "false" },
     "positionMethod": {
       "type": { "name": "enum", "description": "'absolute'<br>&#124;&nbsp;'fixed'" },

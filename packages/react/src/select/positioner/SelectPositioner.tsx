@@ -38,7 +38,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionBoundary = 'clipping-ancestors',
     collisionPadding,
     arrowPadding = 5,
-    hideWhenDetached = false,
     sticky = false,
     trackAnchor = true,
     container,
@@ -61,7 +60,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding,
     collisionBoundary,
     collisionPadding,
-    hideWhenDetached,
     sticky,
     trackAnchor,
     allowAxisFlip: false,
@@ -74,8 +72,9 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
       open,
       side: positioner.side,
       align: positioner.align,
+      anchorHidden: positioner.anchorHidden,
     }),
-    [open, positioner.side, positioner.align],
+    [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -248,12 +247,6 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
       },
     }),
   ]),
-  /**
-   * If `true`, the Select will be hidden if it is detached from its anchor element due to
-   * differing clipping contexts.
-   * @default false
-   */
-  hideWhenDetached: PropTypes.bool,
   /**
    * The CSS position method for positioning the Select popup element.
    * @default 'absolute'

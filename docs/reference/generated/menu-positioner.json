@@ -39,11 +39,6 @@
       "type": "React.Ref | HTMLElement | null",
       "description": "The container element to which the Menu popup will be appended to."
     },
-    "hideWhenDetached": {
-      "type": "boolean",
-      "default": "false",
-      "description": "If `true`, the Menu will be hidden if it is detached from its anchor element due to\ndiffering clipping contexts."
-    },
     "keepMounted": {
       "type": "boolean",
       "default": "false",

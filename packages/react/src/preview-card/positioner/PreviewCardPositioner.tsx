@@ -38,7 +38,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
-    hideWhenDetached = false,
     sticky = false,
     keepMounted = false,
     container,
@@ -62,7 +61,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     arrowPadding,
     collisionBoundary,
     collisionPadding,
-    hideWhenDetached,
     sticky,
   });
 
@@ -71,8 +69,9 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
       open,
       side: positioner.side,
       align: positioner.align,
+      anchorHidden: positioner.anchorHidden,
     }),
-    [open, positioner.side, positioner.align],
+    [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
   const contextValue: PreviewCardPositionerContext = React.useMemo(
@@ -200,12 +199,6 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
     HTMLElementType,
     PropTypes.func,
   ]),
-  /**
-   * If `true`, the preview card will be hidden if it is detached from its anchor element due to
-   * differing clipping contexts.
-   * @default false
-   */
-  hideWhenDetached: PropTypes.bool,
   /**
    * If `true`, preview card stays mounted in the DOM when closed.
    * @default false

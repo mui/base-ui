@@ -18,7 +18,7 @@ export function usePopoverPositioner(
   const {
     positionerStyles,
     arrowStyles,
-    hidden,
+    anchorHidden,
     arrowRef,
     arrowUncentered,
     renderedSide,
@@ -31,7 +31,7 @@ export function usePopoverPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || hidden) {
+        if ((keepMounted && !open) || anchorHidden) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -44,7 +44,7 @@ export function usePopoverPositioner(
           },
         });
       },
-      [keepMounted, open, hidden, mounted, positionerStyles],
+      [keepMounted, open, anchorHidden, mounted, positionerStyles],
     );
 
   return React.useMemo(
@@ -56,6 +56,7 @@ export function usePopoverPositioner(
       side: renderedSide,
       align: renderedAlign,
       positionerContext,
+      anchorHidden,
     }),
     [
       getPositionerProps,
@@ -65,6 +66,7 @@ export function usePopoverPositioner(
       renderedSide,
       renderedAlign,
       positionerContext,
+      anchorHidden,
     ],
   );
 }
@@ -116,12 +118,6 @@ export namespace usePopoverPositioner {
      * @default 5
      */
     collisionPadding?: Padding;
-    /**
-     * Whether the popover element is hidden if it appears detached from its anchor element due
-     * to the anchor element being clipped (or hidden) from view.
-     * @default false
-     */
-    hideWhenDetached?: boolean;
     /**
      * Whether to allow the popover to remain stuck in view while the anchor element is scrolled out
      * of view.
@@ -199,5 +195,9 @@ export namespace usePopoverPositioner {
      * The floating context.
      */
     positionerContext: FloatingContext;
+    /**
+     * Determines if the anchor element is hidden.
+     */
+    anchorHidden: boolean;
   }
 }

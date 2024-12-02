@@ -23,9 +23,6 @@
     "container": {
       "description": "The container element to which the preview card popup will be appended to."
     },
-    "hideWhenDetached": {
-      "description": "If <code>true</code>, the preview card will be hidden if it is detached from its anchor element due to differing clipping contexts."
-    },
     "keepMounted": {
       "description": "If <code>true</code>, preview card stays mounted in the DOM when closed."
     },

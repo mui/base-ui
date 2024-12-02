@@ -19,9 +19,6 @@
       "description": "The padding between the tooltip element and the edges of the collision boundary to add whitespace between them to prevent them from touching."
     },
     "container": { "description": "The container element the tooltip positioner is appended to." },
-    "hideWhenDetached": {
-      "description": "Whether the tooltip element is hidden if it appears detached from its anchor element due to the anchor element being clipped (or hidden) from view."
-    },
     "keepMounted": {
       "description": "Whether the tooltip remains mounted in the DOM while closed."
     },

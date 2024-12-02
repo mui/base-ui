@@ -29,7 +29,7 @@ export function useSelectPositioner(
   const {
     positionerStyles: enabledPositionerStyles,
     arrowStyles,
-    hidden,
+    anchorHidden,
     arrowRef,
     arrowUncentered,
     renderedSide,
@@ -53,7 +53,7 @@ export function useSelectPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if (!open || hidden) {
+        if (!open || anchorHidden) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -66,7 +66,7 @@ export function useSelectPositioner(
           },
         });
       },
-      [open, hidden, mounted, positionerStyles],
+      [open, anchorHidden, mounted, positionerStyles],
     );
 
   const positioner = React.useMemo(
@@ -79,6 +79,7 @@ export function useSelectPositioner(
         align: renderedAlign,
         positionerContext,
         isPositioned,
+        anchorHidden,
       }) as const,
     [
       alignOptionToTrigger,
@@ -89,6 +90,7 @@ export function useSelectPositioner(
       positionerContext,
       renderedAlign,
       renderedSide,
+      anchorHidden,
     ],
   );
 
@@ -151,12 +153,6 @@ export namespace useSelectPositioner {
      * @default 5
      */
     collisionPadding?: Padding;
-    /**
-     * If `true`, the Select will be hidden if it is detached from its anchor element due to
-     * differing clipping contexts.
-     * @default false
-     */
-    hideWhenDetached?: boolean;
     /**
      * Whether the select popup remains mounted in the DOM while closed.
      * @default true
@@ -258,6 +254,10 @@ export namespace useSelectPositioner {
        * Whether the Select popup has been positioned.
        */
       isPositioned: boolean;
+      /**
+       * Determines if the anchor element is hidden.
+       */
+      anchorHidden: boolean;
     };
   }
 }

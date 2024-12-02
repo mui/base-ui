@@ -22,7 +22,7 @@ export function useMenuPositioner(
   const {
     positionerStyles,
     arrowStyles,
-    hidden,
+    anchorHidden,
     arrowRef,
     arrowUncentered,
     renderedSide,
@@ -34,7 +34,7 @@ export function useMenuPositioner(
     (externalProps = {}) => {
       const hiddenStyles: React.CSSProperties = {};
 
-      if ((keepMounted && !open) || hidden) {
+      if ((keepMounted && !open) || anchorHidden) {
         hiddenStyles.pointerEvents = 'none';
       }
 
@@ -47,7 +47,7 @@ export function useMenuPositioner(
         },
       });
     },
-    [keepMounted, open, hidden, positionerStyles, mounted],
+    [keepMounted, open, anchorHidden, positionerStyles, mounted],
   );
 
   return React.useMemo(
@@ -59,6 +59,7 @@ export function useMenuPositioner(
       side: renderedSide,
       align: renderedAlign,
       floatingContext,
+      anchorHidden,
     }),
     [
       getPositionerProps,
@@ -68,6 +69,7 @@ export function useMenuPositioner(
       renderedSide,
       renderedAlign,
       floatingContext,
+      anchorHidden,
     ],
   );
 }
@@ -126,12 +128,6 @@ export namespace useMenuPositioner {
      * @default 5
      */
     collisionPadding?: Padding;
-    /**
-     * If `true`, the Menu will be hidden if it is detached from its anchor element due to
-     * differing clipping contexts.
-     * @default false
-     */
-    hideWhenDetached?: boolean;
     /**
      * Whether the menu popup remains mounted in the DOM while closed.
      * @default false
@@ -195,5 +191,9 @@ export namespace useMenuPositioner {
      * The floating context.
      */
     floatingContext: FloatingContext;
+    /**
+     * Determines if the anchor element is hidden.
+     */
+    anchorHidden: boolean;
   }
 }

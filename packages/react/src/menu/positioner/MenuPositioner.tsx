@@ -46,7 +46,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
-    hideWhenDetached = false,
     sticky = false,
     container,
     ...otherProps
@@ -79,7 +78,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     arrowPadding,
     collisionBoundary,
     collisionPadding,
-    hideWhenDetached,
     sticky,
     nodeId,
   });
@@ -89,8 +87,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
       open,
       side: positioner.side,
       align: positioner.align,
+      anchorHidden: positioner.anchorHidden,
     }),
-    [open, positioner.side, positioner.align],
+    [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
   const contextValue: MenuPositionerContext = React.useMemo(
@@ -237,12 +236,6 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
     HTMLElementType,
     PropTypes.func,
   ]),
-  /**
-   * If `true`, the Menu will be hidden if it is detached from its anchor element due to
-   * differing clipping contexts.
-   * @default false
-   */
-  hideWhenDetached: PropTypes.bool,
   /**
    * Whether the menu popup remains mounted in the DOM while closed.
    * @default false

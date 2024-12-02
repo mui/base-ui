@@ -39,7 +39,6 @@ interface UseAnchorPositioningParameters {
   fallbackAxisSideDirection?: 'start' | 'end' | 'none';
   collisionBoundary?: Boundary;
   collisionPadding?: Padding;
-  hideWhenDetached?: boolean;
   sticky?: boolean;
   keepMounted?: boolean;
   arrowPadding?: number;
@@ -57,7 +56,7 @@ interface UseAnchorPositioningReturnValue {
   arrowUncentered: boolean;
   renderedSide: Side;
   renderedAlign: Align;
-  hidden: boolean;
+  anchorHidden: boolean;
   refs: ReturnType<typeof useFloating>['refs'];
   positionerContext: FloatingContext;
   isPositioned: boolean;
@@ -81,7 +80,6 @@ export function useAnchorPositioning(
     alignOffset = 0,
     collisionBoundary,
     collisionPadding = 5,
-    hideWhenDetached = false,
     fallbackAxisSideDirection = 'none',
     sticky = false,
     keepMounted = false,
@@ -162,7 +160,7 @@ export function useAnchorPositioning(
       }),
       [arrowPadding],
     ),
-    hideWhenDetached && hide(),
+    hide(),
     {
       name: 'transformOrigin',
       fn({ elements, middlewareData, placement: renderedPlacement }) {
@@ -272,15 +270,7 @@ export function useAnchorPositioning(
 
   const renderedSide = getSide(renderedPlacement);
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
-  const hidden = Boolean(hideWhenDetached && middlewareData.hide?.referenceHidden);
-
-  const positionerStyles = React.useMemo(
-    () => ({
-      ...floatingStyles,
-      ...(hidden && { visibility: 'hidden' as const }),
-    }),
-    [floatingStyles, hidden],
-  );
+  const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
   const arrowStyles = React.useMemo(
     () => ({
@@ -295,25 +285,25 @@ export function useAnchorPositioning(
 
   return React.useMemo(
     () => ({
-      positionerStyles,
+      positionerStyles: floatingStyles,
       arrowStyles,
       arrowRef,
       arrowUncentered,
       renderedSide,
       renderedAlign,
-      hidden,
+      anchorHidden,
       refs,
       positionerContext,
       isPositioned,
     }),
     [
-      positionerStyles,
+      floatingStyles,
       arrowStyles,
       arrowRef,
       arrowUncentered,
       renderedSide,
       renderedAlign,
-      hidden,
+      anchorHidden,
       refs,
       positionerContext,
       isPositioned,
