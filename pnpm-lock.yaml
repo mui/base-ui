@@ -333,7 +333,7 @@ importers:
         specifier: ^4.8.2
         version: 4.8.2
       typescript:
-        specifier: ^5.6.3
+        specifier: ^5.7.2
         version: 5.7.2
       unist-util-visit:
         specifier: ^5.0.0
