@@ -22,7 +22,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   props: CheckboxIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = true, ...otherProps } = props;
+  const { render, className, keepMounted = false, ...otherProps } = props;
 
   const state = useCheckboxRootContext();
 
@@ -47,10 +47,11 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
 namespace CheckboxIndicator {
   export interface State extends CheckboxRoot.State {}
+
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
-     * If `true`, the indicator stays mounted when unchecked. Useful for CSS animations.
-     * @default true
+     * Determines if the indicator stays mounted when unchecked.
+     * @default false
      */
     keepMounted?: boolean;
   }
