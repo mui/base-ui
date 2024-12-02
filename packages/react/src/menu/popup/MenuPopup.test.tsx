@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { createRenderer, describeConformance } from '#test-utils';
+import { NOOP } from '../../utils/noop';
 import { MenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { MenuRootContext } from '../root/MenuRootContext';
 
@@ -12,20 +13,22 @@ const testRootContext: MenuRootContext = {
   getItemProps: (p) => ({ ...p }),
   parentContext: undefined,
   nested: false,
-  setTriggerElement: () => {},
-  setPositionerElement: () => {},
+  setTriggerElement: NOOP,
+  setPositionerElement: NOOP,
   activeIndex: null,
   disabled: false,
   itemDomElements: { current: [] },
   itemLabels: { current: [] },
   open: true,
-  setOpen: () => {},
+  setOpen: NOOP,
   clickAndDragEnabled: false,
-  setClickAndDragEnabled: () => {},
+  setClickAndDragEnabled: NOOP,
   popupRef: { current: null },
   mounted: true,
   transitionStatus: undefined,
   typingRef: { current: false },
+  dir: null,
+  setDir: NOOP,
 };
 
 const testPositionerContext: MenuPositionerContext = {

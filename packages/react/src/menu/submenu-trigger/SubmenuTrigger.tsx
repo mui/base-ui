@@ -34,6 +34,8 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     clickAndDragEnabled,
     open,
     typingRef,
+    dir,
+    setDir,
   } = useMenuRootContext();
 
   if (parentContext === undefined) {
@@ -58,6 +60,8 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     setTriggerElement,
     treatMouseupAsClick: clickAndDragEnabled,
     typingRef,
+    dir,
+    setDir,
   });
 
   const state: SubmenuTrigger.State = React.useMemo(

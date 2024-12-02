@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
 import { useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import { type TextDirection } from '../../utils/getTextDirection';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useId } from '../../utils/useId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
@@ -16,12 +17,14 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
   const {
     className,
     closeOnClick = true,
+    direction,
     disabled = false,
     highlighted,
     id,
     menuEvents,
     propGetter,
     render,
+    setDir,
     treatMouseupAsClick,
     typingRef,
     ...other
@@ -29,11 +32,13 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
 
   const { getRootProps } = useMenuItem({
     closeOnClick,
+    dir: direction,
     disabled,
     highlighted,
     id,
     menuEvents,
     ref: forwardedRef,
+    setDir,
     treatMouseupAsClick,
     typingRef,
   });
@@ -158,7 +163,8 @@ const MenuItem = React.forwardRef(function MenuItem(
   const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex, clickAndDragEnabled, typingRef } = useMenuRootContext();
+  const { getItemProps, activeIndex, clickAndDragEnabled, typingRef, dir, setDir } =
+    useMenuRootContext();
   const id = useId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -178,14 +184,18 @@ const MenuItem = React.forwardRef(function MenuItem(
       propGetter={getItemProps}
       treatMouseupAsClick={clickAndDragEnabled}
       typingRef={typingRef}
+      direction={dir}
+      setDir={setDir}
     />
   );
 });
 
 interface InnerMenuItemProps extends MenuItem.Props {
+  direction: TextDirection | null;
   highlighted: boolean;
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   menuEvents: FloatingEvents;
+  setDir: (dir: TextDirection | null) => void;
   treatMouseupAsClick: boolean;
   typingRef: React.RefObject<boolean>;
 }

@@ -6,6 +6,7 @@ import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
+import { NOOP } from '../../utils/noop';
 import { MenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRootContext } from '../root/MenuRootContext';
 
@@ -16,25 +17,27 @@ const testRootContext: MenuRootContext = {
   getItemProps: (p) => ({ ...p }),
   parentContext: undefined,
   nested: false,
-  setTriggerElement: () => {},
-  setPositionerElement: () => {},
+  setTriggerElement: NOOP,
+  setPositionerElement: NOOP,
   activeIndex: null,
   disabled: false,
   itemDomElements: { current: [] },
   itemLabels: { current: [] },
   open: true,
-  setOpen: () => {},
+  setOpen: NOOP,
   clickAndDragEnabled: false,
-  setClickAndDragEnabled: () => {},
+  setClickAndDragEnabled: NOOP,
   popupRef: { current: null },
   mounted: true,
   transitionStatus: undefined,
   typingRef: { current: false },
+  dir: null,
+  setDir: NOOP,
 };
 
 const testRadioGroupContext = {
   value: '0',
-  setValue: () => {},
+  setValue: NOOP,
 };
 
 describe('<Menu.RadioItem />', () => {

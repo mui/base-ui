@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { act, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
+import { NOOP } from '../../utils/noop';
 import { MenuRootContext } from '../root/MenuRootContext';
 
 const testRootContext: MenuRootContext = {
@@ -14,20 +15,22 @@ const testRootContext: MenuRootContext = {
   getItemProps: (p) => ({ ...p }),
   parentContext: undefined,
   nested: false,
-  setTriggerElement: () => {},
-  setPositionerElement: () => {},
+  setTriggerElement: NOOP,
+  setPositionerElement: NOOP,
   activeIndex: null,
   disabled: false,
   itemDomElements: { current: [] },
   itemLabels: { current: [] },
   open: true,
-  setOpen: () => {},
+  setOpen: NOOP,
   clickAndDragEnabled: false,
-  setClickAndDragEnabled: () => {},
+  setClickAndDragEnabled: NOOP,
   popupRef: { current: null },
   mounted: true,
   transitionStatus: undefined,
   typingRef: { current: false },
+  dir: null,
+  setDir: NOOP,
 };
 
 describe('<Menu.Trigger />', () => {

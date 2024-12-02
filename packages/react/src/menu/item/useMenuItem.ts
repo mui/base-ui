@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../use-button';
+import { type TextDirection, getTextDirection } from '../../utils/getTextDirection';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
@@ -9,16 +10,18 @@ import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
   const {
     closeOnClick,
+    dir,
     disabled = false,
     highlighted,
     id,
     menuEvents,
     ref: externalRef,
+    setDir,
     treatMouseupAsClick,
     typingRef,
   } = params;
 
-  const { getButtonProps, buttonRef: mergedRef } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
     buttonRef: externalRef,
@@ -32,12 +35,17 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
           id,
           role: 'menuitem',
           tabIndex: highlighted ? 0 : -1,
-          onKeyUp: (event: React.KeyboardEvent & MuiCancellableEvent) => {
+          onKeyDown(event: Event) {
+            if (dir == null) {
+              setDir(getTextDirection(event.target as HTMLElement));
+            }
+          },
+          onKeyUp(event: React.KeyboardEvent & MuiCancellableEvent) {
             if (event.key === ' ' && typingRef.current) {
               event.defaultMuiPrevented = true;
             }
           },
-          onClick: (event: React.MouseEvent | React.KeyboardEvent) => {
+          onClick(event: React.MouseEvent | React.KeyboardEvent) {
             if (event.type === 'keydown') {
               if ((event as React.KeyboardEvent).key === 'Enter') {
                 menuEvents.emit('close', event);
@@ -52,15 +60,25 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
         }),
       );
     },
-    [closeOnClick, getButtonProps, highlighted, id, menuEvents, treatMouseupAsClick, typingRef],
+    [
+      closeOnClick,
+      dir,
+      getButtonProps,
+      highlighted,
+      id,
+      menuEvents,
+      setDir,
+      treatMouseupAsClick,
+      typingRef,
+    ],
   );
 
   return React.useMemo(
     () => ({
       getRootProps,
-      rootRef: mergedRef,
+      rootRef: buttonRef,
     }),
-    [getRootProps, mergedRef],
+    [getRootProps, buttonRef],
   );
 }
 
@@ -70,6 +88,7 @@ export namespace useMenuItem {
      * If `true`, the menu will close when the menu item is clicked.
      */
     closeOnClick: boolean;
+    dir: TextDirection | null;
     /**
      * If `true`, the menu item will be disabled.
      */
@@ -90,6 +109,7 @@ export namespace useMenuItem {
      * The ref of the trigger element.
      */
     ref?: React.Ref<Element>;
+    setDir: (dir: TextDirection | null) => void;
     /**
      * If `true`, the menu item will listen for mouseup events and treat them as clicks.
      */

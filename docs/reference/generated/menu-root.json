@@ -23,8 +23,8 @@
       "description": "The delay in milliseconds until the menu popup is opened when `openOnHover` is `true`."
     },
     "dir": {
-      "type": "'ltr' | 'rtl'",
-      "default": "'ltr'",
+      "type": "'ltr' | 'rtl' | null",
+      "default": "null",
       "description": "The direction of the Menu (left-to-right or right-to-left)."
     },
     "disabled": {

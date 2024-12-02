@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
 import { useMenuRadioItem } from './useMenuRadioItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import { type TextDirection } from '../../utils/getTextDirection';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useId } from '../../utils/useId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
@@ -21,6 +22,8 @@ const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
     setChecked,
     className,
     closeOnClick = false,
+    direction,
+    setDir,
     disabled = false,
     highlighted,
     id,
@@ -36,6 +39,8 @@ const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
     checked,
     setChecked,
     closeOnClick,
+    dir: direction,
+    setDir,
     disabled,
     highlighted,
     id,
@@ -171,7 +176,8 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex, clickAndDragEnabled, typingRef } = useMenuRootContext();
+  const { getItemProps, activeIndex, clickAndDragEnabled, typingRef, dir, setDir } =
+    useMenuRootContext();
   const id = useId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -210,6 +216,8 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
         checked={selectedValue === value}
         setChecked={setChecked}
         typingRef={typingRef}
+        direction={dir}
+        setDir={setDir}
       />
     </MenuRadioItemContext.Provider>
   );
@@ -223,6 +231,8 @@ interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
   checked: boolean;
   setChecked: (event: Event) => void;
   typingRef: React.RefObject<boolean>;
+  direction: TextDirection | null;
+  setDir: (dir: TextDirection | null) => void;
 }
 
 namespace MenuRadioItem {

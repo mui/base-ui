@@ -3,7 +3,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingTree } from '@floating-ui/react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
-import { MenuDirection, MenuOrientation, useMenuRoot } from './useMenuRoot';
+import { MenuOrientation, useMenuRoot } from './useMenuRoot';
+import { type TextDirection } from '../../utils/getTextDirection';
 
 /**
  *
@@ -20,7 +21,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     animated = true,
     children,
     defaultOpen = false,
-    dir: direction = 'ltr',
+    dir = null,
     disabled = false,
     closeParentOnEsc = true,
     loop = true,
@@ -43,7 +44,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const menuRoot = useMenuRoot({
     animated,
-    direction,
+    dir,
     disabled,
     closeParentOnEsc,
     onOpenChange,
@@ -129,10 +130,11 @@ namespace MenuRoot {
     orientation?: MenuOrientation;
     /**
      * The direction of the Menu (left-to-right or right-to-left).
-     *
-     * @default 'ltr'
+     * When `null`, the direction is detected and arrow key navigation
+     * will adapt automatically.
+     * @default null
      */
-    dir?: MenuDirection;
+    dir?: TextDirection | null;
     /**
      * If `true`, the Menu is disabled.
      *
@@ -202,9 +204,9 @@ MenuRoot.propTypes /* remove-proptypes */ = {
   /**
    * The direction of the Menu (left-to-right or right-to-left).
    *
-   * @default 'ltr'
+   * @default null
    */
-  dir: PropTypes.oneOf(['ltr', 'rtl']),
+  dir: PropTypes.oneOf(['ltr', 'rtl', null]),
   /**
    * If `true`, the Menu is disabled.
    *

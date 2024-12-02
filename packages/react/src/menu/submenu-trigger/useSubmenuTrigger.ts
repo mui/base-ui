@@ -4,6 +4,7 @@ import { FloatingEvents } from '@floating-ui/react';
 import { useMenuItem } from '../item/useMenuItem';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
+import { type TextDirection } from '../../utils/getTextDirection';
 
 export function useSubmenuTrigger(
   parameters: useSubmenuTrigger.Parameters,
@@ -17,6 +18,8 @@ export function useSubmenuTrigger(
     setTriggerElement,
     treatMouseupAsClick,
     typingRef,
+    dir,
+    setDir,
   } = parameters;
 
   const { getRootProps: getMenuItemProps, rootRef: menuItemRef } = useMenuItem({
@@ -28,6 +31,8 @@ export function useSubmenuTrigger(
     ref: externalRef,
     treatMouseupAsClick,
     typingRef,
+    dir,
+    setDir,
   });
 
   const menuTriggerRef = useForkRef(menuItemRef, setTriggerElement);
@@ -82,6 +87,8 @@ export namespace useSubmenuTrigger {
      * A ref that is set to `true` when the user is using the typeahead feature.
      */
     typingRef: React.RefObject<boolean>;
+    dir: TextDirection | null;
+    setDir: (dir: TextDirection | null) => void;
   }
 
   export interface ReturnValue {

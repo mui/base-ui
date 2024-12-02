@@ -12,6 +12,7 @@ import {
   useTypeahead,
   FloatingRootContext,
 } from '@floating-ui/react';
+import { type TextDirection } from '../../utils/getTextDirection';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -29,7 +30,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     defaultOpen,
     onOpenChange,
     orientation,
-    direction,
+    dir: dirParam,
     disabled,
     nested,
     closeParentOnEsc,
@@ -44,6 +45,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const popupRef = React.useRef<HTMLElement>(null);
   const [hoverEnabled, setHoverEnabled] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+  const [dir, setDir] = React.useState<TextDirection | null>(dirParam);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
@@ -107,7 +109,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     nested,
     loop,
     orientation,
-    rtl: direction === 'rtl',
+    rtl: dir === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     onNavigate: setActiveIndex,
   });
@@ -173,6 +175,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       popupRef,
       open,
       setOpen,
+      dir,
+      setDir,
     }),
     [
       activeIndex,
@@ -186,13 +190,13 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       transitionStatus,
       open,
       setOpen,
+      dir,
+      setDir,
     ],
   );
 }
 
 export type MenuOrientation = 'horizontal' | 'vertical';
-
-export type MenuDirection = 'ltr' | 'rtl';
 
 export namespace useMenuRoot {
   export interface Parameters {
@@ -226,10 +230,7 @@ export namespace useMenuRoot {
      * The orientation of the Menu (horizontal or vertical).
      */
     orientation: MenuOrientation;
-    /**
-     * The direction of the Menu (left-to-right or right-to-left).
-     */
-    direction: MenuDirection;
+    dir: TextDirection | null;
     /**
      * If `true`, the Menu is disabled.
      */
@@ -257,6 +258,7 @@ export namespace useMenuRoot {
 
   export interface ReturnValue {
     activeIndex: number | null;
+    dir: TextDirection | null;
     floatingRootContext: FloatingRootContext;
     getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
@@ -266,6 +268,7 @@ export namespace useMenuRoot {
     mounted: boolean;
     open: boolean;
     popupRef: React.RefObject<HTMLElement | null>;
+    setDir: (dir: TextDirection | null) => void;
     setOpen: (open: boolean, event: Event | undefined) => void;
     setPositionerElement: (element: HTMLElement | null) => void;
     setTriggerElement: (element: HTMLElement | null) => void;

@@ -5,6 +5,7 @@ import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react
 import { useMenuCheckboxItem } from './useMenuCheckboxItem';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import { type TextDirection } from '../../utils/getTextDirection';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useId } from '../../utils/useId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
@@ -18,6 +19,7 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
   const {
     checked: checkedProp,
     defaultChecked,
+    direction,
     onCheckedChange,
     className,
     closeOnClick = false,
@@ -27,6 +29,7 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
     menuEvents,
     propGetter,
     render,
+    setDir,
     treatMouseupAsClick,
     typingRef,
     ...other
@@ -34,6 +37,7 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
 
   const { getRootProps, checked } = useMenuCheckboxItem({
     closeOnClick,
+    dir: direction,
     disabled,
     highlighted,
     id,
@@ -43,6 +47,7 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
     checked: checkedProp,
     defaultChecked,
     onCheckedChange,
+    setDir,
     typingRef,
   });
 
@@ -173,7 +178,8 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex, clickAndDragEnabled, typingRef } = useMenuRootContext();
+  const { getItemProps, activeIndex, clickAndDragEnabled, typingRef, dir, setDir } =
+    useMenuRootContext();
   const id = useId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -193,13 +199,17 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
       propGetter={getItemProps}
       treatMouseupAsClick={clickAndDragEnabled}
       typingRef={typingRef}
+      direction={dir}
+      setDir={setDir}
     />
   );
 });
 
 interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
+  direction: TextDirection | null;
   highlighted: boolean;
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  setDir: (dir: TextDirection | null) => void;
   menuEvents: FloatingEvents;
   treatMouseupAsClick: boolean;
   typingRef: React.RefObject<boolean>;
