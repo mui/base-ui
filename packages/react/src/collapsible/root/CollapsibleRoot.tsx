@@ -3,10 +3,11 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { NOOP } from '../../utils/noop';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStyleHookMapping } from './styleHooks';
+
+const NOOP = () => {};
 
 /**
  *
@@ -126,6 +127,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   disabled: PropTypes.bool,
   /**
    * Callback fired when the Collapsible is opened or closed.
+   * @default () => {}  
    */
   onOpenChange: PropTypes.func,
   /**
