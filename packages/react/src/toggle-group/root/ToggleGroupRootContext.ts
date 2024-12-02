@@ -2,7 +2,7 @@
 import * as React from 'react';
 
 export interface ToggleGroupRootContext {
-  value: readonly string[];
+  value: readonly any[];
   setGroupValue: (newValue: string, nextPressed: boolean, event: Event) => void;
   disabled: boolean;
 }

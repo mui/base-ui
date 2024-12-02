@@ -24,7 +24,7 @@ export function useToggleGroupRoot(
   });
 
   const setGroupValue = useEventCallback((newValue: string, nextPressed: boolean, event: Event) => {
-    let newGroupValue: string[] | undefined;
+    let newGroupValue: any[] | undefined;
     if (toggleMultiple) {
       newGroupValue = groupValue.slice();
       if (nextPressed) {
@@ -67,20 +67,20 @@ export namespace UseToggleGroupRoot {
      * the values of all pressed `<ToggleGroup.Item/>`s
      * This is the controlled counterpart of `defaultValue`.
      */
-    value?: readonly string[];
+    value?: readonly any[];
     /**
      * The open state of the ToggleGroup represented by an array of
      * the values of all pressed `<ToggleGroup.Item/>`s
      * This is the uncontrolled counterpart of `value`.
      */
-    defaultValue?: readonly string[];
+    defaultValue?: readonly any[];
     /**
      * Callback fired when the pressed states of the ToggleGroup changes.
      *
-     * @param {string[]} groupValue An array of the `value`s of all the pressed items.
+     * @param {any[]} groupValue An array of the `value`s of all the pressed items.
      * @param {Event} event The event source of the callback.
      */
-    onValueChange: (groupValue: string[], event: Event) => void;
+    onValueChange: (groupValue: any[], event: Event) => void;
     /**
      * When `true` the component is disabled
      * @false
@@ -110,6 +110,6 @@ export namespace UseToggleGroupRoot {
      * The value of the ToggleGroup represented by an array of values
      * of the items that are pressed
      */
-    value: readonly string[];
+    value: readonly any[];
   }
 }

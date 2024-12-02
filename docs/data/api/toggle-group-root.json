@@ -6,7 +6,7 @@
       "type": { "name": "func" },
       "default": "NOOP",
       "signature": {
-        "type": "function(groupValue: Array<string>, event: Event) => void",
+        "type": "function(groupValue: Array<any>, event: Event) => void",
         "describedArgs": ["groupValue", "event"]
       }
     },

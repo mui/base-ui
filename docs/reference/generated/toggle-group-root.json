@@ -11,7 +11,7 @@
       "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s\nThis is the uncontrolled counterpart of `value`."
     },
     "onValueChange": {
-      "type": "function(groupValue: Array<string>, event: Event) => void",
+      "type": "function(groupValue: Array<any>, event: Event) => void",
       "default": "NOOP",
       "description": "Callback fired when the pressed states of the ToggleGroup changes."
     },

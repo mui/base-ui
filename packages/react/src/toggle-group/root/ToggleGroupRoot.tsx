@@ -137,7 +137,7 @@ ToggleGroupRoot.propTypes /* remove-proptypes */ = {
   /**
    * Callback fired when the pressed states of the ToggleGroup changes.
    *
-   * @param {string[]} groupValue An array of the `value`s of all the pressed items.
+   * @param {any[]} groupValue An array of the `value`s of all the pressed items.
    * @param {Event} event The event source of the callback.
    *
    * @default NOOP
