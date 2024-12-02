@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { TextInput } from '@base-ui-components/react/text-input';
+import { Input } from '@base-ui-components/react/input';
 import { createRenderer } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
-describe('<TextInput />', () => {
+describe('<Input />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<TextInput />, () => ({
+  describeConformance(<Input />, () => ({
     refInstanceof: window.HTMLInputElement,
     render,
   }));

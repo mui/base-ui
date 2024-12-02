@@ -1,5 +1,5 @@
 {
-  "name": "TextInput",
+  "name": "Input",
   "description": "",
   "props": {
     "className": {

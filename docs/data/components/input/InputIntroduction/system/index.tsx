@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { TextInput as TextInputPrimitive } from '@base-ui-components/react/text-input';
+import { Input as InputPrimitive } from '@base-ui-components/react/input';
 import { styled } from '@mui/system';
 
-export default function TextFieldIntroduction() {
-  return <TextInput />;
+export default function InputIntroduction() {
+  return <Input />;
 }
 
-const TextInput = styled(TextInputPrimitive)`
+const Input = styled(InputPrimitive)`
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 8px;
