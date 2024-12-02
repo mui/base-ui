@@ -1,5 +1,6 @@
 export { PopoverRoot as Root } from './root/PopoverRoot';
 export { PopoverTrigger as Trigger } from './trigger/PopoverTrigger';
+export { PopoverPortal as Portal } from './portal/PopoverPortal';
 export { PopoverPositioner as Positioner } from './positioner/PopoverPositioner';
 export { PopoverPopup as Popup } from './popup/PopoverPopup';
 export { PopoverArrow as Arrow } from './arrow/PopoverArrow';

@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
@@ -31,7 +30,6 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     render,
     className,
     anchor,
-    container,
     keepMounted = false,
     positionMethod = 'absolute',
     side = 'bottom',
@@ -96,7 +94,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      <FloatingPortal root={container}>{renderElement()}</FloatingPortal>
+      {renderElement()}
     </PopoverPositionerContext.Provider>
   );
 });
@@ -111,12 +109,7 @@ namespace PopoverPositioner {
 
   export interface Props
     extends usePopoverPositioner.SharedParameters,
-      BaseUIComponentProps<'div', State> {
-    /**
-     * The element the popover positioner element is appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-  }
+      BaseUIComponentProps<'div', State> {}
 }
 
 PopoverPositioner.propTypes /* remove-proptypes */ = {
