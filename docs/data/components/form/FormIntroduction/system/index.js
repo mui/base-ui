@@ -1,10 +1,9 @@
 'use client';
-
 import * as React from 'react';
 import { Form } from '@base-ui-components/react/form';
 import { Fieldset } from '@base-ui-components/react/fieldset';
 import { Field } from '@base-ui-components/react/field';
-import { TextInput } from '@base-ui-components/react/input';
+import { Input as InputPrimitive } from '@base-ui-components/react/input';
 import { styled } from '@mui/system';
 
 export default function FormIntroduction() {
@@ -79,7 +78,7 @@ const FormRoot = styled(Form.Root)`
   width: 275px;
 `;
 
-const Input = styled(TextInput)`
+const Input = styled(InputPrimitive)`
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;
