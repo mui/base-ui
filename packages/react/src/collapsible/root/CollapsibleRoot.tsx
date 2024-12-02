@@ -127,7 +127,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   disabled: PropTypes.bool,
   /**
    * Callback fired when the Collapsible is opened or closed.
-   * @default () => {}  
+   * @default () => {}
    */
   onOpenChange: PropTypes.func,
   /**
