@@ -4,16 +4,23 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
-const rangeStyles = {
-  horizontal: {
-    offset: (percent: number) => ({ insetInlineStart: `${percent}%` }),
-    leap: (percent: number) => ({ width: `${percent}%`, height: 'inherit' }),
-  },
-  vertical: {
-    offset: (percent: number) => ({ bottom: `${percent}%` }),
-    leap: (percent: number) => ({ height: `${percent}%`, width: 'inherit' }),
-  },
-};
+function getRangeStyles(orientation: useSliderRoot.Orientation, offset: number, leap: number) {
+  if (orientation === 'vertical') {
+    return {
+      position: 'absolute',
+      bottom: `${offset}%`,
+      height: `${leap}%`,
+      width: 'inherit',
+    };
+  }
+
+  return {
+    position: 'absolute',
+    insetInlineStart: `${offset}%`,
+    width: `${leap}%`,
+    height: 'inherit',
+  };
+}
 
 /**
  *
@@ -30,19 +37,13 @@ export function useSliderIndicator(
 ): useSliderIndicator.ReturnValue {
   const { orientation, percentageValues } = parameters;
 
-  const isRange = percentageValues.length > 1;
-
   let internalStyles;
 
-  if (isRange) {
+  if (percentageValues.length > 1) {
     const trackOffset = percentageValues[0];
     const trackLeap = percentageValues[percentageValues.length - 1] - trackOffset;
 
-    internalStyles = {
-      position: 'absolute',
-      ...rangeStyles[orientation].offset(trackOffset),
-      ...rangeStyles[orientation].leap(trackLeap),
-    };
+    internalStyles = getRangeStyles(orientation, trackOffset, trackLeap);
   } else if (orientation === 'vertical') {
     internalStyles = {
       position: 'absolute',
