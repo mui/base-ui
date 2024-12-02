@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
 import { ToggleButtonGroup } from '@base-ui-components/react/toggle-button-group';
+import { ToggleButton } from '@base-ui-components/react/toggle-button';
 import classes from './styles.module.css';
 
 export default function ToggleButtonGroupIntroduction() {
   const [value, setValue] = React.useState(['align-center']);
   return (
-    <ToggleButtonGroup.Root
+    <ToggleButtonGroup
       className={classes.root}
       value={value}
       onValueChange={(newValue) => {
@@ -16,7 +17,7 @@ export default function ToggleButtonGroupIntroduction() {
       }}
       aria-label="Text alignment"
     >
-      <ToggleButtonGroup.Item
+      <ToggleButton
         className={classes.button}
         value="align-left"
         aria-label="Align left"
@@ -33,9 +34,9 @@ export default function ToggleButtonGroupIntroduction() {
           <line x1="21" y1="14" x2="3" y2="14" />
           <line x1="17" y1="18" x2="3" y2="18" />
         </svg>
-      </ToggleButtonGroup.Item>
+      </ToggleButton>
 
-      <ToggleButtonGroup.Item
+      <ToggleButton
         className={classes.button}
         value="align-center"
         aria-label="Align center"
@@ -52,9 +53,9 @@ export default function ToggleButtonGroupIntroduction() {
           <line x1="21" y1="14" x2="3" y2="14" />
           <line x1="18" y1="18" x2="6" y2="18" />
         </svg>
-      </ToggleButtonGroup.Item>
+      </ToggleButton>
 
-      <ToggleButtonGroup.Item
+      <ToggleButton
         className={classes.button}
         value="align-right"
         aria-label="Align right"
@@ -71,7 +72,7 @@ export default function ToggleButtonGroupIntroduction() {
           <line x1="21" y1="14" x2="3" y2="14" />
           <line x1="21" y1="18" x2="7" y2="18" />
         </svg>
-      </ToggleButtonGroup.Item>
-    </ToggleButtonGroup.Root>
+      </ToggleButton>
+    </ToggleButtonGroup>
   );
 }

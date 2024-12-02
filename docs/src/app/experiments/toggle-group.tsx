@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { ToggleButtonGroup } from '@base-ui-components/react/toggle-button-group';
+import { ToggleButton } from '@base-ui-components/react/toggle-button';
 import classes from './toggle.module.css';
 
 export default function ToggleButtonGroupDemo() {
@@ -9,7 +10,7 @@ export default function ToggleButtonGroupDemo() {
     <div className={classes.grid}>
       <h4 style={{ margin: 0 }}>LTR</h4>
 
-      <ToggleButtonGroup.Root
+      <ToggleButtonGroup
         value={value}
         onValueChange={(newValue) => {
           // one button must always remain pressed
@@ -20,65 +21,65 @@ export default function ToggleButtonGroupDemo() {
         aria-label="Text alignment"
         className={classes.group}
       >
-        <ToggleButtonGroup.Item
+        <ToggleButton
           value="align-left"
           aria-label="Align left"
           className={classes.button}
         >
           <AlignLeftIcon />
-        </ToggleButtonGroup.Item>
+        </ToggleButton>
 
-        <ToggleButtonGroup.Item
+        <ToggleButton
           value="align-center"
           aria-label="Align center"
           className={classes.button}
         >
           <AlignCenterIcon />
-        </ToggleButtonGroup.Item>
+        </ToggleButton>
 
-        <ToggleButtonGroup.Item
+        <ToggleButton
           value="align-right"
           aria-label="Align right"
           className={classes.button}
         >
           <AlignRightIcon />
-        </ToggleButtonGroup.Item>
-      </ToggleButtonGroup.Root>
+        </ToggleButton>
+      </ToggleButtonGroup>
 
       <h4 style={{ margin: 0 }}>RTL</h4>
 
       <div dir="rtl">
         <div>
           <div>
-            <ToggleButtonGroup.Root
+            <ToggleButtonGroup
               toggleMultiple
               aria-label="Text formatting"
               className={classes.group}
             >
-              <ToggleButtonGroup.Item
+              <ToggleButton
                 value="bold"
                 aria-label="Toggle bold"
                 className={classes.button}
               >
                 <BoldIcon />
-              </ToggleButtonGroup.Item>
+              </ToggleButton>
 
-              <ToggleButtonGroup.Item
+              <ToggleButton
                 value="italics"
                 aria-label="Toggle italics"
                 className={classes.button}
               >
                 <ItalicsIcon />
-              </ToggleButtonGroup.Item>
+              </ToggleButton>
 
-              <ToggleButtonGroup.Item
+              <ToggleButton
                 value="underline"
                 aria-label="Toggle underline"
                 className={classes.button}
               >
                 <UnderlineIcon />
-              </ToggleButtonGroup.Item>
-            </ToggleButtonGroup.Root>
+              </ToggleButton>
+            </ToggleButtonGroup>
           </div>
         </div>
       </div>

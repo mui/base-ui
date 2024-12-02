@@ -3,20 +3,21 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
 import { ToggleButtonGroup } from '@base-ui-components/react/toggle-button-group';
+import { ToggleButton } from '@base-ui-components/react/toggle-button';
 import { createRenderer, describeConformance } from '#test-utils';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
-describe('<ToggleButtonGroup.Root />', () => {
+describe('<ToggleButtonGroup />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<ToggleButtonGroup.Root />, () => ({
+  describeConformance(<ToggleButtonGroup />, () => ({
     refInstanceof: window.HTMLDivElement,
     render,
   }));
 
   it('renders a `group`', async () => {
-    const { queryByRole } = await render(<ToggleButtonGroup.Root aria-label="My Toggle Group" />);
+    const { queryByRole } = await render(<ToggleButtonGroup aria-label="My Toggle Group" />);
 
     expect(queryByRole('group', { name: 'My Toggle Group' })).not.to.equal(null);
   });
@@ -30,10 +31,10 @@ describe('<ToggleButtonGroup.Root />', () => {
       }
 
       const { getAllByRole, user } = await render(
-        <ToggleButtonGroup.Root>
-          <ToggleButtonGroup.Item value="one" />
-          <ToggleButtonGroup.Item value="two" />
-        </ToggleButtonGroup.Root>,
+        <ToggleButtonGroup>
+          <ToggleButton value="one" />
+          <ToggleButton value="two" />
+        </ToggleButtonGroup>,
       );
 
       const [button1, button2] = getAllByRole('button');
@@ -56,10 +57,10 @@ describe('<ToggleButtonGroup.Root />', () => {
 
     it('prop: defaultValue', async () => {
       const { getAllByRole, user } = await render(
-        <ToggleButtonGroup.Root defaultValue={['two']}>
-          <ToggleButtonGroup.Item value="one" />
-          <ToggleButtonGroup.Item value="two" />
-        </ToggleButtonGroup.Root>,
+        <ToggleButtonGroup defaultValue={['two']}>
+          <ToggleButton value="one" />
+          <ToggleButton value="two" />
+        </ToggleButtonGroup>,
       );
 
       const [button1, button2] = getAllByRole('button');
@@ -79,10 +80,10 @@ describe('<ToggleButtonGroup.Root />', () => {
   describe('controlled', () => {
     it('pressed state', async () => {
       const { getAllByRole, setProps } = await render(
-        <ToggleButtonGroup.Root value={['two']}>
-          <ToggleButtonGroup.Item value="one" />
-          <ToggleButtonGroup.Item value="two" />
-        </ToggleButtonGroup.Root>,
+        <ToggleButtonGroup value={['two']}>
+          <ToggleButton value="one" />
+          <ToggleButton value="two" />
+        </ToggleButtonGroup>,
       );
 
       const [button1, button2] = getAllByRole('button');
@@ -108,10 +109,10 @@ describe('<ToggleButtonGroup.Root />', () => {
 
     it('prop: value', async () => {
       const { getAllByRole, setProps } = await render(
-        <ToggleButtonGroup.Root value={['two']}>
-          <ToggleButtonGroup.Item value="one" />
-          <ToggleButtonGroup.Item value="two" />
-        </ToggleButtonGroup.Root>,
+        <ToggleButtonGroup value={['two']}>
+          <ToggleButton value="one" />
+          <ToggleButton value="two" />
+        </ToggleButtonGroup>,
       );
 
       const [button1, button2] = getAllByRole('button');
@@ -132,10 +133,10 @@ describe('<ToggleButtonGroup.Root />', () => {
   describe('prop: disabled', () => {
     it('can disable the whole group', async () => {
       const { getAllByRole } = await render(
-        <ToggleButtonGroup.Root disabled>
-          <ToggleButtonGroup.Item value="one" />
-          <ToggleButtonGroup.Item value="two" />
-        </ToggleButtonGroup.Root>,
+        <ToggleButtonGroup disabled>
+          <ToggleButton value="one" />
+          <ToggleButton value="two" />
+        </ToggleButtonGroup>,
       );
 
       const [button1, button2] = getAllByRole('button');
@@ -146,10 +147,10 @@ describe('<ToggleButtonGroup.Root />', () => {
 
     it('can disable individual items', async () => {
       const { getAllByRole } = await render(
-        <ToggleButtonGroup.Root>
-          <ToggleButtonGroup.Item value="one" />
-          <ToggleButtonGroup.Item value="two" disabled />
-        </ToggleButtonGroup.Root>,
+        <ToggleButtonGroup>
+          <ToggleButton value="one" />
+          <ToggleButton value="two" disabled />
+        </ToggleButtonGroup>,
       );
 
       const [button1, button2] = getAllByRole('button');
@@ -162,10 +163,10 @@ describe('<ToggleButtonGroup.Root />', () => {
   describe('prop: toggleMultiple', () => {
     it('multiple items can be pressed when true', async () => {
       const { getAllByRole, user } = await render(
-        <ToggleButtonGroup.Root toggleMultiple defaultValue={['one']}>
-          <ToggleButtonGroup.Item value="one" />
-          <ToggleButtonGroup.Item value="two" />
-        </ToggleButtonGroup.Root>,
+        <ToggleButtonGroup toggleMultiple defaultValue={['one']}>
+          <ToggleButton value="one" />
+          <ToggleButton value="two" />
+        </ToggleButtonGroup>,
       );
 
       const [button1, button2] = getAllByRole('button');
@@ -181,10 +182,10 @@ describe('<ToggleButtonGroup.Root />', () => {
 
     it('only one item can be pressed when false', async () => {
       const { getAllByRole, user } = await render(
-        <ToggleButtonGroup.Root toggleMultiple={false} defaultValue={['one']}>
-          <ToggleButtonGroup.Item value="one" />
-          <ToggleButtonGroup.Item value="two" />
-        </ToggleButtonGroup.Root>,
+        <ToggleButtonGroup toggleMultiple={false} defaultValue={['one']}>
+          <ToggleButton value="one" />
+          <ToggleButton value="two" />
+        </ToggleButtonGroup>,
       );
 
       const [button1, button2] = getAllByRole('button');
@@ -202,10 +203,10 @@ describe('<ToggleButtonGroup.Root />', () => {
   describeSkipIf(isJSDOM)('keyboard interactions', () => {
     it('ltr', async () => {
       const { getAllByRole, user } = await render(
-        <ToggleButtonGroup.Root>
-          <ToggleButtonGroup.Item value="one" />
-          <ToggleButtonGroup.Item value="two" />
-        </ToggleButtonGroup.Root>,
+        <ToggleButtonGroup>
+          <ToggleButton value="one" />
+          <ToggleButton value="two" />
+        </ToggleButtonGroup>,
       );
 
       const [button1, button2] = getAllByRole('button');
@@ -244,10 +245,10 @@ describe('<ToggleButtonGroup.Root />', () => {
     it('rtl', async () => {
       const { getAllByRole, user } = await render(
         <div dir="rtl">
-          <ToggleButtonGroup.Root>
-            <ToggleButtonGroup.Item value="one" />
-            <ToggleButtonGroup.Item value="two" />
-          </ToggleButtonGroup.Root>
+          <ToggleButtonGroup>
+            <ToggleButton value="one" />
+            <ToggleButton value="two" />
+          </ToggleButtonGroup>
         </div>,
       );
 
@@ -287,10 +288,10 @@ describe('<ToggleButtonGroup.Root />', () => {
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} toggles the pressed state`, async () => {
         const { getAllByRole, user } = await render(
-          <ToggleButtonGroup.Root>
-            <ToggleButtonGroup.Item value="one" />
-            <ToggleButtonGroup.Item value="two" />
-          </ToggleButtonGroup.Root>,
+          <ToggleButtonGroup>
+            <ToggleButton value="one" />
+            <ToggleButton value="two" />
+          </ToggleButtonGroup>,
         );
 
         const [button1] = getAllByRole('button');
@@ -317,10 +318,10 @@ describe('<ToggleButtonGroup.Root />', () => {
       const onValueChange = spy();
 
       const { getAllByRole, user } = await render(
-        <ToggleButtonGroup.Root onValueChange={onValueChange}>
-          <ToggleButtonGroup.Item value="one" />
-          <ToggleButtonGroup.Item value="two" />
-        </ToggleButtonGroup.Root>,
+        <ToggleButtonGroup onValueChange={onValueChange}>
+          <ToggleButton value="one" />
+          <ToggleButton value="two" />
+        </ToggleButtonGroup>,
       );
 
       const [button1, button2] = getAllByRole('button');
@@ -349,10 +350,10 @@ describe('<ToggleButtonGroup.Root />', () => {
         const onValueChange = spy();
 
         const { getAllByRole, user } = await render(
-          <ToggleButtonGroup.Root onValueChange={onValueChange}>
-            <ToggleButtonGroup.Item value="one" />
-            <ToggleButtonGroup.Item value="two" />
-          </ToggleButtonGroup.Root>,
+          <ToggleButtonGroup onValueChange={onValueChange}>
+            <ToggleButton value="one" />
+            <ToggleButton value="two" />
+          </ToggleButtonGroup>,
         );
 
         const [button1, button2] = getAllByRole('button');

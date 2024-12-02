@@ -24,15 +24,15 @@ packageName: '@base-ui-components/react'
 
 ToggleButtonGroups are composed with two components:
 
-- `<ToggleButtonGroup.Root />` is the outer component that wraps a set of [`toggle buttons`](/components/react-toggle-button)
-- `<ToggleButtonGroup.Item />`s renders the `<button>`
+- `<ToggleButtonGroup />` is the outer component that wraps a set of [`toggle buttons`](/components/react-toggle-button)
+- `<ToggleButton />`s renders the `<button>`
 
 ```tsx
-<ToggleButtonGroup.Root>
-  <ToggleButtonGroup.Item value="bold">Bold</ToggleButtonGroup.Item>
-  <ToggleButtonGroup.Item value="italics">Italics</ToggleButtonGroup.Item>
-  <ToggleButtonGroup.Item value="underline">Underline</ToggleButtonGroup.Item>
-</ToggleButtonGroup.Root>
+<ToggleButtonGroup>
+  <ToggleButton value="bold">Bold</ToggleButton>
+  <ToggleButton value="italics">Italics</ToggleButton>
+  <ToggleButton value="underline">Underline</ToggleButton>
+</ToggleButtonGroup>
 ```
 
 ## Value
@@ -45,26 +45,26 @@ When uncontrolled, use the `defaultValue` prop to set the initial state of the g
 
 ```tsx
 // only the "Italics" button is initially pressed
-<ToggleButtonGroup.Root defaultValue={['italics']}>
-  <ToggleButtonGroup.Item value="bold">Bold</ToggleButtonGroup.Item>
-  <ToggleButtonGroup.Item value="italics">Italics</ToggleButtonGroup.Item>
-  <ToggleButtonGroup.Item value="underline">Underline</ToggleButtonGroup.Item>
-</ToggleButtonGroup.Root>
+<ToggleButtonGroup defaultValue={['italics']}>
+  <ToggleButton value="bold">Bold</ToggleButton>
+  <ToggleButton value="italics">Italics</ToggleButton>
+  <ToggleButton value="underline">Underline</ToggleButton>
+</ToggleButtonGroup>
 ```
 
 ### Controlled
 
-When controlled, pass the `value` and `onValueChange` props to `ToggleButtonGroup.Root`:
+When controlled, pass the `value` and `onValueChange` props to `ToggleButtonGroup`:
 
 ```tsx
 const [value, setValue] = React.useState(['align-center']);
 
 return (
-  <ToggleButtonGroup.Root value={value} onValueChange={setValue}>
-    <ToggleButtonGroup.Item value="align-left" />
-    <ToggleButtonGroup.Item value="align-center" />
-    <ToggleButtonGroup.Item value="align-right" />
-  </ToggleButtonGroup.Root>
+  <ToggleButtonGroup value={value} onValueChange={setValue}>
+    <ToggleButton value="align-left" />
+    <ToggleButton value="align-center" />
+    <ToggleButton value="align-right" />
+  </ToggleButtonGroup>
 );
 ```
 
@@ -75,11 +75,11 @@ return (
 Use the `toggleMultiple` prop to allow multiple buttons to be pressed at the same time:
 
 ```tsx
-<ToggleButtonGroup.Root toggleMultiple>
-  <ToggleButtonGroup.Item value="bold" />
-  <ToggleButtonGroup.Item value="italics" />
-  <ToggleButtonGroup.Item value="underline" />
-</ToggleButtonGroup.Root>
+<ToggleButtonGroup toggleMultiple>
+  <ToggleButton value="bold" />
+  <ToggleButton value="italics" />
+  <ToggleButton value="underline" />
+</ToggleButtonGroup>
 ```
 
 <Demo demo="ToggleButtonGroupToggleMultiple" />
@@ -98,11 +98,11 @@ const handleValueChange = (newValue) => {
 };
 
 return (
-  <ToggleButtonGroup.Root value={value} onValueChange={handleValueChange}>
-    <ToggleButtonGroup.Item value="align-left" />
-    <ToggleButtonGroup.Item value="align-center" />
-    <ToggleButtonGroup.Item value="align-right" />
-  </ToggleButtonGroup.Root>
+  <ToggleButtonGroup value={value} onValueChange={handleValueChange}>
+    <ToggleButton value="align-left" />
+    <ToggleButton value="align-center" />
+    <ToggleButton value="align-right" />
+  </ToggleButtonGroup>
 );
 ```
 
@@ -113,7 +113,7 @@ Place the toggle button group within any HTML element or component with the HTML
 ```jsx
 <html dir="rtl">
   <body>
-    <ToggleButtonGroup.Root /> {/* RTL keyboard behavior */}
+    <ToggleButtonGroup /> {/* RTL keyboard behavior */}
   </body>
 <html>
 ```
@@ -124,9 +124,9 @@ This can also be applied to part of your app:
 <html dir="ltr">
   <body>
     <div>
-      <ToggleButtonGroup.Root /> {/* LTR keyboard behavior */}
+      <ToggleButtonGroup /> {/* LTR keyboard behavior */}
       <div dir="rtl">
-        <ToggleButtonGroup.Root /> {/* RTL keyboard behavior */}
+        <ToggleButtonGroup /> {/* RTL keyboard behavior */}
       </div>
     </div>
   </body>

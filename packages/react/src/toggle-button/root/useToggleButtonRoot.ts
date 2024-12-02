@@ -11,11 +11,13 @@ export function useToggleButtonRoot(
   parameters: useToggleButtonRoot.Parameters,
 ): useToggleButtonRoot.ReturnValue {
   const {
-    pressed: pressedProp,
-    onPressedChange: onPressedChangeProp = NOOP,
-    defaultPressed = false,
-    disabled = false,
     buttonRef: externalRef,
+    defaultPressed,
+    disabled,
+    onPressedChange: onPressedChangeProp = NOOP,
+    pressed: pressedProp,
+    setGroupValue,
+    value,
   } = parameters;
 
   const [pressed, setPressedState] = useControlled({
@@ -25,7 +27,10 @@ export function useToggleButtonRoot(
     state: 'pressed',
   });
 
-  const onPressedChange = useEventCallback(onPressedChangeProp);
+  const onPressedChange = useEventCallback((nextPressed: boolean, event: Event) => {
+    setGroupValue(value, nextPressed, event);
+    onPressedChangeProp(nextPressed, event);
+  });
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -42,7 +47,7 @@ export function useToggleButtonRoot(
           onClick(event: React.MouseEvent) {
             const nextPressed = !pressed;
             setPressedState(nextPressed);
-            onPressedChange?.(nextPressed, event.nativeEvent);
+            onPressedChange(nextPressed, event.nativeEvent);
           },
           ref: buttonRef,
         },
@@ -67,20 +72,15 @@ export namespace useToggleButtonRoot {
     buttonRef?: React.Ref<HTMLElement>;
     /**
      * If `true`, the component is pressed.
-     *
-     * @default undefined
      */
     pressed?: boolean;
     /**
      * The default pressed state. Use when the component is not controlled.
-     *
      * @default false
      */
     defaultPressed?: boolean;
     /**
      * If `true`, the component is disabled.
-     *
-     * @default false
      */
     disabled: boolean;
     /**
@@ -90,6 +90,15 @@ export namespace useToggleButtonRoot {
      * @param {Event} event The event source of the callback.
      */
     onPressedChange: (pressed: boolean, event: Event) => void;
+    /**
+     * State setter for toggle group value when used in a toggle group
+     */
+    setGroupValue: (newValue: string, nextPressed: boolean, event: Event) => void;
+    /**
+     * A unique string that identifies the component when used
+     * inside a ToggleButtonGroup
+     */
+    value: string;
     // TODO: a prop to indicate `aria-pressed='mixed'` is supported
   }
 

@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import { NOOP } from '../../utils/noop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { CompositeItem } from '../../composite/item/CompositeItem';
+import { useToggleButtonGroupRootContext } from '../../toggle-button-group/root/ToggleButtonGroupRootContext';
 import { useToggleButtonRoot } from './useToggleButtonRoot';
 
 const customStyleHookMapping = {
@@ -25,23 +27,30 @@ const ToggleButtonRoot = React.forwardRef(function ToggleButtonRoot(
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
-    pressed: pressedProp,
-    defaultPressed: defaultPressedProp,
-    disabled: disabledProp = false,
-    onPressedChange = NOOP,
     className,
+    defaultPressed = false,
+    disabled: disabledProp = false,
+    form, // never participates in form validation
+    onPressedChange: onPressedChangeProp,
+    pressed: pressedProp,
     render,
-    type,
-    form,
+    type, // cannot change button type
+    value: valueProp,
     ...otherProps
   } = props;
 
+  const groupContext = useToggleButtonGroupRootContext();
+
+  const groupValue = groupContext?.value ?? [];
+
   const { disabled, pressed, getRootProps } = useToggleButtonRoot({
-    pressed: pressedProp,
-    defaultPressed: defaultPressedProp,
-    disabled: disabledProp,
-    onPressedChange,
     buttonRef: forwardedRef,
+    defaultPressed: groupContext ? undefined : defaultPressed,
+    disabled: (disabledProp || groupContext?.disabled) ?? false,
+    onPressedChange: onPressedChangeProp ?? NOOP,
+    pressed: groupContext && valueProp ? groupValue?.indexOf(valueProp) > -1 : pressedProp,
+    setGroupValue: groupContext?.setGroupValue ?? NOOP,
+    value: valueProp ?? '',
   });
 
   const state: ToggleButtonRoot.State = React.useMemo(
@@ -62,7 +71,7 @@ const ToggleButtonRoot = React.forwardRef(function ToggleButtonRoot(
     extraProps: otherProps,
   });
 
-  return renderElement();
+  return groupContext ? <CompositeItem render={renderElement()} /> : renderElement();
 });
 
 export { ToggleButtonRoot };
@@ -77,10 +86,10 @@ export namespace ToggleButtonRoot {
     extends Partial<
         Pick<
           useToggleButtonRoot.Parameters,
-          'pressed' | 'defaultPressed' | 'disabled' | 'onPressedChange'
+          'pressed' | 'defaultPressed' | 'disabled' | 'onPressedChange' | 'value'
         >
       >,
-      BaseUIComponentProps<'button', State> {
+      Omit<BaseUIComponentProps<'button', State>, 'value'> {
     /**
      * The label for the ToggleButton.
      */

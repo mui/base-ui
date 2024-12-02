@@ -15,9 +15,9 @@ if (process.env.NODE_ENV !== 'production') {
   ToggleButtonGroupRootContext.displayName = 'ToggleButtonGroupRootContext';
 }
 
-export function useToggleButtonGroupRootContext() {
+export function useToggleButtonGroupRootContext(optional = true) {
   const context = React.useContext(ToggleButtonGroupRootContext);
-  if (context === undefined) {
+  if (context === undefined && !optional) {
     throw new Error(
       'Base UI: ToggleButtonGroupRootContext is missing. ToggleButtonGroup parts must be placed within <ToggleButtonGroup.Root>.',
     );

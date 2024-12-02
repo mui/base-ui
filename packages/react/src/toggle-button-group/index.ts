@@ -1,1 +1,1 @@
-export * as ToggleButtonGroup from './index.parts';
+export { Root as ToggleButtonGroup } from './index.parts';

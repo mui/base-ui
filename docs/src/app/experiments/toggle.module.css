@@ -31,12 +31,12 @@
 
 .button:first-child {
   border-radius: var(--border-radius-left);
-  border-right-color: transparent;
+  border-inline-end-color: transparent;
 }
 
 .button:last-child {
   border-radius: var(--border-radius-right);
-  border-left-color: transparent;
+  border-inline-start-color: transparent;
 }
 
 .button:first-child:dir(rtl) {
