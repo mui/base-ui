@@ -13,7 +13,7 @@ export default function ExampleField() {
         <Field.Control
           // @ts-expect-error
           placeholder="Enter company name"
-          className={styles.TextInput}
+          className={styles.Input}
         />
       </Field.Root>
 
@@ -22,7 +22,7 @@ export default function ExampleField() {
         <Field.Control
           // @ts-expect-error
           placeholder="Enter fiscal number"
-          className={styles.TextInput}
+          className={styles.Input}
         />
       </Field.Root>
     </Fieldset.Root>

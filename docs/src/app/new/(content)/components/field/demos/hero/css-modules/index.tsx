@@ -10,7 +10,7 @@ export default function ExampleField() {
         required
         // @ts-expect-error
         placeholder="Required"
-        className={styles.TextInput}
+        className={styles.Input}
       />
 
       <Field.Error className={styles.Error} match="valueMissing">
