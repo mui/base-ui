@@ -63,8 +63,8 @@ importers:
         specifier: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils
         version: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils(@babel/core@7.26.0)(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#f85a1b552c571480c9bef36d180b9d43d4c22955
-        version: https://codeload.github.com/mui/material-ui/tar.gz/f85a1b552c571480c9bef36d180b9d43d4c22955(encoding@0.1.13)
+        specifier: github:mui/material-ui#4e033034bb5c084b7d9e5987f0ffc543fdb8787a
+        version: https://codeload.github.com/mui/material-ui/tar.gz/4e033034bb5c084b7d9e5987f0ffc543fdb8787a(encoding@0.1.13)
       '@next/eslint-plugin-next':
         specifier: ^14.2.17
         version: 14.2.17
@@ -2144,10 +2144,10 @@ packages:
       react: ^18.2.0
       react-dom: ^18.2.0
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/f85a1b552c571480c9bef36d180b9d43d4c22955':
-    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/f85a1b552c571480c9bef36d180b9d43d4c22955}
-    version: 6.1.8
-    engines: {pnpm: 9.14.2}
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/4e033034bb5c084b7d9e5987f0ffc543fdb8787a':
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/4e033034bb5c084b7d9e5987f0ffc543fdb8787a}
+    version: 6.1.9
+    engines: {pnpm: 9.14.4}
 
   '@mui/private-theming@6.1.8':
     resolution: {integrity: sha512-TuKl7msynCNCVvhX3c0ef1sF0Qb3VHcPs8XOGB/8bdOGBr/ynmIG1yTMjZeiFQXk8yN9fzK/FDEKMFxILNn3wg==}
@@ -2898,8 +2898,8 @@ packages:
   '@sinonjs/text-encoding@0.7.3':
     resolution: {integrity: sha512-DE427ROAphMQzU4ENbliGYrBSYPXF+TtLg9S8vzeA+OF4ZKzoDdzfL8sxuMUGS/lgRhM6j1URSk9ghf7Xo1tyA==}
 
-  '@slack/bolt@4.1.0':
-    resolution: {integrity: sha512-7XlTziPVLQn8RXNuOTzsJh/wrkX4YUZr1UpX25MpfDdMpp28Y4TrtIvYDh6GV90uNscdHJhOJcpqLq6ibqfGfg==}
+  '@slack/bolt@4.1.1':
+    resolution: {integrity: sha512-Sc8QUnEHCPgRlwrMxmvOl4Vhr/7ZBDXvLR0ir6TO+W5MaDtPsrmWLxqLmb+OhCGSjDp3d4AxO6jdFlC3yNKtsg==}
     engines: {node: '>=18', npm: '>=8.6.0'}
 
   '@slack/logger@4.0.0':
@@ -11250,11 +11250,11 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/f85a1b552c571480c9bef36d180b9d43d4c22955(encoding@0.1.13)':
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/4e033034bb5c084b7d9e5987f0ffc543fdb8787a(encoding@0.1.13)':
     dependencies:
       '@googleapis/sheets': 9.3.1(encoding@0.1.13)
       '@netlify/functions': 2.8.2
-      '@slack/bolt': 4.1.0
+      '@slack/bolt': 4.1.1
       execa: 9.5.1
       google-auth-library: 9.15.0(encoding@0.1.13)
     transitivePeerDependencies:
@@ -12056,7 +12056,7 @@ snapshots:
 
   '@sinonjs/text-encoding@0.7.3': {}
 
-  '@slack/bolt@4.1.0':
+  '@slack/bolt@4.1.1':
     dependencies:
       '@slack/logger': 4.0.0
       '@slack/oauth': 3.0.1
