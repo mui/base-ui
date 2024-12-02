@@ -3,12 +3,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFile, writeFile } from 'node:fs/promises';
 import glob from 'fast-glob';
-
 import * as jsxRuntime from 'react/jsx-runtime';
 import { evaluate } from '@mdx-js/mdx';
-import extractToc, { Toc, TocEntry } from '@stefanprobst/rehype-extract-toc';
-import exportToc from '@stefanprobst/rehype-extract-toc/mdx';
+import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
+import rehypeExportToc from '@stefanprobst/rehype-extract-toc/mdx';
 import { rehypeSlug } from 'docs/src/components/quick-nav/rehypeSlug.mjs';
+import { rehypeQuickNav } from 'docs/src/components/quick-nav/rehypeQuickNav.mjs';
+import { rehypeReference } from 'docs/src/components/reference/rehypeReference.mjs';
+import remarkGfm from 'remark-gfm';
 import { rehypeExtractLinkUrls } from './rehypeExtractLinkUrls.mts';
 
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -80,18 +82,35 @@ async function processMarkdownPage(filePath: string) {
 }
 
 function pagePathToUrl(pagePath: string, trailingSlash = false): string | null {
-  // data/($1)/($2)/*.mdx
-  const parts = /^data\/([^/]*)\/([^/]*)\/[^/]*.mdx?$/.exec(pagePath);
+  if (pagePath.startsWith('data')) {
+    // data/($1)/($2)/*.mdx
+    const parts = /^data\/([^/]*)\/([^/]*)\/[^/]*.mdx?$/.exec(pagePath);
 
-  if (parts == null) {
-    return null;
+    if (parts == null) {
+      return null;
+    }
+
+    if (parts[1] === 'components') {
+      return `/components/react-${parts[2]}${trailingSlash ? '/' : ''}`;
+    }
+
+    return `/${parts[1]}/${parts[2]}${trailingSlash ? '/' : ''}`;
   }
 
-  if (parts[1] === 'components') {
-    return `/components/react-${parts[2]}${trailingSlash ? '/' : ''}`;
+  const parts = pagePath
+    .replace(/^(src\/)?app\//, '')
+    .split('/')
+    // Filter out route groups
+    .filter((part) => !part.startsWith('('))
+    .filter((part) => !part.endsWith('.mdx'));
+
+  // Place leading and trailing slash placeholders
+  parts.unshift('');
+  if (trailingSlash) {
+    parts.push('');
   }
 
-  return `/${parts[1]}/${parts[2]}${trailingSlash ? '/' : ''}`;
+  return parts.join('/');
 }
 
 async function getLinksAndAnchors(
@@ -107,10 +126,13 @@ async function getLinksAndAnchors(
     // @ts-ignore https://github.com/mdx-js/mdx/issues/2463
   } = await evaluate(mdxSource, {
     ...jsxRuntime,
+    remarkPlugins: [remarkGfm],
     rehypePlugins: [
+      rehypeReference,
       rehypeSlug,
-      extractToc,
-      exportToc,
+      rehypeExtractToc,
+      rehypeExportToc,
+      rehypeQuickNav,
       [
         rehypeExtractLinkUrls,
         {
