@@ -24,7 +24,7 @@ export function usePreviewCardPositioner(
     arrowRef,
     arrowUncentered,
     renderedSide,
-    renderedAlignment,
+    renderedAlign,
     positionerContext,
   } = useAnchorPositioning(params);
 
@@ -56,7 +56,7 @@ export function usePreviewCardPositioner(
       arrowUncentered,
       arrowStyles,
       side: renderedSide,
-      alignment: renderedAlignment,
+      align: renderedAlign,
       positionerContext,
     }),
     [
@@ -65,7 +65,7 @@ export function usePreviewCardPositioner(
       arrowUncentered,
       arrowStyles,
       renderedSide,
-      renderedAlignment,
+      renderedAlign,
       positionerContext,
     ],
   );
@@ -102,15 +102,15 @@ export namespace usePreviewCardPositioner {
      */
     sideOffset?: number;
     /**
-     * The alignment of the preview card element to the anchor element along its cross axis.
+     * The align of the preview card element to the anchor element along its cross axis.
      * @default 'center'
      */
-    alignment?: 'start' | 'end' | 'center';
+    align?: 'start' | 'end' | 'center';
     /**
-     * The offset of the preview card element along its alignment axis.
+     * The offset of the preview card element along its align axis.
      * @default 0
      */
-    alignmentOffset?: number;
+    alignOffset?: number;
     /**
      * The boundary that the preview card element should be constrained to.
      * @default 'clipping-ancestors'
@@ -185,9 +185,9 @@ export namespace usePreviewCardPositioner {
      */
     side: 'top' | 'right' | 'bottom' | 'left';
     /**
-     * The rendered alignment of the preview card element.
+     * The rendered align of the preview card element.
      */
-    alignment: 'start' | 'end' | 'center';
+    align: 'start' | 'end' | 'center';
     /**
      * The styles to apply to the preview card arrow element.
      */

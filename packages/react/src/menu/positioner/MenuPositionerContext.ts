@@ -8,9 +8,9 @@ export interface MenuPositionerContext {
    */
   side: Side;
   /**
-   * The alignment of the anchor element the popup is positioned relative to.
+   * The align of the anchor element the popup is positioned relative to.
    */
-  alignment: 'start' | 'end' | 'center';
+  align: 'start' | 'end' | 'center';
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;

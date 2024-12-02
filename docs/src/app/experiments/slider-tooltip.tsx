@@ -59,7 +59,7 @@ export default function App() {
               >
                 <Tooltip.Trigger className="SliderTooltip-trigger" />
               </Slider.Thumb>
-              <Tooltip.Positioner sideOffset={10} alignment="center">
+              <Tooltip.Positioner sideOffset={10} align="center">
                 <Tooltip.Popup
                   className="SliderTooltip-popup"
                   data-open={String(valueLabelOpen)}

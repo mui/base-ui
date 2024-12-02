@@ -40,9 +40,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     render,
     keepMounted = false,
     side = 'bottom',
-    alignment = 'center',
+    align = 'center',
     sideOffset = 0,
-    alignmentOffset = 0,
+    alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
@@ -74,8 +74,8 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     mounted,
     side,
     sideOffset,
-    alignment,
-    alignmentOffset,
+    align,
+    alignOffset,
     arrowPadding,
     collisionBoundary,
     collisionPadding,
@@ -88,15 +88,15 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     () => ({
       open,
       side: positioner.side,
-      alignment: positioner.alignment,
+      align: positioner.align,
     }),
-    [open, positioner.side, positioner.alignment],
+    [open, positioner.side, positioner.align],
   );
 
   const contextValue: MenuPositionerContext = React.useMemo(
     () => ({
       side: positioner.side,
-      alignment: positioner.alignment,
+      align: positioner.align,
       arrowRef: positioner.arrowRef,
       arrowUncentered: positioner.arrowUncentered,
       arrowStyles: positioner.arrowStyles,
@@ -104,7 +104,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     }),
     [
       positioner.side,
-      positioner.alignment,
+      positioner.align,
       positioner.arrowRef,
       positioner.arrowUncentered,
       positioner.arrowStyles,
@@ -157,7 +157,7 @@ export namespace MenuPositioner {
   export type State = {
     open: boolean;
     side: Side;
-    alignment: 'start' | 'end' | 'center';
+    align: 'start' | 'end' | 'center';
   };
 
   export interface Props
@@ -171,15 +171,15 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The alignment of the Menu element to the anchor element along its cross axis.
+   * The align of the Menu element to the anchor element along its cross axis.
    * @default 'center'
    */
-  alignment: PropTypes.oneOf(['center', 'end', 'start']),
+  align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the Menu element along its alignment axis.
+   * The offset of the Menu element along its align axis.
    * @default 0
    */
-  alignmentOffset: PropTypes.number,
+  alignOffset: PropTypes.number,
   /**
    * The anchor element to which the Menu popup will be placed at.
    */
