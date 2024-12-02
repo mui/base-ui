@@ -121,7 +121,12 @@ export function Item({ children, className, href, ...props }: ItemProps) {
 
   return (
     <li ref={ref} className={clsx('SideNavItem', className)} {...props}>
-      <NextLink data-active={active || undefined} className="SideNavLink" href={href}>
+      <NextLink
+        aria-current={active ? 'page' : undefined}
+        data-active={active || undefined}
+        className="SideNavLink"
+        href={href}
+      >
         {children}
       </NextLink>
     </li>
