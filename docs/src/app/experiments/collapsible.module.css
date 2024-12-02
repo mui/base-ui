@@ -65,7 +65,7 @@
   }
 }
 
-.transition .collapsible {
+.transition {
   & .panel[data-open] {
     height: var(--collapsible-panel-height);
     transition: height var(--duration) ease-out;
@@ -81,7 +81,7 @@
   }
 }
 
-.animation .collapsible {
+.animation {
   & .panel[data-open] {
     animation: slideDown var(--duration) ease-out;
   }
@@ -91,7 +91,7 @@
   }
 }
 
-.framer .collapsible {
+.framer {
   & .panel {
     display: flex;
     flex-direction: column;

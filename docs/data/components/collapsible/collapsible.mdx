@@ -199,7 +199,7 @@ function App() {
 
 ## Overriding default components
 
-Use the `render` prop to override the rendered elements with your own components. The `Collapsible.Root` component does not render an element to the DOM by default, but can do so with the render prop:
+Use the `render` prop to override the rendered elements with your own components.
 
 ```jsx
 // Element shorthand
@@ -209,4 +209,11 @@ Use the `render` prop to override the rendered elements with your own components
 ```jsx
 // Function
 <Collapsible.Root render={(props) => <MyCollapsibleRoot {...props} />} />
+```
+
+The `Collapsible.Root` component can optionally not render an element to the DOM by passing `null` to the render prop:
+
+```jsx
+// does not render an element, only its children
+<Collapsible.Root render={null} />
 ```

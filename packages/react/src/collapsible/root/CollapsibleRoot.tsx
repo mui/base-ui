@@ -69,17 +69,17 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
-  if (!renderProp) {
+  if (renderProp !== null) {
     return (
       <CollapsibleRootContext.Provider value={contextValue}>
-        {children}
+        {renderElement()}
       </CollapsibleRootContext.Provider>
     );
   }
 
   return (
     <CollapsibleRootContext.Provider value={contextValue}>
-      {renderElement()}
+      {children}
     </CollapsibleRootContext.Provider>
   );
 });
@@ -94,7 +94,9 @@ export namespace CollapsibleRoot {
 
   export interface Props
     extends Partial<useCollapsibleRoot.Parameters>,
-      BaseUIComponentProps<'div', State> {}
+      Omit<BaseUIComponentProps<'div', State>, 'render'> {
+    render?: BaseUIComponentProps<'div', State>['render'] | null;
+  }
 }
 
 CollapsibleRoot.propTypes /* remove-proptypes */ = {

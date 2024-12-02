@@ -12,9 +12,7 @@ const PANEL_CONTENT = 'This is panel content';
 describe('<Collapsible.Root />', () => {
   const { render } = createRenderer();
 
-  // `render` is explicitly specified here because Collapsible.Root does not
-  // render an element to the DOM by default and so the conformance tests would be unapplicable
-  describeConformance(<Collapsible.Root render={<div />} />, () => ({
+  describeConformance(<Collapsible.Root />, () => ({
     render,
     refInstanceof: window.HTMLDivElement,
   }));
@@ -99,6 +97,20 @@ describe('<Collapsible.Root />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(trigger).to.not.have.attribute('data-panel-open');
       expect(queryByText(PANEL_CONTENT)).to.equal(null);
+    });
+  });
+
+  describe('prop: render', () => {
+    it('does not render a root element when `null`', async () => {
+      const { getByRole, container } = await render(
+        <Collapsible.Root defaultOpen animated={false} render={null}>
+          <Collapsible.Trigger />
+          <Collapsible.Panel>This is panel content</Collapsible.Panel>
+        </Collapsible.Root>,
+      );
+
+      const trigger = getByRole('button');
+      expect(container.firstElementChild as HTMLElement).to.equal(trigger);
     });
   });
 

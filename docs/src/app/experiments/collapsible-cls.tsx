@@ -1,20 +1,20 @@
 'use client';
 import * as React from 'react';
 import { Collapsible } from '@base-ui-components/react/collapsible';
-import classes from './collapsible.module.css';
+import c from './collapsible.module.css';
 
 // https://github.com/mui/base-ui/issues/740
 export default function AnimatedCollapsibles() {
   return (
-    <div className={classes.wrapper}>
-      <div className={classes.animation}>
-        <div className={classes.collapsible}>
+    <div className={c.wrapper}>
+      <div className={c.animation}>
+        <div className={c.collapsible}>
           <Collapsible.Root defaultOpen={false}>
-            <Collapsible.Trigger>
+            <Collapsible.Trigger className={c.trigger}>
               <ExpandMoreIcon />
               Trigger 1A (CSS Animation)
             </Collapsible.Trigger>
-            <Collapsible.Panel>
+            <Collapsible.Panel className={c.panel}>
               <p>This is the collapsed content</p>
               <p>
                 You can find the Base UI repository{' '}
@@ -30,13 +30,13 @@ export default function AnimatedCollapsibles() {
           </Collapsible.Root>
         </div>
 
-        <div className={classes.collapsible}>
+        <div className={c.collapsible}>
           <Collapsible.Root>
-            <Collapsible.Trigger>
+            <Collapsible.Trigger className={c.trigger}>
               <ExpandMoreIcon />
               Trigger 1B (CSS Animation)
             </Collapsible.Trigger>
-            <Collapsible.Panel>
+            <Collapsible.Panel className={c.panel}>
               <p>This is the collapsed content</p>
               <p>
                 You can find the Base UI repository{' '}
@@ -53,14 +53,14 @@ export default function AnimatedCollapsibles() {
         </div>
       </div>
 
-      <div className={classes.transition}>
-        <div className={classes.collapsible}>
+      <div className={c.transition}>
+        <div className={c.collapsible}>
           <Collapsible.Root defaultOpen={false}>
-            <Collapsible.Trigger>
+            <Collapsible.Trigger className={c.trigger}>
               <ExpandMoreIcon />
               Trigger 2A (CSS Transition)
             </Collapsible.Trigger>
-            <Collapsible.Panel>
+            <Collapsible.Panel className={c.panel}>
               <p>This is the collapsed content</p>
               <p>
                 You can find the Base UI repository{' '}
@@ -76,13 +76,13 @@ export default function AnimatedCollapsibles() {
           </Collapsible.Root>
         </div>
 
-        <div className={classes.collapsible}>
+        <div className={c.collapsible}>
           <Collapsible.Root>
-            <Collapsible.Trigger>
+            <Collapsible.Trigger className={c.trigger}>
               <ExpandMoreIcon />
               Trigger 2B (CSS Transition)
             </Collapsible.Trigger>
-            <Collapsible.Panel>
+            <Collapsible.Panel className={c.panel}>
               <p>This is the collapsed content</p>
               <p>
                 You can find the Base UI repository{' '}

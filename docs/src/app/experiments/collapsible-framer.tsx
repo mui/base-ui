@@ -2,20 +2,21 @@
 import * as React from 'react';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import { motion } from 'framer-motion';
-import classes from './collapsible.module.css';
+import c from './collapsible.module.css';
 
 export default function CollapsibleFramer() {
   const [open, setOpen] = React.useState(false);
   return (
-    <div className={classes.wrapper}>
-      <div className={classes.framer}>
-        <div className={classes.collapsible}>
+    <div className={c.wrapper}>
+      <div className={c.framer}>
+        <div className={c.collapsible}>
           <Collapsible.Root open={open} onOpenChange={setOpen}>
-            <Collapsible.Trigger>
+            <Collapsible.Trigger className={c.trigger}>
               <ExpandMoreIcon />
               Trigger
             </Collapsible.Trigger>
             <Collapsible.Panel
+              className={c.panel}
               keepMounted
               render={
                 <motion.div

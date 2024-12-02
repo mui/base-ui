@@ -1,27 +1,27 @@
 'use client';
 import * as React from 'react';
 import { Collapsible } from '@base-ui-components/react/collapsible';
-import s from './collapsible.module.css';
+import c from './collapsible.module.css';
 
-function classNames(...c: Array<string | undefined | null | false>) {
-  return c.filter(Boolean).join(' ');
+function classNames(...classes: Array<string | undefined | null | false>) {
+  return classes.filter(Boolean).join(' ');
 }
 
 export default function CollapsibleTransitions() {
   return (
-    <div className={s.wrapper}>
+    <div className={c.wrapper}>
       <h3>Transitions</h3>
-      <div className={classNames(s.grid, s.transition)}>
+      <div className={classNames(c.grid, c.transition)}>
         {CONFIG.map((entry, i) => {
           const [defaultOpen, keepMounted] = entry;
           return (
-            <div key={i} className={s.collapsible}>
-              <Collapsible.Root defaultOpen={defaultOpen}>
-                <Collapsible.Trigger className={s.trigger}>
+            <div key={i}>
+              <Collapsible.Root defaultOpen={defaultOpen} className={c.collapsible}>
+                <Collapsible.Trigger className={c.trigger}>
                   <ExpandMoreIcon />
                   Trigger {i} (keepMounted={String(keepMounted)})
                 </Collapsible.Trigger>
-                <Collapsible.Panel className={s.panel} keepMounted={keepMounted}>
+                <Collapsible.Panel className={c.panel} keepMounted={keepMounted}>
                   <p>This is the collapsed content</p>
                   <p>
                     You can find the Base UI repository{' '}
@@ -40,17 +40,17 @@ export default function CollapsibleTransitions() {
         })}
       </div>
       <h3>Animations</h3>
-      <div className={classNames(s.grid, s.animation)}>
+      <div className={classNames(c.grid, c.animation)}>
         {CONFIG.map((entry, i) => {
           const [defaultOpen, keepMounted] = entry;
           return (
-            <div key={i} className={s.collapsible}>
-              <Collapsible.Root defaultOpen={defaultOpen}>
-                <Collapsible.Trigger className={s.trigger}>
+            <div key={i}>
+              <Collapsible.Root defaultOpen={defaultOpen} className={c.collapsible}>
+                <Collapsible.Trigger className={c.trigger}>
                   <ExpandMoreIcon />
                   Trigger {i} (keepMounted={String(keepMounted)})
                 </Collapsible.Trigger>
-                <Collapsible.Panel className={s.panel} keepMounted={keepMounted}>
+                <Collapsible.Panel className={c.panel} keepMounted={keepMounted}>
                   <p>This is the collapsed content</p>
                   <p>
                     You can find the Base UI repository{' '}
