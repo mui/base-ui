@@ -84,12 +84,12 @@ By default, the menu is placed on the bottom side of its trigger, the default an
 </Menu.Root>
 ```
 
-You can also change the alignment of the menu in relation to its anchor. By default, aligned to the leading edge of an anchor, but it can be configured otherwise using the `alignment` prop:
+You can also change the align of the menu in relation to its anchor. By default, aligned to the leading edge of an anchor, but it can be configured otherwise using the `align` prop:
 
 ```jsx
 <Menu.Root>
   <Menu.Trigger />
-  <Menu.Positioner side="right" alignment="end">
+  <Menu.Positioner side="right" align="end">
     <Menu.Popup>
       <Menu.Item>Item 1</Menu.Item>
     </Menu.Popup>
@@ -97,27 +97,27 @@ You can also change the alignment of the menu in relation to its anchor. By defa
 </Menu.Root>
 ```
 
-Due to collision detection, the menu may change its placement to avoid overflow. Therefore, your explicitly specified `side` and `alignment` props act as "ideal", or preferred, values.
+Due to collision detection, the menu may change its placement to avoid overflow. Therefore, your explicitly specified `side` and `align` props act as "ideal", or preferred, values.
 
 To access the true rendered values, which may change as the result of a collision, the menu element receives data attributes:
 
 ```jsx
 // Rendered HTML (simplified)
 <div>
-  <div data-side="left" data-alignment="end">
+  <div data-side="left" data-align="end">
     <div>Item 1</div>
   </div>
 </div>
 ```
 
-This allows you to conditionally style the menu based on its rendered side or alignment.
+This allows you to conditionally style the menu based on its rendered side or align.
 
 ## Offset
 
-The `sideOffset` prop creates a gap between the anchor and menu popup, while `alignmentOffset` slides the menu popup from its alignment, acting logically for `start` and `end` alignments.
+The `sideOffset` prop creates a gap between the anchor and menu popup, while `alignOffset` slides the menu popup from its align, acting logically for `start` and `end` aligns.
 
 ```jsx
-<Menu.Positioner sideOffset={10} alignmentOffset={10}>
+<Menu.Positioner sideOffset={10} alignOffset={10}>
 ```
 
 ## Orientation

@@ -29,9 +29,9 @@ export function ReferenceTablePopover({ children }: React.PropsWithChildren) {
         }
       />
       <Popover.Positioner
-        alignment={isMobile ? 'end' : 'start'}
+        align={isMobile ? 'end' : 'start'}
         side={isMobile ? 'bottom' : 'left'}
-        alignmentOffset={-4}
+        alignOffset={-4}
         sideOffset={9}
         collisionPadding={16}
       >

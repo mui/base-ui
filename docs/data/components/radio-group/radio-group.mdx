@@ -109,3 +109,15 @@ The `Radio` components have a `[data-radio]` attribute with values `"checked"` o
   background: white;
 }
 ```
+
+## RTL
+
+Place the component inside an HTML element or component with the HTML `dir="rtl"` attribute to reverse arrow key navigation for right-to-left languages:
+
+```jsx
+<html dir="rtl">
+  <body>
+    <RadioGroup.Root /> {/* RTL keyboard behavior */}
+  </body>
+</html>
+```

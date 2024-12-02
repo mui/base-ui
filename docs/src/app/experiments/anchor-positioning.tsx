@@ -17,11 +17,9 @@ export default function AnchorPositioning() {
   const [popupSize, setPopupSize] = React.useState<Size>('xs');
   const [anchorSize, setAnchorSize] = React.useState<Size>('m');
   const [side, setSide] = React.useState<'top' | 'bottom' | 'left' | 'right'>('top');
-  const [alignment, setAlignment] = React.useState<'start' | 'center' | 'end'>(
-    'center',
-  );
+  const [align, setAlign] = React.useState<'start' | 'center' | 'end'>('center');
   const [sideOffset, setSideOffset] = React.useState(0);
-  const [alignmentOffset, setAlignmentOffset] = React.useState(0);
+  const [alignOffset, setAlignOffset] = React.useState(0);
   const [collisionPadding, setCollisionPadding] = React.useState(5);
   const [arrowPadding, setArrowPadding] = React.useState(5);
   const [hideWhenDetached, setHideWhenDetached] = React.useState(false);
@@ -42,9 +40,9 @@ export default function AnchorPositioning() {
     arrowUncentered,
   } = useAnchorPositioning({
     side,
-    alignment,
+    align,
     sideOffset,
-    alignmentOffset,
+    alignOffset,
     collisionPadding,
     hideWhenDetached,
     sticky,
@@ -203,14 +201,14 @@ export default function AnchorPositioning() {
           </fieldset>
 
           <fieldset>
-            <legend>Alignment</legend>
+            <legend>Align</legend>
             {(['start', 'center', 'end'] as const).map((a) => (
               <label key={a}>
                 <input
-                  name="alignment"
+                  name="align"
                   type="radio"
-                  checked={a === alignment}
-                  onChange={() => setAlignment(a)}
+                  checked={a === align}
+                  onChange={() => setAlign(a)}
                 />
                 {a}
               </label>
@@ -230,15 +228,15 @@ export default function AnchorPositioning() {
           </fieldset>
 
           <fieldset>
-            <legend>Alignment Offset</legend>
+            <legend>Align Offset</legend>
             <input
               type="range"
               min={0}
               max={50}
-              value={alignmentOffset}
-              onChange={(event) => setAlignmentOffset(Number(event.target.value))}
+              value={alignOffset}
+              onChange={(event) => setAlignOffset(Number(event.target.value))}
             />
-            {alignmentOffset}
+            {alignOffset}
           </fieldset>
 
           <fieldset>

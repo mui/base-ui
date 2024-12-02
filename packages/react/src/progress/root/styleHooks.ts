@@ -2,7 +2,6 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { ProgressRoot } from './ProgressRoot';
 
 export const progressStyleHookMapping: CustomStyleHookMapping<ProgressRoot.State> = {
-  direction: () => null,
   max: () => null,
   min: () => null,
   status(value): Record<string, string> | null {

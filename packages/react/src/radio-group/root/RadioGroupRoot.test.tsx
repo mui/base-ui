@@ -3,13 +3,10 @@ import { RadioGroup } from '@base-ui-components/react/radio-group';
 import { Radio } from '@base-ui-components/react/radio';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, act, screen, fireEvent } from '@mui/internal-test-utils';
-import userEvent from '@testing-library/user-event';
+import { createRenderer, act, screen, fireEvent, describeSkipIf } from '@mui/internal-test-utils';
 import { describeConformance } from '../../../test/describeConformance';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
-
-const user = userEvent.setup();
 
 describe('<RadioGroup.Root />', () => {
   const { render } = createRenderer();
@@ -22,7 +19,6 @@ describe('<RadioGroup.Root />', () => {
   describe('extra props', () => {
     it('can override the built-in attributes', () => {
       const { container } = render(<RadioGroup.Root role="switch" />);
-      // eslint-disable-next-line testing-library/no-node-access
       expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'switch');
     });
   });
@@ -111,7 +107,6 @@ describe('<RadioGroup.Root />', () => {
     const group = screen.getByTestId('root');
     const item = screen.getByTestId('item');
 
-    // eslint-disable-next-line testing-library/no-node-access
     const input = group.querySelector<HTMLInputElement>('input')!;
 
     fireEvent.click(input);
@@ -150,7 +145,6 @@ describe('<RadioGroup.Root />', () => {
   it('should set the name attribute on the input', () => {
     render(<RadioGroup.Root name="radio-group" />);
     const group = screen.getByRole('radiogroup');
-    // eslint-disable-next-line testing-library/no-node-access
     expect(group.nextElementSibling).to.have.attribute('name', 'radio-group');
   });
 
@@ -198,7 +192,7 @@ describe('<RadioGroup.Root />', () => {
   });
 
   it('should automatically select radio upon navigation', async () => {
-    render(
+    const { user } = await render(
       <RadioGroup.Root>
         <Radio.Root value="a" data-testid="a" />
         <Radio.Root value="b" data-testid="b" />
@@ -222,77 +216,88 @@ describe('<RadioGroup.Root />', () => {
     expect(b).to.have.attribute('aria-checked', 'true');
   });
 
-  it('should manage arrow key navigation', async () => {
-    render(
-      <div>
-        <button data-testid="before" />
-        <RadioGroup.Root>
-          <Radio.Root value="a" data-testid="a" />
-          <Radio.Root value="b" data-testid="b" />
-          <Radio.Root value="c" data-testid="c" />
-        </RadioGroup.Root>
-        <button data-testid="after" />
-      </div>,
-    );
+  describe('should manage arrow key navigation', () => {
+    [
+      ['ltr', 'ArrowRight', 'ArrowLeft'],
+      ['rtl', 'ArrowLeft', 'ArrowRight'],
+    ].forEach((entry) => {
+      const [direction, horizontalNextKey, horizontalPrevKey] = entry;
 
-    const a = screen.getByTestId('a');
-    const b = screen.getByTestId('b');
-    const c = screen.getByTestId('c');
-    const after = screen.getByTestId('after');
+      describeSkipIf(isJSDOM && direction === 'rtl')(direction, () => {
+        it(direction, async () => {
+          const { user } = await render(
+            <div dir={direction}>
+              <button data-testid="before" />
+              <RadioGroup.Root>
+                <Radio.Root value="a" data-testid="a" />
+                <Radio.Root value="b" data-testid="b" />
+                <Radio.Root value="c" data-testid="c" />
+              </RadioGroup.Root>
+              <button data-testid="after" />
+            </div>,
+          );
 
-    act(() => {
-      a.focus();
+          const a = screen.getByTestId('a');
+          const b = screen.getByTestId('b');
+          const c = screen.getByTestId('c');
+          const after = screen.getByTestId('after');
+
+          act(() => {
+            a.focus();
+          });
+
+          expect(a).toHaveFocus();
+
+          await user.keyboard('{ArrowDown}');
+
+          expect(b).toHaveFocus();
+
+          await user.keyboard('{ArrowDown}');
+
+          expect(c).toHaveFocus();
+
+          await user.keyboard('{ArrowDown}');
+
+          expect(a).toHaveFocus();
+
+          await user.keyboard('{ArrowUp}');
+
+          expect(c).toHaveFocus();
+
+          await user.keyboard('{ArrowUp}');
+
+          expect(b).toHaveFocus();
+
+          await user.keyboard('{ArrowUp}');
+
+          expect(a).toHaveFocus();
+
+          await user.keyboard(`{${horizontalPrevKey}}`);
+
+          expect(c).toHaveFocus();
+
+          await user.keyboard(`{${horizontalNextKey}}`);
+
+          expect(a).toHaveFocus();
+
+          await user.tab();
+
+          expect(after).toHaveFocus();
+
+          await user.tab({ shift: true });
+
+          expect(a).toHaveFocus();
+
+          await user.keyboard(`{${horizontalPrevKey}}`);
+
+          expect(c).toHaveFocus();
+
+          await user.tab({ shift: true });
+          await user.tab();
+
+          expect(c).toHaveFocus();
+        });
+      });
     });
-
-    expect(a).toHaveFocus();
-
-    await user.keyboard('{ArrowDown}');
-
-    expect(b).toHaveFocus();
-
-    await user.keyboard('{ArrowDown}');
-
-    expect(c).toHaveFocus();
-
-    await user.keyboard('{ArrowDown}');
-
-    expect(a).toHaveFocus();
-
-    await user.keyboard('{ArrowUp}');
-
-    expect(c).toHaveFocus();
-
-    await user.keyboard('{ArrowUp}');
-
-    expect(b).toHaveFocus();
-
-    await user.keyboard('{ArrowUp}');
-
-    expect(a).toHaveFocus();
-
-    await user.keyboard('{ArrowLeft}');
-
-    expect(c).toHaveFocus();
-
-    await user.keyboard('{ArrowRight}');
-
-    expect(a).toHaveFocus();
-
-    await user.tab();
-
-    expect(after).toHaveFocus();
-
-    await user.tab({ shift: true });
-
-    expect(a).toHaveFocus();
-
-    await user.keyboard('{ArrowLeft}');
-
-    expect(c).toHaveFocus();
-
-    await user.tab({ shift: true });
-    await user.tab();
-
-    expect(c).toHaveFocus();
   });
 });
