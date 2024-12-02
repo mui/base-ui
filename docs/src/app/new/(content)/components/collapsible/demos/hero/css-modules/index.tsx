@@ -4,7 +4,7 @@ import styles from './index.module.css';
 
 export default function ExampleCollapsible() {
   return (
-    <Collapsible.Root className={styles.Root} render={<div />}>
+    <Collapsible.Root className={styles.Collapsible} render={<div />}>
       <Collapsible.Trigger className={styles.Trigger}>
         <ChevronIcon className={styles.Icon} />
         Recovery keys
