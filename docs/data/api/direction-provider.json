@@ -1,0 +1,11 @@
+{
+  "props": {},
+  "name": "DirectionProvider",
+  "imports": ["import { DirectionProvider } from '@base-ui-components/react/direction-provider';"],
+  "classes": [],
+  "muiName": "DirectionProvider",
+  "filename": "/packages/react/src/direction-provider/DirectionProvider.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-direction-provider/\">Progress</a></li></ul>",
+  "cssComponent": false
+}
