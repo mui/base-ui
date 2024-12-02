@@ -28,7 +28,7 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     className,
     defaultOpen = true,
     disabled = false,
-    onOpenChange =NOOP,
+    onOpenChange = NOOP,
     open,
     render: renderProp,
     ...otherProps
