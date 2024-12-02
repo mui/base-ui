@@ -5,6 +5,8 @@
     "import { Tooltip } from '@base-ui-components/react/tooltip';\nconst TooltipPortal = Tooltip.Portal;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
   "muiName": "TooltipPortal",
   "filename": "/packages/react/src/tooltip/portal/TooltipPortal.tsx",
   "inheritance": null,

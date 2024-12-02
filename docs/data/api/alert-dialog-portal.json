@@ -5,6 +5,8 @@
     "import { AlertDialog } from '@base-ui-components/react/alert-dialog';\nconst AlertDialogPortal = AlertDialog.Portal;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
   "muiName": "AlertDialogPortal",
   "filename": "/packages/react/src/alert-dialog/portal/AlertDialogPortal.tsx",
   "inheritance": null,

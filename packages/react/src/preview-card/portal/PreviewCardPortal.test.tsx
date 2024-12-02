@@ -1,18 +1,20 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui-components/react/preview-card';
-import { createRenderer, describeConformance } from '#test-utils';
+import { screen } from '@mui/internal-test-utils';
+import { createRenderer } from '#test-utils';
+import { expect } from 'chai';
 
 describe('<PreviewCard.Portal />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<PreviewCard.Portal />, () => ({
-    refInstanceof: null,
-    render(node) {
-      return render(
-        <PreviewCard.Root open animated={false}>
-          {node}
-        </PreviewCard.Root>,
-      );
-    },
-  }));
+  it('renders children', async () => {
+    await render(
+      <PreviewCard.Root open>
+        <PreviewCard.Portal data-testid="portal">
+          <PreviewCard.Positioner data-testid="positioner" />
+        </PreviewCard.Portal>
+      </PreviewCard.Root>,
+    );
+    expect(screen.getByTestId('positioner')).not.to.equal(null);
+  });
 });

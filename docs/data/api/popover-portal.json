@@ -5,6 +5,8 @@
     "import { Popover } from '@base-ui-components/react/popover';\nconst PopoverPortal = Popover.Portal;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
   "muiName": "PopoverPortal",
   "filename": "/packages/react/src/popover/portal/PopoverPortal.tsx",
   "inheritance": null,

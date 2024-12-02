@@ -5,6 +5,8 @@
     "import { Menu } from '@base-ui-components/react/menu';\nconst MenuPortal = Menu.Portal;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
   "muiName": "MenuPortal",
   "filename": "/packages/react/src/menu/portal/MenuPortal.tsx",
   "inheritance": null,

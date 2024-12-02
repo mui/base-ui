@@ -5,6 +5,8 @@
     "import { PreviewCard } from '@base-ui-components/react/preview-card';\nconst PreviewCardPortal = PreviewCard.Portal;"
   ],
   "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
   "muiName": "PreviewCardPortal",
   "filename": "/packages/react/src/preview-card/portal/PreviewCardPortal.tsx",
   "inheritance": null,
