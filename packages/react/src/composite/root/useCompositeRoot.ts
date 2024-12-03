@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
@@ -27,7 +28,6 @@ import {
   VERTICAL_KEYS,
   VERTICAL_KEYS_WITH_EXTRA_KEYS,
   type Dimensions,
-  type TextDirection,
 } from '../composite';
 
 export interface UseCompositeRootParameters {

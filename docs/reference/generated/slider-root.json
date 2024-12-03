@@ -14,11 +14,6 @@
       "type": "Array<number> | number",
       "description": "The default value of the slider. Use when the component is not controlled."
     },
-    "direction": {
-      "type": "'ltr' | 'rtl'",
-      "default": "'ltr'",
-      "description": "Sets the direction. For right-to-left languages, the lowest value is on the right-hand side."
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",

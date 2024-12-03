@@ -5,6 +5,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { CompositeList } from '../../composite/list/CompositeList';
+import { useDirectionContext } from '../../direction-provider/DirectionContext';
 import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
 import { SliderRootContext } from './SliderRootContext';
@@ -28,17 +29,25 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     'aria-labelledby': ariaLabelledby,
     className,
     defaultValue,
-    direction = 'ltr',
     disabled: disabledProp = false,
+    id,
     largeStep,
     render,
+    max,
+    min,
     minStepsBetweenValues,
+    name,
     onValueChange,
     onValueCommitted,
     orientation = 'horizontal',
+    step,
+    tabIndex,
     value,
     ...otherProps
   } = props;
+
+  const directionContext = useDirectionContext();
+  const direction = directionContext?.direction ?? 'ltr';
 
   const { labelId, state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
@@ -46,23 +55,27 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   const { getRootProps, ...slider } = useSliderRoot({
     'aria-labelledby': ariaLabelledby ?? labelId,
     defaultValue,
-    disabled,
     direction,
+    disabled,
+    id,
     largeStep,
+    max,
+    min,
     minStepsBetweenValues,
+    name,
     onValueChange,
     onValueCommitted,
     orientation,
     rootRef: forwardedRef,
+    step,
+    tabIndex,
     value,
-    ...otherProps,
   });
 
   const state: SliderRoot.State = React.useMemo(
     () => ({
       ...fieldState,
       activeThumbIndex: slider.active,
-      direction,
       disabled,
       dragging: slider.dragging,
       orientation,
@@ -74,7 +87,6 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     }),
     [
       fieldState,
-      direction,
       disabled,
       orientation,
       slider.active,
@@ -125,7 +137,6 @@ export namespace SliderRoot {
      * If `true`, a thumb is being dragged by a pointer.
      */
     dragging: boolean;
-    direction: useSliderRoot.Direction;
     max: number;
     min: number;
     /**
@@ -150,7 +161,20 @@ export namespace SliderRoot {
   }
 
   export interface Props
-    extends Omit<useSliderRoot.Parameters, 'rootRef'>,
+    extends Pick<
+        useSliderRoot.Parameters,
+        | 'disabled'
+        | 'max'
+        | 'min'
+        | 'minStepsBetweenValues'
+        | 'name'
+        | 'onValueChange'
+        | 'onValueCommitted'
+        | 'orientation'
+        | 'largeStep'
+        | 'step'
+        | 'value'
+      >,
       Omit<BaseUIComponentProps<'span', State>, 'defaultValue' | 'onChange' | 'values'> {
     /**
      * The default value of the slider. Use when the component is not controlled.
@@ -192,11 +216,6 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    * The default value of the slider. Use when the component is not controlled.
    */
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.number), PropTypes.number]),
-  /**
-   * Sets the direction. For right-to-left languages, the lowest value is on the right-hand side.
-   * @default 'ltr'
-   */
-  direction: PropTypes.oneOf(['ltr', 'rtl']),
   /**
    * If `true`, the component is disabled.
    * @default false

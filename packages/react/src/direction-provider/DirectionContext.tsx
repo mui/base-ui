@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { TextDirection } from '../composite/composite';
+
+export type TextDirection = 'ltr' | 'rtl';
 
 export type DirectionContext = {
   direction: TextDirection;

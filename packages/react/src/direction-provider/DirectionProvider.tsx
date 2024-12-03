@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { TextDirection } from '../composite/composite';
-import { DirectionContext } from './DirectionContext';
+import { DirectionContext, type TextDirection } from './DirectionContext';
 
 /**
  * A provider that configures RTL/LTR behavior for part of an app or a whole app.
