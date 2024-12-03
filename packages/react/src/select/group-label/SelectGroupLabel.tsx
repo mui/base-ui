@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useSelectGroupContext } from '../group/SelectGroupContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
@@ -28,7 +28,7 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
   const { setLabelId } = useSelectGroupContext();
 
-  const id = useId(idProp);
+  const id = useBaseUiId(idProp);
 
   useEnhancedEffect(() => {
     setLabelId(id);

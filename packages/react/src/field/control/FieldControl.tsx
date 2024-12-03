@@ -8,8 +8,6 @@ import { useFieldRootContext } from '../root/FieldRootContext';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 
-export type FieldControlElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-
 /**
  * The field's control element. This is not necessary to use when using a native Base UI input
  * component (Checkbox, Switch, NumberField, Slider, Radio Group etc).
@@ -24,7 +22,7 @@ export type FieldControlElement = HTMLInputElement | HTMLTextAreaElement | HTMLS
  */
 const FieldControl = React.forwardRef(function FieldControl(
   props: FieldControl.Props,
-  forwardedRef: React.ForwardedRef<FieldControlElement>,
+  forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   const {
     render,
@@ -73,7 +71,7 @@ const FieldControl = React.forwardRef(function FieldControl(
 namespace FieldControl {
   export type State = FieldRoot.State;
 
-  export interface Props extends BaseUIComponentProps<'input' | 'textarea' | 'select', State> {
+  export interface Props extends BaseUIComponentProps<'input', State> {
     /**
      * Callback fired when the `value` changes. Use when controlled.
      */

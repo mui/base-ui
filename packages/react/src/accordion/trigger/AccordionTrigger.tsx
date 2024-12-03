@@ -32,7 +32,6 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   const { getRootProps } = useCollapsibleTrigger({
     panelId,
     disabled: disabledProp || contextDisabled,
-    id,
     open,
     rootRef: forwardedRef,
     setOpen,
@@ -52,7 +51,12 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     render: render ?? 'button',
     state,
     className,
-    extraProps: { ...otherProps, id: triggerId },
+    extraProps: {
+      ...otherProps,
+      // the `id` prop doesn't go here directly, it updates a context
+      // and becomes `triggerId`
+      id: triggerId,
+    },
     customStyleHookMapping: triggerOpenStateMapping,
   });
 

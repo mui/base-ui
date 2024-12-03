@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { type FloatingRootContext, useFloating, type FloatingContext } from '@floating-ui/react';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useScrollLock } from '../../utils/useScrollLock';
@@ -35,7 +35,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
 
   const popupRef = React.useRef<HTMLElement>(null);
 
-  const id = useId(idParam);
+  const id = useBaseUiId(idParam);
   const handleRef = useForkRef(ref, popupRef, setPopupElement);
 
   useScrollLock(modal && mounted, elements.floating);

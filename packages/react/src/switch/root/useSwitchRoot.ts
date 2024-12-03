@@ -6,7 +6,7 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
@@ -35,7 +35,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
 
-  const id = useId(idProp);
+  const id = useBaseUiId(idProp);
 
   useEnhancedEffect(() => {
     setControlId(id);

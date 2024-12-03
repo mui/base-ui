@@ -1,95 +1,103 @@
 'use client';
 import * as React from 'react';
 import { Collapsible } from '@base-ui-components/react/collapsible';
-import classes from './collapsible.module.css';
-
-function classNames(...c: Array<string | undefined | null | false>) {
-  return c.filter(Boolean).join(' ');
-}
+import c from './collapsible.module.css';
 
 // https://github.com/mui/base-ui/issues/740
 export default function AnimatedCollapsibles() {
   return (
-    <div className={classes.wrapper}>
-      <Collapsible.Root defaultOpen={false}>
-        <Collapsible.Trigger className={classes.trigger}>
-          <ExpandMoreIcon className={classes.icon} />
-          Trigger 1A (CSS Animation)
-        </Collapsible.Trigger>
-        <Collapsible.Panel className={classNames(classes.panel, classes.animation)}>
-          <p>This is the collapsed content</p>
-          <p>
-            You can find the Base UI repository{' '}
-            <a
-              href="https://github.com/mui/base-ui"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              here
-            </a>
-          </p>
-        </Collapsible.Panel>
-      </Collapsible.Root>
+    <div className={c.wrapper}>
+      <div className={c.animation}>
+        <div className={c.collapsible}>
+          <Collapsible.Root defaultOpen={false}>
+            <Collapsible.Trigger className={c.trigger}>
+              <ExpandMoreIcon />
+              Trigger 1A (CSS Animation)
+            </Collapsible.Trigger>
+            <Collapsible.Panel className={c.panel}>
+              <p>This is the collapsed content</p>
+              <p>
+                You can find the Base UI repository{' '}
+                <a
+                  href="https://github.com/mui/base-ui"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  here
+                </a>
+              </p>
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </div>
 
-      <Collapsible.Root>
-        <Collapsible.Trigger className={classes.trigger}>
-          <ExpandMoreIcon className={classes.icon} />
-          Trigger 1B (CSS Animation)
-        </Collapsible.Trigger>
-        <Collapsible.Panel className={classNames(classes.panel, classes.animation)}>
-          <p>This is the collapsed content</p>
-          <p>
-            You can find the Base UI repository{' '}
-            <a
-              href="https://github.com/mui/base-ui"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              here
-            </a>
-          </p>
-        </Collapsible.Panel>
-      </Collapsible.Root>
+        <div className={c.collapsible}>
+          <Collapsible.Root>
+            <Collapsible.Trigger className={c.trigger}>
+              <ExpandMoreIcon />
+              Trigger 1B (CSS Animation)
+            </Collapsible.Trigger>
+            <Collapsible.Panel className={c.panel}>
+              <p>This is the collapsed content</p>
+              <p>
+                You can find the Base UI repository{' '}
+                <a
+                  href="https://github.com/mui/base-ui"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  here
+                </a>
+              </p>
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </div>
+      </div>
 
-      <Collapsible.Root defaultOpen={false}>
-        <Collapsible.Trigger className={classes.trigger}>
-          <ExpandMoreIcon className={classes.icon} />
-          Trigger 2A (CSS Transition)
-        </Collapsible.Trigger>
-        <Collapsible.Panel className={classNames(classes.panel, classes.transition)}>
-          <p>This is the collapsed content</p>
-          <p>
-            You can find the Base UI repository{' '}
-            <a
-              href="https://github.com/mui/base-ui"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              here
-            </a>
-          </p>
-        </Collapsible.Panel>
-      </Collapsible.Root>
+      <div className={c.transition}>
+        <div className={c.collapsible}>
+          <Collapsible.Root defaultOpen={false}>
+            <Collapsible.Trigger className={c.trigger}>
+              <ExpandMoreIcon />
+              Trigger 2A (CSS Transition)
+            </Collapsible.Trigger>
+            <Collapsible.Panel className={c.panel}>
+              <p>This is the collapsed content</p>
+              <p>
+                You can find the Base UI repository{' '}
+                <a
+                  href="https://github.com/mui/base-ui"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  here
+                </a>
+              </p>
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </div>
 
-      <Collapsible.Root>
-        <Collapsible.Trigger className={classes.trigger}>
-          <ExpandMoreIcon className={classes.icon} />
-          Trigger 2B (CSS Transition)
-        </Collapsible.Trigger>
-        <Collapsible.Panel className={classNames(classes.panel, classes.transition)}>
-          <p>This is the collapsed content</p>
-          <p>
-            You can find the Base UI repository{' '}
-            <a
-              href="https://github.com/mui/base-ui"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              here
-            </a>
-          </p>
-        </Collapsible.Panel>
-      </Collapsible.Root>
+        <div className={c.collapsible}>
+          <Collapsible.Root>
+            <Collapsible.Trigger className={c.trigger}>
+              <ExpandMoreIcon />
+              Trigger 2B (CSS Transition)
+            </Collapsible.Trigger>
+            <Collapsible.Panel className={c.panel}>
+              <p>This is the collapsed content</p>
+              <p>
+                You can find the Base UI repository{' '}
+                <a
+                  href="https://github.com/mui/base-ui"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  here
+                </a>
+              </p>
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </div>
+      </div>
     </div>
   );
 }
