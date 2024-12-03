@@ -6,7 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 import type { CheckboxRoot } from '../root/CheckboxRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
-../../utils/useAfterExitAnimation
+
 /**
  * The indicator part of the Checkbox.
  *
