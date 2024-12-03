@@ -8,11 +8,7 @@ describe('<Select.Icon />', () => {
   describeConformance(<Select.Icon />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
-      return render(
-        <Select.Root open animated={false}>
-          {node}
-        </Select.Root>,
-      );
+      return render(<Select.Root open>{node}</Select.Root>);
     },
   }));
 });

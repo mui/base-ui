@@ -16,12 +16,11 @@ import { useDialogRoot } from '../../dialog/root/useDialogRoot';
  * - [AlertDialogRoot API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogRoot)
  */
 const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
-  const { animated = true, children, defaultOpen = false, onOpenChange, open } = props;
+  const { children, defaultOpen = false, onOpenChange, open } = props;
 
   const parentDialogRootContext = React.useContext(AlertDialogRootContext);
 
   const dialogRoot = useDialogRoot({
-    animated,
     open,
     defaultOpen,
     onOpenChange,
@@ -34,8 +33,8 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
   const hasParentDialog = Boolean(parentDialogRootContext);
 
   const contextValue = React.useMemo(
-    () => ({ ...dialogRoot, hasParentDialog, animated }),
-    [dialogRoot, hasParentDialog, animated],
+    () => ({ ...dialogRoot, hasParentDialog }),
+    [dialogRoot, hasParentDialog],
   );
 
   return (

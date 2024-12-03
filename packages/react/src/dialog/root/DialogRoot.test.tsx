@@ -11,7 +11,7 @@ describe('<Dialog.Root />', () => {
   describe('uncontrolled mode', () => {
     it('should open the dialog with the trigger', async () => {
       const { queryByRole, getByRole } = await render(
-        <Dialog.Root modal={false} animated={false}>
+        <Dialog.Root modal={false}>
           <Dialog.Trigger />
           <Dialog.Popup />
         </Dialog.Root>,
@@ -31,7 +31,7 @@ describe('<Dialog.Root />', () => {
   describe('controlled mode', () => {
     it('should open and close the dialog with the `open` prop', async () => {
       const { queryByRole, setProps } = await render(
-        <Dialog.Root open={false} modal={false} animated={false}>
+        <Dialog.Root open={false} modal={false}>
           <Dialog.Popup />
         </Dialog.Root>,
       );
@@ -152,7 +152,6 @@ describe('<Dialog.Root />', () => {
               onOpenChange={handleOpenChange}
               dismissible={dismissible}
               modal={false}
-              animated={false}
             >
               <Dialog.Popup />
             </Dialog.Root>
@@ -208,7 +207,7 @@ describe('<Dialog.Root />', () => {
 
     it('when `false`, unmounts the popup immediately', async () => {
       const { setProps, queryByRole } = await render(
-        <Dialog.Root open modal={false} animated={false}>
+        <Dialog.Root open modal={false}>
           {/* eslint-disable-next-line react/no-danger */}
           <style dangerouslySetInnerHTML={{ __html: css }} />
           <Dialog.Popup className="dialog" />

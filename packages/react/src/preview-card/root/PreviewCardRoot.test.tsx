@@ -7,7 +7,7 @@ import { createRenderer } from '#test-utils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
 function Root(props: PreviewCard.Root.Props) {
-  return <PreviewCard.Root animated={false} {...props} />;
+  return <PreviewCard.Root {...props} />;
 }
 
 function Trigger(props: PreviewCard.Trigger.Props) {

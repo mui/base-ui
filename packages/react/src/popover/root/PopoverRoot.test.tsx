@@ -10,7 +10,7 @@ import { OPEN_DELAY } from '../utils/constants';
 const user = userEvent.setup();
 
 function Root(props: Popover.Root.Props) {
-  return <Popover.Root {...props} animated={false} />;
+  return <Popover.Root {...props} />;
 }
 
 describe('<Popover.Root />', () => {
@@ -399,7 +399,7 @@ describe('<Popover.Root />', () => {
       await render(
         <div>
           <input type="text" />
-          <Popover.Root animated={false}>
+          <Popover.Root>
             <Popover.Trigger>Toggle</Popover.Trigger>
             <Popover.Positioner keepMounted>
               <Popover.Popup>

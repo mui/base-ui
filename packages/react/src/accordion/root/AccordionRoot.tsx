@@ -33,7 +33,6 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    animated = true,
     className,
     direction = 'ltr',
     disabled = false,
@@ -71,7 +70,6 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   }, [value, defaultValueProp]);
 
   const { getRootProps, ...accordion } = useAccordionRoot({
-    animated,
     direction,
     disabled,
     defaultValue,

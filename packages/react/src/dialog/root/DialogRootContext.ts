@@ -4,11 +4,6 @@ import type { useDialogRoot } from './useDialogRoot';
 
 export interface DialogRootContext extends useDialogRoot.ReturnValue {
   /**
-   * If `true`, the dialog supports CSS-based animations and transitions.
-   * It is kept in the DOM until the animation completes.
-   */
-  animated: boolean;
-  /**
    * Determines if the dialog is nested within a parent dialog.
    */
   hasParentDialog: boolean;

@@ -17,7 +17,7 @@ import { OPEN_DELAY } from '../utils/constants';
  * - [TooltipRoot API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipRoot)
  */
 const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
-  const { delay, closeDelay, hoverable = true, animated = true, trackCursorAxis = 'none' } = props;
+  const { delay, closeDelay, hoverable = true, trackCursorAxis = 'none' } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
@@ -38,7 +38,6 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
     transitionStatus,
   } = useTooltipRoot({
     hoverable,
-    animated,
     trackCursorAxis,
     delay,
     closeDelay,

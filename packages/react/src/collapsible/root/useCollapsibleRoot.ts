@@ -8,7 +8,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 export function useCollapsibleRoot(
   parameters: useCollapsibleRoot.Parameters,
 ): useCollapsibleRoot.ReturnValue {
-  const { animated, open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
+  const { open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
 
   const [open, setOpenState] = useControlled({
     controlled: openParam,
@@ -17,7 +17,7 @@ export function useCollapsibleRoot(
     state: 'open',
   });
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated, true);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true);
 
   const [panelId, setPanelId] = React.useState<string | undefined>(useBaseUiId());
 
@@ -28,7 +28,6 @@ export function useCollapsibleRoot(
 
   return React.useMemo(
     () => ({
-      animated,
       panelId,
       disabled,
       mounted,
@@ -38,16 +37,12 @@ export function useCollapsibleRoot(
       setOpen,
       transitionStatus,
     }),
-    [animated, panelId, disabled, mounted, open, setPanelId, setMounted, setOpen, transitionStatus],
+    [panelId, disabled, mounted, open, setPanelId, setMounted, setOpen, transitionStatus],
   );
 }
 
 export namespace useCollapsibleRoot {
   export interface Parameters {
-    /**
-     * If `true`, the component supports CSS/JS-based animations and transitions.
-     */
-    animated: boolean;
     /**
      * If `true`, the Collapsible is initially open.
      * This is the controlled counterpart of `defaultOpen`.
@@ -70,7 +65,6 @@ export namespace useCollapsibleRoot {
   }
 
   export interface ReturnValue {
-    animated: boolean;
     panelId: React.HTMLAttributes<Element>['id'];
     /**
      * The disabled state of the Collapsible

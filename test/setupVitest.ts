@@ -55,6 +55,4 @@ if (isVitestJsdom) {
     cb(0);
     return 0;
   };
-
-  globalThis.Element.prototype.getAnimations = () => [];
 }

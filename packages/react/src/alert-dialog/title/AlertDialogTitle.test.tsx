@@ -9,7 +9,7 @@ describe('<AlertDialog.Title />', () => {
     refInstanceof: window.HTMLHeadingElement,
     render: (node) => {
       return render(
-        <AlertDialog.Root open animated={false}>
+        <AlertDialog.Root open>
           <AlertDialog.Backdrop />
           <AlertDialog.Popup>{node}</AlertDialog.Popup>
         </AlertDialog.Root>,

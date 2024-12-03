@@ -18,13 +18,12 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useControlled } from '../../utils/useControlled';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
-import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 const EMPTY_ARRAY: never[] = [];
 
 export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.ReturnValue {
   const {
-    animated,
     open: openParam,
     defaultOpen,
     onOpenChange,
@@ -52,7 +51,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     state: 'open',
   });
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     onOpenChange?.(nextOpen, event);
@@ -61,7 +60,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   useAfterExitAnimation({
     open,
-    animated,
     animatedElementRef: popupRef,
     onFinished: () => setMounted(false),
   });
@@ -196,11 +194,6 @@ export type MenuDirection = 'ltr' | 'rtl';
 
 export namespace useMenuRoot {
   export interface Parameters {
-    /**
-     * If `true`, the Menu supports CSS-based animations and transitions.
-     * It is kept in the DOM until the animation completes.
-     */
-    animated: boolean;
     /**
      * Allows to control whether the Menu is open.
      * This is a controlled counterpart of `defaultOpen`.

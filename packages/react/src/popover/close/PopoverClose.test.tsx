@@ -11,7 +11,7 @@ describe('<Popover.Close />', () => {
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(
-        <Popover.Root open animated={false}>
+        <Popover.Root open>
           <Popover.Positioner>
             <Popover.Popup>{node}</Popover.Popup>
           </Popover.Positioner>
@@ -22,7 +22,7 @@ describe('<Popover.Close />', () => {
 
   it('should close popover when clicked', async () => {
     await render(
-      <Popover.Root defaultOpen animated={false}>
+      <Popover.Root defaultOpen>
         <Popover.Positioner>
           <Popover.Popup>
             Content

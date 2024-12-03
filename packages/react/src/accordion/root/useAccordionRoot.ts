@@ -38,7 +38,6 @@ export function useAccordionRoot(
   parameters: useAccordionRoot.Parameters,
 ): useAccordionRoot.ReturnValue {
   const {
-    animated,
     disabled,
     direction,
     loop,
@@ -169,23 +168,13 @@ export function useAccordionRoot(
     () => ({
       getRootProps,
       accordionItemRefs,
-      animated,
       direction,
       disabled,
       handleValueChange,
       orientation,
       value,
     }),
-    [
-      getRootProps,
-      accordionItemRefs,
-      animated,
-      direction,
-      disabled,
-      handleValueChange,
-      orientation,
-      value,
-    ],
+    [getRootProps, accordionItemRefs, direction, disabled, handleValueChange, orientation, value],
   );
 }
 
@@ -207,10 +196,6 @@ export namespace useAccordionRoot {
      * This is the uncontrolled counterpart of `value`.
      */
     defaultValue?: AccordionValue;
-    /**
-     * If `true`, the component supports CSS/JS-based animations and transitions.
-     */
-    animated: boolean;
     /**
      * If `true`, the component is disabled.
      */
@@ -241,7 +226,6 @@ export namespace useAccordionRoot {
       externalProps?: React.ComponentPropsWithRef<'div'>,
     ) => React.ComponentPropsWithRef<'div'>;
     accordionItemRefs: React.RefObject<(HTMLElement | null)[]>;
-    animated: boolean;
     direction: Direction;
     /**
      * The disabled state of the Accordion

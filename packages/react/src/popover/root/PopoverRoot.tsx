@@ -17,7 +17,7 @@ import { OPEN_DELAY } from '../utils/constants';
  * - [PopoverRoot API](https://base-ui.com/components/react-popover/#api-reference-PopoverRoot)
  */
 const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
-  const { openOnHover = false, delay, closeDelay = 0, animated = true } = props;
+  const { openOnHover = false, delay, closeDelay = 0 } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
 
@@ -45,7 +45,6 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     openOnHover,
     delay: delayWithDefault,
     closeDelay,
-    animated,
     open: props.open,
     onOpenChange: props.onOpenChange,
     defaultOpen: props.defaultOpen,

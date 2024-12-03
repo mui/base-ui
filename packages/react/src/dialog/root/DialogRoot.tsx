@@ -17,7 +17,6 @@ import { type CommonParameters, useDialogRoot } from './useDialogRoot';
  */
 const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
   const {
-    animated = true,
     children,
     defaultOpen = false,
     dismissible = true,
@@ -29,7 +28,6 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
   const parentDialogRootContext = React.useContext(DialogRootContext);
 
   const dialogRoot = useDialogRoot({
-    animated,
     open,
     defaultOpen,
     onOpenChange,
@@ -42,8 +40,8 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
   const hasParentDialog = Boolean(parentDialogRootContext);
 
   const contextValue = React.useMemo(
-    () => ({ ...dialogRoot, hasParentDialog, dismissible, animated }),
-    [dialogRoot, hasParentDialog, dismissible, animated],
+    () => ({ ...dialogRoot, hasParentDialog, dismissible }),
+    [dialogRoot, hasParentDialog, dismissible],
   );
 
   return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;

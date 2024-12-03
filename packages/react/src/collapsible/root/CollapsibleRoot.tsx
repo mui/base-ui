@@ -23,7 +23,6 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    animated = true,
     children,
     className,
     defaultOpen = false,
@@ -35,7 +34,6 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   } = props;
 
   const collapsible = useCollapsibleRoot({
-    animated,
     open,
     defaultOpen,
     onOpenChange: onOpenChangeProp ?? NOOP,

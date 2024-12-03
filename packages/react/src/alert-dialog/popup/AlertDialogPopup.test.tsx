@@ -11,7 +11,7 @@ describe('<AlertDialog.Popup />', () => {
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
       return render(
-        <AlertDialog.Root open animated={false}>
+        <AlertDialog.Root open>
           <AlertDialog.Backdrop />
           {node}
         </AlertDialog.Root>,
@@ -21,7 +21,7 @@ describe('<AlertDialog.Popup />', () => {
 
   it('should have role="alertdialog"', async () => {
     const { getByTestId } = await render(
-      <AlertDialog.Root open animated={false}>
+      <AlertDialog.Root open>
         <AlertDialog.Backdrop />
         <AlertDialog.Popup data-testid="test-alert-dialog" />
       </AlertDialog.Root>,
@@ -36,7 +36,7 @@ describe('<AlertDialog.Popup />', () => {
       const { getByText, getByTestId } = await render(
         <div>
           <input />
-          <AlertDialog.Root animated={false}>
+          <AlertDialog.Root>
             <AlertDialog.Backdrop />
             <AlertDialog.Trigger>Open</AlertDialog.Trigger>
             <AlertDialog.Popup data-testid="dialog">
@@ -65,7 +65,7 @@ describe('<AlertDialog.Popup />', () => {
         return (
           <div>
             <input />
-            <AlertDialog.Root animated={false}>
+            <AlertDialog.Root>
               <AlertDialog.Backdrop />
               <AlertDialog.Trigger>Open</AlertDialog.Trigger>
               <AlertDialog.Popup data-testid="dialog" initialFocus={input2Ref}>
@@ -102,7 +102,7 @@ describe('<AlertDialog.Popup />', () => {
         return (
           <div>
             <input />
-            <AlertDialog.Root animated={false}>
+            <AlertDialog.Root>
               <AlertDialog.Backdrop />
               <AlertDialog.Trigger>Open</AlertDialog.Trigger>
               <AlertDialog.Popup data-testid="dialog" initialFocus={getRef}>
@@ -136,7 +136,7 @@ describe('<AlertDialog.Popup />', () => {
       const { getByText, user } = await render(
         <div>
           <input />
-          <AlertDialog.Root animated={false}>
+          <AlertDialog.Root>
             <AlertDialog.Backdrop />
             <AlertDialog.Trigger>Open</AlertDialog.Trigger>
             <AlertDialog.Popup>
@@ -164,7 +164,7 @@ describe('<AlertDialog.Popup />', () => {
         return (
           <div>
             <input />
-            <AlertDialog.Root animated={false}>
+            <AlertDialog.Root>
               <AlertDialog.Backdrop />
               <AlertDialog.Trigger>Open</AlertDialog.Trigger>
               <AlertDialog.Popup finalFocus={inputRef}>

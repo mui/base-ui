@@ -17,7 +17,6 @@ import { MenuDirection, MenuOrientation, useMenuRoot } from './useMenuRoot';
  */
 const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const {
-    animated = true,
     children,
     defaultOpen = false,
     dir: direction = 'ltr',
@@ -42,7 +41,6 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   }, []);
 
   const menuRoot = useMenuRoot({
-    animated,
     direction,
     disabled,
     closeParentOnEsc,
@@ -93,13 +91,6 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
 namespace MenuRoot {
   export interface Props {
-    /**
-     * If `true`, the Menu supports CSS-based animations and transitions.
-     * It is kept in the DOM until the animation completes.
-     *
-     * @default true
-     */
-    animated?: boolean;
     children: React.ReactNode;
     /**
      * If `true`, the Menu is initially open.

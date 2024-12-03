@@ -48,7 +48,7 @@ describe('<Collapsible.Panel />', () => {
       function App() {
         const [open, setOpen] = React.useState(false);
         return (
-          <Collapsible.Root open={open} onOpenChange={setOpen} animated={false}>
+          <Collapsible.Root open={open} onOpenChange={setOpen}>
             <Collapsible.Trigger />
             <Collapsible.Panel keepMounted>{PANEL_CONTENT}</Collapsible.Panel>
           </Collapsible.Root>
@@ -88,7 +88,7 @@ describe('<Collapsible.Panel />', () => {
       const handleOpenChange = spy();
 
       const { queryByText } = await render(
-        <Collapsible.Root defaultOpen={false} animated={false} onOpenChange={handleOpenChange}>
+        <Collapsible.Root defaultOpen={false} onOpenChange={handleOpenChange}>
           <Collapsible.Trigger />
           <Collapsible.Panel hiddenUntilFound keepMounted>
             {PANEL_CONTENT}

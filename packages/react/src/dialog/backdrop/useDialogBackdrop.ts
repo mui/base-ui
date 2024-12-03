@@ -8,7 +8,7 @@ import { type TransitionStatus } from '../../utils/useTransitionStatus';
 export function useDialogBackdrop(
   params: useDialogBackdrop.Parameters,
 ): useDialogBackdrop.ReturnValue {
-  const { animated, open, ref } = params;
+  const { open, ref } = params;
 
   const backdropRef = React.useRef<HTMLElement | null>(null);
   const handleRef = useForkRef(ref, backdropRef);
@@ -16,7 +16,7 @@ export function useDialogBackdrop(
   const { mounted, transitionStatus } = useAnimatedElement({
     open,
     ref: backdropRef,
-    enabled: animated,
+    enabled: true,
   });
 
   const getRootProps = React.useCallback(
@@ -38,11 +38,6 @@ export function useDialogBackdrop(
 
 export namespace useDialogBackdrop {
   export interface Parameters {
-    /**
-     * If `true`, the dialog supports CSS-based animations and transitions.
-     * It is kept in the DOM until the animation completes.
-     */
-    animated: boolean;
     /**
      * Determines if the dialog is open.
      */
