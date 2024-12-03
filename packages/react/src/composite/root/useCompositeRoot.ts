@@ -105,10 +105,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             return;
           }
 
-          const isRtl =
-            textDirectionRef?.current == null
-              ? getTextDirection(element) === 'rtl'
-              : textDirectionRef.current === 'rtl';
+          if (textDirectionRef?.current == null) {
+            textDirectionRef.current = getTextDirection(element);
+          }
+          const isRtl = textDirectionRef.current === 'rtl';
 
           let nextIndex = highlightedIndex;
           const minIndex = getMinIndex(elementsRef, disabledIndices);
