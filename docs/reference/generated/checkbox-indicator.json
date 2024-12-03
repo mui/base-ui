@@ -8,7 +8,7 @@
     },
     "keepMounted": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "If `true`, the indicator stays mounted when unchecked. Useful for CSS animations."
     },
     "render": {
