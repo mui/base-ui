@@ -10,7 +10,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { asc } from '../utils/asc';
 import { setValueIndex } from '../utils/setValueIndex';
@@ -155,7 +155,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const controlRef: React.MutableRefObject<HTMLElement | null> = React.useRef(null);
 
-  const id = useId(idProp);
+  const id = useBaseUiId(idProp);
 
   useEnhancedEffect(() => {
     setControlId(id);

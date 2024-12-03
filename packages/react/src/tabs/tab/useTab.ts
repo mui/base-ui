@@ -3,7 +3,7 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useButton } from '../../use-button';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
 import type { TabsRootContext } from '../root/TabsRootContext';
@@ -30,7 +30,7 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
     value: valueParam,
   } = parameters;
 
-  const id = useId(idParam);
+  const id = useBaseUiId(idParam);
 
   const tabMetadata = React.useMemo(
     () => ({ disabled, id, value: valueParam }),

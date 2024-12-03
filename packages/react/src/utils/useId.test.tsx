@@ -115,7 +115,7 @@ describe('useId', () => {
     }
     render(<Widget />);
 
-    expect(screen.getByTestId('label').id.slice(0, 7)).to.equal(PREFIX);
+    expect(screen.getByTestId('label').id.slice(0, 8)).to.equal(`${PREFIX}-`);
     expect(screen.getByTestId('labelable')).to.have.attr(
       'aria-labelledby',
       screen.getByTestId('label').id,

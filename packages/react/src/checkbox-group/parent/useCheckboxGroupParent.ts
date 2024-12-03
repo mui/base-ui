@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
@@ -24,7 +24,7 @@ export function useCheckboxGroupParent(
 
   const [status, setStatus] = React.useState<'on' | 'off' | 'mixed'>('mixed');
 
-  const id = useId();
+  const id = useBaseUiId();
   const checked = value.length === allValues.length;
   const indeterminate = value.length !== allValues.length && value.length > 0;
 

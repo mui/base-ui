@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { type BaseUIComponentProps } from '../../utils/types';
 
 const state = {};
@@ -27,7 +27,7 @@ const DialogTitle = React.forwardRef(function DialogTitle(
   const { render, className, id: idProp, ...other } = props;
   const { setTitleElementId } = useDialogRootContext();
 
-  const id = useId(idProp);
+  const id = useBaseUiId(idProp);
 
   useEnhancedEffect(() => {
     setTitleElementId(id);

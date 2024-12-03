@@ -7,7 +7,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useForkRef } from '../../utils/useForkRef';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 
 let cachedSupportsComputedStyleMap: boolean | undefined;
 
@@ -68,7 +68,7 @@ export function useCollapsiblePanel(
     setOpen,
   } = parameters;
 
-  const id = useId(idParam);
+  const id = useBaseUiId(idParam);
 
   const panelRef = React.useRef<HTMLElement | null>(null);
 

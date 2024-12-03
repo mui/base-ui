@@ -5,7 +5,7 @@ import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react
 import { useMenuRadioItem } from './useMenuRadioItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
@@ -172,7 +172,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
   const { getItemProps, activeIndex, clickAndDragEnabled, typingRef } = useMenuRootContext();
-  const id = useId(idProp);
+  const id = useBaseUiId(idProp);
 
   const highlighted = listItem.index === activeIndex;
   const { events: menuEvents } = useFloatingTree()!;

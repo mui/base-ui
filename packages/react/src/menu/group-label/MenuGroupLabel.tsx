@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useMenuGroupRootContext } from '../group/MenuGroupContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
@@ -25,7 +25,7 @@ const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
 ) {
   const { className, render, id: idProp, ...other } = props;
 
-  const id = useId(idProp);
+  const id = useBaseUiId(idProp);
 
   const { setLabelId } = useMenuGroupRootContext();
 
