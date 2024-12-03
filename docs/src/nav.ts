@@ -77,6 +77,10 @@ export const nav = [
         href: '/new/components/form',
       },
       {
+        label: 'Input',
+        href: '/new/components/input',
+      },
+      {
         label: 'Menu',
         href: '/new/components/menu',
       },
@@ -123,10 +127,6 @@ export const nav = [
       {
         label: 'Tabs',
         href: '/new/components/tabs',
-      },
-      {
-        label: 'Text Input',
-        href: '/new/components/text-input',
       },
       {
         label: 'Tooltip',
