@@ -31,7 +31,9 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
   const rootState = useCheckboxRootContext();
 
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(rootState.checked);
+  const rendered = rootState.checked || rootState.indeterminate;
+
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
   const mergedRef = useForkRef(forwardedRef, indicatorRef);
@@ -48,7 +50,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   );
 
   useAfterExitAnimation({
-    open: state.checked,
+    open: rendered,
     animated,
     animatedElementRef: indicatorRef,
     onFinished() {
