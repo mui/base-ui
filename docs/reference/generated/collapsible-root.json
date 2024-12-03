@@ -13,7 +13,7 @@
     },
     "defaultOpen": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "If `true`, the Collapsible is initially open.\nThis is the uncontrolled counterpart of `open`."
     },
     "disabled": {

@@ -32,7 +32,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
 ) {
   const {
     className,
-    disabled: disabledProp,
+    disabled: disabledProp = false,
     onOpenChange: onOpenChangeProp,
     render,
     value: valueProp,
@@ -84,9 +84,10 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
+      hidden: !collapsible.mounted,
       transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
+    [collapsible.open, collapsible.disabled, collapsible.mounted, collapsible.transitionStatus],
   );
 
   const collapsibleContext: CollapsibleRootContext = React.useMemo(
@@ -138,9 +139,9 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   );
 });
 
-export namespace AccordionItem {
-  export type Value = number | string;
+export type AccordionItemValue = any | null;
 
+export namespace AccordionItem {
   export interface State extends AccordionRoot.State {
     index: number;
     open: boolean;
@@ -149,8 +150,8 @@ export namespace AccordionItem {
 
   export interface Props
     extends BaseUIComponentProps<'div', State>,
-      Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'> {
-    value?: Value;
+      Partial<Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'>> {
+    value?: AccordionItemValue;
   }
 }
 
