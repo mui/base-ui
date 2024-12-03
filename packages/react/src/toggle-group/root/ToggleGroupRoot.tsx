@@ -5,6 +5,7 @@ import { NOOP } from '../../utils/noop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { useDirectionContext } from '../../direction-provider/DirectionContext';
 import { useToggleGroupRoot, type UseToggleGroupRoot } from './useToggleGroupRoot';
 import { ToggleGroupRootContext } from './ToggleGroupRootContext';
 
@@ -42,6 +43,9 @@ const ToggleGroupRoot = React.forwardRef(function ToggleGroupRoot(
     render,
     ...otherProps
   } = props;
+
+  const directionContext = useDirectionContext();
+  const direction = directionContext?.direction ?? 'ltr';
 
   const defaultValue = React.useMemo(() => {
     if (valueProp === undefined) {
@@ -91,7 +95,7 @@ const ToggleGroupRoot = React.forwardRef(function ToggleGroupRoot(
 
   return (
     <ToggleGroupRootContext.Provider value={contextValue}>
-      <CompositeRoot loop={loop} render={renderElement()} />
+      <CompositeRoot direction={direction} loop={loop} render={renderElement()} />
     </ToggleGroupRootContext.Provider>
   );
 });
