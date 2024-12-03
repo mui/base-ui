@@ -64,39 +64,34 @@
 
 .Arrow {
   &[data-side='top'] {
-    bottom: -0.5rem;
+    bottom: -8px;
     rotate: 180deg;
   }
   &[data-side='bottom'] {
-    top: -0.5rem;
+    top: -8px;
     rotate: 0deg;
   }
   &[data-side='left'] {
-    right: -0.8125rem;
+    right: -13px;
     rotate: 90deg;
   }
   &[data-side='right'] {
-    left: -0.8125rem;
+    left: -13px;
     rotate: -90deg;
   }
 }
 
-.ArrowIcon {
-  width: 1.25rem;
-  height: 0.625rem;
-}
-
-.ArrowIconFill {
+.ArrowFill {
   fill: canvas;
 }
 
-.ArrowIconOuterStroke {
+.ArrowOuterStroke {
   @media (prefers-color-scheme: light) {
     fill: var(--color-gray-200);
   }
 }
 
-.ArrowIconInnerStroke {
+.ArrowInnerStroke {
   @media (prefers-color-scheme: dark) {
     fill: var(--color-gray-300);
   }

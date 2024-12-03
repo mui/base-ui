@@ -9,7 +9,7 @@ export default function ExamplePopover() {
       </Popover.Trigger>
       <Popover.Positioner sideOffset={8}>
         <Popover.Popup className="origin-[var(--transform-origin)] rounded-lg bg-[canvas] px-6 py-4 text-gray-900 shadow-lg shadow-gray-200 outline outline-gray-200 transition-all dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300 [[data-starting-style],[data-ending-style]]:scale-90 [[data-starting-style],[data-ending-style]]:opacity-0">
-          <Popover.Arrow className="data-[side=bottom]:-top-2 data-[side=left]:right-[-0.8125rem] data-[side=left]:rotate-90 data-[side=right]:left-[-0.8125rem] data-[side=right]:-rotate-90 data-[side=top]:-bottom-2 data-[side=top]:rotate-180">
+          <Popover.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
             <ArrowIcon />
           </Popover.Arrow>
           <Popover.Title className="text-base font-medium">
