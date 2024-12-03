@@ -8,7 +8,7 @@ export interface ScrubParams {
 }
 
 export interface ScrubHandle {
-  direction: 'vertical' | 'horizontal';
+  direction: 'horizontal' | 'vertical';
   pixelSensitivity: number;
   teleportDistance: number | undefined;
 }

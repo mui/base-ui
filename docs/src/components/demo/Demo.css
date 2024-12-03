@@ -7,7 +7,7 @@
 
   .DemoPlayground {
     background-color: var(--color-content);
-    min-height: 10rem;
+    min-height: 11.25rem; /* Match .DemoCodeBlockContainer pre min-height */
     padding: 3rem 1.5rem;
     border-top-left-radius: var(--radius-md);
     border-top-right-radius: var(--radius-md);

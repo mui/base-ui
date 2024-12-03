@@ -1,6 +1,5 @@
 .Input {
   box-sizing: border-box;
-  padding-block: 0.5rem;
   padding-left: 0.875rem;
   margin: 0;
   border: 1px solid var(--color-gray-200);
