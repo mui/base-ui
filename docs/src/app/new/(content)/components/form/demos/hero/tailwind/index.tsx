@@ -31,7 +31,6 @@ export default function ExampleForm() {
           Homepage
         </Field.Label>
         <Field.Control
-          // @ts-expect-error
           type="url"
           required
           defaultValue="https://example.com"
