@@ -7,6 +7,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { warn } from '../../utils/warn';
 import { CompositeList } from '../../composite/list/CompositeList';
+import { useDirectionContext } from '../../direction-provider/DirectionContext';
 import {
   useAccordionRoot,
   type AccordionOrientation,
@@ -34,7 +35,6 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
 ) {
   const {
     className,
-    direction = 'ltr',
     disabled = false,
     hiddenUntilFound: hiddenUntilFoundProp,
     keepMounted: keepMountedProp,
@@ -47,6 +47,9 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     render,
     ...otherProps
   } = props;
+
+  const directionContext = useDirectionContext();
+  const direction = directionContext?.direction ?? 'ltr';
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -124,7 +127,19 @@ export namespace AccordionRoot {
   }
 
   export interface Props
-    extends Partial<useAccordionRoot.Parameters>,
+    extends Partial<
+        Pick<
+          useAccordionRoot.Parameters,
+          | 'value'
+          | 'defaultValue'
+          | 'animated'
+          | 'disabled'
+          | 'loop'
+          | 'onValueChange'
+          | 'openMultiple'
+          | 'orientation'
+        >
+      >,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
      * If `true`, sets `hidden="until-found"` when closed. Accordion panels
@@ -163,10 +178,6 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    * This is the uncontrolled counterpart of `value`.
    */
   defaultValue: PropTypes.array,
-  /**
-   * @ignore
-   */
-  direction: PropTypes.oneOf(['ltr', 'rtl']),
   /**
    * If `true`, the component is disabled.
    * @default false

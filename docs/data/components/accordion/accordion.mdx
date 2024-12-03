@@ -176,13 +176,19 @@ Use the `orientation` prop to configure a horizontal accordion. In a horizontal 
 
 ## RTL
 
-Use the `direction` prop to configure a RTL accordion:
+To change direction for right-to-left languages, place the accordion in [`DirectionProvider`](/components/react-direction-provider) with the `direction="rtl"` prop, and set the `dir` attribute accordingly in your HTML to affect styling:
 
 ```jsx
-<Accordion.Root direction="rtl">{/* subcomponents */}</Accordion.Root>
+<html dir="rtl">
+  <body>
+    <DirectionProvider direction="rtl">
+      <Accordion.Root>{/* Subcomponents */}</Accordion.Root>
+    </DirectionProvider>
+  </body>
+</html>
 ```
 
-When a horizontal accordion is set to `direction="rtl"`, keyboard actions are reversed accordingly - <kbd className="key">Left Arrow</kbd> moves focus to the next trigger and <kbd className="key">Right Arrow</kbd> moves focus to the previous trigger.
+When RTL, keyboard actions for horizontal accordions are reversed - <kbd className="key">Left Arrow</kbd> moves focus to the next trigger and <kbd className="key">Right Arrow</kbd> moves focus to the previous trigger.
 
 ## Hidden state
 
