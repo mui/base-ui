@@ -111,7 +111,7 @@
     border-top-right-radius: var(--radius-xl);
 
     box-shadow:
-      0 10px 64px -10px rgba(35, 39, 52, 0.2),
+      0 10px 64px -10px rgb(36 40 52 / 20%),
       0 0.25px 0 1px var(--color-gray-200);
 
     @media (prefers-color-scheme: dark) {
