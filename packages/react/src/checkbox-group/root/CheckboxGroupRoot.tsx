@@ -45,7 +45,7 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
     onValueChange,
   });
 
-  const state = React.useMemo(
+  const state: CheckboxGroupRoot.State = React.useMemo(
     () => ({
       ...fieldState,
       disabled,
@@ -66,10 +66,11 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
     () => ({
       allValues,
       value,
+      defaultValue,
       setValue,
       parent,
     }),
-    [allValues, value, setValue, parent],
+    [allValues, value, defaultValue, setValue, parent],
   );
 
   return (
