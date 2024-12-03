@@ -12,6 +12,7 @@ import { rehypeReference } from './src/components/reference/rehypeReference.mjs'
 import { rehypeDemos } from './src/components/demo/rehypeDemos.mjs';
 import { rehypeSyntaxHighlighting } from './src/syntax-highlighting/index.mjs';
 import { rehypeSlug } from './src/components/quick-nav/rehypeSlug.mjs';
+import { rehypeSubtitle } from './src/components/subtitle/rehypeSubtitle.mjs';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const workspaceRoot = path.resolve(currentDirectory, '../');
@@ -26,6 +27,7 @@ const withMdx = nextMdx({
       rehypeSlug,
       rehypeExtractToc,
       rehypeQuickNav,
+      rehypeSubtitle,
     ],
   },
 });
