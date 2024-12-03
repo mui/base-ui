@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { CompositeList } from '../../composite/list/CompositeList';
+import { useDirectionContext, type TextDirection } from '../../direction-provider/DirectionContext';
 import { useTabsRoot } from './useTabsRoot';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStyleHookMapping } from './styleHooks';
@@ -33,6 +34,9 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     ...other
   } = props;
 
+  const directionContext = useDirectionContext();
+  const direction = directionContext?.direction ?? 'ltr';
+
   const {
     getTabElementBySelectedValue,
     getTabIdByPanelValueOrIndex,
@@ -51,6 +55,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
 
   const tabsContextValue: TabsRootContext = React.useMemo(
     () => ({
+      direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValueOrIndex,
       getTabPanelIdByTabValueOrIndex,
@@ -61,6 +66,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
       value,
     }),
     [
+      direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValueOrIndex,
       getTabPanelIdByTabValueOrIndex,
@@ -117,6 +123,11 @@ namespace TabsRoot {
      * @default 0
      */
     defaultValue?: TabValue;
+    /**
+     * Sets ArrowLeft and ArrowRight behavior based on text direction.
+     * @default 'ltr'
+     */
+    direction?: TextDirection;
     /**
      * The component orientation (layout flow direction).
      * @default 'horizontal'

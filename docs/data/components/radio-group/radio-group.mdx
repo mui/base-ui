@@ -112,12 +112,14 @@ The `Radio` components have a `[data-checked]` or `[data-unchecked]` attribute t
 
 ## RTL
 
-Place the component inside an HTML element or component with the HTML `dir="rtl"` attribute to reverse arrow key navigation for right-to-left languages:
+To change direction for right-to-left languages, place the component in `DirectionProvider` with the `direction` prop to `'rtl'`, and set the `dir` attribute accordingly in your HTML to affect styling:
 
 ```jsx
 <html dir="rtl">
   <body>
-    <RadioGroup.Root /> {/* RTL keyboard behavior */}
+    <DirectionProvider direction="rtl">
+      <RadioGroup.Root /> {/* RTL keyboard behavior */}
+    </DirectionProvider>
   </body>
 </html>
 ```

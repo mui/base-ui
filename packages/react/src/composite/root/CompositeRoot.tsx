@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
 import { refType } from '../../utils/proptypes';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { TextDirection } from '../../direction-provider/DirectionContext';
 import type { Dimensions } from '../composite';
 
 /**
@@ -23,6 +24,7 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
     itemSizes,
     loop,
     cols,
+    direction,
     enableHomeAndEndKeys,
     onMapChange,
     stopEventPropagation,
@@ -42,6 +44,7 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
       rootRef,
       stopEventPropagation,
       enableHomeAndEndKeys,
+      direction,
     });
 
   const { renderElement } = useComponentRenderer({
@@ -77,6 +80,7 @@ namespace CompositeRoot {
     onHighlightedIndexChange?: (index: number) => void;
     itemSizes?: Dimensions[];
     dense?: boolean;
+    direction?: TextDirection;
     enableHomeAndEndKeys?: boolean;
     onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
     stopEventPropagation?: boolean;

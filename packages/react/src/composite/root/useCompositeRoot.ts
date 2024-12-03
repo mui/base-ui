@@ -37,6 +37,7 @@ export interface UseCompositeRootParameters {
   highlightedIndex?: number;
   onHighlightedIndexChange?: (index: number) => void;
   dense?: boolean;
+  direction?: TextDirection;
   itemSizes?: Array<Dimensions>;
   rootRef?: React.Ref<Element>;
   /**
@@ -66,6 +67,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     loop = true,
     dense = false,
     orientation = 'both',
+    direction,
     highlightedIndex: externalHighlightedIndex,
     onHighlightedIndexChange: externalSetHighlightedIndex,
     rootRef: externalRef,
@@ -82,7 +84,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     externalSetHighlightedIndex ?? internalSetHighlightedIndex,
   );
 
-  const textDirectionRef = React.useRef<TextDirection | null>(null);
+  const textDirectionRef = React.useRef<TextDirection | null>(direction ?? null);
 
   const rootRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(rootRef, externalRef);

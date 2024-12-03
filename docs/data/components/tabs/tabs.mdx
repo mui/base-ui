@@ -156,12 +156,14 @@ Base UI Tabs follow the [Tabs WAI-ARIA design pattern](https://www.w3.org/WAI/A
 
 ## RTL
 
-Place horizontal tabs inside an HTML element or component with the HTML `dir="rtl"` attribute to reverse arrow key navigation for right-to-left languages:
+To change direction for right-to-left languages, place horizontal tabs in `DirectionProvider` with the `direction="rtl"` prop, and set the `dir` attribute accordingly in your HTML to affect styling:
 
 ```jsx
 <html dir="rtl">
   <body>
-    <Tabs.Root orientation="horizontal" /> {/* RTL keyboard behavior */}
+    <DirectionProvider direction="rtl">
+      <Tabs.Root orientation="horizontal" /> {/* RTL keyboard behavior */}
+    </DirectionProvider>
   </body>
 </html>
 ```

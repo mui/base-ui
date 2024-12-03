@@ -5,6 +5,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useDirectionContext } from '../../direction-provider/DirectionContext';
 import { useRadioGroupRoot } from './useRadioGroupRoot';
 import { RadioGroupRootContext } from './RadioGroupRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -32,6 +33,9 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
     name,
     ...otherProps
   } = props;
+
+  const directionContext = useDirectionContext();
+  const direction = directionContext?.direction ?? 'ltr';
 
   const { getRootProps, getInputProps, checkedValue, setCheckedValue, touched, setTouched } =
     useRadioGroupRoot(props);
@@ -86,7 +90,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
 
   return (
     <RadioGroupRootContext.Provider value={contextValue}>
-      <CompositeRoot enableHomeAndEndKeys={false} render={renderElement()} />
+      <CompositeRoot direction={direction} enableHomeAndEndKeys={false} render={renderElement()} />
       <input {...getInputProps()} />
     </RadioGroupRootContext.Provider>
   );
