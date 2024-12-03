@@ -12,19 +12,12 @@ import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
   ...baseMapping,
+  ...transitionStatusMapping,
   nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
-  transitionStatus: (value) => {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' } as Record<string, string>;
-    }
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-    return null;
-  },
 };
 
 /**

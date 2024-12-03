@@ -6,6 +6,11 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 import type { CheckboxRoot } from '../root/CheckboxRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
+import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useForkRef } from '../../utils/useForkRef';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 /**
  * The indicator part of the Checkbox.
@@ -22,19 +27,55 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   props: CheckboxIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...otherProps } = props;
+  const { render, className, keepMounted = false, animated = true, ...otherProps } = props;
 
-  const state = useCheckboxRootContext();
+  const rootState = useCheckboxRootContext();
 
-  const customStyleHookMapping = useCustomStyleHookMapping(state);
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(rootState.checked);
+
+  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+  const mergedRef = useForkRef(forwardedRef, indicatorRef);
+
+  const hidden = !mounted;
+
+  const state: CheckboxIndicator.State = React.useMemo(
+    () => ({
+      ...rootState,
+      transitionStatus,
+      hidden,
+    }),
+    [rootState, hidden, transitionStatus],
+  );
+
+  useAfterExitAnimation({
+    open: state.checked,
+    animated,
+    animatedElementRef: indicatorRef,
+    onFinished() {
+      setMounted(false);
+    },
+  });
+
+  const baseStyleHookMapping = useCustomStyleHookMapping(rootState);
+
+  const customStyleHookMapping: CustomStyleHookMapping<CheckboxIndicator.State> = React.useMemo(
+    () => ({
+      ...baseStyleHookMapping,
+      ...transitionStatusMapping,
+    }),
+    [baseStyleHookMapping],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'span',
-    ref: forwardedRef,
+    ref: mergedRef,
     state,
     className,
     customStyleHookMapping,
-    extraProps: otherProps,
+    extraProps: {
+      hidden,
+      ...otherProps,
+    },
   });
 
   const shouldRender = keepMounted || state.checked || state.indeterminate;
@@ -46,9 +87,13 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 });
 
 namespace CheckboxIndicator {
-  export interface State extends CheckboxRoot.State {}
+  export interface State extends CheckboxRoot.State {
+    hidden: boolean;
+    transitionStatus: TransitionStatus;
+  }
 
   export interface Props extends BaseUIComponentProps<'span', State> {
+    animated?: boolean;
     /**
      * Determines if the indicator stays mounted when unchecked.
      * @default false

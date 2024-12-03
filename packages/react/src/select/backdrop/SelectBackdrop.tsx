@@ -10,20 +10,11 @@ import { useSelectBackdrop } from './useSelectBackdrop';
 import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
   ...popupOpenStateMapping,
-  transitionStatus(value): Record<string, string> | null {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' };
-    }
-
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-
-    return null;
-  },
+  ...transitionStatusMapping,
 };
 
 /**

@@ -10,18 +10,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.State> = {
   ...baseMapping,
-  transitionStatus(value) {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' } as Record<string, string>;
-    }
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-    return null;
-  },
+  ...transitionStatusMapping,
 };
 
 /**
