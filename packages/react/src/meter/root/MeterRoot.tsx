@@ -7,6 +7,10 @@ import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { meterStyleHookMapping } from './styleHooks';
 
+function NOOP() {
+  return '';
+}
+
 /**
  *
  * Demos:
@@ -25,8 +29,8 @@ const MeterRoot = React.forwardRef(function MeterRoot(
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    getAriaLabel,
-    getAriaValueText,
+    getAriaLabel: getAriaLabelProp,
+    getAriaValueText: getAriaValueTextProp,
     max = 100,
     min = 0,
     low,
@@ -39,16 +43,16 @@ const MeterRoot = React.forwardRef(function MeterRoot(
   } = props;
 
   const { getRootProps, ...meter } = useMeterRoot({
-    'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledby,
-    'aria-valuetext': ariaValuetext,
-    getAriaLabel,
-    getAriaValueText,
+    'aria-label': ariaLabel ?? '',
+    'aria-labelledby': ariaLabelledby ?? '',
+    'aria-valuetext': ariaValuetext ?? '',
+    getAriaLabel: getAriaLabelProp ?? NOOP,
+    getAriaValueText: getAriaValueTextProp ?? NOOP,
     max,
     min,
-    low,
-    high,
-    optimum,
+    low: low ?? min,
+    high: high ?? max,
+    optimum: optimum ?? NaN,
     value,
   });
 
@@ -93,7 +97,14 @@ namespace MeterRoot {
     isOptimal: boolean;
   };
 
-  export interface Props extends useMeterRoot.Parameters, BaseUIComponentProps<'div', State> {}
+  export interface Props
+    extends Partial<Omit<useMeterRoot.Parameters, 'value'>>,
+      BaseUIComponentProps<'div', State> {
+    /**
+     * The current value.
+     */
+    value: number;
+  }
 }
 
 export { MeterRoot };
@@ -159,8 +170,6 @@ MeterRoot.propTypes /* remove-proptypes */ = {
   min: PropTypes.number,
   /**
    * Indicates the optimal point in the numeric range represented by the component.
-   * If unspecified, it will fall back to the midpoint between `min` and `max`.
-   * @default 50
    */
   optimum: PropTypes.number,
   /**

@@ -53,8 +53,7 @@
     },
     "optimum": {
       "type": "number",
-      "default": "50",
-      "description": "Indicates the optimal point in the numeric range represented by the component.\nIf unspecified, it will fall back to the midpoint between `min` and `max`."
+      "description": "Indicates the optimal point in the numeric range represented by the component."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",

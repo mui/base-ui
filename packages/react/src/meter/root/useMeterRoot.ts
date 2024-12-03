@@ -10,19 +10,18 @@ function useMeterRoot(parameters: useMeterRoot.Parameters): useMeterRoot.ReturnV
     'aria-valuetext': ariaValuetext,
     getAriaLabel,
     getAriaValueText,
-    max = 100,
-    min = 0,
-    high: highParam = NaN,
-    low: lowParam = NaN,
-    optimum: optimumParam = NaN,
+    max,
+    min,
+    high: highParam,
+    low: lowParam,
+    optimum,
     value,
   } = parameters;
 
   const percentageValue = valueToPercent(value, min, max);
 
-  const high = highParam ?? max;
-  const low = lowParam ?? min;
-  const optimum = optimumParam ?? (max + min) / 2;
+  const high = Number.isNaN(highParam) ? max : highParam;
+  const low = Number.isNaN(lowParam) ? min : lowParam;
 
   let segment: useMeterRoot.Segment | undefined;
 
@@ -38,23 +37,23 @@ function useMeterRoot(parameters: useMeterRoot.Parameters): useMeterRoot.ReturnV
   // 'high' is preferred if `high <= optimum <= max`
   let isOptimal = false;
 
-  if (min <= optimum && optimum <= low) {
-    isOptimal = segment === 'low';
-  } else if (high <= optimum && optimum <= max) {
-    isOptimal = segment === 'high';
+  if (!Number.isNaN(optimum)) {
+    if (min <= optimum && optimum <= low) {
+      isOptimal = segment === 'low';
+    } else if (high <= optimum && optimum <= max) {
+      isOptimal = segment === 'high';
+    }
   }
 
   const getRootProps: useMeterRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
-        'aria-label': getAriaLabel ? getAriaLabel(value) : ariaLabel,
+        'aria-label': getAriaLabel(value) || ariaLabel,
         'aria-labelledby': ariaLabelledby,
         'aria-valuemax': max,
         'aria-valuemin': min,
         'aria-valuenow': percentageValue / 100,
-        'aria-valuetext': getAriaValueText
-          ? getAriaValueText(value)
-          : (ariaValuetext ?? `${percentageValue}%`),
+        'aria-valuetext': getAriaValueText(value) || ariaValuetext || `${percentageValue}%`,
         role: 'meter',
       }),
     [
@@ -88,55 +87,53 @@ namespace useMeterRoot {
     /**
      * The label for the Indicator component.
      */
-    'aria-label'?: string;
+    'aria-label': string;
     /**
      * An id or space-separated list of ids of elements that label the Indicator component.
      */
-    'aria-labelledby'?: string;
+    'aria-labelledby': string;
     /**
      * A string value that provides a human-readable text alternative for the current value of the meter indicator.
      */
-    'aria-valuetext'?: string;
+    'aria-valuetext': string;
     /**
      * Accepts a function which returns a string value that provides an accessible name for the Indicator component
      * @param {number} value The component's value
      * @returns {string}
      */
-    getAriaLabel?: (value: number) => string;
+    getAriaLabel: (value: number) => string;
     /**
      * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the meter indicator.
      * @param {number} value The component's value to format
      * @returns {string}
      */
-    getAriaValueText?: (value: number) => string;
+    getAriaValueText: (value: number) => string;
     /**
      * Sets the lower boundary of the high end of the numeric range represented by the component.
      * If unspecified, or greater than `max`, it will fall back to `max`.
      * @default 100
      */
-    high?: number;
+    high: number;
     /**
      * Sets the upper boundary of the low end of the numeric range represented by the component.
      * If unspecified, or less than `min`, it will fall back to `min`.
      * @default 0
      */
-    low?: number;
+    low: number;
     /**
      * The maximum value
      * @default 100
      */
-    max?: number;
+    max: number;
     /**
      * The minimum value
      * @default 0
      */
-    min?: number;
+    min: number;
     /**
      * Indicates the optimal point in the numeric range represented by the component.
-     * If unspecified, it will fall back to the midpoint between `min` and `max`.
-     * @default 50
      */
-    optimum?: number;
+    optimum: number;
     /**
      * The current value.
      */

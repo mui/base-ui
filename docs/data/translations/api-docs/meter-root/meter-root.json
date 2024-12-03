@@ -28,7 +28,7 @@
     "max": { "description": "The maximum value" },
     "min": { "description": "The minimum value" },
     "optimum": {
-      "description": "Indicates the optimal point in the numeric range represented by the component. If unspecified, it will fall back to the midpoint between <code>min</code> and <code>max</code>."
+      "description": "Indicates the optimal point in the numeric range represented by the component."
     },
     "render": { "description": "A function to customize rendering of the component." },
     "value": { "description": "The current value." }
