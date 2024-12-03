@@ -47,7 +47,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 0.875rem;
+  height: 2.5rem;
+  padding: 0 0.875rem;
   margin: 0;
   outline: 0;
   border: 1px solid var(--color-gray-200);
@@ -59,10 +60,6 @@
   line-height: 1.5rem;
   color: var(--color-gray-950);
   user-select: none;
-
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
-  }
 
   @media (hover: hover) {
     &:hover {
@@ -78,5 +75,10 @@
     cursor: not-allowed;
     color: var(--color-gray-400);
     background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
   }
 }

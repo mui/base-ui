@@ -15,7 +15,7 @@ export default function ExampleField() {
         </Field.Label>
         <Field.Control
           placeholder="Enter company name"
-          className="h-10 w-64 rounded-md border border-gray-200 pl-3.5 text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          className="h-10 w-64 rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
       </Field.Root>
 
@@ -25,7 +25,7 @@ export default function ExampleField() {
         </Field.Label>
         <Field.Control
           placeholder="Enter fiscal number"
-          className="h-10 w-64 rounded-md border border-gray-200 pl-3.5 text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          className="h-10 w-64 rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
       </Field.Root>
     </Fieldset.Root>

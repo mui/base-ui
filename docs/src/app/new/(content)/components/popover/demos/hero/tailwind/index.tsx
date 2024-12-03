@@ -4,16 +4,18 @@ import { Popover } from '@base-ui-components/react/popover';
 export default function ExamplePopover() {
   return (
     <Popover.Root>
-      <Popover.Trigger className="flex h-10 w-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+      <Popover.Trigger className="flex h-10 w-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
         <BellIcon aria-label="Notifications" />
       </Popover.Trigger>
       <Popover.Positioner sideOffset={8}>
-        <Popover.Popup className="origin-[var(--transform-origin)] rounded-lg bg-[canvas] px-6 py-4 text-gray-900 shadow-lg shadow-gray-200 outline outline-gray-200 transition-all [[data-starting-style],[data-ending-style]]:scale-90 [[data-starting-style],[data-ending-style]]:opacity-0">
+        <Popover.Popup className="origin-[var(--transform-origin)] rounded-lg bg-[canvas] px-6 py-4 text-gray-900 shadow-lg shadow-gray-200 outline outline-gray-200 transition-all dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300 [[data-starting-style],[data-ending-style]]:scale-90 [[data-starting-style],[data-ending-style]]:opacity-0">
           <Popover.Arrow className="data-[side=bottom]:-top-2 data-[side=left]:right-[-0.8125rem] data-[side=left]:rotate-90 data-[side=right]:left-[-0.8125rem] data-[side=right]:-rotate-90 data-[side=top]:-bottom-2 data-[side=top]:rotate-180">
-            <ArrowIcon className="h-2.5 w-5" />
+            <ArrowIcon />
           </Popover.Arrow>
-          <Popover.Title className="font-medium">Notifications</Popover.Title>
-          <Popover.Description className="text-gray-600">
+          <Popover.Title className="text-base font-medium">
+            Notifications
+          </Popover.Title>
+          <Popover.Description className="text-base text-gray-600">
             You are all caught up. Good job!
           </Popover.Description>
         </Popover.Popup>
