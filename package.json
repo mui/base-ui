@@ -91,7 +91,7 @@
     "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
-    "@vitejs/plugin-react": "^4.3.3",
+    "@vitejs/plugin-react": "^4.3.4",
     "@vitest/browser": "^2.1.8",
     "@vitest/coverage-istanbul": "2.1.8",
     "@vitest/ui": "2.1.8",
