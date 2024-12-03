@@ -1,3 +1,1 @@
-export { DirectionProvider } from './DirectionProvider';
-
-export type { TextDirection } from './DirectionContext';
+export { Provider as DirectionProvider, type TextDirection } from './index.parts';

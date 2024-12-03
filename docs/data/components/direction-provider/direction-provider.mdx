@@ -6,7 +6,7 @@ components: DirectionProvider
 packageName: '@base-ui-components/react'
 ---
 
-# Progress
+# Direction Provider
 
 <Description />
 
@@ -14,4 +14,19 @@ packageName: '@base-ui-components/react'
 
 ## Installation
 
-<InstallationInstructions componentName="Progress" />
+<InstallationInstructions componentName="DirectionProvider" />
+
+## Usage
+
+Use DirectionProvider to configure RTL keyboard behavior for an app or a group
+of components:
+
+```jsx
+<html dir="rtl">
+  <body>
+    <DirectionProvider direction="rtl">{/* Your React app */}</DirectionProvider>
+  </body>
+</html>
+```
+
+Additionally, you must set the `dir="rtl"` attribute in your HTML to affect styling.

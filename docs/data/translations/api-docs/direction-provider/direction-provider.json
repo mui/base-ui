@@ -1,5 +1,5 @@
 {
   "componentDescription": "A provider that configures RTL/LTR behavior for part of an app or a whole app.",
-  "propDescriptions": {},
+  "propDescriptions": { "direction": { "description": "The reading direction of the text" } },
   "classDescriptions": {}
 }
