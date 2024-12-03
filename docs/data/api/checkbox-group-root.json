@@ -5,7 +5,6 @@
     "defaultValue": { "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" } },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "onValueChange": { "type": { "name": "func" } },
-    "preserveChildStates": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "value": { "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" } }
   },

@@ -10,6 +10,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
+import { useCheckboxGroupRootContext } from '../../checkbox-group/root/CheckboxGroupRootContext';
 
 export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckboxRoot.ReturnValue {
   const {
@@ -26,9 +27,14 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     disabled = false,
   } = params;
 
+  const groupContext = useCheckboxGroupRootContext();
+  const groupValue = groupContext?.value;
+  const setGroupValue = groupContext?.setValue;
+  const defaultGroupValue = groupContext?.defaultValue;
+
   const [checked, setCheckedState] = useControlled({
-    controlled: externalChecked,
-    default: defaultChecked,
+    controlled: name && groupValue ? groupValue.includes(name) : externalChecked,
+    default: name && defaultGroupValue ? defaultGroupValue.includes(name) : defaultChecked,
     name: 'Checkbox',
     state: 'checked',
   });
@@ -136,6 +142,13 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
           setDirty(nextChecked !== validityData.initialValue);
           setCheckedState(nextChecked);
           onCheckedChange?.(nextChecked, event.nativeEvent);
+
+          if (name && groupValue && setGroupValue) {
+            const nextGroupValue = nextChecked
+              ? [...groupValue, name]
+              : groupValue.filter((item) => item !== name);
+            setGroupValue(nextGroupValue, event.nativeEvent);
+          }
         },
       }),
     [
@@ -151,6 +164,8 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       validityData.initialValue,
       setCheckedState,
       onCheckedChange,
+      groupValue,
+      setGroupValue,
     ],
   );
 

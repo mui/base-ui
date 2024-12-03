@@ -14,7 +14,6 @@ export default function ExampleField() {
           Company
         </Field.Label>
         <Field.Control
-          // @ts-expect-error
           placeholder="Enter company name"
           className="h-10 w-64 rounded-md border border-gray-200 py-2 pl-3.5 text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
@@ -25,7 +24,6 @@ export default function ExampleField() {
           Tax ID
         </Field.Label>
         <Field.Control
-          // @ts-expect-error
           placeholder="Enter fiscal number"
           className="h-10 w-64 rounded-md border border-gray-200 py-2 pl-3.5 text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />

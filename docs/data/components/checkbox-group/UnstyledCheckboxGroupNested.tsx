@@ -12,12 +12,7 @@ export default function UnstyledCheckboxGroupNested() {
 
   return (
     <Field.Root style={{ display: 'flex', flexDirection: 'column' }}>
-      <CheckboxGroup.Root
-        allValues={colors}
-        value={value}
-        onValueChange={setValue}
-        preserveChildStates={false}
-      >
+      <CheckboxGroup.Root allValues={colors} value={value} onValueChange={setValue}>
         <CheckboxGroupLabel>Colors</CheckboxGroupLabel>
         <FieldRoot render={<ul />}>
           <Checkbox parent>
