@@ -279,6 +279,22 @@ To visually separate items, use the `Menu.Separator` component:
 The Menu.Separator is a re-exported Separator component.
 See the [Separator docs](/components/react-separator) to learn about its API.
 
+## RTL
+
+To change direction for right-to-left languages, place the menu in `DirectionProvider` with the `direction` prop to `'rtl'`, and set the `dir` attribute accordingly in your HTML to affect styling:
+
+```jsx
+<html dir="rtl">
+  <body>
+    <DirectionProvider direction="rtl">
+      <Menu.Root>{/* Subcomponents */}</Menu.Root>
+    </DirectionProvider>
+  </body>
+</html>
+```
+
+In a RTL menu, <kbd>Left Arrow</kbd> opens submenus while <kbd>Right Arrow</kbd> closes them.
+
 ## Animations
 
 The menu can animate when opening or closing with either:

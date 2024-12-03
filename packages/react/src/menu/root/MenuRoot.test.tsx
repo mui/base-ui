@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, flushMicrotasks, waitFor, screen } from '@mui/internal-test-utils';
+import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
@@ -406,22 +407,24 @@ describe('<Menu.Root />', () => {
     ).forEach(([orientation, direction, openKey, closeKey]) => {
       it(`opens a nested menu of a ${orientation} ${direction.toUpperCase()} menu with ${openKey} key and closes it with ${closeKey}`, async () => {
         const { getByTestId, queryByTestId } = await render(
-          <Menu.Root open orientation={orientation} dir={direction}>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>1</Menu.Item>
-                <Menu.Root orientation={orientation} dir={direction}>
-                  <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
-                  <Menu.Positioner>
-                    <Menu.Popup data-testid="submenu">
-                      <Menu.Item data-testid="submenu-item-1">2.1</Menu.Item>
-                      <Menu.Item>2.2</Menu.Item>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Root>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Root>,
+          <DirectionProvider direction={direction}>
+            <Menu.Root open orientation={orientation} dir={direction}>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>1</Menu.Item>
+                  <Menu.Root orientation={orientation} dir={direction}>
+                    <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu">
+                        <Menu.Item data-testid="submenu-item-1">2.1</Menu.Item>
+                        <Menu.Item>2.2</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Root>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Root>
+          </DirectionProvider>,
         );
 
         const submenuTrigger = getByTestId('submenu-trigger');

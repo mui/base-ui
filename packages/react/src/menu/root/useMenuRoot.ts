@@ -19,6 +19,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useControlled } from '../../utils/useControlled';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import type { TextDirection } from '../../direction-provider/DirectionContext';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -190,8 +191,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
 export type MenuOrientation = 'horizontal' | 'vertical';
 
-export type MenuDirection = 'ltr' | 'rtl';
-
 export namespace useMenuRoot {
   export interface Parameters {
     /**
@@ -222,7 +221,7 @@ export namespace useMenuRoot {
     /**
      * The direction of the Menu (left-to-right or right-to-left).
      */
-    direction: MenuDirection;
+    direction: TextDirection;
     /**
      * If `true`, the Menu is disabled.
      */
