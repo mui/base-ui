@@ -4,7 +4,7 @@ import * as React from 'react';
 let globalId = 0;
 
 // TODO React 17: Remove `useGlobalId` once React 17 support is removed
-function useGlobalId(idOverride?: string): string | undefined {
+function useGlobalId(idOverride?: string, prefix: string = 'mui'): string | undefined {
   const [defaultId, setDefaultId] = React.useState(idOverride);
   const id = idOverride || defaultId;
   React.useEffect(() => {
@@ -14,9 +14,9 @@ function useGlobalId(idOverride?: string): string | undefined {
       // We can't use it server-side.
       // If you want to use random values please consider the Birthday Problem: https://en.wikipedia.org/wiki/Birthday_problem
       globalId += 1;
-      setDefaultId(`mui-${globalId}`);
+      setDefaultId(`${prefix}-${globalId}`);
     }
-  }, [defaultId]);
+  }, [defaultId, prefix]);
   return id;
 }
 
@@ -30,14 +30,14 @@ const maybeReactUseId: undefined | (() => string) = safeReact.useId;
  * @param idOverride
  * @returns {string}
  */
-export function useId(idOverride?: string): string | undefined {
+export function useId(idOverride?: string, prefix?: string): string | undefined {
   // React.useId() is only available from React 17.0.0.
   if (maybeReactUseId !== undefined) {
     const reactId = maybeReactUseId();
-    return idOverride ?? reactId;
+    return idOverride ?? (prefix ? `${prefix}-${reactId}` : reactId);
   }
 
   // TODO: uncomment once we enable eslint-plugin-react-compiler // eslint-disable-next-line react-compiler/react-compiler
   // eslint-disable-next-line react-hooks/rules-of-hooks -- `React.useId` is invariant at runtime.
-  return useGlobalId(idOverride);
+  return useGlobalId(idOverride, prefix);
 }

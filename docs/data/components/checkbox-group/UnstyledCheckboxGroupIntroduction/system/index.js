@@ -9,7 +9,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <Field.Root>
-        <CheckboxGroup.Root defaultValue={['red']}>
+        <CheckboxGroup.Root>
           <CheckboxGroupLabel>Colors</CheckboxGroupLabel>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <FieldRoot>

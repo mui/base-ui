@@ -5,7 +5,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
 import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
@@ -109,7 +109,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     [collapsible.transitionStatus, disabled, index, isOpen, rootState],
   );
 
-  const [triggerId, setTriggerId] = React.useState<string | undefined>(useId());
+  const [triggerId, setTriggerId] = React.useState<string | undefined>(useBaseUiId());
 
   const accordionItemContext: AccordionItemContext = React.useMemo(
     () => ({

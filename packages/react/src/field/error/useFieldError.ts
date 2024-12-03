@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../root/FieldRootContext';
 
@@ -10,7 +10,7 @@ export function useFieldError(params: useFieldError.Parameters) {
 
   const { setMessageIds, validityData } = useFieldRootContext();
 
-  const id = useId(idProp);
+  const id = useBaseUiId(idProp);
 
   useEnhancedEffect(() => {
     if (!rendered || !id) {

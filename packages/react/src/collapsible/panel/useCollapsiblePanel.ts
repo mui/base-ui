@@ -9,7 +9,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import { useOnMount } from '../../utils/useOnMount';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 
 function getAnimationNameFromComputedStyles(element: HTMLElement) {
   if (hasComputedStyleMapSupport()) {
@@ -62,7 +62,7 @@ export function useCollapsiblePanel(
     setOpen,
   } = parameters;
 
-  const id = useId(panelId);
+  const id = useBaseUiId(panelId);
 
   const panelRef = React.useRef<HTMLElement | null>(null);
 
