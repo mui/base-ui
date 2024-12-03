@@ -1,6 +1,9 @@
 import type { CustomStyleHookMapping } from './getStyleHookProps';
 
-export const triggerOpenStateMapping: CustomStyleHookMapping<{ open: boolean }> = {
+export const triggerOpenStateMapping: CustomStyleHookMapping<{
+  open: boolean;
+  hidden: boolean;
+}> = {
   open(value) {
     if (value) {
       return {
@@ -9,6 +12,7 @@ export const triggerOpenStateMapping: CustomStyleHookMapping<{ open: boolean }> 
     }
     return null;
   },
+  hidden: () => null,
 };
 
 export const collapsibleOpenStateMapping: CustomStyleHookMapping<{
