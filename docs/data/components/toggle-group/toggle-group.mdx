@@ -24,14 +24,14 @@ packageName: '@base-ui-components/react'
 
 ToggleGroups are composed with two components:
 
-- `<ToggleGroup />` is the outer component that wraps a set of [`toggle buttons`](/components/react-toggle)
-- `<ToggleButton />`s renders the `<button>`
+- `<ToggleGroup />` is the outer component that wraps a set of [`toggles`](/components/react-toggle)
+- `<Toggle />`s renders the `<button>`
 
 ```tsx
 <ToggleGroup>
-  <ToggleButton value="bold">Bold</ToggleButton>
-  <ToggleButton value="italics">Italics</ToggleButton>
-  <ToggleButton value="underline">Underline</ToggleButton>
+  <Toggle value="bold">Bold</Toggle>
+  <Toggle value="italics">Italics</Toggle>
+  <Toggle value="underline">Underline</Toggle>
 </ToggleGroup>
 ```
 
@@ -46,9 +46,9 @@ When uncontrolled, use the `defaultValue` prop to set the initial state of the g
 ```tsx
 // only the "Italics" button is initially pressed
 <ToggleGroup defaultValue={['italics']}>
-  <ToggleButton value="bold">Bold</ToggleButton>
-  <ToggleButton value="italics">Italics</ToggleButton>
-  <ToggleButton value="underline">Underline</ToggleButton>
+  <Toggle value="bold">Bold</Toggle>
+  <Toggle value="italics">Italics</Toggle>
+  <Toggle value="underline">Underline</Toggle>
 </ToggleGroup>
 ```
 
@@ -61,14 +61,22 @@ const [value, setValue] = React.useState(['align-center']);
 
 return (
   <ToggleGroup value={value} onValueChange={setValue}>
-    <ToggleButton value="align-left" />
-    <ToggleButton value="align-center" />
-    <ToggleButton value="align-right" />
+    <Toggle value="align-left" />
+    <Toggle value="align-center" />
+    <Toggle value="align-right" />
   </ToggleGroup>
 );
 ```
 
 ## Customization
+
+### Orientation
+
+Use the `orientation` prop to configure a vertical toggle group:
+
+```tsx
+<ToggleGroup orientation="vertical">{/* Toggles */}</ToggleGroup>
+```
 
 ### Allow multiple buttons to be pressed
 
@@ -76,9 +84,9 @@ Use the `toggleMultiple` prop to allow multiple buttons to be pressed at the sam
 
 ```tsx
 <ToggleGroup toggleMultiple>
-  <ToggleButton value="bold" />
-  <ToggleButton value="italics" />
-  <ToggleButton value="underline" />
+  <Toggle value="bold" />
+  <Toggle value="italics" />
+  <Toggle value="underline" />
 </ToggleGroup>
 ```
 
@@ -99,16 +107,14 @@ const handleValueChange = (newValue) => {
 
 return (
   <ToggleGroup value={value} onValueChange={handleValueChange}>
-    <ToggleButton value="align-left" />
-    <ToggleButton value="align-center" />
-    <ToggleButton value="align-right" />
+    <Toggle value="align-left" />
+    <Toggle value="align-center" />
+    <Toggle value="align-right" />
   </ToggleGroup>
 );
 ```
 
-<Demo demo="ToggleGroupRtl" />
-
 ## Accessibility
 
-- The `Root` component, and every `Item` must be given must be given an accessible name with `aria-label` or `aria-labelledby`.
-- The `Item`'s label or accessible name _must not_ change based on the pressed state to ensure a smooth screen-reader experience, otherwise it may duplicate the announcement of the pressed state based on `aria-pressed`.
+- The `ToggleGroup` component, and every `Toggle` within must be given must be given an accessible name with `aria-label` or `aria-labelledby`.
+- The `Toggle`'s label or accessible name _must not_ change based on the pressed state to ensure a smooth screen-reader experience, otherwise it may duplicate the announcement of the pressed state based on `aria-pressed`.

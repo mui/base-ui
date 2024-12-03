@@ -31,11 +31,13 @@ const ToggleGroupRoot = React.forwardRef(function ToggleGroupRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    value: valueProp,
     defaultValue: defaultValueProp,
-    disabled: disabledProp = false,
+    disabled = false,
+    loop = true,
+    onValueChange: onValueChangeProp,
+    orientation = 'horizontal',
     toggleMultiple = false,
-    onValueChange = NOOP,
+    value: valueProp,
     className,
     render,
     ...otherProps
@@ -49,26 +51,32 @@ const ToggleGroupRoot = React.forwardRef(function ToggleGroupRoot(
     return undefined;
   }, [valueProp, defaultValueProp]);
 
-  const { getRootProps, disabled, setGroupValue, value } = useToggleGroupRoot({
+  const {
+    getRootProps,
+    disabled: isDisabled,
+    setGroupValue,
+    value,
+  } = useToggleGroupRoot({
     value: valueProp,
     defaultValue,
-    disabled: disabledProp,
+    disabled,
     toggleMultiple,
-    onValueChange,
+    onValueChange: onValueChangeProp ?? NOOP,
   });
 
   const state: ToggleGroupRoot.State = React.useMemo(
-    () => ({ disabled, multiple: toggleMultiple }),
-    [disabled, toggleMultiple],
+    () => ({ disabled: isDisabled, multiple: toggleMultiple, orientation }),
+    [isDisabled, orientation, toggleMultiple],
   );
 
   const contextValue: ToggleGroupRootContext = React.useMemo(
     () => ({
-      disabled,
+      disabled: isDisabled,
+      orientation,
       setGroupValue,
       value,
     }),
-    [disabled, value, setGroupValue],
+    [isDisabled, orientation, setGroupValue, value],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -83,12 +91,14 @@ const ToggleGroupRoot = React.forwardRef(function ToggleGroupRoot(
 
   return (
     <ToggleGroupRootContext.Provider value={contextValue}>
-      <CompositeRoot render={renderElement()} />
+      <CompositeRoot loop={loop} render={renderElement()} />
     </ToggleGroupRootContext.Provider>
   );
 });
 
 export { ToggleGroupRoot };
+
+export type ToggleGroupOrientation = 'horizontal' | 'vertical';
 
 export namespace ToggleGroupRoot {
   export interface State {
@@ -108,6 +118,14 @@ export namespace ToggleGroupRoot {
      * @default false
      */
     disabled?: boolean;
+    /**
+     * @default 'horizontal'
+     */
+    orientation?: ToggleGroupOrientation;
+    /**
+     * @default true
+     */
+    loop?: boolean;
   }
 }
 
@@ -139,8 +157,6 @@ ToggleGroupRoot.propTypes /* remove-proptypes */ = {
    *
    * @param {any[]} groupValue An array of the `value`s of all the pressed items.
    * @param {Event} event The event source of the callback.
-   *
-   * @default NOOP
    */
   onValueChange: PropTypes.func,
   /**

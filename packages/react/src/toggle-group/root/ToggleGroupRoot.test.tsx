@@ -160,6 +160,20 @@ describe('<ToggleGroup />', () => {
     });
   });
 
+  describe('prop: orientation', () => {
+    it('vertical', async () => {
+      const { queryByRole } = await render(
+        <ToggleGroup orientation="vertical">
+          <Toggle value="one" />
+          <Toggle value="two" />
+        </ToggleGroup>,
+      );
+
+      const group = queryByRole('group');
+      expect(group).to.have.attribute('data-orientation', 'vertical');
+    });
+  });
+
   describe('prop: toggleMultiple', () => {
     it('multiple items can be pressed when true', async () => {
       const { getAllByRole, user } = await render(

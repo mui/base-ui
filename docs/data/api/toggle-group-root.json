@@ -4,7 +4,6 @@
     "defaultValue": { "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" } },
     "onValueChange": {
       "type": { "name": "func" },
-      "default": "NOOP",
       "signature": {
         "type": "function(groupValue: Array<any>, event: Event) => void",
         "describedArgs": ["groupValue", "event"]

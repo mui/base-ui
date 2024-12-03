@@ -8,13 +8,7 @@ import type { GenericHTMLProps } from '../../utils/types';
 export function useToggleGroupRoot(
   parameters: UseToggleGroupRoot.Parameters,
 ): UseToggleGroupRoot.ReturnValue {
-  const {
-    value,
-    defaultValue,
-    disabled = false,
-    onValueChange,
-    toggleMultiple = false,
-  } = parameters;
+  const { value, defaultValue, disabled, onValueChange, toggleMultiple } = parameters;
 
   const [groupValue, setValueState] = useControlled({
     controlled: value,
@@ -59,6 +53,8 @@ export function useToggleGroupRoot(
     [getRootProps, disabled, groupValue, setGroupValue],
   );
 }
+
+export type ToggleGroupOrientation = 'horizontal' | 'vertical';
 
 export namespace UseToggleGroupRoot {
   export interface Parameters {
