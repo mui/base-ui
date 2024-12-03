@@ -64,6 +64,7 @@ export function Demo({ className, defaultOpen = false, title, ...props }: DemoPr
             <Collapsible.Panel
               hidden={false}
               aria-hidden={!open}
+              keepMounted
               render={
                 <BaseDemo.SourceBrowser
                   className="DemoCodeBlockContainer"

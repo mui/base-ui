@@ -6,12 +6,7 @@ export default function ExampleField() {
   return (
     <Field.Root className={styles.Field}>
       <Field.Label className={styles.Label}>Name</Field.Label>
-      <Field.Control
-        required
-        // @ts-expect-error
-        placeholder="Required"
-        className={styles.Input}
-      />
+      <Field.Control required placeholder="Required" className={styles.Input} />
 
       <Field.Error className={styles.Error} match="valueMissing">
         Please enter your name

@@ -5,7 +5,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useControlled } from '../../utils/useControlled';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
 
@@ -27,7 +27,7 @@ export function useRadioGroupRoot(params: useRadioGroupRoot.Parameters) {
     commitValidation,
   } = useFieldControlValidation();
 
-  const id = useId();
+  const id = useBaseUiId();
 
   useEnhancedEffect(() => {
     setControlId(id);

@@ -98,4 +98,27 @@ describe('useId', () => {
 
     expect(screen.getByTestId('target').id).not.to.equal('');
   });
+
+  it('can be prefixed', () => {
+    const PREFIX = 'base-ui';
+    function Widget() {
+      const id = useId(undefined, PREFIX);
+
+      return (
+        <React.Fragment>
+          <span data-testid="labelable" aria-labelledby={id} />
+          <span data-testid="label" id={id}>
+            Label
+          </span>
+        </React.Fragment>
+      );
+    }
+    render(<Widget />);
+
+    expect(screen.getByTestId('label').id.slice(0, 8)).to.equal(`${PREFIX}-`);
+    expect(screen.getByTestId('labelable')).to.have.attr(
+      'aria-labelledby',
+      screen.getByTestId('label').id,
+    );
+  });
 });

@@ -3,9 +3,12 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { warn } from '../../utils/warn';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCollapsiblePanel } from '../../collapsible/panel/useCollapsiblePanel';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
+import type { AccordionRoot } from '../root/AccordionRoot';
 import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStyleHookMapping } from '../item/styleHooks';
@@ -27,21 +30,39 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   const {
     className,
     hiddenUntilFound: hiddenUntilFoundProp,
+    keepMounted: keepMountedProp,
     id: idProp,
     render,
     style: styleProp,
     ...otherProps
   } = props;
 
+  const { hiddenUntilFound: contextHiddenUntilFound, keepMounted: contextKeepMounted } =
+    useAccordionRootContext();
+
+  const hiddenUntilFound = hiddenUntilFoundProp ?? contextHiddenUntilFound;
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEnhancedEffect(() => {
+      if (keepMountedProp === false && hiddenUntilFound) {
+        warn(
+          'The `keepMounted={false}` prop on a Accordion.Panel will be ignored when using `contextHiddenUntilFound` on the Panel or the Root since it requires the panel to remain mounted when closed.',
+        );
+      }
+    }, [hiddenUntilFound, keepMountedProp]);
+  }
+
   const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen } =
     useCollapsibleRootContext();
 
-  const { hiddenUntilFound } = useAccordionRootContext();
+  const keepMounted = keepMountedProp ?? contextKeepMounted;
 
-  const { getRootProps, height, width } = useCollapsiblePanel({
+  const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
     animated,
-    hiddenUntilFound: hiddenUntilFoundProp || hiddenUntilFound,
-    id: idProp ?? panelId,
+    hiddenUntilFound,
+    panelId: idProp ?? panelId,
+    keepMounted,
     mounted,
     open,
     ref: forwardedRef,
@@ -70,13 +91,17 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     customStyleHookMapping: accordionStyleHookMapping,
   });
 
+  if (!isOpen && !keepMounted && !hiddenUntilFound) {
+    return null;
+  }
+
   return renderElement();
 });
 
 export namespace AccordionPanel {
   export interface Props
     extends BaseUIComponentProps<'div', AccordionItem.State>,
-      Pick<useCollapsiblePanel.Parameters, 'hiddenUntilFound'> {}
+      Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
 }
 
 export { AccordionPanel };
@@ -95,7 +120,8 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, sets `hidden="until-found"` when closed.
+   * If `true`, sets `hidden="until-found"` when closed. Accordion panels
+   * will remain mounted in the DOM when closed and overrides `keepMounted`.
    * If `false`, sets `hidden` when closed.
    * @default false
    */
@@ -104,6 +130,13 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   id: PropTypes.string,
+  /**
+   * If `true`, accordion panels remains mounted when closed and is instead
+   * hidden using the `hidden` attribute.
+   * If `false`, accordion panels are unmounted when closed.
+   * @default false
+   */
+  keepMounted: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */
