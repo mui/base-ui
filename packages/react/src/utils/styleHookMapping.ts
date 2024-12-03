@@ -3,10 +3,10 @@ import type { CustomStyleHookMapping } from './getStyleHookProps';
 
 export const transitionStatusMapping = {
   transitionStatus(value): Record<string, string> | null {
-    if (value === 'entering') {
+    if (value === 'starting') {
       return { 'data-starting-style': '' };
     }
-    if (value === 'exiting') {
+    if (value === 'ending') {
       return { 'data-ending-style': '' };
     }
     return null;
