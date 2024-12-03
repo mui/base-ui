@@ -25,7 +25,7 @@ import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
@@ -81,7 +81,7 @@ export function useNumberFieldRoot(
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedRef = useForkRef(inputRef, inputValidationRef);
 
-  const id = useId(idProp);
+  const id = useBaseUiId(idProp);
 
   useEnhancedEffect(() => {
     setControlId(id);

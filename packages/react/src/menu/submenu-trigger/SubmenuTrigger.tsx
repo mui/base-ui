@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useFloatingTree, useListItem } from '@floating-ui/react';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSubmenuTrigger } from './useSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
@@ -25,7 +25,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { render, className, disabled = false, label, id: idProp, ...other } = props;
-  const id = useId(idProp);
+  const id = useBaseUiId(idProp);
 
   const {
     getTriggerProps,

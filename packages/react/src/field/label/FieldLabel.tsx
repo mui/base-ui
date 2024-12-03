@@ -6,7 +6,7 @@ import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldLabel } from './useFieldLabel';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 
@@ -29,7 +29,7 @@ const FieldLabel = React.forwardRef(function FieldLabel(
 
   const { setLabelId, state } = useFieldRootContext(false);
 
-  const id = useId(idProp);
+  const id = useBaseUiId(idProp);
 
   useEnhancedEffect(() => {
     setLabelId(id);

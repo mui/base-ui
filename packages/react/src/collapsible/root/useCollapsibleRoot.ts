@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 
 export function useCollapsibleRoot(
   parameters: useCollapsibleRoot.Parameters,
@@ -25,7 +25,7 @@ export function useCollapsibleRoot(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated, true);
 
-  const [panelId, setPanelId] = React.useState<string | undefined>(useId());
+  const [panelId, setPanelId] = React.useState<string | undefined>(useBaseUiId());
 
   const setOpen = useEventCallback((nextOpen: boolean) => {
     onOpenChange?.(nextOpen);

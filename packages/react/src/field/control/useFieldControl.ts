@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldControlValidation } from './useFieldControlValidation';
 import { useFormRootContext } from '../../form/root/FormRootContext';
@@ -20,7 +20,7 @@ export function useFieldControl(params: useFieldControl.Parameters) {
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();
 
-  const id = useId(idProp);
+  const id = useBaseUiId(idProp);
 
   useEnhancedEffect(() => {
     setControlId(id);
