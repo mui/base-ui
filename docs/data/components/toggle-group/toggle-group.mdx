@@ -106,33 +106,6 @@ return (
 );
 ```
 
-## RTL
-
-Place the toggle button group within any HTML element or component with the HTML `dir="rtl"` attribute to reverse directional keys for RTL languages:
-
-```jsx
-<html dir="rtl">
-  <body>
-    <ToggleGroup /> {/* RTL keyboard behavior */}
-  </body>
-<html>
-```
-
-This can also be applied to part of your app:
-
-```jsx
-<html dir="ltr">
-  <body>
-    <div>
-      <ToggleGroup /> {/* LTR keyboard behavior */}
-      <div dir="rtl">
-        <ToggleGroup /> {/* RTL keyboard behavior */}
-      </div>
-    </div>
-  </body>
-<html>
-```
-
 <Demo demo="ToggleGroupRtl" />
 
 ## Accessibility
