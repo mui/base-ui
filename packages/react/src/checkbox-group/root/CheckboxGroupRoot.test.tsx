@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { createRenderer } from '@mui/internal-test-utils';
+import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { spy } from 'sinon';
+import { expect } from 'chai';
+import { describeConformance } from '#test-utils';
 
 describe('<CheckboxGroup.Root />', () => {
   const { render } = createRenderer();
