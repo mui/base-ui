@@ -5,7 +5,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import glob from 'fast-glob';
 import * as jsxRuntime from 'react/jsx-runtime';
 import { evaluate } from '@mdx-js/mdx';
-import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
+import rehypeExtractToc, { type Toc, type TocEntry } from '@stefanprobst/rehype-extract-toc';
 import rehypeExportToc from '@stefanprobst/rehype-extract-toc/mdx';
 import { rehypeSlug } from 'docs/src/components/quick-nav/rehypeSlug.mjs';
 import { rehypeQuickNav } from 'docs/src/components/quick-nav/rehypeQuickNav.mjs';
