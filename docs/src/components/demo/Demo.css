@@ -154,7 +154,13 @@
 
       /* Closed state */
       overflow: hidden;
-      max-height: 12.5rem;
+      max-height: calc(8.6lh + 0.5rem); /* Show 8.6 of code lines and account for top padding */
+
+      /* Add a border radius when there is no collapse button */
+      &:not(.DemoCollapseButton + &) {
+        border-bottom-left-radius: var(--radius-md);
+        border-bottom-right-radius: var(--radius-md);
+      }
     }
 
     /* Scroll containers may be focusable */
