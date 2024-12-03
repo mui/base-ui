@@ -18,7 +18,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
-import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
