@@ -56,7 +56,6 @@
     "react-is": "19.0.0-rc-fb9a90fa48-20240614",
     "react-router-dom": "^6.28.0",
     "react-runner": "^1.0.5",
-    "react-simple-code-editor": "^0.13.1",
     "rehype-pretty-code": "^0.14.0",
     "remark": "^15.0.1",
     "remark-frontmatter": "^5.0.0",
