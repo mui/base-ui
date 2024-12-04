@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { CompositeList } from '../../composite/list/CompositeList';
-import { useDirectionContext, type TextDirection } from '../../direction-provider/DirectionContext';
+import { useDirectionContext } from '../../direction-provider/DirectionContext';
 import { useTabsRoot } from './useTabsRoot';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStyleHookMapping } from './styleHooks';
@@ -123,11 +123,6 @@ namespace TabsRoot {
      * @default 0
      */
     defaultValue?: TabValue;
-    /**
-     * Sets ArrowLeft and ArrowRight behavior based on text direction.
-     * @default 'ltr'
-     */
-    direction?: TextDirection;
     /**
      * The component orientation (layout flow direction).
      * @default 'horizontal'

@@ -114,6 +114,10 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  direction: PropTypes.oneOf(['ltr', 'rtl']),
+  /**
+   * @ignore
+   */
   enableHomeAndEndKeys: PropTypes.bool,
   /**
    * @ignore
