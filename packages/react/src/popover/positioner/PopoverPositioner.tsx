@@ -69,13 +69,16 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     openMethod,
   });
 
+  const hidden = !mounted;
+
   const state: PopoverPositioner.State = React.useMemo(
     () => ({
       open,
+      hidden,
       side: positioner.side,
       align: positioner.align,
     }),
-    [open, positioner.side, positioner.align],
+    [open, hidden, positioner.side, positioner.align],
   );
 
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
@@ -105,6 +108,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 namespace PopoverPositioner {
   export interface State {
     open: boolean;
+    hidden: boolean;
     side: Side;
     align: Align;
   }

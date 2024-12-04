@@ -19,14 +19,16 @@ export function useDialogBackdrop(
     enabled: animated,
   });
 
+  const hidden = !mounted;
+
   const getRootProps = React.useCallback(
     (externalProps: React.ComponentPropsWithRef<any>) =>
       mergeReactProps<'div'>(externalProps, {
         role: 'presentation',
         ref: handleRef,
-        hidden: !mounted,
+        hidden,
       }),
-    [handleRef, mounted],
+    [handleRef, hidden],
   );
 
   return {

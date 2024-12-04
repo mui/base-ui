@@ -20,7 +20,6 @@ export function usePreviewCardPositioner(
   const {
     positionerStyles,
     arrowStyles,
-    hidden,
     arrowRef,
     arrowUncentered,
     renderedSide,
@@ -33,20 +32,22 @@ export function usePreviewCardPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || hidden) {
+        if (keepMounted && !open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
+        const hidden = !mounted;
+
         return mergeReactProps<'div'>(externalProps, {
           role: 'presentation',
-          hidden: !mounted,
+          hidden,
           style: {
             ...positionerStyles,
             ...hiddenStyles,
           },
         });
       },
-      [positionerStyles, open, keepMounted, hidden, mounted],
+      [positionerStyles, open, keepMounted, mounted],
     );
 
   return React.useMemo(

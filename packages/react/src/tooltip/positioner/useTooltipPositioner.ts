@@ -12,39 +12,30 @@ export function useTooltipPositioner(
 
   const { open, trackCursorAxis } = useTooltipRootContext();
 
-  const {
-    positionerStyles,
-    arrowStyles,
-    hidden,
-    arrowRef,
-    arrowUncentered,
-    renderedSide,
-    renderedAlign,
-  } = useAnchorPositioning(params);
+  const { positionerStyles, arrowStyles, arrowRef, arrowUncentered, renderedSide, renderedAlign } =
+    useAnchorPositioning(params);
 
   const getPositionerProps: useTooltipPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || hidden) {
+        if ((keepMounted && !open) || trackCursorAxis === 'both') {
           hiddenStyles.pointerEvents = 'none';
         }
 
-        if (trackCursorAxis === 'both') {
-          hiddenStyles.pointerEvents = 'none';
-        }
+        const hidden = !mounted;
 
         return mergeReactProps<'div'>(externalProps, {
           role: 'presentation',
-          hidden: !mounted,
+          hidden,
           style: {
             ...positionerStyles,
             ...hiddenStyles,
           },
         });
       },
-      [keepMounted, open, hidden, trackCursorAxis, mounted, positionerStyles],
+      [keepMounted, open, trackCursorAxis, mounted, positionerStyles],
     );
 
   return React.useMemo(

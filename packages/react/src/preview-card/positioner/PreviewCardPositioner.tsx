@@ -66,13 +66,16 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     sticky,
   });
 
+  const hidden = !mounted;
+
   const state: PreviewCardPositioner.State = React.useMemo(
     () => ({
       open,
+      hidden,
       side: positioner.side,
       align: positioner.align,
     }),
-    [open, positioner.side, positioner.align],
+    [open, hidden, positioner.side, positioner.align],
   );
 
   const contextValue: PreviewCardPositionerContext = React.useMemo(
@@ -119,6 +122,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
 namespace PreviewCardPositioner {
   export interface State {
     open: boolean;
+    hidden: boolean;
     side: Side;
     align: Align;
   }

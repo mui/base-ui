@@ -14,9 +14,10 @@ export function useSelectBackdrop() {
 
   const getBackdropProps = React.useCallback(
     (externalProps = {}) => {
+      const hidden = !mounted;
       return mergeReactProps<'div'>(externalProps, {
         role: 'presentation',
-        hidden: !mounted,
+        hidden,
         style: {
           overflow: 'auto',
           position: 'fixed',

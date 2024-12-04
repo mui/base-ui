@@ -87,13 +87,16 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     titleElementId,
   });
 
+  const hidden = !mounted;
+
   const state: AlertDialogPopup.State = React.useMemo(
     () => ({
       open,
+      hidden,
       nestedOpenDialogCount,
       transitionStatus,
     }),
-    [open, nestedOpenDialogCount, transitionStatus],
+    [open, hidden, nestedOpenDialogCount, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -157,6 +160,7 @@ namespace AlertDialogPopup {
 
   export interface State {
     open: boolean;
+    hidden: boolean;
     nestedOpenDialogCount: number;
     transitionStatus: TransitionStatus;
   }

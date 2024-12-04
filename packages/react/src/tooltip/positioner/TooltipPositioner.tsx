@@ -70,13 +70,16 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
 
+  const hidden = !mounted;
+
   const state: TooltipPositioner.State = React.useMemo(
     () => ({
       open,
+      hidden,
       side: positioner.side,
       align: positioner.align,
     }),
-    [open, positioner.side, positioner.align],
+    [open, hidden, positioner.side, positioner.align],
   );
 
   const contextValue: TooltipPositionerContext = React.useMemo(
@@ -114,6 +117,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 namespace TooltipPositioner {
   export interface State {
     open: boolean;
+    hidden: boolean;
     side: Side;
     align: Align;
   }

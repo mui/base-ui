@@ -29,7 +29,6 @@ export function useSelectPositioner(
   const {
     positionerStyles: enabledPositionerStyles,
     arrowStyles,
-    hidden,
     arrowRef,
     arrowUncentered,
     renderedSide,
@@ -53,20 +52,22 @@ export function useSelectPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if (!open || hidden) {
+        if (!open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
+        const hidden = !mounted;
+
         return mergeReactProps<'div'>(externalProps, {
           role: 'presentation',
-          hidden: !mounted,
+          hidden,
           style: {
             ...positionerStyles,
             ...hiddenStyles,
           },
         });
       },
-      [open, hidden, mounted, positionerStyles],
+      [open, mounted, positionerStyles],
     );
 
   const positioner = React.useMemo(
