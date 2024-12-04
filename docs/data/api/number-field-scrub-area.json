@@ -3,7 +3,7 @@
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "direction": {
       "type": { "name": "enum", "description": "'horizontal'<br>&#124;&nbsp;'vertical'" },
-      "default": "'vertical'"
+      "default": "'horizontal'"
     },
     "pixelSensitivity": { "type": { "name": "number" }, "default": "2" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
