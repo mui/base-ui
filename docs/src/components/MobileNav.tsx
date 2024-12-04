@@ -5,17 +5,16 @@ import NextLink from 'next/link';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { HEADER_HEIGHT } from './Header';
 
-type MobileNavState = [boolean, (open: boolean) => void];
-const MobileNavState = React.createContext<MobileNavState>([false, () => undefined]);
+const MobileNavStateCallback = React.createContext<(open: boolean) => void>(() => undefined);
 
 export function Root(props: Dialog.Root.Props) {
   const state = React.useState(false);
   const [open, setOpen] = state;
 
   return (
-    <MobileNavState.Provider value={state}>
+    <MobileNavStateCallback.Provider value={setOpen}>
       <Dialog.Root open={open} onOpenChange={setOpen} {...props} />
-    </MobileNavState.Provider>
+    </MobileNavStateCallback.Provider>
   );
 }
 
@@ -26,7 +25,7 @@ export function Backdrop({ className, ...props }: Dialog.Backdrop.Props) {
 }
 
 export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
-  const [, setOpen] = React.useContext(MobileNavState);
+  const setOpen = React.useContext(MobileNavStateCallback);
   const rem = React.useRef(16);
 
   React.useEffect(() => {
@@ -165,7 +164,7 @@ interface ItemProps extends React.ComponentPropsWithoutRef<'li'> {
 }
 
 export function Item({ active, children, className, href, rel, ...props }: ItemProps) {
-  const [, setOpen] = React.useContext(MobileNavState);
+  const setOpen = React.useContext(MobileNavStateCallback);
   return (
     <li className={clsx('MobileNavItem', className)} {...props}>
       <NextLink
