@@ -13,6 +13,7 @@ const accordionRootContextValue: AccordionRootContext = {
   disabled: false,
   handleValueChange: NOOP,
   hiddenUntilFound: false,
+  keepMounted: false,
   orientation: 'vertical',
   state: {
     value: [0],
@@ -49,6 +50,7 @@ const collapsibleContextValue: CollapsibleRootContext = {
   state: {
     open: true,
     disabled: false,
+    hidden: false,
     transitionStatus: undefined,
   },
 };

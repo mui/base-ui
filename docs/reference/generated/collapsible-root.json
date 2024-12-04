@@ -13,7 +13,7 @@
     },
     "defaultOpen": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "If `true`, the Collapsible is initially open.\nThis is the uncontrolled counterpart of `open`."
     },
     "disabled": {
@@ -28,10 +28,6 @@
     "open": {
       "type": "boolean",
       "description": "If `true`, the Collapsible is initially open.\nThis is the controlled counterpart of `defaultOpen`."
-    },
-    "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
     }
   }
 }

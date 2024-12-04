@@ -10,7 +10,7 @@ import {
 } from '@floating-ui/react';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
 import { type TransitionStatus, useTransitionStatus } from '../../utils';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -28,7 +28,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     alignOptionToTrigger: alignOptionToTriggerParam = true,
   } = params;
 
-  const id = useId();
+  const id = useBaseUiId();
 
   const { setDirty, validityData, validationMode } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();

@@ -4,7 +4,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
@@ -73,7 +73,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     commitValidation,
   } = useFieldControlValidation();
 
-  const thumbId = useId(idParam);
+  const thumbId = useBaseUiId(idParam);
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -83,7 +83,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
 
   const mergedThumbRef = useForkRef(externalRef, listItemRef, thumbRef);
 
-  const inputId = useId(inputIdParam);
+  const inputId = useBaseUiId(inputIdParam);
 
   useEnhancedEffect(() => {
     const { deregister } = registerInputId(index, inputId);

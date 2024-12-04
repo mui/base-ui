@@ -8,7 +8,7 @@ export default function ExampleCheckboxGroup() {
     <CheckboxGroup.Root
       aria-labelledby="apples-caption"
       defaultValue={['fuji-apple']}
-      className={styles.Group}
+      className={styles.CheckboxGroup}
     >
       <div className={styles.Caption} id="apples-caption">
         Apples

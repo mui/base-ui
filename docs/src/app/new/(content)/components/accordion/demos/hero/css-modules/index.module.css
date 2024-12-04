@@ -1,11 +1,11 @@
-.Root {
+.Accordion {
   box-sizing: border-box;
   display: flex;
-  min-height: 12rem;
   width: 24rem;
   max-width: calc(100vw - 8rem);
   flex-direction: column;
   justify-content: center;
+  color: var(--color-gray-900);
 }
 
 .Item {
@@ -23,11 +23,11 @@
   align-items: baseline;
   justify-content: space-between;
   padding: 0.5rem 0;
-  font: inherit;
+  color: var(--color-gray-900);
+  font-family: inherit;
   font-weight: 500;
   font-size: 1rem;
   line-height: 1.5rem;
-  letter-spacing: 0em;
   background: none;
   border: none;
   outline: none;
@@ -57,7 +57,6 @@
   color: var(--color-gray-600);
   font-size: 0.9375rem;
   line-height: 1.375rem;
-  letter-spacing: 0.001em;
   transition: height 150ms ease-out;
 
   &[data-starting-style],

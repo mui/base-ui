@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     default: 'Base UI',
   },
   twitter: {
-    site: '@Base_UI',
+    site: '@base_ui',
     card: 'summary_large_image',
   },
   openGraph: {

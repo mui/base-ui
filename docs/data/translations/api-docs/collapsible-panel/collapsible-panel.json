@@ -5,7 +5,10 @@
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
     "hiddenUntilFound": {
-      "description": "If <code>true</code>, sets <code>hidden=&quot;until-found&quot;</code> when closed. If <code>false</code>, sets <code>hidden</code> when closed."
+      "description": "If <code>true</code>, sets the hidden state using <code>hidden=&quot;until-found&quot;</code>. The panel remains mounted in the DOM when closed and overrides <code>keepMounted</code>. If <code>false</code>, sets the hidden state using <code>hidden</code>."
+    },
+    "keepMounted": {
+      "description": "If <code>true</code>, the panel remains mounted when closed and is instead hidden using the <code>hidden</code> attribute If <code>false</code>, the panel is unmounted when closed. If the <code>hiddenUntilFound</code> prop is used, the panel overrides this prop and is remains mounted when closed."
     },
     "render": { "description": "A function to customize rendering of the component." }
   },

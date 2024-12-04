@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
-import { TextInput } from '@base-ui-components/react/text-input';
+import { Input as InputPrimitive } from '@base-ui-components/react/input';
 import { styled } from '@mui/system';
 
 function validate(value) {
@@ -52,7 +52,7 @@ const FieldRoot = styled(Field.Root)`
   width: 275px;
 `;
 
-const Input = styled(TextInput)`
+const Input = styled(InputPrimitive)`
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;

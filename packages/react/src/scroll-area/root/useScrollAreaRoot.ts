@@ -2,8 +2,9 @@ import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { SCROLL_TIMEOUT } from '../constants';
+import { getOffset } from '../utils/getOffset';
 
 interface Size {
   width: number;
@@ -19,7 +20,7 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   const [thumbSize, setThumbSize] = React.useState<Size>({ width: 0, height: 0 });
   const [touchModality, setTouchModality] = React.useState(false);
 
-  const rootId = useId();
+  const rootId = useBaseUiId();
 
   const viewportRef = React.useRef<HTMLDivElement | null>(null);
   const scrollbarYRef = React.useRef<HTMLDivElement | null>(null);
@@ -105,8 +106,11 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
         scrollbarYRef.current &&
         currentOrientationRef.current === 'vertical'
       ) {
+        const scrollbarYOffset = getOffset(scrollbarYRef.current, 'padding', 'y');
+        const thumbYOffset = getOffset(thumbYRef.current, 'margin', 'y');
         const thumbHeight = thumbYRef.current.offsetHeight;
-        const maxThumbOffsetY = scrollbarYRef.current.offsetHeight - thumbHeight;
+        const maxThumbOffsetY =
+          scrollbarYRef.current.offsetHeight - thumbHeight - scrollbarYOffset - thumbYOffset;
         const scrollRatioY = deltaY / maxThumbOffsetY;
         viewportRef.current.scrollTop =
           startScrollTopRef.current + scrollRatioY * (scrollableContentHeight - viewportHeight);
@@ -123,8 +127,11 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
         scrollbarXRef.current &&
         currentOrientationRef.current === 'horizontal'
       ) {
+        const scrollbarXOffset = getOffset(scrollbarXRef.current, 'padding', 'x');
+        const thumbXOffset = getOffset(thumbXRef.current, 'margin', 'x');
         const thumbWidth = thumbXRef.current.offsetWidth;
-        const maxThumbOffsetX = scrollbarXRef.current.offsetWidth - thumbWidth;
+        const maxThumbOffsetX =
+          scrollbarXRef.current.offsetWidth - thumbWidth - scrollbarXOffset - thumbXOffset;
         const scrollRatioX = deltaX / maxThumbOffsetX;
         viewportRef.current.scrollLeft =
           startScrollLeftRef.current + scrollRatioX * (scrollableContentWidth - viewportWidth);

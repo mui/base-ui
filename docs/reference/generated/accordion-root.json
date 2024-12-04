@@ -12,14 +12,23 @@
       "description": "Class names applied to the element or a function that returns them based on the component's state."
     },
     "defaultValue": {
-      "type": "Array<number | string>",
-      "default": "0",
+      "type": "array",
       "description": "The default value representing the currently open `Accordion.Item`\nThis is the uncontrolled counterpart of `value`."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
       "description": "If `true`, the component is disabled."
+    },
+    "hiddenUntilFound": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, sets `hidden=\"until-found\"` when closed. Accordion panels\nwill remain mounted in the DOM when closed and overrides `keepMounted`.\nIf `false`, sets `hidden` when closed."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, accordion panels remains mounted when closed and is instead\nhidden using the `hidden` attribute.\nIf `false`, accordion panels are unmounted when closed."
     },
     "loop": {
       "type": "boolean",
@@ -33,14 +42,19 @@
     "openMultiple": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether multiple Accordion sections can be opened at the same time"
+      "description": "Whether multiple Accordion sections can be opened at the same time."
+    },
+    "orientation": {
+      "type": "'horizontal' | 'vertical'",
+      "default": "'vertical'",
+      "description": "The orientation of the accordion."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
     },
     "value": {
-      "type": "Array<number | string>",
+      "type": "array",
       "description": "The value of the currently open `Accordion.Item`\nThis is the controlled counterpart of `defaultValue`."
     }
   }
