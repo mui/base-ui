@@ -154,7 +154,6 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   // └─────────────────────────────────────────────────────────────────────┘
   /**
    * If `true`, the component supports CSS/JS-based animations and transitions.
-   * @default true
    */
   animated: PropTypes.bool,
   /**
@@ -168,18 +167,14 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   /**
    * The default value representing the currently open `Accordion.Item`
    * This is the uncontrolled counterpart of `value`.
-   * @default 0
    */
-  defaultValue: PropTypes.arrayOf(
-    PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-  ),
+  defaultValue: PropTypes.array,
   /**
-   * @default 'ltr'
+   * @ignore
    */
   direction: PropTypes.oneOf(['ltr', 'rtl']),
   /**
    * If `true`, the component is disabled.
-   * @default false
    */
   disabled: PropTypes.bool,
   /**
@@ -199,7 +194,6 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   /**
    * If `true`, focus will loop when moving focus between `Trigger`s using
    * the arrow keys.
-   * @default true
    */
   loop: PropTypes.bool,
   /**
@@ -208,12 +202,11 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * Whether multiple Accordion sections can be opened at the same time
-   * @default true
+   * Whether multiple Accordion sections can be opened at the same time.
    */
   openMultiple: PropTypes.bool,
   /**
-   * @default 'vertical'
+   * The orientation of the accordion.
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
   /**
@@ -224,5 +217,5 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    * The value of the currently open `Accordion.Item`
    * This is the controlled counterpart of `defaultValue`.
    */
-  value: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired),
+  value: PropTypes.array,
 } as any;

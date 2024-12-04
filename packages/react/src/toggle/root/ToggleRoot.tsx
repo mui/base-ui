@@ -123,14 +123,11 @@ ToggleRoot.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The default pressed state. Use when the component is not controlled.
-   *
    * @default false
    */
   defaultPressed: PropTypes.bool,
   /**
    * If `true`, the component is disabled.
-   *
-   * @default false
    */
   disabled: PropTypes.bool,
   /**
@@ -142,14 +139,10 @@ ToggleRoot.propTypes /* remove-proptypes */ = {
    *
    * @param {boolean} pressed The new pressed state.
    * @param {Event} event The event source of the callback.
-   *
-   * @default NOOP
    */
   onPressedChange: PropTypes.func,
   /**
    * If `true`, the component is pressed.
-   *
-   * @default undefined
    */
   pressed: PropTypes.bool,
   /**
@@ -160,4 +153,9 @@ ToggleRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   type: PropTypes.oneOf(['button', 'reset', 'submit']),
+  /**
+   * A unique string that identifies the component when used
+   * inside a ToggleGroup
+   */
+  value: PropTypes.string,
 } as any;

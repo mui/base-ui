@@ -147,11 +147,15 @@ ToggleGroupRoot.propTypes /* remove-proptypes */ = {
    * the values of all pressed `<ToggleGroup.Item/>`s
    * This is the uncontrolled counterpart of `value`.
    */
-  defaultValue: PropTypes.arrayOf(PropTypes.string),
+  defaultValue: PropTypes.array,
   /**
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * @default true
+   */
+  loop: PropTypes.bool,
   /**
    * Callback fired when the pressed states of the ToggleGroup changes.
    *
@@ -159,6 +163,10 @@ ToggleGroupRoot.propTypes /* remove-proptypes */ = {
    * @param {Event} event The event source of the callback.
    */
   onValueChange: PropTypes.func,
+  /**
+   * @default 'horizontal'
+   */
+  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
   /**
    * A function to customize rendering of the component.
    */
@@ -175,5 +183,5 @@ ToggleGroupRoot.propTypes /* remove-proptypes */ = {
    * the values of all pressed `<ToggleGroup.Item/>`s
    * This is the controlled counterpart of `defaultValue`.
    */
-  value: PropTypes.arrayOf(PropTypes.string),
+  value: PropTypes.array,
 } as any;

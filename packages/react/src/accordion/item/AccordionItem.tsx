@@ -172,7 +172,6 @@ AccordionItem.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * If `true`, the component is disabled.
-   * @default false
    */
   disabled: PropTypes.bool,
   /**
@@ -186,5 +185,5 @@ AccordionItem.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  value: PropTypes.any,
 } as any;
