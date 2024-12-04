@@ -7,5 +7,9 @@
     "gutter": { "description": "Determines the space to account for inset scrollbars." },
     "render": { "description": "A function to customize rendering of the component." }
   },
-  "classDescriptions": {}
+  "classDescriptions": {},
+  "cssVariablesDescriptions": {
+    "--scroll-area-corner-height": "The scroll area&#39;s corner height.",
+    "--scroll-area-corner-width": "The scroll area&#39;s corner width."
+  }
 }

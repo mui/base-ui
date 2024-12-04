@@ -5,6 +5,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { SCROLL_TIMEOUT } from '../constants';
 import { getOffset } from '../utils/getOffset';
+import { ScrollAreaRootCssVars } from './ScrollAreaRootCssVars';
 
 interface Size {
   width: number;
@@ -180,8 +181,8 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
         },
         style: {
           position: 'relative',
-          ['--scroll-area-corner-width' as string]: `${cornerSize.width}px`,
-          ['--scroll-area-corner-height' as string]: `${cornerSize.height}px`,
+          [ScrollAreaRootCssVars.scrollAreaCornerHeight as string]: `${cornerSize.height}px`,
+          [ScrollAreaRootCssVars.scrollAreaCornerWidth as string]: `${cornerSize.width}px`,
         },
       }),
     [cornerSize, dir, handlePointerEnterOrMove],
