@@ -5,7 +5,7 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * Renders a trigger element that opens the tooltip.

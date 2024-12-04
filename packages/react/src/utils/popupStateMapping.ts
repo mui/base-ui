@@ -13,6 +13,10 @@ const POPUP_HOOK = {
   'data-open': '',
 };
 
+const ANCHOR_HIDDEN_HOOK = {
+  'data-anchor-hidden': '',
+};
+
 export const triggerOpenStateMapping = {
   open(value) {
     if (value) {
@@ -31,11 +35,17 @@ export const pressableTriggerOpenStateMapping = {
   },
 } satisfies CustomStyleHookMapping<{ open: boolean }>;
 
-export const popupOpenStateMapping = {
+export const popupStateMapping = {
   open(value) {
     if (value) {
       return POPUP_HOOK;
     }
     return null;
   },
-} satisfies CustomStyleHookMapping<{ open: boolean }>;
+  anchorHidden(value) {
+    if (value) {
+      return ANCHOR_HIDDEN_HOOK;
+    }
+    return null;
+  },
+} satisfies CustomStyleHookMapping<{ open: boolean; anchorHidden: boolean }>;

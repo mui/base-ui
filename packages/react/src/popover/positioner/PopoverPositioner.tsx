@@ -10,7 +10,7 @@ import { PopoverPositionerContext } from './PopoverPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * The popover positioner element.
@@ -41,7 +41,6 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
-    hideWhenDetached = false,
     sticky = false,
     ...otherProps
   } = props;
@@ -63,7 +62,6 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     arrowPadding,
     collisionBoundary,
     collisionPadding,
-    hideWhenDetached,
     sticky,
     popupRef,
     openMethod,
@@ -74,8 +72,9 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
       open,
       side: positioner.side,
       align: positioner.align,
+      anchorHidden: positioner.anchorHidden,
     }),
-    [open, positioner.side, positioner.align],
+    [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
@@ -87,7 +86,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     state,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: popupOpenStateMapping,
+    customStyleHookMapping: popupStateMapping,
   });
 
   const shouldRender = keepMounted || mounted;
@@ -107,6 +106,7 @@ namespace PopoverPositioner {
     open: boolean;
     side: Side;
     align: Align;
+    anchorHidden: boolean;
   }
 
   export interface Props
@@ -192,12 +192,6 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
     HTMLElementType,
     PropTypes.func,
   ]),
-  /**
-   * Whether the popover element is hidden if it appears detached from its anchor element due
-   * to the anchor element being clipped (or hidden) from view.
-   * @default false
-   */
-  hideWhenDetached: PropTypes.bool,
   /**
    * Whether the popover remains mounted in the DOM while closed.
    * @default false

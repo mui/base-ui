@@ -8,7 +8,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSubmenuTrigger } from './useSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
-import { triggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
  *

@@ -6,7 +6,7 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
  *
