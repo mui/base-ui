@@ -35,6 +35,7 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
 
   return (
     <Dialog.Popup className={clsx('MobileNavPopup', className)} {...props}>
+      <MountEffect />
       <div className="MobileNavBottomOverscroll" />
       <div
         className="MobileNavViewport"
@@ -117,6 +118,28 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
       </div>
     </Dialog.Popup>
   );
+}
+
+// iOS Safari appears to flicker the scroll containers during tasking animations
+// As a workaround, we set an attribute on body to know when the nav is mounted
+function MountEffect() {
+  const timeout = React.useRef(0);
+
+  React.useLayoutEffect(() => {
+    window.clearTimeout(timeout.current);
+    document.body.setAttribute('data-mobile-nav-open', '');
+
+    return () => {
+      window.clearTimeout(timeout.current);
+      timeout.current = window.setTimeout(() => {
+        document.body.removeAttribute('data-mobile-nav-open');
+        // Safari seems to need some arbitrary time to be done with whatever causes the flicker
+        // Using setTimeout 0, RAFs, or even double RAFs doesn't work reliably
+      }, 100);
+    };
+  }, []);
+
+  return null;
 }
 
 export function Section({ className, ...props }: React.ComponentProps<'div'>) {
