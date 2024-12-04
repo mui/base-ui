@@ -12,6 +12,7 @@ import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
 import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
+import { DialogPopupCssVars } from './DialogPopupCssVars';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
   ...baseMapping,
@@ -103,7 +104,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     propGetter: getRootProps,
     extraProps: {
       ...other,
-      style: { ...other.style, '--nested-dialogs': nestedOpenDialogCount },
+      style: { ...other.style, [DialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount },
     },
     customStyleHookMapping,
   });
