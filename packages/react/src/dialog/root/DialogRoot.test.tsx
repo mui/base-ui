@@ -188,7 +188,7 @@ describe('<Dialog.Root />', () => {
       const notifyTransitionEnd = spy();
 
       const { setProps, queryByRole } = await render(
-        <Dialog.Root open modal={false} animated>
+        <Dialog.Root open modal={false}>
           {/* eslint-disable-next-line react/no-danger */}
           <style dangerouslySetInnerHTML={{ __html: css }} />
           <Dialog.Popup className="dialog" onTransitionEnd={notifyTransitionEnd} />

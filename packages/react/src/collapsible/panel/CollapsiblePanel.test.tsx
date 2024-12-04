@@ -12,7 +12,6 @@ const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 const PANEL_CONTENT = 'This is panel content';
 
 const contextValue: CollapsibleRootContext = {
-  animated: false,
   panelId: 'PanelId',
   disabled: false,
   mounted: true,
