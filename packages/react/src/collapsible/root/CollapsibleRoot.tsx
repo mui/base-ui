@@ -106,6 +106,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   // └─────────────────────────────────────────────────────────────────────┘
   /**
    * If `true`, the component supports CSS/JS-based animations and transitions.
+   * @default true
    */
   animated: PropTypes.bool,
   /**
@@ -124,6 +125,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   defaultOpen: PropTypes.bool,
   /**
    * If `true`, the component is disabled.
+   * @default false
    */
   disabled: PropTypes.bool,
   /**

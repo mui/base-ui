@@ -154,6 +154,7 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   // └─────────────────────────────────────────────────────────────────────┘
   /**
    * If `true`, the component supports CSS/JS-based animations and transitions.
+   * @default true
    */
   animated: PropTypes.bool,
   /**
@@ -175,6 +176,7 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   direction: PropTypes.oneOf(['ltr', 'rtl']),
   /**
    * If `true`, the component is disabled.
+   * @default false
    */
   disabled: PropTypes.bool,
   /**
@@ -194,6 +196,7 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   /**
    * If `true`, focus will loop when moving focus between `Trigger`s using
    * the arrow keys.
+   * @default true
    */
   loop: PropTypes.bool,
   /**
@@ -203,10 +206,12 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   onValueChange: PropTypes.func,
   /**
    * Whether multiple Accordion sections can be opened at the same time.
+   * @default true
    */
   openMultiple: PropTypes.bool,
   /**
    * The orientation of the accordion.
+   * @default 'vertical'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
   /**

@@ -1,7 +1,7 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "defaultValue": { "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" } },
+    "defaultValue": { "type": { "name": "array" } },
     "onValueChange": {
       "type": { "name": "func" },
       "signature": {
@@ -11,7 +11,7 @@
     },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "toggleMultiple": { "type": { "name": "bool" }, "default": "false" },
-    "value": { "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" } }
+    "value": { "type": { "name": "array" } }
   },
   "name": "ToggleGroupRoot",
   "imports": [

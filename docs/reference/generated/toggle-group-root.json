@@ -7,7 +7,7 @@
       "description": "Class names applied to the element or a function that returns them based on the component's state."
     },
     "defaultValue": {
-      "type": "string[]",
+      "type": "array",
       "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s\nThis is the uncontrolled counterpart of `value`."
     },
     "onValueChange": {
@@ -24,7 +24,7 @@
       "description": "When `false` only one item in the group can be pressed. If any item in\nthe group becomes pressed, the others will become unpressed.\nWhen `true` multiple items can be pressed."
     },
     "value": {
-      "type": "string[]",
+      "type": "array",
       "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s\nThis is the controlled counterpart of `defaultValue`."
     }
   }

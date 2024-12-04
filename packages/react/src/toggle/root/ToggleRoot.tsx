@@ -128,6 +128,7 @@ ToggleRoot.propTypes /* remove-proptypes */ = {
   defaultPressed: PropTypes.bool,
   /**
    * If `true`, the component is disabled.
+   * @default false
    */
   disabled: PropTypes.bool,
   /**

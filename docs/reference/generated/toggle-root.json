@@ -26,17 +26,19 @@
     },
     "onPressedChange": {
       "type": "function(pressed: boolean, event: Event) => void",
-      "default": "NOOP",
       "description": "Callback fired when the pressed state is changed."
     },
     "pressed": {
       "type": "boolean",
-      "default": "undefined",
       "description": "If `true`, the component is pressed."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
+    },
+    "value": {
+      "type": "string",
+      "description": "A unique string that identifies the component when used\ninside a ToggleGroup"
     }
   }
 }

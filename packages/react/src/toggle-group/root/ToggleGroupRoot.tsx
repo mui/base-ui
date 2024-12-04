@@ -107,12 +107,7 @@ export namespace ToggleGroupRoot {
   }
 
   export interface Props
-    extends Partial<
-        Pick<
-          UseToggleGroupRoot.Parameters,
-          'value' | 'defaultValue' | 'onValueChange' | 'disabled' | 'toggleMultiple'
-        >
-      >,
+    extends Partial<UseToggleGroupRoot.Parameters>,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
      * @default false
