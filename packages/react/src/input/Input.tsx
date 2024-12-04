@@ -8,7 +8,7 @@ import { Field } from '../field';
  *
  * Demos:
  *
- * - [Text Input](https://base-ui.com/components/react-input/)
+ * - [Input](https://base-ui.com/components/react-input/)
  *
  * API:
  *
