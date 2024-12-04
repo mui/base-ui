@@ -77,6 +77,8 @@
 }
 
 .Arrow {
+  display: flex;
+
   &[data-side='top'] {
     bottom: -8px;
     rotate: 180deg;

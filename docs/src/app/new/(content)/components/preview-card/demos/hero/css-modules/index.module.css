@@ -1,45 +1,38 @@
-.IconButton {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
+.Paragraph {
   margin: 0;
-  outline: 0;
-  border: 1px solid var(--color-gray-200);
-  border-radius: 0.375rem;
-  background-color: var(--color-gray-50);
+  font-size: 1rem;
+  line-height: 1.5rem;
   color: var(--color-gray-900);
-  user-select: none;
+  text-wrap: balance;
+  max-width: 16rem;
+}
+
+.Link {
+  color: var(--color-blue);
+  text-decoration-line: none;
+  text-decoration-color: color-mix(in oklab, var(--color-blue), transparent 40%);
+  text-underline-offset: 2px;
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-gray-100);
+      text-decoration-line: underline;
     }
   }
 
-  &:active {
-    background-color: var(--color-gray-100);
-  }
-
   &[data-popup-open] {
-    background-color: var(--color-gray-100);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+    text-decoration-line: underline;
   }
 }
 
 .Popup {
   box-sizing: border-box;
-  padding: 1rem 1.5rem;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
   border-radius: 0.5rem;
   background-color: canvas;
-  color: var(--color-gray-900);
   transform-origin: var(--transform-origin);
   transition:
     transform 150ms,
@@ -101,22 +94,17 @@
   }
 }
 
-.Title {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  font-weight: 500;
+.Image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.25rem;
 }
 
-.Description {
+.Summary {
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  color: var(--color-gray-600);
-}
-
-.Actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
+  font-size: 0.9375rem;
+  line-height: 1.375rem;
+  color: var(--color-gray-900);
+  text-wrap: pretty;
 }
