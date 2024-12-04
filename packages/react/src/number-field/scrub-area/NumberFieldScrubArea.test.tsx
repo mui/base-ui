@@ -78,18 +78,18 @@ describe('<NumberField.ScrubArea />', () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 10 }));
     });
 
-    await waitFor(() => expect(input).to.have.value('-10'));
+    await waitFor(() => expect(input).to.have.value('10'));
     await act(async () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -5 }));
     });
 
-    await waitFor(() => expect(input).to.have.value('-5'));
+    await waitFor(() => expect(input).to.have.value('5'));
 
     await act(async () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 2 }));
     });
 
-    await waitFor(() => expect(input).to.have.value('-7'));
+    await waitFor(() => expect(input).to.have.value('7'));
   });
 
   describe('prop: pixelSensitivity', () => {
@@ -132,31 +132,31 @@ describe('<NumberField.ScrubArea />', () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -1 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('1'));
+      await waitFor(() => expect(input).to.have.value('-1'));
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -5 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('6'));
+      await waitFor(() => expect(input).to.have.value('-6'));
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 4 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('6'));
+      await waitFor(() => expect(input).to.have.value('-6'));
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 1 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('5'));
+      await waitFor(() => expect(input).to.have.value('-5'));
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -5 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('10'));
+      await waitFor(() => expect(input).to.have.value('-10'));
     });
   });
 
