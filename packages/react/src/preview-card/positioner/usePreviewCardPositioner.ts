@@ -6,7 +6,12 @@ import type {
   FloatingRootContext,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { Boundary, useAnchorPositioning, type Side } from '../../utils/useAnchorPositioning';
+import {
+  Boundary,
+  type LogicalSide,
+  useAnchorPositioning,
+  type Side,
+} from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 
@@ -97,7 +102,7 @@ export namespace usePreviewCardPositioner {
      * The side of the anchor element that the preview card element should align to.
      * @default 'bottom'
      */
-    side?: Side;
+    side?: Side | LogicalSide;
     /**
      * The gap between the anchor element and the preview card element.
      * @default 0
