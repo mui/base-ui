@@ -3,7 +3,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { HTMLElementType } from '../../utils/proptypes';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectBackdrop } from './useSelectBackdrop';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -96,14 +95,6 @@ SelectBackdrop.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * The container element to which the Backdrop is appended to.
-   * @default false
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
-  ]),
   /**
    * If `true`, the Backdrop remains mounted when the Select popup is closed.
    * @default false

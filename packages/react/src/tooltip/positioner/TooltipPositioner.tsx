@@ -188,13 +188,6 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The container element the tooltip positioner is appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
-  ]),
-  /**
    * Whether the tooltip remains mounted in the DOM while closed.
    * @default false
    */

@@ -20,15 +20,5 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
     }
-  },
-  "cssVariables": {
-    "--scroll-area-thumb-height": {
-      "description": "The scroll area thumb's height.",
-      "type": "number"
-    },
-    "--scroll-area-thumb-width": {
-      "description": "The scroll area thumb's width.",
-      "type": "number"
-    }
   }
 }

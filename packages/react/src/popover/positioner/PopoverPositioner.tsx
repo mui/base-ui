@@ -179,13 +179,6 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The element the popover positioner element is appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
-  ]),
-  /**
    * Whether the popover remains mounted in the DOM while closed.
    * @default false
    */

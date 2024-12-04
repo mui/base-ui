@@ -35,10 +35,6 @@
       "default": "5",
       "description": "The padding between the popover element and the edges of the collision boundary to add\nwhitespace between them to prevent them from touching."
     },
-    "container": {
-      "type": "React.Ref | HTMLElement | null",
-      "description": "The element the popover positioner element is appended to."
-    },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
@@ -67,28 +63,6 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether to allow the popover to remain stuck in view while the anchor element is scrolled out\nof view."
-    }
-  },
-  "cssVariables": {
-    "--anchor-height": {
-      "description": "The anchor's height.",
-      "type": "number"
-    },
-    "--anchor-width": {
-      "description": "The anchor's width.",
-      "type": "number"
-    },
-    "--available-height": {
-      "description": "The available height between the trigger and the edge of the viewport.",
-      "type": "number"
-    },
-    "--available-width": {
-      "description": "The available width between the trigger and the edge of the viewport.",
-      "type": "number"
-    },
-    "--transform-origin": {
-      "description": "The coordinates that this element is anchored to. Used for animations and transitions.",
-      "type": "string"
     }
   }
 }

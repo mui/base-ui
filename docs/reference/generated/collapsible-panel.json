@@ -20,15 +20,5 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
     }
-  },
-  "cssVariables": {
-    "--collapsible-panel-height": {
-      "description": "The collapsible panel's height.",
-      "type": "number"
-    },
-    "--collapsible-panel-width": {
-      "description": "The collapsible panel's width.",
-      "type": "number"
-    }
   }
 }

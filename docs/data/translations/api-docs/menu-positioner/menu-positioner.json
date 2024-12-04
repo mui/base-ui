@@ -16,9 +16,6 @@
       "description": "The boundary that the Menu element should be constrained to."
     },
     "collisionPadding": { "description": "The padding of the collision boundary." },
-    "container": {
-      "description": "The container element to which the Menu popup will be appended to."
-    },
     "keepMounted": {
       "description": "Whether the menu popup remains mounted in the DOM while closed."
     },
@@ -34,12 +31,5 @@
       "description": "If <code>true</code>, allow the Menu to remain in stuck view while the anchor element is scrolled out of view."
     }
   },
-  "classDescriptions": {},
-  "cssVariablesDescriptions": {
-    "--anchor-height": "The anchor&#39;s height.",
-    "--anchor-width": "The anchor&#39;s width.",
-    "--available-height": "The available height between the trigger and the edge of the viewport.",
-    "--available-width": "The available width between the trigger and the edge of the viewport.",
-    "--transform-origin": "The coordinates that this element is anchored to. Used for animations and transitions."
-  }
+  "classDescriptions": {}
 }

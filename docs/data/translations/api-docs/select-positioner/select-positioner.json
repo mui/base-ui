@@ -16,9 +16,6 @@
       "description": "The boundary that the Select element should be constrained to."
     },
     "collisionPadding": { "description": "The padding of the collision boundary." },
-    "container": {
-      "description": "The container element to which the Select popup will be appended to."
-    },
     "positionMethod": {
       "description": "The CSS position method for positioning the Select popup element."
     },
@@ -34,12 +31,5 @@
       "description": "Whether the select popup continuously tracks its anchor after the initial positioning upon mount."
     }
   },
-  "classDescriptions": {},
-  "cssVariablesDescriptions": {
-    "--anchor-height": "The anchor&#39;s height.",
-    "--anchor-width": "The anchor&#39;s width.",
-    "--available-height": "The available height between the trigger and the edge of the viewport.",
-    "--available-width": "The available width between the trigger and the edge of the viewport.",
-    "--transform-origin": "The coordinates that this element is anchored to. Used for animations and transitions."
-  }
+  "classDescriptions": {}
 }

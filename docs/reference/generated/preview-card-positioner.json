@@ -35,10 +35,6 @@
       "default": "5",
       "description": "The padding of the collision boundary."
     },
-    "container": {
-      "type": "React.Ref | HTMLElement | null",
-      "description": "The container element to which the preview card popup will be appended to."
-    },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
@@ -67,28 +63,6 @@
       "type": "boolean",
       "default": "false",
       "description": "If `true`, allow the preview card to remain in stuck view while the anchor element is scrolled\nout of view."
-    }
-  },
-  "cssVariables": {
-    "--anchor-height": {
-      "description": "The anchor's height.",
-      "type": "number"
-    },
-    "--anchor-width": {
-      "description": "The anchor's width.",
-      "type": "number"
-    },
-    "--available-height": {
-      "description": "The available height between the trigger and the edge of the viewport.",
-      "type": "number"
-    },
-    "--available-width": {
-      "description": "The available width between the trigger and the edge of the viewport.",
-      "type": "number"
-    },
-    "--transform-origin": {
-      "description": "The coordinates that this element is anchored to. Used for animations and transitions.",
-      "type": "string"
     }
   }
 }
