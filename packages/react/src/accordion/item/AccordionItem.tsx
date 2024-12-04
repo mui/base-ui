@@ -43,7 +43,6 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   const mergedRef = useForkRef(forwardedRef, listItemRef);
 
   const {
-    animated,
     disabled: contextDisabled,
     handleValueChange,
     state: rootState,
@@ -74,7 +73,6 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   });
 
   const collapsible = useCollapsibleRoot({
-    animated,
     open: isOpen,
     onOpenChange,
     disabled,
