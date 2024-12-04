@@ -8,7 +8,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> = {
   ...baseMapping,

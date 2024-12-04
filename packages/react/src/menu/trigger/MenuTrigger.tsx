@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useFloatingTree } from '@floating-ui/react';
 import { useMenuTrigger } from './useMenuTrigger';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 

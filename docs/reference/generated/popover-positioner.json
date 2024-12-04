@@ -39,11 +39,6 @@
       "type": "React.Ref | HTMLElement | null",
       "description": "The element the popover positioner element is appended to."
     },
-    "hideWhenDetached": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the popover element is hidden if it appears detached from its anchor element due\nto the anchor element being clipped (or hidden) from view."
-    },
     "keepMounted": {
       "type": "boolean",
       "default": "false",

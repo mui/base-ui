@@ -10,7 +10,7 @@ import { TooltipPositionerContext } from './TooltipPositionerContext';
 import { useTooltipPositioner } from './useTooltipPositioner';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * The tooltip positioner element.
@@ -41,7 +41,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
-    hideWhenDetached = false,
     sticky = false,
     ...otherProps
   } = props;
@@ -62,7 +61,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     alignOffset,
     collisionBoundary,
     collisionPadding,
-    hideWhenDetached,
     sticky,
     trackCursorAxis,
     arrowPadding,
@@ -75,8 +73,9 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
       open,
       side: positioner.side,
       align: positioner.align,
+      anchorHidden: positioner.anchorHidden,
     }),
-    [open, positioner.side, positioner.align],
+    [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
   const contextValue: TooltipPositionerContext = React.useMemo(
@@ -96,7 +95,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     state,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: popupOpenStateMapping,
+    customStyleHookMapping: popupStateMapping,
   });
 
   const shouldRender = keepMounted || mounted;
@@ -116,6 +115,7 @@ namespace TooltipPositioner {
     open: boolean;
     side: Side;
     align: Align;
+    anchorHidden: boolean;
   }
 
   export interface Props
@@ -201,12 +201,6 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
     HTMLElementType,
     PropTypes.func,
   ]),
-  /**
-   * Whether the tooltip element is hidden if it appears detached from its anchor element due
-   * to the anchor element being clipped (or hidden) from view.
-   * @default false
-   */
-  hideWhenDetached: PropTypes.bool,
   /**
    * Whether the tooltip remains mounted in the DOM while closed.
    * @default false

@@ -19,9 +19,6 @@
     "container": {
       "description": "The container element to which the Menu popup will be appended to."
     },
-    "hideWhenDetached": {
-      "description": "If <code>true</code>, the Menu will be hidden if it is detached from its anchor element due to differing clipping contexts."
-    },
     "keepMounted": {
       "description": "Whether the menu popup remains mounted in the DOM while closed."
     },

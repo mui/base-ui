@@ -10,7 +10,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  *
@@ -38,7 +38,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
-    hideWhenDetached = false,
     sticky = false,
     keepMounted = false,
     container,
@@ -62,7 +61,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     arrowPadding,
     collisionBoundary,
     collisionPadding,
-    hideWhenDetached,
     sticky,
   });
 
@@ -71,8 +69,9 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
       open,
       side: positioner.side,
       align: positioner.align,
+      anchorHidden: positioner.anchorHidden,
     }),
-    [open, positioner.side, positioner.align],
+    [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
   const contextValue: PreviewCardPositionerContext = React.useMemo(
@@ -101,7 +100,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     state,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: popupOpenStateMapping,
+    customStyleHookMapping: popupStateMapping,
   });
 
   const shouldRender = keepMounted || mounted;
@@ -121,6 +120,7 @@ namespace PreviewCardPositioner {
     open: boolean;
     side: Side;
     align: Align;
+    anchorHidden: boolean;
   }
 
   export interface Props
@@ -200,12 +200,6 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
     HTMLElementType,
     PropTypes.func,
   ]),
-  /**
-   * If `true`, the preview card will be hidden if it is detached from its anchor element due to
-   * differing clipping contexts.
-   * @default false
-   */
-  hideWhenDetached: PropTypes.bool,
   /**
    * If `true`, preview card stays mounted in the DOM when closed.
    * @default false

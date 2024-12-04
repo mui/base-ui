@@ -8,7 +8,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
-} from '../../utils/popupOpenStateMapping';
+} from '../../utils/popupStateMapping';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 /**
