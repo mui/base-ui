@@ -8,27 +8,27 @@ import { Field } from '../field';
  *
  * Demos:
  *
- * - [Text Input](https://base-ui.com/components/react-text-input/)
+ * - [Text Input](https://base-ui.com/components/react-input/)
  *
  * API:
  *
- * - [TextInput API](https://base-ui.com/components/react-text-input/#api-reference-TextInput)
+ * - [Input API](https://base-ui.com/components/react-input/#api-reference-Input)
  */
-const TextInput = React.forwardRef(function TextInput(
-  props: TextInput.Props,
+const Input = React.forwardRef(function Input(
+  props: Input.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { render, className, ...otherProps } = props;
   return <Field.Control ref={forwardedRef} render={render} className={className} {...otherProps} />;
 });
 
-namespace TextInput {
+namespace Input {
   export interface Props extends BaseUIComponentProps<'input', State> {}
 
   export interface State {}
 }
 
-TextInput.propTypes /* remove-proptypes */ = {
+Input.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -47,4 +47,4 @@ TextInput.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { TextInput };
+export { Input };

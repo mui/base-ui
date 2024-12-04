@@ -3,15 +3,15 @@
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
-  "name": "TextInput",
-  "imports": ["import { TextInput } from '@base-ui-components/react/text-input';"],
+  "name": "Input",
+  "imports": ["import { Input } from '@base-ui-components/react/input';"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "TextInput",
+  "muiName": "Input",
   "forwardsRefTo": "HTMLInputElement",
-  "filename": "/packages/react/src/text-input/TextInput.tsx",
+  "filename": "/packages/react/src/input/Input.tsx",
   "inheritance": null,
-  "demos": "<ul><li><a href=\"/components/react-text-input/\">Text Input</a></li></ul>",
+  "demos": "<ul><li><a href=\"/components/react-input/\">Text Input</a></li></ul>",
   "cssComponent": false
 }
