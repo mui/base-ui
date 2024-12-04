@@ -1,7 +1,11 @@
 import * as React from 'react';
 import type { Padding, VirtualElement, FloatingRootContext } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import {
+  type Boundary,
+  type LogicalSide,
+  useAnchorPositioning,
+} from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 
@@ -94,7 +98,7 @@ export namespace useTooltipPositioner {
      * The side of the anchor element that the tooltip element should be placed at.
      * @default 'top'
      */
-    side?: 'top' | 'right' | 'bottom' | 'left';
+    side?: 'top' | 'right' | 'bottom' | 'left' | LogicalSide;
     /**
      * The gap between the anchor element and the tooltip element.
      * @default 0

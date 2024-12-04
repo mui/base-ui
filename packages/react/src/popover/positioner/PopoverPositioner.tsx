@@ -210,7 +210,16 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
    * The side of the anchor element that the popover element should be placed at.
    * @default 'bottom'
    */
-  side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
+  side: PropTypes.oneOf([
+    'block-end',
+    'block-start',
+    'bottom',
+    'inline-end',
+    'inline-start',
+    'left',
+    'right',
+    'top',
+  ]),
   /**
    * The gap between the anchor element and the popover element.
    * @default 0

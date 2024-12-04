@@ -8,7 +8,11 @@ import type {
   FloatingRootContext,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { Boundary, LogicalSide, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import {
+  type Boundary,
+  type LogicalSide,
+  useAnchorPositioning,
+} from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 
