@@ -2,7 +2,9 @@
 import * as React from 'react';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Menu } from '@base-ui-components/react/menu';
-import c from './menu.module.css';
+import { Popover } from '@base-ui-components/react/popover';
+import { PreviewCard } from '@base-ui-components/react/preview-card';
+import c from './rtl.module.css';
 
 const dir = 'rtl';
 
@@ -14,10 +16,10 @@ export default function RtlNestedMenu() {
   };
 
   return (
-    <div className={c.demo} dir={dir}>
+    <div className={c.rtl} dir={dir}>
       <DirectionProvider direction={dir}>
         <Menu.Root>
-          <Menu.Trigger className={c.trigger}>Format</Menu.Trigger>
+          <Menu.Trigger className={c.trigger}>Menu.Trigger</Menu.Trigger>
           <Menu.Positioner
             side="bottom"
             align="start"
@@ -33,6 +35,7 @@ export default function RtlNestedMenu() {
                   align="start"
                   side="inline-end"
                   className={c.positioner}
+                  dir={dir}
                 >
                   <Menu.Popup className={c.popup}>
                     <Menu.Item
@@ -65,8 +68,9 @@ export default function RtlNestedMenu() {
                   align="start"
                   side="inline-end"
                   className={c.positioner}
+                  dir={dir}
                 >
-                  <Menu.Popup className={c.popup} dir={dir}>
+                  <Menu.Popup className={c.popup}>
                     <Menu.Root>
                       <Menu.SubmenuTrigger className={c.submenutrigger}>
                         Heading
@@ -75,6 +79,7 @@ export default function RtlNestedMenu() {
                         align="start"
                         side="inline-end"
                         className={c.positioner}
+                        dir={dir}
                       >
                         <Menu.Popup className={c.popup}>
                           <Menu.Item
@@ -112,8 +117,9 @@ export default function RtlNestedMenu() {
                         align="start"
                         side="inline-end"
                         className={c.positioner}
+                        dir={dir}
                       >
-                        <Menu.Popup className={c.popup} dir={dir}>
+                        <Menu.Popup className={c.popup}>
                           <Menu.Item
                             className={c.item}
                             onClick={createHandleMenuClick('Style/List/Ordered')}
@@ -142,6 +148,54 @@ export default function RtlNestedMenu() {
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Root>
+
+        <PreviewCard.Root>
+          <PreviewCard.Trigger href="#" className={c.trigger}>
+            PreviewCard.Trigger
+          </PreviewCard.Trigger>
+          <PreviewCard.Positioner
+            sideOffset={8}
+            side="inline-end"
+            align="center"
+            className={c.positioner}
+            dir={dir}
+          >
+            <PreviewCard.Popup className={c.popup}>
+              <img
+                src="https://pbs.twimg.com/profile_images/1798056009291997184/B-prVmUP_400x400.jpg"
+                alt="Base UI Logo"
+                width={80}
+                height={80}
+                style={{ borderRadius: '50%' }}
+              />
+              <h2 style={{ fontSize: 20, margin: 0 }}>Base UI</h2>
+              <p>
+                Unstyled React components and hooks (@base-ui-components/react), by
+                @MUI_hq.
+              </p>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <span>
+                  <strong>1</strong> Following
+                </span>
+                <span>
+                  <strong>1,000</strong> Followers
+                </span>
+              </div>
+              <PreviewCard.Arrow className={c.arrow} />
+            </PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </PreviewCard.Root>
+
+        <Popover.Root>
+          <Popover.Trigger className={c.trigger}>Popover.Trigger</Popover.Trigger>
+          <Popover.Positioner sideOffset={8} side="inline-end">
+            <Popover.Popup className={c.popup}>
+              <Popover.Title>Popover Title</Popover.Title>
+              <Popover.Description>Popover Description</Popover.Description>
+              <Popover.Arrow className={c.arrow} />
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Root>
       </DirectionProvider>
     </div>
   );
