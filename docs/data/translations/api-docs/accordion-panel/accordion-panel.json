@@ -12,9 +12,5 @@
     },
     "render": { "description": "A function to customize rendering of the component." }
   },
-  "classDescriptions": {},
-  "cssVariablesDescriptions": {
-    "--accordion-panel-height": "The accordion panel&#39;s height.",
-    "--accordion-panel-width": "The accordion panel&#39;s width."
-  }
+  "classDescriptions": {}
 }

@@ -12,9 +12,5 @@
     },
     "render": { "description": "A function to customize rendering of the component." }
   },
-  "classDescriptions": {},
-  "cssVariablesDescriptions": {
-    "--collapsible-panel-height": "The collapsible panel&#39;s height.",
-    "--collapsible-panel-width": "The collapsible panel&#39;s width."
-  }
+  "classDescriptions": {}
 }

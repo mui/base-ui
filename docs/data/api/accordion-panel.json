@@ -9,13 +9,6 @@
   "imports": [
     "import { Accordion } from '@base-ui-components/react/accordion';\nconst AccordionPanel = Accordion.Panel;"
   ],
-  "cssVariables": {
-    "--accordion-panel-height": {
-      "description": "The accordion panel's height.",
-      "type": "number"
-    },
-    "--accordion-panel-width": { "description": "The accordion panel's width.", "type": "number" }
-  },
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
