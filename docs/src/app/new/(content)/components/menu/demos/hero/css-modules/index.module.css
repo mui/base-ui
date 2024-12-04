@@ -142,8 +142,4 @@
   margin: 0.375rem 1rem;
   height: 1px;
   background-color: var(--color-gray-200);
-
-  @media (prefers-color-scheme: dark) {
-    background-color: var(--color-gray-300);
-  }
 }
