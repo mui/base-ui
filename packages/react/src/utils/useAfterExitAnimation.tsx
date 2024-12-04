@@ -21,10 +21,8 @@ export function useAfterExitAnimation(parameters: useAfterExitAnimation.Paramete
       }
     }
 
-    if (!open && 'getAnimations' in HTMLElement.prototype) {
+    if (!open) {
       runOnceAnimationsFinish(callOnFinished);
-    } else {
-      callOnFinished();
     }
   }, [open, openRef, runOnceAnimationsFinish, onFinished]);
 }

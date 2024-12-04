@@ -24,12 +24,10 @@ export function useAnimationsFinished(ref: React.RefObject<HTMLElement | null>) 
       return;
     }
 
-    // Wait for the CSS styles to be applied to determine if the animation has been removed in the
-    // [data-instant] state. This allows the close animation to play if the `delay` instantType is
-    // applying to the same element.
-    frameRef.current = requestAnimationFrame(async () => {
-      await Promise.allSettled(element.getAnimations().map((animation) => animation.finished));
+    if ('getAnimations' in HTMLElement.prototype) {
+      Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(fnToExecute);
+    } else {
       fnToExecute();
-    });
+    }
   });
 }
