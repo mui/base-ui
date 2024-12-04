@@ -143,7 +143,7 @@ ToggleGroupRoot.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The open state of the ToggleGroup represented by an array of
-   * the values of all pressed `<ToggleGroup.Item/>`s
+   * the values of all pressed `<ToggleGroup.Item/>`s.
    * This is the uncontrolled counterpart of `value`.
    */
   defaultValue: PropTypes.array,
