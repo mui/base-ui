@@ -25,7 +25,9 @@ export function useAnimationsFinished(ref: React.RefObject<HTMLElement | null>) 
     }
 
     if ('getAnimations' in HTMLElement.prototype) {
-      Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(fnToExecute);
+      frameRef.current = requestAnimationFrame(() => {
+        Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(fnToExecute);
+      });
     } else {
       fnToExecute();
     }
