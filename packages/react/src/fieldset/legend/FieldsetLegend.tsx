@@ -19,7 +19,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  */
 const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   props: FieldsetLegend.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, id, ...otherProps } = props;
 
@@ -37,7 +37,7 @@ const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   const { renderElement } = useComponentRenderer({
     propGetter: getLegendProps,
     ref: forwardedRef,
-    render: render ?? 'span',
+    render: render ?? 'div',
     className,
     state,
     extraProps: otherProps,
@@ -47,11 +47,11 @@ const FieldsetLegend = React.forwardRef(function FieldsetLegend(
 });
 
 namespace FieldsetLegend {
-  export type State = {
+  export interface State {
     disabled: boolean;
-  };
+  }
 
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 FieldsetLegend.propTypes /* remove-proptypes */ = {
