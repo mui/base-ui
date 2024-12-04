@@ -8,8 +8,7 @@ describe('<Fieldset.Legend />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Fieldset.Legend />, () => ({
-    inheritComponent: 'span',
-    refInstanceof: window.HTMLSpanElement,
+    refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(<Fieldset.Root>{node}</Fieldset.Root>);
     },
