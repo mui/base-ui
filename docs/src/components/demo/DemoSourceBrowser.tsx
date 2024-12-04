@@ -6,7 +6,7 @@ interface DemoSourceBrowserProps {
   collapsibleOpen: boolean;
 
   /** How many lines should the code block have to get collapsed instead of rendering fully */
-  collapsibleLinesThreshold: number;
+  collapsibleLinesThreshold?: number;
 }
 
 export function DemoSourceBrowser({
