@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { ScrollArea } from '@base-ui-components/react/ScrollArea';
+import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { styled } from '@mui/system';
 
 export default function ScrollAreaIntroduction() {
