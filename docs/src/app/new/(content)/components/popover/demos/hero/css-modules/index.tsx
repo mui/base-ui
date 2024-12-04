@@ -5,13 +5,13 @@ import styles from './index.module.css';
 export default function ExamplePopover() {
   return (
     <Popover.Root>
-      <Popover.Trigger className={styles.Button}>
+      <Popover.Trigger className={styles.IconButton}>
         <BellIcon aria-label="Notifications" />
       </Popover.Trigger>
       <Popover.Positioner sideOffset={8}>
         <Popover.Popup className={styles.Popup}>
           <Popover.Arrow className={styles.Arrow}>
-            <ArrowIcon />
+            <ArrowSvg />
           </Popover.Arrow>
           <Popover.Title className={styles.Title}>Notifications</Popover.Title>
           <Popover.Description className={styles.Description}>
@@ -23,7 +23,7 @@ export default function ExamplePopover() {
   );
 }
 
-function ArrowIcon(props: React.ComponentProps<'svg'>) {
+function ArrowSvg(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
       <path
