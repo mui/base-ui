@@ -8,7 +8,7 @@ import type {
   FloatingRootContext,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { Boundary, LogicalSide, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 
@@ -102,7 +102,7 @@ export namespace useMenuPositioner {
      * The side of the anchor element that the Menu element should align to.
      * @default 'bottom'
      */
-    side?: Side;
+    side?: Side | LogicalSide;
     /**
      * The gap between the anchor element and the Menu element.
      * @default 0
