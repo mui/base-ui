@@ -63,8 +63,8 @@ importers:
         specifier: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils
         version: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils(@babel/core@7.26.0)(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#4e033034bb5c084b7d9e5987f0ffc543fdb8787a
-        version: https://codeload.github.com/mui/material-ui/tar.gz/4e033034bb5c084b7d9e5987f0ffc543fdb8787a(encoding@0.1.13)
+        specifier: github:mui/material-ui#fff11a67a8f66d99c85c9eac587031a731b44705
+        version: https://codeload.github.com/mui/material-ui/tar.gz/fff11a67a8f66d99c85c9eac587031a731b44705(encoding@0.1.13)
       '@next/eslint-plugin-next':
         specifier: ^14.2.18
         version: 14.2.18
@@ -2144,8 +2144,8 @@ packages:
       react: ^18.2.0
       react-dom: ^18.2.0
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/4e033034bb5c084b7d9e5987f0ffc543fdb8787a':
-    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/4e033034bb5c084b7d9e5987f0ffc543fdb8787a}
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/fff11a67a8f66d99c85c9eac587031a731b44705':
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/fff11a67a8f66d99c85c9eac587031a731b44705}
     version: 6.1.9
     engines: {pnpm: 9.14.4}
 
@@ -11259,7 +11259,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/4e033034bb5c084b7d9e5987f0ffc543fdb8787a(encoding@0.1.13)':
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/fff11a67a8f66d99c85c9eac587031a731b44705(encoding@0.1.13)':
     dependencies:
       '@googleapis/sheets': 9.3.1(encoding@0.1.13)
       '@netlify/functions': 2.8.2
