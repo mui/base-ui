@@ -135,11 +135,15 @@ CollapsiblePanel.propTypes /* remove-proptypes */ = {
    */
   hiddenUntilFound: PropTypes.bool,
   /**
+   * @ignore
+   */
+  id: PropTypes.string,
+  /**
    * If `true`, the panel remains mounted when closed and is instead
    * hidden using the `hidden` attribute
    * If `false`, the panel is unmounted when closed.
-   * If the `hiddenUntilFound` prop is used, it overrides this prop and
-   * forces the panel to remain mounted when closed.
+   * If the `hiddenUntilFound` prop is used, the panel overrides this prop and
+   * is remains mounted when closed.
    * @default false
    */
   keepMounted: PropTypes.bool,

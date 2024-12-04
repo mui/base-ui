@@ -5,8 +5,7 @@
     "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "onOpenChange": { "type": { "name": "func" } },
-    "open": { "type": { "name": "bool" } },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+    "open": { "type": { "name": "bool" } }
   },
   "name": "CollapsibleRoot",
   "imports": [

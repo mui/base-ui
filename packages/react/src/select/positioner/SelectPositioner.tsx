@@ -141,17 +141,6 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
     },
     PropTypes.func,
     PropTypes.shape({
-      current: (props, propName) => {
-        if (props[propName] == null) {
-          return null;
-        }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop '${propName}' to be of type Element`);
-        }
-        return null;
-      },
-    }),
-    PropTypes.shape({
       contextElement: (props, propName) => {
         if (props[propName] == null) {
           return null;
@@ -163,6 +152,17 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
       },
       getBoundingClientRect: PropTypes.func.isRequired,
       getClientRects: PropTypes.func,
+    }),
+    PropTypes.shape({
+      current: (props, propName) => {
+        if (props[propName] == null) {
+          return null;
+        }
+        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+          return new Error(`Expected prop '${propName}' to be of type Element`);
+        }
+        return null;
+      },
     }),
   ]),
   /**

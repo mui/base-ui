@@ -7,14 +7,14 @@
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "onPressedChange": {
       "type": { "name": "func" },
-      "default": "NOOP",
       "signature": {
         "type": "function(pressed: boolean, event: Event) => void",
         "describedArgs": ["pressed", "event"]
       }
     },
-    "pressed": { "type": { "name": "bool" }, "default": "undefined" },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+    "pressed": { "type": { "name": "bool" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "value": { "type": { "name": "string" } }
   },
   "name": "ToggleRoot",
   "imports": [

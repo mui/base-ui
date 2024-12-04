@@ -20,7 +20,10 @@
       }
     },
     "pressed": { "description": "If <code>true</code>, the component is pressed." },
-    "render": { "description": "A function to customize rendering of the component." }
+    "render": { "description": "A function to customize rendering of the component." },
+    "value": {
+      "description": "A unique string that identifies the component when used inside a ToggleGroup"
+    }
   },
   "classDescriptions": {}
 }

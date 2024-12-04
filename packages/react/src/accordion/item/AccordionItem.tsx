@@ -186,5 +186,5 @@ AccordionItem.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  value: PropTypes.any,
 } as any;
