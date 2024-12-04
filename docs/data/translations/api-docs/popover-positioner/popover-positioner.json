@@ -37,5 +37,12 @@
       "description": "Whether to allow the popover to remain stuck in view while the anchor element is scrolled out of view."
     }
   },
-  "classDescriptions": {}
+  "classDescriptions": {},
+  "cssVariablesDescriptions": {
+    "--anchor-height": "The anchor&#39;s height.",
+    "--anchor-width": "The anchor&#39;s width.",
+    "--available-height": "The available height of the positioner element.",
+    "--available-width": "The available width of the positioner element.",
+    "--transform-origin": "The calculated <code>transform-origin</code> CSS property value (to be used on the popup element)."
+  }
 }

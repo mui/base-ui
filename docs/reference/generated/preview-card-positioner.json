@@ -73,5 +73,27 @@
       "default": "false",
       "description": "If `true`, allow the preview card to remain in stuck view while the anchor element is scrolled\nout of view."
     }
+  },
+  "cssVariables": {
+    "--anchor-height": {
+      "description": "The anchor's height.",
+      "type": "number"
+    },
+    "--anchor-width": {
+      "description": "The anchor's width.",
+      "type": "number"
+    },
+    "--available-height": {
+      "description": "The available height of the positioner element.",
+      "type": "number"
+    },
+    "--available-width": {
+      "description": "The available width of the positioner element.",
+      "type": "number"
+    },
+    "--transform-origin": {
+      "description": "The calculated `transform-origin` CSS property value (to be used on the popup element).",
+      "type": "string"
+    }
   }
 }

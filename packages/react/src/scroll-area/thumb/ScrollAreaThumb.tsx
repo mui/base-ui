@@ -7,6 +7,7 @@ import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useScrollAreaScrollbarContext } from '../scrollbar/ScrollAreaScrollbarContext';
+import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssVars';
 
 /**
  *
@@ -52,8 +53,12 @@ const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
         handlePointerUp(event);
       },
       style: {
-        ...(orientation === 'vertical' && { height: 'var(--scroll-area-thumb-height)' }),
-        ...(orientation === 'horizontal' && { width: 'var(--scroll-area-thumb-width)' }),
+        ...(orientation === 'vertical' && {
+          height: `var(${ScrollAreaScrollbarCssVars.scrollAreaThumbHeight})`,
+        }),
+        ...(orientation === 'horizontal' && {
+          width: `var(${ScrollAreaScrollbarCssVars.scrollAreaThumbWidth})`,
+        }),
       },
     }),
   });
