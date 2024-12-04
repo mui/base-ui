@@ -47,8 +47,8 @@
   "cssVariablesDescriptions": {
     "--anchor-height": "The anchor&#39;s height.",
     "--anchor-width": "The anchor&#39;s width.",
-    "--available-height": "The available height of the positioner element.",
-    "--available-width": "The available width of the positioner element.",
-    "--transform-origin": "The calculated <code>transform-origin</code> CSS property value (to be used on the popup element)."
+    "--available-height": "The available height between the trigger and the edge of the viewport.",
+    "--available-width": "The available width between the trigger and the edge of the viewport.",
+    "--transform-origin": "The coordinates that this element is anchored to. Used for animations and transitions."
   }
 }

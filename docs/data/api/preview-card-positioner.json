@@ -56,15 +56,15 @@
     "--anchor-height": { "description": "The anchor's height.", "type": "number" },
     "--anchor-width": { "description": "The anchor's width.", "type": "number" },
     "--available-height": {
-      "description": "The available height of the positioner element.",
+      "description": "The available height between the trigger and the edge of the viewport.",
       "type": "number"
     },
     "--available-width": {
-      "description": "The available width of the positioner element.",
+      "description": "The available width between the trigger and the edge of the viewport.",
       "type": "number"
     },
     "--transform-origin": {
-      "description": "The calculated `transform-origin` CSS property value (to be used on the popup element).",
+      "description": "The coordinates that this element is anchored to. Used for animations and transitions.",
       "type": "string"
     }
   },

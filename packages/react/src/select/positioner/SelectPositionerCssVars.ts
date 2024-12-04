@@ -1,11 +1,11 @@
 export enum SelectPositionerCssVars {
   /**
-   * The available width of the positioner element.
+   * The available width between the trigger and the edge of the viewport.
    * @type {number}
    */
   availableWidth = '--available-width',
   /**
-   * The available height of the positioner element.
+   * The available height between the trigger and the edge of the viewport.
    * @type {number}
    */
   availableHeight = '--available-height',
@@ -20,7 +20,7 @@ export enum SelectPositionerCssVars {
    */
   anchorHeight = '--anchor-height',
   /**
-   * The calculated `transform-origin` CSS property value (to be used on the popup element).
+   * The coordinates that this element is anchored to. Used for animations and transitions.
    * @type {string}
    */
   transformOrigin = '--transform-origin',
