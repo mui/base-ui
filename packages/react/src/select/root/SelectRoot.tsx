@@ -121,13 +121,6 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   alignOptionToTrigger: PropTypes.bool,
   /**
-   * If `true`, the Select supports CSS-based animations and transitions.
-   * It is kept in the DOM until the animation completes.
-   *
-   * @default true
-   */
-  animated: PropTypes.bool,
-  /**
    * @ignore
    */
   children: PropTypes.node,

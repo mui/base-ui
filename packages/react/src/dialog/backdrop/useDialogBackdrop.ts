@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAnimatedElement } from '../../utils/useAnimatedElement';
 import { useForkRef } from '../../utils/useForkRef';
-import { type TransitionStatus } from '../../utils/useTransitionStatus';
+import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 export function useDialogBackdrop(
   params: useDialogBackdrop.Parameters,
@@ -13,10 +13,14 @@ export function useDialogBackdrop(
   const backdropRef = React.useRef<HTMLElement | null>(null);
   const handleRef = useForkRef(ref, backdropRef);
 
-  const { mounted, transitionStatus } = useAnimatedElement({
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
+
+  useAfterExitAnimation({
     open,
-    ref: backdropRef,
-    enabled: true,
+    animatedElementRef: backdropRef,
+    onFinished() {
+      setMounted(false);
+    },
   });
 
   const getRootProps = React.useCallback(

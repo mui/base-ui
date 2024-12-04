@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { createRenderer } from '#test-utils';
 
@@ -82,6 +82,11 @@ describe('<Dialog.Root />', () => {
         this?.skip?.() || t?.skip();
       }
 
+      Object.defineProperty(HTMLElement.prototype, 'getAnimations', {
+        // @ts-expect-error
+        value: globalThis.originalGetAnimations,
+      });
+
       let animationFinished = false;
       const notifyAnimationFinished = () => {
         animationFinished = true;
@@ -131,6 +136,10 @@ describe('<Dialog.Root />', () => {
       });
 
       expect(animationFinished).to.equal(true);
+
+      Object.defineProperty(HTMLElement.prototype, 'getAnimations', {
+        value: undefined,
+      });
     });
   });
 
@@ -169,53 +178,6 @@ describe('<Dialog.Root />', () => {
           expect(queryByRole('dialog')).not.to.equal(null);
         }
       });
-    });
-  });
-
-  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('prop: animated', () => {
-    const css = `
-    .dialog {
-      opacity: 0;
-      transition: opacity 200ms;
-    }
-
-    .dialog[data-open] {
-      opacity: 1;
-    }
-  `;
-
-    it('when `true`, waits for the exit transition to finish before unmounting', async () => {
-      const notifyTransitionEnd = spy();
-
-      const { setProps, queryByRole } = await render(
-        <Dialog.Root open modal={false}>
-          {/* eslint-disable-next-line react/no-danger */}
-          <style dangerouslySetInnerHTML={{ __html: css }} />
-          <Dialog.Popup className="dialog" onTransitionEnd={notifyTransitionEnd} />
-        </Dialog.Root>,
-      );
-
-      setProps({ open: false });
-      expect(queryByRole('dialog')).not.to.equal(null);
-
-      await waitFor(() => {
-        expect(queryByRole('dialog')).to.equal(null);
-      });
-
-      expect(notifyTransitionEnd.callCount).to.equal(1);
-    });
-
-    it('when `false`, unmounts the popup immediately', async () => {
-      const { setProps, queryByRole } = await render(
-        <Dialog.Root open modal={false}>
-          {/* eslint-disable-next-line react/no-danger */}
-          <style dangerouslySetInnerHTML={{ __html: css }} />
-          <Dialog.Popup className="dialog" />
-        </Dialog.Root>,
-      );
-
-      setProps({ open: false });
-      expect(queryByRole('dialog')).to.equal(null);
     });
   });
 });

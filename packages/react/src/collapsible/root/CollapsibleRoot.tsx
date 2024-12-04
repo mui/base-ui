@@ -103,11 +103,6 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the component supports CSS/JS-based animations and transitions.
-   * @default true
-   */
-  animated: PropTypes.bool,
-  /**
    * @ignore
    */
   children: PropTypes.node,

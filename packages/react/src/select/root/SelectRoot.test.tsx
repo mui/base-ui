@@ -234,6 +234,11 @@ describe('<Select.Root />', () => {
         this?.skip?.() || t?.skip();
       }
 
+      Object.defineProperty(HTMLElement.prototype, 'getAnimations', {
+        // @ts-expect-error
+        value: globalThis.originalGetAnimations,
+      });
+
       let animationFinished = false;
       const notifyAnimationFinished = () => {
         animationFinished = true;
@@ -285,6 +290,10 @@ describe('<Select.Root />', () => {
       });
 
       expect(animationFinished).to.equal(true);
+
+      Object.defineProperty(HTMLElement.prototype, 'getAnimations', {
+        value: undefined,
+      });
     });
   });
 

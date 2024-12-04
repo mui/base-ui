@@ -2,11 +2,6 @@
   "name": "AccordionRoot",
   "description": "",
   "props": {
-    "animated": {
-      "type": "boolean",
-      "default": "true",
-      "description": "If `true`, the component supports CSS/JS-based animations and transitions."
-    },
     "className": {
       "type": "string | (state) => string",
       "description": "Class names applied to the element or a function that returns them based on the component's state."

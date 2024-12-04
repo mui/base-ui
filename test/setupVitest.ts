@@ -55,4 +55,11 @@ if (isVitestJsdom) {
     cb(0);
     return 0;
   };
+} else if (typeof HTMLElement !== 'undefined') {
+  globalThis.originalGetAnimations = HTMLElement.prototype.getAnimations;
+  Object.defineProperty(HTMLElement.prototype, 'getAnimations', {
+    value: undefined,
+    configurable: true,
+    writable: true,
+  });
 }

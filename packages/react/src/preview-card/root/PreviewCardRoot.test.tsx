@@ -192,6 +192,11 @@ describe('<PreviewCard.Root />', () => {
         animationFinished = true;
       };
 
+      Object.defineProperty(HTMLElement.prototype, 'getAnimations', {
+        // @ts-expect-error
+        value: globalThis.originalGetAnimations,
+      });
+
       function Test() {
         const style = `
           @keyframes test-anim {
@@ -240,6 +245,10 @@ describe('<PreviewCard.Root />', () => {
       });
 
       expect(animationFinished).to.equal(true);
+
+      Object.defineProperty(HTMLElement.prototype, 'getAnimations', {
+        value: undefined,
+      });
     });
   });
 

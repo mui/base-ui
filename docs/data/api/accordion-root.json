@@ -1,6 +1,5 @@
 {
   "props": {
-    "animated": { "type": { "name": "bool" }, "default": "true" },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
     "defaultValue": {
       "type": { "name": "arrayOf", "description": "Array&lt;number<br>&#124;&nbsp;string&gt;" },
