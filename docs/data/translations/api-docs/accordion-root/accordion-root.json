@@ -21,8 +21,9 @@
       "description": "Callback fired when an Accordion section is opened or closed. The value representing the involved section is provided as an argument."
     },
     "openMultiple": {
-      "description": "Whether multiple Accordion sections can be opened at the same time"
+      "description": "Whether multiple Accordion sections can be opened at the same time."
     },
+    "orientation": { "description": "The orientation of the accordion." },
     "render": { "description": "A function to customize rendering of the component." },
     "value": {
       "description": "The value of the currently open <code>Accordion.Item</code> This is the controlled counterpart of <code>defaultValue</code>."

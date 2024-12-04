@@ -12,6 +12,6 @@
   "forwardsRefTo": "HTMLInputElement",
   "filename": "/packages/react/src/input/Input.tsx",
   "inheritance": null,
-  "demos": "<ul><li><a href=\"/components/react-input/\">Text Input</a></li></ul>",
+  "demos": "<ul><li><a href=\"/components/react-input/\">Input</a></li></ul>",
   "cssComponent": false
 }

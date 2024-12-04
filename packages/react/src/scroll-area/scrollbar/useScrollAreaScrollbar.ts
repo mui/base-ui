@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { getOffset } from '../utils/getOffset';
+import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
+import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
 
 export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters) {
   const { orientation } = params;
@@ -85,14 +88,22 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
 
           // Handle Y-axis (vertical) scroll
           if (thumbYRef.current && scrollbarYRef.current && orientation === 'vertical') {
+            const thumbYOffset = getOffset(thumbYRef.current, 'margin', 'y');
+            const scrollbarYOffset = getOffset(scrollbarYRef.current, 'padding', 'y');
             const thumbHeight = thumbYRef.current.offsetHeight;
             const trackRectY = scrollbarYRef.current.getBoundingClientRect();
-            const clickY = event.clientY - trackRectY.top - thumbHeight / 2;
+            const clickY =
+              event.clientY -
+              trackRectY.top -
+              thumbHeight / 2 -
+              scrollbarYOffset +
+              thumbYOffset / 2;
 
             const scrollableContentHeight = viewportRef.current.scrollHeight;
             const viewportHeight = viewportRef.current.clientHeight;
 
-            const maxThumbOffsetY = scrollbarYRef.current.offsetHeight - thumbHeight;
+            const maxThumbOffsetY =
+              scrollbarYRef.current.offsetHeight - thumbHeight - scrollbarYOffset - thumbYOffset;
             const scrollRatioY = clickY / maxThumbOffsetY;
             const newScrollTop = scrollRatioY * (scrollableContentHeight - viewportHeight);
 
@@ -100,14 +111,22 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
           }
 
           if (thumbXRef.current && scrollbarXRef.current && orientation === 'horizontal') {
+            const thumbXOffset = getOffset(thumbXRef.current, 'margin', 'x');
+            const scrollbarXOffset = getOffset(scrollbarXRef.current, 'padding', 'x');
             const thumbWidth = thumbXRef.current.offsetWidth;
             const trackRectX = scrollbarXRef.current.getBoundingClientRect();
-            const clickX = event.clientX - trackRectX.left - thumbWidth / 2;
+            const clickX =
+              event.clientX -
+              trackRectX.left -
+              thumbWidth / 2 -
+              scrollbarXOffset +
+              thumbXOffset / 2;
 
             const scrollableContentWidth = viewportRef.current.scrollWidth;
             const viewportWidth = viewportRef.current.clientWidth;
 
-            const maxThumbOffsetX = scrollbarXRef.current.offsetWidth - thumbWidth;
+            const maxThumbOffsetX =
+              scrollbarXRef.current.offsetWidth - thumbWidth - scrollbarXOffset - thumbXOffset;
             const scrollRatioX = clickX / maxThumbOffsetX;
 
             let newScrollLeft: number;
@@ -134,15 +153,16 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
           touchAction: 'none',
           ...(orientation === 'vertical' && {
             top: 0,
-            bottom: 'var(--scroll-area-corner-height)',
+            bottom: `var(${ScrollAreaRootCssVars.scrollAreaCornerHeight})`,
             [dir === 'rtl' ? 'left' : 'right']: 0,
-            ['--scroll-area-thumb-height' as string]: `${thumbSize.height}px`,
+            [ScrollAreaScrollbarCssVars.scrollAreaThumbHeight as string]: `${thumbSize.height}px`,
           }),
           ...(orientation === 'horizontal' && {
             [dir === 'rtl' ? 'right' : 'left']: 0,
-            [dir === 'rtl' ? 'left' : 'right']: 'var(--scroll-area-corner-width)',
+            [dir === 'rtl' ? 'left' : 'right']:
+              `var(${ScrollAreaRootCssVars.scrollAreaCornerWidth})`,
             bottom: 0,
-            ['--scroll-area-thumb-width' as string]: `${thumbSize.width}px`,
+            [ScrollAreaScrollbarCssVars.scrollAreaThumbWidth as string]: `${thumbSize.width}px`,
           }),
         },
       }),

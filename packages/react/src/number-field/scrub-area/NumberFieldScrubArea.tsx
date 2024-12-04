@@ -25,7 +25,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
   const {
     render,
     className,
-    direction = 'vertical',
+    direction = 'horizontal',
     pixelSensitivity = 2,
     teleportDistance,
     ...otherProps
@@ -58,9 +58,9 @@ namespace NumberFieldScrubArea {
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * The direction that the scrub area should change the value.
-     * @default 'vertical'
+     * @default 'horizontal'
      */
-    direction?: 'vertical' | 'horizontal';
+    direction?: 'horizontal' | 'vertical';
     /**
      * Determines the number of pixels the cursor must move before the value changes. A higher value
      * will make the scrubbing less sensitive.
@@ -90,7 +90,7 @@ NumberFieldScrubArea.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The direction that the scrub area should change the value.
-   * @default 'vertical'
+   * @default 'horizontal'
    */
   direction: PropTypes.oneOf(['horizontal', 'vertical']),
   /**

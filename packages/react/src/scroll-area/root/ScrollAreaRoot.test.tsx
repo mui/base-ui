@@ -131,5 +131,73 @@ describe('<ScrollArea.Root />', () => {
         expect(style.paddingBottom).to.equal(`${SCROLLBAR_HEIGHT}px`);
       });
     });
+
+    it('accounts for scrollbar padding', async () => {
+      const PADDING = 8;
+
+      await render(
+        <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar
+            orientation="vertical"
+            data-testid="vertical-scrollbar"
+            style={{ paddingBlock: PADDING }}
+          >
+            <ScrollArea.Thumb data-testid="vertical-thumb" />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Scrollbar
+            orientation="horizontal"
+            data-testid="horizontal-scrollbar"
+            style={{ paddingInline: PADDING }}
+          >
+            <ScrollArea.Thumb data-testid="horizontal-thumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const verticalThumb = screen.getByTestId('vertical-thumb');
+
+      expect(
+        getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
+      ).to.equal(`${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE - PADDING * 2}px`);
+
+      const horizontalThumb = screen.getByTestId('horizontal-thumb');
+
+      expect(
+        getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
+      ).to.equal(`${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE - PADDING * 2}px`);
+    });
+
+    it('accounts for thumb margin', async () => {
+      const MARGIN = 8;
+
+      await render(
+        <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical-scrollbar">
+            <ScrollArea.Thumb data-testid="vertical-thumb" style={{ marginBlock: MARGIN }} />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Scrollbar orientation="horizontal" data-testid="horizontal-scrollbar">
+            <ScrollArea.Thumb data-testid="horizontal-thumb" style={{ marginInline: MARGIN }} />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const verticalThumb = screen.getByTestId('vertical-thumb');
+
+      expect(
+        getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
+      ).to.equal(`${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE - MARGIN * 2}px`);
+
+      const horizontalThumb = screen.getByTestId('horizontal-thumb');
+
+      expect(
+        getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
+      ).to.equal(`${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE - MARGIN * 2}px`);
+    });
   });
 });

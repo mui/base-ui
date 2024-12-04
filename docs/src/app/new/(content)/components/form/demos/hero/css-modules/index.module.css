@@ -20,7 +20,6 @@
 
 .Input {
   box-sizing: border-box;
-  padding-block: 0.5rem;
   padding-left: 0.875rem;
   margin: 0;
   border: 1px solid var(--color-gray-200);
@@ -29,6 +28,7 @@
   border-radius: 0.375rem;
   font-family: inherit;
   font-size: 1rem;
+  background-color: transparent;
   color: var(--color-gray-900);
 
   &:focus {
@@ -48,22 +48,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 0.875rem;
+  height: 2.5rem;
+  padding: 0 0.875rem;
   margin: 0;
-  border: none;
+  outline: 0;
+  border: 1px solid var(--color-gray-200);
   border-radius: 0.375rem;
   background-color: var(--color-gray-50);
   font-family: inherit;
   font-size: 1rem;
   font-weight: 500;
   line-height: 1.5rem;
-  color: var(--color-gray-950);
-  outline: 1px solid var(--color-gray-200);
+  color: var(--color-gray-900);
   user-select: none;
-
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
-  }
 
   @media (hover: hover) {
     &:hover {
@@ -79,5 +76,10 @@
     cursor: not-allowed;
     color: var(--color-gray-400);
     background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
   }
 }

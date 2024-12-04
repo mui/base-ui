@@ -6,7 +6,7 @@ import { styled } from '@mui/system';
 export default function UnstyledPreviewCardIntroduction() {
   return (
     <PreviewCard.Root>
-      <TriggerLink href="#">@Base_UI</TriggerLink>
+      <TriggerLink href="#">@base_ui</TriggerLink>
       <PreviewCard.Positioner sideOffset={8}>
         <PreviewCardPopup>
           <img

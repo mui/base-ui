@@ -66,6 +66,14 @@ CollapsibleTrigger.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * @ignore
+   */
+  disabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
+  /**
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),

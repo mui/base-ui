@@ -136,19 +136,19 @@
 
 :root {
   @media (prefers-color-scheme: dark) {
-    --color-gray-50: oklch(17% 1% 264);
-    --color-gray-75: oklch(19% 2% 264); /* Not a Tailwind step, don't use it in the demos */
-    --color-gray-100: oklch(28% 3% 264 / 65%);
-    --color-gray-200: oklch(29% 3% 264 / 80%);
-    --color-gray-300: oklch(35% 3% 264 / 80%);
-    --color-gray-400: oklch(47% 3.5% 264 / 80%);
-    --color-gray-500: oklch(64% 4% 264 / 80%);
-    --color-gray-600: oklch(82% 4% 264 / 80%);
-    --color-gray-700: oklch(92% 4.5% 264 / 80%);
-    --color-gray-800: oklch(92% 4.5% 264 / 80%);
-    --color-gray-800: oklch(93% 3.5% 264 / 85%);
-    --color-gray-900: oklch(95% 2% 264 / 90%);
-    --color-gray-950: oklch(94% 1.5% 264 / 95%);
+    --color-gray-50: oklch(17% 0.25% 264);
+    --color-gray-75: oklch(19% 0.5% 264); /* Not a Tailwind step, don't use it in the demos */
+    --color-gray-100: oklch(28% 0.75% 264 / 65%);
+    --color-gray-200: oklch(29% 0.75% 264 / 80%);
+    --color-gray-300: oklch(35% 0.75% 264 / 80%);
+    --color-gray-400: oklch(47% 0.875% 264 / 80%);
+    --color-gray-500: oklch(64% 1% 264 / 80%);
+    --color-gray-600: oklch(82% 1% 264 / 80%);
+    --color-gray-700: oklch(92% 1.125% 264 / 80%);
+    --color-gray-800: oklch(92% 1.125% 264 / 80%);
+    --color-gray-800: oklch(93% 0.875% 264 / 85%);
+    --color-gray-900: oklch(95% 0.5% 264 / 90%);
+    --color-gray-950: oklch(94% 0.375% 264 / 95%);
 
     /* Functional colors */
     --color-content: black;

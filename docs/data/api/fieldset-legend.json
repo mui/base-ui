@@ -11,7 +11,7 @@
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "FieldsetLegend",
-  "forwardsRefTo": "HTMLSpanElement",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/react/src/fieldset/legend/FieldsetLegend.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-fieldset/\">Fieldset</a></li></ul>",

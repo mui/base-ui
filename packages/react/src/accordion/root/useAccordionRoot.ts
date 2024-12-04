@@ -197,13 +197,20 @@ export namespace useAccordionRoot {
      */
     defaultValue?: AccordionValue;
     /**
+     * If `true`, the component supports CSS/JS-based animations and transitions.
+     * @default true
+     */
+    animated: boolean;
+    /**
      * If `true`, the component is disabled.
+     * @default false
      */
     disabled: boolean;
     direction: Direction;
     /**
      * If `true`, focus will loop when moving focus between `Trigger`s using
      * the arrow keys.
+     * @default true
      */
     loop: boolean;
     /**
@@ -213,10 +220,12 @@ export namespace useAccordionRoot {
     onValueChange: (value: AccordionValue) => void;
     /**
      * Whether multiple Accordion sections can be opened at the same time.
+     * @default true
      */
     openMultiple: boolean;
     /**
      * The orientation of the accordion.
+     * @default 'vertical'
      */
     orientation: AccordionOrientation;
   }

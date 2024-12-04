@@ -11,7 +11,7 @@
     "anchor": {
       "type": {
         "name": "union",
-        "description": "(props, propName) => {\n  if (props[propName] == null) {\n    return new Error(`Prop '${propName}' is required but wasn't specified`);\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n}<br>&#124;&nbsp;func<br>&#124;&nbsp;{ current?: (props, propName) => {\n  if (props[propName] == null) {\n    return null;\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n} }<br>&#124;&nbsp;{ contextElement?: (props, propName) => {\n  if (props[propName] == null) {\n    return null;\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n}, getBoundingClientRect: func, getClientRects?: func }"
+        "description": "(props, propName) => {\n  if (props[propName] == null) {\n    return new Error(`Prop '${propName}' is required but wasn't specified`);\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n}<br>&#124;&nbsp;func<br>&#124;&nbsp;{ contextElement?: (props, propName) => {\n  if (props[propName] == null) {\n    return null;\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n}, getBoundingClientRect: func, getClientRects?: func }<br>&#124;&nbsp;{ current?: (props, propName) => {\n  if (props[propName] == null) {\n    return null;\n  }\n  if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {\n    return new Error(`Expected prop '${propName}' to be of type Element`);\n  }\n  return null;\n} }"
       }
     },
     "arrowPadding": { "type": { "name": "number" }, "default": "5" },
@@ -57,6 +57,22 @@
   "imports": [
     "import { Select } from '@base-ui-components/react/select';\nconst SelectPositioner = Select.Positioner;"
   ],
+  "cssVariables": {
+    "--anchor-height": { "description": "The anchor's height.", "type": "number" },
+    "--anchor-width": { "description": "The anchor's width.", "type": "number" },
+    "--available-height": {
+      "description": "The available height between the trigger and the edge of the viewport.",
+      "type": "number"
+    },
+    "--available-width": {
+      "description": "The available width between the trigger and the edge of the viewport.",
+      "type": "number"
+    },
+    "--transform-origin": {
+      "description": "The coordinates that this element is anchored to. Used for animations and transitions.",
+      "type": "string"
+    }
+  },
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
