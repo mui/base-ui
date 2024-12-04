@@ -44,7 +44,7 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     }, [hiddenUntilFoundProp, keepMountedProp]);
   }
 
-  const { animated, mounted, open, panelId, setPanelId, setMounted, setOpen, state } =
+  const { mounted, open, panelId, setPanelId, setMounted, setOpen, state } =
     useCollapsibleRootContext();
 
   useEnhancedEffect(() => {
@@ -56,7 +56,6 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   const hiddenUntilFound = hiddenUntilFoundProp ?? false;
 
   const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
-    animated,
     hiddenUntilFound,
     panelId,
     keepMounted: keepMountedProp ?? false,
