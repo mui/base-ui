@@ -9,6 +9,7 @@ import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../root/styleHooks';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
+import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
 
 /**
  *
@@ -77,8 +78,8 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
       ...otherProps,
       style: {
         ...otherProps.style,
-        '--collapsible-panel-height': height ? `${height}px` : undefined,
-        '--collapsible-panel-width': width ? `${width}px` : undefined,
+        [CollapsiblePanelCssVars.collapsiblePanelHeight]: height ? `${height}px` : undefined,
+        [CollapsiblePanelCssVars.collapsiblePanelWidth]: width ? `${width}px` : undefined,
       },
     },
     customStyleHookMapping: collapsibleStyleHookMapping,
@@ -135,11 +136,15 @@ CollapsiblePanel.propTypes /* remove-proptypes */ = {
    */
   hiddenUntilFound: PropTypes.bool,
   /**
+   * @ignore
+   */
+  id: PropTypes.string,
+  /**
    * If `true`, the panel remains mounted when closed and is instead
    * hidden using the `hidden` attribute
    * If `false`, the panel is unmounted when closed.
-   * If the `hiddenUntilFound` prop is used, it overrides this prop and
-   * forces the panel to remain mounted when closed.
+   * If the `hiddenUntilFound` prop is used, the panel overrides this prop and
+   * is remains mounted when closed.
    * @default false
    */
   keepMounted: PropTypes.bool,

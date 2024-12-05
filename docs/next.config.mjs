@@ -88,6 +88,15 @@ const nextConfig = {
   devIndicators: {
     appIsrStatus: false,
   },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/new/components/accordion',
+        permanent: false,
+      },
+    ];
+  },
 };
 
 // Remove deprecated options that come from `withDocsInfra()` and cause warnings

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { FloatingFocusManager, type Side } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -14,7 +14,7 @@ import { useSelectPositionerContext } from '../positioner/SelectPositionerContex
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
-  ...popupOpenStateMapping,
+  ...popupStateMapping,
   ...transitionStatusMapping,
 };
 

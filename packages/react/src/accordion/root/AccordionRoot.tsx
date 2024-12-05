@@ -168,13 +168,10 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   /**
    * The default value representing the currently open `Accordion.Item`
    * This is the uncontrolled counterpart of `value`.
-   * @default 0
    */
-  defaultValue: PropTypes.arrayOf(
-    PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-  ),
+  defaultValue: PropTypes.array,
   /**
-   * @default 'ltr'
+   * @ignore
    */
   direction: PropTypes.oneOf(['ltr', 'rtl']),
   /**
@@ -208,11 +205,12 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * Whether multiple Accordion sections can be opened at the same time
+   * Whether multiple Accordion sections can be opened at the same time.
    * @default true
    */
   openMultiple: PropTypes.bool,
   /**
+   * The orientation of the accordion.
    * @default 'vertical'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
@@ -224,5 +222,5 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    * The value of the currently open `Accordion.Item`
    * This is the controlled counterpart of `defaultValue`.
    */
-  value: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired),
+  value: PropTypes.array,
 } as any;

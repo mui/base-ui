@@ -7,13 +7,13 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectBackdrop } from './useSelectBackdrop';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
-  ...popupOpenStateMapping,
+  ...popupStateMapping,
   ...transitionStatusMapping,
 };
 

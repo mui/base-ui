@@ -1,0 +1,36 @@
+# Preview Card
+
+<Subtitle>
+  A popup that appears when a link is hovered, showing a preview for sighted users.
+</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React preview card component that appears when a link is hovered, showing a preview for sighted users."
+/>
+
+<Demo path="./demos/hero" />
+<link
+  as="image"
+  rel="preload"
+  href="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
+/>
+
+## API reference
+
+Import the component and place its parts the following way:
+
+```jsx title="Anatomy"
+import { PreviewCard } from '@base-ui-components/react/previewCard';
+
+<PreviewCard.Root>
+  <PreviewCard.Trigger />
+  <PreviewCard.Backdrop />
+  <PreviewCard.Positioner>
+    <PreviewCard.Popup>
+      <PreviewCard.Arrow />
+    </PreviewCard.Popup>
+  </PreviewCard.Positioner>
+</PreviewCard.Root>;
+```
+
+<Reference component="PreviewCard" parts="Root, Trigger, Backdrop, Positioner, Popup, Arrow" />

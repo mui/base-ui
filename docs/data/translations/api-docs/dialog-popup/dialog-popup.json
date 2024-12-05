@@ -16,5 +16,8 @@
     },
     "render": { "description": "A function to customize rendering of the component." }
   },
-  "classDescriptions": {}
+  "classDescriptions": {},
+  "cssVariablesDescriptions": {
+    "--nested-dialogs": "Indicates how many dialogs are nested within."
+  }
 }

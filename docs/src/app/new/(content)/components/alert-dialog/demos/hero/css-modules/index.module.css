@@ -3,9 +3,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 0.875rem;
+  height: 2.5rem;
+  padding: 0 0.875rem;
   margin: 0;
-  border: none;
+  outline: 0;
+  border: 1px solid var(--color-gray-200);
   border-radius: 0.375rem;
   background-color: var(--color-gray-50);
   font-family: inherit;
@@ -13,7 +15,6 @@
   font-weight: 500;
   line-height: 1.5rem;
   color: var(--color-gray-900);
-  outline: 1px solid var(--color-gray-200);
   user-select: none;
 
   &[data-color='red'] {
@@ -26,12 +27,13 @@
     }
   }
 
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
-  }
-
   &:active {
     background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
   }
 }
 
@@ -63,11 +65,14 @@
   margin-top: -2rem;
   padding: 1.5rem;
   border-radius: 0.5rem;
-  border: 1px solid var(--color-gray-300);
+  outline: 1px solid var(--color-gray-300);
   background-color: var(--color-gray-50);
-  color: var(--color-gray-950);
-  outline: 0;
+  color: var(--color-gray-900);
   transition: all 150ms;
+
+  @media (prefers-color-scheme: dark) {
+    outline: 1px solid var(--color-gray-300);
+  }
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -87,6 +92,8 @@
 
 .Description {
   margin: 0 0 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
   color: var(--color-gray-600);
 }
 

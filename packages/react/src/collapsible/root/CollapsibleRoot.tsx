@@ -138,7 +138,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
    */
   open: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * @ignore
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

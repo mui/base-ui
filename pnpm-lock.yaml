@@ -51,20 +51,20 @@ importers:
         specifier: ^7.25.9
         version: 7.25.9(@babel/core@7.26.0)
       '@mui/internal-docs-utils':
-        specifier: ^1.0.15
-        version: 1.0.15
+        specifier: ^1.0.16
+        version: 1.0.16
       '@mui/internal-markdown':
-        specifier: ^1.0.20
-        version: 1.0.20
+        specifier: ^1.0.22
+        version: 1.0.22
       '@mui/internal-scripts':
-        specifier: ^1.0.27
-        version: 1.0.27
+        specifier: ^1.0.29
+        version: 1.0.29
       '@mui/internal-test-utils':
         specifier: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils
         version: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils(@babel/core@7.26.0)(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#v6.1.7
-        version: https://codeload.github.com/mui/material-ui/tar.gz/13e5a0c75eea4fe3f7ce48b19bcab6ab1a7bb0bd(encoding@0.1.13)
+        specifier: github:mui/material-ui#v6.1.10
+        version: https://codeload.github.com/mui/material-ui/tar.gz/9b4f2aaab3c107101a9ecfa905cca3ffdcd2d081(encoding@0.1.13)
       '@next/eslint-plugin-next':
         specifier: ^14.2.18
         version: 14.2.18
@@ -390,8 +390,8 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
       '@mui/system':
-        specifier: 6.1.8
-        version: 6.1.8(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(@emotion/styled@11.13.5(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
+        specifier: 6.1.10
+        version: 6.1.10(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(@emotion/styled@11.13.5(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
       '@next/mdx':
         specifier: ^15.0.3
         version: 15.0.3(@mdx-js/loader@3.1.0(acorn@8.14.0)(webpack@5.94.0(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.94.0))))(@mdx-js/react@3.1.0(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))
@@ -482,9 +482,6 @@ importers:
       react-runner:
         specifier: ^1.0.5
         version: 1.0.5(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)
-      react-simple-code-editor:
-        specifier: ^0.13.1
-        version: 0.13.1(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)
       rehype-pretty-code:
         specifier: ^0.14.0
         version: 0.14.0(shiki@1.24.0)
@@ -532,11 +529,11 @@ importers:
         specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.0)
       '@mui/internal-docs-utils':
-        specifier: ^1.0.15
-        version: 1.0.15
+        specifier: ^1.0.16
+        version: 1.0.16
       '@mui/internal-scripts':
-        specifier: ^1.0.27
-        version: 1.0.27
+        specifier: ^1.0.29
+        version: 1.0.29
       '@mui/internal-test-utils':
         specifier: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils
         version: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils(@babel/core@7.26.0)(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)
@@ -610,8 +607,8 @@ importers:
         specifier: ^5.62.0
         version: 5.62.0(eslint@9.8.0)(typescript@5.7.2)
       '@typescript-eslint/parser':
-        specifier: ^8.16.0
-        version: 8.16.0(eslint@9.8.0)(typescript@5.7.2)
+        specifier: ^8.17.0
+        version: 8.17.0(eslint@9.8.0)(typescript@5.7.2)
 
   packages/react:
     dependencies:
@@ -2128,14 +2125,14 @@ packages:
     resolution: {integrity: sha512-SvE+tSpcX884RJrPCskXxoS965Ky/pYABDEhWW6oeSRhpUDLrS5nTvT5n1LLSDVDYvty4imVmXsy+3/ROVuknA==}
     engines: {node: '>=18'}
 
-  '@mui/internal-docs-utils@1.0.15':
-    resolution: {integrity: sha512-I+/9+8p9qck/pePgB7qkJdPd181TwCQf9p1+Re40Vs+FsirbQ6j4lgAsVleu2RZMCwzO6q2k1tfPOHIshNp62w==}
+  '@mui/internal-docs-utils@1.0.16':
+    resolution: {integrity: sha512-GEq4dG9+10WGlQVrmXUfCWNe1FiWoMr2KXbgn2/00Da5hdvp4nIa3PXYYZF08Wh+FtnBbLHKGkPmZ7iw9WKtjQ==}
 
-  '@mui/internal-markdown@1.0.20':
-    resolution: {integrity: sha512-p9X+wYIElnWNzXlgodC1qbdiHtWb1xTEJ3ZilhbB6UgTm1oSby9A7ez4GPDr6qkTLDlT3Cnk/oOsSsDa1Lscrw==}
+  '@mui/internal-markdown@1.0.22':
+    resolution: {integrity: sha512-js8VF3uDbHjV3gByPVZBcVF0sGkKM22MhFoxKw+W0nGMj6cy1+68Jg3jspFz38diGRqv4lElz9rL31YjY45U9w==}
 
-  '@mui/internal-scripts@1.0.27':
-    resolution: {integrity: sha512-stqXxLEcb1purnwXPrWKy7gd+SEQkzDAo3PZyMvUYRzMN+pmstB8Kh5PtmIHeB6yXVFnsqTTn+Bf4bVmJ5FnLA==}
+  '@mui/internal-scripts@1.0.29':
+    resolution: {integrity: sha512-s+ceBqTrrBme/bvt5VQ8uXgV67tFz2eA/UQ2XsMQ+6umHh/9cMuzIYG3qossj7iWUWI3CohwpLDtU+qWbqthAw==}
 
   '@mui/internal-test-utils@https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils':
     resolution: {tarball: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils}
@@ -2144,13 +2141,13 @@ packages:
       react: ^18.2.0
       react-dom: ^18.2.0
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/13e5a0c75eea4fe3f7ce48b19bcab6ab1a7bb0bd':
-    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/13e5a0c75eea4fe3f7ce48b19bcab6ab1a7bb0bd}
-    version: 6.1.7
-    engines: {pnpm: 9.12.3}
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/9b4f2aaab3c107101a9ecfa905cca3ffdcd2d081':
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/9b4f2aaab3c107101a9ecfa905cca3ffdcd2d081}
+    version: 6.1.10
+    engines: {pnpm: 9.14.4}
 
-  '@mui/private-theming@6.1.8':
-    resolution: {integrity: sha512-TuKl7msynCNCVvhX3c0ef1sF0Qb3VHcPs8XOGB/8bdOGBr/ynmIG1yTMjZeiFQXk8yN9fzK/FDEKMFxILNn3wg==}
+  '@mui/private-theming@6.1.10':
+    resolution: {integrity: sha512-DqgsH0XFEweeG3rQfVkqTkeXcj/E76PGYWag8flbPdV8IYdMo+DfVdFlZK8JEjsaIVD2Eu1kJg972XnH5pfnBQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@types/react': npm:types-react@19.0.0-rc.1
@@ -2159,8 +2156,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/styled-engine@6.1.8':
-    resolution: {integrity: sha512-ZvEoT0U2nPLSLI+B4by4cVjaZnPT2f20f4JUPkyHdwLv65ZzuoHiTlwyhqX1Ch63p8bcJzKTHQVGisEoMK6PGA==}
+  '@mui/styled-engine@6.1.10':
+    resolution: {integrity: sha512-+NV9adKZYhslJ270iPjf2yzdVJwav7CIaXcMlPSi1Xy1S/zRe5xFgZ6BEoMdmGRpr34lIahE8H1acXP2myrvRw==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@emotion/react': ^11.4.1
@@ -2172,8 +2169,8 @@ packages:
       '@emotion/styled':
         optional: true
 
-  '@mui/system@6.1.8':
-    resolution: {integrity: sha512-i1kLfQoWxzFpXTBQIuPoA3xKnAnP3en4I2T8xIolovSolGQX5k8vGjw1JaydQS40td++cFsgCdEU458HDNTGUA==}
+  '@mui/system@6.1.10':
+    resolution: {integrity: sha512-5YNIqxETR23SIkyP7MY2fFnXmplX/M4wNi2R+10AVRd3Ub+NLctWY/Vs5vq1oAMF0eSDLhRTGUjaUe+IGSfWqg==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@emotion/react': ^11.5.0
@@ -2196,8 +2193,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/utils@6.1.8':
-    resolution: {integrity: sha512-O2DWb1kz8hiANVcR7Z4gOB3SvPPsSQGUmStpyBDzde6dJIfBzgV9PbEQOBZd3EBsd1pB+Uv1z5LAJAbymmawrA==}
+  '@mui/utils@6.1.10':
+    resolution: {integrity: sha512-1ETuwswGjUiAf2dP9TkBy8p49qrw2wXa+RuAjNTRE5+91vtXJ1HKrs7H9s8CZd1zDlQVzUcUAPm9lpQwF5ogTw==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@types/react': npm:types-react@19.0.0-rc.1
@@ -2898,8 +2895,8 @@ packages:
   '@sinonjs/text-encoding@0.7.3':
     resolution: {integrity: sha512-DE427ROAphMQzU4ENbliGYrBSYPXF+TtLg9S8vzeA+OF4ZKzoDdzfL8sxuMUGS/lgRhM6j1URSk9ghf7Xo1tyA==}
 
-  '@slack/bolt@4.1.0':
-    resolution: {integrity: sha512-7XlTziPVLQn8RXNuOTzsJh/wrkX4YUZr1UpX25MpfDdMpp28Y4TrtIvYDh6GV90uNscdHJhOJcpqLq6ibqfGfg==}
+  '@slack/bolt@4.1.1':
+    resolution: {integrity: sha512-Sc8QUnEHCPgRlwrMxmvOl4Vhr/7ZBDXvLR0ir6TO+W5MaDtPsrmWLxqLmb+OhCGSjDp3d4AxO6jdFlC3yNKtsg==}
     engines: {node: '>=18', npm: '>=8.6.0'}
 
   '@slack/logger@4.0.0':
@@ -3252,8 +3249,8 @@ packages:
       typescript:
         optional: true
 
-  '@typescript-eslint/parser@8.16.0':
-    resolution: {integrity: sha512-D7DbgGFtsqIPIFMPJwCad9Gfi/hC0PWErRRHFnaCWoEDYi5tQUDiJCTmGUbBiLzjqAck4KcXt9Ayj0CNlIrF+w==}
+  '@typescript-eslint/parser@8.17.0':
+    resolution: {integrity: sha512-Drp39TXuUlD49F7ilHHCG7TTg8IkA+hxCuULdmzWYICxGXvDXmDmWEjJYZQYgf6l/TFfYNE167m7isnc3xlIEg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
@@ -3270,8 +3267,8 @@ packages:
     resolution: {integrity: sha512-jjhdIE/FPF2B7Z1uzc6i3oWKbGcHb87Qw7AWj6jmEqNOfDFbJWtjt/XfwCpvNkpGWlcJaog5vTR+VV8+w9JflA==}
     engines: {node: ^18.18.0 || >=20.0.0}
 
-  '@typescript-eslint/scope-manager@8.16.0':
-    resolution: {integrity: sha512-mwsZWubQvBki2t5565uxF0EYvG+FwdFb8bMtDuGQLdCCnGPrDEDvm1gtfynuKlnpzeBRqdFCkMf9jg1fnAK8sg==}
+  '@typescript-eslint/scope-manager@8.17.0':
+    resolution: {integrity: sha512-/ewp4XjvnxaREtqsZjF4Mfn078RD/9GmiEAtTeLQ7yFdKnqwTOgRMSvFz4et9U5RiJQ15WTGXPLj89zGusvxBg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@typescript-eslint/type-utils@7.18.0':
@@ -3292,8 +3289,8 @@ packages:
     resolution: {integrity: sha512-iZqi+Ds1y4EDYUtlOOC+aUmxnE9xS/yCigkjA7XpTKV6nCBd3Hp/PRGGmdwnfkV2ThMyYldP1wRpm/id99spTQ==}
     engines: {node: ^18.18.0 || >=20.0.0}
 
-  '@typescript-eslint/types@8.16.0':
-    resolution: {integrity: sha512-NzrHj6thBAOSE4d9bsuRNMvk+BvaQvmY4dDglgkgGC0EW/tB3Kelnp3tAKH87GEwzoxgeQn9fNGRyFJM/xd+GQ==}
+  '@typescript-eslint/types@8.17.0':
+    resolution: {integrity: sha512-gY2TVzeve3z6crqh2Ic7Cr+CAv6pfb0Egee7J5UAVWCpVvDI/F71wNfolIim4FE6hT15EbpZFVUj9j5i38jYXA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@typescript-eslint/typescript-estree@5.62.0':
@@ -3314,8 +3311,8 @@ packages:
       typescript:
         optional: true
 
-  '@typescript-eslint/typescript-estree@8.16.0':
-    resolution: {integrity: sha512-E2+9IzzXMc1iaBy9zmo+UYvluE3TW7bCGWSF41hVWUE01o8nzr1rvOQYSxelxr6StUvRcTMe633eY8mXASMaNw==}
+  '@typescript-eslint/typescript-estree@8.17.0':
+    resolution: {integrity: sha512-JqkOopc1nRKZpX+opvKqnM3XUlM7LpFMD0lYxTqOTKQfCWAmxw45e3qlOCsEqEB2yuacujivudOFpCnqkBDNMw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       typescript: '*'
@@ -3343,8 +3340,8 @@ packages:
     resolution: {integrity: sha512-cDF0/Gf81QpY3xYyJKDV14Zwdmid5+uuENhjH2EqFaF0ni+yAyq/LzMaIJdhNJXZI7uLzwIlA+V7oWoyn6Curg==}
     engines: {node: ^18.18.0 || >=20.0.0}
 
-  '@typescript-eslint/visitor-keys@8.16.0':
-    resolution: {integrity: sha512-pq19gbaMOmFE3CbL0ZB8J8BFCo2ckfHBfaIsaOZgBIF4EoISJIdLX5xRhd0FGB0LlHReNRuzoJoMGpTjq8F2CQ==}
+  '@typescript-eslint/visitor-keys@8.17.0':
+    resolution: {integrity: sha512-1Hm7THLpO6ww5QU6H/Qp+AusUUl+z/CAm3cNZZ0jQvon9yicgO7Rwd+/WWRpMKLYV6p2UvdbR27c86rzCPpreg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@ungap/structured-clone@1.2.0':
@@ -5516,8 +5513,8 @@ packages:
   globjoin@0.1.4:
     resolution: {integrity: sha512-xYfnw62CKG8nLkZBfWbhWwDw02CHty86jfPcc2cr3ZfeuK9ysoVPPEUxf21bAD/rWAgk52SuBrLJlefNy8mvFg==}
 
-  google-auth-library@9.14.2:
-    resolution: {integrity: sha512-R+FRIfk1GBo3RdlRYWPdwk8nmtVUOn6+BkDomAC46KoU8kzXzE1HLmOasSCbWUByMMAGkknVF0G5kQ69Vj7dlA==}
+  google-auth-library@9.15.0:
+    resolution: {integrity: sha512-7ccSEJFDFO7exFbO6NRyC+xH8/mZ1GZGG2xxx9iHxZWcjUjJpjWxIMw3cofAKcueZ6DATiukmmprD7yavQHOyQ==}
     engines: {node: '>=14'}
 
   googleapis-common@7.1.0:
@@ -6674,8 +6671,8 @@ packages:
     peerDependencies:
       marked: '>=1 <15'
 
-  marked@14.1.4:
-    resolution: {integrity: sha512-vkVZ8ONmUdPnjCKc5uTRvmkRbx4EAi2OkTOXmfTDhZz3OFqMNBM1oTTWwTr4HY4uAEojhzPf+Fy8F1DWa3Sndg==}
+  marked@15.0.3:
+    resolution: {integrity: sha512-Ai0cepvl2NHnTcO9jYDtcOEtVBNVYR31XnEA3BndO7f5As1wzpcOceSUM8FDkNLJNIODcLpDTWay/qQhqbuMvg==}
     engines: {node: '>= 18'}
     hasBin: true
 
@@ -8037,12 +8034,6 @@ packages:
       react: ^16.0.0 || ^17 || ^18
       react-dom: ^16.0.0 || ^17 || ^18
 
-  react-simple-code-editor@0.13.1:
-    resolution: {integrity: sha512-XYeVwRZwgyKtjNIYcAEgg2FaQcCZwhbarnkJIV20U2wkCU9q/CPFBo8nRXrK4GXUz3AvbqZFsZRrpUTkqqEYyQ==}
-    peerDependencies:
-      react: '*'
-      react-dom: '*'
-
   react@19.0.0-rc-fb9a90fa48-20240614:
     resolution: {integrity: sha512-nvE3Gy+IOIfH/DXhkyxFVQSrITarFcQz4+shzC/McxQXEUSonpw2oDy/Wi9hdDtV3hlP12VYuDL95iiBREedNQ==}
     engines: {node: '>=0.10.0'}
@@ -9240,6 +9231,10 @@ packages:
 
   uuid@10.0.0:
     resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+    hasBin: true
+
+  uuid@11.0.3:
+    resolution: {integrity: sha512-d0z310fCWv5dJwnX1Y/MncBAqGMKEzlBb1AOf7z9K8ALnd0utBX/msg/fA0+sbyN1ihbMsLhrBlnl1ak7Wa0rg==}
     hasBin: true
 
   uuid@8.3.2:
@@ -11199,30 +11194,30 @@ snapshots:
       outvariant: 1.4.3
       strict-event-emitter: 0.5.1
 
-  '@mui/internal-docs-utils@1.0.15':
+  '@mui/internal-docs-utils@1.0.16':
     dependencies:
       rimraf: 6.0.1
       typescript: 5.7.2
 
-  '@mui/internal-markdown@1.0.20':
+  '@mui/internal-markdown@1.0.22':
     dependencies:
       '@babel/runtime': 7.26.0
       lodash: 4.17.21
-      marked: 14.1.4
+      marked: 15.0.3
       prismjs: 1.29.0
 
-  '@mui/internal-scripts@1.0.27':
+  '@mui/internal-scripts@1.0.29':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/plugin-syntax-class-properties': 7.12.13(@babel/core@7.26.0)
       '@babel/plugin-syntax-jsx': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.0)
       '@babel/types': 7.26.0
-      '@mui/internal-docs-utils': 1.0.15
+      '@mui/internal-docs-utils': 1.0.16
       doctrine: 3.0.0
       lodash: 4.17.21
       typescript: 5.7.2
-      uuid: 9.0.1
+      uuid: 11.0.3
     transitivePeerDependencies:
       - supports-color
 
@@ -11259,13 +11254,13 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/13e5a0c75eea4fe3f7ce48b19bcab6ab1a7bb0bd(encoding@0.1.13)':
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/9b4f2aaab3c107101a9ecfa905cca3ffdcd2d081(encoding@0.1.13)':
     dependencies:
       '@googleapis/sheets': 9.3.1(encoding@0.1.13)
       '@netlify/functions': 2.8.2
-      '@slack/bolt': 4.1.0
+      '@slack/bolt': 4.1.1
       execa: 9.5.1
-      google-auth-library: 9.14.2(encoding@0.1.13)
+      google-auth-library: 9.15.0(encoding@0.1.13)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -11273,16 +11268,16 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@mui/private-theming@6.1.8(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)':
+  '@mui/private-theming@6.1.10(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)':
     dependencies:
       '@babel/runtime': 7.26.0
-      '@mui/utils': 6.1.8(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
+      '@mui/utils': 6.1.10(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
       prop-types: 15.8.1
       react: 19.0.0-rc-fb9a90fa48-20240614
     optionalDependencies:
       '@types/react': types-react@19.0.0-rc.1
 
-  '@mui/styled-engine@6.1.8(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(@emotion/styled@11.13.5(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)':
+  '@mui/styled-engine@6.1.10(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(@emotion/styled@11.13.5(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)':
     dependencies:
       '@babel/runtime': 7.26.0
       '@emotion/cache': 11.13.5
@@ -11295,13 +11290,13 @@ snapshots:
       '@emotion/react': 11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
       '@emotion/styled': 11.13.5(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
 
-  '@mui/system@6.1.8(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(@emotion/styled@11.13.5(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)':
+  '@mui/system@6.1.10(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(@emotion/styled@11.13.5(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)':
     dependencies:
       '@babel/runtime': 7.26.0
-      '@mui/private-theming': 6.1.8(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
-      '@mui/styled-engine': 6.1.8(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(@emotion/styled@11.13.5(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)
+      '@mui/private-theming': 6.1.10(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
+      '@mui/styled-engine': 6.1.10(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(@emotion/styled@11.13.5(@emotion/react@11.13.5(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1))(react@19.0.0-rc-fb9a90fa48-20240614)
       '@mui/types': 7.2.19(types-react@19.0.0-rc.1)
-      '@mui/utils': 6.1.8(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
+      '@mui/utils': 6.1.10(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
       clsx: 2.1.1
       csstype: 3.1.3
       prop-types: 15.8.1
@@ -11315,7 +11310,7 @@ snapshots:
     optionalDependencies:
       '@types/react': types-react@19.0.0-rc.1
 
-  '@mui/utils@6.1.8(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)':
+  '@mui/utils@6.1.10(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)':
     dependencies:
       '@babel/runtime': 7.26.0
       '@mui/types': 7.2.19(types-react@19.0.0-rc.1)
@@ -12065,7 +12060,7 @@ snapshots:
 
   '@sinonjs/text-encoding@0.7.3': {}
 
-  '@slack/bolt@4.1.0':
+  '@slack/bolt@4.1.1':
     dependencies:
       '@slack/logger': 4.0.0
       '@slack/oauth': 3.0.1
@@ -12469,12 +12464,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/parser@8.16.0(eslint@9.8.0)(typescript@5.7.2)':
+  '@typescript-eslint/parser@8.17.0(eslint@9.8.0)(typescript@5.7.2)':
     dependencies:
-      '@typescript-eslint/scope-manager': 8.16.0
-      '@typescript-eslint/types': 8.16.0
-      '@typescript-eslint/typescript-estree': 8.16.0(typescript@5.7.2)
-      '@typescript-eslint/visitor-keys': 8.16.0
+      '@typescript-eslint/scope-manager': 8.17.0
+      '@typescript-eslint/types': 8.17.0
+      '@typescript-eslint/typescript-estree': 8.17.0(typescript@5.7.2)
+      '@typescript-eslint/visitor-keys': 8.17.0
       debug: 4.3.7(supports-color@8.1.1)
       eslint: 9.8.0
     optionalDependencies:
@@ -12492,10 +12487,10 @@ snapshots:
       '@typescript-eslint/types': 7.18.0
       '@typescript-eslint/visitor-keys': 7.18.0
 
-  '@typescript-eslint/scope-manager@8.16.0':
+  '@typescript-eslint/scope-manager@8.17.0':
     dependencies:
-      '@typescript-eslint/types': 8.16.0
-      '@typescript-eslint/visitor-keys': 8.16.0
+      '@typescript-eslint/types': 8.17.0
+      '@typescript-eslint/visitor-keys': 8.17.0
 
   '@typescript-eslint/type-utils@7.18.0(eslint@8.57.1)(typescript@5.7.2)':
     dependencies:
@@ -12513,7 +12508,7 @@ snapshots:
 
   '@typescript-eslint/types@7.18.0': {}
 
-  '@typescript-eslint/types@8.16.0': {}
+  '@typescript-eslint/types@8.17.0': {}
 
   '@typescript-eslint/typescript-estree@5.62.0(typescript@5.7.2)':
     dependencies:
@@ -12544,10 +12539,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/typescript-estree@8.16.0(typescript@5.7.2)':
+  '@typescript-eslint/typescript-estree@8.17.0(typescript@5.7.2)':
     dependencies:
-      '@typescript-eslint/types': 8.16.0
-      '@typescript-eslint/visitor-keys': 8.16.0
+      '@typescript-eslint/types': 8.17.0
+      '@typescript-eslint/visitor-keys': 8.17.0
       debug: 4.3.7(supports-color@8.1.1)
       fast-glob: 3.3.2
       is-glob: 4.0.3
@@ -12610,9 +12605,9 @@ snapshots:
       '@typescript-eslint/types': 7.18.0
       eslint-visitor-keys: 3.4.3
 
-  '@typescript-eslint/visitor-keys@8.16.0':
+  '@typescript-eslint/visitor-keys@8.17.0':
     dependencies:
-      '@typescript-eslint/types': 8.16.0
+      '@typescript-eslint/types': 8.17.0
       eslint-visitor-keys: 4.2.0
 
   '@ungap/structured-clone@1.2.0': {}
@@ -15269,7 +15264,7 @@ snapshots:
 
   globjoin@0.1.4: {}
 
-  google-auth-library@9.14.2(encoding@0.1.13):
+  google-auth-library@9.15.0(encoding@0.1.13):
     dependencies:
       base64-js: 1.5.1
       ecdsa-sig-formatter: 1.0.11
@@ -15285,7 +15280,7 @@ snapshots:
     dependencies:
       extend: 3.0.2
       gaxios: 6.5.0(encoding@0.1.13)
-      google-auth-library: 9.14.2(encoding@0.1.13)
+      google-auth-library: 9.15.0(encoding@0.1.13)
       qs: 6.13.0
       url-template: 2.0.8
       uuid: 9.0.1
@@ -16654,7 +16649,7 @@ snapshots:
       node-emoji: 2.1.3
       supports-hyperlinks: 3.1.0
 
-  marked@14.1.4: {}
+  marked@15.0.3: {}
 
   marked@9.1.6: {}
 
@@ -18335,11 +18330,6 @@ snapshots:
       react-dom: 19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614)
       sucrase: 3.35.0
 
-  react-simple-code-editor@0.13.1(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614):
-    dependencies:
-      react: 19.0.0-rc-fb9a90fa48-20240614
-      react-dom: 19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614)
-
   react@19.0.0-rc-fb9a90fa48-20240614: {}
 
   read-cache@1.0.0:
@@ -19812,6 +19802,8 @@ snapshots:
   utils-merge@1.0.1: {}
 
   uuid@10.0.0: {}
+
+  uuid@11.0.3: {}
 
   uuid@8.3.2: {}
 

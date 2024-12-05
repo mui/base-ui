@@ -79,6 +79,7 @@ export namespace useToggleRoot {
     defaultPressed?: boolean;
     /**
      * If `true`, the component is disabled.
+     * @default false
      */
     disabled: boolean;
     /**

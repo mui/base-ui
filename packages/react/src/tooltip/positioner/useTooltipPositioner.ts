@@ -15,7 +15,7 @@ export function useTooltipPositioner(
   const {
     positionerStyles,
     arrowStyles,
-    hidden,
+    anchorHidden,
     arrowRef,
     arrowUncentered,
     renderedSide,
@@ -27,7 +27,7 @@ export function useTooltipPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || hidden) {
+        if (keepMounted && !open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -44,7 +44,7 @@ export function useTooltipPositioner(
           },
         });
       },
-      [keepMounted, open, hidden, trackCursorAxis, mounted, positionerStyles],
+      [keepMounted, open, trackCursorAxis, mounted, positionerStyles],
     );
 
   return React.useMemo(
@@ -55,8 +55,17 @@ export function useTooltipPositioner(
       arrowUncentered,
       side: renderedSide,
       align: renderedAlign,
+      anchorHidden,
     }),
-    [getPositionerProps, arrowRef, arrowUncentered, renderedSide, renderedAlign, arrowStyles],
+    [
+      getPositionerProps,
+      arrowStyles,
+      arrowRef,
+      arrowUncentered,
+      renderedSide,
+      renderedAlign,
+      anchorHidden,
+    ],
   );
 }
 
@@ -112,12 +121,6 @@ export namespace useTooltipPositioner {
      * @default 5
      */
     collisionPadding?: Padding;
-    /**
-     * Whether the tooltip element is hidden if it appears detached from its anchor element due
-     * to the anchor element being clipped (or hidden) from view.
-     * @default false
-     */
-    hideWhenDetached?: boolean;
     /**
      * Whether to allow the tooltip to remain stuck in view while the anchor element is scrolled out
      * of view.
@@ -193,5 +196,9 @@ export namespace useTooltipPositioner {
      * The rendered align of the tooltip element.
      */
     align: 'start' | 'end' | 'center';
+    /**
+     * Determines if the anchor element is hidden.
+     */
+    anchorHidden: boolean;
   }
 }

@@ -7,7 +7,7 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useSelectPositioner } from './useSelectPositioner';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
@@ -38,7 +38,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionBoundary = 'clipping-ancestors',
     collisionPadding,
     arrowPadding = 5,
-    hideWhenDetached = false,
     sticky = false,
     trackAnchor = true,
     container,
@@ -61,7 +60,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding,
     collisionBoundary,
     collisionPadding,
-    hideWhenDetached,
     sticky,
     trackAnchor,
     allowAxisFlip: false,
@@ -74,8 +72,9 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
       open,
       side: positioner.side,
       align: positioner.align,
+      anchorHidden: positioner.anchorHidden,
     }),
-    [open, positioner.side, positioner.align],
+    [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -84,7 +83,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     ref: mergedRef,
     className,
     state,
-    customStyleHookMapping: popupOpenStateMapping,
+    customStyleHookMapping: popupStateMapping,
     extraProps: otherProps,
   });
 
@@ -104,6 +103,7 @@ namespace SelectPositioner {
     open: boolean;
     side: Side | 'none';
     align: Align;
+    anchorHidden: boolean;
   }
 
   export interface Props
@@ -141,17 +141,6 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
     },
     PropTypes.func,
     PropTypes.shape({
-      current: (props, propName) => {
-        if (props[propName] == null) {
-          return null;
-        }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop '${propName}' to be of type Element`);
-        }
-        return null;
-      },
-    }),
-    PropTypes.shape({
       contextElement: (props, propName) => {
         if (props[propName] == null) {
           return null;
@@ -163,6 +152,17 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
       },
       getBoundingClientRect: PropTypes.func.isRequired,
       getClientRects: PropTypes.func,
+    }),
+    PropTypes.shape({
+      current: (props, propName) => {
+        if (props[propName] == null) {
+          return null;
+        }
+        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+          return new Error(`Expected prop '${propName}' to be of type Element`);
+        }
+        return null;
+      },
     }),
   ]),
   /**
@@ -248,12 +248,6 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
       },
     }),
   ]),
-  /**
-   * If `true`, the Select will be hidden if it is detached from its anchor element due to
-   * differing clipping contexts.
-   * @default false
-   */
-  hideWhenDetached: PropTypes.bool,
   /**
    * The CSS position method for positioning the Select popup element.
    * @default 'absolute'

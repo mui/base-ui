@@ -22,7 +22,6 @@ export default function AnchorPositioning() {
   const [alignOffset, setAlignOffset] = React.useState(0);
   const [collisionPadding, setCollisionPadding] = React.useState(5);
   const [arrowPadding, setArrowPadding] = React.useState(5);
-  const [hideWhenDetached, setHideWhenDetached] = React.useState(false);
   const [arrow, setArrow] = React.useState(true);
   const [hideArrowWhenUncentered, setHideArrowWhenUncentered] =
     React.useState(false);
@@ -44,7 +43,6 @@ export default function AnchorPositioning() {
     sideOffset,
     alignOffset,
     collisionPadding,
-    hideWhenDetached,
     sticky,
     arrowPadding,
     trackAnchor,
@@ -270,15 +268,6 @@ export default function AnchorPositioning() {
               onChange={() => setConstrainSize((prev) => !prev)}
             />
             Constrain size
-          </label>
-
-          <label>
-            <input
-              type="checkbox"
-              checked={hideWhenDetached}
-              onChange={() => setHideWhenDetached((prev) => !prev)}
-            />
-            Hide when detached
           </label>
 
           <label>
