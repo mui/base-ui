@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, FloatingOverlay, FloatingPortal } from '@floating-ui/react';
+import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
 import { useDialogPopup } from './useDialogPopup';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -114,7 +114,6 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 
   return (
     <FloatingPortal root={container}>
-      {modal && mounted && <FloatingOverlay />}
       <FloatingFocusManager
         context={floatingContext}
         modal={modal}
@@ -122,6 +121,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
         closeOnFocusOut={dismissible}
         initialFocus={resolvedInitialFocus}
         returnFocus={finalFocus}
+        outsideElementsInert
       >
         {renderElement()}
       </FloatingFocusManager>
