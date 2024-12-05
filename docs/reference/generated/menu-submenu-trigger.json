@@ -1,5 +1,5 @@
 {
-  "name": "SubmenuTrigger",
+  "name": "MenuSubmenuTrigger",
   "description": "",
   "props": {
     "className": {
