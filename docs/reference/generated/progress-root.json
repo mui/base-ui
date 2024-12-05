@@ -18,6 +18,10 @@
       "type": "string | (state) => string",
       "description": "Class names applied to the element or a function that returns them based on the component's state."
     },
+    "format": {
+      "type": "{ compactDisplay?: 'long' | 'short', currency?: string, currencyDisplay?: 'code' | 'name' | 'narrowSymbol' | 'symbol', currencySign?: 'accounting' | 'standard', localeMatcher?: 'best fit' | 'lookup', maximumFractionDigits?: number, maximumSignificantDigits?: number, minimumFractionDigits?: number, minimumIntegerDigits?: number, minimumSignificantDigits?: number, notation?: 'compact' | 'engineering' | 'scientific' | 'standard', numberingSystem?: string, signDisplay?: 'always' | 'auto' | 'exceptZero' | 'never', style?: 'currency' | 'decimal' | 'percent' | 'unit', unit?: string, unitDisplay?: 'long' | 'narrow' | 'short', useGrouping?: bool }",
+      "description": "Options to format the value."
+    },
     "getAriaLabel": {
       "type": "(value) => string",
       "description": "Accepts a function which returns a string value that provides an accessible name for the Indicator component"
