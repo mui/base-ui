@@ -112,13 +112,17 @@ CheckboxIndicator.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  animated: PropTypes.bool,
+  /**
+   * @ignore
+   */
   children: PropTypes.node,
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the indicator stays mounted when unchecked. Useful for CSS animations.
+   * Determines if the indicator stays mounted when unchecked.
    * @default false
    */
   keepMounted: PropTypes.bool,

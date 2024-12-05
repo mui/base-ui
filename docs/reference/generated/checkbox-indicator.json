@@ -9,7 +9,7 @@
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the indicator stays mounted when unchecked. Useful for CSS animations."
+      "description": "Determines if the indicator stays mounted when unchecked."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
