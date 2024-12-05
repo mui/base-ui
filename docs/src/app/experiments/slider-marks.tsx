@@ -27,7 +27,7 @@ const STOPS = [
   },
 ];
 
-function getSliderThumbAriaValueText(value: number) {
+function getSliderThumbAriaValueText(_formattedValue: string, value: number) {
   return `${value}°C`;
 }
 

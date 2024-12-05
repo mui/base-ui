@@ -10,8 +10,8 @@
     "getAriaValueText": {
       "type": { "name": "func" },
       "signature": {
-        "type": "function(value: number, index: number) => string",
-        "describedArgs": ["value", "index"]
+        "type": "function(formattedValue: string, value: number, index: number) => string",
+        "describedArgs": ["formattedValue", "value", "index"]
       }
     },
     "render": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;node" } }

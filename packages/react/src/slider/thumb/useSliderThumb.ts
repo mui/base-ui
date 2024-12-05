@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { formatNumber } from '../../utils/formatNumber';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -22,17 +23,21 @@ function getNewValue(
   return direction === 1 ? Math.min(thumbValue + step, max) : Math.max(thumbValue - step, min);
 }
 
-function getDefaultAriaValueText(values: readonly number[], index: number): string | undefined {
+function getDefaultAriaValueText(
+  values: readonly number[],
+  index: number,
+  format: Intl.NumberFormatOptions | undefined,
+): string | undefined {
   if (index < 0) {
     return undefined;
   }
 
   if (values.length === 2) {
     if (index === 0) {
-      return `${values[index]} start range`;
+      return `${formatNumber(values[index], [], format)} start range`;
     }
 
-    return `${values[index]} end range`;
+    return `${formatNumber(values[index], [], format)} end range`;
   }
 
   return undefined;
@@ -48,6 +53,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     changeValue,
     direction,
     disabled,
+    format: formatParam,
     getAriaLabel,
     getAriaValueText,
     id: idParam,
@@ -238,6 +244,8 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       if (orientation === 'vertical') {
         cssWritingMode = isRtl ? 'vertical-rl' : 'vertical-lr';
       }
+      const format = Array.isArray(formatParam) ? formatParam[index] : formatParam;
+
       return mergeReactProps(getInputValidationProps(externalProps), {
         'aria-label': getAriaLabel ? getAriaLabel(index) : ariaLabel,
         'aria-labelledby': ariaLabelledby,
@@ -246,8 +254,8 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
         'aria-valuemin': min,
         'aria-valuenow': thumbValue,
         'aria-valuetext': getAriaValueText
-          ? getAriaValueText(thumbValue, index)
-          : (ariaValuetext ?? getDefaultAriaValueText(sliderValues, index)),
+          ? getAriaValueText(formatNumber(thumbValue, [], format), thumbValue, index)
+          : (ariaValuetext ?? getDefaultAriaValueText(sliderValues, index, format)),
         'data-index': index,
         disabled,
         id: inputId,
@@ -279,6 +287,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       ariaValuetext,
       changeValue,
       disabled,
+      formatParam,
       getAriaLabel,
       getAriaValueText,
       getInputValidationProps,
@@ -337,6 +346,10 @@ export namespace useSliderThumb {
      */
     'aria-valuetext'?: string;
     /**
+     * Options to format the input value.
+     */
+    format?: Intl.NumberFormatOptions | Intl.NumberFormatOptions[];
+    /**
      * Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb
      * @param {number} index The index of the input
      * @returns {string}
@@ -345,11 +358,12 @@ export namespace useSliderThumb {
     /**
      * Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.
      * This is important for screen reader users.
-     * @param {number} value The thumb label's value to format.
-     * @param {number} index The thumb label's index to format.
+     * @param {string} formattedValue The thumb's formatted value.
+     * @param {number} value The thumb's numerical value.
+     * @param {number} index The thumb's index.
      * @returns {string}
      */
-    getAriaValueText?: (value: number, index: number) => string;
+    getAriaValueText?: (formattedValue: string, value: number, index: number) => string;
     id?: React.HTMLAttributes<Element>['id'];
     inputId?: React.HTMLAttributes<Element>['id'];
     disabled: boolean;

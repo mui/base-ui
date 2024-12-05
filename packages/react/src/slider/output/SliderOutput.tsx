@@ -23,10 +23,12 @@ const SliderOutput = React.forwardRef(function SliderOutput(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { inputIdMap, state, values } = useSliderRootContext();
+  const { inputIdMap, state, values, format } = useSliderRootContext();
 
-  const { getRootProps } = useSliderOutput({
+  const { getRootProps, formattedValues } = useSliderOutput({
+    format,
     inputIdMap,
+    values,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -36,7 +38,7 @@ const SliderOutput = React.forwardRef(function SliderOutput(
     className,
     ref: forwardedRef,
     extraProps: {
-      children: values.join(' – '),
+      children: formattedValues,
       ...otherProps,
     },
     customStyleHookMapping: sliderStyleHookMapping,
