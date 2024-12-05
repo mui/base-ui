@@ -13,6 +13,7 @@
   }
 
   .SelectPopup {
+    outline: 0;
     max-width: var(--available-width);
     max-height: var(--available-height);
     border-radius: var(--radius-md);
