@@ -44,11 +44,6 @@ export function useCollapsibleRoot(
 export namespace useCollapsibleRoot {
   export interface Parameters {
     /**
-     * If `true`, the component supports CSS/JS-based animations and transitions.
-     * @default true
-     */
-    animated: boolean;
-    /**
      * If `true`, the Collapsible is initially open.
      * This is the controlled counterpart of `defaultOpen`.
      */
