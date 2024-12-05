@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
+import { refType, HTMLElementType } from '../../utils/proptypes';
 
 /**
  *
@@ -29,47 +30,6 @@ const PreviewCardPortal: PreviewCardPortal = function PreviewCardPortal(
   return <FloatingPortal root={container}>{children}</FloatingPortal>;
 };
 
-PreviewCardPortal.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * The container to render the portal element into.
-   */
-  container: PropTypes.oneOfType([
-    (props, propName) => {
-      if (props[propName] == null) {
-        return new Error(`Prop '${propName}' is required but wasn't specified`);
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
-    PropTypes.shape({
-      current: (props, propName) => {
-        if (props[propName] == null) {
-          return null;
-        }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop '${propName}' to be of type Element`);
-        }
-        return null;
-      },
-    }),
-  ]),
-  /**
-   * Whether to keep the portal mounted in the DOM when the popup is closed.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-} as any;
-
 namespace PreviewCardPortal {
   export interface Props {
     children?: React.ReactNode;
@@ -91,5 +51,25 @@ interface PreviewCardPortal {
   (props: PreviewCardPortal.Props): React.JSX.Element | null;
   propTypes?: any;
 }
+
+PreviewCardPortal.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * The container to render the portal element into.
+   */
+  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
+  /**
+   * Whether to keep the portal mounted in the DOM when the popup is closed.
+   * @default false
+   */
+  keepMounted: PropTypes.bool,
+} as any;
 
 export { PreviewCardPortal };

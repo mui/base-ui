@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
+import { refType, HTMLElementType } from '../../utils/proptypes';
 
 /**
  *
@@ -41,28 +42,7 @@ AlertDialogPortal.propTypes /* remove-proptypes */ = {
   /**
    * The container to render the portal element into.
    */
-  container: PropTypes.oneOfType([
-    (props, propName) => {
-      if (props[propName] == null) {
-        return new Error(`Prop '${propName}' is required but wasn't specified`);
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
-    PropTypes.shape({
-      current: (props, propName) => {
-        if (props[propName] == null) {
-          return null;
-        }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop '${propName}' to be of type Element`);
-        }
-        return null;
-      },
-    }),
-  ]),
+  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
   /**
    * Whether to keep the portal mounted in the DOM when the popup is closed.
    * @default false
