@@ -34,5 +34,12 @@
       "description": "Whether the select popup continuously tracks its anchor after the initial positioning upon mount."
     }
   },
-  "classDescriptions": {}
+  "classDescriptions": {},
+  "cssVariablesDescriptions": {
+    "--anchor-height": "The anchor&#39;s height.",
+    "--anchor-width": "The anchor&#39;s width.",
+    "--available-height": "The available height between the trigger and the edge of the viewport.",
+    "--available-width": "The available width between the trigger and the edge of the viewport.",
+    "--transform-origin": "The coordinates that this element is anchored to. Used for animations and transitions."
+  }
 }
