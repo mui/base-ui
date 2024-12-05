@@ -1,0 +1,25 @@
+.Separator {
+  width: 1px;
+  background-color: var(--color-gray-300);
+}
+
+.Link {
+  color: var(--color-gray-600);
+  text-decoration-color: var(--color-gray-400);
+  text-decoration-thickness: 1px;
+  text-decoration-line: none;
+  text-underline-offset: 2px;
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration-line: underline;
+    }
+  }
+
+  &:focus-visible {
+    color: var(--color-gray-900);
+    border-radius: 0.125rem;
+    outline: 2px solid var(--color-blue);
+    text-decoration-line: none;
+  }
+}

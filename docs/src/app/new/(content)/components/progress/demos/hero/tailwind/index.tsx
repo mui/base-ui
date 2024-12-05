@@ -14,7 +14,7 @@ export default function ExampleProgress() {
 
   return (
     <Progress.Root value={value}>
-      <Progress.Track className="block h-1 w-48 overflow-hidden rounded bg-gray-200 outline -outline-offset-1 outline-gray-200">
+      <Progress.Track className="block h-1 w-48 overflow-hidden rounded bg-gray-200 shadow-[inset_0_0_0_1px] shadow-gray-200">
         <Progress.Indicator className="block bg-gray-500 transition-all duration-500" />
       </Progress.Track>
     </Progress.Root>
