@@ -44,5 +44,11 @@
       "type": "number",
       "description": "Indicates how many dialogs are nested within."
     }
+  },
+  "cssVariables": {
+    "--nested-dialogs": {
+      "description": "Indicates how many dialogs are nested within.",
+      "type": "number"
+    }
   }
 }

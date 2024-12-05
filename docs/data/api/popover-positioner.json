@@ -50,6 +50,22 @@
   "imports": [
     "import { Popover } from '@base-ui-components/react/popover';\nconst PopoverPositioner = Popover.Positioner;"
   ],
+  "cssVariables": {
+    "--anchor-height": { "description": "The anchor's height.", "type": "number" },
+    "--anchor-width": { "description": "The anchor's width.", "type": "number" },
+    "--available-height": {
+      "description": "The available height between the trigger and the edge of the viewport.",
+      "type": "number"
+    },
+    "--available-width": {
+      "description": "The available width between the trigger and the edge of the viewport.",
+      "type": "number"
+    },
+    "--transform-origin": {
+      "description": "The coordinates that this element is anchored to. Used for animations and transitions.",
+      "type": "string"
+    }
+  },
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
