@@ -4,7 +4,7 @@ import { Menu } from '@base-ui-components/react/menu';
 export default function ExampleMenu() {
   return (
     <Menu.Root>
-      <Menu.Trigger className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3.5 font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
+      <Menu.Trigger className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
         Song <ChevronDownIcon className="-mr-1" />
       </Menu.Trigger>
       <Menu.Positioner className="outline-0" sideOffset={8}>
@@ -63,7 +63,7 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
-      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" strokeWidth="1.5" />
     </svg>
   );
 }

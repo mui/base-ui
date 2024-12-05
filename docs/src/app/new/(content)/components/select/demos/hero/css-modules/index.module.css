@@ -1,22 +1,23 @@
-.Button {
+.Select {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
+  justify-content: space-between;
+  gap: 0.75rem;
   height: 2.5rem;
-  padding: 0 0.875rem;
+  padding-left: 0.875rem;
+  padding-right: 0.75rem;
   margin: 0;
   outline: 0;
   border: 1px solid var(--color-gray-200);
   border-radius: 0.375rem;
-  background-color: var(--color-gray-50);
   font-family: inherit;
   font-size: 1rem;
-  font-weight: 500;
   line-height: 1.5rem;
   color: var(--color-gray-900);
+  cursor: default;
   user-select: none;
+  min-width: 9rem;
 
   @media (hover: hover) {
     &:hover {
@@ -38,12 +39,13 @@
   }
 }
 
-.ButtonIcon {
-  margin-right: -0.25rem;
+.SelectIcon {
+  display: flex;
 }
 
 .Positioner {
   outline: 0;
+  translate: 0 0.25rem;
 }
 
 .Popup {
@@ -52,6 +54,7 @@
   border-radius: 0.375rem;
   background-color: canvas;
   color: var(--color-gray-900);
+
   transform-origin: var(--transform-origin);
   transition:
     transform 150ms,
@@ -61,6 +64,12 @@
   &[data-ending-style] {
     opacity: 0;
     transform: scale(0.9);
+  }
+
+  &[data-side='none'] {
+    transition: none;
+    transform: none;
+    opacity: 1;
   }
 
   @media (prefers-color-scheme: light) {
@@ -113,16 +122,27 @@
   }
 }
 
-.Item {
+.Option {
+  box-sizing: border-box;
   outline: 0;
-  cursor: default;
-  user-select: none;
-  padding-block: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 2rem;
-  display: flex;
   font-size: 0.9375rem;
   line-height: 1rem;
+  padding-block: 0.5rem;
+  padding-left: 0.625rem;
+  padding-right: 1rem;
+  min-width: var(--anchor-width);
+  display: grid;
+  gap: 0.5rem;
+  align-items: center;
+  grid-template-columns: 0.75rem 1fr;
+  cursor: default;
+  user-select: none;
+
+  [data-side='none'] & {
+    font-size: 1rem;
+    padding-right: 3rem;
+    min-width: calc(var(--anchor-width) + 1rem);
+  }
 
   &[data-highlighted] {
     z-index: 0;
@@ -141,8 +161,16 @@
   }
 }
 
-.Separator {
-  margin: 0.375rem 1rem;
-  height: 1px;
-  background-color: var(--color-gray-200);
+.OptionIndicator {
+  grid-column-start: 1;
+}
+
+.OptionIndicatorIcon {
+  display: block;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.OptionText {
+  grid-column-start: 2;
 }
