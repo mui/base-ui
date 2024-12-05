@@ -1,0 +1,14 @@
+.Track {
+  width: 12rem;
+  display: block;
+  overflow: hidden;
+  background-color: var(--color-gray-200);
+  height: 0.25rem;
+  border-radius: 0.25rem;
+}
+
+.Indicator {
+  display: block;
+  background-color: var(--color-gray-400);
+  transition: width 500ms;
+}
