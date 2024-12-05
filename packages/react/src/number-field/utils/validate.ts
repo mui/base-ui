@@ -1,4 +1,4 @@
-import { getFormatter } from './format';
+import { getFormatter } from '../../utils/formatNumber';
 import { clamp } from '../../utils/clamp';
 
 export function removeFloatingPointErrors(value: number, format: Intl.NumberFormatOptions = {}) {

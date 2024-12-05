@@ -15,8 +15,9 @@
     "getAriaValueText": {
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider. This is important for screen reader users.",
       "typeDescriptions": {
-        "value": "The thumb label&#39;s value to format.",
-        "index": "The thumb label&#39;s index to format."
+        "formattedValue": "The thumb&#39;s formatted value.",
+        "value": "The thumb&#39;s numerical value.",
+        "index": "The thumb&#39;s index."
       }
     },
     "render": { "description": "A function to customize rendering of the component." }
