@@ -19,6 +19,10 @@
       "default": "false",
       "description": "Whether the component should ignore user actions."
     },
+    "format": {
+      "type": "Array<{ compactDisplay?: 'long' | 'short', currency?: string, currencyDisplay?: 'code' | 'name' | 'narrowSymbol' | 'symbol', currencySign?: 'accounting' | 'standard', localeMatcher?: 'best fit' | 'lookup', maximumFractionDigits?: number, maximumSignificantDigits?: number, minimumFractionDigits?: number, minimumIntegerDigits?: number, minimumSignificantDigits?: number, notation?: 'compact' | 'engineering' | 'scientific' | 'standard', numberingSystem?: string, signDisplay?: 'always' | 'auto' | 'exceptZero' | 'never', style?: 'currency' | 'decimal' | 'percent' | 'unit', unit?: string, unitDisplay?: 'long' | 'narrow' | 'short', useGrouping?: bool }> | { compactDisplay?: 'long' | 'short', currency?: string, currencyDisplay?: 'code' | 'name' | 'narrowSymbol' | 'symbol', currencySign?: 'accounting' | 'standard', localeMatcher?: 'best fit' | 'lookup', maximumFractionDigits?: number, maximumSignificantDigits?: number, minimumFractionDigits?: number, minimumIntegerDigits?: number, minimumSignificantDigits?: number, notation?: 'compact' | 'engineering' | 'scientific' | 'standard', numberingSystem?: string, signDisplay?: 'always' | 'auto' | 'exceptZero' | 'never', style?: 'currency' | 'decimal' | 'percent' | 'unit', unit?: string, unitDisplay?: 'long' | 'narrow' | 'short', useGrouping?: bool }",
+      "description": "Options to format the input value."
+    },
     "largeStep": {
       "type": "number",
       "default": "10",

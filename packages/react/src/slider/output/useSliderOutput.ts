@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
+import { formatNumber } from '../../utils/formatNumber';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
 export function useSliderOutput(
   parameters: useSliderOutput.Parameters,
 ): useSliderOutput.ReturnValue {
-  const { 'aria-live': ariaLive = 'off', inputIdMap } = parameters;
+  const { 'aria-live': ariaLive = 'off', format: formatParam, inputIdMap, values } = parameters;
 
   const outputFor = React.useMemo(() => {
     const size = inputIdMap.size;
@@ -20,6 +21,23 @@ export function useSliderOutput(
     }
     return htmlFor.trim() === '' ? undefined : htmlFor.trim();
   }, [inputIdMap]);
+
+  let formattedValues;
+
+  if (values.length > 1) {
+    formattedValues = [];
+    for (let i = 0; i < values.length; i += 1) {
+      formattedValues.push(
+        formatNumber(values[i], [], Array.isArray(formatParam) ? formatParam[i] : formatParam),
+      );
+    }
+  } else {
+    formattedValues = formatNumber(
+      values[0],
+      [],
+      Array.isArray(formatParam) ? formatParam[0] : formatParam,
+    );
+  }
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
@@ -36,19 +54,30 @@ export function useSliderOutput(
   return React.useMemo(
     () => ({
       getRootProps,
+      formattedValues: Array.isArray(formattedValues)
+        ? formattedValues.join(' – ')
+        : formattedValues,
     }),
-    [getRootProps],
+    [getRootProps, formattedValues],
   );
 }
 
 export namespace useSliderOutput {
-  export interface Parameters extends Pick<useSliderRoot.ReturnValue, 'inputIdMap'> {
+  export interface Parameters extends Pick<useSliderRoot.ReturnValue, 'inputIdMap' | 'values'> {
     'aria-live'?: React.AriaAttributes['aria-live'];
+    /**
+     * Options to format the input value.
+     */
+    format?: Intl.NumberFormatOptions | Intl.NumberFormatOptions[];
   }
 
   export interface ReturnValue {
     getRootProps: (
       externalProps?: React.ComponentPropsWithRef<'output'>,
     ) => React.ComponentPropsWithRef<'output'>;
+    /**
+     * A formatted string value for display.
+     */
+    formattedValues: string;
   }
 }
