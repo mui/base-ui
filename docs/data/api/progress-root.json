@@ -4,6 +4,12 @@
     "aria-labelledby": { "type": { "name": "string" } },
     "aria-valuetext": { "type": { "name": "string" } },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "format": {
+      "type": {
+        "name": "shape",
+        "description": "{ compactDisplay?: 'long'<br>&#124;&nbsp;'short', currency?: string, currencyDisplay?: 'code'<br>&#124;&nbsp;'name'<br>&#124;&nbsp;'narrowSymbol'<br>&#124;&nbsp;'symbol', currencySign?: 'accounting'<br>&#124;&nbsp;'standard', localeMatcher?: 'best fit'<br>&#124;&nbsp;'lookup', maximumFractionDigits?: number, maximumSignificantDigits?: number, minimumFractionDigits?: number, minimumIntegerDigits?: number, minimumSignificantDigits?: number, notation?: 'compact'<br>&#124;&nbsp;'engineering'<br>&#124;&nbsp;'scientific'<br>&#124;&nbsp;'standard', numberingSystem?: string, signDisplay?: 'always'<br>&#124;&nbsp;'auto'<br>&#124;&nbsp;'exceptZero'<br>&#124;&nbsp;'never', style?: 'currency'<br>&#124;&nbsp;'decimal'<br>&#124;&nbsp;'percent'<br>&#124;&nbsp;'unit', unit?: string, unitDisplay?: 'long'<br>&#124;&nbsp;'narrow'<br>&#124;&nbsp;'short', useGrouping?: bool }"
+      }
+    },
     "getAriaLabel": {
       "type": { "name": "func" },
       "signature": {
@@ -14,8 +20,8 @@
     "getAriaValueText": {
       "type": { "name": "func" },
       "signature": {
-        "type": "function(value: number | null) => string",
-        "describedArgs": ["value"]
+        "type": "function(formattedValue: string, value: number | null) => string",
+        "describedArgs": ["formattedValue", "value"]
       }
     },
     "max": { "type": { "name": "number" }, "default": "100" },

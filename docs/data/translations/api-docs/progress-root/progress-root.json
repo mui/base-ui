@@ -11,13 +11,17 @@
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
+    "format": { "description": "Options to format the value." },
     "getAriaLabel": {
       "description": "Accepts a function which returns a string value that provides an accessible name for the Indicator component",
       "typeDescriptions": { "value": "The component&#39;s value" }
     },
     "getAriaValueText": {
       "description": "Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress indicator.",
-      "typeDescriptions": { "value": "The component&#39;s value to format" }
+      "typeDescriptions": {
+        "formattedValue": "The component&#39;s formatted value.",
+        "value": "The component&#39;s numerical value."
+      }
     },
     "max": { "description": "The maximum value" },
     "min": { "description": "The minimum value" },

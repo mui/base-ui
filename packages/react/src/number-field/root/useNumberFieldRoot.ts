@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useScrub } from './useScrub';
-import { formatNumber } from '../utils/format';
+import { formatNumber } from '../../utils/formatNumber';
 import { toValidatedNumber } from '../utils/validate';
 import {
   ARABIC_RE,
