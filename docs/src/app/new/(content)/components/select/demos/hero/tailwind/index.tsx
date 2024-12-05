@@ -11,7 +11,7 @@ export default function ExampleSelect() {
         </Select.Icon>
       </Select.Trigger>
       <Select.Positioner className="translate-y-1 outline-0" sideOffset={8}>
-        <Select.Popup className="group origin-[var(--transform-origin)] rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline outline-gray-200 transition-[transform,scale,opacity] data-[side=none]:scale-100 data-[side=none]:opacity-100 data-[side=none]:transition-none dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300 [[data-starting-style],[data-ending-style]]:scale-90 [[data-starting-style],[data-ending-style]]:opacity-0">
+        <Select.Popup className="group origin-[var(--transform-origin)] rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline outline-gray-200 transition-[transform,scale,opacity] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300 [[data-starting-style],[data-ending-style]]:scale-90 [[data-starting-style],[data-ending-style]]:opacity-0 data-[side=none]:[[data-starting-style],[data-ending-style]]:scale-100 data-[side=none]:[[data-starting-style],[data-ending-style]]:opacity-100 data-[side=none]:[[data-starting-style],[data-ending-style]]:transition-none">
           <Select.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
             <ArrowSvg />
           </Select.Arrow>

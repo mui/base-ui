@@ -16,7 +16,6 @@ export default function ExampleMenu() {
           <Menu.Item className={styles.Item}>Add to Library</Menu.Item>
           <Menu.Item className={styles.Item}>Add to Playlist</Menu.Item>
           <Menu.Separator className={styles.Separator} />
-          <Menu.Item className={styles.Item}>Play</Menu.Item>
           <Menu.Item className={styles.Item}>Play Next</Menu.Item>
           <Menu.Item className={styles.Item}>Play Last</Menu.Item>
           <Menu.Separator className={styles.Separator} />
