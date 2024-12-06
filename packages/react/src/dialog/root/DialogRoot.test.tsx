@@ -176,7 +176,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  it('when `true`, waits for the exit transition to finish before unmounting', async function test(t = {}) {
+  it('waits for the exit transition to finish before unmounting', async function test(t = {}) {
     const css = `
     .dialog {
       opacity: 0;
