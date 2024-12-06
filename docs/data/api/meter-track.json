@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "MeterTrack",
+  "imports": [
+    "import { Meter } from '@base-ui-components/react/meter';\nconst MeterTrack = Meter.Track;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "MeterTrack",
+  "forwardsRefTo": "HTMLSpanElement",
+  "filename": "/packages/react/src/meter/track/MeterTrack.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-meter/\">Meter</a></li></ul>",
+  "cssComponent": false
+}

@@ -34,6 +34,7 @@ const pages: readonly RouteMetadata[] = [
       { pathname: '/components/react-form', title: 'Form' },
       { pathname: '/components/react-input', title: 'Input' },
       { pathname: '/components/react-menu', title: 'Menu' },
+      { pathname: '/components/react-meter', title: 'Meter' },
       { pathname: '/components/react-number-field', title: 'Number Field' },
       { pathname: '/components/react-popover', title: 'Popover' },
       { pathname: '/components/react-preview-card', title: 'Preview Card' },

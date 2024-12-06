@@ -19,7 +19,3 @@ export function roundValueToStep(value: number, step: number, min: number) {
   const nearest = Math.round((value - min) / step) * step + min;
   return Number(nearest.toFixed(getDecimalPrecision(step)));
 }
-
-export function valueToPercent(value: number, min: number, max: number) {
-  return ((value - min) * 100) / (max - min);
-}
