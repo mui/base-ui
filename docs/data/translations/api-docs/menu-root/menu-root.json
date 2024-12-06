@@ -8,7 +8,6 @@
     "delay": {
       "description": "The delay in milliseconds until the menu popup is opened when <code>openOnHover</code> is <code>true</code>."
     },
-    "dir": { "description": "The direction of the Menu (left-to-right or right-to-left)." },
     "disabled": { "description": "If <code>true</code>, the Menu is disabled." },
     "loop": {
       "description": "If <code>true</code>, using keyboard navigation will wrap focus to the other end of the list once the end is reached."
