@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, fireEvent } from '@mui/internal-test-utils';
+import { act, describeSkipIf, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { createRenderer } from '#test-utils';
 
@@ -46,41 +46,81 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  // toWarnDev doesn't work reliably with async rendering. To re-eanble after it's fixed in the test-utils.
-  // eslint-disable-next-line mocha/no-skipped-tests
-  describe.skip('prop: modal', () => {
-    it('warns when the dialog is modal but no backdrop is present', async () => {
-      await expect(() =>
-        render(
-          <Dialog.Root modal animated={false}>
-            <Dialog.Popup />
-          </Dialog.Root>,
-        ),
-      ).toWarnDev([
-        'Base UI: The Dialog is modal but no backdrop is present. Add the backdrop component to prevent interacting with the rest of the page.',
-        'Base UI: The Dialog is modal but no backdrop is present. Add the backdrop component to prevent interacting with the rest of the page.',
-      ]);
+  describe('prop: modal', () => {
+    it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
+      const { user } = await render(
+        <div>
+          <input data-testid="input" />
+          <textarea data-testid="textarea" />
+
+          <Dialog.Root modal>
+            <Dialog.Trigger>Open Dialog</Dialog.Trigger>
+            <Dialog.Popup>
+              <Dialog.Close>Close Dialog</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Root>
+
+          <button type="button">Another Button</button>
+        </div>,
+      );
+
+      const outsideElements = [
+        screen.getByTestId('input'),
+        screen.getByTestId('textarea'),
+        screen.getByRole('button', { name: 'Another Button' }),
+      ];
+
+      const trigger = screen.getByRole('button', { name: 'Open Dialog' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        outsideElements.forEach((element) => {
+          // The `inert` attribute can be applied to the element itself or to an ancestor
+          expect(element.closest('[inert]')).not.to.equal(null);
+        });
+      });
+
+      const close = screen.getByRole('button', { name: 'Close Dialog' });
+      await user.click(close);
+
+      await waitFor(() => {
+        outsideElements.forEach((element) => {
+          expect(element.closest('[inert]')).to.equal(null);
+        });
+      });
     });
 
-    it('does not warn when the dialog is not modal and no backdrop is present', () => {
-      expect(() =>
-        render(
-          <Dialog.Root modal={false} animated={false}>
-            <Dialog.Popup />
-          </Dialog.Root>,
-        ),
-      ).not.toWarnDev();
-    });
+    it('does not make other interactive elements on the page inert when a non-modal dialog is open', async () => {
+      const { user } = await render(
+        <div>
+          <input data-testid="input" />
+          <textarea data-testid="textarea" />
 
-    it('does not warn when the dialog is modal and backdrop is present', () => {
-      expect(() =>
-        render(
-          <Dialog.Root modal animated={false}>
-            <Dialog.Backdrop />
-            <Dialog.Popup />
-          </Dialog.Root>,
-        ),
-      ).not.toWarnDev();
+          <Dialog.Root modal={false}>
+            <Dialog.Trigger>Open Dialog</Dialog.Trigger>
+            <Dialog.Popup>
+              <Dialog.Close>Close Dialog</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Root>
+
+          <button type="button">Another Button</button>
+        </div>,
+      );
+
+      const outsideElements = [
+        screen.getByTestId('input'),
+        screen.getByTestId('textarea'),
+        screen.getByRole('button', { name: 'Another Button' }),
+      ];
+
+      const trigger = screen.getByRole('button', { name: 'Open Dialog' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        outsideElements.forEach((element) => {
+          expect(element.closest('[inert]')).to.equal(null);
+        });
+      });
     });
   });
 
