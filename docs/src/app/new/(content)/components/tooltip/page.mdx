@@ -15,17 +15,18 @@
 Import the component and place its parts the following way:
 
 ```jsx title="Anatomy"
-import { PreviewCard } from '@base-ui-components/react/previewCard';
+import { Tooltip } from '@base-ui-components/react/tooltip';
 
-<PreviewCard.Root>
-  <PreviewCard.Trigger />
-  <PreviewCard.Backdrop />
-  <PreviewCard.Positioner>
-    <PreviewCard.Popup>
-      <PreviewCard.Arrow />
-    </PreviewCard.Popup>
-  </PreviewCard.Positioner>
-</PreviewCard.Root>;
+<Tooltip.Provider>
+  <Tooltip.Root>
+    <Tooltip.Trigger />
+    <Tooltip.Positioner>
+      <Tooltip.Popup>
+        <Tooltip.Arrow />
+      </Tooltip.Popup>
+    </Tooltip.Positioner>
+  </Tooltip.Root>
+</Tooltip.Provider>;
 ```
 
-<Reference component="PreviewCard" parts="Root, Trigger, Backdrop, Positioner, Popup, Arrow" />
+<Reference component="Tooltip" parts="Provider, Root, Trigger, Positioner, Popup, Arrow" />
