@@ -18,7 +18,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useControlled } from '../../utils/useControlled';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
-import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 const EMPTY_ARRAY: never[] = [];
 

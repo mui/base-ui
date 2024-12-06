@@ -19,7 +19,7 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,

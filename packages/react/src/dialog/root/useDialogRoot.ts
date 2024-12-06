@@ -14,7 +14,7 @@ import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
