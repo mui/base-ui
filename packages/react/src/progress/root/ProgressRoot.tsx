@@ -140,8 +140,8 @@ ProgressRoot.propTypes /* remove-proptypes */ = {
     useGrouping: PropTypes.bool,
   }),
   /**
-   * Accepts a function which returns a string value that provides an accessible name for the Indicator component
-   * @param {number | null} value The component's value
+   * Accepts a function which returns a string value that provides an accessible name for the Indicator component.
+   * @param {number | null} value The component's value.
    * @returns {string}
    */
   getAriaLabel: PropTypes.func,
@@ -153,12 +153,12 @@ ProgressRoot.propTypes /* remove-proptypes */ = {
    */
   getAriaValueText: PropTypes.func,
   /**
-   * The maximum value
+   * The maximum value.
    * @default 100
    */
   max: PropTypes.number,
   /**
-   * The minimum value
+   * The minimum value.
    * @default 0
    */
   min: PropTypes.number,

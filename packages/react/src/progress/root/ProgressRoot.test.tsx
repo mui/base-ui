@@ -25,6 +25,7 @@ describe('<Progress.Root />', () => {
   it('renders a progressbar', async () => {
     const { getByRole } = await render(
       <Progress.Root value={30}>
+        <Progress.Value />
         <Progress.Track>
           <Progress.Indicator />
         </Progress.Track>
@@ -38,6 +39,7 @@ describe('<Progress.Root />', () => {
     it('sets the correct aria attributes', async () => {
       const { getByRole } = await render(
         <Progress.Root value={30}>
+          <Progress.Value />
           <Progress.Track>
             <Progress.Indicator />
           </Progress.Track>
