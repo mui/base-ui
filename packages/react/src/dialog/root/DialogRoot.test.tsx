@@ -193,6 +193,8 @@ describe('<Dialog.Root />', () => {
       this?.skip?.() || t?.skip();
     }
 
+    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
     const notifyTransitionEnd = spy();
 
     const { setProps, queryByRole } = await render(
@@ -211,5 +213,7 @@ describe('<Dialog.Root />', () => {
     });
 
     expect(notifyTransitionEnd.callCount).to.equal(1);
+
+    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
   });
 });
