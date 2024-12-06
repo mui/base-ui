@@ -7,48 +7,50 @@ export default function RadioItems() {
   return (
     <Menu.Root>
       <MenuButton>Font</MenuButton>
-      <MenuPositioner align="start" keepMounted>
-        <MenuPopup>
-          <Menu.RadioGroup defaultValue={'jetbrains-mono'}>
-            <RadioItem value="cascadia-code">
-              <Indicator />
-              Cascadia Code
-            </RadioItem>
-            <RadioItem value="consolas">
-              <Indicator />
-              Consolas
-            </RadioItem>
-            <RadioItem value="dejavu-sans-mono">
-              <Indicator />
-              DejaVu Sans Mono
-            </RadioItem>
-            <RadioItem value="fira-code">
-              <Indicator />
-              Fira Code
-            </RadioItem>
-            <RadioItem value="jetbrains-mono">
-              <Indicator />
-              JetBrains Mono
-            </RadioItem>
-            <RadioItem value="menlo">
-              <Indicator />
-              Menlo
-            </RadioItem>
-            <RadioItem value="monaco">
-              <Indicator />
-              Monaco
-            </RadioItem>
-            <RadioItem value="monolisa">
-              <Indicator />
-              Monolisa
-            </RadioItem>
-            <RadioItem value="source-code-pro">
-              <Indicator />
-              Source Code Pro
-            </RadioItem>
-          </Menu.RadioGroup>
-        </MenuPopup>
-      </MenuPositioner>
+      <Menu.Portal>
+        <MenuPositioner align="start" keepMounted>
+          <MenuPopup>
+            <Menu.RadioGroup defaultValue={'jetbrains-mono'}>
+              <RadioItem value="cascadia-code">
+                <Indicator />
+                Cascadia Code
+              </RadioItem>
+              <RadioItem value="consolas">
+                <Indicator />
+                Consolas
+              </RadioItem>
+              <RadioItem value="dejavu-sans-mono">
+                <Indicator />
+                DejaVu Sans Mono
+              </RadioItem>
+              <RadioItem value="fira-code">
+                <Indicator />
+                Fira Code
+              </RadioItem>
+              <RadioItem value="jetbrains-mono">
+                <Indicator />
+                JetBrains Mono
+              </RadioItem>
+              <RadioItem value="menlo">
+                <Indicator />
+                Menlo
+              </RadioItem>
+              <RadioItem value="monaco">
+                <Indicator />
+                Monaco
+              </RadioItem>
+              <RadioItem value="monolisa">
+                <Indicator />
+                Monolisa
+              </RadioItem>
+              <RadioItem value="source-code-pro">
+                <Indicator />
+                Source Code Pro
+              </RadioItem>
+            </Menu.RadioGroup>
+          </MenuPopup>
+        </MenuPositioner>
+      </Menu.Portal>
     </Menu.Root>
   );
 }

@@ -7,14 +7,16 @@ export default function UnstyledDialogIntroduction() {
     <AlertDialog.Root>
       <TriggerButton>Subscribe</TriggerButton>
       <Backdrop />
-      <Popup>
-        <Title>Subscribe</Title>
-        <Description>Are you sure you want to subscribe?</Description>
-        <Controls>
-          <CloseButton>Yes</CloseButton>
-          <CloseButton>No</CloseButton>
-        </Controls>
-      </Popup>
+      <AlertDialog.Portal>
+        <Popup>
+          <Title>Subscribe</Title>
+          <Description>Are you sure you want to subscribe?</Description>
+          <Controls>
+            <CloseButton>Yes</CloseButton>
+            <CloseButton>No</CloseButton>
+          </Controls>
+        </Popup>
+      </AlertDialog.Portal>
     </AlertDialog.Root>
   );
 }

@@ -4,7 +4,6 @@
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
-    "container": { "description": "The container element to which the popup is appended to." },
     "finalFocus": {
       "description": "Determines an element to focus after the dialog is closed. If not provided, the focus returns to the trigger."
     },

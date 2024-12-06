@@ -14,23 +14,25 @@ export default function CheckboxItems() {
   return (
     <Menu.Root>
       <MenuButton>My account</MenuButton>
-      <MenuPositioner align="start" keepMounted>
-        <MenuPopup>
-          <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
-          <MenuItem onClick={createHandleMenuClick('Language settings')}>
-            Language settings
-          </MenuItem>
-          <CheckboxItem>
-            <Indicator />
-            Mute notifications
-          </CheckboxItem>
-          <CheckboxItem defaultChecked>
-            <Indicator />
-            Enable preview features
-          </CheckboxItem>
-          <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
-        </MenuPopup>
-      </MenuPositioner>
+      <Menu.Portal>
+        <MenuPositioner align="start" keepMounted>
+          <MenuPopup>
+            <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
+            <MenuItem onClick={createHandleMenuClick('Language settings')}>
+              Language settings
+            </MenuItem>
+            <CheckboxItem>
+              <Indicator />
+              Mute notifications
+            </CheckboxItem>
+            <CheckboxItem defaultChecked>
+              <Indicator />
+              Enable preview features
+            </CheckboxItem>
+            <MenuItem onClick={createHandleMenuClick('Log out')}>Log out</MenuItem>
+          </MenuPopup>
+        </MenuPositioner>
+      </Menu.Portal>
     </Menu.Root>
   );
 }
