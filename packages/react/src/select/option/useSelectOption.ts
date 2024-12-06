@@ -82,7 +82,7 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
           },
           onMouseLeave() {
             const popup = popupRef.current;
-            if (!popup) {
+            if (!popup || !open) {
               return;
             }
 
@@ -157,6 +157,7 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
       getButtonProps,
       highlighted,
       indexRef,
+      open,
       popupRef,
       selected,
       selectionRef,

@@ -97,7 +97,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   useAfterExitAnimation({
     open,
     animatedElementRef: popupRef,
-    onFinished: () => setMounted(false),
+    onFinished() {
+      setMounted(false);
+      setActiveIndex(null);
+    },
   });
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
@@ -155,7 +158,14 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     listRef,
     activeIndex,
     selectedIndex,
-    onNavigate: setActiveIndex,
+    onNavigate(nextActiveIndex) {
+      // Retain the highlight while transitioning out.
+      if (nextActiveIndex === null && !open) {
+        return;
+      }
+
+      setActiveIndex(nextActiveIndex);
+    },
     // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
     // the `alignOptionToTrigger` prop enabled, causing a performance issue on Chrome.
     focusItemOnHover: false,
