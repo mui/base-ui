@@ -72,7 +72,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
   const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, params.animated);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const alignOptionToTrigger = Boolean(mounted && controlledAlignOptionToTrigger && !touchModality);
 
@@ -96,7 +96,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   useAfterExitAnimation({
     open,
-    animated: params.animated || true,
     animatedElementRef: popupRef,
     onFinished: () => setMounted(false),
   });
@@ -278,13 +277,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
 export namespace useSelectRoot {
   export interface Parameters<Value> {
-    /**
-     * If `true`, the Select supports CSS-based animations and transitions.
-     * It is kept in the DOM until the animation completes.
-     *
-     * @default true
-     */
-    animated?: boolean;
     /**
      * The name of the Select in the owning form.
      */

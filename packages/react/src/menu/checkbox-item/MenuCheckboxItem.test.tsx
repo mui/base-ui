@@ -68,7 +68,7 @@ describe('<Menu.CheckboxItem />', () => {
     });
 
     const { getAllByRole } = await render(
-      <Menu.Root open animated={false}>
+      <Menu.Root open>
         <Menu.Positioner>
           <Menu.Popup>
             <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem1Spy} />} id="item-1">
@@ -133,7 +133,7 @@ describe('<Menu.CheckboxItem />', () => {
     ).forEach(([checked, ariaChecked, dataState]) =>
       it('adds the state and ARIA attributes when checked', async () => {
         const { getByRole } = await render(
-          <Menu.Root animated={false}>
+          <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
             <Menu.Positioner>
               <Menu.Popup>
@@ -154,7 +154,7 @@ describe('<Menu.CheckboxItem />', () => {
 
     it('toggles the checked state when clicked', async () => {
       const { getByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>
@@ -181,7 +181,7 @@ describe('<Menu.CheckboxItem />', () => {
 
     it(`toggles the checked state when Space is pressed`, async () => {
       const { getByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>
@@ -211,7 +211,7 @@ describe('<Menu.CheckboxItem />', () => {
 
     it(`toggles the checked state and closes the menu when Enter is pressed`, async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner keepMounted>
             <Menu.Popup>
@@ -243,7 +243,7 @@ describe('<Menu.CheckboxItem />', () => {
     it('calls `onCheckedChange` when the item is clicked', async () => {
       const onCheckedChange = spy();
       const { getByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>
@@ -270,7 +270,7 @@ describe('<Menu.CheckboxItem />', () => {
 
     it('keeps the state when closed and reopened', async () => {
       const { getByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner keepMounted>
             <Menu.Popup>
@@ -299,7 +299,7 @@ describe('<Menu.CheckboxItem />', () => {
   describe('prop: closeOnClick', () => {
     it('when `closeOnClick=true`, closes the menu when the item is clicked', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>
@@ -320,7 +320,7 @@ describe('<Menu.CheckboxItem />', () => {
 
     it('does not close the menu when the item is clicked by default', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>

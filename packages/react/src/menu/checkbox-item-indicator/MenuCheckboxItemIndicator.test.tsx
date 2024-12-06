@@ -9,7 +9,7 @@ describe('<Menu.CheckboxItemIndicator />', () => {
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(
-        <Menu.Root open animated={false}>
+        <Menu.Root open>
           <Menu.Positioner>
             <Menu.Popup>
               <Menu.CheckboxItem>{node}</Menu.CheckboxItem>

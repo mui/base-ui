@@ -8,11 +8,7 @@ describe('<PreviewCard.Backdrop />', () => {
   describeConformance(<PreviewCard.Backdrop />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(
-        <PreviewCard.Root open animated={false}>
-          {node}
-        </PreviewCard.Root>,
-      );
+      return render(<PreviewCard.Root open>{node}</PreviewCard.Root>);
     },
   }));
 });

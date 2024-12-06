@@ -9,7 +9,7 @@ describe('<Select.GroupLabel />', () => {
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
-        <Select.Root open animated={false}>
+        <Select.Root open>
           <Select.Group>{node}</Select.Group>
         </Select.Root>,
       );

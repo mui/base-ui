@@ -9,7 +9,7 @@ describe('<AlertDialog.Trigger />', () => {
     refInstanceof: window.HTMLButtonElement,
     render: (node) => {
       return render(
-        <AlertDialog.Root open animated={false}>
+        <AlertDialog.Root open>
           <AlertDialog.Backdrop />
           {node}
         </AlertDialog.Root>,

@@ -68,7 +68,7 @@ describe('<Menu.Item />', () => {
     });
 
     const { getAllByRole } = await render(
-      <Menu.Root open animated={false}>
+      <Menu.Root open>
         <Menu.Positioner>
           <Menu.Popup>
             <Menu.Item render={<LoggingRoot renderSpy={renderItem1Spy} />} id="item-1">
@@ -126,7 +126,7 @@ describe('<Menu.Item />', () => {
   describe('prop: closeOnClick', () => {
     it('closes the menu when the item is clicked by default', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>
@@ -147,7 +147,7 @@ describe('<Menu.Item />', () => {
 
     it('when `closeOnClick=false` does not close the menu when the item is clicked', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>

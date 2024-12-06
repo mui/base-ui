@@ -9,7 +9,7 @@ describe('<PreviewCard.Arrow />', () => {
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
-        <PreviewCard.Root open animated={false}>
+        <PreviewCard.Root open>
           <PreviewCard.Positioner>
             <PreviewCard.Popup>{node}</PreviewCard.Popup>
           </PreviewCard.Positioner>
