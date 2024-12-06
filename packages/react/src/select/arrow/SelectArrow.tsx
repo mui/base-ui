@@ -24,7 +24,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
   props: SelectArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, hideWhenUncentered = false, ...otherProps } = props;
+  const { className, render, ...otherProps } = props;
 
   const { open, alignOptionToTrigger } = useSelectRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useSelectPositionerContext();
@@ -32,12 +32,9 @@ const SelectArrow = React.forwardRef(function SelectArrow(
   const getArrowProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
-        style: {
-          ...arrowStyles,
-          ...(hideWhenUncentered && arrowUncentered ? { visibility: 'hidden' } : {}),
-        },
+        style: arrowStyles,
       }),
-    [arrowStyles, hideWhenUncentered, arrowUncentered],
+    [arrowStyles],
   );
 
   const state: SelectArrow.State = React.useMemo(
@@ -45,7 +42,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
       open,
       side,
       align,
-      arrowUncentered,
+      uncentered: arrowUncentered,
     }),
     [open, side, align, arrowUncentered],
   );
@@ -74,16 +71,10 @@ namespace SelectArrow {
     open: boolean;
     side: Side | 'none';
     align: Align;
-    arrowUncentered: boolean;
+    uncentered: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
-     * @default false
-     */
-    hideWhenUncentered?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 SelectArrow.propTypes /* remove-proptypes */ = {
@@ -99,11 +90,6 @@ SelectArrow.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
-   * @default false
-   */
-  hideWhenUncentered: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */
