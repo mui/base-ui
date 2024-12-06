@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useTabPanel } from './useTabPanel';
+import { useTabPanel } from './useTabsTabPanel';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -16,10 +16,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * API:
  *
- * - [TabPanel API](https://base-ui.com/components/react-tabs/#api-reference-TabPanel)
+ * - [TabsTabPanel API](https://base-ui.com/components/react-tabs/#api-reference-TabsTabPanel)
  */
-const TabPanel = React.forwardRef(function TabPanel(
-  props: TabPanel.Props,
+const TabsTabPanel = React.forwardRef(function TabPanel(
+  props: TabsTabPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { children, className, value: valueProp, render, keepMounted = false, ...other } = props;
@@ -38,7 +38,7 @@ const TabPanel = React.forwardRef(function TabPanel(
     value: valueProp,
   });
 
-  const state: TabPanel.State = React.useMemo(
+  const state: TabsTabPanel.State = React.useMemo(
     () => ({
       hidden,
       orientation,
@@ -59,7 +59,7 @@ const TabPanel = React.forwardRef(function TabPanel(
   return renderElement();
 });
 
-namespace TabPanel {
+namespace TabsTabPanel {
   export interface State extends TabsRoot.State {
     hidden: boolean;
   }
@@ -79,9 +79,9 @@ namespace TabPanel {
   }
 }
 
-export { TabPanel };
+export { TabsTabPanel };
 
-TabPanel.propTypes /* remove-proptypes */ = {
+TabsTabPanel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │

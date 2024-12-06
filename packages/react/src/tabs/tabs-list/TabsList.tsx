@@ -7,7 +7,7 @@ import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { TabsRoot } from '../root/TabsRoot';
-import { type TabMetadata } from '../tab/useTab';
+import { type TabMetadata } from '../tab/useTabsTab';
 import { useTabsList } from './useTabsList';
 import { TabsListContext } from './TabsListContext';
 

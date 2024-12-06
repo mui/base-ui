@@ -8,7 +8,7 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { useTabsRoot } from './useTabsRoot';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStyleHookMapping } from './styleHooks';
-import { TabPanelMetadata } from '../tab-panel/useTabPanel';
+import { TabPanelMetadata } from '../tab-panel/useTabsTabPanel';
 
 /**
  *

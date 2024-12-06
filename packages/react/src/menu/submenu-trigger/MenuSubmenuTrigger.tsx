@@ -6,7 +6,7 @@ import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSubmenuTrigger } from './useSubmenuTrigger';
+import { useMenuSubmenuTrigger } from './useMenuSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
@@ -18,10 +18,10 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
  *
  * API:
  *
- * - [SubmenuTrigger API](https://base-ui.com/components/react-menu/#api-reference-SubmenuTrigger)
+ * - [MenuSubmenuTrigger API](https://base-ui.com/components/react-menu/#api-reference-MenuSubmenuTrigger)
  */
-const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
-  props: SubmenuTrigger.Props,
+const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
+  props: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { render, className, disabled = false, label, id: idProp, ...other } = props;
@@ -49,7 +49,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
 
   const { events: menuEvents } = useFloatingTree()!;
 
-  const { getRootProps } = useSubmenuTrigger({
+  const { getRootProps } = useMenuSubmenuTrigger({
     id,
     highlighted,
     ref: mergedRef,
@@ -60,7 +60,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     typingRef,
   });
 
-  const state: SubmenuTrigger.State = React.useMemo(
+  const state: MenuSubmenuTrigger.State = React.useMemo(
     () => ({ disabled, highlighted, open }),
     [disabled, highlighted, open],
   );
@@ -78,7 +78,7 @@ const SubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   return renderElement();
 });
 
-namespace SubmenuTrigger {
+namespace MenuSubmenuTrigger {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;
@@ -102,7 +102,7 @@ namespace SubmenuTrigger {
   }
 }
 
-SubmenuTrigger.propTypes /* remove-proptypes */ = {
+MenuSubmenuTrigger.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -139,4 +139,4 @@ SubmenuTrigger.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { SubmenuTrigger };
+export { MenuSubmenuTrigger };

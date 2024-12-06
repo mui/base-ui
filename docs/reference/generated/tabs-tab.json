@@ -1,23 +1,18 @@
 {
-  "name": "SubmenuTrigger",
+  "name": "TabsTab",
   "description": "",
   "props": {
     "className": {
       "type": "string | (state) => string",
       "description": "Class names applied to the element or a function that returns them based on the component's state."
     },
-    "disabled": {
-      "type": "boolean",
-      "default": "false",
-      "description": "If `true`, the menu item will be disabled."
-    },
-    "label": {
-      "type": "string",
-      "description": "A text representation of the menu item's content.\nUsed for keyboard text navigation matching."
-    },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
+    },
+    "value": {
+      "type": "any",
+      "description": "The value of the Tab.\nWhen not specified, the value is the child position index."
     }
   }
 }
