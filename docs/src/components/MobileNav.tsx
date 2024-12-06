@@ -5,17 +5,16 @@ import NextLink from 'next/link';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { HEADER_HEIGHT } from './Header';
 
-type MobileNavState = [boolean, (open: boolean) => void];
-const MobileNavState = React.createContext<MobileNavState>([false, () => undefined]);
+const MobileNavStateCallback = React.createContext<(open: boolean) => void>(() => undefined);
 
 export function Root(props: Dialog.Root.Props) {
   const state = React.useState(false);
   const [open, setOpen] = state;
 
   return (
-    <MobileNavState.Provider value={state}>
+    <MobileNavStateCallback.Provider value={setOpen}>
       <Dialog.Root open={open} onOpenChange={setOpen} {...props} />
-    </MobileNavState.Provider>
+    </MobileNavStateCallback.Provider>
   );
 }
 
@@ -26,7 +25,7 @@ export function Backdrop({ className, ...props }: Dialog.Backdrop.Props) {
 }
 
 export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
-  const [, setOpen] = React.useContext(MobileNavState);
+  const setOpen = React.useContext(MobileNavStateCallback);
   const rem = React.useRef(16);
 
   React.useEffect(() => {
@@ -35,6 +34,7 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
 
   return (
     <Dialog.Popup className={clsx('MobileNavPopup', className)} {...props}>
+      <MountEffect />
       <div className="MobileNavBottomOverscroll" />
       <div
         className="MobileNavViewport"
@@ -119,6 +119,28 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
   );
 }
 
+// iOS Safari appears to flicker the scroll containers during tasking animations
+// As a workaround, we set an attribute on body to know when the nav is mounted
+function MountEffect() {
+  const timeout = React.useRef(0);
+
+  React.useLayoutEffect(() => {
+    window.clearTimeout(timeout.current);
+    document.body.setAttribute('data-mobile-nav-open', '');
+
+    return () => {
+      window.clearTimeout(timeout.current);
+      timeout.current = window.setTimeout(() => {
+        document.body.removeAttribute('data-mobile-nav-open');
+        // Safari seems to need some arbitrary time to be done with whatever causes the flicker
+        // Using setTimeout 0, RAFs, or even double RAFs doesn't work reliably
+      }, 100);
+    };
+  }, []);
+
+  return null;
+}
+
 export function Section({ className, ...props }: React.ComponentProps<'div'>) {
   return <div className={clsx('MobileNavSection', className)} {...props} />;
 }
@@ -142,7 +164,7 @@ interface ItemProps extends React.ComponentPropsWithoutRef<'li'> {
 }
 
 export function Item({ active, children, className, href, rel, ...props }: ItemProps) {
-  const [, setOpen] = React.useContext(MobileNavState);
+  const setOpen = React.useContext(MobileNavStateCallback);
   return (
     <li className={clsx('MobileNavItem', className)} {...props}>
       <NextLink

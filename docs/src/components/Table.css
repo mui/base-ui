@@ -78,5 +78,10 @@
     &::-webkit-scrollbar {
       display: none;
     }
+
+    /* iOS Safari appears to flicker the scroll containers during tasking animations */
+    [data-mobile-nav-open] & {
+      overflow: hidden;
+    }
   }
 }
