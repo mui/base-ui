@@ -127,20 +127,21 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     const viewportWidth = doc.documentElement.clientWidth;
     const availableSpaceBeneathTrigger = viewportHeight - triggerRect.bottom + triggerHeight;
 
-    const optionTextElement = selectedOptionTextRef.current;
+    const textElement = selectedOptionTextRef.current;
     const valueElement = valueRef.current;
     let offsetX = 0;
     let offsetY = 0;
 
-    if (optionTextElement && valueElement) {
+    if (textElement && valueElement) {
       const valueRect = valueElement.getBoundingClientRect();
-      const textRect = optionTextElement.getBoundingClientRect();
+      const textRect = textElement.getBoundingClientRect();
+      const valueLeftFromTriggerLeft = valueRect.left - triggerX;
+      const textLeftFromPositionerLeft = textRect.left - positionerRect.left;
+      const valueCenterFromPositionerTop = valueRect.top - triggerRect.top + valueRect.height / 2;
+      const textCenterFromTriggerTop = textRect.top - positionerRect.top + textRect.height / 2;
 
-      const triggerXDiff = valueRect.left - triggerX;
-      const popupXDiff = textRect.left - positionerRect.left;
-
-      offsetX = triggerXDiff - popupXDiff;
-      offsetY = optionTextElement.offsetTop - (valueRect.top - triggerRect.top);
+      offsetX = valueLeftFromTriggerLeft - textLeftFromPositionerLeft;
+      offsetY = textCenterFromTriggerTop - valueCenterFromPositionerTop;
     }
 
     const idealHeight = availableSpaceBeneathTrigger + offsetY + marginBottom + borderBottom;
