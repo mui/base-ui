@@ -12,38 +12,10 @@ function useMeterRoot(parameters: useMeterRoot.Parameters): useMeterRoot.ReturnV
     getAriaValueText,
     max,
     min,
-    high: highParam,
-    low: lowParam,
-    optimum,
     value,
   } = parameters;
 
   const percentageValue = valueToPercent(value, min, max);
-
-  const high = Number.isNaN(highParam) ? max : highParam;
-  const low = Number.isNaN(lowParam) ? min : lowParam;
-
-  let segment: useMeterRoot.Segment | undefined;
-
-  if (value <= low) {
-    segment = 'low';
-  } else if (value >= high) {
-    segment = 'high';
-  } else {
-    segment = 'medium';
-  }
-
-  // 'low' is preferred if `min <= optimum <= low`
-  // 'high' is preferred if `high <= optimum <= max`
-  let isOptimal = false;
-
-  if (!Number.isNaN(optimum)) {
-    if (min <= optimum && optimum <= low) {
-      isOptimal = segment === 'low';
-    } else if (high <= optimum && optimum <= max) {
-      isOptimal = segment === 'high';
-    }
-  }
 
   const getRootProps: useMeterRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
@@ -64,8 +36,8 @@ function useMeterRoot(parameters: useMeterRoot.Parameters): useMeterRoot.ReturnV
       getAriaValueText,
       max,
       min,
-      value,
       percentageValue,
+      value,
     ],
   );
 
@@ -75,14 +47,10 @@ function useMeterRoot(parameters: useMeterRoot.Parameters): useMeterRoot.ReturnV
     min,
     value,
     percentageValue,
-    segment,
-    isOptimal,
   };
 }
 
 namespace useMeterRoot {
-  export type Segment = 'low' | 'medium' | 'high';
-
   export interface Parameters {
     /**
      * The label for the Indicator component.
@@ -104,22 +72,10 @@ namespace useMeterRoot {
     getAriaLabel: (value: number) => string;
     /**
      * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the meter indicator.
-     * @param {number} value The component's value to format
+     * @param {number} value The component's numerical value.
      * @returns {string}
      */
     getAriaValueText: (value: number) => string;
-    /**
-     * Sets the lower boundary of the high end of the numeric range represented by the component.
-     * If unspecified, or greater than `max`, it will fall back to `max`.
-     * @default 100
-     */
-    high: number;
-    /**
-     * Sets the upper boundary of the low end of the numeric range represented by the component.
-     * If unspecified, or less than `min`, it will fall back to `min`.
-     * @default 0
-     */
-    low: number;
     /**
      * The maximum value
      * @default 100
@@ -130,10 +86,6 @@ namespace useMeterRoot {
      * @default 0
      */
     min: number;
-    /**
-     * Indicates the optimal point in the numeric range represented by the component.
-     */
-    optimum: number;
     /**
      * The current value.
      */
@@ -160,16 +112,6 @@ namespace useMeterRoot {
      * Value represented as a percentage of the range between `min` and `max`.
      */
     percentageValue: number;
-    /**
-     * Which segment the value falls in, where the segment boundaries are defined
-     * by the `min`, `max`, `high`, `low`, and `optimum` props.
-     */
-    segment: Segment;
-    /**
-     * Whether the value is in the preferred end - higher or lower values - of
-     * the numeric range represented by the component.
-     */
-    isOptimal: boolean;
   }
 }
 

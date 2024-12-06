@@ -17,19 +17,10 @@
     },
     "getAriaValueText": {
       "description": "Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the meter indicator.",
-      "typeDescriptions": { "value": "The component&#39;s value to format" }
-    },
-    "high": {
-      "description": "Sets the lower boundary of the high end of the numeric range represented by the component. If unspecified, or greater than <code>max</code>, it will fall back to <code>max</code>."
-    },
-    "low": {
-      "description": "Sets the upper boundary of the low end of the numeric range represented by the component. If unspecified, or less than <code>min</code>, it will fall back to <code>min</code>."
+      "typeDescriptions": { "value": "The component&#39;s numerical value." }
     },
     "max": { "description": "The maximum value" },
     "min": { "description": "The minimum value" },
-    "optimum": {
-      "description": "Indicates the optimal point in the numeric range represented by the component."
-    },
     "render": { "description": "A function to customize rendering of the component." },
     "value": { "description": "The current value." }
   },

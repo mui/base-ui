@@ -9,9 +9,6 @@ interface Range {
   value: number;
   min: number;
   max: number;
-  high: number;
-  low: number;
-  optimum: number;
 }
 
 export default function MeterIntroduction() {
@@ -19,9 +16,6 @@ export default function MeterIntroduction() {
     value: 55,
     min: 0,
     max: 100,
-    high: 70,
-    low: 20,
-    optimum: 80,
   });
 
   function setValue(name: string, value: number | null) {
@@ -43,9 +37,6 @@ export default function MeterIntroduction() {
             value={range.value}
             min={range.min}
             max={range.max}
-            high={range.high}
-            low={range.low}
-            optimum={range.optimum}
           >
             <Meter.Track className={classes.track}>
               <Meter.Indicator className={classes.indicator} />
@@ -53,7 +44,7 @@ export default function MeterIntroduction() {
           </Meter.Root>
         </div>
         <div className={classes.controls}>
-          {['value', 'min', 'max', 'high', 'low', 'optimum'].map((v) => {
+          {['value', 'min', 'max'].map((v) => {
             return (
               <Input
                 key={v}
@@ -68,19 +59,13 @@ export default function MeterIntroduction() {
       </div>
 
       <div dir="rtl">
-        <pre>
-          This is the same meter as above but wrapped in a div with the `dir="rtl"`
-          attribute so it fills from right-to-left
-        </pre>
+        <pre>RTL:</pre>
         <Meter.Root
           className={classes.meter}
           aria-label="Battery Life"
           value={range.value}
           min={range.min}
           max={range.max}
-          high={range.high}
-          low={range.low}
-          optimum={range.optimum}
         >
           <Meter.Track className={classes.track}>
             <Meter.Indicator className={classes.indicator} />

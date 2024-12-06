@@ -4,13 +4,4 @@ import type { MeterRoot } from './MeterRoot';
 export const meterStyleHookMapping: CustomStyleHookMapping<MeterRoot.State> = {
   max: () => null,
   min: () => null,
-  isOptimal: (value: boolean) => {
-    if (value) {
-      return {
-        'data-optimum': '',
-      };
-    }
-
-    return null;
-  },
 };

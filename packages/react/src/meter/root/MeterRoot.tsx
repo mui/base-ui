@@ -33,9 +33,6 @@ const MeterRoot = React.forwardRef(function MeterRoot(
     getAriaValueText: getAriaValueTextProp,
     max = 100,
     min = 0,
-    low,
-    high,
-    optimum,
     value,
     render,
     className,
@@ -50,9 +47,6 @@ const MeterRoot = React.forwardRef(function MeterRoot(
     getAriaValueText: getAriaValueTextProp ?? NOOP,
     max,
     min,
-    low: low ?? min,
-    high: high ?? max,
-    optimum: optimum ?? NaN,
     value,
   });
 
@@ -60,10 +54,8 @@ const MeterRoot = React.forwardRef(function MeterRoot(
     () => ({
       max,
       min,
-      segment: meter.segment,
-      isOptimal: meter.isOptimal,
     }),
-    [max, min, meter.segment, meter.isOptimal],
+    [max, min],
   );
 
   const contextValue: MeterRootContext = React.useMemo(
@@ -93,8 +85,6 @@ namespace MeterRoot {
   export type State = {
     max: number;
     min: number;
-    segment: useMeterRoot.Segment;
-    isOptimal: boolean;
   };
 
   export interface Props
@@ -142,22 +132,10 @@ MeterRoot.propTypes /* remove-proptypes */ = {
   getAriaLabel: PropTypes.func,
   /**
    * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the meter indicator.
-   * @param {number} value The component's value to format
+   * @param {number} value The component's numerical value.
    * @returns {string}
    */
   getAriaValueText: PropTypes.func,
-  /**
-   * Sets the lower boundary of the high end of the numeric range represented by the component.
-   * If unspecified, or greater than `max`, it will fall back to `max`.
-   * @default 100
-   */
-  high: PropTypes.number,
-  /**
-   * Sets the upper boundary of the low end of the numeric range represented by the component.
-   * If unspecified, or less than `min`, it will fall back to `min`.
-   * @default 0
-   */
-  low: PropTypes.number,
   /**
    * The maximum value
    * @default 100
@@ -168,10 +146,6 @@ MeterRoot.propTypes /* remove-proptypes */ = {
    * @default 0
    */
   min: PropTypes.number,
-  /**
-   * Indicates the optimal point in the numeric range represented by the component.
-   */
-  optimum: PropTypes.number,
   /**
    * A function to customize rendering of the component.
    */

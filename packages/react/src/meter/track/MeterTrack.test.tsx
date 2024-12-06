@@ -8,13 +8,9 @@ const contextValue: MeterRootContext = {
   min: 0,
   value: 30,
   percentageValue: 30,
-  segment: 'low',
-  isOptimal: false,
   state: {
     max: 100,
     min: 0,
-    segment: 'low',
-    isOptimal: false,
   },
 };
 

@@ -13,11 +13,8 @@
       "type": { "name": "func" },
       "signature": { "type": "function(value: number) => string", "describedArgs": ["value"] }
     },
-    "high": { "type": { "name": "number" }, "default": "100" },
-    "low": { "type": { "name": "number" }, "default": "0" },
     "max": { "type": { "name": "number" }, "default": "100" },
     "min": { "type": { "name": "number" }, "default": "0" },
-    "optimum": { "type": { "name": "number" } },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "MeterRoot",
