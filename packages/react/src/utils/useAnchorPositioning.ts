@@ -16,13 +16,13 @@ import {
   type VirtualElement,
   type Padding,
   type FloatingContext,
+  type Side as PhysicalSide,
 } from '@floating-ui/react';
 import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
 
-export type InlineSide = 'inline-end' | 'inline-start';
-export type Side = 'top' | 'bottom' | 'left' | 'right';
+export type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 export type Align = 'start' | 'center' | 'end';
 export type Boundary = 'clipping-ancestors' | Element | Element[] | Rect;
 
@@ -34,7 +34,7 @@ interface UseAnchorPositioningParameters {
     | React.MutableRefObject<Element | null>
     | null;
   positionMethod?: 'absolute' | 'fixed';
-  side?: Side | InlineSide;
+  side?: Side;
   sideOffset?: number;
   align?: Align;
   alignOffset?: number;
@@ -56,7 +56,7 @@ interface UseAnchorPositioningReturnValue {
   arrowStyles: React.CSSProperties;
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
-  renderedSide: Side;
+  renderedSide: PhysicalSide;
   renderedAlign: Align;
   anchorHidden: boolean;
   refs: ReturnType<typeof useFloating>['refs'];
@@ -103,7 +103,7 @@ export function useAnchorPositioning(
       left: 'left',
       'inline-end': isRtl ? 'left' : 'right',
       'inline-start': isRtl ? 'right' : 'left',
-    } satisfies Record<InlineSide | Side, Side>
+    } satisfies Record<Side, PhysicalSide>
   )[sideParam];
 
   const placement = align === 'center' ? side : (`${side}-${align}` as Placement);

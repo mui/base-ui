@@ -1,18 +1,13 @@
 import * as React from 'react';
 import type {
   VirtualElement,
-  Side,
   Padding,
   FloatingRootContext,
   FloatingContext,
   Middleware,
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
-import {
-  type Boundary,
-  type InlineSide,
-  useAnchorPositioning,
-} from '../../utils/useAnchorPositioning';
+import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
@@ -131,7 +126,7 @@ export namespace useSelectPositioner {
      * The side of the anchor element that the Select element should align to.
      * @default 'bottom'
      */
-    side?: Side | InlineSide;
+    side?: Side;
     /**
      * The gap between the anchor element and the Select element.
      * @default 0
