@@ -1,14 +1,13 @@
 import * as React from 'react';
 import type {
   VirtualElement,
-  Side,
   Padding,
   FloatingRootContext,
   FloatingContext,
   Middleware,
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
-import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';

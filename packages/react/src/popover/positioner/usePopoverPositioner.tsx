@@ -4,9 +4,10 @@ import type {
   Padding,
   FloatingContext,
   FloatingRootContext,
+  Side as PhysicalSide,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 
@@ -91,7 +92,7 @@ export namespace usePopoverPositioner {
      * The side of the anchor element that the popover element should be placed at.
      * @default 'bottom'
      */
-    side?: 'top' | 'right' | 'bottom' | 'left';
+    side?: Side;
     /**
      * The gap between the anchor element and the popover element.
      * @default 0
@@ -182,7 +183,7 @@ export namespace usePopoverPositioner {
     /**
      * The rendered side of the popover element.
      */
-    side: 'top' | 'right' | 'bottom' | 'left';
+    side: PhysicalSide;
     /**
      * The rendered align of the popover element.
      */

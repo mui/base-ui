@@ -4,6 +4,7 @@ import type {
   FloatingContext,
   VirtualElement,
   FloatingRootContext,
+  Side as PhysicalSide,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { Boundary, useAnchorPositioning, type Side } from '../../utils/useAnchorPositioning';
@@ -179,7 +180,7 @@ export namespace usePreviewCardPositioner {
     /**
      * The rendered side of the preview card element.
      */
-    side: 'top' | 'right' | 'bottom' | 'left';
+    side: PhysicalSide;
     /**
      * The rendered align of the preview card element.
      */

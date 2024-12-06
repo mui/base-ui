@@ -16,11 +16,13 @@ import {
   type VirtualElement,
   type Padding,
   type FloatingContext,
+  type Side as PhysicalSide,
 } from '@floating-ui/react';
 import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
+import { useDirection } from '../direction-provider/DirectionContext';
 
-export type Side = 'top' | 'bottom' | 'left' | 'right';
+export type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 export type Align = 'start' | 'center' | 'end';
 export type Boundary = 'clipping-ancestors' | Element | Element[] | Rect;
 
@@ -54,7 +56,7 @@ interface UseAnchorPositioningReturnValue {
   arrowStyles: React.CSSProperties;
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
-  renderedSide: Side;
+  renderedSide: PhysicalSide;
   renderedAlign: Align;
   anchorHidden: boolean;
   refs: ReturnType<typeof useFloating>['refs'];
@@ -74,7 +76,7 @@ export function useAnchorPositioning(
     anchor,
     floatingRootContext,
     positionMethod = 'absolute',
-    side = 'top',
+    side: sideParam = 'top',
     sideOffset = 0,
     align = 'center',
     alignOffset = 0,
@@ -89,6 +91,20 @@ export function useAnchorPositioning(
     allowAxisFlip = true,
     nodeId,
   } = params;
+
+  const direction = useDirection();
+  const isRtl = direction === 'rtl';
+
+  const side = (
+    {
+      top: 'top',
+      right: 'right',
+      bottom: 'bottom',
+      left: 'left',
+      'inline-end': isRtl ? 'left' : 'right',
+      'inline-start': isRtl ? 'right' : 'left',
+    } satisfies Record<Side, PhysicalSide>
+  )[sideParam];
 
   const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
 
