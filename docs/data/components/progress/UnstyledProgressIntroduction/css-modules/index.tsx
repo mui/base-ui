@@ -13,6 +13,7 @@ export default function UnstyledProgressIntroduction() {
       <span className={classes.label} id="ProgressLabel">
         Uploading files
       </span>
+      <Progress.Value className={classes.label} />
       <Progress.Track className={classes.track}>
         <Progress.Indicator className={classes.indicator} />
       </Progress.Track>

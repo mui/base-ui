@@ -6,6 +6,12 @@
       "type": { "name": "union", "description": "Array&lt;number&gt;<br>&#124;&nbsp;number" }
     },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "format": {
+      "type": {
+        "name": "union",
+        "description": "Array&lt;{ compactDisplay?: 'long'<br>&#124;&nbsp;'short', currency?: string, currencyDisplay?: 'code'<br>&#124;&nbsp;'name'<br>&#124;&nbsp;'narrowSymbol'<br>&#124;&nbsp;'symbol', currencySign?: 'accounting'<br>&#124;&nbsp;'standard', localeMatcher?: 'best fit'<br>&#124;&nbsp;'lookup', maximumFractionDigits?: number, maximumSignificantDigits?: number, minimumFractionDigits?: number, minimumIntegerDigits?: number, minimumSignificantDigits?: number, notation?: 'compact'<br>&#124;&nbsp;'engineering'<br>&#124;&nbsp;'scientific'<br>&#124;&nbsp;'standard', numberingSystem?: string, signDisplay?: 'always'<br>&#124;&nbsp;'auto'<br>&#124;&nbsp;'exceptZero'<br>&#124;&nbsp;'never', style?: 'currency'<br>&#124;&nbsp;'decimal'<br>&#124;&nbsp;'percent'<br>&#124;&nbsp;'unit', unit?: string, unitDisplay?: 'long'<br>&#124;&nbsp;'narrow'<br>&#124;&nbsp;'short', useGrouping?: bool }&gt;<br>&#124;&nbsp;{ compactDisplay?: 'long'<br>&#124;&nbsp;'short', currency?: string, currencyDisplay?: 'code'<br>&#124;&nbsp;'name'<br>&#124;&nbsp;'narrowSymbol'<br>&#124;&nbsp;'symbol', currencySign?: 'accounting'<br>&#124;&nbsp;'standard', localeMatcher?: 'best fit'<br>&#124;&nbsp;'lookup', maximumFractionDigits?: number, maximumSignificantDigits?: number, minimumFractionDigits?: number, minimumIntegerDigits?: number, minimumSignificantDigits?: number, notation?: 'compact'<br>&#124;&nbsp;'engineering'<br>&#124;&nbsp;'scientific'<br>&#124;&nbsp;'standard', numberingSystem?: string, signDisplay?: 'always'<br>&#124;&nbsp;'auto'<br>&#124;&nbsp;'exceptZero'<br>&#124;&nbsp;'never', style?: 'currency'<br>&#124;&nbsp;'decimal'<br>&#124;&nbsp;'percent'<br>&#124;&nbsp;'unit', unit?: string, unitDisplay?: 'long'<br>&#124;&nbsp;'narrow'<br>&#124;&nbsp;'short', useGrouping?: bool }"
+      }
+    },
     "largeStep": { "type": { "name": "number" }, "default": "10" },
     "max": { "type": { "name": "number" }, "default": "100" },
     "min": { "type": { "name": "number" }, "default": "0" },
