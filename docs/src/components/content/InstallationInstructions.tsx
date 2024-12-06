@@ -29,7 +29,10 @@ export function InstallationInstructions(props: InstallationInstructionsProps) {
       <CodeBlock.Root>
         <CodeBlock.Pre>
           {componentNames
-            .map((name) => `import { ${name} } from '@base-ui-components/react/${name}';`)
+            .map(
+              (name) =>
+                `import { ${name} } from '@base-ui-components/react/${name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}';`,
+            )
             .join('\n')}
         </CodeBlock.Pre>
       </CodeBlock.Root>

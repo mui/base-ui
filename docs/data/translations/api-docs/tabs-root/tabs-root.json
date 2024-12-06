@@ -7,7 +7,6 @@
     "defaultValue": {
       "description": "The default value. Use when the component is not controlled. When the value is <code>null</code>, no Tab will be selected."
     },
-    "direction": { "description": "The direction of the text." },
     "onValueChange": { "description": "Callback invoked when new value is being set." },
     "orientation": { "description": "The component orientation (layout flow direction)." },
     "render": { "description": "A function to customize rendering of the component." },

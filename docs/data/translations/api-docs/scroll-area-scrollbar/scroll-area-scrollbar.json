@@ -10,5 +10,9 @@
     "orientation": { "description": "The orientation of the scrollbar." },
     "render": { "description": "A function to customize rendering of the component." }
   },
-  "classDescriptions": {}
+  "classDescriptions": {},
+  "cssVariablesDescriptions": {
+    "--scroll-area-thumb-height": "The scroll area thumb&#39;s height.",
+    "--scroll-area-thumb-width": "The scroll area thumb&#39;s width."
+  }
 }

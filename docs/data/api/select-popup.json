@@ -6,14 +6,14 @@
   },
   "name": "SelectPopup",
   "imports": [
-    "import { Select } from '@base-ui-components/react/Select';\nconst SelectPopup = Select.Popup;"
+    "import { Select } from '@base-ui-components/react/select';\nconst SelectPopup = Select.Popup;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SelectPopup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/Select/Popup/SelectPopup.tsx",
+  "filename": "/packages/react/src/select/popup/SelectPopup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

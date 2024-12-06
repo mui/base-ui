@@ -2,15 +2,15 @@
   "name": "TooltipPositioner",
   "description": "The tooltip positioner element.",
   "props": {
-    "alignment": {
+    "align": {
       "type": "'start' | 'center' | 'end'",
       "default": "'center'",
-      "description": "The alignment of the tooltip element to the anchor element along its cross axis."
+      "description": "The align of the tooltip element to the anchor element along its cross axis."
     },
-    "alignmentOffset": {
+    "alignOffset": {
       "type": "number",
       "default": "0",
-      "description": "The offset of the tooltip element along its alignment axis."
+      "description": "The offset of the tooltip element along its align axis."
     },
     "anchor": {
       "type": "React.Ref | Element | VirtualElement | (() => Element | VirtualElement | null) | null",
@@ -38,11 +38,6 @@
     "container": {
       "type": "React.Ref | HTMLElement | null",
       "description": "The container element the tooltip positioner is appended to."
-    },
-    "hideWhenDetached": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the tooltip element is hidden if it appears detached from its anchor element due\nto the anchor element being clipped (or hidden) from view."
     },
     "keepMounted": {
       "type": "boolean",
@@ -72,6 +67,28 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether to allow the tooltip to remain stuck in view while the anchor element is scrolled out\nof view."
+    }
+  },
+  "cssVariables": {
+    "--anchor-height": {
+      "description": "The anchor's height.",
+      "type": "number"
+    },
+    "--anchor-width": {
+      "description": "The anchor's width.",
+      "type": "number"
+    },
+    "--available-height": {
+      "description": "The available height between the trigger and the edge of the viewport.",
+      "type": "number"
+    },
+    "--available-width": {
+      "description": "The available width between the trigger and the edge of the viewport.",
+      "type": "number"
+    },
+    "--transform-origin": {
+      "description": "The coordinates that this element is anchored to. Used for animations and transitions.",
+      "type": "string"
     }
   }
 }

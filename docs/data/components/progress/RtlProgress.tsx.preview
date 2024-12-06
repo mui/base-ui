@@ -1,8 +1,12 @@
-<Progress value={65} aria-labelledby="RtlProgressLabel" dir="rtl">
-  <span className="Progress-label" id="RtlProgressLabel">
-    Uploading files (RTL)
+<Progress.Root
+  value={65}
+  aria-labelledby="RtlProgressLabel"
+  className={classes.progress}
+>
+  <span className={classes.label} id="RtlProgressLabel">
+    تحميل الملفات (RTL)
   </span>
-  <ProgressTrack>
-    <ProgressIndicator />
-  </ProgressTrack>
-</Progress>
+  <Progress.Track className={classes.track}>
+    <Progress.Indicator className={classes.indicator} />
+  </Progress.Track>
+</Progress.Root>

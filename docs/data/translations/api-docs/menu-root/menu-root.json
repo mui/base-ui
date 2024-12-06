@@ -1,9 +1,6 @@
 {
   "componentDescription": "",
   "propDescriptions": {
-    "animated": {
-      "description": "If <code>true</code>, the Menu supports CSS-based animations and transitions. It is kept in the DOM until the animation completes."
-    },
     "closeParentOnEsc": {
       "description": "Determines if pressing the Esc key closes the parent menus. This is only applicable for nested menus.<br>If set to <code>false</code> pressing Esc closes only the current menu."
     },

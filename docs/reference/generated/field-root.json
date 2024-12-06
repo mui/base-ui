@@ -24,7 +24,7 @@
       "description": "A function to customize rendering of the component."
     },
     "validate": {
-      "type": "function",
+      "type": "(value) => string | string[] | null | Promise",
       "description": "Function to custom-validate the field's value. Return a string or array of strings with error\nmessages if the value is invalid, or `null` if the value is valid. The function can also return\na promise that resolves to a string, array of strings, or `null`."
     },
     "validationDebounceTime": {

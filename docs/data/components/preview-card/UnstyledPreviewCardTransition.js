@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { PreviewCard } from '@base-ui-components/react/PreviewCard';
+import { PreviewCard } from '@base-ui-components/react/preview-card';
 import { styled } from '@mui/system';
 
 export default function UnstyledPreviewCardTransition() {
@@ -62,7 +62,7 @@ export const PreviewCardPopup = styled(PreviewCard.Popup)`
     transform: scale(1);
   }
 
-  &[data-entering] {
+  &[data-starting-style] {
     opacity: 0;
     transform: scale(0.95);
   }

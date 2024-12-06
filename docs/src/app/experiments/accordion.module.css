@@ -119,6 +119,6 @@
   transition: height var(--duration) ease-in;
 }
 
-.panel.csstransition[data-entering] {
+.panel.csstransition[data-starting-style] {
   height: 0;
 }

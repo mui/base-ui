@@ -26,7 +26,6 @@ export const defaultRenderFunctions = {
     return <a {...props} />;
   },
   label: (props: React.ComponentPropsWithRef<'label'>) => {
-    // eslint-disable-next-line jsx-a11y/label-has-associated-control
     return <label {...props} />;
   },
   input: (props: React.ComponentPropsWithRef<'input'>) => {

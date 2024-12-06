@@ -1,0 +1,133 @@
+@layer components {
+  .SideNavRoot {
+    /* Match quick nav spacing so side nav and quick nav are visually aligned */
+    --side-nav-item-height: 2rem;
+    --side-nav-item-line-height: var(--text-sm--line-height);
+    --side-nav-item-padding-y: calc(
+      var(--side-nav-item-height) / 2 - var(--side-nav-item-line-height) / 2
+    );
+
+    --side-nav-scrollbar-thumb-width: 0.25rem;
+    --side-nav-scrollbar-width: 1.5rem;
+    --side-nav-scrollbar-gap-left: 1rem;
+    --side-nav-scrollbar-gap-right: 2.5rem;
+    margin-right: calc(
+      var(--side-nav-scrollbar-gap-right) - var(--side-nav-scrollbar-width) / 2 +
+        var(--side-nav-scrollbar-thumb-width) / 2
+    );
+
+    @apply text-sm;
+    position: sticky;
+    top: 0;
+
+    display: none;
+    @media (--show-side-nav) {
+      display: block;
+    }
+  }
+
+  .SideNavViewport {
+    max-height: 100vh;
+    padding-top: 0.75rem;
+    padding-bottom: 3rem;
+    padding-left: 1.5rem;
+    padding-right: calc(
+      var(--side-nav-scrollbar-gap-left) + var(--side-nav-scrollbar-width) / 2 +
+        var(--side-nav-scrollbar-thumb-width) / 2
+    );
+
+    /* Scroll containers are focusable */
+    outline: 0;
+    .SideNavRoot:has(&:focus-visible)::before {
+      content: '';
+      inset: 0;
+      pointer-events: none;
+      position: absolute;
+      outline: 2px solid var(--color-blue);
+      outline-offset: -2px;
+      /* Don't inset the outline on the right */
+      right: -2px;
+    }
+  }
+
+  .SideNavScrollbar {
+    display: flex;
+    padding-top: 1.5rem;
+    padding-bottom: 3rem;
+
+    /* Click target width */
+    width: var(--side-nav-scrollbar-width);
+
+    opacity: 0;
+    transition: opacity 200ms 500ms;
+
+    &:active,
+    &[data-scrolling],
+    .SideNavViewport:focus-visible + & {
+      transition-duration: 0ms;
+      transition-delay: 0ms;
+      opacity: 1;
+    }
+  }
+
+  .SideNavScrollbarThumb {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+    &::before {
+      content: '';
+      display: block;
+      height: 100%;
+      /* Visible thumb width */
+      width: var(--side-nav-scrollbar-thumb-width);
+      border-radius: var(--radius-sm);
+      background-color: var(--color-gray-300);
+    }
+  }
+
+  .SideNavSection {
+    margin-bottom: 1rem;
+  }
+
+  .SideNavHeading {
+    display: inline-flex;
+    padding-block: var(--side-nav-item-padding-y);
+    font-weight: 500;
+  }
+
+  .SideNavItem {
+    display: flex;
+  }
+
+  .SideNavLink {
+    display: block;
+    padding: var(--side-nav-item-padding-y) 0.75rem;
+    border-radius: var(--radius-md);
+
+    @media (hover: hover) {
+      &:hover {
+        text-decoration: underline;
+        text-decoration-color: var(--color-gray-500);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+    }
+
+    &[data-active] {
+      flex-grow: 1;
+      background-color: var(--color-gray-50);
+      outline: 1px solid var(--color-gray-200);
+      outline-offset: -1px;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: default;
+    }
+
+    &:focus-visible {
+      z-index: 1;
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+    }
+  }
+}

@@ -1,12 +1,10 @@
 {
   "componentDescription": "The tooltip positioner element.",
   "propDescriptions": {
-    "alignment": {
-      "description": "The alignment of the tooltip element to the anchor element along its cross axis."
+    "align": {
+      "description": "The align of the tooltip element to the anchor element along its cross axis."
     },
-    "alignmentOffset": {
-      "description": "The offset of the tooltip element along its alignment axis."
-    },
+    "alignOffset": { "description": "The offset of the tooltip element along its align axis." },
     "anchor": { "description": "The element to which the tooltip element is anchored to." },
     "arrowPadding": {
       "description": "Determines the padding between the arrow and the tooltip edges. Useful when the tooltip element has rounded corners via <code>border-radius</code>."
@@ -21,9 +19,6 @@
       "description": "The padding between the tooltip element and the edges of the collision boundary to add whitespace between them to prevent them from touching."
     },
     "container": { "description": "The container element the tooltip positioner is appended to." },
-    "hideWhenDetached": {
-      "description": "Whether the tooltip element is hidden if it appears detached from its anchor element due to the anchor element being clipped (or hidden) from view."
-    },
     "keepMounted": {
       "description": "Whether the tooltip remains mounted in the DOM while closed."
     },
@@ -39,5 +34,12 @@
       "description": "Whether to allow the tooltip to remain stuck in view while the anchor element is scrolled out of view."
     }
   },
-  "classDescriptions": {}
+  "classDescriptions": {},
+  "cssVariablesDescriptions": {
+    "--anchor-height": "The anchor&#39;s height.",
+    "--anchor-width": "The anchor&#39;s width.",
+    "--available-height": "The available height between the trigger and the edge of the viewport.",
+    "--available-width": "The available width between the trigger and the edge of the viewport.",
+    "--transform-origin": "The coordinates that this element is anchored to. Used for animations and transitions."
+  }
 }

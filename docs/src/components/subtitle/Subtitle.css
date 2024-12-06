@@ -1,0 +1,6 @@
+.Subtitle {
+  @apply text-lg;
+  text-wrap: balance;
+  color: var(--color-gray);
+  margin-bottom: 1.25rem;
+}

@@ -7,8 +7,8 @@ import { isReactVersionAtLeast } from './reactVersion';
  * Merges the rendering element's `ref` in addition to the other `ref`s.
  * @ignore - internal hook.
  */
-export function useRenderPropForkRef<ElementType extends React.ElementType, OwnerState>(
-  render: BaseUIComponentProps<ElementType, OwnerState>['render'],
+export function useRenderPropForkRef<ElementType extends React.ElementType, State>(
+  render: BaseUIComponentProps<ElementType, State>['render'],
   ...refs: Array<React.Ref<any>>
 ): React.RefCallback<any> | null {
   let childRef;

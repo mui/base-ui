@@ -64,35 +64,35 @@ By default, the popover is placed on the bottom side of its trigger, the default
 </Popover.Root>
 ```
 
-You can also change the alignment of the popover in relation to its anchor. By default, it is centered, but it can be aligned to an edge of the anchor using the `alignment` prop:
+You can also change the align of the popover in relation to its anchor. By default, it is centered, but it can be aligned to an edge of the anchor using the `align` prop:
 
 ```jsx
-<Popover.Positioner side="right" alignment="start">
+<Popover.Positioner side="right" align="start">
   <Popover.Popup>Popover</Popover.Popup>
 </Popover.Positioner>
 ```
 
-Due to collision detection, the popover may change its placement to avoid overflow. Therefore, your explicitly specified `side` and `alignment` props act as "ideal", or preferred, values.
+Due to collision detection, the popover may change its placement to avoid overflow. Therefore, your explicitly specified `side` and `align` props act as "ideal", or preferred, values.
 
 To access the true rendered values, which may change as the result of a collision, the popup element receives data attributes:
 
 ```jsx
 // Rendered HTML (simplified)
 <div>
-  <div data-side="left" data-alignment="end">
+  <div data-side="left" data-align="end">
     Popover
   </div>
 </div>
 ```
 
-This allows you to conditionally style the popover based on its rendered side or alignment.
+This allows you to conditionally style the popover based on its rendered side or align.
 
 ## Offset
 
-The `sideOffset` prop creates a gap between the anchor and popover popup, while `alignmentOffset` slides the popover popup from its alignment, acting logically for `start` and `end` alignments.
+The `sideOffset` prop creates a gap between the anchor and popover popup, while `alignOffset` slides the popover popup from its align, acting logically for `start` and `end` aligns.
 
 ```jsx
-<Popover.Positioner sideOffset={10} alignmentOffset={10}>
+<Popover.Positioner sideOffset={10} alignOffset={10}>
 ```
 
 ## Hover
@@ -291,29 +291,16 @@ Here is an example of how to apply a symmetric scale and fade transition with th
   transform-origin: var(--transform-origin);
   transition-property: opacity, transform;
   transition-duration: 0.2s;
-  /* Represents the final styles once exited */
-  opacity: 0;
-  transform: scale(0.9);
 }
 
-/* Represents the final styles once entered */
-.PopoverPopup[data-open] {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* Represents the initial styles when entering */
-.PopoverPopup[data-entering] {
+.PopoverPopup[data-starting-style],
+.PopoverPopup[data-ending-style] {
   opacity: 0;
   transform: scale(0.9);
 }
 ```
 
-Styles need to be applied in three states:
-
-- The exiting styles, placed on the base element class
-- The open styles, placed on the base element class with `[data-open]`
-- The entering styles, placed on the base element class with `[data-entering]`
+`[data-starting-style]` and `[data-ending-style]` are attributes that are added to the popup when it is first inserted to the DOM and when it is about to be removed, respectively. In these states, you can specify the initial and final styles of the popup, which for symmetric transitions should be the same.
 
 <Demo demo="UnstyledPopoverTransition" defaultCodeOpen={false} />
 
@@ -321,12 +308,12 @@ In newer browsers, there is a feature called `@starting-style` which allows tran
 
 ```css
 /* Base UI API - Polyfill */
-.PopoverPopup[data-entering] {
+.PopoverPopup[data-starting-style] {
   opacity: 0;
   transform: scale(0.9);
 }
 
-/* Official Browser API - no Firefox support as of May 2024 */
+/* Official Browser API */
 @starting-style {
   .PopoverPopup[data-open] {
     opacity: 0;
@@ -358,7 +345,7 @@ CSS animations can also be used, requiring only two separate declarations:
   animation: scale-in 0.2s forwards;
 }
 
-.PopoverPopup[data-exiting] {
+.PopoverPopup[data-ending-style] {
   animation: scale-out 0.2s forwards;
 }
 ```
@@ -400,8 +387,8 @@ function App() {
 Four states are available as data attributes to animate the popup, which enables full control depending on whether the popup is being animated with CSS transitions or animations, JavaScript, or is using the `keepMounted` prop.
 
 - `[data-open]` - `open` state is `true`.
-- `[data-entering]` - the popup was just inserted to the DOM. The attribute is removed 1 animation frame later. Enables "starting styles" upon insertion for conditional rendering.
-- `[data-exiting]` - the popup is in the process of being removed from the DOM, but is still mounted.
+- `[data-starting-style]` - the popup was just inserted to the DOM. The attribute is removed 1 animation frame later.
+- `[data-ending-style]` - the popup's final styles once it closes.
 
 ### Instant animation
 

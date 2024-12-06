@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { Checkbox as BaseCheckbox } from '@base-ui-components/react/Checkbox';
-import { CheckboxGroup } from '@base-ui-components/react/CheckboxGroup';
-import { Field } from '@base-ui-components/react/Field';
+import { Checkbox as BaseCheckbox } from '@base-ui-components/react/checkbox';
+import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+import { Field } from '@base-ui-components/react/field';
 import { styled } from '@mui/system';
 
 const colors = ['red', 'green', 'blue'];
@@ -12,12 +12,7 @@ export default function UnstyledCheckboxGroupNested() {
 
   return (
     <Field.Root style={{ display: 'flex', flexDirection: 'column' }}>
-      <CheckboxGroup.Root
-        allValues={colors}
-        value={value}
-        onValueChange={setValue}
-        preserveChildStates={false}
-      >
+      <CheckboxGroup.Root allValues={colors} value={value} onValueChange={setValue}>
         <CheckboxGroupLabel>Colors</CheckboxGroupLabel>
         <FieldRoot render={<ul />}>
           <Checkbox parent>

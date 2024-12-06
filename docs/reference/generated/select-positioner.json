@@ -2,15 +2,15 @@
   "name": "SelectPositioner",
   "description": "",
   "props": {
-    "alignment": {
+    "align": {
       "type": "'start' | 'center' | 'end'",
       "default": "'start'",
-      "description": "The alignment of the Select element to the anchor element along its cross axis."
+      "description": "The align of the Select element to the anchor element along its cross axis."
     },
-    "alignmentOffset": {
+    "alignOffset": {
       "type": "number",
       "default": "0",
-      "description": "The offset of the Select element along its alignment axis."
+      "description": "The offset of the Select element along its align axis."
     },
     "anchor": {
       "type": "React.Ref | Element | VirtualElement | (() => Element | VirtualElement | null) | null",
@@ -38,11 +38,6 @@
     "container": {
       "type": "React.Ref | HTMLElement | null",
       "description": "The container element to which the Select popup will be appended to."
-    },
-    "hideWhenDetached": {
-      "type": "boolean",
-      "default": "false",
-      "description": "If `true`, the Select will be hidden if it is detached from its anchor element due to\ndiffering clipping contexts."
     },
     "positionMethod": {
       "type": "'absolute' | 'fixed'",
@@ -72,6 +67,28 @@
       "type": "boolean",
       "default": "true",
       "description": "Whether the select popup continuously tracks its anchor after the initial positioning upon mount."
+    }
+  },
+  "cssVariables": {
+    "--anchor-height": {
+      "description": "The anchor's height.",
+      "type": "number"
+    },
+    "--anchor-width": {
+      "description": "The anchor's width.",
+      "type": "number"
+    },
+    "--available-height": {
+      "description": "The available height between the trigger and the edge of the viewport.",
+      "type": "number"
+    },
+    "--available-width": {
+      "description": "The available width between the trigger and the edge of the viewport.",
+      "type": "number"
+    },
+    "--transform-origin": {
+      "description": "The coordinates that this element is anchored to. Used for animations and transitions.",
+      "type": "string"
     }
   }
 }

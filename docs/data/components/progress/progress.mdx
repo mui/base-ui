@@ -72,10 +72,18 @@ Set `value` to `null` to configure an indeterminate progress bar. The `data-inde
 
 ## RTL
 
-Set the `direction` prop to `'rtl'` to change the direction that the `Indicator` fills towards for right-to-left languages:
+Place the component inside an HTML element or component with the HTML `dir="rtl"` attribute to change the direction that the `Indicator` fills towards for right-to-left languages:
 
 ```jsx
-<Progress.Root direction="rtl">{/* Subcomponents */}</Progress.Root>
+<html dir="rtl">
+  <body>
+    <Progress.Root>
+      <Progress.Track>
+        <Progress.Indicator /> {/* fills from right to left */}
+      </Progress.Track>
+    <Progress.Root/>
+  </body>
+</html>
 ```
 
 <Demo demo="RtlProgress" />

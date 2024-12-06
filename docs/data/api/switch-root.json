@@ -19,14 +19,14 @@
   },
   "name": "SwitchRoot",
   "imports": [
-    "import { Switch } from '@base-ui-components/react/Switch';\nconst SwitchRoot = Switch.Root;"
+    "import { Switch } from '@base-ui-components/react/switch';\nconst SwitchRoot = Switch.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SwitchRoot",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/react/src/Switch/Root/SwitchRoot.tsx",
+  "filename": "/packages/react/src/switch/root/SwitchRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-switch/\">Switch</a></li></ul>",
   "cssComponent": false

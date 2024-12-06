@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import { Checkbox as BaseCheckbox } from '@base-ui-components/react/Checkbox';
-import { CheckboxGroup } from '@base-ui-components/react/CheckboxGroup';
-import { Field } from '@base-ui-components/react/Field';
+import { Checkbox as BaseCheckbox } from '@base-ui-components/react/checkbox';
+import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+import { Field } from '@base-ui-components/react/field';
 
 function classNames(...classes: Array<string | undefined | null | false>) {
   return classes.filter(Boolean).join(' ');
@@ -16,7 +16,7 @@ function useIsDarkMode() {
 
 function Label(props: React.ComponentPropsWithoutRef<'label'>) {
   return (
-    // eslint-disable-next-line jsx-a11y/label-has-associated-control, jsx-a11y/no-noninteractive-element-interactions
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <label
       className="mb-2 flex gap-2"
       onMouseDown={(event) => event.preventDefault()}

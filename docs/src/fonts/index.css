@@ -18,9 +18,6 @@
   font-weight: normal;
   src: url('./fonts/regular.woff2');
 
-  /* Unica baseline is a hair low by default */
-  ascent-override: 89%;
-
   /* Default ascent/descent values for future reference */
   /* ascent-override: 97%; */
   /* descent-override: 24%; */

@@ -1,9 +1,6 @@
 {
   "componentDescription": "",
   "propDescriptions": {
-    "animated": {
-      "description": "Whether the preview card can animate, adding animation-related attributes and allowing for exit animations to play. Useful to disable in tests to remove async behavior."
-    },
     "closeDelay": {
       "description": "The delay in milliseconds until the preview card popup is closed when <code>openOnHover</code> is <code>true</code>."
     },

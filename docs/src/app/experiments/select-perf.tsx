@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Select as BaseSelect } from '@base-ui-components/react/Select';
+import { Select as BaseSelect } from '@base-ui-components/react/select';
 
 const options = [...Array(1000)].map((_, i) => `Item ${i + 1}`);
 

@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
-import { Collapsible } from '@base-ui-components/react/Collapsible';
+import { Collapsible } from '@base-ui-components/react/collapsible';
 import * as BaseDemo from 'docs/src/blocks/Demo';
 import { CopyIcon } from 'docs/src/icons/Copy';
 import clsx from 'clsx';
 import { CheckIcon } from 'docs/src/icons/Check';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
+import { DemoSourceBrowser } from './DemoSourceBrowser';
 import { CodeSandboxLink } from './CodeSandboxLink';
 import { GhostButton } from '../GhostButton';
 import { DemoPlayground } from './DemoPlayground';
@@ -45,45 +46,14 @@ export function Demo({ className, defaultOpen = false, title, ...props }: DemoPr
                 }}
               >
                 Copy
-                <span className="flex size-[14px] items-center justify-center">
+                <span className="flex size-3.5 items-center justify-center">
                   {copyTimeout ? <CheckIcon /> : <CopyIcon />}
                 </span>
               </BaseDemo.SourceCopy>
             </div>
           </div>
 
-          {/*
-           * The trigger has to appear before the panel in the DOM in order
-           * for the screen reader cursor navigation to make sense.
-           */}
-          <div className="flex flex-col-reverse">
-            <Collapsible.Trigger className="DemoCollapseButton">
-              {open ? 'Hide' : 'Show'} code
-            </Collapsible.Trigger>
-
-            <Collapsible.Panel
-              hidden={false}
-              aria-hidden={!open}
-              render={
-                <BaseDemo.SourceBrowser
-                  className="DemoCodeBlockContainer"
-                  // Select code block contents on Ctrl/Cmd + A
-                  tabIndex={-1}
-                  onKeyDown={(event) => {
-                    if (
-                      event.key === 'a' &&
-                      (event.metaKey || event.ctrlKey) &&
-                      !event.shiftKey &&
-                      !event.altKey
-                    ) {
-                      event.preventDefault();
-                      window.getSelection()?.selectAllChildren(event.currentTarget);
-                    }
-                  }}
-                />
-              }
-            />
-          </div>
+          <DemoSourceBrowser collapsibleOpen={open} />
         </div>
       </Collapsible.Root>
     </BaseDemo.Root>

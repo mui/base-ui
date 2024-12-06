@@ -6,11 +6,11 @@
   },
   "name": "SelectValue",
   "imports": [
-    "import { Select } from '@base-ui-components/react/Select';\nconst SelectValue = Select.Value;"
+    "import { Select } from '@base-ui-components/react/select';\nconst SelectValue = Select.Value;"
   ],
   "classes": [],
   "muiName": "SelectValue",
-  "filename": "/packages/react/src/Select/Value/SelectValue.tsx",
+  "filename": "/packages/react/src/select/value/SelectValue.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

@@ -10,14 +10,14 @@
   },
   "name": "MenuBackdrop",
   "imports": [
-    "import { Menu } from '@base-ui-components/react/Menu';\nconst MenuBackdrop = Menu.Backdrop;"
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuBackdrop = Menu.Backdrop;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "MenuBackdrop",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/Menu/Backdrop/MenuBackdrop.tsx",
+  "filename": "/packages/react/src/menu/backdrop/MenuBackdrop.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false

@@ -1,9 +1,6 @@
 {
   "componentDescription": "The foundation for building custom-styled tooltips.",
   "propDescriptions": {
-    "animated": {
-      "description": "Whether the tooltip can animate, adding animation-related attributes and allowing for exit animations to play. Useful to disable in tests to remove async behavior."
-    },
     "closeDelay": { "description": "The delay in milliseconds until the tooltip popup is closed." },
     "defaultOpen": {
       "description": "Whether the tooltip popup is open by default. Use when uncontrolled."

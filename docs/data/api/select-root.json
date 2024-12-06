@@ -1,7 +1,6 @@
 {
   "props": {
     "alignOptionToTrigger": { "type": { "name": "bool" }, "default": "true" },
-    "animated": { "type": { "name": "bool" }, "default": "true" },
     "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
     "defaultValue": { "type": { "name": "any" }, "default": "null" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
@@ -15,13 +14,13 @@
   },
   "name": "SelectRoot",
   "imports": [
-    "import { Select } from '@base-ui-components/react/Select';\nconst SelectRoot = Select.Root;"
+    "import { Select } from '@base-ui-components/react/select';\nconst SelectRoot = Select.Root;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": null,
   "muiName": "SelectRoot",
-  "filename": "/packages/react/src/Select/Root/SelectRoot.tsx",
+  "filename": "/packages/react/src/select/root/SelectRoot.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

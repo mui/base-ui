@@ -82,7 +82,10 @@ export async function buildReference() {
     }
 
     const attributes = componentOverrides?.attributes;
-    const cssVariables = componentOverrides?.cssVariables;
+    const cssVariables =
+      !!componentData?.cssVariables || componentOverrides?.cssVariables
+        ? { ...componentData?.cssVariables, ...componentOverrides?.cssVariables }
+        : undefined;
 
     const json: ComponentDef = {
       name: componentData.name,

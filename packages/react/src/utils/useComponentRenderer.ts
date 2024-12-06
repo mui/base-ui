@@ -6,23 +6,23 @@ import { evaluateRenderProp } from './evaluateRenderProp';
 import { useRenderPropForkRef } from './useRenderPropForkRef';
 import { defaultRenderFunctions } from './defaultRenderFunctions';
 
-export interface ComponentRendererSettings<OwnerState, RenderedElementType extends Element> {
+export interface ComponentRendererSettings<State, RenderedElementType extends Element> {
   /**
    * The class name to apply to the rendered element.
-   * Can be a string or a function that accepts the owner state and returns a string.
+   * Can be a string or a function that accepts the state and returns a string.
    */
-  className?: string | ((state: OwnerState) => string);
+  className?: string | ((state: State) => string);
   /**
    * The render prop or React element to override the default element.
    */
   render:
-    | ComponentRenderFn<React.HTMLAttributes<any>, OwnerState>
+    | ComponentRenderFn<React.HTMLAttributes<any>, State>
     | React.ReactElement<Record<string, unknown>>
     | keyof typeof defaultRenderFunctions;
   /**
-   * The owner state of the component.
+   * The state of the component.
    */
-  ownerState: OwnerState;
+  state: State;
   /**
    * The ref to apply to the rendered element.
    */
@@ -39,9 +39,9 @@ export interface ComponentRendererSettings<OwnerState, RenderedElementType exten
    */
   extraProps?: Record<string, any>;
   /**
-   * A mapping of owner state to style hooks.
+   * A mapping of state to style hooks.
    */
-  customStyleHookMapping?: CustomStyleHookMapping<OwnerState>;
+  customStyleHookMapping?: CustomStyleHookMapping<State>;
 }
 
 /**
@@ -50,35 +50,31 @@ export interface ComponentRendererSettings<OwnerState, RenderedElementType exten
  * @ignore - internal hook.
  */
 export function useComponentRenderer<
-  OwnerState extends Record<string, any>,
+  State extends Record<string, any>,
   RenderedElementType extends Element,
->(settings: ComponentRendererSettings<OwnerState, RenderedElementType>) {
+>(settings: ComponentRendererSettings<State, RenderedElementType>) {
   const {
     render: renderProp,
     className: classNameProp,
-    ownerState,
+    state,
     ref,
     propGetter = (props) => props,
     extraProps,
     customStyleHookMapping,
   } = settings;
 
-  const className = resolveClassName(classNameProp, ownerState);
+  const className = resolveClassName(classNameProp, state);
   const styleHooks = React.useMemo(() => {
-    return getStyleHookProps(ownerState, customStyleHookMapping);
-  }, [ownerState, customStyleHookMapping]);
+    return getStyleHookProps(state, customStyleHookMapping);
+  }, [state, customStyleHookMapping]);
 
   const ownProps: Record<string, any> = {
     ...styleHooks,
     ...extraProps,
   };
 
-  if (className) {
-    ownProps.className = className;
-  }
-
   let resolvedRenderProp:
-    | ComponentRenderFn<React.HTMLAttributes<any>, OwnerState>
+    | ComponentRenderFn<React.HTMLAttributes<any>, State>
     | React.ReactElement<Record<string, unknown>>;
 
   if (typeof renderProp === 'string') {
@@ -91,9 +87,10 @@ export function useComponentRenderer<
   const propsWithRef = {
     ...renderedElementProps,
     ref: useRenderPropForkRef(resolvedRenderProp, ref as React.Ref<any>, renderedElementProps.ref),
+    className,
   };
 
-  const renderElement = () => evaluateRenderProp(resolvedRenderProp, propsWithRef, ownerState);
+  const renderElement = () => evaluateRenderProp(resolvedRenderProp, propsWithRef, state);
 
   return {
     renderElement,

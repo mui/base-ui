@@ -43,17 +43,23 @@ export function rehypeReference() {
       if (!component) {
         throw new Error(`Missing "component" prop on the "<Reference />" component.`);
       }
-      if (!parts) {
-        throw new Error(`Missing "parts" prop on the "<Reference />" component.`);
-      }
 
       /** @type {import('./types').ComponentDef[]} */
-      const componentDefs = parts.split(/,\s*/).map((part) => {
-        const filename = `${kebabCase(component)}-${kebabCase(part)}.json`;
+      let componentDefs = [];
+
+      if (parts) {
+        componentDefs = parts.split(/,\s*/).map((part) => {
+          const filename = `${kebabCase(component)}-${kebabCase(part)}.json`;
+          const pathname = join(process.cwd(), 'reference/generated', filename);
+          const jsonContents = readFileSync(pathname, 'utf-8');
+          return JSON.parse(jsonContents);
+        });
+      } else {
+        const filename = `${kebabCase(component)}.json`;
         const pathname = join(process.cwd(), 'reference/generated', filename);
         const jsonContents = readFileSync(pathname, 'utf-8');
-        return JSON.parse(jsonContents);
-      });
+        componentDefs = [JSON.parse(jsonContents)];
+      }
 
       const parent = ancestors.slice(-1)[0];
       const index = parent.children.indexOf(node);
@@ -64,7 +70,9 @@ export function rehypeReference() {
         1,
         ...componentDefs.flatMap((def) => {
           const subtree = [];
-          const name = startCase(def.name.substring(component.length));
+          const name = parts
+            ? startCase(def.name.substring(component.length))
+            : startCase(def.name);
 
           // Insert an <h3> with the part name
           subtree.push(

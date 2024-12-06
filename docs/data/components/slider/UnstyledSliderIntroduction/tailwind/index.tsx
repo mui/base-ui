@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import { Slider as BaseSlider } from '@base-ui-components/react/Slider';
+import { Slider as BaseSlider } from '@base-ui-components/react/slider';
 
 function classNames(...classes: Array<string | boolean | undefined | null>) {
   return classes.filter(Boolean).join(' ');

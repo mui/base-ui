@@ -14,7 +14,7 @@ export type ConformantComponentProps = {
   render?: React.ReactElement<unknown> | ((props: Record<string, unknown>) => React.ReactNode);
   ref?: React.Ref<unknown>;
   'data-testid'?: string;
-  className?: string;
+  className?: string | ((state: unknown) => string);
   style?: React.CSSProperties;
 };
 

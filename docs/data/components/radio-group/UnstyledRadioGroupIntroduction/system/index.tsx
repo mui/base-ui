@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { RadioGroup } from '@base-ui-components/react/RadioGroup';
-import { Radio } from '@base-ui-components/react/Radio';
+import { RadioGroup } from '@base-ui-components/react/radio-group';
+import { Radio } from '@base-ui-components/react/radio';
 import { styled } from '@mui/system';
 
 export default function UnstyledRadioGroupIntroduction() {
@@ -56,7 +56,7 @@ const RadioItem = styled(Radio.Root)`
     outline-offset: 2px;
   }
 
-  &[data-radio='checked'] {
+  &[data-checked] {
     background-color: ${blue[600]};
     color: white;
   }
@@ -69,7 +69,7 @@ const Indicator = styled(Radio.Indicator)`
   margin-right: 8px;
   outline: 1px solid black;
 
-  &[data-radio='checked'] {
+  &[data-checked] {
     background-color: white;
     border: none;
     outline: none;

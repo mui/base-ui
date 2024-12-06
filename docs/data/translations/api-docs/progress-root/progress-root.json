@@ -11,7 +11,6 @@
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
-    "direction": { "description": "The direction that progress bars fill in" },
     "getAriaLabel": {
       "description": "Accepts a function which returns a string value that provides an accessible name for the Indicator component",
       "typeDescriptions": { "value": "The component&#39;s value" }

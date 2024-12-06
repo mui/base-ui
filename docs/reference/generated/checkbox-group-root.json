@@ -23,11 +23,6 @@
       "type": "(value, event) => void",
       "description": "A callback function that is called when the value of the checkbox group changes.\nUse when controlled."
     },
-    "preserveChildStates": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the parent checkbox should preserve its child states when checked/unchecked, leading\nto a tri-state checkbox group."
-    },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."

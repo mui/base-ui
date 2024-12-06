@@ -28,10 +28,10 @@
     "[data-closed]": {
       "description": "Present when the dialog is closed."
     },
-    "[data-entering]": {
+    "[data-starting-style]": {
       "description": "Present when the dialog is animating in."
     },
-    "[data-exiting]": {
+    "[data-ending-style]": {
       "description": "Present when the dialog is animating out."
     }
   }

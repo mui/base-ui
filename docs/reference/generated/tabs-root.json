@@ -11,11 +11,6 @@
       "default": "0",
       "description": "The default value. Use when the component is not controlled.\nWhen the value is `null`, no Tab will be selected."
     },
-    "direction": {
-      "type": "'ltr' | 'rtl'",
-      "default": "'ltr'",
-      "description": "The direction of the text."
-    },
     "onValueChange": {
       "type": "(value, event) => void",
       "description": "Callback invoked when new value is being set."

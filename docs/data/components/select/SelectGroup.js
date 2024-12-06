@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Select } from '@base-ui-components/react/Select';
+import { Select } from '@base-ui-components/react/select';
 import { css, styled } from '@mui/system';
 
 function createOptions(items) {

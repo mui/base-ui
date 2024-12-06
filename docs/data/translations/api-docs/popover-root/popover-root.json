@@ -1,9 +1,6 @@
 {
   "componentDescription": "The foundation for building custom-styled popovers.",
   "propDescriptions": {
-    "animated": {
-      "description": "Whether the popover can animate, adding animation-related attributes and allowing for exit animations to play. Useful to disable in tests to remove async behavior."
-    },
     "closeDelay": {
       "description": "The delay in milliseconds until the popover popup is closed when <code>openOnHover</code> is <code>true</code>."
     },

@@ -1,0 +1,34 @@
+# Number Field
+
+<Subtitle>A numeric input element with increment and decrement buttons, and a scrub area.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React number field component with increment and decrement buttons, and a scrub area."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component and place its parts the following way:
+
+```jsx title="Anatomy"
+import { NumberField } from '@base-ui-components/react/number-field';
+
+<NumberField.Root>
+  <NumberField.Group>
+    <NumberField.Decrement />
+    <NumberField.Input />
+    <NumberField.Increment />
+    <NumberField.ScrubArea>
+      <NumberField.ScrubAreaCursor />
+    </NumberField.ScrubArea>
+  </NumberField.Group>
+</NumberField.Root>;
+```
+
+<Reference
+  component="NumberField"
+  parts="Root, Group, Decrement, Input, Increment, ScrubArea, ScrubAreaCursor"
+/>

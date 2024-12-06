@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/Menu';
+import { Menu } from '@base-ui-components/react/menu';
 import { styled } from '@mui/system';
 
 export default function RadioItems() {
   return (
     <Menu.Root>
       <MenuButton>Font</MenuButton>
-      <MenuPositioner alignment="start" keepMounted>
+      <MenuPositioner align="start" keepMounted>
         <MenuPopup>
           <Menu.RadioGroup defaultValue={'jetbrains-mono'}>
             <RadioItem value="cascadia-code">

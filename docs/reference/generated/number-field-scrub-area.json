@@ -8,7 +8,7 @@
     },
     "direction": {
       "type": "'horizontal' | 'vertical'",
-      "default": "'vertical'",
+      "default": "'horizontal'",
       "description": "The direction that the scrub area should change the value."
     },
     "pixelSensitivity": {

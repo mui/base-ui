@@ -11,7 +11,7 @@ export function DemoPlayground() {
     <ErrorBoundary FallbackComponent={DemoErrorFallback}>
       <BaseDemo.Playground
         aria-label="Component demo"
-        data-variant={selectedVariant.name}
+        data-demo={selectedVariant.name}
         className="DemoPlayground"
       />
     </ErrorBoundary>

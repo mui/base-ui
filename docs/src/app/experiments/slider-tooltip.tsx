@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import { Slider } from '@base-ui-components/react/Slider';
-import { Tooltip } from '@base-ui-components/react/Tooltip';
-import { useSliderRootContext } from '../../../../packages/react/src/Slider/Root/SliderRootContext';
+import { Slider } from '@base-ui-components/react/slider';
+import { Tooltip } from '@base-ui-components/react/tooltip';
+import { useSliderRootContext } from '../../../../packages/react/src/slider/root/SliderRootContext';
 
 function useIsDarkMode() {
   const theme = useTheme();
@@ -59,7 +59,7 @@ export default function App() {
               >
                 <Tooltip.Trigger className="SliderTooltip-trigger" />
               </Slider.Thumb>
-              <Tooltip.Positioner sideOffset={10} alignment="center">
+              <Tooltip.Positioner sideOffset={10} align="center">
                 <Tooltip.Popup
                   className="SliderTooltip-popup"
                   data-open={String(valueLabelOpen)}

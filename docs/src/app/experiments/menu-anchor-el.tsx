@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/Menu';
+import { Menu } from '@base-ui-components/react/menu';
 
 export default function Page() {
   const [anchorEl, setAnchor] = React.useState<HTMLDivElement | null>(null);
@@ -12,11 +12,11 @@ export default function Page() {
   return (
     <div>
       <h1>Element passed to anchor</h1>
-      <Menu.Root animated={false}>
+      <Menu.Root>
         <Menu.Trigger>Trigger</Menu.Trigger>
         <Menu.Positioner
           side="bottom"
-          alignment="start"
+          align="start"
           arrowPadding={0}
           anchor={anchorEl}
         >

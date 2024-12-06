@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { Tabs } from '@base-ui-components/react/Tabs';
+import { Tabs } from '@base-ui-components/react/tabs';
 import { useTheme } from '@mui/system';
 
 function useIsDarkMode() {

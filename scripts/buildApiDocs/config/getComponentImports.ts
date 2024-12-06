@@ -9,6 +9,10 @@ const componentExportExceptions: Record<string, string> = {
   TabPanel: 'Panel',
 };
 
+function capitalizeFirstLetter(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export function getComponentImports(name: string, filename: string) {
   const relativePath = path.relative(repositoryRoot, filename);
   const directories = path.dirname(relativePath).split(path.sep);
@@ -20,22 +24,28 @@ export function getComponentImports(name: string, filename: string) {
     throw new Error(`The file ${filename} is not in a subdirectory of packages/react/src`);
   }
 
+  // @base-ui-components/react/number-field => number-field
   const componentDirectory = directories[3];
-  if (componentDirectory === name) {
-    return [`import { ${name} } from '@base-ui-components/react/${name}';`];
+  // @base-ui-components/react/number-field => NumberField
+  const mainImportName = capitalizeFirstLetter(
+    componentDirectory.replace(/-([a-z])/g, (g) => g[1].toUpperCase()),
+  );
+
+  if (mainImportName === name) {
+    return [`import { ${name} } from '@base-ui-components/react/${componentDirectory}';`];
   }
 
   if (Object.keys(componentExportExceptions).includes(name)) {
     return [
-      `import { ${componentDirectory} } from '@base-ui-components/react/${componentDirectory}';\nconst ${name} = ${componentDirectory}.${componentExportExceptions[name]};`,
+      `import { ${mainImportName} } from '@base-ui-components/react/${componentDirectory}';\nconst ${name} = ${mainImportName}.${componentExportExceptions[name]};`,
     ];
   }
 
-  if (name.startsWith(componentDirectory) && !name.startsWith('use')) {
+  if (name.startsWith(mainImportName) && !name.startsWith('use')) {
     // cases like Switch/SwitchTrack.tsx
-    const childName = name.slice(componentDirectory.length);
+    const childName = name.slice(mainImportName.length);
     return [
-      `import { ${componentDirectory} } from '@base-ui-components/react/${componentDirectory}';\nconst ${name} = ${componentDirectory}.${childName};`,
+      `import { ${mainImportName} } from '@base-ui-components/react/${componentDirectory}';\nconst ${name} = ${mainImportName}.${childName};`,
     ];
   }
 

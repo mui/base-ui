@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Tabs } from '@base-ui-components/react/Tabs';
+import { Tabs } from '@base-ui-components/react/tabs';
 import {
   MemoryRouter,
   Route,

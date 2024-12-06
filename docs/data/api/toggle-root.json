@@ -1,0 +1,32 @@
+{
+  "props": {
+    "aria-label": { "type": { "name": "string" } },
+    "aria-labelledby": { "type": { "name": "string" } },
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "defaultPressed": { "type": { "name": "bool" }, "default": "false" },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "onPressedChange": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(pressed: boolean, event: Event) => void",
+        "describedArgs": ["pressed", "event"]
+      }
+    },
+    "pressed": { "type": { "name": "bool" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "value": { "type": { "name": "string" } }
+  },
+  "name": "ToggleRoot",
+  "imports": [
+    "import { Toggle } from '@base-ui-components/react/toggle';\nconst ToggleRoot = Toggle.Root;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "ToggleRoot",
+  "forwardsRefTo": "HTMLButtonElement",
+  "filename": "/packages/react/src/toggle/root/ToggleRoot.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-toggle/\">Toggle</a></li></ul>",
+  "cssComponent": false
+}

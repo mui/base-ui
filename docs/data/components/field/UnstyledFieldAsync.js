@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Field } from '@base-ui-components/react/Field';
+import { Field } from '@base-ui-components/react/field';
 import { styled } from '@mui/system';
 
 const cache = new Map();

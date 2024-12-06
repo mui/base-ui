@@ -112,5 +112,37 @@ export function testRenderProp(
       expect(refB!.tagName).to.equal(Element.toUpperCase());
       expect(refB!).to.have.attribute('data-testid', 'wrapped');
     });
+
+    it('should merge the rendering element className with the custom component className', async () => {
+      function Test() {
+        return React.cloneElement(element, {
+          className: 'component-classname',
+          render: <div className="render-prop-classname" />,
+          'data-testid': 'test-component',
+        });
+      }
+
+      const { getByTestId } = await render(<Test />);
+
+      const component = getByTestId('test-component');
+      expect(component.classList.contains('component-classname')).to.equal(true);
+      expect(component.classList.contains('render-prop-classname')).to.equal(true);
+    });
+
+    it('should merge the rendering element resolved className with the custom component className', async () => {
+      function Test() {
+        return React.cloneElement(element, {
+          className: () => 'conditional-component-classname',
+          render: <div className="render-prop-classname" />,
+          'data-testid': 'test-component',
+        });
+      }
+
+      const { getByTestId } = await render(<Test />);
+
+      const component = getByTestId('test-component');
+      expect(component.classList.contains('conditional-component-classname')).to.equal(true);
+      expect(component.classList.contains('render-prop-classname')).to.equal(true);
+    });
   });
 }

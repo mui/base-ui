@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
 import { css, styled } from '@mui/system';
-import { Checkbox as BaseCheckbox } from '@base-ui-components/react/Checkbox';
-import { CheckboxGroup } from '@base-ui-components/react/CheckboxGroup';
-import { Field } from '@base-ui-components/react/Field';
+import { Checkbox as BaseCheckbox } from '@base-ui-components/react/checkbox';
+import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+import { Field } from '@base-ui-components/react/field';
 
 export default function UnstyledCheckboxIndeterminateGroup() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <Field.Root>
-        <CheckboxGroup.Root defaultValue={['red']}>
+        <CheckboxGroup.Root>
           <CheckboxGroupLabel>Colors</CheckboxGroupLabel>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <FieldRoot>

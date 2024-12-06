@@ -1,9 +1,12 @@
-<Progress.Root className="Progress" value={50} aria-labelledby="ProgressLabel">
-  <span className="Label" id="ProgressLabel">
+<Progress.Root
+  className={classes.progress}
+  value={50}
+  aria-labelledby="ProgressLabel"
+>
+  <span className={classes.label} id="ProgressLabel">
     Uploading files
   </span>
-  <Progress.Track className="Progress-track">
-    <Progress.Indicator className="Progress-indicator" />
+  <Progress.Track className={classes.track}>
+    <Progress.Indicator className={classes.indicator} />
   </Progress.Track>
 </Progress.Root>
-<Styles />

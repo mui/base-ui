@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { SelectIcon } from 'docs/src/icons/Select';
-import { Menu } from '@base-ui-components/react/Menu';
+import { Menu } from '@base-ui-components/react/menu';
 import classes from './DocsVersionSelector.module.css';
 
 export interface DocumentationVersion {
@@ -28,7 +28,7 @@ export function DocsVersionSelector(props: DocsVersionSelectorProps) {
       <Menu.Positioner
         className={classes.positioner}
         side="bottom"
-        alignment="start"
+        align="start"
         sideOffset={5}
         positionMethod="fixed"
       >

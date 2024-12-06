@@ -1,6 +1,6 @@
 import yargs, { ArgumentsCamelCase } from 'yargs';
 import { buildApi } from '@mui-internal/api-docs-builder';
-import { buildReference } from 'buildReference';
+import { buildReference } from './buildReference';
 import { projectSettings, newProjectSettings } from './config/projectSettings';
 
 type CommandOptions = { grep?: string };

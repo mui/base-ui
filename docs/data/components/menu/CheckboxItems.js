@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/Menu';
+import { Menu } from '@base-ui-components/react/menu';
 import { styled } from '@mui/system';
 
 export default function CheckboxItems() {
@@ -14,7 +14,7 @@ export default function CheckboxItems() {
   return (
     <Menu.Root>
       <MenuButton>My account</MenuButton>
-      <MenuPositioner alignment="start" keepMounted>
+      <MenuPositioner align="start" keepMounted>
         <MenuPopup>
           <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
           <MenuItem onClick={createHandleMenuClick('Language settings')}>

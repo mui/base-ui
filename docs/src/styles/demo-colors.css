@@ -1,4 +1,7 @@
 :root {
+  --color-blue: oklch(45% 50% 264);
+  --color-red: oklch(50% 55% 31);
+
   --color-gray-50: oklch(98% 0.25% 264);
   --color-gray-100: oklch(12% 9.5% 264 / 5%);
   --color-gray-200: oklch(12% 9% 264 / 8%);
@@ -12,6 +15,9 @@
   --color-gray-950: oklch(12% 5% 264 / 95%);
 
   @media (prefers-color-scheme: dark) {
+    --color-blue: oklch(69% 50% 264);
+    --color-red: oklch(80% 55% 31);
+
     --color-gray-50: oklch(17% 1% 264);
     --color-gray-100: oklch(28% 3% 264 / 65%);
     --color-gray-200: oklch(31% 3% 264 / 80%);

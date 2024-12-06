@@ -1,0 +1,35 @@
+# Popover
+
+<Subtitle>An accessible popup anchored to a button.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React popover component that displays an accessible popup anchored to a button."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component and place its parts the following way:
+
+```jsx title="Anatomy"
+import { Popover } from '@base-ui-components/react/popover';
+
+<Popover.Root>
+  <Popover.Trigger />
+  <Popover.Backdrop />
+  <Popover.Positioner>
+    <Popover.Popup>
+      <Popover.Arrow />
+      <Popover.Title />
+      <Popover.Description />
+      <Popover.Close />
+    </Popover.Popup>
+  </Popover.Positioner>
+</Popover.Root>;
+```
+
+<Reference
+  component="Popover"
+  parts="Root, Trigger, Backdrop, Positioner, Popup, Arrow, Title, Description, Close"
+/>

@@ -35,10 +35,10 @@
     "[data-closed]": {
       "description": "Present when the dialog is closed."
     },
-    "[data-entering]": {
+    "[data-starting-style]": {
       "description": "Present when the dialog is animating in."
     },
-    "[data-exiting]": {
+    "[data-ending-style]": {
       "description": "Present when the dialog is animating out."
     },
     "[data-modal]": {
@@ -51,8 +51,8 @@
   },
   "cssVariables": {
     "--nested-dialogs": {
-      "type": "number",
-      "description": "Indicates how many dialogs are nested within."
+      "description": "Indicates how many dialogs are nested within.",
+      "type": "number"
     }
   }
 }

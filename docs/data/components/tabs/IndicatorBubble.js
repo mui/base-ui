@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { css, styled } from '@mui/system';
-import { Tabs as BaseTabs } from '@base-ui-components/react/Tabs';
+import { Tabs as BaseTabs } from '@base-ui-components/react/tabs';
 
 export default function IndicatorBubble() {
   return (
