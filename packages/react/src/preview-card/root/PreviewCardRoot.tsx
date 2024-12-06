@@ -16,7 +16,7 @@ import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
  * - [PreviewCardRoot API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardRoot)
  */
 const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(props) {
-  const { delay, closeDelay, animated = true } = props;
+  const { delay, closeDelay } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
@@ -36,7 +36,6 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
     floatingRootContext,
     transitionStatus,
   } = usePreviewCardRoot({
-    animated,
     delay,
     closeDelay,
     open: props.open,
@@ -101,12 +100,6 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * Whether the preview card can animate, adding animation-related attributes and allowing for exit
-   * animations to play. Useful to disable in tests to remove async behavior.
-   * @default true
-   */
-  animated: PropTypes.bool,
   /**
    * @ignore
    */

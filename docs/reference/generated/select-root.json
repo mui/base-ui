@@ -7,11 +7,6 @@
       "default": "true",
       "description": "Determines if the selected option inside the popup should align to the trigger element."
     },
-    "animated": {
-      "type": "boolean",
-      "default": "true",
-      "description": "If `true`, the Select supports CSS-based animations and transitions.\nIt is kept in the DOM until the animation completes."
-    },
     "defaultOpen": {
       "type": "boolean",
       "default": "false",

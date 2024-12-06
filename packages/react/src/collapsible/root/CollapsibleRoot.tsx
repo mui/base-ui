@@ -23,7 +23,6 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    animated = true,
     children,
     className,
     defaultOpen = false,
@@ -35,7 +34,6 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   } = props;
 
   const collapsible = useCollapsibleRoot({
-    animated,
     open,
     defaultOpen,
     onOpenChange: onOpenChangeProp ?? NOOP,
@@ -104,11 +102,6 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * If `true`, the component supports CSS/JS-based animations and transitions.
-   * @default true
-   */
-  animated: PropTypes.bool,
   /**
    * @ignore
    */

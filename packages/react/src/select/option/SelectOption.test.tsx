@@ -10,17 +10,13 @@ describe('<Select.Option />', () => {
   describeConformance(<Select.Option value="" />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(
-        <Select.Root open animated={false}>
-          {node}
-        </Select.Root>,
-      );
+      return render(<Select.Root open>{node}</Select.Root>);
     },
   }));
 
   it('should select the option and close popup when clicked', async () => {
     await render(
-      <Select.Root animated={false}>
+      <Select.Root>
         <Select.Trigger data-testid="trigger">
           <Select.Value placeholder="null" data-testid="value" />
         </Select.Trigger>
@@ -51,7 +47,7 @@ describe('<Select.Option />', () => {
 
   it('navigating with keyboard should highlight option', async () => {
     const { user } = await render(
-      <Select.Root animated={false}>
+      <Select.Root>
         <Select.Trigger data-testid="trigger">
           <Select.Value />
         </Select.Trigger>
@@ -90,7 +86,7 @@ describe('<Select.Option />', () => {
     }
 
     const { user } = await render(
-      <Select.Root animated={false}>
+      <Select.Root>
         <Select.Trigger data-testid="trigger">
           <Select.Value placeholder="null" data-testid="value" />
         </Select.Trigger>
@@ -120,7 +116,7 @@ describe('<Select.Option />', () => {
 
   it('should not select disabled option', async () => {
     await render(
-      <Select.Root animated={false}>
+      <Select.Root>
         <Select.Trigger data-testid="trigger">
           <Select.Value data-testid="value" />
         </Select.Trigger>
@@ -149,7 +145,7 @@ describe('<Select.Option />', () => {
 
   it('should focus the selected option upon opening the popup', async () => {
     const { user } = await render(
-      <Select.Root animated={false}>
+      <Select.Root>
         <Select.Trigger data-testid="trigger">
           <Select.Value data-testid="value" />
         </Select.Trigger>
@@ -192,7 +188,7 @@ describe('<Select.Option />', () => {
       }
 
       const { user } = await render(
-        <Select.Root animated={false} defaultValue="a">
+        <Select.Root defaultValue="a">
           <Select.Trigger data-testid="trigger" />
           <Select.Positioner>
             <Select.Popup>
@@ -222,7 +218,7 @@ describe('<Select.Option />', () => {
 
     it('should apply data-selected attribute when option is selected', async () => {
       await render(
-        <Select.Root animated={false}>
+        <Select.Root>
           <Select.Trigger data-testid="trigger" />
           <Select.Positioner>
             <Select.Popup>

@@ -8,11 +8,7 @@ describe('<Menu.Backdrop />', () => {
   describeConformance(<Menu.Backdrop />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(
-        <Menu.Root open animated={false}>
-          {node}
-        </Menu.Root>,
-      );
+      return render(<Menu.Root open>{node}</Menu.Root>);
     },
   }));
 });

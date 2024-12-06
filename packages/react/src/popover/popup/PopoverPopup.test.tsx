@@ -11,7 +11,7 @@ describe('<Popover.Popup />', () => {
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
-        <Popover.Root open animated={false}>
+        <Popover.Root open>
           <Popover.Positioner>{node}</Popover.Positioner>
         </Popover.Root>,
       );
@@ -20,7 +20,7 @@ describe('<Popover.Popup />', () => {
 
   it('should render the children', async () => {
     await render(
-      <Popover.Root open animated={false}>
+      <Popover.Root open>
         <Popover.Positioner>
           <Popover.Popup>Content</Popover.Popup>
         </Popover.Positioner>
@@ -35,7 +35,7 @@ describe('<Popover.Popup />', () => {
       const { getByText, getByTestId } = await render(
         <div>
           <input />
-          <Popover.Root animated={false}>
+          <Popover.Root>
             <Popover.Trigger>Open</Popover.Trigger>
             <Popover.Positioner>
               <Popover.Popup data-testid="popover">
@@ -65,7 +65,7 @@ describe('<Popover.Popup />', () => {
         return (
           <div>
             <input />
-            <Popover.Root animated={false}>
+            <Popover.Root>
               <Popover.Trigger>Open</Popover.Trigger>
               <Popover.Positioner>
                 <Popover.Popup initialFocus={input2Ref}>
@@ -103,7 +103,7 @@ describe('<Popover.Popup />', () => {
         return (
           <div>
             <input />
-            <Popover.Root animated={false}>
+            <Popover.Root>
               <Popover.Trigger>Open</Popover.Trigger>
               <Popover.Positioner>
                 <Popover.Popup initialFocus={getRef}>
@@ -138,7 +138,7 @@ describe('<Popover.Popup />', () => {
       const { getByText } = await render(
         <div>
           <input />
-          <Popover.Root animated={false}>
+          <Popover.Root>
             <Popover.Trigger>Open</Popover.Trigger>
             <Popover.Positioner>
               <Popover.Popup>
@@ -171,7 +171,7 @@ describe('<Popover.Popup />', () => {
         return (
           <div>
             <input />
-            <Popover.Root animated={false}>
+            <Popover.Root>
               <Popover.Trigger>Open</Popover.Trigger>
               <Popover.Positioner>
                 <Popover.Popup finalFocus={inputRef}>

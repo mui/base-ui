@@ -11,7 +11,7 @@ describe('<Popover.Popup />', () => {
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
-        <PreviewCard.Root open animated={false}>
+        <PreviewCard.Root open>
           <PreviewCard.Positioner>{node}</PreviewCard.Positioner>
         </PreviewCard.Root>,
       );
@@ -20,7 +20,7 @@ describe('<Popover.Popup />', () => {
 
   it('should render the children', async () => {
     await render(
-      <PreviewCard.Root open animated={false}>
+      <PreviewCard.Root open>
         <PreviewCard.Positioner>
           <PreviewCard.Popup>Content</PreviewCard.Popup>
         </PreviewCard.Positioner>

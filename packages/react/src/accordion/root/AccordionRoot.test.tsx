@@ -53,7 +53,7 @@ describe('<Accordion.Root />', () => {
       }
 
       const { getByRole, queryByText, user } = await render(
-        <Accordion.Root animated={false}>
+        <Accordion.Root>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -85,7 +85,7 @@ describe('<Accordion.Root />', () => {
     describe('prop: defaultValue', () => {
       it('default item value', async () => {
         const { queryByText } = await render(
-          <Accordion.Root animated={false} defaultValue={[1]}>
+          <Accordion.Root defaultValue={[1]}>
             <Accordion.Item>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -109,7 +109,7 @@ describe('<Accordion.Root />', () => {
 
       it('custom item value', async () => {
         const { queryByText } = await render(
-          <Accordion.Root animated={false} defaultValue={['first']}>
+          <Accordion.Root defaultValue={['first']}>
             <Accordion.Item value="first">
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -137,7 +137,7 @@ describe('<Accordion.Root />', () => {
   describe('controlled', () => {
     it('open state', async () => {
       const { getByRole, queryByText, setProps } = await render(
-        <Accordion.Root animated={false} value={[]}>
+        <Accordion.Root value={[]}>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -171,7 +171,7 @@ describe('<Accordion.Root />', () => {
     describe('prop: value', () => {
       it('default item value', async () => {
         const { queryByText } = await render(
-          <Accordion.Root animated={false} value={[1]}>
+          <Accordion.Root value={[1]}>
             <Accordion.Item>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -195,7 +195,7 @@ describe('<Accordion.Root />', () => {
 
       it('custom item value', async () => {
         const { queryByText } = await render(
-          <Accordion.Root animated={false} value={['one']}>
+          <Accordion.Root value={['one']}>
             <Accordion.Item value="one">
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -223,7 +223,7 @@ describe('<Accordion.Root />', () => {
   describe('prop: disabled', () => {
     it('can disable the whole accordion', async () => {
       const { getByTestId, getAllByRole, queryByText } = await render(
-        <Accordion.Root animated={false} defaultValue={[0]} disabled>
+        <Accordion.Root defaultValue={[0]} disabled>
           <Accordion.Item data-testid="item1">
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -252,7 +252,7 @@ describe('<Accordion.Root />', () => {
 
     it('can disable one accordion item', async () => {
       const { getAllByRole, getByTestId, queryByText } = await render(
-        <Accordion.Root animated={false} defaultValue={[0]}>
+        <Accordion.Root defaultValue={[0]}>
           <Accordion.Item data-testid="item1" disabled>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -287,7 +287,7 @@ describe('<Accordion.Root />', () => {
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} toggles the Accordion open state`, async () => {
         const { getByRole, queryByText, user } = await render(
-          <Accordion.Root animated={false}>
+          <Accordion.Root>
             <Accordion.Item>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -322,7 +322,7 @@ describe('<Accordion.Root />', () => {
 
     it('ArrowUp and ArrowDown moves focus between triggers and loops by default', async () => {
       const { getAllByRole, user } = await render(
-        <Accordion.Root animated={false}>
+        <Accordion.Root>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -358,7 +358,7 @@ describe('<Accordion.Root />', () => {
 
     it('Arrow keys should not put focus on disabled accordion items', async () => {
       const { getAllByRole, user } = await render(
-        <Accordion.Root animated={false}>
+        <Accordion.Root>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -395,7 +395,7 @@ describe('<Accordion.Root />', () => {
     describe('key: End/Home', () => {
       it('End key moves focus the last trigger', async () => {
         const { getAllByRole, user } = await render(
-          <Accordion.Root animated={false}>
+          <Accordion.Root>
             <Accordion.Item>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -434,7 +434,7 @@ describe('<Accordion.Root />', () => {
 
       it('Home key moves focus to the first trigger', async () => {
         const { getAllByRole, user } = await render(
-          <Accordion.Root animated={false}>
+          <Accordion.Root>
             <Accordion.Item>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -475,7 +475,7 @@ describe('<Accordion.Root />', () => {
     describe('prop: loop', () => {
       it('can disable focus looping between triggers', async () => {
         const { getAllByRole, user } = await render(
-          <Accordion.Root animated={false} loop={false}>
+          <Accordion.Root loop={false}>
             <Accordion.Item>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -508,7 +508,7 @@ describe('<Accordion.Root />', () => {
   describeSkipIf(isJSDOM)('prop: openMultiple', () => {
     it('multiple items can be open by default', async () => {
       const { getAllByRole, queryByText, user } = await render(
-        <Accordion.Root animated={false}>
+        <Accordion.Root>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -542,7 +542,7 @@ describe('<Accordion.Root />', () => {
 
     it('when false only one item can be open', async () => {
       const { getAllByRole, queryByText, user } = await render(
-        <Accordion.Root animated={false} openMultiple={false}>
+        <Accordion.Root openMultiple={false}>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -582,7 +582,7 @@ describe('<Accordion.Root />', () => {
   describeSkipIf(isJSDOM)('horizontal orientation', () => {
     it('ArrowLeft/Right moves focus in horizontal orientation', async () => {
       const { getAllByRole, user } = await render(
-        <Accordion.Root animated={false} orientation="horizontal">
+        <Accordion.Root orientation="horizontal">
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -619,7 +619,7 @@ describe('<Accordion.Root />', () => {
     describeSkipIf(isJSDOM)('RTL', () => {
       it('ArrowLeft/Right is reversed for horizontal accordions in RTL mode', async () => {
         const { getAllByRole, user } = await render(
-          <Accordion.Root animated={false} orientation="horizontal" direction="rtl">
+          <Accordion.Root orientation="horizontal" direction="rtl">
             <Accordion.Item>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -660,7 +660,7 @@ describe('<Accordion.Root />', () => {
       const onValueChange = spy();
 
       const { getAllByRole, user } = await render(
-        <Accordion.Root animated={false} onValueChange={onValueChange}>
+        <Accordion.Root onValueChange={onValueChange}>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -695,7 +695,7 @@ describe('<Accordion.Root />', () => {
       const onValueChange = spy();
 
       const { getAllByRole, user } = await render(
-        <Accordion.Root animated={false} onValueChange={onValueChange}>
+        <Accordion.Root onValueChange={onValueChange}>
           <Accordion.Item value="one">
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -730,7 +730,7 @@ describe('<Accordion.Root />', () => {
       const onValueChange = spy();
 
       const { getAllByRole, user } = await render(
-        <Accordion.Root animated={false} onValueChange={onValueChange} openMultiple={false}>
+        <Accordion.Root onValueChange={onValueChange} openMultiple={false}>
           <Accordion.Item value="one">
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>

@@ -57,7 +57,7 @@ describe('<Menu.Positioner />', () => {
 
         return (
           <div style={{ margin: '50px' }}>
-            <Menu.Root open animated={false}>
+            <Menu.Root open>
               <Menu.Positioner side="bottom" align="start" anchor={anchor} arrowPadding={0}>
                 <Menu.Popup>
                   <Menu.Item>1</Menu.Item>
@@ -99,7 +99,7 @@ describe('<Menu.Positioner />', () => {
 
         return (
           <div style={{ margin: '50px' }}>
-            <Menu.Root open animated={false}>
+            <Menu.Root open>
               <Menu.Positioner side="bottom" align="start" anchor={anchor} arrowPadding={0}>
                 <Menu.Popup>
                   <Menu.Item>1</Menu.Item>
@@ -143,7 +143,7 @@ describe('<Menu.Positioner />', () => {
 
         return (
           <div style={{ margin: '50px' }}>
-            <Menu.Root open animated={false}>
+            <Menu.Root open>
               <Menu.Positioner side="bottom" align="start" anchor={getAnchor} arrowPadding={0}>
                 <Menu.Popup>
                   <Menu.Item>1</Menu.Item>
@@ -192,7 +192,7 @@ describe('<Menu.Positioner />', () => {
       const virtualElement = { getBoundingClientRect: () => boundingRect };
 
       const { getByRole } = await render(
-        <Menu.Root open animated={false}>
+        <Menu.Root open>
           <Menu.Positioner side="bottom" align="start" anchor={virtualElement} arrowPadding={0}>
             <Menu.Popup>
               <Menu.Item>1</Menu.Item>
@@ -212,7 +212,7 @@ describe('<Menu.Positioner />', () => {
 
     it('when keepMounted=true, should keep the content mounted when closed', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Positioner keepMounted>
             <Menu.Popup>
@@ -240,7 +240,7 @@ describe('<Menu.Positioner />', () => {
 
     it('when keepMounted=false, should unmount the content when closed', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Positioner keepMounted={false}>
             <Menu.Popup>

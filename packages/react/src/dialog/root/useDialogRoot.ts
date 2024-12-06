@@ -18,7 +18,6 @@ import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
-    animated,
     defaultOpen,
     dismissible,
     modal,
@@ -54,7 +53,6 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
 
   useAfterExitAnimation({
     open,
-    animated,
     animatedElementRef: popupRef,
     onFinished: () => setMounted(false),
   });
@@ -155,13 +153,6 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
 }
 
 export interface CommonParameters {
-  /**
-   * If `true`, the dialog supports CSS-based animations and transitions.
-   * It is kept in the DOM until the animation completes.
-   *
-   * @default true
-   */
-  animated?: boolean;
   /**
    * Determines whether the dialog is open.
    */

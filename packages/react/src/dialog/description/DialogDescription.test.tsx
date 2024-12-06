@@ -9,7 +9,7 @@ describe('<Dialog.Description />', () => {
     refInstanceof: window.HTMLParagraphElement,
     render: (node) => {
       return render(
-        <Dialog.Root open modal={false} animated={false}>
+        <Dialog.Root open modal={false}>
           <Dialog.Popup>{node}</Dialog.Popup>
         </Dialog.Root>,
       );

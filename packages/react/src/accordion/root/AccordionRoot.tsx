@@ -33,7 +33,6 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    animated = true,
     className,
     direction = 'ltr',
     disabled = false,
@@ -71,7 +70,6 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   }, [value, defaultValueProp]);
 
   const { getRootProps, ...accordion } = useAccordionRoot({
-    animated,
     direction,
     disabled,
     defaultValue,
@@ -152,11 +150,6 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * If `true`, the component supports CSS/JS-based animations and transitions.
-   * @default true
-   */
-  animated: PropTypes.bool,
   /**
    * @ignore
    */

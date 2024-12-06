@@ -11,7 +11,7 @@ describe('<Select.Root />', () => {
   describe('prop: defaultValue', () => {
     it('should select the option by default', async () => {
       await render(
-        <Select.Root defaultValue="b" animated={false}>
+        <Select.Root defaultValue="b">
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
@@ -40,7 +40,7 @@ describe('<Select.Root />', () => {
   describe('prop: value', () => {
     it('should select the option specified by the value prop', async () => {
       await render(
-        <Select.Root value="b" animated={false}>
+        <Select.Root value="b">
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
@@ -67,7 +67,7 @@ describe('<Select.Root />', () => {
 
     it('should update the selected option when the value prop changes', async () => {
       const { setProps } = await render(
-        <Select.Root value="a" animated={false}>
+        <Select.Root value="a">
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
@@ -116,7 +116,6 @@ describe('<Select.Root />', () => {
               setValue(newValue);
               handleValueChange(newValue);
             }}
-            animated={false}
           >
             <Select.Trigger data-testid="trigger">
               <Select.Value />
@@ -150,7 +149,7 @@ describe('<Select.Root />', () => {
   describe('prop: defaultOpen', () => {
     it('should open the select by default', async () => {
       await render(
-        <Select.Root defaultOpen animated={false}>
+        <Select.Root defaultOpen>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
@@ -171,7 +170,7 @@ describe('<Select.Root />', () => {
     it('should control the open state of the select', async () => {
       function ControlledSelect({ open }: { open: boolean }) {
         return (
-          <Select.Root open={open} animated={false}>
+          <Select.Root open={open}>
             <Select.Trigger data-testid="trigger">
               <Select.Value />
             </Select.Trigger>
@@ -235,6 +234,8 @@ describe('<Select.Root />', () => {
         this?.skip?.() || t?.skip();
       }
 
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
       let animationFinished = false;
       const notifyAnimationFinished = () => {
         animationFinished = true;
@@ -286,6 +287,8 @@ describe('<Select.Root />', () => {
       });
 
       expect(animationFinished).to.equal(true);
+
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 
@@ -294,7 +297,7 @@ describe('<Select.Root />', () => {
       const handleOpenChange = spy();
 
       const { user } = await render(
-        <Select.Root onOpenChange={handleOpenChange} animated={false}>
+        <Select.Root onOpenChange={handleOpenChange}>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
@@ -321,7 +324,7 @@ describe('<Select.Root />', () => {
 
   it('should handle browser autofill', async () => {
     const { container } = await render(
-      <Select.Root animated={false} name="select">
+      <Select.Root name="select">
         <Select.Trigger data-testid="trigger">
           <Select.Value />
         </Select.Trigger>

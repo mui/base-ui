@@ -168,7 +168,7 @@ describe('<Menu.Trigger />', () => {
   describe('style hooks', () => {
     it('should have the data-popup-open and data-pressed attributes when open', async () => {
       await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger />
         </Menu.Root>,
       );
