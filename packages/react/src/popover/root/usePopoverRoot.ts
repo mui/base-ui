@@ -44,8 +44,10 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
+  const [clickEnabled, setClickEnabled] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
+  const clickEnabledTimeoutRef = React.useRef(-1);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -53,6 +55,10 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     name: 'Popover',
     state: 'open',
   });
+
+  if (!open && !clickEnabled) {
+    setClickEnabled(true);
+  }
 
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
@@ -78,6 +84,12 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     },
   });
 
+  React.useEffect(() => {
+    return () => {
+      clearTimeout(clickEnabledTimeoutRef.current);
+    };
+  }, []);
+
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
     open,
@@ -91,6 +103,13 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       }
 
       if (isHover) {
+        // Prevent impatient clicks from unexpectedly closing the popover.
+        setClickEnabled(false);
+        clearTimeout(clickEnabledTimeoutRef.current);
+        clickEnabledTimeoutRef.current = window.setTimeout(() => {
+          setClickEnabled(true);
+        }, 300);
+
         ReactDOM.flushSync(changeState);
       } else {
         changeState();
@@ -116,13 +135,20 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       close: closeDelayWithDefault,
     },
   });
-  const click = useClick(context, { stickIfOpen: false });
+
+  const click = useClick(context, {
+    enabled: clickEnabled,
+    stickIfOpen: false,
+  });
+
   const dismiss = useDismiss(context);
+
   const role = useRole(context);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
 
   const { openMethod, triggerProps } = useOpenInteractionType(open);
+
   return React.useMemo(
     () => ({
       open,
