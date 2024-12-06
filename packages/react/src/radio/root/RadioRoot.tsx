@@ -2,7 +2,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useRadioGroupRootContext } from '../../radio-group/root/RadioGroupRootContext';
 import { useRadioRoot } from './useRadioRoot';
@@ -10,15 +9,7 @@ import { RadioRootContext } from './RadioRootContext';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { NOOP } from '../../utils/noop';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-
-const customStyleHookMapping: CustomStyleHookMapping<RadioRoot.State> = {
-  checked(value): Record<string, string> {
-    if (value) {
-      return { 'data-checked': '' };
-    }
-    return { 'data-unchecked': '' };
-  },
-};
+import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 
 /**
  *

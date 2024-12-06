@@ -2,18 +2,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useRadioRootContext } from '../root/RadioRootContext';
-
-const customStyleHookMapping: CustomStyleHookMapping<RadioIndicator.State> = {
-  checked(value): Record<string, string> {
-    if (value) {
-      return { 'data-checked': '' };
-    }
-    return { 'data-unchecked': '' };
-  },
-};
+import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 
 /**
  *
