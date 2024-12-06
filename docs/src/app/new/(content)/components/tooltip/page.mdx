@@ -1,0 +1,32 @@
+# Tooltip
+
+<Subtitle>
+  A popup that appears when an element is hovered or focused, showing a hint for sighted users.
+</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React tooltip component that appears when an element is hovered or focused, showing a hint for sighted users."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component and place its parts the following way:
+
+```jsx title="Anatomy"
+import { Tooltip } from '@base-ui-components/react/tooltip';
+
+<Tooltip.Provider>
+  <Tooltip.Root>
+    <Tooltip.Trigger />
+    <Tooltip.Positioner>
+      <Tooltip.Popup>
+        <Tooltip.Arrow />
+      </Tooltip.Popup>
+    </Tooltip.Positioner>
+  </Tooltip.Root>
+</Tooltip.Provider>;
+```
+
+<Reference component="Tooltip" parts="Provider, Root, Trigger, Positioner, Popup, Arrow" />
