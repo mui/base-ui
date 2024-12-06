@@ -726,10 +726,7 @@ describe('<Menu.Root />', () => {
         this?.skip?.() || t?.skip();
       }
 
-      Object.defineProperty(HTMLElement.prototype, 'getAnimations', {
-        // @ts-expect-error
-        value: globalThis.originalGetAnimations,
-      });
+      (globalThis as any).__BASE_UI_ANIMATIONS_DISABLED = false;
 
       let animationFinished = false;
       const notifyAnimationFinished = () => {
@@ -783,9 +780,7 @@ describe('<Menu.Root />', () => {
 
       expect(animationFinished).to.equal(true);
 
-      Object.defineProperty(HTMLElement.prototype, 'getAnimations', {
-        value: undefined,
-      });
+      (globalThis as any).__BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 });

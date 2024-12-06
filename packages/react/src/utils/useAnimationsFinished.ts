@@ -26,7 +26,7 @@ export function useAnimationsFinished(ref: React.RefObject<HTMLElement | null>) 
 
     if (
       typeof element.getAnimations !== 'function' ||
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED
+      (globalThis as any).__BASE_UI_ANIMATIONS_DISABLED
     ) {
       fnToExecute();
     } else {
