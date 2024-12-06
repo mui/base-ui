@@ -41,7 +41,6 @@ export function useSelectTrigger(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    focusableWhenDisabled: false,
     buttonRef: mergedRef,
   });
 
