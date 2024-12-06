@@ -98,7 +98,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     open,
     animated: params.animated || true,
     animatedElementRef: popupRef,
-    onFinished: () => setMounted(false),
+    onFinished() {
+      setMounted(false);
+      setActiveIndex(null);
+    },
   });
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
