@@ -14,18 +14,11 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { refType } from '../../utils/proptypes';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
   ...baseMapping,
-  transitionStatus(value) {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' } as Record<string, string>;
-    }
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-    return null;
-  },
+  ...transitionStatusMapping,
 };
 
 /**

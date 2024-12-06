@@ -11,20 +11,11 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,
-  transitionStatus(value): Record<string, string> | null {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' };
-    }
-
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-
-    return null;
-  },
+  ...transitionStatusMapping,
 };
 
 /**
