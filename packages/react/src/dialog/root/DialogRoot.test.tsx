@@ -175,4 +175,41 @@ describe('<Dialog.Root />', () => {
       });
     });
   });
+
+  it('when `true`, waits for the exit transition to finish before unmounting', async function test(t = {}) {
+    const css = `
+    .dialog {
+      opacity: 0;
+      transition: opacity 200ms;
+    }
+    .dialog[data-open] {
+      opacity: 1;
+    }
+  `;
+
+    if (/jsdom/.test(window.navigator.userAgent)) {
+      // @ts-expect-error to support mocha and vitest
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      this?.skip?.() || t?.skip();
+    }
+
+    const notifyTransitionEnd = spy();
+
+    const { setProps, queryByRole } = await render(
+      <Dialog.Root open modal={false}>
+        {/* eslint-disable-next-line react/no-danger */}
+        <style dangerouslySetInnerHTML={{ __html: css }} />
+        <Dialog.Popup className="dialog" onTransitionEnd={notifyTransitionEnd} />
+      </Dialog.Root>,
+    );
+
+    setProps({ open: false });
+    expect(queryByRole('dialog')).not.to.equal(null);
+
+    await waitFor(() => {
+      expect(queryByRole('dialog')).to.equal(null);
+    });
+
+    expect(notifyTransitionEnd.callCount).to.equal(1);
+  });
 });
