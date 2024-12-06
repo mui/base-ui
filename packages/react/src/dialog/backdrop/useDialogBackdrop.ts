@@ -1,22 +1,26 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAnimatedElement } from '../../utils/useAnimatedElement';
 import { useForkRef } from '../../utils/useForkRef';
-import { type TransitionStatus } from '../../utils/useTransitionStatus';
+import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 export function useDialogBackdrop(
   params: useDialogBackdrop.Parameters,
 ): useDialogBackdrop.ReturnValue {
-  const { animated, open, ref } = params;
+  const { open, ref } = params;
 
   const backdropRef = React.useRef<HTMLElement | null>(null);
   const handleRef = useForkRef(ref, backdropRef);
 
-  const { mounted, transitionStatus } = useAnimatedElement({
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
+
+  useAfterExitAnimation({
     open,
-    ref: backdropRef,
-    enabled: animated,
+    animatedElementRef: backdropRef,
+    onFinished() {
+      setMounted(false);
+    },
   });
 
   const getRootProps = React.useCallback(
@@ -38,11 +42,6 @@ export function useDialogBackdrop(
 
 export namespace useDialogBackdrop {
   export interface Parameters {
-    /**
-     * If `true`, the dialog supports CSS-based animations and transitions.
-     * It is kept in the DOM until the animation completes.
-     */
-    animated: boolean;
     /**
      * Determines if the dialog is open.
      */

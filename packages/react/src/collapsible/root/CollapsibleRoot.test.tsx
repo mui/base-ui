@@ -20,7 +20,7 @@ describe('<Collapsible.Root />', () => {
   describe('ARIA attributes', () => {
     it('sets ARIA attributes', async () => {
       const { getByTestId, getByRole } = await render(
-        <Collapsible.Root defaultOpen animated={false}>
+        <Collapsible.Root defaultOpen>
           <Collapsible.Trigger />
           <Collapsible.Panel data-testid="panel" />
         </Collapsible.Root>,
@@ -38,7 +38,7 @@ describe('<Collapsible.Root />', () => {
   describe('open state', () => {
     it('controlled mode', async function test() {
       const { queryByText, getByRole, setProps } = await render(
-        <Collapsible.Root open={false} animated={false}>
+        <Collapsible.Root open={false}>
           <Collapsible.Trigger />
           <Collapsible.Panel>This is panel content</Collapsible.Panel>
         </Collapsible.Root>,
@@ -73,7 +73,7 @@ describe('<Collapsible.Root />', () => {
         this?.skip?.() || t?.skip();
       }
       const { getByRole, queryByText, user } = await render(
-        <Collapsible.Root defaultOpen={false} animated={false}>
+        <Collapsible.Root defaultOpen={false}>
           <Collapsible.Trigger />
           <Collapsible.Panel>This is panel content</Collapsible.Panel>
         </Collapsible.Root>,
@@ -103,7 +103,7 @@ describe('<Collapsible.Root />', () => {
   describe('prop: render', () => {
     it('does not render a root element when `null`', async () => {
       const { getByRole, container } = await render(
-        <Collapsible.Root defaultOpen animated={false} render={null}>
+        <Collapsible.Root defaultOpen render={null}>
           <Collapsible.Trigger />
           <Collapsible.Panel>This is panel content</Collapsible.Panel>
         </Collapsible.Root>,
@@ -118,7 +118,7 @@ describe('<Collapsible.Root />', () => {
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} should toggle the Collapsible`, async () => {
         const { queryByText, getByRole, user } = await render(
-          <Collapsible.Root defaultOpen={false} animated={false}>
+          <Collapsible.Root defaultOpen={false}>
             <Collapsible.Trigger>Trigger</Collapsible.Trigger>
             <Collapsible.Panel>This is panel content</Collapsible.Panel>
           </Collapsible.Root>,

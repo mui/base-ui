@@ -95,7 +95,7 @@ export namespace useToggleRoot {
     setGroupValue: (newValue: string, nextPressed: boolean, event: Event) => void;
     /**
      * A unique string that identifies the component when used
-     * inside a ToggleGroup
+     * inside a ToggleGroup.
      */
     value: string;
     // TODO: a prop to indicate `aria-pressed='mixed'` is supported
@@ -104,8 +104,8 @@ export namespace useToggleRoot {
   export interface ReturnValue {
     /**
      * Resolver for the root slot's props.
-     * @param externalProps props for the root slot
-     * @returns props that should be spread on the root slot
+     * @param externalProps props for the root slot.
+     * @returns props that should be spread on the root slot.
      */
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**

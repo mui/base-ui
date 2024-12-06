@@ -17,7 +17,6 @@ import { type CommonParameters, useDialogRoot } from './useDialogRoot';
  */
 const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
   const {
-    animated = true,
     children,
     defaultOpen = false,
     dismissible = true,
@@ -29,7 +28,6 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
   const parentDialogRootContext = React.useContext(DialogRootContext);
 
   const dialogRoot = useDialogRoot({
-    animated,
     open,
     defaultOpen,
     onOpenChange,
@@ -42,8 +40,8 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
   const hasParentDialog = Boolean(parentDialogRootContext);
 
   const contextValue = React.useMemo(
-    () => ({ ...dialogRoot, hasParentDialog, dismissible, animated }),
-    [dialogRoot, hasParentDialog, dismissible, animated],
+    () => ({ ...dialogRoot, hasParentDialog, dismissible }),
+    [dialogRoot, hasParentDialog, dismissible],
   );
 
   return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
@@ -60,13 +58,6 @@ DialogRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * If `true`, the dialog supports CSS-based animations and transitions.
-   * It is kept in the DOM until the animation completes.
-   *
-   * @default true
-   */
-  animated: PropTypes.bool,
   /**
    * @ignore
    */

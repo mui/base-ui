@@ -114,6 +114,22 @@ return (
 );
 ```
 
+## RTL
+
+To change direction for right-to-left languages, place the component in [`DirectionProvider`](/components/react-direction-provider) with the `direction="rtl"` prop to configure RTL behavior, and set the `dir` attribute accordingly in your HTML to affect styling:
+
+```jsx
+<html dir="rtl">
+  <body>
+    <DirectionProvider direction="rtl">
+      <ToggleGroup>{/* Subcomponents */}</ToggleGroup>
+    </DirectionProvider>
+  </body>
+</html>
+```
+
+When RTL, the behavior of the left and right arrow keys are reversed - <kbd className="key">Left Arrow</kbd> moves focus to the next toggle and <kbd className="key">Right Arrow</kbd> moves focus to the previous toggle.
+
 ## Accessibility
 
 - The `ToggleGroup` component, and every `Toggle` within must be given must be given an accessible name with `aria-label` or `aria-labelledby`.

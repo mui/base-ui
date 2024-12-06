@@ -28,9 +28,10 @@ const TabsList = React.forwardRef(function TabsList(
   const { activateOnFocus = true, className, loop = true, render, ...other } = props;
 
   const {
+    direction,
     getTabElementBySelectedValue,
     onValueChange,
-    orientation = 'horizontal',
+    orientation,
     value,
     setTabMap,
     tabActivationDirection,
@@ -92,6 +93,7 @@ const TabsList = React.forwardRef(function TabsList(
         highlightedIndex={highlightedTabIndex}
         enableHomeAndEndKeys
         loop={loop}
+        direction={direction}
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}

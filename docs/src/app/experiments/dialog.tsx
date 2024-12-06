@@ -126,29 +126,18 @@ function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: DemoProps) 
 
 // @ts-ignore
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function ReactSpringDialogDemo({
-  // @ts-ignore
-  animated,
-  keepMounted,
-  modal,
-  dismissible,
-}: DemoProps) {
+function ReactSpringDialogDemo({ keepMounted, modal, dismissible }: DemoProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
     <span className={classes.demo}>
-      <Dialog.Root
-        dismissible
-        open={open}
-        onOpenChange={setOpen}
-        animated={animated}
-      >
+      <Dialog.Root dismissible open={open} onOpenChange={setOpen}>
         <Dialog.Trigger className={classes.button}>
           Open with React Spring transition
         </Dialog.Trigger>
 
         <Dialog.Backdrop
-          className={`${classes.backdrop} ${animated && classes.withAnimations}`}
+          className={`${classes.backdrop} ${classes.withAnimations}`}
         />
 
         <ReactSpringTransition open={open}>
