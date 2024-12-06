@@ -234,7 +234,7 @@ describe('<Select.Root />', () => {
         this?.skip?.() || t?.skip();
       }
 
-      (globalThis as any).__BASE_UI_ANIMATIONS_DISABLED = false;
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
 
       let animationFinished = false;
       const notifyAnimationFinished = () => {
@@ -288,7 +288,7 @@ describe('<Select.Root />', () => {
 
       expect(animationFinished).to.equal(true);
 
-      (globalThis as any).__BASE_UI_ANIMATIONS_DISABLED = true;
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 
