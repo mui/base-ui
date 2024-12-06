@@ -54,7 +54,7 @@
       "description": "A function to customize rendering of the component."
     },
     "side": {
-      "type": "'block-end' | 'block-start' | 'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
+      "type": "'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
       "default": "'bottom'",
       "description": "The side of the anchor element that the preview card element should align to."
     },

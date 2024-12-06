@@ -253,16 +253,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    * The side of the anchor element that the Menu element should align to.
    * @default 'bottom'
    */
-  side: PropTypes.oneOf([
-    'block-end',
-    'block-start',
-    'bottom',
-    'inline-end',
-    'inline-start',
-    'left',
-    'right',
-    'top',
-  ]),
+  side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
    * The gap between the anchor element and the Menu element.
    * @default 0

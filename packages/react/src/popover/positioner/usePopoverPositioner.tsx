@@ -8,7 +8,7 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import {
   type Boundary,
-  type LogicalSide,
+  type InlineSide,
   useAnchorPositioning,
 } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
@@ -95,7 +95,7 @@ export namespace usePopoverPositioner {
      * The side of the anchor element that the popover element should be placed at.
      * @default 'bottom'
      */
-    side?: 'top' | 'right' | 'bottom' | 'left' | LogicalSide;
+    side?: 'top' | 'right' | 'bottom' | 'left' | InlineSide;
     /**
      * The gap between the anchor element and the popover element.
      * @default 0

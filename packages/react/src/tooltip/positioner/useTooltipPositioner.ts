@@ -3,7 +3,7 @@ import type { Padding, VirtualElement, FloatingRootContext } from '@floating-ui/
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import {
   type Boundary,
-  type LogicalSide,
+  type InlineSide,
   useAnchorPositioning,
 } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
@@ -98,7 +98,7 @@ export namespace useTooltipPositioner {
      * The side of the anchor element that the tooltip element should be placed at.
      * @default 'top'
      */
-    side?: 'top' | 'right' | 'bottom' | 'left' | LogicalSide;
+    side?: 'top' | 'right' | 'bottom' | 'left' | InlineSide;
     /**
      * The gap between the anchor element and the tooltip element.
      * @default 0

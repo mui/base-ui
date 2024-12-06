@@ -219,16 +219,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    * The side of the anchor element that the tooltip element should be placed at.
    * @default 'top'
    */
-  side: PropTypes.oneOf([
-    'block-end',
-    'block-start',
-    'bottom',
-    'inline-end',
-    'inline-start',
-    'left',
-    'right',
-    'top',
-  ]),
+  side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
    * The gap between the anchor element and the tooltip element.
    * @default 0
