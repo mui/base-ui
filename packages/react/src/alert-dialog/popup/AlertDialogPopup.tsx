@@ -58,7 +58,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     getPopupProps,
     mounted,
     nestedOpenDialogCount,
-    onOpenChange,
+    setOpen,
     open,
     openMethod,
     popupRef,
@@ -78,7 +78,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     initialFocus,
     modal: true,
     mounted,
-    onOpenChange,
+    setOpen,
     open,
     openMethod,
     ref: mergedRef,
@@ -121,6 +121,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
         disabled={!mounted}
         initialFocus={resolvedInitialFocus}
         returnFocus={finalFocus}
+        outsideElementsInert
       >
         {renderElement()}
       </FloatingFocusManager>

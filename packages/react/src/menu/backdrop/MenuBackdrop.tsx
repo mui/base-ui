@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import { usePopoverRootContext } from '../root/PopoverRootContext';
+import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -10,38 +10,38 @@ import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
-const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.State> = {
+const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
-      return { 'data-starting-style': '' } as Record<string, string>;
+      return { 'data-entering': '' } as Record<string, string>;
     }
     if (value === 'exiting') {
-      return { 'data-ending-style': '' };
+      return { 'data-exiting': '' };
     }
     return null;
   },
 };
 
 /**
- * Renders a backdrop for the popover.
+ * Renders a backdrop for the menu.
  *
  * Demos:
  *
- * - [Popover](https://base-ui.com/components/react-popover/)
+ * - [Menu](https://base-ui.com/components/react-menu/)
  *
  * API:
  *
- * - [PopoverBackdrop API](https://base-ui.com/components/react-popover/#api-reference-PopoverBackdrop)
+ * - [MenuBackdrop API](https://base-ui.com/components/react-menu/#api-reference-MenuBackdrop)
  */
-const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
-  props: PopoverBackdrop.Props,
+const MenuBackdrop = React.forwardRef(function MenuBackdrop(
+  props: MenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, keepMounted = false, container, ...other } = props;
-  const { open, mounted, transitionStatus } = usePopoverRootContext();
+  const { open, mounted, transitionStatus } = useMenuRootContext();
 
-  const state: PopoverBackdrop.State = React.useMemo(
+  const state: MenuBackdrop.State = React.useMemo(
     () => ({
       open,
       transitionStatus,
@@ -66,7 +66,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
 });
 
-namespace PopoverBackdrop {
+namespace MenuBackdrop {
   export interface State {
     open: boolean;
     transitionStatus: TransitionStatus;
@@ -74,7 +74,7 @@ namespace PopoverBackdrop {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * If `true`, the backdrop remains mounted when the popover content is closed.
+     * If `true`, the backdrop remains mounted when the menu popup is closed.
      * @default false
      */
     keepMounted?: boolean;
@@ -86,7 +86,7 @@ namespace PopoverBackdrop {
   }
 }
 
-PopoverBackdrop.propTypes /* remove-proptypes */ = {
+MenuBackdrop.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -108,7 +108,7 @@ PopoverBackdrop.propTypes /* remove-proptypes */ = {
     PropTypes.func,
   ]),
   /**
-   * If `true`, the backdrop remains mounted when the popover content is closed.
+   * If `true`, the backdrop remains mounted when the menu popup is closed.
    * @default false
    */
   keepMounted: PropTypes.bool,
@@ -118,4 +118,4 @@ PopoverBackdrop.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { PopoverBackdrop };
+export { MenuBackdrop };
