@@ -24,7 +24,7 @@
     },
     "getAriaLabel": {
       "type": "(value) => string",
-      "description": "Accepts a function which returns a string value that provides an accessible name for the Indicator component"
+      "description": "Accepts a function which returns a string value that provides an accessible name for the Indicator component."
     },
     "getAriaValueText": {
       "type": "(value) => string",
@@ -33,12 +33,12 @@
     "max": {
       "type": "number",
       "default": "100",
-      "description": "The maximum value"
+      "description": "The maximum value."
     },
     "min": {
       "type": "number",
       "default": "0",
-      "description": "The minimum value"
+      "description": "The minimum value."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",

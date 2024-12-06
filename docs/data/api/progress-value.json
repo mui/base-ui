@@ -1,0 +1,19 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "ProgressValue",
+  "imports": [
+    "import { Progress } from '@base-ui-components/react/progress';\nconst ProgressValue = Progress.Value;"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "ProgressValue",
+  "forwardsRefTo": "HTMLSpanElement",
+  "filename": "/packages/react/src/progress/value/ProgressValue.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-progress/\">Progress</a></li></ul>",
+  "cssComponent": false
+}

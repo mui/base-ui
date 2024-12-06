@@ -53,16 +53,15 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
         'aria-valuemin': min,
         'aria-valuenow': value ?? undefined,
         'aria-valuetext': getAriaValueText
-          ? getAriaValueText(value == null ? null : formatNumber(value, [], format), value)
-          : (ariaValuetext ??
-            getDefaultAriaValueText(value == null ? null : formatNumber(value, [], format), value)),
+          ? getAriaValueText(formattedValue, value)
+          : (ariaValuetext ?? getDefaultAriaValueText(formattedValue, value)),
         role: 'progressbar',
       }),
     [
       ariaLabel,
       ariaLabelledby,
       ariaValuetext,
-      format,
+      formattedValue,
       getAriaLabel,
       getAriaValueText,
       max,
@@ -73,7 +72,7 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
 
   return {
     getRootProps,
-
+    formattedValue,
     max,
     min,
     value,
@@ -100,8 +99,8 @@ namespace useProgressRoot {
      */
     format?: Intl.NumberFormatOptions;
     /**
-     * Accepts a function which returns a string value that provides an accessible name for the Indicator component
-     * @param {number | null} value The component's value
+     * Accepts a function which returns a string value that provides an accessible name for the Indicator component.
+     * @param {number | null} value The component's value.
      * @returns {string}
      */
     getAriaLabel?: (index: number | null) => string;
@@ -113,12 +112,12 @@ namespace useProgressRoot {
      */
     getAriaValueText?: (formattedValue: string | null, value: number | null) => string;
     /**
-     * The maximum value
+     * The maximum value.
      * @default 100
      */
     max?: number;
     /**
-     * The minimum value
+     * The minimum value.
      * @default 0
      */
     min?: number;
@@ -134,17 +133,21 @@ namespace useProgressRoot {
       externalProps?: React.ComponentPropsWithRef<'div'>,
     ) => React.ComponentPropsWithRef<'div'>;
     /**
-     * The maximum value
+     * The maximum value.
      */
     max: number;
     /**
-     * The minimum value
+     * The minimum value.
      */
     min: number;
     /**
-     * Value of the component
+     * Value of the component.
      */
     value: number | null;
+    /**
+     * Formatted value of the component.
+     */
+    formattedValue: string | null;
     status: ProgressStatus;
   }
 }
