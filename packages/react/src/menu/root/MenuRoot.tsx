@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingTree } from '@floating-ui/react';
-import { useDirectionContext } from '../../direction-provider/DirectionContext';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot } from './useMenuRoot';
 
@@ -30,8 +30,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     openOnHover: openOnHoverProp,
   } = props;
 
-  const directionContext = useDirectionContext();
-  const direction = directionContext?.direction ?? 'ltr';
+  const direction = useDirection();
 
   const parentContext = useMenuRootContext(true);
   const nested = parentContext != null;

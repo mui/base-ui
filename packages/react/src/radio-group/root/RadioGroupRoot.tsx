@@ -5,7 +5,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useDirectionContext } from '../../direction-provider/DirectionContext';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { useRadioGroupRoot } from './useRadioGroupRoot';
 import { RadioGroupRootContext } from './RadioGroupRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -34,8 +34,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
     ...otherProps
   } = props;
 
-  const directionContext = useDirectionContext();
-  const direction = directionContext?.direction ?? 'ltr';
+  const direction = useDirection();
 
   const { getRootProps, getInputProps, checkedValue, setCheckedValue, touched, setTouched } =
     useRadioGroupRoot(props);

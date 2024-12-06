@@ -5,7 +5,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { CompositeList } from '../../composite/list/CompositeList';
-import { useDirectionContext } from '../../direction-provider/DirectionContext';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
 import { SliderRootContext } from './SliderRootContext';
@@ -46,8 +46,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     ...otherProps
   } = props;
 
-  const directionContext = useDirectionContext();
-  const direction = directionContext?.direction ?? 'ltr';
+  const direction = useDirection();
 
   const { labelId, state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;

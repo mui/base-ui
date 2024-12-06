@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { CompositeList } from '../../composite/list/CompositeList';
-import { useDirectionContext } from '../../direction-provider/DirectionContext';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { useTabsRoot } from './useTabsRoot';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStyleHookMapping } from './styleHooks';
@@ -34,8 +34,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     ...other
   } = props;
 
-  const directionContext = useDirectionContext();
-  const direction = directionContext?.direction ?? 'ltr';
+  const direction = useDirection();
 
   const {
     getTabElementBySelectedValue,

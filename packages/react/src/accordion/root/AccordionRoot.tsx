@@ -7,7 +7,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { warn } from '../../utils/warn';
 import { CompositeList } from '../../composite/list/CompositeList';
-import { useDirectionContext } from '../../direction-provider/DirectionContext';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import {
   useAccordionRoot,
   type AccordionOrientation,
@@ -48,8 +48,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     ...otherProps
   } = props;
 
-  const directionContext = useDirectionContext();
-  const direction = directionContext?.direction ?? 'ltr';
+  const direction = useDirection();
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
