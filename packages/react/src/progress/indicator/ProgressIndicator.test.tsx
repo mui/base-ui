@@ -8,6 +8,7 @@ const contextValue: ProgressRootContext = {
   max: 100,
   min: 0,
   value: 30,
+  formattedValue: '30',
   status: 'progressing',
   state: {
     max: 100,

@@ -16,10 +16,10 @@ const contextValue: ProgressRootContext = {
   },
 };
 
-describe('<Progress.Track />', () => {
+describe('<Progress.Value />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Progress.Track />, () => ({
+  describeConformance(<Progress.Value />, () => ({
     render: (node) => {
       return render(
         <ProgressRootContext.Provider value={contextValue}>{node}</ProgressRootContext.Provider>,
