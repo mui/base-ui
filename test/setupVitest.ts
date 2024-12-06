@@ -15,6 +15,9 @@ globalThis.after = afterAll;
 // @ts-ignore
 globalThis.vi = vi;
 
+// @ts-ignore
+globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+
 const isVitestJsdom = process.env.VITEST_ENV === 'jsdom';
 
 // Only necessary when not in browser mode.
@@ -55,11 +58,4 @@ if (isVitestJsdom) {
     cb(0);
     return 0;
   };
-} else if (typeof HTMLElement !== 'undefined') {
-  globalThis.originalGetAnimations = HTMLElement.prototype.getAnimations;
-  Object.defineProperty(HTMLElement.prototype, 'getAnimations', {
-    value: undefined,
-    configurable: true,
-    writable: true,
-  });
 }

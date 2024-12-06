@@ -24,12 +24,15 @@ export function useAnimationsFinished(ref: React.RefObject<HTMLElement | null>) 
       return;
     }
 
-    if (typeof element.getAnimations === 'function') {
+    if (
+      typeof element.getAnimations !== 'function' ||
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED
+    ) {
+      fnToExecute();
+    } else {
       frameRef.current = requestAnimationFrame(() => {
         Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(fnToExecute);
       });
-    } else {
-      fnToExecute();
     }
   });
 }
