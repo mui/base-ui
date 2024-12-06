@@ -6,11 +6,6 @@
       "type": "string | (state) => string",
       "description": "Class names applied to the element or a function that returns them based on the component's state."
     },
-    "hideWhenUncentered": {
-      "type": "boolean",
-      "default": "false",
-      "description": "If `true`, the arrow will be hidden when it can't point to the center of the anchor element."
-    },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."

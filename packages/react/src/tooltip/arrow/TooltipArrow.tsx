@@ -24,14 +24,13 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
   props: TooltipArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, hideWhenUncentered = false, ...otherProps } = props;
+  const { className, render, ...otherProps } = props;
 
   const { open, arrowRef, side, align, arrowUncentered, arrowStyles } =
     useTooltipPositionerContext();
 
   const { getArrowProps } = useTooltipArrow({
     arrowStyles,
-    hidden: hideWhenUncentered && arrowUncentered,
   });
 
   const state: TooltipArrow.State = React.useMemo(
@@ -39,8 +38,9 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
       open,
       side,
       align,
+      uncentered: arrowUncentered,
     }),
-    [open, side, align],
+    [open, side, align, arrowUncentered],
   );
 
   const mergedRef = useForkRef(arrowRef, forwardedRef);
@@ -63,15 +63,10 @@ namespace TooltipArrow {
     open: boolean;
     side: Side;
     align: Align;
+    uncentered: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * If `true`, the arrow will be hidden when it can't point to the center of the anchor element.
-     * @default false
-     */
-    hideWhenUncentered?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 TooltipArrow.propTypes /* remove-proptypes */ = {
@@ -87,11 +82,6 @@ TooltipArrow.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * If `true`, the arrow will be hidden when it can't point to the center of the anchor element.
-   * @default false
-   */
-  hideWhenUncentered: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */

@@ -3,18 +3,15 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { GenericHTMLProps } from '../../utils/types';
 
 export function useTooltipArrow(params: useTooltipArrow.Parameters): useTooltipArrow.ReturnValue {
-  const { arrowStyles, hidden } = params;
+  const { arrowStyles } = params;
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps<'div'>(externalProps, {
-        style: {
-          ...arrowStyles,
-          ...(hidden && { visibility: 'hidden' }),
-        },
+        style: arrowStyles,
       });
     },
-    [arrowStyles, hidden],
+    [arrowStyles],
   );
 
   return React.useMemo(
@@ -28,7 +25,6 @@ export function useTooltipArrow(params: useTooltipArrow.Parameters): useTooltipA
 namespace useTooltipArrow {
   export interface Parameters {
     arrowStyles: React.CSSProperties;
-    hidden?: boolean;
   }
 
   export interface ReturnValue {
