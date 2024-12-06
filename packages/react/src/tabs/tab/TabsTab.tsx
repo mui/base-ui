@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useTab } from './useTab';
+import { useTabsTab } from './useTabsTab';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TabsOrientation, TabValue } from '../root/TabsRoot';
@@ -16,10 +16,10 @@ import { useTabsListContext } from '../tabs-list/TabsListContext';
  *
  * API:
  *
- * - [Tab API](https://base-ui.com/components/react-tabs/#api-reference-Tab)
+ * - [TabsTab API](https://base-ui.com/components/react-tabs/#api-reference-TabsTab)
  */
-const Tab = React.forwardRef(function Tab(
-  props: Tab.Props,
+const TabsTab = React.forwardRef(function Tab(
+  props: TabsTab.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { className, disabled = false, render, value: valueProp, id: idProp, ...other } = props;
@@ -33,7 +33,7 @@ const Tab = React.forwardRef(function Tab(
   const { activateOnFocus, highlightedTabIndex, onTabActivation, setHighlightedTabIndex } =
     useTabsListContext();
 
-  const { getRootProps, index, selected } = useTab({
+  const { getRootProps, index, selected } = useTabsTab({
     activateOnFocus,
     disabled,
     getTabPanelIdByTabValueOrIndex,
@@ -48,7 +48,7 @@ const Tab = React.forwardRef(function Tab(
 
   const highlighted = index > -1 && index === highlightedTabIndex;
 
-  const state: Tab.State = React.useMemo(
+  const state: TabsTab.State = React.useMemo(
     () => ({
       disabled,
       highlighted,
@@ -69,8 +69,8 @@ const Tab = React.forwardRef(function Tab(
   return renderElement();
 });
 
-namespace Tab {
-  export interface Props extends BaseUIComponentProps<'button', Tab.State> {
+namespace TabsTab {
+  export interface Props extends BaseUIComponentProps<'button', TabsTab.State> {
     /**
      * The value of the Tab.
      * When not specified, the value is the child position index.
@@ -85,9 +85,9 @@ namespace Tab {
   }
 }
 
-export { Tab };
+export { TabsTab };
 
-Tab.propTypes /* remove-proptypes */ = {
+TabsTab.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │

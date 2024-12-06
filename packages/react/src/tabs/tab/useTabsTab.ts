@@ -16,7 +16,7 @@ export interface TabMetadata {
   value: any | undefined;
 }
 
-function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
+function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
   const {
     activateOnFocus,
     disabled = false,
@@ -125,7 +125,7 @@ function useTab(parameters: useTab.Parameters): useTab.ReturnValue {
   };
 }
 
-namespace useTab {
+namespace useTabsTab {
   export interface Parameters
     extends Pick<TabsRootContext, 'getTabPanelIdByTabValueOrIndex'>,
       Pick<TabsList.Props, 'activateOnFocus'>,
@@ -182,4 +182,4 @@ namespace useTab {
   }
 }
 
-export { useTab };
+export { useTabsTab };

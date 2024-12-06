@@ -7,7 +7,7 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { useTabsRoot } from './useTabsRoot';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStyleHookMapping } from './styleHooks';
-import { TabPanelMetadata } from '../tab-panel/useTabPanel';
+import { TabPanelMetadata } from '../tab-panel/useTabsTabPanel';
 
 /**
  *

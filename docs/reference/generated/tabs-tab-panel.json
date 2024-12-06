@@ -1,5 +1,5 @@
 {
-  "name": "TabPanel",
+  "name": "TabsTabPanel",
   "description": "",
   "props": {
     "className": {

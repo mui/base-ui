@@ -5,15 +5,15 @@ import type { TabsRootContext } from '../root/TabsRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
-import { TabIndicatorCssVars } from './TabIndicatorCssVars';
+import { TabsTabIndicatorCssVars } from './TabsTabIndicatorCssVars';
 
 function round(value: number) {
   return Math.round(value * 100) * 0.01;
 }
 
-export function useTabIndicator(
-  parameters: useTabIndicator.Parameters,
-): useTabIndicator.ReturnValue {
+export function useTabsTabIndicator(
+  parameters: useTabsTabIndicator.Parameters,
+): useTabsTabIndicator.ReturnValue {
   const { value, tabsListRef, getTabElementBySelectedValue } = parameters;
 
   const rerender = useForcedRerendering();
@@ -89,12 +89,12 @@ export function useTabIndicator(
     }
 
     return {
-      [TabIndicatorCssVars.activeTabLeft]: `${left}px`,
-      [TabIndicatorCssVars.activeTabRight]: `${right}px`,
-      [TabIndicatorCssVars.activeTabTop]: `${top}px`,
-      [TabIndicatorCssVars.activeTabBottom]: `${bottom}px`,
-      [TabIndicatorCssVars.activeTabWidth]: `${width}px`,
-      [TabIndicatorCssVars.activeTabHeight]: `${height}px`,
+      [TabsTabIndicatorCssVars.activeTabLeft]: `${left}px`,
+      [TabsTabIndicatorCssVars.activeTabRight]: `${right}px`,
+      [TabsTabIndicatorCssVars.activeTabTop]: `${top}px`,
+      [TabsTabIndicatorCssVars.activeTabBottom]: `${bottom}px`,
+      [TabsTabIndicatorCssVars.activeTabWidth]: `${width}px`,
+      [TabsTabIndicatorCssVars.activeTabHeight]: `${height}px`,
     } as React.CSSProperties;
   }, [left, right, top, bottom, width, height, isTabSelected]);
 
@@ -121,7 +121,7 @@ export interface ActiveTabPosition {
   bottom: number;
 }
 
-export namespace useTabIndicator {
+export namespace useTabsTabIndicator {
   export interface Parameters
     extends Pick<TabsRootContext, 'getTabElementBySelectedValue' | 'value'>,
       Pick<TabsListContext, 'tabsListRef'> {}

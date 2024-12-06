@@ -21,7 +21,7 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
  * - [MenuSubmenuTrigger API](https://base-ui.com/components/react-menu/#api-reference-MenuSubmenuTrigger)
  */
 const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
-  props: SubmenuTrigger.Props,
+  props: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { render, className, disabled = false, label, id: idProp, ...other } = props;
@@ -60,7 +60,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     typingRef,
   });
 
-  const state: SubmenuTrigger.State = React.useMemo(
+  const state: MenuSubmenuTrigger.State = React.useMemo(
     () => ({ disabled, highlighted, open }),
     [disabled, highlighted, open],
   );
@@ -78,7 +78,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   return renderElement();
 });
 
-namespace SubmenuTrigger {
+namespace MenuSubmenuTrigger {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;

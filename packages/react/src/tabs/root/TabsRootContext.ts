@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { type TabMetadata } from '../tab/useTab';
+import { type TabMetadata } from '../tab/useTabsTab';
 import type { TabActivationDirection, TabValue } from './TabsRoot';
 
 export interface TabsRootContext {
