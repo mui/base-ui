@@ -131,7 +131,6 @@ export namespace AccordionRoot {
           useAccordionRoot.Parameters,
           | 'value'
           | 'defaultValue'
-          | 'animated'
           | 'disabled'
           | 'loop'
           | 'onValueChange'

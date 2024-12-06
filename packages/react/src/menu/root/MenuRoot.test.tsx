@@ -408,11 +408,11 @@ describe('<Menu.Root />', () => {
       it(`opens a nested menu of a ${orientation} ${direction.toUpperCase()} menu with ${openKey} key and closes it with ${closeKey}`, async () => {
         const { getByTestId, queryByTestId } = await render(
           <DirectionProvider direction={direction}>
-            <Menu.Root open orientation={orientation} dir={direction}>
+            <Menu.Root open orientation={orientation}>
               <Menu.Positioner>
                 <Menu.Popup>
                   <Menu.Item>1</Menu.Item>
-                  <Menu.Root orientation={orientation} dir={direction}>
+                  <Menu.Root orientation={orientation}>
                     <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
                     <Menu.Positioner>
                       <Menu.Popup data-testid="submenu">

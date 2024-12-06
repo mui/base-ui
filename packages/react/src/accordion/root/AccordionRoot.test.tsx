@@ -621,7 +621,7 @@ describe('<Accordion.Root />', () => {
       it('ArrowLeft/Right is reversed for horizontal accordions in RTL mode', async () => {
         const { getAllByRole, user } = await render(
           <DirectionProvider direction="rtl">
-            <Accordion.Root orientation="horizontal" direction="rtl">
+            <Accordion.Root orientation="horizontal">
               <Accordion.Item>
                 <Accordion.Header>
                   <Accordion.Trigger>Trigger 1</Accordion.Trigger>
