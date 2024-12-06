@@ -218,16 +218,7 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    * The side of the anchor element that the preview card element should align to.
    * @default 'bottom'
    */
-  side: PropTypes.oneOf([
-    'block-end',
-    'block-start',
-    'bottom',
-    'inline-end',
-    'inline-start',
-    'left',
-    'right',
-    'top',
-  ]),
+  side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
    * The gap between the anchor element and the preview card element.
    * @default 0

@@ -10,7 +10,7 @@ import type {
 import type { GenericHTMLProps } from '../../utils/types';
 import {
   type Boundary,
-  type LogicalSide,
+  type InlineSide,
   useAnchorPositioning,
 } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
@@ -131,7 +131,7 @@ export namespace useSelectPositioner {
      * The side of the anchor element that the Select element should align to.
      * @default 'bottom'
      */
-    side?: Side | LogicalSide;
+    side?: Side | InlineSide;
     /**
      * The gap between the anchor element and the Select element.
      * @default 0

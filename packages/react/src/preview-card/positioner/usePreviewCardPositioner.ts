@@ -8,7 +8,7 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import {
   Boundary,
-  type LogicalSide,
+  type InlineSide,
   useAnchorPositioning,
   type Side,
 } from '../../utils/useAnchorPositioning';
@@ -102,7 +102,7 @@ export namespace usePreviewCardPositioner {
      * The side of the anchor element that the preview card element should align to.
      * @default 'bottom'
      */
-    side?: Side | LogicalSide;
+    side?: Side | InlineSide;
     /**
      * The gap between the anchor element and the preview card element.
      * @default 0

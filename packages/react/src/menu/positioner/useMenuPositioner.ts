@@ -10,7 +10,7 @@ import type {
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import {
   type Boundary,
-  type LogicalSide,
+  type InlineSide,
   useAnchorPositioning,
 } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
@@ -106,7 +106,7 @@ export namespace useMenuPositioner {
      * The side of the anchor element that the Menu element should align to.
      * @default 'bottom'
      */
-    side?: Side | LogicalSide;
+    side?: Side | InlineSide;
     /**
      * The gap between the anchor element and the Menu element.
      * @default 0
