@@ -129,6 +129,7 @@
     position: relative;
     color: var(--color-gray-50);
   }
+
   &[data-highlighted]::before {
     content: '';
     z-index: -1;

@@ -28,6 +28,7 @@ const pages: readonly RouteMetadata[] = [
       { pathname: '/components/react-checkbox-group', title: 'Checkbox Group' },
       { pathname: '/components/react-collapsible', title: 'Collapsible' },
       { pathname: '/components/react-dialog', title: 'Dialog' },
+      { pathname: '/components/react-direction-provider', title: 'Direction Provider' },
       { pathname: '/components/react-field', title: 'Field' },
       { pathname: '/components/react-fieldset', title: 'Fieldset' },
       { pathname: '/components/react-form', title: 'Form' },

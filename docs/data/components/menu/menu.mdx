@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Menu component
 description: The Menu component provide end users with a list of options on temporary surfaces.
-components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuCheckboxItem, MenuCheckboxItemIndicator, MenuGroup, MenuGroupLabel, MenuBackdrop
+components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, MenuSubmenuTrigger, MenuArrow, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuCheckboxItem, MenuCheckboxItemIndicator, MenuGroup, MenuGroupLabel, MenuBackdrop
 githubLabel: 'component: menu'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
 ---
@@ -281,6 +281,22 @@ To visually separate items, use the `Menu.Separator` component:
 
 The Menu.Separator is a re-exported Separator component.
 See the [Separator docs](/components/react-separator) to learn about its API.
+
+## RTL
+
+To change direction for right-to-left languages, place the menu in [`DirectionProvider`](/components/react-direction-provider) with the `direction="rtl"` prop to configure RTL behavior, and set the `dir` attribute accordingly in your HTML to affect styling:
+
+```jsx
+<html dir="rtl">
+  <body>
+    <DirectionProvider direction="rtl">
+      <Menu.Root>{/* Subcomponents */}</Menu.Root>
+    </DirectionProvider>
+  </body>
+</html>
+```
+
+In a RTL menu, <kbd>Left Arrow</kbd> opens submenus while <kbd>Right Arrow</kbd> closes them.
 
 ## Animations
 

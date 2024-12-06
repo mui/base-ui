@@ -2,8 +2,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingTree } from '@floating-ui/react';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
-import { MenuDirection, MenuOrientation, useMenuRoot } from './useMenuRoot';
+import { MenuOrientation, useMenuRoot } from './useMenuRoot';
 
 /**
  *
@@ -19,7 +20,6 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const {
     children,
     defaultOpen = false,
-    dir: direction = 'ltr',
     disabled = false,
     closeParentOnEsc = true,
     loop = true,
@@ -29,6 +29,8 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     delay = 100,
     openOnHover: openOnHoverProp,
   } = props;
+
+  const direction = useDirection();
 
   const parentContext = useMenuRootContext(true);
   const nested = parentContext != null;
@@ -119,12 +121,6 @@ namespace MenuRoot {
      */
     orientation?: MenuOrientation;
     /**
-     * The direction of the Menu (left-to-right or right-to-left).
-     *
-     * @default 'ltr'
-     */
-    dir?: MenuDirection;
-    /**
      * If `true`, the Menu is disabled.
      *
      * @default false
@@ -183,12 +179,6 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    * @default 100
    */
   delay: PropTypes.number,
-  /**
-   * The direction of the Menu (left-to-right or right-to-left).
-   *
-   * @default 'ltr'
-   */
-  dir: PropTypes.oneOf(['ltr', 'rtl']),
   /**
    * If `true`, the Menu is disabled.
    *

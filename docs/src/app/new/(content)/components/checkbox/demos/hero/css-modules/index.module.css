@@ -1,3 +1,12 @@
+.Label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color: var(--color-gray-900);
+}
+
 .Checkbox {
   box-sizing: border-box;
   display: flex;
@@ -11,13 +20,13 @@
   margin: 0;
   border: none;
 
-  &[data-checked] {
-    background-color: var(--color-gray-900);
-  }
-
   &[data-unchecked] {
     border: 1px solid var(--color-gray-300);
     background-color: transparent;
+  }
+
+  &[data-checked] {
+    background-color: var(--color-gray-900);
   }
 
   &:focus-visible {

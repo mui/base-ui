@@ -7,7 +7,7 @@ export default function ExamplePreviewCard() {
       <p className="max-w-64 text-base text-balance text-gray-900">
         The principles of good{' '}
         <PreviewCard.Trigger
-          className="text-blue-800 no-underline decoration-blue-800/60 underline-offset-2 hover:underline data-[popup-open]:underline"
+          className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:underline focus-visible:rounded-sm focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-blue-800 data-[popup-open]:underline data-[popup-open]:focus-visible:no-underline"
           href="https://en.wikipedia.org/wiki/Typography"
         >
           typography

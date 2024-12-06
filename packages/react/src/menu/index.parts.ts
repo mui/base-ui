@@ -13,4 +13,4 @@ export { MenuRadioItemIndicator as RadioItemIndicator } from './radio-item-indic
 export { MenuRoot as Root } from './root/MenuRoot';
 export { MenuTrigger as Trigger } from './trigger/MenuTrigger';
 export { SeparatorRoot as Separator } from '../separator/root/SeparatorRoot';
-export { SubmenuTrigger } from './submenu-trigger/SubmenuTrigger';
+export { MenuSubmenuTrigger as SubmenuTrigger } from './submenu-trigger/MenuSubmenuTrigger';

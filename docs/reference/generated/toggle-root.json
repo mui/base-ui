@@ -38,7 +38,7 @@
     },
     "value": {
       "type": "string",
-      "description": "A unique string that identifies the component when used\ninside a ToggleGroup"
+      "description": "A unique string that identifies the component when used\ninside a ToggleGroup."
     }
   }
 }

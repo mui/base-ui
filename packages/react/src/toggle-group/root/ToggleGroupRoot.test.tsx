@@ -2,6 +2,10 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
+import {
+  DirectionProvider,
+  type TextDirection,
+} from '@base-ui-components/react/direction-provider';
 import { ToggleGroup } from '@base-ui-components/react/toggle-group';
 import { Toggle } from '@base-ui-components/react/toggle';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -215,88 +219,68 @@ describe('<ToggleGroup />', () => {
   });
 
   describeSkipIf(isJSDOM)('keyboard interactions', () => {
-    it('ltr', async () => {
-      const { getAllByRole, user } = await render(
-        <ToggleGroup>
-          <Toggle value="one" />
-          <Toggle value="two" />
-        </ToggleGroup>,
-      );
+    [
+      ['ltr', 'ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'],
+      ['rtl', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 'ArrowUp'],
+    ].forEach((entry) => {
+      const [direction, horizontalNextKey, verticalNextKey, horizontalPrevKey, verticalPrevKey] =
+        entry;
 
-      const [button1, button2] = getAllByRole('button');
+      it(direction, async () => {
+        const { getAllByRole, user } = await render(
+          <DirectionProvider direction={direction as TextDirection}>
+            <ToggleGroup>
+              <Toggle value="one" />
+              <Toggle value="two" />
+              <Toggle value="three" />
+            </ToggleGroup>
+          </DirectionProvider>,
+        );
 
-      await user.keyboard('[Tab]');
+        const [button1, button2, button3] = getAllByRole('button');
 
-      expect(button1).to.have.attribute('data-highlighted');
-      expect(button1).to.have.attribute('tabindex', '0');
-      expect(button1).toHaveFocus();
+        await user.keyboard('[Tab]');
 
-      await user.keyboard('[ArrowRight]');
+        expect(button1).to.have.attribute('data-highlighted');
+        expect(button1).to.have.attribute('tabindex', '0');
+        expect(button1).toHaveFocus();
 
-      expect(button2).to.have.attribute('data-highlighted');
-      expect(button2).to.have.attribute('tabindex', '0');
-      expect(button2).toHaveFocus();
+        await user.keyboard(`[${horizontalNextKey}]`);
 
-      await user.keyboard('[ArrowRight]');
+        expect(button2).to.have.attribute('data-highlighted');
+        expect(button2).to.have.attribute('tabindex', '0');
+        expect(button2).toHaveFocus();
 
-      expect(button1).to.have.attribute('data-highlighted');
-      expect(button1).to.have.attribute('tabindex', '0');
-      expect(button1).toHaveFocus();
+        await user.keyboard(`[${horizontalNextKey}]`);
 
-      await user.keyboard('[ArrowDown]');
+        expect(button3).to.have.attribute('data-highlighted');
+        expect(button3).to.have.attribute('tabindex', '0');
+        expect(button3).toHaveFocus();
 
-      expect(button2).to.have.attribute('data-highlighted');
-      expect(button2).to.have.attribute('tabindex', '0');
-      expect(button2).toHaveFocus();
+        await user.keyboard(`[${verticalNextKey}]`);
 
-      await user.keyboard('[ArrowDown]');
+        expect(button1).to.have.attribute('data-highlighted');
+        expect(button1).to.have.attribute('tabindex', '0');
+        expect(button1).toHaveFocus();
 
-      expect(button1).to.have.attribute('data-highlighted');
-      expect(button1).to.have.attribute('tabindex', '0');
-      expect(button1).toHaveFocus();
-    });
+        await user.keyboard(`[${verticalNextKey}]`);
 
-    it('rtl', async () => {
-      const { getAllByRole, user } = await render(
-        <div dir="rtl">
-          <ToggleGroup>
-            <Toggle value="one" />
-            <Toggle value="two" />
-          </ToggleGroup>
-        </div>,
-      );
+        expect(button2).to.have.attribute('data-highlighted');
+        expect(button2).to.have.attribute('tabindex', '0');
+        expect(button2).toHaveFocus();
 
-      const [button1, button2] = getAllByRole('button');
+        await user.keyboard(`[${horizontalPrevKey}]`);
 
-      await user.keyboard('[Tab]');
+        expect(button1).to.have.attribute('data-highlighted');
+        expect(button1).to.have.attribute('tabindex', '0');
+        expect(button1).toHaveFocus();
 
-      expect(button1).to.have.attribute('data-highlighted');
-      expect(button1).to.have.attribute('tabindex', '0');
-      expect(button1).toHaveFocus();
+        await user.keyboard(`[${verticalPrevKey}]`);
 
-      await user.keyboard('[ArrowLeft]');
-
-      expect(button2).to.have.attribute('data-highlighted');
-      expect(button2).to.have.attribute('tabindex', '0');
-      expect(button2).toHaveFocus();
-
-      await user.keyboard('[ArrowLeft]');
-
-      expect(button1).to.have.attribute('data-highlighted');
-      expect(button1).to.have.attribute('tabindex', '0');
-      expect(button1).toHaveFocus();
-
-      await user.keyboard('[ArrowDown]');
-
-      expect(button2).to.have.attribute('data-highlighted');
-      expect(button2).to.have.attribute('tabindex', '0');
-      expect(button2).toHaveFocus();
-
-      await user.keyboard('[ArrowDown]');
-
-      expect(button1).to.have.attribute('data-highlighted');
-      expect(button1).to.have.attribute('tabindex', '0');
-      expect(button1).toHaveFocus();
+        expect(button3).to.have.attribute('data-highlighted');
+        expect(button3).to.have.attribute('tabindex', '0');
+        expect(button3).toHaveFocus();
+      });
     });
 
     ['Enter', 'Space'].forEach((key) => {

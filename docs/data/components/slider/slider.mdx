@@ -185,10 +185,16 @@ To create vertical sliders, set the `orientation` prop to `"vertical"`. This wil
 
 ## RTL
 
-Set the `direction` prop to `'rtl'` to change the slider's direction for right-to-left languages:
+To change direction for right-to-left languages, place the slider in [`DirectionProvider`](/components/react-direction-provider) with the `direction="rtl"` prop to configure RTL behavior, and set the `dir` attribute accordingly in your HTML to affect styling:
 
 ```jsx
-<Slider.Root direction="rtl">{/* Subcomponents */}</Slider.Root>
+<html dir="rtl">
+  <body>
+    <DirectionProvider direction="rtl">
+      <Slider.Root>{/* Subcomponents */}</Slider.Root>
+    </DirectionProvider>
+  </body>
+</html>
 ```
 
 In a RTL Slider, <kbd>Left Arrow</kbd> increases the value while <kbd>Right Arrow</kbd> decreases the value.

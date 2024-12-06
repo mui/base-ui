@@ -19,6 +19,7 @@ describe('<Tabs.List />', () => {
             getTabElementBySelectedValue: () => null,
             getTabIdByPanelValueOrIndex: () => '',
             getTabPanelIdByTabValueOrIndex: () => '',
+            direction: 'ltr',
             orientation: 'horizontal',
             tabActivationDirection: 'none',
           }}

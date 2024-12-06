@@ -5,7 +5,7 @@
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
     "defaultValue": {
-      "description": "The open state of the ToggleGroup represented by an array of the values of all pressed <code>&lt;ToggleGroup.Item/&gt;</code>s This is the uncontrolled counterpart of <code>value</code>."
+      "description": "The open state of the ToggleGroup represented by an array of the values of all pressed <code>&lt;ToggleGroup.Item/&gt;</code>s. This is the uncontrolled counterpart of <code>value</code>."
     },
     "onValueChange": {
       "description": "Callback fired when the pressed states of the ToggleGroup changes.",

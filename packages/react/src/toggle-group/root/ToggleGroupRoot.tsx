@@ -5,6 +5,7 @@ import { NOOP } from '../../utils/noop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { useToggleGroupRoot, type UseToggleGroupRoot } from './useToggleGroupRoot';
 import { ToggleGroupRootContext } from './ToggleGroupRootContext';
 
@@ -42,6 +43,8 @@ const ToggleGroupRoot = React.forwardRef(function ToggleGroupRoot(
     render,
     ...otherProps
   } = props;
+
+  const direction = useDirection();
 
   const defaultValue = React.useMemo(() => {
     if (valueProp === undefined) {
@@ -91,7 +94,7 @@ const ToggleGroupRoot = React.forwardRef(function ToggleGroupRoot(
 
   return (
     <ToggleGroupRootContext.Provider value={contextValue}>
-      <CompositeRoot loop={loop} render={renderElement()} />
+      <CompositeRoot direction={direction} loop={loop} render={renderElement()} />
     </ToggleGroupRootContext.Provider>
   );
 });
@@ -139,7 +142,7 @@ ToggleGroupRoot.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The open state of the ToggleGroup represented by an array of
-   * the values of all pressed `<ToggleGroup.Item/>`s
+   * the values of all pressed `<ToggleGroup.Item/>`s.
    * This is the uncontrolled counterpart of `value`.
    */
   defaultValue: PropTypes.array,

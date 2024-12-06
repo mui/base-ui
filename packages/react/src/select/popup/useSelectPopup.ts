@@ -299,15 +299,14 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
           handleScrollArrowVisibility();
         },
-        style: {
-          ...(alignOptionToTrigger && {
+        ...(alignOptionToTrigger && {
+          style: {
             position: 'relative',
             maxHeight: '100%',
             overflowX: 'hidden',
             overflowY: 'auto',
-          }),
-          outline: '0',
-        },
+          },
+        }),
       });
     },
     [

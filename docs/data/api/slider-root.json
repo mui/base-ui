@@ -5,13 +5,12 @@
     "defaultValue": {
       "type": { "name": "union", "description": "Array&lt;number&gt;<br>&#124;&nbsp;number" }
     },
-    "direction": {
-      "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
-      "default": "'ltr'"
-    },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "largeStep": { "type": { "name": "number" }, "default": "10" },
+    "max": { "type": { "name": "number" }, "default": "100" },
+    "min": { "type": { "name": "number" }, "default": "0" },
     "minStepsBetweenValues": { "type": { "name": "number" }, "default": "0" },
+    "name": { "type": { "name": "string" } },
     "onValueChange": {
       "type": { "name": "func" },
       "signature": {
@@ -31,6 +30,7 @@
       "default": "'horizontal'"
     },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "step": { "type": { "name": "number" }, "default": "1" },
     "value": {
       "type": { "name": "union", "description": "Array&lt;number&gt;<br>&#124;&nbsp;number" }
     }

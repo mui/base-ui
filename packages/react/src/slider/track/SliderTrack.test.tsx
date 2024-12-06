@@ -28,7 +28,6 @@ const testRootContext: SliderRootContext = {
     activeThumbIndex: -1,
     disabled: false,
     dragging: false,
-    direction: 'ltr',
     max: 100,
     min: 0,
     minStepsBetweenValues: 0,

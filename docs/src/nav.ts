@@ -101,8 +101,8 @@ export const nav = [
         href: '/new/components/progress',
       },
       {
-        label: 'Radio Group',
-        href: '/new/components/radio-group',
+        label: 'Radio',
+        href: '/new/components/radio',
       },
       {
         label: 'Scroll Area',

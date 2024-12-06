@@ -4,11 +4,14 @@ import styles from './index.module.css';
 
 export default function ExampleCheckbox() {
   return (
-    <Checkbox.Root defaultChecked className={styles.Checkbox}>
-      <Checkbox.Indicator className={styles.Indicator}>
-        <CheckIcon className={styles.Icon} />
-      </Checkbox.Indicator>
-    </Checkbox.Root>
+    <label className={styles.Label}>
+      <Checkbox.Root defaultChecked className={styles.Checkbox}>
+        <Checkbox.Indicator className={styles.Indicator}>
+          <CheckIcon className={styles.Icon} />
+        </Checkbox.Indicator>
+      </Checkbox.Root>
+      Enable notifications
+    </label>
   );
 }
 

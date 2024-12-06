@@ -3,14 +3,17 @@ import { Checkbox } from '@base-ui-components/react/checkbox';
 
 export default function ExampleCheckbox() {
   return (
-    <Checkbox.Root
-      defaultChecked
-      className="flex size-5 items-center justify-center rounded-sm outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
-    >
-      <Checkbox.Indicator className="flex text-gray-50 data-[unchecked]:hidden">
-        <CheckIcon className="size-3" />
-      </Checkbox.Indicator>
-    </Checkbox.Root>
+    <label className="flex items-center gap-2 text-base text-gray-900">
+      <Checkbox.Root
+        defaultChecked
+        className="flex size-5 items-center justify-center rounded-sm outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
+      >
+        <Checkbox.Indicator className="flex text-gray-50 data-[unchecked]:hidden">
+          <CheckIcon className="size-3" />
+        </Checkbox.Indicator>
+      </Checkbox.Root>
+      Enable notifications
+    </label>
   );
 }
 

@@ -8,8 +8,10 @@
 }
 
 .Link {
+  outline: 0;
   color: var(--color-blue);
   text-decoration-line: none;
+  text-decoration-thickness: 1px;
   text-decoration-color: color-mix(in oklab, var(--color-blue), transparent 40%);
   text-underline-offset: 2px;
 
@@ -21,6 +23,12 @@
 
   &[data-popup-open] {
     text-decoration-line: underline;
+  }
+
+  &:focus-visible {
+    border-radius: 0.125rem;
+    outline: 2px solid var(--color-blue);
+    text-decoration-line: none;
   }
 }
 

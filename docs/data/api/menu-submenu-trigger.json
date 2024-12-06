@@ -1,0 +1,18 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "label": { "type": { "name": "string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "MenuSubmenuTrigger",
+  "imports": [
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuSubmenuTrigger = Menu.SubmenuTrigger;"
+  ],
+  "classes": [],
+  "muiName": "MenuSubmenuTrigger",
+  "filename": "/packages/react/src/menu/submenu-trigger/MenuSubmenuTrigger.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
+  "cssComponent": false
+}

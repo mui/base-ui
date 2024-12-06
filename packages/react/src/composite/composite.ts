@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { hasComputedStyleMapSupport } from '../utils/hasComputedStyleMapSupport';
 import { ownerWindow } from '../utils/owner';
-
-export type TextDirection = 'ltr' | 'rtl';
+import type { TextDirection } from '../direction-provider/DirectionContext';
 
 export interface Dimensions {
   width: number;

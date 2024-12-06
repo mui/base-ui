@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
-import type { TabPanelMetadata } from '../tab-panel/useTabPanel';
-import type { TabMetadata } from '../tab/useTab';
+import type { TabPanelMetadata } from '../tab-panel/useTabsTabPanel';
+import type { TabMetadata } from '../tab/useTabsTab';
 import type { TabActivationDirection, TabValue } from './TabsRoot';
 
 function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValue {

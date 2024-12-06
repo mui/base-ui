@@ -4,7 +4,7 @@
   "props": {
     "aria-labelledby": {
       "type": "string",
-      "description": "The id of the element containing a label for the slider."
+      "description": "Identifies the element (or elements) that labels the current element."
     },
     "className": {
       "type": "string | (state) => string",
@@ -13,11 +13,6 @@
     "defaultValue": {
       "type": "Array<number> | number",
       "description": "The default value of the slider. Use when the component is not controlled."
-    },
-    "direction": {
-      "type": "'ltr' | 'rtl'",
-      "default": "'ltr'",
-      "description": "Sets the direction. For right-to-left languages, the lowest value is on the right-hand side."
     },
     "disabled": {
       "type": "boolean",
@@ -29,10 +24,24 @@
       "default": "10",
       "description": "The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down."
     },
+    "max": {
+      "type": "number",
+      "default": "100",
+      "description": "The maximum allowed value of the slider.\nShould not be equal to min."
+    },
+    "min": {
+      "type": "number",
+      "default": "0",
+      "description": "The minimum allowed value of the slider.\nShould not be equal to max."
+    },
     "minStepsBetweenValues": {
       "type": "number",
       "default": "0",
       "description": "The minimum steps between values in a range slider."
+    },
+    "name": {
+      "type": "string",
+      "description": "Name attribute of the hidden `input` element."
     },
     "onValueChange": {
       "type": "(value, event, activeThumbIndex) => void",
@@ -50,6 +59,11 @@
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
+    },
+    "step": {
+      "type": "number",
+      "default": "1",
+      "description": "The granularity with which the slider can step through values. (A \"discrete\" slider.)\nThe `min` prop serves as the origin for the valid values.\nWe recommend (max - min) to be evenly divisible by the step."
     },
     "value": {
       "type": "Array<number> | number",

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Slider } from '@base-ui-components/react/slider';
 import { useSliderRootContext } from '../../../../packages/react/src/slider/root/SliderRootContext';
 
@@ -99,27 +100,29 @@ export default function App() {
         </Slider.Control>
       </Slider.Root>
 
-      <Slider.Root className="TempSlider" defaultValue={40} direction="rtl">
-        <pre>RTL</pre>
-        <Slider.Output className="TempSlider-output" />
-        <Slider.Control className="TempSlider-control">
-          <Slider.Track className="TempSlider-track">
-            {STOPS.map((mark, index) => (
-              <MarkWithLabel
-                key={`mark-${index}`}
-                index={index}
-                label={mark.label}
-                value={mark.value}
+      <DirectionProvider direction="rtl">
+        <Slider.Root className="TempSlider" defaultValue={40}>
+          <pre>RTL</pre>
+          <Slider.Output className="TempSlider-output" />
+          <Slider.Control className="TempSlider-control">
+            <Slider.Track className="TempSlider-track">
+              {STOPS.map((mark, index) => (
+                <MarkWithLabel
+                  key={`mark-${index}`}
+                  index={index}
+                  label={mark.label}
+                  value={mark.value}
+                />
+              ))}
+              <Slider.Indicator className="TempSlider-indicator" />
+              <Slider.Thumb
+                className="TempSlider-thumb"
+                getAriaValueText={getSliderThumbAriaValueText}
               />
-            ))}
-            <Slider.Indicator className="TempSlider-indicator" />
-            <Slider.Thumb
-              className="TempSlider-thumb"
-              getAriaValueText={getSliderThumbAriaValueText}
-            />
-          </Slider.Track>
-        </Slider.Control>
-      </Slider.Root>
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>
+      </DirectionProvider>
       <BrandingStyles />
     </div>
   );

@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
 import { Radio } from '@base-ui-components/react/radio';
+import {
+  DirectionProvider,
+  type TextDirection,
+} from '@base-ui-components/react/direction-provider';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, act, screen, fireEvent, describeSkipIf } from '@mui/internal-test-utils';
@@ -226,7 +230,7 @@ describe('<RadioGroup.Root />', () => {
       describeSkipIf(isJSDOM && direction === 'rtl')(direction, () => {
         it(direction, async () => {
           const { user } = await render(
-            <div dir={direction}>
+            <DirectionProvider direction={direction as TextDirection}>
               <button data-testid="before" />
               <RadioGroup.Root>
                 <Radio.Root value="a" data-testid="a" />
@@ -234,7 +238,7 @@ describe('<RadioGroup.Root />', () => {
                 <Radio.Root value="c" data-testid="c" />
               </RadioGroup.Root>
               <button data-testid="after" />
-            </div>,
+            </DirectionProvider>,
           );
 
           const a = screen.getByTestId('a');

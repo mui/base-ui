@@ -2,6 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
+import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Accordion } from '@base-ui-components/react/accordion';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -619,20 +620,22 @@ describe('<Accordion.Root />', () => {
     describeSkipIf(isJSDOM)('RTL', () => {
       it('ArrowLeft/Right is reversed for horizontal accordions in RTL mode', async () => {
         const { getAllByRole, user } = await render(
-          <Accordion.Root orientation="horizontal" direction="rtl">
-            <Accordion.Item>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 1</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>1</Accordion.Panel>
-            </Accordion.Item>
-            <Accordion.Item>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 2</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>2</Accordion.Panel>
-            </Accordion.Item>
-          </Accordion.Root>,
+          <DirectionProvider direction="rtl">
+            <Accordion.Root orientation="horizontal">
+              <Accordion.Item>
+                <Accordion.Header>
+                  <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Panel>1</Accordion.Panel>
+              </Accordion.Item>
+              <Accordion.Item>
+                <Accordion.Header>
+                  <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Panel>2</Accordion.Panel>
+              </Accordion.Item>
+            </Accordion.Root>
+          </DirectionProvider>,
         );
 
         const [trigger1, trigger2] = getAllByRole('button');

@@ -3,7 +3,6 @@ import type { SliderRoot } from './SliderRoot';
 
 export const sliderStyleHookMapping: CustomStyleHookMapping<SliderRoot.State> = {
   activeThumbIndex: () => null,
-  direction: () => null,
   max: () => null,
   min: () => null,
   minStepsBetweenValues: () => null,

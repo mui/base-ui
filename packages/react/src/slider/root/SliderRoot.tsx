@@ -5,6 +5,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { CompositeList } from '../../composite/list/CompositeList';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
 import { SliderRootContext } from './SliderRootContext';
@@ -28,17 +29,24 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     'aria-labelledby': ariaLabelledby,
     className,
     defaultValue,
-    direction = 'ltr',
     disabled: disabledProp = false,
+    id,
     largeStep,
     render,
+    max,
+    min,
     minStepsBetweenValues,
+    name,
     onValueChange,
     onValueCommitted,
     orientation = 'horizontal',
+    step,
+    tabIndex,
     value,
     ...otherProps
   } = props;
+
+  const direction = useDirection();
 
   const { labelId, state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
@@ -46,23 +54,27 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   const { getRootProps, ...slider } = useSliderRoot({
     'aria-labelledby': ariaLabelledby ?? labelId,
     defaultValue,
-    disabled,
     direction,
+    disabled,
+    id,
     largeStep,
+    max,
+    min,
     minStepsBetweenValues,
+    name,
     onValueChange,
     onValueCommitted,
     orientation,
     rootRef: forwardedRef,
+    step,
+    tabIndex,
     value,
-    ...otherProps,
   });
 
   const state: SliderRoot.State = React.useMemo(
     () => ({
       ...fieldState,
       activeThumbIndex: slider.active,
-      direction,
       disabled,
       dragging: slider.dragging,
       orientation,
@@ -74,7 +86,6 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     }),
     [
       fieldState,
-      direction,
       disabled,
       orientation,
       slider.active,
@@ -125,7 +136,6 @@ export namespace SliderRoot {
      * If `true`, a thumb is being dragged by a pointer.
      */
     dragging: boolean;
-    direction: useSliderRoot.Direction;
     max: number;
     min: number;
     /**
@@ -150,7 +160,20 @@ export namespace SliderRoot {
   }
 
   export interface Props
-    extends Omit<useSliderRoot.Parameters, 'rootRef'>,
+    extends Pick<
+        useSliderRoot.Parameters,
+        | 'disabled'
+        | 'max'
+        | 'min'
+        | 'minStepsBetweenValues'
+        | 'name'
+        | 'onValueChange'
+        | 'onValueCommitted'
+        | 'orientation'
+        | 'largeStep'
+        | 'step'
+        | 'value'
+      >,
       Omit<BaseUIComponentProps<'span', State>, 'defaultValue' | 'onChange' | 'values'> {
     /**
      * The default value of the slider. Use when the component is not controlled.
@@ -177,7 +200,8 @@ SliderRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The id of the element containing a label for the slider.
+   * Identifies the element (or elements) that labels the current element.
+   * @see aria-describedby.
    */
   'aria-labelledby': PropTypes.string,
   /**
@@ -193,25 +217,40 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.number), PropTypes.number]),
   /**
-   * Sets the direction. For right-to-left languages, the lowest value is on the right-hand side.
-   * @default 'ltr'
-   */
-  direction: PropTypes.oneOf(['ltr', 'rtl']),
-  /**
    * If `true`, the component is disabled.
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
   /**
    * The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.
    * @default 10
    */
   largeStep: PropTypes.number,
   /**
+   * The maximum allowed value of the slider.
+   * Should not be equal to min.
+   * @default 100
+   */
+  max: PropTypes.number,
+  /**
+   * The minimum allowed value of the slider.
+   * Should not be equal to max.
+   * @default 0
+   */
+  min: PropTypes.number,
+  /**
    * The minimum steps between values in a range slider.
    * @default 0
    */
   minStepsBetweenValues: PropTypes.number,
+  /**
+   * Name attribute of the hidden `input` element.
+   */
+  name: PropTypes.string,
   /**
    * Callback function that is fired when the slider's value changed.
    *
@@ -238,6 +277,17 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * The granularity with which the slider can step through values. (A "discrete" slider.)
+   * The `min` prop serves as the origin for the valid values.
+   * We recommend (max - min) to be evenly divisible by the step.
+   * @default 1
+   */
+  step: PropTypes.number,
+  /**
+   * @ignore
+   */
+  tabIndex: PropTypes.number,
   /**
    * The value of the slider.
    * For ranged sliders, provide an array with two values.
