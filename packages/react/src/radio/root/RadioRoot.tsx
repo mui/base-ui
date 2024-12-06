@@ -12,12 +12,14 @@ import { NOOP } from '../../utils/noop';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<RadioRoot.State> = {
-  checked(value) {
-    return {
-      'data-radio': value ? 'checked' : 'unchecked',
-    };
+  checked(value): Record<string, string> {
+    if (value) {
+      return { 'data-checked': '' };
+    }
+    return { 'data-unchecked': '' };
   },
 };
+
 /**
  *
  * Demos:

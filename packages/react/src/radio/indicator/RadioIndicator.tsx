@@ -7,12 +7,14 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useRadioRootContext } from '../root/RadioRootContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<RadioIndicator.State> = {
-  checked(value) {
-    return {
-      'data-radio': value ? 'checked' : 'unchecked',
-    };
+  checked(value): Record<string, string> {
+    if (value) {
+      return { 'data-checked': '' };
+    }
+    return { 'data-unchecked': '' };
   },
 };
+
 /**
  *
  * Demos:
