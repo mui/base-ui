@@ -45,6 +45,9 @@ module.exports = {
     // This prevents us from creating components like `<h1 {...props} />`
     'jsx-a11y/heading-has-content': 'off',
     'jsx-a11y/anchor-has-content': 'off',
+
+    // This rule doesn't recognise <label> wrapped around custom controls
+    'jsx-a11y/label-has-associated-control': 'off',
   },
   overrides: [
     ...baseline.overrides.filter(

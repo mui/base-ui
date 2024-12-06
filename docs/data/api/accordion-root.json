@@ -2,18 +2,19 @@
   "props": {
     "animated": { "type": { "name": "bool" }, "default": "true" },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "defaultValue": {
-      "type": { "name": "arrayOf", "description": "Array&lt;number<br>&#124;&nbsp;string&gt;" },
-      "default": "0"
-    },
+    "defaultValue": { "type": { "name": "array" } },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "hiddenUntilFound": { "type": { "name": "bool" }, "default": "false" },
+    "keepMounted": { "type": { "name": "bool" }, "default": "false" },
     "loop": { "type": { "name": "bool" }, "default": "true" },
     "onValueChange": { "type": { "name": "func" } },
     "openMultiple": { "type": { "name": "bool" }, "default": "true" },
+    "orientation": {
+      "type": { "name": "enum", "description": "'horizontal'<br>&#124;&nbsp;'vertical'" },
+      "default": "'vertical'"
+    },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
-    "value": {
-      "type": { "name": "arrayOf", "description": "Array&lt;number<br>&#124;&nbsp;string&gt;" }
-    }
+    "value": { "type": { "name": "array" } }
   },
   "name": "AccordionRoot",
   "imports": [

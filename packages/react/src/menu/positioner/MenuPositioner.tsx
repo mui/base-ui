@@ -16,7 +16,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useMenuPositioner } from './useMenuPositioner';
 import { HTMLElementType } from '../../utils/proptypes';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * Renders the element that positions the Menu popup.
@@ -40,13 +40,12 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     render,
     keepMounted = false,
     side = 'bottom',
-    alignment = 'center',
+    align = 'center',
     sideOffset = 0,
-    alignmentOffset = 0,
+    alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
-    hideWhenDetached = false,
     sticky = false,
     container,
     ...otherProps
@@ -74,12 +73,11 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     mounted,
     side,
     sideOffset,
-    alignment,
-    alignmentOffset,
+    align,
+    alignOffset,
     arrowPadding,
     collisionBoundary,
     collisionPadding,
-    hideWhenDetached,
     sticky,
     nodeId,
   });
@@ -88,15 +86,16 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     () => ({
       open,
       side: positioner.side,
-      alignment: positioner.alignment,
+      align: positioner.align,
+      anchorHidden: positioner.anchorHidden,
     }),
-    [open, positioner.side, positioner.alignment],
+    [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
   const contextValue: MenuPositionerContext = React.useMemo(
     () => ({
       side: positioner.side,
-      alignment: positioner.alignment,
+      align: positioner.align,
       arrowRef: positioner.arrowRef,
       arrowUncentered: positioner.arrowUncentered,
       arrowStyles: positioner.arrowStyles,
@@ -104,7 +103,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     }),
     [
       positioner.side,
-      positioner.alignment,
+      positioner.align,
       positioner.arrowRef,
       positioner.arrowUncentered,
       positioner.arrowStyles,
@@ -120,7 +119,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     render: render ?? 'div',
     className,
     state,
-    customStyleHookMapping: popupOpenStateMapping,
+    customStyleHookMapping: popupStateMapping,
     ref: mergedRef,
     extraProps: otherProps,
   });
@@ -151,14 +150,13 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   );
 });
 
-export { MenuPositioner };
-
 export namespace MenuPositioner {
-  export type State = {
+  export interface State {
     open: boolean;
     side: Side;
-    alignment: 'start' | 'end' | 'center';
-  };
+    align: 'start' | 'end' | 'center';
+    anchorHidden: boolean;
+  }
 
   export interface Props
     extends useMenuPositioner.SharedParameters,
@@ -171,15 +169,15 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The alignment of the Menu element to the anchor element along its cross axis.
+   * The align of the Menu element to the anchor element along its cross axis.
    * @default 'center'
    */
-  alignment: PropTypes.oneOf(['center', 'end', 'start']),
+  align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the Menu element along its alignment axis.
+   * The offset of the Menu element along its align axis.
    * @default 0
    */
-  alignmentOffset: PropTypes.number,
+  alignOffset: PropTypes.number,
   /**
    * The anchor element to which the Menu popup will be placed at.
    */
@@ -238,12 +236,6 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
     PropTypes.func,
   ]),
   /**
-   * If `true`, the Menu will be hidden if it is detached from its anchor element due to
-   * differing clipping contexts.
-   * @default false
-   */
-  hideWhenDetached: PropTypes.bool,
-  /**
    * Whether the menu popup remains mounted in the DOM while closed.
    * @default false
    */
@@ -274,3 +266,5 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   sticky: PropTypes.bool,
 } as any;
+
+export { MenuPositioner };

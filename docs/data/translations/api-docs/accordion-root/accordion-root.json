@@ -11,6 +11,12 @@
       "description": "The default value representing the currently open <code>Accordion.Item</code> This is the uncontrolled counterpart of <code>value</code>."
     },
     "disabled": { "description": "If <code>true</code>, the component is disabled." },
+    "hiddenUntilFound": {
+      "description": "If <code>true</code>, sets <code>hidden=&quot;until-found&quot;</code> when closed. Accordion panels will remain mounted in the DOM when closed and overrides <code>keepMounted</code>. If <code>false</code>, sets <code>hidden</code> when closed."
+    },
+    "keepMounted": {
+      "description": "If <code>true</code>, accordion panels remains mounted when closed and is instead hidden using the <code>hidden</code> attribute. If <code>false</code>, accordion panels are unmounted when closed."
+    },
     "loop": {
       "description": "If <code>true</code>, focus will loop when moving focus between <code>Trigger</code>s using the arrow keys."
     },
@@ -18,8 +24,9 @@
       "description": "Callback fired when an Accordion section is opened or closed. The value representing the involved section is provided as an argument."
     },
     "openMultiple": {
-      "description": "Whether multiple Accordion sections can be opened at the same time"
+      "description": "Whether multiple Accordion sections can be opened at the same time."
     },
+    "orientation": { "description": "The orientation of the accordion." },
     "render": { "description": "A function to customize rendering of the component." },
     "value": {
       "description": "The value of the currently open <code>Accordion.Item</code> This is the controlled counterpart of <code>defaultValue</code>."

@@ -14,8 +14,7 @@
     "onOpenChange": { "description": "Callback fired when the Collapsible is opened or closed." },
     "open": {
       "description": "If <code>true</code>, the Collapsible is initially open. This is the controlled counterpart of <code>defaultOpen</code>."
-    },
-    "render": { "description": "A function to customize rendering of the component." }
+    }
   },
   "classDescriptions": {}
 }

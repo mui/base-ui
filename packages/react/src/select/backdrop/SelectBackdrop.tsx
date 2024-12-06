@@ -6,19 +6,19 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
-  ...popupOpenStateMapping,
+  ...popupStateMapping,
   transitionStatus(value): Record<string, string> | null {
     if (value === 'entering') {
-      return { 'data-entering': '' };
+      return { 'data-starting-style': '' };
     }
 
     if (value === 'exiting') {
-      return { 'data-exiting': '' };
+      return { 'data-ending-style': '' };
     }
 
     return null;

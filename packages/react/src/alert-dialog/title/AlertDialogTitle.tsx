@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 const state = {};
@@ -26,7 +26,7 @@ const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
   const { render, className, id: idProp, ...other } = props;
   const { setTitleElementId } = useAlertDialogRootContext();
 
-  const id = useId(idProp);
+  const id = useBaseUiId(idProp);
 
   useEnhancedEffect(() => {
     setTitleElementId(id);

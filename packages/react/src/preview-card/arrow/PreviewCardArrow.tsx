@@ -7,8 +7,8 @@ import { usePreviewCardArrow } from './usePreviewCardArrow';
 import { useForkRef } from '../../utils/useForkRef';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { Alignment, Side } from '../../utils/useAnchorPositioning';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import type { Align, Side } from '../../utils/useAnchorPositioning';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  *
@@ -27,8 +27,7 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   const { render, className, hideWhenUncentered, ...otherProps } = props;
 
   const { open } = usePreviewCardRootContext();
-  const { arrowRef, side, alignment, arrowUncentered, arrowStyles } =
-    usePreviewCardPositionerContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePreviewCardPositionerContext();
 
   const { getArrowProps } = usePreviewCardArrow({
     arrowStyles,
@@ -39,9 +38,9 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
     () => ({
       open,
       side,
-      alignment,
+      align,
     }),
-    [open, side, alignment],
+    [open, side, align],
   );
 
   const mergedRef = useForkRef(arrowRef, forwardedRef);
@@ -53,7 +52,7 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
     state,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: popupOpenStateMapping,
+    customStyleHookMapping: popupStateMapping,
   });
 
   return renderElement();
@@ -63,7 +62,7 @@ namespace PreviewCardArrow {
   export interface State {
     open: boolean;
     side: Side;
-    alignment: Alignment;
+    align: Align;
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {

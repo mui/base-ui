@@ -44,6 +44,94 @@ describe('<Dialog.Root />', () => {
       setProps({ open: false });
       expect(queryByRole('dialog')).to.equal(null);
     });
+
+    it('should remove the popup when animated=true and there is no exit animation defined', async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Dialog.Root open={open}>
+              <Dialog.Popup />
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+    });
+
+    it('should remove the popup when animated=true and the animation finishes', async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
+      let animationFinished = false;
+      const notifyAnimationFinished = () => {
+        animationFinished = true;
+      };
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-popup[data-open] {
+            opacity: 1;
+          }
+
+          .animation-test-popup[data-ending-style] {
+            animation: test-anim 50ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Dialog.Root open={open}>
+              <Dialog.Popup
+                className="animation-test-popup"
+                onAnimationEnd={notifyAnimationFinished}
+              />
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+
+      expect(animationFinished).to.equal(true);
+    });
   });
 
   describe('prop: modal', () => {
@@ -176,16 +264,24 @@ describe('<Dialog.Root />', () => {
   `;
 
     it('when `true`, waits for the exit transition to finish before unmounting', async () => {
+      const notifyTransitionEnd = spy();
+
       const { setProps, queryByRole } = await render(
         <Dialog.Root open modal={false} animated>
           {/* eslint-disable-next-line react/no-danger */}
           <style dangerouslySetInnerHTML={{ __html: css }} />
-          <Dialog.Popup className="dialog" />
+          <Dialog.Popup className="dialog" onTransitionEnd={notifyTransitionEnd} />
         </Dialog.Root>,
       );
 
       setProps({ open: false });
-      expect(queryByRole('dialog', { hidden: true })).not.to.equal(null);
+      expect(queryByRole('dialog')).not.to.equal(null);
+
+      await waitFor(() => {
+        expect(queryByRole('dialog')).to.equal(null);
+      });
+
+      expect(notifyTransitionEnd.callCount).to.equal(1);
     });
 
     it('when `false`, unmounts the popup immediately', async () => {

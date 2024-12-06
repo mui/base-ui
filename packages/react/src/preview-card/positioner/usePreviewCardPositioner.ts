@@ -20,11 +20,11 @@ export function usePreviewCardPositioner(
   const {
     positionerStyles,
     arrowStyles,
-    hidden,
+    anchorHidden,
     arrowRef,
     arrowUncentered,
     renderedSide,
-    renderedAlignment,
+    renderedAlign,
     positionerContext,
   } = useAnchorPositioning(params);
 
@@ -33,7 +33,7 @@ export function usePreviewCardPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || hidden) {
+        if (keepMounted && !open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -46,7 +46,7 @@ export function usePreviewCardPositioner(
           },
         });
       },
-      [positionerStyles, open, keepMounted, hidden, mounted],
+      [positionerStyles, open, keepMounted, mounted],
     );
 
   return React.useMemo(
@@ -56,8 +56,9 @@ export function usePreviewCardPositioner(
       arrowUncentered,
       arrowStyles,
       side: renderedSide,
-      alignment: renderedAlignment,
+      align: renderedAlign,
       positionerContext,
+      anchorHidden,
     }),
     [
       getPositionerProps,
@@ -65,8 +66,9 @@ export function usePreviewCardPositioner(
       arrowUncentered,
       arrowStyles,
       renderedSide,
-      renderedAlignment,
+      renderedAlign,
       positionerContext,
+      anchorHidden,
     ],
   );
 }
@@ -102,15 +104,15 @@ export namespace usePreviewCardPositioner {
      */
     sideOffset?: number;
     /**
-     * The alignment of the preview card element to the anchor element along its cross axis.
+     * The align of the preview card element to the anchor element along its cross axis.
      * @default 'center'
      */
-    alignment?: 'start' | 'end' | 'center';
+    align?: 'start' | 'end' | 'center';
     /**
-     * The offset of the preview card element along its alignment axis.
+     * The offset of the preview card element along its align axis.
      * @default 0
      */
-    alignmentOffset?: number;
+    alignOffset?: number;
     /**
      * The boundary that the preview card element should be constrained to.
      * @default 'clipping-ancestors'
@@ -121,12 +123,6 @@ export namespace usePreviewCardPositioner {
      * @default 5
      */
     collisionPadding?: Padding;
-    /**
-     * If `true`, the preview card will be hidden if it is detached from its anchor element due to
-     * differing clipping contexts.
-     * @default false
-     */
-    hideWhenDetached?: boolean;
     /**
      * If `true`, allow the preview card to remain in stuck view while the anchor element is scrolled
      * out of view.
@@ -185,9 +181,9 @@ export namespace usePreviewCardPositioner {
      */
     side: 'top' | 'right' | 'bottom' | 'left';
     /**
-     * The rendered alignment of the preview card element.
+     * The rendered align of the preview card element.
      */
-    alignment: 'start' | 'end' | 'center';
+    align: 'start' | 'end' | 'center';
     /**
      * The styles to apply to the preview card arrow element.
      */
@@ -196,5 +192,9 @@ export namespace usePreviewCardPositioner {
      * The floating context.
      */
     positionerContext: FloatingContext;
+    /**
+     * Determines if the anchor element is hidden.
+     */
+    anchorHidden: boolean;
   }
 }

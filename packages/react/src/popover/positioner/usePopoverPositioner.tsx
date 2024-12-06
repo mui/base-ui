@@ -18,11 +18,11 @@ export function usePopoverPositioner(
   const {
     positionerStyles,
     arrowStyles,
-    hidden,
+    anchorHidden,
     arrowRef,
     arrowUncentered,
     renderedSide,
-    renderedAlignment,
+    renderedAlign,
     positionerContext,
   } = useAnchorPositioning(params);
 
@@ -31,7 +31,7 @@ export function usePopoverPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if ((keepMounted && !open) || hidden) {
+        if (keepMounted && !open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -44,7 +44,7 @@ export function usePopoverPositioner(
           },
         });
       },
-      [keepMounted, open, hidden, mounted, positionerStyles],
+      [keepMounted, open, mounted, positionerStyles],
     );
 
   return React.useMemo(
@@ -54,8 +54,9 @@ export function usePopoverPositioner(
       arrowUncentered,
       arrowStyles,
       side: renderedSide,
-      alignment: renderedAlignment,
+      align: renderedAlign,
       positionerContext,
+      anchorHidden,
     }),
     [
       getPositionerProps,
@@ -63,8 +64,9 @@ export function usePopoverPositioner(
       arrowUncentered,
       arrowStyles,
       renderedSide,
-      renderedAlignment,
+      renderedAlign,
       positionerContext,
+      anchorHidden,
     ],
   );
 }
@@ -96,15 +98,15 @@ export namespace usePopoverPositioner {
      */
     sideOffset?: number;
     /**
-     * The alignment of the popover element to the anchor element along its cross axis.
+     * The align of the popover element to the anchor element along its cross axis.
      * @default 'center'
      */
-    alignment?: 'start' | 'end' | 'center';
+    align?: 'start' | 'end' | 'center';
     /**
-     * The offset of the popover element along its alignment axis.
+     * The offset of the popover element along its align axis.
      * @default 0
      */
-    alignmentOffset?: number;
+    alignOffset?: number;
     /**
      * The boundary that the popover element should be constrained to.
      * @default 'clipping-ancestors'
@@ -116,12 +118,6 @@ export namespace usePopoverPositioner {
      * @default 5
      */
     collisionPadding?: Padding;
-    /**
-     * Whether the popover element is hidden if it appears detached from its anchor element due
-     * to the anchor element being clipped (or hidden) from view.
-     * @default false
-     */
-    hideWhenDetached?: boolean;
     /**
      * Whether to allow the popover to remain stuck in view while the anchor element is scrolled out
      * of view.
@@ -188,9 +184,9 @@ export namespace usePopoverPositioner {
      */
     side: 'top' | 'right' | 'bottom' | 'left';
     /**
-     * The rendered alignment of the popover element.
+     * The rendered align of the popover element.
      */
-    alignment: 'start' | 'end' | 'center';
+    align: 'start' | 'end' | 'center';
     /**
      * The styles to apply to the popover arrow element.
      */
@@ -199,5 +195,9 @@ export namespace usePopoverPositioner {
      * The floating context.
      */
     positionerContext: FloatingContext;
+    /**
+     * Determines if the anchor element is hidden.
+     */
+    anchorHidden: boolean;
   }
 }

@@ -6,19 +6,19 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { Alignment, Side } from '../../utils/useAnchorPositioning';
+import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
-      return { 'data-entering': '' } as Record<string, string>;
+      return { 'data-starting-style': '' } as Record<string, string>;
     }
     if (value === 'exiting') {
-      return { 'data-exiting': '' };
+      return { 'data-ending-style': '' };
     }
     return null;
   },
@@ -43,17 +43,17 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
 
   const { open, instantType, transitionStatus, getRootPopupProps, popupRef } =
     useTooltipRootContext();
-  const { side, alignment } = useTooltipPositionerContext();
+  const { side, align } = useTooltipPositionerContext();
 
   const state: TooltipPopup.State = React.useMemo(
     () => ({
       open,
       side,
-      alignment,
+      align,
       instant: instantType,
       transitionStatus,
     }),
-    [open, side, alignment, instantType, transitionStatus],
+    [open, side, align, instantType, transitionStatus],
   );
 
   const mergedRef = useForkRef(popupRef, forwardedRef);
@@ -77,7 +77,7 @@ namespace TooltipPopup {
   export interface State {
     open: boolean;
     side: Side;
-    alignment: Alignment;
+    align: Align;
     instant: 'delay' | 'focus' | 'dismiss' | undefined;
     transitionStatus: TransitionStatus;
   }

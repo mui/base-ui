@@ -4,13 +4,11 @@ import { createRenderer, describeConformance } from '#test-utils';
 import { ProgressRootContext } from '../root/ProgressRootContext';
 
 const contextValue: ProgressRootContext = {
-  direction: 'ltr',
   max: 100,
   min: 0,
   value: 30,
   status: 'progressing',
   state: {
-    direction: 'ltr',
     max: 100,
     min: 0,
     status: 'progressing',

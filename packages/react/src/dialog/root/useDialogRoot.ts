@@ -10,20 +10,18 @@ import {
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import { type GenericHTMLProps } from '../../utils/types';
+import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useLatestRef } from '../../utils/useLatestRef';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
-    animated = true,
-    defaultOpen = false,
-    dismissible = true,
-    keepMounted = false,
-    modal = true,
+    animated,
+    defaultOpen,
+    dismissible,
+    modal,
     onNestedDialogClose,
     onNestedDialogOpen,
     onOpenChange,
@@ -49,25 +47,16 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
-
-  const openRef = useLatestRef(open);
-
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
+  });
 
-    if (!keepMounted && !nextOpen) {
-      if (animated) {
-        runOnceAnimationsFinish(() => {
-          if (!openRef.current) {
-            setMounted(false);
-          }
-        });
-      } else {
-        setMounted(false);
-      }
-    }
+  useAfterExitAnimation({
+    open,
+    animated,
+    animatedElementRef: popupRef,
+    onFinished: () => setMounted(false),
   });
 
   const context = useFloatingRootContext({
@@ -198,15 +187,10 @@ export interface CommonParameters {
    * @default true
    */
   dismissible?: boolean;
-  /**
-   * Whether the dialog element stays mounted in the DOM when closed.
-   * @default false
-   */
-  keepMounted?: boolean;
 }
 
 export namespace useDialogRoot {
-  export interface Parameters extends CommonParameters {
+  export interface Parameters extends RequiredExcept<CommonParameters, 'open' | 'onOpenChange'> {
     /**
      * Callback to invoke when a nested dialog is opened.
      */

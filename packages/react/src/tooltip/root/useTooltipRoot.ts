@@ -13,23 +13,21 @@ import {
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { OPEN_DELAY } from '../utils/constants';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
-import { useLatestRef } from '../../utils/useLatestRef';
 import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
     open: externalOpen,
     onOpenChange: onOpenChangeProp = () => {},
     defaultOpen = false,
-    keepMounted = false,
     hoverable = true,
     animated = true,
     trackCursorAxis = 'none',
@@ -63,11 +61,16 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     [onOpenChange, setOpenUnwrapped],
   );
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
-
-  const openRef = useLatestRef(open);
+  useAfterExitAnimation({
+    open,
+    animated,
+    animatedElementRef: popupRef,
+    onFinished() {
+      setMounted(false);
+    },
+  });
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -94,18 +97,6 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
         setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
       } else if (reasonValue === 'hover') {
         setInstantTypeState(undefined);
-      }
-
-      if (!keepMounted && !openValue) {
-        if (animated) {
-          runOnceAnimationsFinish(() => {
-            if (!openRef.current) {
-              setMounted(false);
-            }
-          });
-        } else {
-          setMounted(false);
-        }
       }
     },
   });
@@ -220,11 +211,6 @@ export namespace useTooltipRoot {
      * @default 0
      */
     closeDelay?: number;
-    /**
-     * Whether the tooltip popup element stays mounted in the DOM when closed.
-     * @default false
-     */
-    keepMounted?: boolean;
   }
 
   export interface ReturnValue {

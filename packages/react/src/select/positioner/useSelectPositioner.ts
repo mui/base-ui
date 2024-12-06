@@ -29,11 +29,11 @@ export function useSelectPositioner(
   const {
     positionerStyles: enabledPositionerStyles,
     arrowStyles,
-    hidden,
+    anchorHidden,
     arrowRef,
     arrowUncentered,
     renderedSide,
-    renderedAlignment,
+    renderedAlign,
     positionerContext,
     isPositioned,
   } = useAnchorPositioning({
@@ -53,7 +53,7 @@ export function useSelectPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if (!open || hidden) {
+        if (!open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -66,7 +66,7 @@ export function useSelectPositioner(
           },
         });
       },
-      [open, hidden, mounted, positionerStyles],
+      [open, mounted, positionerStyles],
     );
 
   const positioner = React.useMemo(
@@ -76,9 +76,10 @@ export function useSelectPositioner(
         arrowUncentered,
         arrowStyles,
         side: alignOptionToTrigger ? 'none' : renderedSide,
-        alignment: renderedAlignment,
+        align: renderedAlign,
         positionerContext,
         isPositioned,
+        anchorHidden,
       }) as const,
     [
       alignOptionToTrigger,
@@ -87,8 +88,9 @@ export function useSelectPositioner(
       arrowUncentered,
       isPositioned,
       positionerContext,
-      renderedAlignment,
+      renderedAlign,
       renderedSide,
+      anchorHidden,
     ],
   );
 
@@ -132,15 +134,15 @@ export namespace useSelectPositioner {
      */
     sideOffset?: number;
     /**
-     * The alignment of the Select element to the anchor element along its cross axis.
+     * The align of the Select element to the anchor element along its cross axis.
      * @default 'start'
      */
-    alignment?: 'start' | 'end' | 'center';
+    align?: 'start' | 'end' | 'center';
     /**
-     * The offset of the Select element along its alignment axis.
+     * The offset of the Select element along its align axis.
      * @default 0
      */
-    alignmentOffset?: number;
+    alignOffset?: number;
     /**
      * The boundary that the Select element should be constrained to.
      * @default 'clipping-ancestors'
@@ -151,12 +153,6 @@ export namespace useSelectPositioner {
      * @default 5
      */
     collisionPadding?: Padding;
-    /**
-     * If `true`, the Select will be hidden if it is detached from its anchor element due to
-     * differing clipping contexts.
-     * @default false
-     */
-    hideWhenDetached?: boolean;
     /**
      * Whether the select popup remains mounted in the DOM while closed.
      * @default true
@@ -243,9 +239,9 @@ export namespace useSelectPositioner {
        */
       side: 'top' | 'right' | 'bottom' | 'left' | 'none';
       /**
-       * The rendered alignment of the Select element.
+       * The rendered align of the Select element.
        */
-      alignment: 'start' | 'end' | 'center';
+      align: 'start' | 'end' | 'center';
       /**
        * The styles to apply to the Select arrow element.
        */
@@ -258,6 +254,10 @@ export namespace useSelectPositioner {
        * Whether the Select popup has been positioned.
        */
       isPositioned: boolean;
+      /**
+       * Determines if the anchor element is hidden.
+       */
+      anchorHidden: boolean;
     };
   }
 }

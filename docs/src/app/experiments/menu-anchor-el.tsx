@@ -16,7 +16,7 @@ export default function Page() {
         <Menu.Trigger>Trigger</Menu.Trigger>
         <Menu.Positioner
           side="bottom"
-          alignment="start"
+          align="start"
           arrowPadding={0}
           anchor={anchorEl}
         >

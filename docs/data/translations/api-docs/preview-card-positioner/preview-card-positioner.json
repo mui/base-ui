@@ -1,11 +1,11 @@
 {
   "componentDescription": "",
   "propDescriptions": {
-    "alignment": {
-      "description": "The alignment of the preview card element to the anchor element along its cross axis."
+    "align": {
+      "description": "The align of the preview card element to the anchor element along its cross axis."
     },
-    "alignmentOffset": {
-      "description": "The offset of the preview card element along its alignment axis."
+    "alignOffset": {
+      "description": "The offset of the preview card element along its align axis."
     },
     "anchor": {
       "description": "The anchor element to which the preview card popup will be placed at."
@@ -22,9 +22,6 @@
     "collisionPadding": { "description": "The padding of the collision boundary." },
     "container": {
       "description": "The container element to which the preview card popup will be appended to."
-    },
-    "hideWhenDetached": {
-      "description": "If <code>true</code>, the preview card will be hidden if it is detached from its anchor element due to differing clipping contexts."
     },
     "keepMounted": {
       "description": "If <code>true</code>, preview card stays mounted in the DOM when closed."
@@ -43,5 +40,12 @@
       "description": "If <code>true</code>, allow the preview card to remain in stuck view while the anchor element is scrolled out of view."
     }
   },
-  "classDescriptions": {}
+  "classDescriptions": {},
+  "cssVariablesDescriptions": {
+    "--anchor-height": "The anchor&#39;s height.",
+    "--anchor-width": "The anchor&#39;s width.",
+    "--available-height": "The available height between the trigger and the edge of the viewport.",
+    "--available-width": "The available width between the trigger and the edge of the viewport.",
+    "--transform-origin": "The coordinates that this element is anchored to. Used for animations and transitions."
+  }
 }

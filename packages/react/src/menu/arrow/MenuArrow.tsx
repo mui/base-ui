@@ -6,9 +6,9 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * Renders an arrow that points to the center of the anchor element.
@@ -28,7 +28,7 @@ const MenuArrow = React.forwardRef(function MenuArrow(
   const { className, render, hideWhenUncentered = false, ...otherProps } = props;
 
   const { open } = useMenuRootContext();
-  const { arrowRef, side, alignment, arrowUncentered, arrowStyles } = useMenuPositionerContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
 
   const { getArrowProps } = useMenuArrow({
     arrowStyles,
@@ -39,10 +39,10 @@ const MenuArrow = React.forwardRef(function MenuArrow(
     () => ({
       open,
       side,
-      alignment,
+      align,
       arrowUncentered,
     }),
-    [open, side, alignment, arrowUncentered],
+    [open, side, align, arrowUncentered],
   );
 
   const mergedRef = useForkRef(arrowRef, forwardedRef);
@@ -54,7 +54,7 @@ const MenuArrow = React.forwardRef(function MenuArrow(
     state,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: popupOpenStateMapping,
+    customStyleHookMapping: popupStateMapping,
   });
 
   return renderElement();
@@ -64,7 +64,7 @@ namespace MenuArrow {
   export interface State {
     open: boolean;
     side: Side;
-    alignment: Alignment;
+    align: Align;
     arrowUncentered: boolean;
   }
 

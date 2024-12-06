@@ -168,10 +168,16 @@ async function run(argv: HandlerArgv) {
   // Example: AppBar/AppBar.d.ts
   const allFiles = await Promise.all(
     [path.resolve(__dirname, '../packages/react/src')].map((folderPath) =>
-      glob(['[A-Z]*/[A-Z]*.*@(d.ts|ts|tsx)', '[A-Z]*/[A-Z]*/[A-Z]*.*@(d.ts|ts|tsx)'], {
-        absolute: true,
-        cwd: folderPath,
-      }),
+      glob(
+        [
+          '[a-z]*/[a-z]*/[A-Z]*.*@(d.ts|ts|tsx)', // dialog/root/DialogRoot.tsx
+          '[a-z]*/[A-Z]*.*@(d.ts|ts|tsx)', // dialog/DialogRoot.tsx
+        ],
+        {
+          absolute: true,
+          cwd: folderPath,
+        },
+      ),
     ),
   );
 

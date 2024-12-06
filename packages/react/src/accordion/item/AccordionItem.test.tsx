@@ -11,6 +11,7 @@ const accordionRootContextValue: AccordionRootContext = {
   disabled: false,
   handleValueChange: NOOP,
   hiddenUntilFound: false,
+  keepMounted: false,
   orientation: 'vertical',
   state: {
     value: [0],

@@ -9,8 +9,8 @@ import { usePopoverPositioner } from './usePopoverPositioner';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { Side, Alignment } from '../../utils/useAnchorPositioning';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import type { Side, Align } from '../../utils/useAnchorPositioning';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * The popover positioner element.
@@ -35,13 +35,12 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     keepMounted = false,
     positionMethod = 'absolute',
     side = 'bottom',
-    alignment = 'center',
+    align = 'center',
     sideOffset = 0,
-    alignmentOffset = 0,
+    alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
-    hideWhenDetached = false,
     sticky = false,
     ...otherProps
   } = props;
@@ -58,12 +57,11 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     keepMounted,
     side,
     sideOffset,
-    alignment,
-    alignmentOffset,
+    align,
+    alignOffset,
     arrowPadding,
     collisionBoundary,
     collisionPadding,
-    hideWhenDetached,
     sticky,
     popupRef,
     openMethod,
@@ -73,9 +71,10 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     () => ({
       open,
       side: positioner.side,
-      alignment: positioner.alignment,
+      align: positioner.align,
+      anchorHidden: positioner.anchorHidden,
     }),
-    [open, positioner.side, positioner.alignment],
+    [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
@@ -87,7 +86,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     state,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: popupOpenStateMapping,
+    customStyleHookMapping: popupStateMapping,
   });
 
   const shouldRender = keepMounted || mounted;
@@ -106,7 +105,8 @@ namespace PopoverPositioner {
   export interface State {
     open: boolean;
     side: Side;
-    alignment: Alignment;
+    align: Align;
+    anchorHidden: boolean;
   }
 
   export interface Props
@@ -125,15 +125,15 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The alignment of the popover element to the anchor element along its cross axis.
+   * The align of the popover element to the anchor element along its cross axis.
    * @default 'center'
    */
-  alignment: PropTypes.oneOf(['center', 'end', 'start']),
+  align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the popover element along its alignment axis.
+   * The offset of the popover element along its align axis.
    * @default 0
    */
-  alignmentOffset: PropTypes.number,
+  alignOffset: PropTypes.number,
   /**
    * The element to which the popover element is anchored to.
    */
@@ -192,12 +192,6 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
     HTMLElementType,
     PropTypes.func,
   ]),
-  /**
-   * Whether the popover element is hidden if it appears detached from its anchor element due
-   * to the anchor element being clipped (or hidden) from view.
-   * @default false
-   */
-  hideWhenDetached: PropTypes.bool,
   /**
    * Whether the popover remains mounted in the DOM while closed.
    * @default false

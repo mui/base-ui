@@ -15,7 +15,7 @@ packageName: '@base-ui-components/react'
 
 ## Introduction
 
-<Demo demo="UnstyledAccordionIntroduction" defaultCodeOpen="false" bg="gradient" />
+<Demo demo="AccordionIntroduction" defaultCodeOpen="false" bg="gradient" />
 
 ## Installation
 
@@ -31,7 +31,7 @@ Accordions are implemented using a collection of related components:
 - `<Accordion.Header />` is a heading (`h3` by default) that wraps the `Trigger`
 - `<Accordion.Panel />` is the element that contains content in a `Item`
 
-```tsx
+```jsx
 <Accordion.Root>
   <Accordion.Item>
     <Accordion.Header>
@@ -57,7 +57,7 @@ The open state of the accordion is represented an array holding the `value`s of 
 
 You can optionally specify a custom `value` prop on `Item`:
 
-```tsx
+```jsx
 <Accordion.Root>
   <Accordion.Item value="one">
     <Accordion.Header>
@@ -78,7 +78,7 @@ You can optionally specify a custom `value` prop on `Item`:
 
 When uncontrolled, use the `defaultValue` prop to set the initial state of the accordion:
 
-```tsx
+```jsx
 <Accordion.Root defaultValue={[0]}>
   <Accordion.Item {/* `value={0}` by default */}>
     <Accordion.Header>
@@ -115,7 +115,7 @@ When uncontrolled, use the `defaultValue` prop to set the initial state of the a
 
 When controlled, pass the `value` and `onValueChange` props to `Accordion.Root`:
 
-```tsx
+```jsx
 const [value, setValue] = React.useState(['a']);
 
 return (
@@ -142,7 +142,7 @@ return (
 
 By default, all accordion items can be opened at the same time. Use the `openMultiple` prop to only allow one open item at a time:
 
-```tsx
+```jsx
 <Accordion.Root openMultiple={false}>{/* subcomponents */}</Accordion.Root>
 ```
 
@@ -150,7 +150,7 @@ By default, all accordion items can be opened at the same time. Use the `openMul
 
 Use controlled mode to always keep one `Item` open:
 
-```tsx
+```jsx
 const [value, setValue] = React.useState([0]);
 
 const handleValueChange = (newValue) => {
@@ -168,9 +168,9 @@ return (
 
 ## Horizontal
 
-Use the `orientation` prop to configure a horizontal accordion. In a horizontal accordion, focus will move between `Accordion.Trigger`s with the <kbd class="key">Right Arrow</kbd> and <kbd class="key">Left Arrow</kbd> keys, instead of Down/Up.
+Use the `orientation` prop to configure a horizontal accordion. In a horizontal accordion, focus will move between `Accordion.Trigger`s with the <kbd className="key">Right Arrow</kbd> and <kbd className="key">Left Arrow</kbd> keys, instead of Down/Up.
 
-```tsx
+```jsx
 <Accordion.Root orientation="horizontal">{/* subcomponents */}</Accordion.Root>
 ```
 
@@ -178,11 +178,21 @@ Use the `orientation` prop to configure a horizontal accordion. In a horizontal 
 
 Use the `direction` prop to configure a RTL accordion:
 
-```tsx
+```jsx
 <Accordion.Root direction="rtl">{/* subcomponents */}</Accordion.Root>
 ```
 
-When a horizontal accordion is set to `direction="rtl"`, keyboard actions are reversed accordingly - <kbd class="key">Left Arrow</kbd> moves focus to the next trigger and <kbd class="key">Right Arrow</kbd> moves focus to the previous trigger.
+When a horizontal accordion is set to `direction="rtl"`, keyboard actions are reversed accordingly - <kbd className="key">Left Arrow</kbd> moves focus to the next trigger and <kbd className="key">Right Arrow</kbd> moves focus to the previous trigger.
+
+## Hidden state
+
+`<Accordion.Panel />`s are unmounted from the DOM by default when they are closed. The `keepMounted` prop can be used to keep them mounted when closed, and instead rely on the `hidden` attribute to hide the content:
+
+```jsx
+<Accordion.Root keepMounted>{/* accordion items */}</Accordion.Root>
+```
+
+Alternatively `keepMounted` can be passed to `Accordion.Panel`s directly to enable this for only one `Item` instead of the whole accordion.
 
 ## Improving searchability of hidden content
 
@@ -198,6 +208,8 @@ Content hidden by `Accordion.Panel` components can be made accessible only to a 
 <Accordion.Root hiddenUntilFound>{/* subcomponents */}</Accordion.Root>
 ```
 
+When `hiddenUntilFound` is used, `Accordion.Panel`s remain mounted even when closed, overriding the `keepMounted` prop on the root or the panel.
+
 Alternatively `hiddenUntilFound` can be passed to `Accordion.Panel`s directly to enable this for only one `Item` instead of the whole accordion.
 
 We recommend using [CSS animations](#css-animations) for animated accordions that use this feature. Currently there is browser bug that does not highlight the found text inside elements that have a [CSS transition](#css-transitions) applied.
@@ -211,8 +223,8 @@ Accordion uses [`Collapsible`](/components/react-collapsible) internally, and ca
 Three states are available as data attributes to animate the `Accordion.Panel`:
 
 - `[data-open]` - `open` state is `true`.
-- `[data-entering]` - the `hidden` attribute was just removed from the DOM and the panel element participates in page layout. The `data-entering` attribute will be removed 1 animation frame later.
-- `[data-exiting]` - the panel element is in the process of being hidden from the DOM, but is still mounted.
+- `[data-starting-style]` - the `hidden` attribute was just removed from the DOM and the panel element participates in page layout. The `data-starting-style` attribute will be removed 1 animation frame later.
+- `[data-ending-style]` - the panel element is in the process of being hidden from the DOM, but is still mounted.
 
 The component can be animate when opening or closing using either:
 
@@ -266,7 +278,7 @@ When using CSS transitions, styles for the `Panel` must be applied to three stat
 
 - The exiting styles, placed on the base element class
 - The open styles, placed on the base element class with `[data-state="open"]`
-- The entering styles, placed on the base element class with `[data-entering]`
+- The entering styles, placed on the base element class with `[data-starting-style]`
 
 ```css
 .AccordionPanel {
@@ -283,20 +295,20 @@ When using CSS transitions, styles for the `Panel` must be applied to three stat
 }
 
 /* The initial styles when opening/entering */
-.AccordionPanel[data-entering] {
+.AccordionPanel[data-starting-style] {
   height: 0;
 }
 ```
 
 ### JavaScript Animations
 
-When using external libraries for animation, for example `framer-motion`, be aware that `Accordion.Item`s hides content using the HTML `hidden` attribute in the closed state, and does not unmount from the DOM.
+Use the `keepMounted` prop lets an external library control the mounting, for example `framer-motion`:
 
 ```js
 function App() {
   const [value, setValue] = useState([0]);
   return (
-    <Accordion.Root value={value} onValueChange={setValue}>
+    <Accordion.Root value={value} onValueChange={setValue} keepMounted>
       <Accordion.Item>
         <Accordion.Header>
           <Accordion.Trigger>Toggle</Accordion.Trigger>

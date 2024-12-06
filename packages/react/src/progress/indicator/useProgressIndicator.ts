@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { ProgressDirection } from '../root/useProgressRoot';
 
 function valueToPercent(value: number, min: number, max: number) {
   return ((value - min) * 100) / (max - min);
@@ -10,9 +9,7 @@ function valueToPercent(value: number, min: number, max: number) {
 function useProgressIndicator(
   parameters: useProgressIndicator.Parameters,
 ): useProgressIndicator.ReturnValue {
-  const { direction, max = 100, min = 0, value } = parameters;
-
-  const isRtl = direction === 'rtl';
+  const { max = 100, min = 0, value } = parameters;
 
   const percentageValue =
     Number.isFinite(value) && value !== null ? valueToPercent(value, min, max) : null;
@@ -23,11 +20,11 @@ function useProgressIndicator(
     }
 
     return {
-      [isRtl ? 'right' : 'left']: 0,
+      insetInlineStart: 0,
       height: 'inherit',
       width: `${percentageValue}%`,
     };
-  }, [isRtl, percentageValue]);
+  }, [percentageValue]);
 
   const getRootProps: useProgressIndicator.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
@@ -44,11 +41,6 @@ function useProgressIndicator(
 
 namespace useProgressIndicator {
   export interface Parameters {
-    /**
-     * The direction that progress bars fill in
-     * @default 'ltr'
-     */
-    direction?: ProgressDirection;
     /**
      * The maximum value
      * @default 100

@@ -13,7 +13,7 @@ export default function MenuIntroduction() {
   return (
     <Menu.Root>
       <MenuButton>My account</MenuButton>
-      <MenuPositioner alignment="start" sideOffset={8}>
+      <MenuPositioner align="start" sideOffset={8}>
         <MenuPopup>
           <Menu.Group>
             <MenuGroupLabel>Settings</MenuGroupLabel>
@@ -84,7 +84,7 @@ const MenuPopup = styled(Menu.Popup)(
     }
   }
       
-  &[data-exiting] {
+  &[data-ending-style] {
     opacity: 0;
     transform: scale(0.8);
     transition: opacity 200ms ease-in, transform 200ms ease-in;
