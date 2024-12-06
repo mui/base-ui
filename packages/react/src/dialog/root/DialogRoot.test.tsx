@@ -5,6 +5,8 @@ import { act, describeSkipIf, fireEvent, screen, waitFor } from '@mui/internal-t
 import { Dialog } from '@base-ui-components/react/dialog';
 import { createRenderer } from '#test-utils';
 
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+
 describe('<Dialog.Root />', () => {
   const { render } = createRenderer();
 
@@ -134,7 +136,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe('prop: modal', () => {
+  describeSkipIf(isJSDOM)('prop: modal', () => {
     it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
       const { user } = await render(
         <div>

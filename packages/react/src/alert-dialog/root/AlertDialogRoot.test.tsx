@@ -1,13 +1,15 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { describeSkipIf, screen, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { createRenderer } from '#test-utils';
+
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<AlertDialog.Root />', () => {
   const { render } = createRenderer();
 
-  describe('modality', () => {
+  describeSkipIf(isJSDOM)('modality', () => {
     it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
       const { user } = await render(
         <div>
