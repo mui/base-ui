@@ -1,9 +1,9 @@
-.Slider {
+.Control {
   box-sizing: border-box;
   display: flex;
   align-items: center;
   width: 14rem;
-  padding: 0.75rem 0.5rem;
+  padding-block: 0.75rem;
 }
 
 .Track {
