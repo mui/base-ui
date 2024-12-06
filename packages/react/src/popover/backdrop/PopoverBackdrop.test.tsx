@@ -8,11 +8,7 @@ describe('<Popover.Backdrop />', () => {
   describeConformance(<Popover.Backdrop />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(
-        <Popover.Root open animated={false}>
-          {node}
-        </Popover.Root>,
-      );
+      return render(<Popover.Root open>{node}</Popover.Root>);
     },
   }));
 });

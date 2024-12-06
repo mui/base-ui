@@ -33,7 +33,6 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     delay,
     closeDelay,
     openOnHover = false,
-    animated = true,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -72,7 +71,6 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   useAfterExitAnimation({
     open,
-    animated,
     animatedElementRef: popupRef,
     onFinished: () => {
       setMounted(false);
@@ -92,7 +90,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
         setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
       }
 
-      if (animated && isHover) {
+      if (isHover) {
         ReactDOM.flushSync(changeState);
       } else {
         changeState();
@@ -200,12 +198,6 @@ export namespace usePopoverRoot {
      * @default 0
      */
     closeDelay?: number;
-    /**
-     * Whether the popover can animate, adding animation-related attributes and allowing for exit
-     * animations to play. Useful to disable in tests to remove async behavior.
-     * @default true
-     */
-    animated?: boolean;
   }
 
   export interface ReturnValue {

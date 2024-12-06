@@ -2,11 +2,6 @@
   "name": "PopoverRoot",
   "description": "The foundation for building custom-styled popovers.",
   "props": {
-    "animated": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Whether the popover can animate, adding animation-related attributes and allowing for exit\nanimations to play. Useful to disable in tests to remove async behavior."
-    },
     "closeDelay": {
       "type": "number",
       "default": "0",

@@ -11,7 +11,7 @@ describe('<Popover.Title />', () => {
     refInstanceof: window.HTMLHeadingElement,
     render(node) {
       return render(
-        <Popover.Root open animated={false}>
+        <Popover.Root open>
           <Popover.Positioner>
             <Popover.Popup>{node}</Popover.Popup>
           </Popover.Positioner>
@@ -22,7 +22,7 @@ describe('<Popover.Title />', () => {
 
   it('labels the popup element with its id', async () => {
     await render(
-      <Popover.Root open animated={false}>
+      <Popover.Root open>
         <Popover.Positioner>
           <Popover.Popup>
             <Popover.Title>Title</Popover.Title>

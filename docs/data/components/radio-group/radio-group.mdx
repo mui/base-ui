@@ -80,7 +80,7 @@ return (
 
 ## Styling
 
-The `Radio` components have a `[data-radio]` attribute with values `"checked"` or `"unchecked"` to style based on the checked state:
+The `Radio` components have a `[data-checked]` or `[data-unchecked]` attribute to style based on the checked state:
 
 ```jsx
 <Radio.Root className="Radio">
@@ -100,24 +100,26 @@ The `Radio` components have a `[data-radio]` attribute with values `"checked"` o
   border: 1px solid black;
 }
 
-.Radio[data-radio='checked'] {
+.Radio[data-checked] {
   background: black;
   color: white;
 }
 
-.RadioIndicator[data-radio='checked'] {
+.RadioIndicator[data-checked] {
   background: white;
 }
 ```
 
 ## RTL
 
-Place the component inside an HTML element or component with the HTML `dir="rtl"` attribute to reverse arrow key navigation for right-to-left languages:
+To change direction for right-to-left languages, place the component in [`DirectionProvider`](/components/react-direction-provider) with the `direction="rtl"` prop to configure RTL behavior, and set the `dir` attribute accordingly in your HTML to affect styling:
 
 ```jsx
 <html dir="rtl">
   <body>
-    <RadioGroup.Root /> {/* RTL keyboard behavior */}
+    <DirectionProvider direction="rtl">
+      <RadioGroup.Root /> {/* RTL keyboard behavior */}
+    </DirectionProvider>
   </body>
 </html>
 ```

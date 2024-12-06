@@ -78,7 +78,7 @@ describe('<Menu.RadioItem />', () => {
     });
 
     const { getAllByRole } = await render(
-      <Menu.Root open animated={false}>
+      <Menu.Root open>
         <Menu.Positioner>
           <Menu.Popup>
             <Menu.RadioGroup>
@@ -155,7 +155,7 @@ describe('<Menu.RadioItem />', () => {
   describe('state management', () => {
     it('adds the state and ARIA attributes when selected', async () => {
       const { getByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>
@@ -180,7 +180,7 @@ describe('<Menu.RadioItem />', () => {
     ['Space', 'Enter'].forEach((key) => {
       it(`selects the item when ${key} is pressed`, async () => {
         const { getByRole } = await render(
-          <Menu.Root animated={false}>
+          <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
             <Menu.Positioner>
               <Menu.RadioGroup defaultValue={0}>
@@ -209,7 +209,7 @@ describe('<Menu.RadioItem />', () => {
     it('calls `onValueChange` when the item is clicked', async () => {
       const onValueChange = spy();
       const { getByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>
@@ -233,7 +233,7 @@ describe('<Menu.RadioItem />', () => {
 
     it('keeps the state when closed and reopened', async () => {
       const { getByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner keepMounted>
             <Menu.Popup>
@@ -264,7 +264,7 @@ describe('<Menu.RadioItem />', () => {
   describe('prop: closeOnClick', () => {
     it('when `closeOnClick=true`, closes the menu when the item is clicked', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>
@@ -289,7 +289,7 @@ describe('<Menu.RadioItem />', () => {
 
     it('does not close the menu when the item is clicked by default', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>

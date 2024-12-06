@@ -10,18 +10,14 @@ describe('<Popover.Trigger />', () => {
   describeConformance(<Popover.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
     render(node) {
-      return render(
-        <Popover.Root open animated={false}>
-          {node}
-        </Popover.Root>,
-      );
+      return render(<Popover.Root open>{node}</Popover.Root>);
     },
   }));
 
   describe('style hooks', () => {
     it('should have the data-popup-open and data-pressed attributes when open by clicking', async () => {
       await render(
-        <Popover.Root animated={false}>
+        <Popover.Root>
           <Popover.Trigger />
         </Popover.Root>,
       );
@@ -38,7 +34,7 @@ describe('<Popover.Trigger />', () => {
 
     it('should have the data-popup-open but not the data-pressed attribute when open by hover', async () => {
       const { user } = await render(
-        <Popover.Root openOnHover delay={0} animated={false}>
+        <Popover.Root openOnHover delay={0}>
           <Popover.Trigger />
         </Popover.Root>,
       );
@@ -53,7 +49,7 @@ describe('<Popover.Trigger />', () => {
 
     it('should not have the data-popup-open and data-pressed attributes when open by click when `openOnHover=true` and `delay=0`', async () => {
       const { user } = await render(
-        <Popover.Root delay={0} openOnHover animated={false}>
+        <Popover.Root delay={0} openOnHover>
           <Popover.Trigger />
         </Popover.Root>,
       );
@@ -73,7 +69,7 @@ describe('<Popover.Trigger />', () => {
 
     it('should have the data-popup-open and data-pressed attributes when open by click when `openOnHover=true`', async () => {
       const { user } = await render(
-        <Popover.Root openOnHover animated={false}>
+        <Popover.Root openOnHover>
           <Popover.Trigger />
         </Popover.Root>,
       );

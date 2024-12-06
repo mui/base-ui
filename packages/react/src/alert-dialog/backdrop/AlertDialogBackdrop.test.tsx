@@ -9,17 +9,13 @@ describe('<AlertDialog.Backdrop />', () => {
   describeConformance(<AlertDialog.Backdrop />, () => ({
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
-      return render(
-        <AlertDialog.Root open animated={false}>
-          {node}
-        </AlertDialog.Root>,
-      );
+      return render(<AlertDialog.Root open>{node}</AlertDialog.Root>);
     },
   }));
 
   it('has role="presentation"', async () => {
     const { getByTestId } = await render(
-      <AlertDialog.Root open animated={false}>
+      <AlertDialog.Root open>
         <AlertDialog.Backdrop data-testid="backdrop" />
       </AlertDialog.Root>,
     );

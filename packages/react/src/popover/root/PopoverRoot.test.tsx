@@ -10,7 +10,7 @@ import { OPEN_DELAY } from '../utils/constants';
 const user = userEvent.setup();
 
 function Root(props: Popover.Root.Props) {
-  return <Popover.Root {...props} animated={false} />;
+  return <Popover.Root {...props} />;
 }
 
 describe('<Popover.Root />', () => {
@@ -214,6 +214,8 @@ describe('<Popover.Root />', () => {
         this?.skip?.() || t?.skip();
       }
 
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
       let animationFinished = false;
       const notifyAnimationFinished = () => {
         animationFinished = true;
@@ -265,6 +267,8 @@ describe('<Popover.Root />', () => {
       });
 
       expect(animationFinished).to.equal(true);
+
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 
@@ -399,7 +403,7 @@ describe('<Popover.Root />', () => {
       await render(
         <div>
           <input type="text" />
-          <Popover.Root animated={false}>
+          <Popover.Root>
             <Popover.Trigger>Toggle</Popover.Trigger>
             <Popover.Positioner keepMounted>
               <Popover.Popup>

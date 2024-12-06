@@ -29,7 +29,6 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     onOpenChange: onOpenChangeProp = () => {},
     defaultOpen = false,
     hoverable = true,
-    animated = true,
     trackCursorAxis = 'none',
     delay,
     closeDelay,
@@ -65,7 +64,6 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 
   useAfterExitAnimation({
     open,
-    animated,
     animatedElementRef: popupRef,
     onFinished() {
       setMounted(false);
@@ -85,7 +83,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
         setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
       }
 
-      if (animated && isHover) {
+      if (isHover) {
         // If a hover reason is provided, we need to flush the state synchronously. This ensures
         // `node.getAnimations()` knows about the new state.
         ReactDOM.flushSync(changeState);
@@ -190,12 +188,6 @@ export namespace useTooltipRoot {
      * @default true
      */
     hoverable?: boolean;
-    /**
-     * Whether the tooltip can animate, adding animation-related attributes and allowing for exit
-     * animations to play. Useful to disable in tests to remove async behavior.
-     * @default true
-     */
-    animated?: boolean;
     /**
      * Determines which axis the tooltip should track the cursor on.
      * @default 'none'

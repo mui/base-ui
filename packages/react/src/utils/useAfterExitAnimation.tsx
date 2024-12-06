@@ -8,7 +8,7 @@ import { useLatestRef } from './useLatestRef';
  * Useful for unmounting the component after animating out.
  */
 export function useAfterExitAnimation(parameters: useAfterExitAnimation.Parameters) {
-  const { open, animated, animatedElementRef, onFinished: onFinishedParam } = parameters;
+  const { open, animatedElementRef, onFinished: onFinishedParam } = parameters;
 
   const onFinished = useEventCallback(onFinishedParam);
   const runOnceAnimationsFinish = useAnimationsFinished(animatedElementRef);
@@ -22,13 +22,9 @@ export function useAfterExitAnimation(parameters: useAfterExitAnimation.Paramete
     }
 
     if (!open) {
-      if (animated) {
-        runOnceAnimationsFinish(callOnFinished);
-      } else {
-        callOnFinished();
-      }
+      runOnceAnimationsFinish(callOnFinished);
     }
-  }, [animated, open, openRef, runOnceAnimationsFinish, onFinished]);
+  }, [open, openRef, runOnceAnimationsFinish, onFinished]);
 }
 
 export namespace useAfterExitAnimation {
@@ -38,11 +34,6 @@ export namespace useAfterExitAnimation {
      * The logic runs when the component goes from open to closed.
      */
     open: boolean;
-    /**
-     * Determines if the animations are enabled.
-     * If set to `false`, `onFinished` is set immediately after `open` turns `false` (in the next layout effect).
-     */
-    animated: boolean;
     /**
      * Ref to the element being closed.
      */

@@ -156,7 +156,7 @@ ToggleRoot.propTypes /* remove-proptypes */ = {
   type: PropTypes.oneOf(['button', 'reset', 'submit']),
   /**
    * A unique string that identifies the component when used
-   * inside a ToggleGroup
+   * inside a ToggleGroup.
    */
   value: PropTypes.string,
 } as any;

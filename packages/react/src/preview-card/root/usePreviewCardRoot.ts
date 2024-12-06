@@ -28,7 +28,6 @@ export function usePreviewCardRoot(
     open: externalOpen,
     onOpenChange: onOpenChangeProp = () => {},
     defaultOpen = false,
-    animated = true,
     delay,
     closeDelay,
   } = params;
@@ -51,7 +50,7 @@ export function usePreviewCardRoot(
 
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -62,7 +61,6 @@ export function usePreviewCardRoot(
 
   useAfterExitAnimation({
     open,
-    animated,
     animatedElementRef: popupRef,
     onFinished: () => setMounted(false),
   });
@@ -80,7 +78,7 @@ export function usePreviewCardRoot(
         setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
       }
 
-      if (animated && isHover) {
+      if (isHover) {
         // If a hover reason is provided, we need to flush the state synchronously. This ensures
         // `node.getAnimations()` knows about the new state.
         ReactDOM.flushSync(changeState);
@@ -177,12 +175,6 @@ export namespace usePreviewCardRoot {
      * @default 300
      */
     closeDelay?: number;
-    /**
-     * Whether the preview card can animate, adding animation-related attributes and allowing for exit
-     * animations to play. Useful to disable in tests to remove async behavior.
-     * @default true
-     */
-    animated?: boolean;
   }
 
   export interface ReturnValue {

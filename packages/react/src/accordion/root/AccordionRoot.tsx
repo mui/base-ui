@@ -7,6 +7,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { warn } from '../../utils/warn';
 import { CompositeList } from '../../composite/list/CompositeList';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import {
   useAccordionRoot,
   type AccordionOrientation,
@@ -33,9 +34,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    animated = true,
     className,
-    direction = 'ltr',
     disabled = false,
     hiddenUntilFound: hiddenUntilFoundProp,
     keepMounted: keepMountedProp,
@@ -48,6 +47,8 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     render,
     ...otherProps
   } = props;
+
+  const direction = useDirection();
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -71,7 +72,6 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   }, [value, defaultValueProp]);
 
   const { getRootProps, ...accordion } = useAccordionRoot({
-    animated,
     direction,
     disabled,
     defaultValue,
@@ -126,7 +126,18 @@ export namespace AccordionRoot {
   }
 
   export interface Props
-    extends Partial<useAccordionRoot.Parameters>,
+    extends Partial<
+        Pick<
+          useAccordionRoot.Parameters,
+          | 'value'
+          | 'defaultValue'
+          | 'disabled'
+          | 'loop'
+          | 'onValueChange'
+          | 'openMultiple'
+          | 'orientation'
+        >
+      >,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
      * If `true`, sets `hidden="until-found"` when closed. Accordion panels
@@ -153,11 +164,6 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the component supports CSS/JS-based animations and transitions.
-   * @default true
-   */
-  animated: PropTypes.bool,
-  /**
    * @ignore
    */
   children: PropTypes.node,
@@ -170,10 +176,6 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    * This is the uncontrolled counterpart of `value`.
    */
   defaultValue: PropTypes.array,
-  /**
-   * @ignore
-   */
-  direction: PropTypes.oneOf(['ltr', 'rtl']),
   /**
    * If `true`, the component is disabled.
    * @default false

@@ -10,17 +10,13 @@ describe('<Select.Group />', () => {
   describeConformance(<Select.Group />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(
-        <Select.Root open animated={false}>
-          {node}
-        </Select.Root>,
-      );
+      return render(<Select.Root open>{node}</Select.Root>);
     },
   }));
 
   it('should render option group with label', async () => {
     await render(
-      <Select.Root open animated={false}>
+      <Select.Root open>
         <Select.Positioner>
           <Select.Group>
             <Select.GroupLabel>Fruits</Select.GroupLabel>
@@ -37,7 +33,7 @@ describe('<Select.Group />', () => {
 
   it('should associate label with option group', async () => {
     await render(
-      <Select.Root open animated={false}>
+      <Select.Root open>
         <Select.Positioner>
           <Select.Group>
             <Select.GroupLabel>Vegetables</Select.GroupLabel>
