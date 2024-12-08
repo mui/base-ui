@@ -13,7 +13,7 @@ import {
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { OPEN_DELAY } from '../utils/constants';
+import { IMPATIENT_CLICK_THRESHOLD, OPEN_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
@@ -108,7 +108,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
         clearTimeout(clickEnabledTimeoutRef.current);
         clickEnabledTimeoutRef.current = window.setTimeout(() => {
           setClickEnabled(true);
-        }, 300);
+        }, IMPATIENT_CLICK_THRESHOLD);
 
         ReactDOM.flushSync(changeState);
       } else {

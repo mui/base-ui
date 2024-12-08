@@ -2,7 +2,8 @@ import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
-import { act, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { IMPATIENT_CLICK_THRESHOLD } from '../utils/constants';
 
 describe('<Popover.Trigger />', () => {
   const { render } = createRenderer();
@@ -58,13 +59,11 @@ describe('<Popover.Trigger />', () => {
 
       await user.hover(trigger);
 
-      // Closes instantly after opening due to `useClick` prop `stickIfOpen=false`
       await act(async () => {
         trigger.click();
       });
 
-      expect(trigger).not.to.have.attribute('data-popup-open');
-      expect(trigger).not.to.have.attribute('data-pressed');
+      expect(trigger).to.have.attribute('data-popup-open');
     });
 
     it('should have the data-popup-open and data-pressed attributes when open by click when `openOnHover=true`', async () => {
@@ -83,6 +82,52 @@ describe('<Popover.Trigger />', () => {
 
       expect(trigger).to.have.attribute('data-popup-open');
       expect(trigger).to.have.attribute('data-pressed');
+    });
+  });
+
+  describe('impatient clicks', () => {
+    const { clock, render: renderFakeTimers } = createRenderer();
+
+    clock.withFakeTimers();
+
+    it('does not close the popover if the user clicks too quickly', async () => {
+      await renderFakeTimers(
+        <Popover.Root delay={0} openOnHover>
+          <Popover.Trigger />
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+
+      clock.tick(IMPATIENT_CLICK_THRESHOLD - 1);
+
+      await act(async () => {
+        trigger.click();
+      });
+
+      expect(trigger).to.have.attribute('data-popup-open');
+    });
+
+    it('closes the popover if the user clicks patiently', async () => {
+      await renderFakeTimers(
+        <Popover.Root delay={0} openOnHover>
+          <Popover.Trigger />
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+
+      clock.tick(IMPATIENT_CLICK_THRESHOLD);
+
+      await act(async () => {
+        trigger.click();
+      });
+
+      expect(trigger).not.to.have.attribute('data-popup-open');
     });
   });
 });
