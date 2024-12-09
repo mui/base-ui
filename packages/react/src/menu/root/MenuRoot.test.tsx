@@ -694,7 +694,7 @@ describe('<Menu.Root />', () => {
   });
 
   describe('controlled mode', () => {
-    it('should remove the popup when animated=true and there is no exit animation defined', async function test(t = {}) {
+    it('should remove the popup when and there is no exit animation defined', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -726,7 +726,7 @@ describe('<Menu.Root />', () => {
       });
     });
 
-    it('should remove the popup when animated=true and the animation finishes', async function test(t = {}) {
+    it('should remove the popup and the animation finishes', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
