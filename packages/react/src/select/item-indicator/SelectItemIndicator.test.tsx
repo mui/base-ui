@@ -2,10 +2,10 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { createRenderer, describeConformance } from '#test-utils';
 
-describe('<Select.OptionIndicator />', () => {
+describe('<Select.ItemIndicator />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.OptionIndicator />, () => ({
+  describeConformance(<Select.ItemIndicator />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(
@@ -14,7 +14,7 @@ describe('<Select.OptionIndicator />', () => {
             <Select.Value />
           </Select.Trigger>
           <Select.Positioner>
-            <Select.Option>{node}</Select.Option>
+            <Select.Item>{node}</Select.Item>
           </Select.Positioner>
         </Select.Root>,
       );

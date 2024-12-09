@@ -20,8 +20,8 @@ describe('<Select.Group />', () => {
         <Select.Positioner>
           <Select.Group>
             <Select.GroupLabel>Fruits</Select.GroupLabel>
-            <Select.Option value="apple">Apple</Select.Option>
-            <Select.Option value="banana">Banana</Select.Option>
+            <Select.Item value="apple">Apple</Select.Item>
+            <Select.Item value="banana">Banana</Select.Item>
           </Select.Group>
         </Select.Positioner>
       </Select.Root>,
@@ -37,8 +37,8 @@ describe('<Select.Group />', () => {
         <Select.Positioner>
           <Select.Group>
             <Select.GroupLabel>Vegetables</Select.GroupLabel>
-            <Select.Option value="carrot">Carrot</Select.Option>
-            <Select.Option value="lettuce">Lettuce</Select.Option>
+            <Select.Item value="carrot">Carrot</Select.Item>
+            <Select.Item value="lettuce">Lettuce</Select.Item>
           </Select.Group>
         </Select.Positioner>
       </Select.Root>,

@@ -1,15 +1,15 @@
 {
   "props": {},
-  "name": "SelectOptionText",
+  "name": "SelectItemText",
   "imports": [
-    "import { Select } from '@base-ui-components/react/select';\nconst SelectOptionText = Select.OptionText;"
+    "import { Select } from '@base-ui-components/react/select';\nconst SelectItemText = Select.ItemText;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "SelectOptionText",
+  "muiName": "SelectItemText",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/select/option-text/SelectOptionText.tsx",
+  "filename": "/packages/react/src/select/item-text/SelectItemText.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false
