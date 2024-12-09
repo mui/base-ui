@@ -24,14 +24,6 @@ function defaultRender(
   );
 }
 /**
- *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderThumb API](https://base-ui.com/components/react-slider/#api-reference-SliderThumb)
  */
 const SliderThumb = React.forwardRef(function SliderThumb(
   props: SliderThumb.Props,

@@ -9,14 +9,6 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
- *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuTrigger API](https://base-ui.com/components/react-menu/#api-reference-MenuTrigger)
  */
 const MenuTrigger = React.forwardRef(function MenuTrigger(
   props: MenuTrigger.Props,

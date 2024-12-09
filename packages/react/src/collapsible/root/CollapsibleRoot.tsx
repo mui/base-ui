@@ -9,14 +9,6 @@ import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStyleHookMapping } from './styleHooks';
 
 /**
- *
- * Demos:
- *
- * - [Collapsible](https://base-ui.com/components/react-collapsible/)
- *
- * API:
- *
- * - [CollapsibleRoot API](https://base-ui.com/components/react-collapsible/#api-reference-CollapsibleRoot)
  */
 const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   props: CollapsibleRoot.Props,

@@ -9,14 +9,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * The indicator part of the Checkbox.
- *
- * Demos:
- *
- * - [Checkbox](https://base-ui.com/components/react-checkbox/)
- *
- * API:
- *
- * - [CheckboxIndicator API](https://base-ui.com/components/react-checkbox/#api-reference-CheckboxIndicator)
  */
 const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   props: CheckboxIndicator.Props,

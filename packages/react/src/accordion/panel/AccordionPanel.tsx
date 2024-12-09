@@ -15,14 +15,6 @@ import { accordionStyleHookMapping } from '../item/styleHooks';
 import { AccordionPanelCssVars } from './AccordionPanelCssVars';
 
 /**
- *
- * Demos:
- *
- * - [Accordion](https://base-ui.com/components/react-accordion/)
- *
- * API:
- *
- * - [AccordionPanel API](https://base-ui.com/components/react-accordion/#api-reference-AccordionPanel)
  */
 const AccordionPanel = React.forwardRef(function AccordionPanel(
   props: AccordionPanel.Props,

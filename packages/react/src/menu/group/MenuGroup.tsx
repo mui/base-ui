@@ -8,14 +8,6 @@ import { MenuGroupContext } from './MenuGroupContext';
 const state = {};
 
 /**
- *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuGroup API](https://base-ui.com/components/react-menu/#api-reference-MenuGroup)
  */
 const MenuGroup = React.forwardRef(function MenuGroup(
   props: MenuGroup.Props,

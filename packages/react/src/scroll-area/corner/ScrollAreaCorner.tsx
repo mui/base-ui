@@ -10,14 +10,6 @@ import { useForkRef } from '../../utils/useForkRef';
 const state = {};
 
 /**
- *
- * Demos:
- *
- * - [Scroll Area](https://base-ui.com/components/react-scroll-area/)
- *
- * API:
- *
- * - [ScrollAreaCorner API](https://base-ui.com/components/react-scroll-area/#api-reference-ScrollAreaCorner)
  */
 const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
   props: ScrollAreaCorner.Props,

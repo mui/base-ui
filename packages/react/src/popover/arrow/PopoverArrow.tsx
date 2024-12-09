@@ -12,14 +12,6 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * Renders an arrow that points to the center of the anchor element.
- *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverArrow API](https://base-ui.com/components/react-popover/#api-reference-PopoverArrow)
  */
 const PopoverArrow = React.forwardRef(function PopoverArrow(
   props: PopoverArrow.Props,

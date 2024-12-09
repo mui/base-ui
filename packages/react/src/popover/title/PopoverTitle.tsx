@@ -10,14 +10,6 @@ const state = {};
 
 /**
  * Renders a title element that labels the popover.
- *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverTitle API](https://base-ui.com/components/react-popover/#api-reference-PopoverTitle)
  */
 const PopoverTitle = React.forwardRef(function PopoverTitle(
   props: PopoverTitle.Props,

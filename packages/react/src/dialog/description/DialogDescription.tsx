@@ -11,14 +11,6 @@ const state = {};
 
 /**
  * A paragraph with additional information about the dialog. Renders a `<p>` element.
- *
- * Demos:
- *
- * - [Dialog](https://base-ui.com/components/react-dialog/)
- *
- * API:
- *
- * - [DialogDescription API](https://base-ui.com/components/react-dialog/#api-reference-DialogDescription)
  */
 const DialogDescription = React.forwardRef(function DialogDescription(
   props: DialogDescription.Props,

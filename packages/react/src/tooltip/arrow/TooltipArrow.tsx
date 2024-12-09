@@ -11,14 +11,6 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * Renders an arrow that points to the center of the anchor element.
- *
- * Demos:
- *
- * - [Tooltip](https://base-ui.com/components/react-tooltip/)
- *
- * API:
- *
- * - [TooltipArrow API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipArrow)
  */
 const TooltipArrow = React.forwardRef(function TooltipArrow(
   props: TooltipArrow.Props,

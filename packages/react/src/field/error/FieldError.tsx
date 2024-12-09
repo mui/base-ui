@@ -11,14 +11,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * Displays error messages for the field's control.
- *
- * Demos:
- *
- * - [Field](https://base-ui.com/components/react-field/)
- *
- * API:
- *
- * - [FieldError API](https://base-ui.com/components/react-field/#api-reference-FieldError)
  */
 const FieldError = React.forwardRef(function FieldError(
   props: FieldError.Props,

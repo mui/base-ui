@@ -7,14 +7,6 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 
 /**
- *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuCheckboxItemIndicator API](https://base-ui.com/components/react-menu/#api-reference-MenuCheckboxItemIndicator)
  */
 const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndicatorComponent(
   props: MenuCheckboxItemIndicator.Props,

@@ -12,14 +12,6 @@ import { refType } from '../../utils/proptypes';
 
 /**
  * The foundation for building custom-styled switches.
- *
- * Demos:
- *
- * - [Switch](https://base-ui.com/components/react-switch/)
- *
- * API:
- *
- * - [SwitchRoot API](https://base-ui.com/components/react-switch/#api-reference-SwitchRoot)
  */
 const SwitchRoot = React.forwardRef(function SwitchRoot(
   props: SwitchRoot.Props,

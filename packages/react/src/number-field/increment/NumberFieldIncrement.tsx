@@ -8,14 +8,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * The increment stepper button.
- *
- * Demos:
- *
- * - [Number Field](https://base-ui.com/components/react-number-field/)
- *
- * API:
- *
- * - [NumberFieldIncrement API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldIncrement)
  */
 const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
   props: NumberFieldIncrement.Props,

@@ -8,14 +8,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
- *
- * Demos:
- *
- * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
- *
- * API:
- *
- * - [AlertDialogTrigger API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogTrigger)
  */
 const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   props: AlertDialogTrigger.Props,

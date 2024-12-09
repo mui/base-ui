@@ -7,14 +7,6 @@ import { useSliderRootContext } from '../root/SliderRootContext';
 import type { SliderRoot } from '../root/SliderRoot';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 /**
- *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderTrack API](https://base-ui.com/components/react-slider/#api-reference-SliderTrack)
  */
 const SliderTrack = React.forwardRef(function SliderTrack(
   props: SliderTrack.Props,

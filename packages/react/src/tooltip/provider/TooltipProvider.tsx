@@ -6,14 +6,6 @@ import { FloatingDelayGroup } from '@floating-ui/react';
 /**
  * Provides a shared delay for tooltips so that once a tooltip is shown, the rest of the tooltips in
  * the group will not wait for the delay before showing.
- *
- * Demos:
- *
- * - [Tooltip](https://base-ui.com/components/react-tooltip/)
- *
- * API:
- *
- * - [TooltipProvider API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipProvider)
  */
 const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvider(props) {
   const { delay, closeDelay, timeout = 400 } = props;

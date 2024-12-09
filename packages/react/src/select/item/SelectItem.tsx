@@ -215,14 +215,6 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
 const MemoizedInnerSelectItem = React.memo(InnerSelectItem);
 
 /**
- *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectItem API](https://base-ui.com/components/react-select/#api-reference-SelectItem)
  */
 const SelectItem = React.forwardRef(function SelectItem(
   props: SelectItem.Props,
