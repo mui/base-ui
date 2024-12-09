@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Menu component
 description: The Menu component provide end users with a list of options on temporary surfaces.
-components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, MenuSubmenuTrigger, MenuArrow, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuCheckboxItem, MenuCheckboxItemIndicator, MenuGroup, MenuGroupLabel
+components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, MenuSubmenuTrigger, MenuArrow, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuCheckboxItem, MenuCheckboxItemIndicator, MenuGroup, MenuGroupLabel, MenuBackdrop
 githubLabel: 'component: menu'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
 ---
@@ -26,6 +26,7 @@ Menus are implemented using a collection of related components:
 - `<Menu.Root />` is a top-level component that facilitates communication between other components. It does not render to the DOM.
 - `<Menu.Trigger />` is an optional component (a button by default) that, when clicked, shows the menu. When not used, menu can be shown programmatically using the `open` prop.
 - `<Menu.Portal />` renders the menu into a portal, allowing it to escape the bounds of its parent container.
+- `<Menu.Backdrop />` renders an optional backdrop element behind the menu popup.
 - `<Menu.Positioner />` renders the element responsible for positioning the popup.
 - `<Menu.Popup />` is the menu popup.
 - `<Menu.Item />` is the menu item.
@@ -45,6 +46,8 @@ Menus are implemented using a collection of related components:
   <Menu.Trigger />
 
   <Menu.Portal>
+    <Menu.Backdrop />
+
     <Menu.Positioner>
       <Menu.Popup>
         <Menu.Group>

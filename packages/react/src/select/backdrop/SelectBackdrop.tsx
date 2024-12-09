@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useSelectBackdrop } from './useSelectBackdrop';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
@@ -38,11 +37,9 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   props: SelectBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, ...otherProps } = props;
+  const { className, render, keepMounted = false, ...other } = props;
 
   const { open, mounted, transitionStatus } = useSelectRootContext();
-
-  const { getBackdropProps } = useSelectBackdrop();
 
   const state: SelectBackdrop.State = React.useMemo(
     () => ({ open, transitionStatus }),
@@ -50,12 +47,11 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getBackdropProps,
     render: render ?? 'div',
     className,
     state,
     ref: forwardedRef,
-    extraProps: otherProps,
+    extraProps: { role: 'presentation', hidden: !mounted, ...other },
     customStyleHookMapping,
   });
 

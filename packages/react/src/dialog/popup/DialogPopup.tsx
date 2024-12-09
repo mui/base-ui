@@ -112,6 +112,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
       closeOnFocusOut={dismissible}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
+      outsideElementsInert
     >
       {renderElement()}
     </FloatingFocusManager>
