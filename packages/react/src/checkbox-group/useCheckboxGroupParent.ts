@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useEventCallback } from '../../utils/useEventCallback';
+import { useBaseUiId } from '../utils/useBaseUiId';
+import { useEventCallback } from '../utils/useEventCallback';
 
 /**
  *

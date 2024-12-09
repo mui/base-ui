@@ -5,7 +5,7 @@ import styles from './index.module.css';
 
 export default function ExampleCheckboxGroup() {
   return (
-    <CheckboxGroup.Root
+    <CheckboxGroup
       aria-labelledby="apples-caption"
       defaultValue={['fuji-apple']}
       className={styles.CheckboxGroup}
@@ -40,7 +40,7 @@ export default function ExampleCheckboxGroup() {
         </Checkbox.Root>
         Granny Smith
       </label>
-    </CheckboxGroup.Root>
+    </CheckboxGroup>
   );
 }
 

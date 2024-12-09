@@ -1,1 +1,1 @@
-export { CheckboxGroupRoot as Root } from './root/CheckboxGroupRoot';
+export { CheckboxGroup as Root } from './root/CheckboxGroup';

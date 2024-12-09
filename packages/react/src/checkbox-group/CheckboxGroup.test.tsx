@@ -6,10 +6,10 @@ import { spy } from 'sinon';
 import { expect } from 'chai';
 import { describeConformance } from '#test-utils';
 
-describe('<CheckboxGroup.Root />', () => {
+describe('<CheckboxGroup />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<CheckboxGroup.Root />, () => ({
+  describeConformance(<CheckboxGroup />, () => ({
     inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render,
@@ -20,11 +20,11 @@ describe('<CheckboxGroup.Root />', () => {
       function App() {
         const [value, setValue] = React.useState(['red']);
         return (
-          <CheckboxGroup.Root value={value} onValueChange={setValue}>
+          <CheckboxGroup value={value} onValueChange={setValue}>
             <Checkbox.Root name="red" data-testid="red" />
             <Checkbox.Root name="green" data-testid="green" />
             <Checkbox.Root name="blue" data-testid="blue" />
-          </CheckboxGroup.Root>
+          </CheckboxGroup>
         );
       }
 
@@ -65,7 +65,7 @@ describe('<CheckboxGroup.Root />', () => {
       function App() {
         const [value, setValue] = React.useState<string[]>([]);
         return (
-          <CheckboxGroup.Root
+          <CheckboxGroup
             value={value}
             onValueChange={(nextValue) => {
               setValue(nextValue);
@@ -75,7 +75,7 @@ describe('<CheckboxGroup.Root />', () => {
             <Checkbox.Root name="red" data-testid="red" />
             <Checkbox.Root name="green" data-testid="green" />
             <Checkbox.Root name="blue" data-testid="blue" />
-          </CheckboxGroup.Root>
+          </CheckboxGroup>
         );
       }
 
@@ -106,11 +106,11 @@ describe('<CheckboxGroup.Root />', () => {
     it('should set the initial value', () => {
       function App() {
         return (
-          <CheckboxGroup.Root defaultValue={['red']}>
+          <CheckboxGroup defaultValue={['red']}>
             <Checkbox.Root name="red" data-testid="red" />
             <Checkbox.Root name="green" data-testid="green" />
             <Checkbox.Root name="blue" data-testid="blue" />
-          </CheckboxGroup.Root>
+          </CheckboxGroup>
         );
       }
 

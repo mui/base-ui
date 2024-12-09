@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCheckboxGroupRoot } from './useCheckboxGroupRoot';
-import { CheckboxGroupRootContext } from './CheckboxGroupRootContext';
-import type { FieldRoot } from '../../field/root/FieldRoot';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../utils/useComponentRenderer';
+import { useCheckboxGroup } from './useCheckboxGroup';
+import { CheckboxGroupContext } from './CheckboxGroupContext';
+import type { FieldRoot } from '../field/root/FieldRoot';
+import { useFieldRootContext } from '../field/root/FieldRootContext';
+import type { BaseUIComponentProps } from '../utils/types';
 
 /**
  * The foundation for building custom-styled checkbox groups.
@@ -17,10 +17,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * API:
  *
- * - [CheckboxGroupRoot API](https://base-ui.com/components/react-checkbox-group/#api-reference-CheckboxGroupRoot)
+ * - [CheckboxGroup API](https://base-ui.com/components/react-checkbox-group/#api-reference-CheckboxGroup)
  */
-const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
-  props: CheckboxGroupRoot.Props,
+const CheckboxGroup = React.forwardRef(function CheckboxGroup(
+  props: CheckboxGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -38,14 +38,14 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
 
   const disabled = fieldDisabled || disabledProp;
 
-  const { getRootProps, value, setValue, parent } = useCheckboxGroupRoot({
+  const { getRootProps, value, setValue, parent } = useCheckboxGroup({
     value: externalValue,
     allValues,
     defaultValue,
     onValueChange,
   });
 
-  const state: CheckboxGroupRoot.State = React.useMemo(
+  const state: CheckboxGroup.State = React.useMemo(
     () => ({
       ...fieldState,
       disabled,
@@ -62,7 +62,7 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
     extraProps: otherProps,
   });
 
-  const contextValue: CheckboxGroupRootContext = React.useMemo(
+  const contextValue: CheckboxGroupContext = React.useMemo(
     () => ({
       allValues,
       value,
@@ -74,13 +74,13 @@ const CheckboxGroupRoot = React.forwardRef(function CheckboxGroupRoot(
   );
 
   return (
-    <CheckboxGroupRootContext.Provider value={contextValue}>
+    <CheckboxGroupContext.Provider value={contextValue}>
       {renderElement()}
-    </CheckboxGroupRootContext.Provider>
+    </CheckboxGroupContext.Provider>
   );
 });
 
-namespace CheckboxGroupRoot {
+namespace CheckboxGroup {
   export interface State extends FieldRoot.State {
     disabled: boolean;
   }
@@ -110,7 +110,7 @@ namespace CheckboxGroupRoot {
   }
 }
 
-CheckboxGroupRoot.propTypes /* remove-proptypes */ = {
+CheckboxGroup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -151,4 +151,4 @@ CheckboxGroupRoot.propTypes /* remove-proptypes */ = {
   value: PropTypes.arrayOf(PropTypes.string),
 } as any;
 
-export { CheckboxGroupRoot };
+export { CheckboxGroup };

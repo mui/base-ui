@@ -1,22 +1,22 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useCheckboxGroupParent } from '../parent/useCheckboxGroupParent';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import type { UseCheckboxGroupParent } from '../parent/useCheckboxGroupParent';
-import type { GenericHTMLProps } from '../../utils/types';
+import { mergeReactProps } from '../utils/mergeReactProps';
+import { useControlled } from '../utils/useControlled';
+import { useEventCallback } from '../utils/useEventCallback';
+import { useCheckboxGroupParent } from './useCheckboxGroupParent';
+import { useFieldRootContext } from '../field/root/FieldRootContext';
+import type { UseCheckboxGroupParent } from './useCheckboxGroupParent';
+import type { GenericHTMLProps } from '../utils/types';
 
 /**
  *
  * API:
  *
- * - [useCheckboxGroupRoot API](https://mui.com/base-ui/api/use-checkbox-group-root/)
+ * - [useCheckboxGroup API](https://mui.com/base-ui/api/use-checkbox-group-root/)
  */
-export function useCheckboxGroupRoot(
-  params: UseCheckboxGroupRoot.Parameters,
-): UseCheckboxGroupRoot.ReturnValue {
+export function useCheckboxGroup(
+  params: UseCheckboxGroup.Parameters,
+): UseCheckboxGroup.ReturnValue {
   const { allValues, value: externalValue, defaultValue, onValueChange } = params;
 
   const { labelId } = useFieldRootContext();
@@ -59,7 +59,7 @@ export function useCheckboxGroupRoot(
   );
 }
 
-namespace UseCheckboxGroupRoot {
+namespace UseCheckboxGroup {
   export interface Parameters {
     value?: string[];
     defaultValue?: string[];

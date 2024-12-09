@@ -1,5 +1,5 @@
 {
-  "name": "CheckboxGroupRoot",
+  "name": "CheckboxGroup",
   "description": "The foundation for building custom-styled checkbox groups.",
   "props": {
     "allValues": {

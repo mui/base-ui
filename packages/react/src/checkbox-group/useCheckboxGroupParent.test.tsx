@@ -12,12 +12,12 @@ describe('useCheckboxGroupParent', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (
-        <CheckboxGroup.Root value={value} onValueChange={setValue} allValues={allValues}>
+        <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
           <Checkbox.Root name="a" />
           <Checkbox.Root name="b" />
           <Checkbox.Root name="c" />
-        </CheckboxGroup.Root>
+        </CheckboxGroup>
       );
     }
 
@@ -51,12 +51,12 @@ describe('useCheckboxGroupParent', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (
-        <CheckboxGroup.Root value={value} onValueChange={setValue} allValues={allValues}>
+        <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
           <Checkbox.Root name="a" />
           <Checkbox.Root name="b" />
           <Checkbox.Root name="c" />
-        </CheckboxGroup.Root>
+        </CheckboxGroup>
       );
     }
 
@@ -79,12 +79,12 @@ describe('useCheckboxGroupParent', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>(['a']);
       return (
-        <CheckboxGroup.Root value={value} onValueChange={setValue} allValues={allValues}>
+        <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
           <Checkbox.Root name="a" />
           <Checkbox.Root name="b" />
           <Checkbox.Root name="c" />
-        </CheckboxGroup.Root>
+        </CheckboxGroup>
       );
     }
 
@@ -104,12 +104,12 @@ describe('useCheckboxGroupParent', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>(['a']);
       return (
-        <CheckboxGroup.Root value={value} onValueChange={setValue} allValues={allValues}>
+        <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
           <Checkbox.Root name="a" />
           <Checkbox.Root name="b" />
           <Checkbox.Root name="c" />
-        </CheckboxGroup.Root>
+        </CheckboxGroup>
       );
     }
 
@@ -137,12 +137,12 @@ describe('useCheckboxGroupParent', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (
-        <CheckboxGroup.Root value={value} onValueChange={setValue} allValues={allValues}>
+        <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
           <Checkbox.Root name="a" />
           <Checkbox.Root name="b" />
           <Checkbox.Root name="c" />
-        </CheckboxGroup.Root>
+        </CheckboxGroup>
       );
     }
 
@@ -158,12 +158,12 @@ describe('useCheckboxGroupParent', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (
-        <CheckboxGroup.Root value={value} onValueChange={setValue} allValues={allValues}>
+        <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
           <Checkbox.Root name="a" />
           <Checkbox.Root name="b" />
           <Checkbox.Root name="c" />
-        </CheckboxGroup.Root>
+        </CheckboxGroup>
       );
     }
 
@@ -206,12 +206,12 @@ describe('useCheckboxGroupParent', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (
-        <CheckboxGroup.Root value={value} onValueChange={setValue} allValues={allValues}>
+        <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
           <Checkbox.Root name="a" disabled />
           <Checkbox.Root name="b" />
           <Checkbox.Root name="c" />
-        </CheckboxGroup.Root>
+        </CheckboxGroup>
       );
     }
 
@@ -233,12 +233,12 @@ describe('useCheckboxGroupParent', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>(['a']);
       return (
-        <CheckboxGroup.Root value={value} onValueChange={setValue} allValues={allValues}>
+        <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
           <Checkbox.Root name="a" disabled />
           <Checkbox.Root name="b" />
           <Checkbox.Root name="c" />
-        </CheckboxGroup.Root>
+        </CheckboxGroup>
       );
     }
 
