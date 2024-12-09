@@ -32,7 +32,7 @@
     }
   }
 
-  .SelectOption {
+  .SelectItem {
     @apply text-xs;
     outline: 0;
     display: grid;
@@ -66,14 +66,14 @@
     }
   }
 
-  .SelectOptionIndicator {
+  .SelectItemIndicator {
     grid-column: 2;
     margin-top: -1px;
     width: 100%;
     height: auto;
   }
 
-  .SelectOptionText {
+  .SelectItemText {
     grid-column: 4;
   }
 

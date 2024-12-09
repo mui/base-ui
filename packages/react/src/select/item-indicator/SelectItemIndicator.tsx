@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useSelectOptionContext } from '../option/SelectOptionContext';
+import { useSelectItemContext } from '../item/SelectItemContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
@@ -14,15 +14,15 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  *
  * API:
  *
- * - [SelectOptionIndicator API](https://base-ui.com/components/react-select/#api-reference-SelectOptionIndicator)
+ * - [SelectItemIndicator API](https://base-ui.com/components/react-select/#api-reference-SelectItemIndicator)
  */
-const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
-  props: SelectOptionIndicator.Props,
+const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
+  props: SelectItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { render, className, keepMounted = false, ...otherProps } = props;
 
-  const { selected } = useSelectOptionContext();
+  const { selected } = useSelectItemContext();
 
   const getOptionProps = React.useCallback(
     (externalProps = {}) =>
@@ -33,7 +33,7 @@ const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
     [],
   );
 
-  const state: SelectOptionIndicator.State = React.useMemo(
+  const state: SelectItemIndicator.State = React.useMemo(
     () => ({
       selected,
     }),
@@ -57,7 +57,7 @@ const SelectOptionIndicator = React.forwardRef(function SelectOptionIndicator(
   return renderElement();
 });
 
-namespace SelectOptionIndicator {
+namespace SelectItemIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
     children?: React.ReactNode;
     /**
@@ -73,7 +73,7 @@ namespace SelectOptionIndicator {
   }
 }
 
-SelectOptionIndicator.propTypes /* remove-proptypes */ = {
+SelectItemIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -98,4 +98,4 @@ SelectOptionIndicator.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { SelectOptionIndicator };
+export { SelectItemIndicator };
