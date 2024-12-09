@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { FormRootContext } from './FormRootContext';
-import { useEventCallback } from '../../utils/useEventCallback';
+import type { BaseUIComponentProps } from '../utils/types';
+import { useComponentRenderer } from '../utils/useComponentRenderer';
+import { mergeReactProps } from '../utils/mergeReactProps';
+import { FormContext } from './FormContext';
+import { useEventCallback } from '../utils/useEventCallback';
 
 /**
  *
@@ -15,10 +15,10 @@ import { useEventCallback } from '../../utils/useEventCallback';
  *
  * API:
  *
- * - [FormRoot API](https://base-ui.com/components/react-form/#api-reference-FormRoot)
+ * - [Form API](https://base-ui.com/components/react-form/#api-reference-Form)
  */
-const FormRoot = React.forwardRef(function FormRoot(
-  props: FormRoot.Props,
+const Form = React.forwardRef(function Form(
+  props: Form.Props,
   forwardedRef: React.ForwardedRef<HTMLFormElement>,
 ) {
   const {
@@ -30,7 +30,7 @@ const FormRoot = React.forwardRef(function FormRoot(
     ...otherProps
   } = props;
 
-  const formRef = React.useRef<FormRootContext['formRef']['current']>({
+  const formRef = React.useRef<FormContext['formRef']['current']>({
     fields: new Map(),
   });
 
@@ -74,7 +74,7 @@ const FormRoot = React.forwardRef(function FormRoot(
     }
   }, [errors]);
 
-  const state = React.useMemo<FormRoot.State>(() => ({}), []);
+  const state = React.useMemo<Form.State>(() => ({}), []);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getFormProps,
@@ -85,32 +85,30 @@ const FormRoot = React.forwardRef(function FormRoot(
     extraProps: otherProps,
   });
 
-  const contextValue: FormRootContext = React.useMemo(
+  const contextValue: FormContext = React.useMemo(
     () => ({ formRef, errors: errors ?? {}, onClearErrors }),
     [formRef, errors, onClearErrors],
   );
 
-  return (
-    <FormRootContext.Provider value={contextValue}>{renderElement()}</FormRootContext.Provider>
-  );
+  return <FormContext.Provider value={contextValue}>{renderElement()}</FormContext.Provider>;
 });
 
-namespace FormRoot {
+namespace Form {
   export interface Props extends BaseUIComponentProps<'form', State> {
     /**
      * Object of error messages with each key mapping to the `name` prop of a Field control, usually
      * from server-side validation.
      */
-    errors?: FormRootContext['errors'];
+    errors?: FormContext['errors'];
     /**
      * Callback fired when the external server-side `error` messages should be cleared.
      */
-    onClearErrors?: FormRootContext['onClearErrors'];
+    onClearErrors?: FormContext['onClearErrors'];
   }
   export interface State {}
 }
 
-FormRoot.propTypes /* remove-proptypes */ = {
+Form.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -142,4 +140,4 @@ FormRoot.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { FormRoot };
+export { Form };

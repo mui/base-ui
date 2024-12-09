@@ -30,7 +30,9 @@ export function getComponentImports(name: string, filename: string) {
   const mainImportName = capitalizeFirstLetter(
     componentDirectory.replace(/-([a-z])/g, (g) => g[1].toUpperCase()),
   );
-
+  console.log('mainImportName', mainImportName);
+  console.log('name', name);
+  console.log('componentDirectory', componentDirectory);
   if (mainImportName === name) {
     return [`import { ${name} } from '@base-ui-components/react/${componentDirectory}';`];
   }

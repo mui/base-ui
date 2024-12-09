@@ -1,5 +1,5 @@
 {
-  "name": "FormRoot",
+  "name": "Form",
   "description": "",
   "props": {
     "className": {
@@ -7,11 +7,11 @@
       "description": "Class names applied to the element or a function that returns them based on the component's state."
     },
     "errors": {
-      "type": "Record<string, string | string[]>",
+      "type": "object",
       "description": "Object of error messages with each key mapping to the `name` prop of a Field control, usually\nfrom server-side validation."
     },
     "onClearErrors": {
-      "type": "(errors) => void",
+      "type": "function",
       "description": "Callback fired when the external server-side `error` messages should be cleared."
     },
     "render": {

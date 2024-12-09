@@ -3,12 +3,12 @@ import { Form } from '@base-ui-components/react/form';
 import { Field } from '@base-ui-components/react/field';
 import { expect } from 'chai';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance } from '../../test/describeConformance';
 
-describe('<Form.Root />', () => {
+describe('<Form />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Form.Root />, () => ({
+  describeConformance(<Form />, () => ({
     refInstanceof: window.HTMLFormElement,
     render,
   }));
@@ -16,12 +16,12 @@ describe('<Form.Root />', () => {
   describe('prop: errors', () => {
     it('should mark <Field.Control> as invalid and populate <Field.Error>', () => {
       render(
-        <Form.Root errors={{ foo: 'bar' }}>
+        <Form errors={{ foo: 'bar' }}>
           <Field.Root name="foo">
             <Field.Control />
             <Field.Error data-testid="error" />
           </Field.Root>
-        </Form.Root>,
+        </Form>,
       );
 
       expect(screen.getByTestId('error')).to.have.text('bar');
@@ -30,12 +30,12 @@ describe('<Form.Root />', () => {
 
     it('should not mark <Field.Control> as invalid if no error is provided', () => {
       render(
-        <Form.Root>
+        <Form>
           <Field.Root name="foo">
             <Field.Control />
             <Field.Error data-testid="error" />
           </Field.Root>
-        </Form.Root>,
+        </Form>,
       );
 
       expect(screen.queryByTestId('error')).to.equal(null);
@@ -46,17 +46,17 @@ describe('<Form.Root />', () => {
   describe('prop: onClearErrors', () => {
     it('should clear errors if no matching name keys exist', () => {
       function App() {
-        const [errors, setErrors] = React.useState<Form.Root.Props['errors']>({
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({
           foo: 'bar',
         });
 
         return (
-          <Form.Root errors={errors} onClearErrors={setErrors}>
+          <Form errors={errors} onClearErrors={setErrors}>
             <Field.Root name="foo">
               <Field.Control />
               <Field.Error data-testid="error" />
             </Field.Root>
-          </Form.Root>
+          </Form>
         );
       }
 
@@ -74,12 +74,12 @@ describe('<Form.Root />', () => {
 
   describe('prop: noValidate', () => {
     it('should disable native validation if set to true (default)', () => {
-      render(<Form.Root data-testid="form" />);
+      render(<Form data-testid="form" />);
       expect(screen.getByTestId('form')).to.have.attribute('novalidate');
     });
 
     it('should enable native validation if set to false', () => {
-      render(<Form.Root noValidate={false} data-testid="form" />);
+      render(<Form noValidate={false} data-testid="form" />);
       expect(screen.getByTestId('form')).not.to.have.attribute('novalidate');
     });
   });

@@ -8,7 +8,7 @@ export default function ExampleForm() {
   const [loading, setLoading] = React.useState(false);
 
   return (
-    <Form.Root
+    <Form
       className={styles.Form}
       errors={errors}
       onClearErrors={setErrors}
@@ -42,7 +42,7 @@ export default function ExampleForm() {
       <button disabled={loading} type="submit" className={styles.Button}>
         Submit
       </button>
-    </Form.Root>
+    </Form>
   );
 }
 

@@ -1,9 +1,9 @@
 import * as React from 'react';
-import type { FieldValidityData } from '../../field/root/FieldRoot';
+import type { FieldValidityData } from '../field/root/FieldRoot';
 
 type Errors = Record<string, string | string[]>;
 
-export interface FormRootContext {
+export interface FormContext {
   errors: Errors;
   onClearErrors: (errors: Errors) => void;
   formRef: React.MutableRefObject<{
@@ -18,7 +18,7 @@ export interface FormRootContext {
   }>;
 }
 
-export const FormRootContext = React.createContext<FormRootContext>({
+export const FormContext = React.createContext<FormContext>({
   formRef: {
     current: {
       fields: new Map(),
@@ -29,9 +29,9 @@ export const FormRootContext = React.createContext<FormRootContext>({
 });
 
 if (process.env.NODE_ENV !== 'production') {
-  FormRootContext.displayName = 'FormRootContext';
+  FormContext.displayName = 'FormContext';
 }
 
-export function useFormRootContext() {
-  return React.useContext(FormRootContext);
+export function useFormContext() {
+  return React.useContext(FormContext);
 }
