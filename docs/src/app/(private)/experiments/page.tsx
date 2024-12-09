@@ -7,7 +7,7 @@ import classes from './experiments.module.css';
 export default async function Experiments() {
   /* @ts-ignore */
   const allExperiments = (
-    await readdir('src/app/experiments', { withFileTypes: true })
+    await readdir('src/app/(private)/experiments', { withFileTypes: true })
   )
     .filter(
       (entry: Dirent) =>

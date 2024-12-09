@@ -29,7 +29,9 @@ export default async function Page(props: Props) {
 }
 
 export async function generateStaticParams() {
-  const routes = (await readdir('src/app/playground', { withFileTypes: true }))
+  const routes = (
+    await readdir('src/app/(private)/playground', { withFileTypes: true })
+  )
     .filter(
       (entry: Dirent) =>
         entry.name.endsWith('.tsx') && entry.name !== 'page.tsx' && entry.isFile(),

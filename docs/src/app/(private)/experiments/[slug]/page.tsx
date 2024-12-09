@@ -23,7 +23,7 @@ export default async function Page(props: Props) {
 }
 
 export async function generateStaticParams() {
-  return (await readdir('src/app/experiments', { withFileTypes: true }))
+  return (await readdir('src/app/(private)/experiments', { withFileTypes: true }))
     .filter(
       (entry: Dirent) =>
         entry.name.endsWith('.tsx') &&

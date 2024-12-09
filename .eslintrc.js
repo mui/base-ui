@@ -56,7 +56,7 @@ module.exports = {
       (ruleSet) => !ruleSet.rules.hasOwnProperty('filenames/match-exported'),
     ),
     {
-      files: ['docs/src/app/experiments/**/*{.tsx,.js}', 'docs/pages/playground/**/*{.tsx,.js}'],
+      files: ['docs/src/app/(private)/experiments/**/*{.tsx,.js}'],
       rules: {
         '@typescript-eslint/no-use-before-define': 'off',
         'react/prop-types': 'off',

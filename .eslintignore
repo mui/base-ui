@@ -4,7 +4,7 @@
 /docs/.next
 /docs/data/**/*.js
 /docs/export
-/docs/src/app/playground/
+/docs/src/app/(private)/playground/
 /packages/react/**/*.min.*
 build
 build-tests
