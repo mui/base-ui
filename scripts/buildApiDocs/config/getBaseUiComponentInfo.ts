@@ -1,74 +1,44 @@
-import fs from 'fs';
 import path from 'path';
-import { getHeaders, getTitle } from '@mui/internal-markdown';
 import {
   ComponentInfo,
   extractPackageFile,
   parseFile,
 } from '@mui-internal/api-docs-builder/buildApiUtils';
-import findPagesMarkdown from '@mui-internal/api-docs-builder/utils/findPagesMarkdown';
+import startCase from 'lodash/startCase';
+import urlJoin from 'url-join';
 
-const REPO_ROOT = path.resolve(__dirname, '../../..');
+const overrides: Record<string, string> = {
+  DirectoryProvider: '/utils/direction-provider',
+  RadioGroup: '/components/radio',
+};
 
-function getDemosPath(pagePath: string) {
-  return `${pagePath.replace('/components/', '/components/react-')}/`;
-}
-
-const allMarkdowns = findPagesMarkdown(path.join(REPO_ROOT, 'docs/data/components')).map(
-  (markdown) => {
-    const markdownContent = fs.readFileSync(markdown.filename, 'utf8');
-    const markdownHeaders = getHeaders(markdownContent) as any;
-
-    return {
-      ...markdown,
-      markdownContent,
-      components: markdownHeaders.components as string[],
-    };
-  },
-);
-
-export function getBaseUiDemos(name: string) {
-  return allMarkdowns
-    .filter((page) => page.components.includes(name))
-    .map((page) => ({
-      demoPageTitle: getTitle(page.markdownContent),
-      demoPathname: getDemosPath(page.pathname),
-    }));
-}
-
-function getApiPath(demos: Array<{ demoPageTitle: string; demoPathname: string }>, name: string) {
-  let apiPath = null;
-
-  if (demos && demos.length > 0) {
-    apiPath = `${demos[0].demoPathname}#api-reference-${name}`;
-  }
-
-  return apiPath;
-}
+const baseUrl = 'https://base-ui.com/react';
+const componentsDir = path.join(process.cwd(), 'packages/react/src/');
 
 export function getBaseUiComponentInfo(filename: string): ComponentInfo {
   const { name } = extractPackageFile(filename);
-  let srcInfo: null | ReturnType<ComponentInfo['readFile']> = null;
+
   if (!name) {
     throw new Error(`Could not find the component name from: ${filename}`);
   }
 
-  const demos = getBaseUiDemos(name);
+  const parentComponentPath = filename.split(componentsDir)[1]!.split('/')[0];
+  const parentComponentName = startCase(parentComponentPath);
+  const componentUrl = overrides[name] ?? `/components/${parentComponentPath}`;
+  const url = urlJoin(baseUrl, componentUrl);
+
+  const customAnnotation = `Documentation: [${parentComponentName}](${url})`;
 
   return {
     filename,
     name,
     muiName: name,
-    apiPathname: getApiPath(demos, name) ?? '',
-    apiPagesDirectory: path.join(process.cwd(), `docs/data/api`),
+    apiPathname: name, // Not used, but we pass `name` just for logging when the script runs
+    apiPagesDirectory: path.join(process.cwd(), 'docs/reference/temp/components'),
     isSystemComponent: false,
-    readFile: () => {
-      srcInfo = parseFile(filename);
-      return srcInfo;
-    },
-    getInheritance: () => {
-      return null;
-    },
-    getDemos: () => demos,
+    readFile: () => parseFile(filename),
+    getInheritance: () => null,
+    getDemos: () => [{ demoPageTitle: name, demoPathname: url }],
+    customAnnotation,
   };
 }
