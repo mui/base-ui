@@ -18,7 +18,7 @@ export default function ExampleSeparator() {
         Support
       </a>
 
-      <Separator.Root className={styles.Separator} />
+      <Separator className={styles.Separator} />
 
       <a href="#" className={styles.Link}>
         Log in

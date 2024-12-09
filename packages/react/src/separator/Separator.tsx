@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import type { BaseUIComponentProps } from '../utils/types';
+import { useComponentRenderer } from '../utils/useComponentRenderer';
 
 const EMPTY_OBJECT = {};
 
@@ -14,10 +14,10 @@ const EMPTY_OBJECT = {};
  *
  * API:
  *
- * - [SeparatorRoot API](https://base-ui.com/components/react-separator/#api-reference-SeparatorRoot)
+ * - [Separator API](https://base-ui.com/components/react-separator/#api-reference-Separator)
  */
-const SeparatorRoot = React.forwardRef(function SeparatorRootComponent(
-  props: SeparatorRoot.Props,
+const Separator = React.forwardRef(function SeparatorComponent(
+  props: Separator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, ...other } = props;
@@ -33,7 +33,7 @@ const SeparatorRoot = React.forwardRef(function SeparatorRootComponent(
   return renderElement();
 });
 
-SeparatorRoot.propTypes /* remove-proptypes */ = {
+Separator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -52,10 +52,10 @@ SeparatorRoot.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-namespace SeparatorRoot {
+namespace Separator {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {}
 }
 
-export { SeparatorRoot };
+export { Separator };
