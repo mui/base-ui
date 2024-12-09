@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { NOOP } from '../../utils/noop';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { CompositeItem } from '../../composite/item/CompositeItem';
-import { useToggleGroupRootContext } from '../../toggle-group/root/ToggleGroupRootContext';
-import { useToggleRoot } from './useToggleRoot';
+import { NOOP } from '../utils/noop';
+import { useComponentRenderer } from '../utils/useComponentRenderer';
+import type { BaseUIComponentProps } from '../utils/types';
+import { CompositeItem } from '../composite/item/CompositeItem';
+import { useToggleGroupRootContext } from '../toggle-group/root/ToggleGroupRootContext';
+import { useToggle } from './useToggle';
 
 const customStyleHookMapping = {
   disabled: () => null,
@@ -19,10 +19,10 @@ const customStyleHookMapping = {
  *
  * API:
  *
- * - [ToggleRoot API](https://base-ui.com/components/react-toggle/#api-reference-ToggleRoot)
+ * - [Toggle API](https://base-ui.com/components/react-toggle/#api-reference-Toggle)
  */
-const ToggleRoot = React.forwardRef(function ToggleRoot(
-  props: ToggleRoot.Props,
+const Toggle = React.forwardRef(function Toggle(
+  props: Toggle.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -42,7 +42,7 @@ const ToggleRoot = React.forwardRef(function ToggleRoot(
 
   const groupValue = groupContext?.value ?? [];
 
-  const { disabled, pressed, getRootProps } = useToggleRoot({
+  const { disabled, pressed, getRootProps } = useToggle({
     buttonRef: forwardedRef,
     defaultPressed: groupContext ? undefined : defaultPressed,
     disabled: (disabledProp || groupContext?.disabled) ?? false,
@@ -52,7 +52,7 @@ const ToggleRoot = React.forwardRef(function ToggleRoot(
     value: valueProp ?? '',
   });
 
-  const state: ToggleRoot.State = React.useMemo(
+  const state: Toggle.State = React.useMemo(
     () => ({
       disabled,
       pressed,
@@ -73,9 +73,9 @@ const ToggleRoot = React.forwardRef(function ToggleRoot(
   return groupContext ? <CompositeItem render={renderElement()} /> : renderElement();
 });
 
-export { ToggleRoot };
+export { Toggle };
 
-export namespace ToggleRoot {
+export namespace Toggle {
   export interface State {
     pressed: boolean;
     disabled: boolean;
@@ -84,7 +84,7 @@ export namespace ToggleRoot {
   export interface Props
     extends Partial<
         Pick<
-          useToggleRoot.Parameters,
+          useToggle.Parameters,
           'pressed' | 'defaultPressed' | 'disabled' | 'onPressedChange' | 'value'
         >
       >,
@@ -100,7 +100,7 @@ export namespace ToggleRoot {
   }
 }
 
-ToggleRoot.propTypes /* remove-proptypes */ = {
+Toggle.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │

@@ -16,16 +16,14 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "value": { "type": { "name": "string" } }
   },
-  "name": "ToggleRoot",
-  "imports": [
-    "import { Toggle } from '@base-ui-components/react/toggle';\nconst ToggleRoot = Toggle.Root;"
-  ],
+  "name": "Toggle",
+  "imports": ["import { Toggle } from '@base-ui-components/react/toggle';"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "ToggleRoot",
+  "muiName": "Toggle",
   "forwardsRefTo": "HTMLButtonElement",
-  "filename": "/packages/react/src/toggle/root/ToggleRoot.tsx",
+  "filename": "/packages/react/src/toggle/Toggle.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-toggle/\">Toggle</a></li></ul>",
   "cssComponent": false
