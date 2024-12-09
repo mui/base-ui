@@ -7,6 +7,8 @@ import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+
 describe('<Menu.Root />', () => {
   const { render } = createRenderer();
   const user = userEvent.setup();
@@ -586,6 +588,76 @@ describe('<Menu.Root />', () => {
       await waitFor(() => {
         expect(button).toHaveFocus();
       });
+    });
+  });
+
+  describe('prop: modal', () => {
+    it('makes outside elements inert when a modal menu is open', async function test(t = {}) {
+      if (isJSDOM) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
+      await render(
+        <div>
+          <input data-testid="outside-input" type="text" />,
+          <Menu.Root modal>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Root>
+          <button data-testid="outside-button">Outside Button</button>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await user.click(trigger);
+
+      const outsideInput = screen.getByTestId('outside-input');
+      const outsideButton = screen.getByTestId('outside-button');
+
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(outsideInput.closest('[inert]')).not.to.equal(null);
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(outsideButton.closest('[inert]')).not.to.equal(null);
+    });
+
+    it('does not make outside elements inert when a nonmodal menu is open', async function test(t = {}) {
+      if (isJSDOM) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
+      await render(
+        <div>
+          <input data-testid="outside-input" type="text" />,
+          <Menu.Root modal={false}>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Root>
+          <button data-testid="outside-button">Outside Button</button>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await user.click(trigger);
+
+      const outsideInput = screen.getByTestId('outside-input');
+      const outsideButton = screen.getByTestId('outside-button');
+
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(outsideInput.closest('[inert]')).to.equal(null);
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(outsideButton.closest('[inert]')).to.equal(null);
     });
   });
 
