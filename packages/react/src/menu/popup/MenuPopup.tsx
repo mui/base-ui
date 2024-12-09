@@ -10,16 +10,16 @@ import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
-      return { 'data-entering': '' } as Record<string, string>;
+      return { 'data-starting-style': '' } as Record<string, string>;
     }
     if (value === 'exiting') {
-      return { 'data-exiting': '' };
+      return { 'data-ending-style': '' };
     }
     return null;
   },
@@ -41,7 +41,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 ) {
   const { render, className, ...other } = props;
   const { open, setOpen, popupRef, transitionStatus } = useMenuRootContext();
-  const { side, alignment } = useMenuPositionerContext();
+  const { side, align } = useMenuPositionerContext();
   const { events: menuEvents } = useFloatingTree()!;
 
   useMenuPopup({
@@ -55,10 +55,10 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     () => ({
       transitionStatus,
       side,
-      alignment,
+      align,
       open,
     }),
-    [transitionStatus, side, alignment, open],
+    [transitionStatus, side, align, open],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -85,7 +85,7 @@ namespace MenuPopup {
   export type State = {
     transitionStatus: TransitionStatus;
     side: Side;
-    alignment: 'start' | 'end' | 'center';
+    align: 'start' | 'end' | 'center';
     open: boolean;
   };
 }

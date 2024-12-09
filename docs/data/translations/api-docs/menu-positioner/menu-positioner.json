@@ -1,12 +1,10 @@
 {
   "componentDescription": "Renders the element that positions the Menu popup.",
   "propDescriptions": {
-    "alignment": {
-      "description": "The alignment of the Menu element to the anchor element along its cross axis."
+    "align": {
+      "description": "The align of the Menu element to the anchor element along its cross axis."
     },
-    "alignmentOffset": {
-      "description": "The offset of the Menu element along its alignment axis."
-    },
+    "alignOffset": { "description": "The offset of the Menu element along its align axis." },
     "anchor": { "description": "The anchor element to which the Menu popup will be placed at." },
     "arrowPadding": {
       "description": "Determines the padding between the arrow and the Menu popup&#39;s edges. Useful when the popover popup has rounded corners via <code>border-radius</code>."
@@ -20,9 +18,6 @@
     "collisionPadding": { "description": "The padding of the collision boundary." },
     "container": {
       "description": "The container element to which the Menu popup will be appended to."
-    },
-    "hideWhenDetached": {
-      "description": "If <code>true</code>, the Menu will be hidden if it is detached from its anchor element due to differing clipping contexts."
     },
     "keepMounted": {
       "description": "Whether the menu popup remains mounted in the DOM while closed."
@@ -39,5 +34,12 @@
       "description": "If <code>true</code>, allow the Menu to remain in stuck view while the anchor element is scrolled out of view."
     }
   },
-  "classDescriptions": {}
+  "classDescriptions": {},
+  "cssVariablesDescriptions": {
+    "--anchor-height": "The anchor&#39;s height.",
+    "--anchor-width": "The anchor&#39;s width.",
+    "--available-height": "The available height between the trigger and the edge of the viewport.",
+    "--available-width": "The available width between the trigger and the edge of the viewport.",
+    "--transform-origin": "The coordinates that this element is anchored to. Used for animations and transitions."
+  }
 }

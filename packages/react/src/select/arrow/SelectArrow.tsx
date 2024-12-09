@@ -7,7 +7,8 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
+import type { Align, Side } from '../../utils/useAnchorPositioning';
 
 /**
  *
@@ -26,7 +27,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
   const { className, render, hideWhenUncentered = false, ...otherProps } = props;
 
   const { open, alignOptionToTrigger } = useSelectRootContext();
-  const { arrowRef, side, alignment, arrowUncentered, arrowStyles } = useSelectPositionerContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useSelectPositionerContext();
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) =>
@@ -43,10 +44,10 @@ const SelectArrow = React.forwardRef(function SelectArrow(
     () => ({
       open,
       side,
-      alignment,
+      align,
       arrowUncentered,
     }),
-    [open, side, alignment, arrowUncentered],
+    [open, side, align, arrowUncentered],
   );
 
   const mergedRef = useForkRef(arrowRef, forwardedRef);
@@ -58,7 +59,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
     state,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: popupOpenStateMapping,
+    customStyleHookMapping: popupStateMapping,
   });
 
   if (alignOptionToTrigger) {
@@ -71,10 +72,11 @@ const SelectArrow = React.forwardRef(function SelectArrow(
 namespace SelectArrow {
   export interface State {
     open: boolean;
-    side: 'top' | 'bottom' | 'left' | 'right' | 'none';
-    alignment: 'start' | 'center' | 'end';
+    side: Side | 'none';
+    align: Align;
     arrowUncentered: boolean;
   }
+
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * If `true`, the arrow is hidden when it can't point to the center of the anchor element.

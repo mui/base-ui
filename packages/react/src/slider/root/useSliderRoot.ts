@@ -6,16 +6,17 @@ import { clamp } from '../../utils/clamp';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
 import { useControlled } from '../../utils/useControlled';
-import { useForkRef } from '../../utils/useForkRef';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
+import { useForkRef } from '../../utils/useForkRef';
+import { useBaseUiId } from '../../utils/useBaseUiId';
+import type { TextDirection } from '../../direction-provider/DirectionContext';
+import { useField } from '../../field/useField';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useId } from '../../utils/useId';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
 import { asc } from '../utils/asc';
 import { setValueIndex } from '../utils/setValueIndex';
 import { getSliderValue } from '../utils/getSliderValue';
-import { useField } from '../../field/useField';
 
 function findClosest(values: number[], currentValue: number) {
   const { index: closestIndex } =
@@ -121,15 +122,15 @@ export function trackFinger(
 export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRoot.ReturnValue {
   const {
     'aria-labelledby': ariaLabelledby,
-    id: idProp,
-    name,
     defaultValue,
     direction = 'ltr',
     disabled = false,
+    id: idProp,
     largeStep = 10,
     max = 100,
     min = 0,
     minStepsBetweenValues = 0,
+    name,
     onValueChange,
     onValueCommitted,
     orientation = 'horizontal',
@@ -155,7 +156,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const controlRef: React.MutableRefObject<HTMLElement | null> = React.useRef(null);
 
-  const id = useId(idProp);
+  const id = useBaseUiId(idProp);
 
   useEnhancedEffect(() => {
     setControlId(id);
@@ -415,10 +416,11 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       mergeReactProps(getValidationProps(externalProps), {
         'aria-labelledby': ariaLabelledby,
         dir: direction,
+        id,
         ref: handleRootRef,
         role: 'group',
       }),
-    [ariaLabelledby, direction, getValidationProps, handleRootRef],
+    [ariaLabelledby, direction, getValidationProps, handleRootRef, id],
   );
 
   return React.useMemo(
@@ -489,8 +491,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 }
 
 export namespace useSliderRoot {
-  export type Direction = 'ltr' | 'rtl';
-
   export type Orientation = 'horizontal' | 'vertical';
 
   export interface Parameters {
@@ -510,7 +510,7 @@ export namespace useSliderRoot {
      * Sets the direction. For right-to-left languages, the lowest value is on the right-hand side.
      * @default 'ltr'
      */
-    direction?: Direction;
+    direction: TextDirection;
     /**
      * If `true`, the component is disabled.
      * @default false
@@ -610,7 +610,7 @@ export namespace useSliderRoot {
       event: React.KeyboardEvent | React.ChangeEvent,
     ) => void;
     dragging: boolean;
-    direction: Direction;
+    direction: TextDirection;
     disabled: boolean;
     getFingerNewValue: (args: {
       finger: { x: number; y: number };

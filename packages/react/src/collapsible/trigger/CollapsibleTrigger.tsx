@@ -22,11 +22,12 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   props: CollapsibleTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, disabled = false, id, render, ...otherProps } = props;
 
   const { panelId, open, setOpen, state } = useCollapsibleRootContext();
 
   const { getRootProps } = useCollapsibleTrigger({
+    disabled,
     panelId,
     open,
     setOpen,
@@ -64,6 +65,14 @@ CollapsibleTrigger.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  disabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
   /**
    * A function to customize rendering of the component.
    */

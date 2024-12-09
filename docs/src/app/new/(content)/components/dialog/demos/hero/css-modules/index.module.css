@@ -1,47 +1,51 @@
-.Trigger,
-.Close {
+.Button {
   box-sizing: border-box;
   display: flex;
-  padding: 0.5rem 0.875rem;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0 0.875rem;
   margin: 0;
-  border: none;
+  outline: 0;
+  border: 1px solid var(--color-gray-200);
   border-radius: 0.375rem;
   background-color: var(--color-gray-50);
-  font: inherit;
+  font-family: inherit;
+  font-size: 1rem;
   font-weight: 500;
-  color: var(--color-gray-950);
-  outline: 1px solid var(--color-gray-200);
+  line-height: 1.5rem;
+  color: var(--color-gray-900);
   user-select: none;
-
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
-  }
 
   @media (hover: hover) {
     &:hover {
       background-color: var(--color-gray-100);
     }
   }
-}
 
-.Close {
-  margin-left: auto;
+  &:active {
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
 }
 
 .Backdrop {
-  box-sizing: border-box;
   position: fixed;
   inset: 0;
   background-color: black;
   opacity: 0.2;
-  transition: opacity 150ms ease-out;
+  transition: opacity 150ms cubic-bezier(0.45, 1.005, 0, 1.005);
 
   @media (prefers-color-scheme: dark) {
     opacity: 0.7;
   }
 
-  &[data-entering],
-  &[data-exiting] {
+  &[data-starting-style],
+  &[data-ending-style] {
     opacity: 0;
   }
 }
@@ -52,26 +56,28 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 320px;
-  max-width: calc(100vw - 48px);
+  width: 24rem;
+  max-width: calc(100vw - 3rem);
   margin-top: -2rem;
   padding: 1.5rem;
   border-radius: 0.5rem;
-  border: 1px solid var(--color-gray-300);
+  outline: 1px solid var(--color-gray-200);
   background-color: var(--color-gray-50);
-  color: var(--color-gray-950);
-  outline: 0;
+  color: var(--color-gray-900);
   transition: all 150ms;
 
-  &[data-entering],
-  &[data-exiting] {
+  @media (prefers-color-scheme: dark) {
+    outline: 1px solid var(--color-gray-300);
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.9);
   }
 }
 
 .Title {
-  box-sizing: border-box;
   margin-top: -0.375rem;
   margin-bottom: 0.25rem;
   font-size: 1.125rem;
@@ -81,7 +87,14 @@
 }
 
 .Description {
-  box-sizing: border-box;
-  margin: 0 0 1rem;
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
   color: var(--color-gray-600);
+}
+
+.Actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
 }

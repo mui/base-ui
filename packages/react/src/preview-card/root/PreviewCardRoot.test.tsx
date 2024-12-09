@@ -7,7 +7,7 @@ import { createRenderer } from '#test-utils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
 function Root(props: PreviewCard.Root.Props) {
-  return <PreviewCard.Root animated={false} {...props} />;
+  return <PreviewCard.Root {...props} />;
 }
 
 function Trigger(props: PreviewCard.Trigger.Props) {
@@ -192,6 +192,8 @@ describe('<PreviewCard.Root />', () => {
         animationFinished = true;
       };
 
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
       function Test() {
         const style = `
           @keyframes test-anim {
@@ -204,7 +206,7 @@ describe('<PreviewCard.Root />', () => {
             opacity: 1;
           }
 
-          .animation-test-popup[data-exiting] {
+          .animation-test-popup[data-ending-style] {
             animation: test-anim 50ms;
           }
         `;
@@ -240,6 +242,8 @@ describe('<PreviewCard.Root />', () => {
       });
 
       expect(animationFinished).to.equal(true);
+
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 

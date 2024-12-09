@@ -22,11 +22,11 @@ export function useMenuPositioner(
   const {
     positionerStyles,
     arrowStyles,
-    hidden,
+    anchorHidden,
     arrowRef,
     arrowUncentered,
     renderedSide,
-    renderedAlignment,
+    renderedAlign,
     positionerContext: floatingContext,
   } = useAnchorPositioning(params);
 
@@ -34,7 +34,7 @@ export function useMenuPositioner(
     (externalProps = {}) => {
       const hiddenStyles: React.CSSProperties = {};
 
-      if ((keepMounted && !open) || hidden) {
+      if (keepMounted && !open) {
         hiddenStyles.pointerEvents = 'none';
       }
 
@@ -47,7 +47,7 @@ export function useMenuPositioner(
         },
       });
     },
-    [keepMounted, open, hidden, positionerStyles, mounted],
+    [keepMounted, open, positionerStyles, mounted],
   );
 
   return React.useMemo(
@@ -57,8 +57,9 @@ export function useMenuPositioner(
       arrowUncentered,
       arrowStyles,
       side: renderedSide,
-      alignment: renderedAlignment,
+      align: renderedAlign,
       floatingContext,
+      anchorHidden,
     }),
     [
       getPositionerProps,
@@ -66,8 +67,9 @@ export function useMenuPositioner(
       arrowUncentered,
       arrowStyles,
       renderedSide,
-      renderedAlignment,
+      renderedAlign,
       floatingContext,
+      anchorHidden,
     ],
   );
 }
@@ -107,15 +109,15 @@ export namespace useMenuPositioner {
      */
     sideOffset?: number;
     /**
-     * The alignment of the Menu element to the anchor element along its cross axis.
+     * The align of the Menu element to the anchor element along its cross axis.
      * @default 'center'
      */
-    alignment?: 'start' | 'end' | 'center';
+    align?: 'start' | 'end' | 'center';
     /**
-     * The offset of the Menu element along its alignment axis.
+     * The offset of the Menu element along its align axis.
      * @default 0
      */
-    alignmentOffset?: number;
+    alignOffset?: number;
     /**
      * The boundary that the Menu element should be constrained to.
      * @default 'clipping-ancestors'
@@ -126,12 +128,6 @@ export namespace useMenuPositioner {
      * @default 5
      */
     collisionPadding?: Padding;
-    /**
-     * If `true`, the Menu will be hidden if it is detached from its anchor element due to
-     * differing clipping contexts.
-     * @default false
-     */
-    hideWhenDetached?: boolean;
     /**
      * Whether the menu popup remains mounted in the DOM while closed.
      * @default false
@@ -184,9 +180,9 @@ export namespace useMenuPositioner {
      */
     side: 'top' | 'right' | 'bottom' | 'left';
     /**
-     * The rendered alignment of the Menu element.
+     * The rendered align of the Menu element.
      */
-    alignment: 'start' | 'end' | 'center';
+    align: 'start' | 'end' | 'center';
     /**
      * The styles to apply to the Menu arrow element.
      */
@@ -195,5 +191,9 @@ export namespace useMenuPositioner {
      * The floating context.
      */
     floatingContext: FloatingContext;
+    /**
+     * Determines if the anchor element is hidden.
+     */
+    anchorHidden: boolean;
   }
 }

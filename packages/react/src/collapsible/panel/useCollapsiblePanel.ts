@@ -1,25 +1,18 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { hasComputedStyleMapSupport } from '../../utils/hasComputedStyleMapSupport';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerWindow } from '../../utils/owner';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useForkRef } from '../../utils/useForkRef';
-import { useId } from '../../utils/useId';
-
-let cachedSupportsComputedStyleMap: boolean | undefined;
-
-function supportsComputedStyleMap(element: HTMLElement) {
-  if (cachedSupportsComputedStyleMap === undefined) {
-    cachedSupportsComputedStyleMap = 'computedStyleMap' in element;
-  }
-  return cachedSupportsComputedStyleMap;
-}
+import { useOnMount } from '../../utils/useOnMount';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 
 function getAnimationNameFromComputedStyles(element: HTMLElement) {
-  if (supportsComputedStyleMap(element)) {
+  if (hasComputedStyleMapSupport()) {
     const styleMap = element.computedStyleMap();
     const animationName = styleMap.get('animation-name');
     return (animationName as CSSKeywordValue)?.value ?? undefined;
@@ -57,18 +50,18 @@ export function useCollapsiblePanel(
   parameters: useCollapsiblePanel.Parameters,
 ): useCollapsiblePanel.ReturnValue {
   const {
-    animated = false,
-    hiddenUntilFound = false,
-    id: idParam,
+    hiddenUntilFound,
+    panelId,
+    keepMounted,
     open,
-    mounted: contextMounted,
+    mounted,
     ref,
     setPanelId,
     setMounted: setContextMounted,
     setOpen,
   } = parameters;
 
-  const id = useId(idParam);
+  const id = useBaseUiId(panelId);
 
   const panelRef = React.useRef<HTMLElement | null>(null);
 
@@ -106,11 +99,40 @@ export function useCollapsiblePanel(
 
   const runOnceAnimationsFinish = useAnimationsFinished(panelRef);
 
-  const isOpen = animated ? open || contextMounted : open;
-
-  const isInitialOpenRef = React.useRef(isOpen);
+  const isOpen = open || mounted;
 
   const isBeforeMatchRef = React.useRef(false);
+  const isInitialOpenAnimationRef = React.useRef(isOpen);
+
+  const registerCssTransitionListeners = React.useCallback(() => {
+    const element = panelRef.current;
+
+    if (!element) {
+      return undefined;
+    }
+
+    function handleTransitionRun() {
+      isTransitioningRef.current = true;
+    }
+
+    function handleTransitionEnd() {
+      isTransitioningRef.current = false;
+    }
+
+    function handleTransitionCancel() {
+      isTransitioningRef.current = false;
+    }
+
+    element.addEventListener('transitioncancel', handleTransitionCancel);
+    element.addEventListener('transitionend', handleTransitionEnd);
+    element.addEventListener('transitionrun', handleTransitionRun);
+
+    return () => {
+      element.removeEventListener('transitioncancel', handleTransitionCancel);
+      element.removeEventListener('transitionend', handleTransitionEnd);
+      element.removeEventListener('transitionrun', handleTransitionRun);
+    };
+  }, []);
 
   useEnhancedEffect(() => {
     const { current: element } = panelRef;
@@ -120,21 +142,30 @@ export function useCollapsiblePanel(
 
     if (element) {
       const isBeforeMatch = isBeforeMatchRef.current;
-      const isInitiallyOpen = isInitialOpenRef.current;
+      const isInitialOpenAnimation = isInitialOpenAnimationRef.current;
       const isTransitioning = isTransitioningRef.current;
+
       const originalAnimationName =
         element.style.animationName === 'none' ? '' : element.style.animationName;
       const originalTransitionDuration = originalTransitionDurationStyleRef.current;
+
       // cancel animation/transitions for these specific instances:
-      // 1. when initially open, on mount/load, it should just appear fully open but remain animated per styles afterwards
-      // 2. when using `hidden='until-found'` and is opened by find-in-page, it should open instantly but remain animated //    as styled afterwards
-      const shouldCancelAnimation = isBeforeMatch || isInitiallyOpen;
+      // 1. when initially open, on mount/load, it should just appear fully open
+      //    but remain animated per styles afterwards
+      // 2. when using `hidden='until-found'` and is opened by find-in-page, it
+      //    should open instantly but remain animated //    as styled afterwards
+      const shouldCancelAnimation = isBeforeMatch || isInitialOpenAnimation;
 
       element.style.animationName = 'none';
 
-      const isClosed = !open && !contextMounted;
+      const isClosed = !open && !mounted;
 
       if (!isTransitioning || isClosed) {
+        if (!keepMounted) {
+          // when keepMounted is false the panel does not exist in the DOM so transition
+          // listeners need to be eagerly registered here before any state change
+          registerCssTransitionListeners();
+        }
         const rect = isClosed ? { height: 0, width: 0 } : element.getBoundingClientRect();
         setDimensions({
           height: rect.height,
@@ -166,16 +197,23 @@ export function useCollapsiblePanel(
       cancelAnimationFrame(frame1);
       cancelAnimationFrame(frame2);
     };
-  }, [open, contextMounted, runOnceAnimationsFinish, setContextMounted]);
+  }, [
+    mounted,
+    keepMounted,
+    open,
+    registerCssTransitionListeners,
+    runOnceAnimationsFinish,
+    setContextMounted,
+  ]);
 
-  React.useEffect(() => {
-    const { current: element } = panelRef;
+  useOnMount(() => {
+    const element = panelRef.current;
 
     let frame2 = -1;
     let frame3 = -1;
 
     const frame = requestAnimationFrame(() => {
-      isInitialOpenRef.current = false;
+      isInitialOpenAnimationRef.current = false;
 
       if (element) {
         frame2 = requestAnimationFrame(() => {
@@ -192,36 +230,9 @@ export function useCollapsiblePanel(
       cancelAnimationFrame(frame2);
       cancelAnimationFrame(frame3);
     };
-  }, []);
+  });
 
-  React.useEffect(function registerCssTransitionListeners() {
-    const { current: element } = panelRef;
-    if (!element) {
-      return undefined;
-    }
-
-    function handleTransitionRun() {
-      isTransitioningRef.current = true;
-    }
-
-    function handleTransitionEnd() {
-      isTransitioningRef.current = false;
-    }
-
-    function handleTransitionCancel() {
-      isTransitioningRef.current = false;
-    }
-
-    element.addEventListener('transitioncancel', handleTransitionCancel);
-    element.addEventListener('transitionend', handleTransitionEnd);
-    element.addEventListener('transitionrun', handleTransitionRun);
-
-    return () => {
-      element.removeEventListener('transitioncancel', handleTransitionCancel);
-      element.removeEventListener('transitionend', handleTransitionEnd);
-      element.removeEventListener('transitionrun', handleTransitionRun);
-    };
-  }, []);
+  useOnMount(registerCssTransitionListeners);
 
   // if `hidden="until-found"` content is revealed by browser's in-page search
   // we need to manually sync the open state
@@ -286,28 +297,30 @@ export function useCollapsiblePanel(
       getRootProps,
       height,
       width,
+      isOpen,
     }),
-    [getRootProps, height, width],
+    [getRootProps, height, width, isOpen],
   );
 }
 
 export namespace useCollapsiblePanel {
   export interface Parameters {
     /**
-     * If `true`, the component supports CSS/JS-based animations and transitions.
-     * @default false
+     * If `true`, sets the hidden state using `hidden="until-found"`. The panel
+     * remains mounted in the DOM when closed and overrides `keepMounted`.
+     * If `false`, sets the hidden state using `hidden`.
      */
-    animated?: boolean;
+    hiddenUntilFound: boolean;
+    panelId: React.HTMLAttributes<Element>['id'];
     /**
-     * If `true`, sets `hidden="until-found"` when closed.
-     * If `false`, sets `hidden` when closed.
-     * @default false
+     * If `true` the panel remains mounted in the DOM when closed and is hidden
+     * using the HTML `hidden` attribute.
+     * Using `hiddenUntilFound` overrides this and forces `keepMounted={true}`
      */
-    hiddenUntilFound?: boolean;
-    id?: React.HTMLAttributes<Element>['id'];
+    keepMounted: boolean;
     mounted: boolean;
     /**
-     * The open state of the Collapsible
+     * The open state of the Collapsible.
      */
     open: boolean;
     ref: React.Ref<HTMLElement>;
@@ -322,5 +335,9 @@ export namespace useCollapsiblePanel {
     ) => React.ComponentPropsWithRef<'button'>;
     height: number;
     width: number;
+    /**
+     * The open state of the panel, that accounts for animation/transition status.
+     */
+    isOpen: boolean;
   }
 }

@@ -6,9 +6,9 @@ import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { usePopoverArrow } from './usePopoverArrow';
-import type { Alignment, Side } from '../../utils/useAnchorPositioning';
+import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * Renders an arrow that points to the center of the anchor element.
@@ -28,7 +28,7 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
   const { className, render, hideWhenUncentered = false, ...otherProps } = props;
 
   const { open } = usePopoverRootContext();
-  const { arrowRef, side, alignment, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
 
   const { getArrowProps } = usePopoverArrow({
     arrowStyles,
@@ -39,10 +39,10 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
     () => ({
       open,
       side,
-      alignment,
+      align,
       arrowUncentered,
     }),
-    [open, side, alignment, arrowUncentered],
+    [open, side, align, arrowUncentered],
   );
 
   const mergedRef = useForkRef(arrowRef, forwardedRef);
@@ -54,7 +54,7 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
     state,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: popupOpenStateMapping,
+    customStyleHookMapping: popupStateMapping,
   });
 
   return renderElement();
@@ -64,7 +64,7 @@ namespace PopoverArrow {
   export interface State {
     open: boolean;
     side: Side;
-    alignment: Alignment;
+    align: Align;
     arrowUncentered: boolean;
   }
 

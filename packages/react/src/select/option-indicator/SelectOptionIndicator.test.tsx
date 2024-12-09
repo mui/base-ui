@@ -9,7 +9,7 @@ describe('<Select.OptionIndicator />', () => {
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(
-        <Select.Root open animated={false}>
+        <Select.Root open>
           <Select.Trigger>
             <Select.Value />
           </Select.Trigger>

@@ -3,7 +3,8 @@ import * as React from 'react';
 import { UseCheckboxGroupParent } from '../parent/useCheckboxGroupParent';
 
 export interface CheckboxGroupRootContext {
-  value: string[];
+  value: string[] | undefined;
+  defaultValue: string[] | undefined;
   setValue: (value: string[], event: Event) => void;
   allValues: string[] | undefined;
   parent: UseCheckboxGroupParent.ReturnValue;
@@ -17,6 +18,8 @@ if (process.env.NODE_ENV !== 'production') {
   CheckboxGroupRootContext.displayName = 'CheckboxGroupRootContext';
 }
 
+export function useCheckboxGroupRootContext(optional: false): CheckboxGroupRootContext;
+export function useCheckboxGroupRootContext(optional?: true): CheckboxGroupRootContext | undefined;
 export function useCheckboxGroupRootContext(optional = true) {
   const context = React.useContext(CheckboxGroupRootContext);
   if (context === undefined && !optional) {

@@ -2,13 +2,13 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { GenericHTMLProps } from '../../utils/types';
 
 export function usePopoverTitle(params: usePopoverTitle.Parameters): usePopoverTitle.ReturnValue {
   const { titleId, setTitleId } = params;
 
-  const id = useId(titleId);
+  const id = useBaseUiId(titleId);
 
   const getTitleProps = React.useCallback(
     (externalProps = {}) => {

@@ -79,38 +79,32 @@
   opacity: calc(pow(0.95, var(--nested-dialogs)));
 
   &.withTransitions {
-    transform: translate(-50%, -35%) scale(0.8, calc(pow(0.95, var(--nested-dialogs))))
-      translateY(calc(-30px * var(--nested-dialogs)));
-    visibility: hidden;
-    opacity: 0;
     transition:
       transform var(--transition-duration) ease-in,
-      opacity var(--transition-duration) ease-in,
-      visibility var(--transition-duration) step-end;
+      opacity var(--transition-duration) ease-in;
+
+    &[data-ending-style] {
+      transform: translate(-50%, -35%) scale(0.8, calc(pow(0.95, var(--nested-dialogs))))
+        translateY(calc(-30px * var(--nested-dialogs)));
+      opacity: 0;
+    }
 
     &[data-open] {
-      @starting-style {
-        & {
-          transform: translate(-50%, -35%) scale(0.8) translateY(0);
-          opacity: 0;
-        }
+      &[data-starting-style] {
+        transform: translate(-50%, -35%) scale(0.8) translateY(0);
+        opacity: 0;
       }
 
-      visibility: visible;
-      opacity: 1;
       transform: translate(-50%, -50%) scale(calc(pow(0.95, var(--nested-dialogs))))
         translateY(calc(-30px * var(--nested-dialogs)));
       transition:
         transform var(--transition-duration) ease-out,
-        opacity var(--transition-duration) ease-out,
-        visibility var(--transition-duration) step-start;
+        opacity var(--transition-duration) ease-out;
     }
   }
 
   &.withAnimations {
     transform: translate(-50%, -35%) scale(0.8, 0.9) translateY(0);
-    visibility: hidden;
-    opacity: 0;
 
     &[data-open] {
       animation:
@@ -121,7 +115,7 @@
       transition: transform var(--transition-duration) ease-out;
     }
 
-    &[data-exiting] {
+    &[data-ending-style] {
       animation: dialog-closing var(--transition-duration) ease-in forwards;
     }
   }
@@ -139,9 +133,6 @@
   z-index: 0;
   position: fixed;
   inset: 0;
-  opacity: 0;
-  visibility: hidden;
-  backdrop-filter: blur(1px);
 
   &.withTransitions {
     transition:
@@ -150,11 +141,9 @@
       visibility 300ms step-end;
 
     &[data-open] {
-      @starting-style {
-        & {
-          opacity: 0;
-          backdrop-filter: blur(1px);
-        }
+      &[data-starting-style] {
+        opacity: 0;
+        backdrop-filter: blur(1px);
       }
 
       backdrop-filter: blur(6px);
@@ -171,7 +160,7 @@
       animation: backdrop-opening 500ms ease-out forwards;
     }
 
-    &[data-exiting] {
+    &[data-ending-style] {
       animation: backdrop-closing 500ms ease-in forwards;
     }
   }

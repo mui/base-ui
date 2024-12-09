@@ -10,7 +10,7 @@ import {
 } from '@floating-ui/react';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
 import { type TransitionStatus, useTransitionStatus } from '../../utils';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -18,7 +18,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
-import { useUnmountAfterExitAnimation } from '../../utils/useUnmountAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
@@ -28,7 +28,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     alignOptionToTrigger: alignOptionToTriggerParam = true,
   } = params;
 
-  const id = useId();
+  const id = useBaseUiId();
 
   const { setDirty, validityData, validationMode } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
@@ -72,7 +72,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
   const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, params.animated);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const alignOptionToTrigger = Boolean(mounted && controlledAlignOptionToTrigger && !touchModality);
 
@@ -94,11 +94,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     setOpenUnwrapped(nextOpen);
   });
 
-  useUnmountAfterExitAnimation({
+  useAfterExitAnimation({
     open,
-    animated: params.animated || true,
     animatedElementRef: popupRef,
-    setMounted,
+    onFinished: () => setMounted(false),
   });
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
@@ -278,13 +277,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
 export namespace useSelectRoot {
   export interface Parameters<Value> {
-    /**
-     * If `true`, the Select supports CSS-based animations and transitions.
-     * It is kept in the DOM until the animation completes.
-     *
-     * @default true
-     */
-    animated?: boolean;
     /**
      * The name of the Select in the owning form.
      */

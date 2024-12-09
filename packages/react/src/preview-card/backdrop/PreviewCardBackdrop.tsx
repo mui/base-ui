@@ -4,21 +4,20 @@ import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
-import { usePreviewCardBackdrop } from './usePreviewCardBackdrop';
 import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.State> = {
   ...baseMapping,
   transitionStatus(value) {
     if (value === 'entering') {
-      return { 'data-entering': '' } as Record<string, string>;
+      return { 'data-starting-style': '' } as Record<string, string>;
     }
     if (value === 'exiting') {
-      return { 'data-exiting': '' };
+      return { 'data-ending-style': '' };
     }
     return null;
   },
@@ -38,10 +37,9 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   props: PreviewCardBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = false, container, ...otherProps } = props;
+  const { render, className, keepMounted = false, container, ...other } = props;
 
   const { open, mounted, transitionStatus } = usePreviewCardRootContext();
-  const { getBackdropProps } = usePreviewCardBackdrop();
 
   const state: PreviewCardBackdrop.State = React.useMemo(
     () => ({
@@ -52,12 +50,11 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getBackdropProps,
     render: render ?? 'div',
     className,
     state,
     ref: forwardedRef,
-    extraProps: otherProps,
+    extraProps: { role: 'presentation', hidden: !mounted, ...other },
     customStyleHookMapping,
   });
 

@@ -8,11 +8,7 @@ describe('<PreviewCard.Trigger />', () => {
   describeConformance(<PreviewCard.Trigger />, () => ({
     refInstanceof: window.HTMLAnchorElement,
     render(node) {
-      return render(
-        <PreviewCard.Root open animated={false}>
-          {node}
-        </PreviewCard.Root>,
-      );
+      return render(<PreviewCard.Root open>{node}</PreviewCard.Root>);
     },
   }));
 });

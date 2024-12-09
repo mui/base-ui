@@ -5,7 +5,6 @@ import { describeConformance } from '../../../test/describeConformance';
 import { CollapsibleRootContext } from '../root/CollapsibleRootContext';
 
 const contextValue: CollapsibleRootContext = {
-  animated: false,
   panelId: 'PanelId',
   disabled: false,
   mounted: true,
@@ -17,6 +16,7 @@ const contextValue: CollapsibleRootContext = {
   state: {
     open: true,
     disabled: false,
+    hidden: false,
     transitionStatus: undefined,
   },
 };

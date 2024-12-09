@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor, describeSkipIf } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { createRenderer } from '#test-utils';
+
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<Dialog.Root />', () => {
   const { render } = createRenderer();
@@ -11,7 +13,7 @@ describe('<Dialog.Root />', () => {
   describe('uncontrolled mode', () => {
     it('should open the dialog with the trigger', async () => {
       const { queryByRole, getByRole } = await render(
-        <Dialog.Root modal={false} animated={false}>
+        <Dialog.Root modal={false}>
           <Dialog.Trigger />
           <Dialog.Popup />
         </Dialog.Root>,
@@ -31,7 +33,7 @@ describe('<Dialog.Root />', () => {
   describe('controlled mode', () => {
     it('should open and close the dialog with the `open` prop', async () => {
       const { queryByRole, setProps } = await render(
-        <Dialog.Root open={false} modal={false} animated={false}>
+        <Dialog.Root open={false} modal={false}>
           <Dialog.Popup />
         </Dialog.Root>,
       );
@@ -82,6 +84,8 @@ describe('<Dialog.Root />', () => {
         this?.skip?.() || t?.skip();
       }
 
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
       let animationFinished = false;
       const notifyAnimationFinished = () => {
         animationFinished = true;
@@ -99,7 +103,7 @@ describe('<Dialog.Root />', () => {
             opacity: 1;
           }
 
-          .animation-test-popup[data-exiting] {
+          .animation-test-popup[data-ending-style] {
             animation: test-anim 50ms;
           }
         `;
@@ -131,6 +135,86 @@ describe('<Dialog.Root />', () => {
       });
 
       expect(animationFinished).to.equal(true);
+
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+  });
+
+  describeSkipIf(isJSDOM)('prop: modal', () => {
+    it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
+      const { user } = await render(
+        <div>
+          <input data-testid="input" />
+          <textarea data-testid="textarea" />
+
+          <Dialog.Root modal>
+            <Dialog.Trigger>Open Dialog</Dialog.Trigger>
+            <Dialog.Popup>
+              <Dialog.Close>Close Dialog</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Root>
+
+          <button type="button">Another Button</button>
+        </div>,
+      );
+
+      const outsideElements = [
+        screen.getByTestId('input'),
+        screen.getByTestId('textarea'),
+        screen.getByRole('button', { name: 'Another Button' }),
+      ];
+
+      const trigger = screen.getByRole('button', { name: 'Open Dialog' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        outsideElements.forEach((element) => {
+          // The `inert` attribute can be applied to the element itself or to an ancestor
+          expect(element.closest('[inert]')).not.to.equal(null);
+        });
+      });
+
+      const close = screen.getByRole('button', { name: 'Close Dialog' });
+      await user.click(close);
+
+      await waitFor(() => {
+        outsideElements.forEach((element) => {
+          expect(element.closest('[inert]')).to.equal(null);
+        });
+      });
+    });
+
+    it('does not make other interactive elements on the page inert when a non-modal dialog is open', async () => {
+      const { user } = await render(
+        <div>
+          <input data-testid="input" />
+          <textarea data-testid="textarea" />
+
+          <Dialog.Root modal={false}>
+            <Dialog.Trigger>Open Dialog</Dialog.Trigger>
+            <Dialog.Popup>
+              <Dialog.Close>Close Dialog</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Root>
+
+          <button type="button">Another Button</button>
+        </div>,
+      );
+
+      const outsideElements = [
+        screen.getByTestId('input'),
+        screen.getByTestId('textarea'),
+        screen.getByRole('button', { name: 'Another Button' }),
+      ];
+
+      const trigger = screen.getByRole('button', { name: 'Open Dialog' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        outsideElements.forEach((element) => {
+          expect(element.closest('[inert]')).to.equal(null);
+        });
+      });
     });
   });
 
@@ -152,7 +236,6 @@ describe('<Dialog.Root />', () => {
               onOpenChange={handleOpenChange}
               dismissible={dismissible}
               modal={false}
-              animated={false}
             >
               <Dialog.Popup />
             </Dialog.Root>
@@ -173,50 +256,44 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('prop: animated', () => {
+  it('waits for the exit transition to finish before unmounting', async function test(t = {}) {
     const css = `
     .dialog {
       opacity: 0;
       transition: opacity 200ms;
     }
-
     .dialog[data-open] {
       opacity: 1;
     }
   `;
 
-    it('when `true`, waits for the exit transition to finish before unmounting', async () => {
-      const notifyTransitionEnd = spy();
+    if (/jsdom/.test(window.navigator.userAgent)) {
+      // @ts-expect-error to support mocha and vitest
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      this?.skip?.() || t?.skip();
+    }
 
-      const { setProps, queryByRole } = await render(
-        <Dialog.Root open modal={false} animated>
-          {/* eslint-disable-next-line react/no-danger */}
-          <style dangerouslySetInnerHTML={{ __html: css }} />
-          <Dialog.Popup className="dialog" onTransitionEnd={notifyTransitionEnd} />
-        </Dialog.Root>,
-      );
+    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
 
-      setProps({ open: false });
-      expect(queryByRole('dialog')).not.to.equal(null);
+    const notifyTransitionEnd = spy();
 
-      await waitFor(() => {
-        expect(queryByRole('dialog')).to.equal(null);
-      });
+    const { setProps, queryByRole } = await render(
+      <Dialog.Root open modal={false}>
+        {/* eslint-disable-next-line react/no-danger */}
+        <style dangerouslySetInnerHTML={{ __html: css }} />
+        <Dialog.Popup className="dialog" onTransitionEnd={notifyTransitionEnd} />
+      </Dialog.Root>,
+    );
 
-      expect(notifyTransitionEnd.callCount).to.equal(1);
-    });
+    setProps({ open: false });
+    expect(queryByRole('dialog')).not.to.equal(null);
 
-    it('when `false`, unmounts the popup immediately', async () => {
-      const { setProps, queryByRole } = await render(
-        <Dialog.Root open modal={false} animated={false}>
-          {/* eslint-disable-next-line react/no-danger */}
-          <style dangerouslySetInnerHTML={{ __html: css }} />
-          <Dialog.Popup className="dialog" />
-        </Dialog.Root>,
-      );
-
-      setProps({ open: false });
+    await waitFor(() => {
       expect(queryByRole('dialog')).to.equal(null);
     });
+
+    expect(notifyTransitionEnd.callCount).to.equal(1);
+
+    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
   });
 });

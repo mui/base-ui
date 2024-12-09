@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Menu component
 description: The Menu component provide end users with a list of options on temporary surfaces.
-components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, SubmenuTrigger, MenuArrow, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuCheckboxItem, MenuCheckboxItemIndicator, MenuGroup, MenuGroupLabel
+components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, MenuSubmenuTrigger, MenuArrow, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuCheckboxItem, MenuCheckboxItemIndicator, MenuGroup, MenuGroupLabel, MenuBackdrop
 githubLabel: 'component: menu'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
 ---
@@ -25,6 +25,7 @@ Menus are implemented using a collection of related components:
 
 - `<Menu.Root />` is a top-level component that facilitates communication between other components. It does not render to the DOM.
 - `<Menu.Trigger />` is an optional component (a button by default) that, when clicked, shows the menu. When not used, menu can be shown programmatically using the `open` prop.
+- `<Menu.Backdrop />` renders an optional backdrop element behind the menu popup.
 - `<Menu.Positioner />` renders the element responsible for positioning the popup.
 - `<Menu.Popup />` is the menu popup.
 - `<Menu.Item />` is the menu item.
@@ -42,6 +43,8 @@ Menus are implemented using a collection of related components:
 ```tsx
 <Menu.Root>
   <Menu.Trigger />
+
+  <Menu.Backdrop />
 
   <Menu.Positioner>
     <Menu.Popup>
@@ -84,12 +87,12 @@ By default, the menu is placed on the bottom side of its trigger, the default an
 </Menu.Root>
 ```
 
-You can also change the alignment of the menu in relation to its anchor. By default, aligned to the leading edge of an anchor, but it can be configured otherwise using the `alignment` prop:
+You can also change the align of the menu in relation to its anchor. By default, aligned to the leading edge of an anchor, but it can be configured otherwise using the `align` prop:
 
 ```jsx
 <Menu.Root>
   <Menu.Trigger />
-  <Menu.Positioner side="right" alignment="end">
+  <Menu.Positioner side="right" align="end">
     <Menu.Popup>
       <Menu.Item>Item 1</Menu.Item>
     </Menu.Popup>
@@ -97,27 +100,27 @@ You can also change the alignment of the menu in relation to its anchor. By defa
 </Menu.Root>
 ```
 
-Due to collision detection, the menu may change its placement to avoid overflow. Therefore, your explicitly specified `side` and `alignment` props act as "ideal", or preferred, values.
+Due to collision detection, the menu may change its placement to avoid overflow. Therefore, your explicitly specified `side` and `align` props act as "ideal", or preferred, values.
 
 To access the true rendered values, which may change as the result of a collision, the menu element receives data attributes:
 
 ```jsx
 // Rendered HTML (simplified)
 <div>
-  <div data-side="left" data-alignment="end">
+  <div data-side="left" data-align="end">
     <div>Item 1</div>
   </div>
 </div>
 ```
 
-This allows you to conditionally style the menu based on its rendered side or alignment.
+This allows you to conditionally style the menu based on its rendered side or align.
 
 ## Offset
 
-The `sideOffset` prop creates a gap between the anchor and menu popup, while `alignmentOffset` slides the menu popup from its alignment, acting logically for `start` and `end` alignments.
+The `sideOffset` prop creates a gap between the anchor and menu popup, while `alignOffset` slides the menu popup from its align, acting logically for `start` and `end` aligns.
 
 ```jsx
-<Menu.Positioner sideOffset={10} alignmentOffset={10}>
+<Menu.Positioner sideOffset={10} alignOffset={10}>
 ```
 
 ## Orientation
@@ -279,6 +282,22 @@ To visually separate items, use the `Menu.Separator` component:
 The Menu.Separator is a re-exported Separator component.
 See the [Separator docs](/components/react-separator) to learn about its API.
 
+## RTL
+
+To change direction for right-to-left languages, place the menu in [`DirectionProvider`](/components/react-direction-provider) with the `direction="rtl"` prop to configure RTL behavior, and set the `dir` attribute accordingly in your HTML to affect styling:
+
+```jsx
+<html dir="rtl">
+  <body>
+    <DirectionProvider direction="rtl">
+      <Menu.Root>{/* Subcomponents */}</Menu.Root>
+    </DirectionProvider>
+  </body>
+</html>
+```
+
+In a RTL menu, <kbd>Left Arrow</kbd> opens submenus while <kbd>Right Arrow</kbd> closes them.
+
 ## Animations
 
 The menu can animate when opening or closing with either:
@@ -302,40 +321,28 @@ Here is an example of how to apply a symmetric scale and fade transition with th
   transform-origin: var(--transform-origin);
   transition-property: opacity, transform;
   transition-duration: 0.2s;
-  /* Represents the final styles once exited */
-  opacity: 0;
-  transform: scale(0.9);
-}
-
-/* Represents the final styles once entered */
-.MenuPopup[data-open] {
-  opacity: 1;
-  transform: scale(1);
 }
 
 /* Represents the initial styles when entering */
-.MenuPopup[data-entering] {
+.MenuPopup[data-starting-style],
+.MenuPopup[data-ending-style] {
   opacity: 0;
   transform: scale(0.9);
 }
 ```
 
-Styles need to be applied in three states:
-
-- The exiting styles, placed on the base element class
-- The open styles, placed on the base element class with `[data-open]`
-- The entering styles, placed on the base element class with `[data-entering]`
+`[data-starting-style]` and `[data-ending-style]` are attributes that are added to the popup when it is first inserted to the DOM and when it is about to be removed, respectively. In these states, you can specify the initial and final styles of the popup, which for symmetric transitions should be the same.
 
 In newer browsers, there is a feature called `@starting-style` which allows transitions to occur on open for conditionally-mounted components:
 
 ```css
 /* Base UI API - Polyfill */
-.MenuPopup[data-entering] {
+.MenuPopup[data-starting-style] {
   opacity: 0;
   transform: scale(0.9);
 }
 
-/* Official Browser API - no Firefox support as of May 2024 */
+/* Official Browser API */
 @starting-style {
   .MenuPopup[data-open] {
     opacity: 0;
@@ -367,7 +374,7 @@ CSS animations can also be used, requiring only two separate declarations:
   animation: scale-in 0.2s forwards;
 }
 
-.MenuPopup[data-exiting] {
+.MenuPopup[data-ending-style] {
   animation: scale-out 0.2s forwards;
 }
 ```
@@ -410,8 +417,8 @@ function App() {
 Four states are available as data attributes to animate the popup, which enables full control depending on whether the popup is being animated with CSS transitions or animations, JavaScript, or is using the `keepMounted` prop.
 
 - `[data-open]` - `open` state is `true`.
-- `[data-entering]` - the popup was just inserted to the DOM. The attribute is removed 1 animation frame later. Enables "starting styles" upon insertion for conditional rendering.
-- `[data-exiting]` - the popup is in the process of being removed from the DOM, but is still mounted.
+- `[data-starting-style]` - the popup was just inserted to the DOM. The attribute is removed 1 animation frame later.
+- `[data-ending-style]` - the popup's final styles once it closes.
 
 ## Overriding default components
 

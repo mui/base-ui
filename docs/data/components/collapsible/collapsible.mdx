@@ -14,7 +14,7 @@ packageName: '@base-ui-components/react'
 
 <ComponentLinkHeader design={false} />
 
-<Demo demo="UnstyledCollapsibleIntroduction" />
+<Demo demo="CollapsibleIntroduction" />
 
 ## Installation
 
@@ -26,10 +26,21 @@ packageName: '@base-ui-components/react'
 - `<Collapsible.Trigger />` is the trigger element, a `<button>` by default, that toggles the open/closed state of the panel
 - `<Collapsible.Panel />` is component that contains the Collapsible's contents
 
-```js
+```jsx
 <Collapsible.Root>
   <Collapsible.Trigger>Toggle</Collapsible.Trigger>
   <Collapsible.Panel>This is the content</Collapsible.Panel>
+</Collapsible.Root>
+```
+
+## Hidden state
+
+`<Collapsible.Panel />` is unmounted from the DOM by default when the component is closed. You can use the `keepMounted` prop to to keep it mounted when closed, and instead rely on the `hidden` attribute to hide the content:
+
+```jsx
+<Collapsible.Root>
+  <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+  <Collapsible.Panel keepMounted>{/* content */}</Collapsible.Panel>
 </Collapsible.Root>
 ```
 
@@ -43,7 +54,7 @@ packageName: '@base-ui-components/react'
 
 Content hidden in the `Collapsible.Panel` component can be made accessible only to a browser's find-in-page functionality with the `hiddenUntilFound` prop to improve searchability:
 
-```js
+```jsx
 <Collapsible.Root defaultOpen={false}>
   <Collapsible.Trigger>Toggle</Collapsible.Trigger>
   <Collapsible.Panel hiddenUntilFound>
@@ -53,7 +64,9 @@ Content hidden in the `Collapsible.Panel` component can be made accessible only 
 </Collapsible.Root>
 ```
 
-We recommend using [CSS animations](#css-animations) for animated collapsibles that use this feature. Currently there is browser bug that does not highlight the found text inside elements that have a [CSS transition](#css-transitions) applied.
+When `hiddenUntilFound` is used, the `Panel` remains mounted even when closed, overriding the `keepMounted` prop.
+
+[CSS animations](#css-animations) are recommended for animated collapsibles that use this feature. Currently there is browser bug that does not highlight the found text inside elements that have a [CSS transition](#css-transitions) applied.
 
 This relies on the HTML `hidden="until-found"` attribute which only has [partial browser support](https://caniuse.com/mdn-html_global_attributes_hidden_until-found_value) as of August 2024, but automatically falls back to the default `hidden` state in unsupported browsers.
 
@@ -64,8 +77,8 @@ This relies on the HTML `hidden="until-found"` attribute which only has [partial
 Three states are available as data attributes to animate the Collapsible:
 
 - `[data-open]` - `open` state is `true`.
-- `[data-entering]` - the `hidden` attribute was just removed from the DOM and the panel element participates in page layout. The `data-entering` attribute will be removed 1 animation frame later.
-- `[data-exiting]` - the panel element is in the process of being hidden from the DOM, but is still mounted.
+- `[data-starting-style]` - the `hidden` attribute was just removed from the DOM and the panel element participates in page layout. The `data-starting-style` attribute will be removed 1 animation frame later.
+- `[data-ending-style]` - the panel element is in the process of being hidden from the DOM, but is still mounted.
 
 The component can be animate when opening or closing using either:
 
@@ -121,7 +134,7 @@ When using CSS transitions, styles for the `Panel` must be applied to three stat
 
 - The exiting styles, placed on the base element class
 - The open styles, placed on the base element class with `[data-state="open"]`
-- The entering styles, placed on the base element class with `[data-entering]`
+- The entering styles, placed on the base element class with `[data-starting-style]`
 
 ```css
 .CollapsiblePanel {
@@ -138,7 +151,7 @@ When using CSS transitions, styles for the `Panel` must be applied to three stat
 }
 
 /* The initial styles when opening/entering */
-.CollapsiblePanel[data-entering] {
+.CollapsiblePanel[data-starting-style] {
   height: 0;
 }
 ```
@@ -147,15 +160,16 @@ When using CSS transitions, styles for the `Panel` must be applied to three stat
 
 ### JavaScript Animations
 
-When using external libraries for animation, for example `framer-motion`, be aware that Collapsible hides content using the HTML `hidden` attribute in the closed state, and does not unmount the `Collapsible.Panel` subcomponent.
+Use the `keepMounted` prop lets an external library control the mounting, for example `framer-motion`:
 
-```js
+```jsx
 function App() {
   const [open, setOpen] = useState(false);
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       <Collapsible.Trigger>Toggle</Collapsible.Trigger>
       <Collapsible.Panel
+        keepMounted
         render={
           <motion.div
             key="CollapsiblePanel"
@@ -185,7 +199,7 @@ function App() {
 
 ## Overriding default components
 
-Use the `render` prop to override the rendered elements with your own components. The `Collapsible.Root` component does not render an element to the DOM by default, but can do so with the render prop:
+Use the `render` prop to override the rendered elements with your own components.
 
 ```jsx
 // Element shorthand
@@ -195,4 +209,11 @@ Use the `render` prop to override the rendered elements with your own components
 ```jsx
 // Function
 <Collapsible.Root render={(props) => <MyCollapsibleRoot {...props} />} />
+```
+
+The `Collapsible.Root` component can optionally not render an element to the DOM by passing `null` to the render prop:
+
+```jsx
+// does not render an element, only its children
+<Collapsible.Root render={null} />
 ```

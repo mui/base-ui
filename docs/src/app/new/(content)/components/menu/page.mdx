@@ -1,0 +1,49 @@
+# Menu
+
+<Subtitle>A list of actions in a dropdown, enhanced with keyboard navigation.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React menu component that displays list of actions in a dropdown, enhanced with keyboard navigation."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component and place its parts the following way:
+
+```jsx title="Anatomy"
+import { Menu } from '@base-ui-components/react/menu';
+
+<Menu.Root>
+  <Menu.Trigger />
+  <Menu.Positioner>
+    <Menu.Popup>
+      <Menu.Arrow />
+      <Menu.Item />
+      <Menu.Separator />
+      <Menu.Group>
+        <Menu.GroupLabel />
+      </Menu.Group>
+      <Menu.RadioGroup>
+        <Menu.RadioItem />
+      </Menu.RadioGroup>
+      <Menu.CheckboxItem />
+
+      {/* Submenu */}
+      <Menu.Root>
+        <Menu.SubmenuTrigger />
+        <Menu.Positioner>
+          <Menu.Popup>...</Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Root>
+    </Menu.Popup>
+  </Menu.Positioner>
+</Menu.Root>;
+```
+
+<Reference
+  component="Menu"
+  parts="Root, Trigger, Positioner, Popup, Arrow, Item,  Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator, SubmenuTrigger"
+/>
+{/* TODO: Separator is missing */}

@@ -3,21 +3,21 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
-import { useDialogBackdrop } from '../../dialog/backdrop/useDialogBackdrop';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { HTMLElementType } from '../../utils/proptypes';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> = {
   ...baseMapping,
   transitionStatus: (value) => {
     if (value === 'entering') {
-      return { 'data-entering': '' } as Record<string, string>;
+      return { 'data-starting-style': '' } as Record<string, string>;
     }
     if (value === 'exiting') {
-      return { 'data-exiting': '' };
+      return { 'data-ending-style': '' };
     }
     return null;
   },
@@ -37,32 +37,29 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   props: AlertDialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = false, ...other } = props;
-  const { open, hasParentDialog, animated } = useAlertDialogRootContext();
+  const { render, className, keepMounted = false, container, ...other } = props;
+  const { open, hasParentDialog, mounted, transitionStatus } = useAlertDialogRootContext();
 
-  const { getRootProps, mounted, transitionStatus } = useDialogBackdrop({
-    animated,
-    open,
-    ref: forwardedRef,
-  });
-
-  const state: AlertDialogBackdrop.State = { open, transitionStatus };
+  const state: AlertDialogBackdrop.State = React.useMemo(
+    () => ({
+      open,
+      transitionStatus,
+    }),
+    [open, transitionStatus],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
     state,
-    propGetter: getRootProps,
-    extraProps: other,
+    ref: forwardedRef,
+    extraProps: { role: 'presentation', hidden: !mounted, ...other },
     customStyleHookMapping,
   });
 
-  if (!mounted && !keepMounted) {
-    return null;
-  }
-
-  if (hasParentDialog) {
-    // no need to render nested backdrops
+  // no need to render nested backdrops
+  const shouldRender = (keepMounted || mounted) && !hasParentDialog;
+  if (!shouldRender) {
     return null;
   }
 
@@ -77,6 +74,11 @@ namespace AlertDialogBackdrop {
      * @default false
      */
     keepMounted?: boolean;
+    /**
+     * The container element to which the backdrop is appended to.
+     * @default false
+     */
+    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 
   export interface State {
@@ -98,6 +100,14 @@ AlertDialogBackdrop.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * The container element to which the backdrop is appended to.
+   * @default false
+   */
+  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    HTMLElementType,
+    PropTypes.func,
+  ]),
   /**
    * If `true`, the backdrop element is kept in the DOM when closed.
    *

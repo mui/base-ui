@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
@@ -27,7 +28,6 @@ import {
   VERTICAL_KEYS,
   VERTICAL_KEYS_WITH_EXTRA_KEYS,
   type Dimensions,
-  type TextDirection,
 } from '../composite';
 
 export interface UseCompositeRootParameters {
@@ -37,6 +37,7 @@ export interface UseCompositeRootParameters {
   highlightedIndex?: number;
   onHighlightedIndexChange?: (index: number) => void;
   dense?: boolean;
+  direction?: TextDirection;
   itemSizes?: Array<Dimensions>;
   rootRef?: React.Ref<Element>;
   /**
@@ -66,6 +67,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     loop = true,
     dense = false,
     orientation = 'both',
+    direction,
     highlightedIndex: externalHighlightedIndex,
     onHighlightedIndexChange: externalSetHighlightedIndex,
     rootRef: externalRef,
@@ -82,7 +84,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     externalSetHighlightedIndex ?? internalSetHighlightedIndex,
   );
 
-  const textDirectionRef = React.useRef<TextDirection | null>(null);
+  const textDirectionRef = React.useRef<TextDirection | null>(direction ?? null);
 
   const rootRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(rootRef, externalRef);
@@ -105,10 +107,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             return;
           }
 
-          const isRtl =
-            textDirectionRef?.current == null
-              ? getTextDirection(element) === 'rtl'
-              : textDirectionRef.current === 'rtl';
+          if (textDirectionRef?.current == null) {
+            textDirectionRef.current = getTextDirection(element);
+          }
+          const isRtl = textDirectionRef.current === 'rtl';
 
           let nextIndex = highlightedIndex;
           const minIndex = getMinIndex(elementsRef, disabledIndices);

@@ -2,8 +2,8 @@
 productId: base-ui
 title: React Tabs components
 description: Tabs organize groups of related content and let users navigate between them.
-components: TabsRoot, TabPanel, Tab, TabsList, TabIndicator
-hooks: useTabsRoot, useTabPanel, useTab, useTabsList, useTabIndicator
+components: TabsRoot, TabsTabPanel, TabsTab, TabsList, TabsTabIndicator
+hooks: useTabsRoot, useTabsTabPanel, useTabsTab, useTabsList, useTabsTabIndicator
 githubLabel: 'component: tabs'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
 packageName: '@base-ui-components/react'
@@ -153,6 +153,20 @@ Base UI Tabs follow the [Tabs WAI-ARIA design pattern](https://www.w3.org/WAI/A
 | <kbd>Up Arrow</kbd>                | Moves focus to the previous tab (when `orientation="vertical"`) and activates it if `activateOnFocus` is set.   |
 | <kbd>Down Arrow</kbd>              | Moves focus to the next tab (when `orientation="vertical"`) and activates it if `activateOnFocus` is set.       |
 | <kbd>Space</kbd>, <kbd>Enter</kbd> | Activates the focused tab.                                                                                      |
+
+## RTL
+
+To change direction for right-to-left languages, place horizontal tabs in [`DirectionProvider`](/components/react-direction-provider) with the `direction="rtl"` prop to configure RTL behavior, and set the `dir` attribute accordingly in your HTML to affect styling:
+
+```jsx
+<html dir="rtl">
+  <body>
+    <DirectionProvider direction="rtl">
+      <Tabs.Root orientation="horizontal" /> {/* RTL keyboard behavior */}
+    </DirectionProvider>
+  </body>
+</html>
+```
 
 ### Labeling
 

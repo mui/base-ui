@@ -9,19 +9,20 @@ import { refType, HTMLElementType } from '../../utils/proptypes';
 import { type BaseUIComponentProps } from '../../utils/types';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { popupOpenStateMapping as baseMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
+import { DialogPopupCssVars } from './DialogPopupCssVars';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
   ...baseMapping,
   nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
   transitionStatus: (value) => {
     if (value === 'entering') {
-      return { 'data-entering': '' } as Record<string, string>;
+      return { 'data-starting-style': '' } as Record<string, string>;
     }
     if (value === 'exiting') {
-      return { 'data-exiting': '' };
+      return { 'data-ending-style': '' };
     }
     return null;
   },
@@ -103,7 +104,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     propGetter: getRootProps,
     extraProps: {
       ...other,
-      style: { ...other.style, '--nested-dialogs': nestedOpenDialogCount },
+      style: { ...other.style, [DialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount },
     },
     customStyleHookMapping,
   });
@@ -121,6 +122,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
         closeOnFocusOut={dismissible}
         initialFocus={resolvedInitialFocus}
         returnFocus={finalFocus}
+        outsideElementsInert
       >
         {renderElement()}
       </FloatingFocusManager>

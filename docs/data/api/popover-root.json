@@ -1,6 +1,5 @@
 {
   "props": {
-    "animated": { "type": { "name": "bool" }, "default": "true" },
     "closeDelay": { "type": { "name": "number" }, "default": "0" },
     "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
     "delay": { "type": { "name": "number" }, "default": "300" },

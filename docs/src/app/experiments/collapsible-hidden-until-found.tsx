@@ -1,16 +1,12 @@
 'use client';
 import * as React from 'react';
 import { Collapsible } from '@base-ui-components/react/collapsible';
-import classes from './collapsible.module.css';
-
-function classNames(...c: Array<string | undefined | null | false>) {
-  return c.filter(Boolean).join(' ');
-}
+import c from './collapsible.module.css';
 
 export default function CollapsibleHiddenUntilFound() {
   return (
     <React.Fragment>
-      <pre className={classes.pre}>
+      <pre className={c.pre}>
         All 3 Collapsibles contain the text &quot;May the force be with you&quot; but
         only the content in the 2nd and 3rd Collapsible will be revealed by the
         browser&apos;s in-page search (e.g. Ctrl/Cmd-F) in{' '}
@@ -29,47 +25,51 @@ export default function CollapsibleHiddenUntilFound() {
         that instance is matched. It only occurs with transitions, not @keyframe
         animations.
       </pre>
-      <div className={classes.wrapper}>
-        <Collapsible.Root defaultOpen={false}>
-          <Collapsible.Trigger className={classes.trigger}>
-            <ExpandMoreIcon className={classes.icon} />
-            Trigger 1
-          </Collapsible.Trigger>
-          <Collapsible.Panel
-            className={classNames(classes.panel, classes.transition)}
-          >
-            <p>This is the collapsed content</p>
-            <p>May the force be with you</p>
-          </Collapsible.Panel>
-        </Collapsible.Root>
+      <div className={c.wrapper}>
+        <div className={c.transition}>
+          <div className={c.collapsible}>
+            <Collapsible.Root defaultOpen={false}>
+              <Collapsible.Trigger className={c.trigger}>
+                <ExpandMoreIcon />
+                Trigger 1
+              </Collapsible.Trigger>
+              <Collapsible.Panel className={c.panel}>
+                <p>This is the collapsed content</p>
+                <p>May the force be with you</p>
+              </Collapsible.Panel>
+            </Collapsible.Root>
+          </div>
+        </div>
 
-        <Collapsible.Root defaultOpen={false}>
-          <Collapsible.Trigger className={classes.trigger}>
-            <ExpandMoreIcon className={classes.icon} />
-            Trigger 2
-          </Collapsible.Trigger>
-          <Collapsible.Panel
-            className={classNames(classes.panel, classes.animation)}
-            hiddenUntilFound
-          >
-            <p>This is the collapsed content</p>
-            <p>May the force be with you</p>
-          </Collapsible.Panel>
-        </Collapsible.Root>
+        <div className={c.animation}>
+          <div className={c.collapsible}>
+            <Collapsible.Root defaultOpen={false}>
+              <Collapsible.Trigger className={c.trigger}>
+                <ExpandMoreIcon />
+                Trigger 2
+              </Collapsible.Trigger>
+              <Collapsible.Panel className={c.panel} hiddenUntilFound>
+                <p>This is the collapsed content</p>
+                <p>May the force be with you</p>
+              </Collapsible.Panel>
+            </Collapsible.Root>
+          </div>
+        </div>
 
-        <Collapsible.Root defaultOpen={false}>
-          <Collapsible.Trigger className={classes.trigger}>
-            <ExpandMoreIcon className={classes.icon} />
-            Trigger 3
-          </Collapsible.Trigger>
-          <Collapsible.Panel
-            className={classNames(classes.panel, classes.transition)}
-            hiddenUntilFound
-          >
-            <p>This is the collapsed content</p>
-            <p>May the force be with you</p>
-          </Collapsible.Panel>
-        </Collapsible.Root>
+        <div className={c.transition}>
+          <div className={c.collapsible}>
+            <Collapsible.Root defaultOpen={false}>
+              <Collapsible.Trigger className={c.trigger}>
+                <ExpandMoreIcon />
+                Trigger 3
+              </Collapsible.Trigger>
+              <Collapsible.Panel className={c.panel} hiddenUntilFound>
+                <p>This is the collapsed content</p>
+                <p>May the force be with you</p>
+              </Collapsible.Panel>
+            </Collapsible.Root>
+          </div>
+        </div>
       </div>
     </React.Fragment>
   );

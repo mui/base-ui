@@ -1,12 +1,10 @@
 {
   "props": {
-    "animated": { "type": { "name": "bool" }, "default": "true" },
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "defaultOpen": { "type": { "name": "bool" }, "default": "true" },
+    "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "onOpenChange": { "type": { "name": "func" } },
-    "open": { "type": { "name": "bool" } },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+    "open": { "type": { "name": "bool" } }
   },
   "name": "CollapsibleRoot",
   "imports": [

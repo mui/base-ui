@@ -1,0 +1,250 @@
+@layer components {
+  .MobileNavBackdrop {
+    position: fixed;
+    inset: 0;
+    height: 100dvh;
+
+    transition-duration: 600ms;
+    transition-property: -webkit-backdrop-filter, backdrop-filter, opacity;
+    transition-timing-function: var(--ease-out-fast);
+    -webkit-backdrop-filter: blur(1.5px);
+    backdrop-filter: blur(1.5px);
+    background-image: linear-gradient(to bottom, transparent 2rem, rgb(0 0 0 / 5%) 50%);
+
+    @media (prefers-color-scheme: dark) {
+      background-image: linear-gradient(to bottom, transparent, rgb(0 0 0 / 25%) 6rem);
+    }
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      -webkit-backdrop-filter: blur(0px);
+      backdrop-filter: blur(0px);
+      opacity: 0;
+    }
+
+    &[data-ending-style] {
+      transition-duration: 250ms;
+      transition-timing-function: var(--ease-in-slow);
+    }
+  }
+
+  .MobileNavPopup {
+    /* TODO Vlad remove when the backdrop order bug is fixed */
+    z-index: 1;
+    outline: 0;
+
+    position: fixed;
+    inset: 0;
+    height: 100dvh;
+
+    /* Half the transition duration for blur so the element sort of comes into the focus when it's halfway in */
+    transition-duration: 600ms, 300ms;
+    transform-origin: top center;
+    transition-property: transform, filter;
+    transition-timing-function: var(--ease-out-fast);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      transform: translateY(100dvh);
+      filter: blur(1px);
+    }
+
+    &[data-ending-style] {
+      /* Delay the blur transition so it doesn't feel unfocused until halway out */
+      transition-delay: 0ms, 125ms;
+      transition-duration: 250ms;
+      transition-timing-function: var(--ease-in-slow);
+    }
+  }
+
+  .MobileNavViewport {
+    --mobile-nav-item-height: 2.5rem;
+    --mobile-nav-item-padding-x: 1.5rem;
+
+    position: absolute;
+    inset: 0;
+    height: 100dvh;
+    overflow-y: auto;
+
+    @apply text-base;
+
+    /* Native apps don't show scrollbars on sheets like this */
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* A decorative border between the status bar and the page */
+    &::after {
+      content: '';
+      position: fixed;
+      z-index: 1;
+      top: 0;
+      inset-inline: 0;
+      height: 1px;
+      transition: background-color 50ms;
+    }
+    &[data-clipped]::after {
+      background-color: var(--color-gridline);
+    }
+  }
+
+  .MobileNavViewportInner {
+    position: relative;
+
+    /* Prevent children's margin collapse */
+    display: flex;
+    flex-direction: column;
+  }
+
+  .MobileNavBackdropTapArea {
+    position: absolute;
+    inset: 0;
+  }
+
+  .MobileNavPanel {
+    margin-top: var(--header-height);
+    position: relative;
+    padding-block: 1rem;
+
+    border-top-left-radius: var(--radius-xl);
+    border-top-right-radius: var(--radius-xl);
+
+    box-shadow:
+      0 10px 64px -10px rgb(36 40 52 / 20%),
+      0 0.25px 0 1px var(--color-gray-200);
+
+    @media (prefers-color-scheme: dark) {
+      box-shadow: 0 0 0 1px var(--color-gray-200);
+    }
+
+    /* Make bottom overscroll edges soft; visible during extreme rubber band overscroll at the bottom */
+    background-image: linear-gradient(to bottom, var(--color-popup) calc(100% - 2rem), transparent);
+
+    /* Make the panel narrower on wider screens and lose the overscroll gradient hocus pocus for a bottom margin */
+    @media (--sm) {
+      margin-block: 5rem;
+      margin-inline: auto;
+      width: calc(100% - 6rem);
+      max-width: 40rem;
+      background-image: none;
+      background-color: var(--color-popup);
+      border-radius: var(--radius-xl);
+    }
+  }
+
+  /* Smoothly hides bottom overscroll edge */
+  .MobileNavBottomOverscroll {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(to bottom, transparent 30%, var(--color-popup) 50%);
+
+    @media (--sm) {
+      display: none;
+    }
+  }
+
+  .MobileNavSection {
+    margin-bottom: 1rem;
+  }
+
+  .MobileNavHeading {
+    @apply text-lg;
+    font-weight: 500;
+    padding-inline: var(--mobile-nav-item-padding-x);
+
+    .MobileNavHeadingInner {
+      display: flex;
+      align-items: center;
+      height: var(--mobile-nav-item-height);
+    }
+
+    &::after {
+      content: '';
+      display: block;
+      margin-top: -1px;
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+  }
+
+  /* TODO Vlad should headings be just items? */
+  .MobileNavItem {
+    /*
+     * Border is a separate element so that links
+     * span the entire screen width and have the
+     * tap-highlight-color applied edge to edge.
+     */
+    &::after {
+      content: '';
+      display: block;
+      margin-inline: var(--mobile-nav-item-padding-x);
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+  }
+
+  .MobileNavLink {
+    flex-grow: 1;
+    display: flex;
+    gap: 0.675rem;
+    align-items: center;
+    height: var(--mobile-nav-item-height);
+    padding-inline: var(--mobile-nav-item-padding-x);
+
+    &:focus-visible {
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+    }
+
+    @supports not (-webkit-tap-highlight-color: black) {
+      &:active {
+        background-color: var(--color-gray-100);
+      }
+    }
+
+    @supports (-webkit-tap-highlight-color: black) {
+      /* Applying background-color on :active shows it when touching items while scrolling */
+      /* This activates only on real link taps */
+      -webkit-tap-highlight-color: var(--color-gray-300);
+    }
+  }
+}
+
+.MobileNavCloseContainer {
+  position: sticky;
+  top: 0.75rem;
+  left: 100%;
+  margin-right: 0.75rem;
+  height: 0;
+  width: fit-content;
+}
+
+.MobileNavClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gray-500);
+  outline: 0;
+
+  /* Visible circle */
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 100%;
+  background-color: var(--color-gray-200);
+
+  /* Blur the dividers behind */
+  -webkit-backdrop-filter: blur(1rem);
+  backdrop-filter: blur(1rem);
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+
+  /* Tap target */
+  &::after {
+    content: '';
+    width: 3rem;
+    height: 3rem;
+    position: absolute;
+  }
+}

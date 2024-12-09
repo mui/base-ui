@@ -5,7 +5,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
 import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
@@ -32,7 +32,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
 ) {
   const {
     className,
-    disabled: disabledProp,
+    disabled: disabledProp = false,
     onOpenChange: onOpenChangeProp,
     render,
     value: valueProp,
@@ -43,7 +43,6 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   const mergedRef = useForkRef(forwardedRef, listItemRef);
 
   const {
-    animated,
     disabled: contextDisabled,
     handleValueChange,
     state: rootState,
@@ -74,7 +73,6 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   });
 
   const collapsible = useCollapsibleRoot({
-    animated,
     open: isOpen,
     onOpenChange,
     disabled,
@@ -84,9 +82,10 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
+      hidden: !collapsible.mounted,
       transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
+    [collapsible.open, collapsible.disabled, collapsible.mounted, collapsible.transitionStatus],
   );
 
   const collapsibleContext: CollapsibleRootContext = React.useMemo(
@@ -108,7 +107,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     [collapsible.transitionStatus, disabled, index, isOpen, rootState],
   );
 
-  const [triggerId, setTriggerId] = React.useState<string | undefined>(useId());
+  const [triggerId, setTriggerId] = React.useState<string | undefined>(useBaseUiId());
 
   const accordionItemContext: AccordionItemContext = React.useMemo(
     () => ({
@@ -138,9 +137,9 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   );
 });
 
-export namespace AccordionItem {
-  export type Value = number | string;
+export type AccordionItemValue = any | null;
 
+export namespace AccordionItem {
   export interface State extends AccordionRoot.State {
     index: number;
     open: boolean;
@@ -149,8 +148,8 @@ export namespace AccordionItem {
 
   export interface Props
     extends BaseUIComponentProps<'div', State>,
-      Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'> {
-    value?: Value;
+      Partial<Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'>> {
+    value?: AccordionItemValue;
   }
 }
 
@@ -185,5 +184,5 @@ AccordionItem.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  value: PropTypes.any,
 } as any;

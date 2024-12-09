@@ -14,11 +14,10 @@ import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useUnmountAfterExitAnimation } from '../../utils/useUnmountAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
-    animated,
     defaultOpen,
     dismissible,
     modal,
@@ -52,11 +51,10 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     setOpenUnwrapped(nextOpen);
   });
 
-  useUnmountAfterExitAnimation({
+  useAfterExitAnimation({
     open,
-    animated,
     animatedElementRef: popupRef,
-    setMounted,
+    onFinished: () => setMounted(false),
   });
 
   const context = useFloatingRootContext({
@@ -155,13 +153,6 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
 }
 
 export interface CommonParameters {
-  /**
-   * If `true`, the dialog supports CSS-based animations and transitions.
-   * It is kept in the DOM until the animation completes.
-   *
-   * @default true
-   */
-  animated?: boolean;
   /**
    * Determines whether the dialog is open.
    */

@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { NOOP } from '../../utils/noop';
 import { useControlled } from '../../utils/useControlled';
 import { ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT } from '../../composite/composite';
 
@@ -39,13 +38,12 @@ export function useAccordionRoot(
   parameters: useAccordionRoot.Parameters,
 ): useAccordionRoot.ReturnValue {
   const {
-    animated = true,
-    disabled = false,
-    direction = 'ltr',
-    loop = true,
-    onValueChange = NOOP,
-    orientation = 'vertical',
-    openMultiple = true,
+    disabled,
+    direction,
+    loop,
+    onValueChange,
+    orientation,
+    openMultiple,
     value: valueParam,
     defaultValue,
   } = parameters;
@@ -64,16 +62,16 @@ export function useAccordionRoot(
       if (!openMultiple) {
         const nextValue = value[0] === newValue ? [] : [newValue];
         setValue(nextValue);
-        onValueChange(nextValue);
+        onValueChange?.(nextValue);
       } else if (nextOpen) {
         const nextOpenValues = value.slice();
         nextOpenValues.push(newValue);
         setValue(nextOpenValues);
-        onValueChange(nextOpenValues);
+        onValueChange?.(nextOpenValues);
       } else {
         const nextOpenValues = value.filter((v) => v !== newValue);
         setValue(nextOpenValues);
-        onValueChange(nextOpenValues);
+        onValueChange?.(nextOpenValues);
       }
     },
     [onValueChange, openMultiple, setValue, value],
@@ -170,98 +168,79 @@ export function useAccordionRoot(
     () => ({
       getRootProps,
       accordionItemRefs,
-      animated,
       direction,
       disabled,
       handleValueChange,
       orientation,
       value,
     }),
-    [
-      getRootProps,
-      accordionItemRefs,
-      animated,
-      direction,
-      disabled,
-      handleValueChange,
-      orientation,
-      value,
-    ],
+    [getRootProps, accordionItemRefs, direction, disabled, handleValueChange, orientation, value],
   );
 }
 
+export type AccordionValue = (any | null)[];
+
+type Direction = 'ltr' | 'rtl';
+
+export type AccordionOrientation = 'horizontal' | 'vertical';
+
 export namespace useAccordionRoot {
-  export type Value = readonly (string | number)[];
-
-  export type Direction = 'ltr' | 'rtl';
-
-  export type Orientation = 'horizontal' | 'vertical';
-
   export interface Parameters {
     /**
      * The value of the currently open `Accordion.Item`
      * This is the controlled counterpart of `defaultValue`.
      */
-    value?: Value;
+    value?: AccordionValue;
     /**
      * The default value representing the currently open `Accordion.Item`
      * This is the uncontrolled counterpart of `value`.
-     * @default 0
      */
-    defaultValue?: Value;
-    /**
-     * If `true`, the component supports CSS/JS-based animations and transitions.
-     * @default true
-     */
-    animated?: boolean;
+    defaultValue?: AccordionValue;
     /**
      * If `true`, the component is disabled.
      * @default false
      */
-    disabled?: boolean;
-    /**
-     * @default 'ltr'
-     */
-    direction?: Direction;
+    disabled: boolean;
+    direction: Direction;
     /**
      * If `true`, focus will loop when moving focus between `Trigger`s using
      * the arrow keys.
      * @default true
      */
-    loop?: boolean;
+    loop: boolean;
     /**
      * Callback fired when an Accordion section is opened or closed.
      * The value representing the involved section is provided as an argument.
      */
-    onValueChange?: (value: Value) => void;
+    onValueChange: (value: AccordionValue) => void;
     /**
-     * Whether multiple Accordion sections can be opened at the same time
+     * Whether multiple Accordion sections can be opened at the same time.
      * @default true
      */
-    openMultiple?: boolean;
+    openMultiple: boolean;
     /**
+     * The orientation of the accordion.
      * @default 'vertical'
      */
-    orientation?: Orientation;
+    orientation: AccordionOrientation;
   }
 
   export interface ReturnValue {
     getRootProps: (
       externalProps?: React.ComponentPropsWithRef<'div'>,
     ) => React.ComponentPropsWithRef<'div'>;
-    accordionItemRefs: React.MutableRefObject<(HTMLElement | null)[]>;
-    animated: boolean;
+    accordionItemRefs: React.RefObject<(HTMLElement | null)[]>;
     direction: Direction;
     /**
      * The disabled state of the Accordion
      */
     disabled: boolean;
     handleValueChange: (value: number | string, nextOpen: boolean) => void;
-    orientation: Orientation;
+    orientation: AccordionOrientation;
     /**
      * The open state of the Accordion represented by an array of the values
      * of all open `<Accordion.item/>`s
      */
-    value: Value;
+    value: AccordionValue;
   }
 }

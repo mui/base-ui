@@ -1,0 +1,29 @@
+{
+  "componentDescription": "",
+  "propDescriptions": {
+    "aria-label": { "description": "The label for the Toggle." },
+    "aria-labelledby": {
+      "description": "An id or space-separated list of ids of elements that label the Toggle."
+    },
+    "className": {
+      "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
+    },
+    "defaultPressed": {
+      "description": "The default pressed state. Use when the component is not controlled."
+    },
+    "disabled": { "description": "If <code>true</code>, the component is disabled." },
+    "onPressedChange": {
+      "description": "Callback fired when the pressed state is changed.",
+      "typeDescriptions": {
+        "pressed": "The new pressed state.",
+        "event": "The event source of the callback."
+      }
+    },
+    "pressed": { "description": "If <code>true</code>, the component is pressed." },
+    "render": { "description": "A function to customize rendering of the component." },
+    "value": {
+      "description": "A unique string that identifies the component when used inside a ToggleGroup."
+    }
+  },
+  "classDescriptions": {}
+}

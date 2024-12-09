@@ -7,7 +7,7 @@ import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { TabsRoot } from '../root/TabsRoot';
-import { type TabMetadata } from '../tab/useTab';
+import { type TabMetadata } from '../tab/useTabsTab';
 import { useTabsList } from './useTabsList';
 import { TabsListContext } from './TabsListContext';
 
@@ -28,10 +28,10 @@ const TabsList = React.forwardRef(function TabsList(
   const { activateOnFocus = true, className, loop = true, render, ...other } = props;
 
   const {
-    direction = 'ltr',
+    direction,
     getTabElementBySelectedValue,
     onValueChange,
-    orientation = 'horizontal',
+    orientation,
     value,
     setTabMap,
     tabActivationDirection,
@@ -53,11 +53,10 @@ const TabsList = React.forwardRef(function TabsList(
 
   const state: TabsList.State = React.useMemo(
     () => ({
-      direction,
       orientation,
       tabActivationDirection,
     }),
-    [direction, orientation, tabActivationDirection],
+    [orientation, tabActivationDirection],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -94,6 +93,8 @@ const TabsList = React.forwardRef(function TabsList(
         highlightedIndex={highlightedTabIndex}
         enableHomeAndEndKeys
         loop={loop}
+        direction={direction}
+        orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
         render={renderElement()}

@@ -8,11 +8,11 @@ import { AccordionItemContext } from '../item/AccordionItemContext';
 
 const accordionRootContextValue: AccordionRootContext = {
   accordionItemRefs: { current: [] },
-  animated: false,
   direction: 'ltr',
   disabled: false,
   handleValueChange: NOOP,
   hiddenUntilFound: false,
+  keepMounted: false,
   orientation: 'vertical',
   state: {
     value: [0],
@@ -37,7 +37,6 @@ const accordionItemContextValue: AccordionItemContext = {
 };
 
 const collapsibleContextValue: CollapsibleRootContext = {
-  animated: false,
   panelId: ':panel:',
   disabled: false,
   mounted: true,
@@ -49,6 +48,7 @@ const collapsibleContextValue: CollapsibleRootContext = {
   state: {
     open: true,
     disabled: false,
+    hidden: false,
     transitionStatus: undefined,
   },
 };

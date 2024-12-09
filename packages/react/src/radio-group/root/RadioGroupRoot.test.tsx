@@ -1,15 +1,16 @@
 import * as React from 'react';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
 import { Radio } from '@base-ui-components/react/radio';
+import {
+  DirectionProvider,
+  type TextDirection,
+} from '@base-ui-components/react/direction-provider';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, act, screen, fireEvent } from '@mui/internal-test-utils';
-import userEvent from '@testing-library/user-event';
+import { createRenderer, act, screen, fireEvent, describeSkipIf } from '@mui/internal-test-utils';
 import { describeConformance } from '../../../test/describeConformance';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
-
-const user = userEvent.setup();
 
 describe('<RadioGroup.Root />', () => {
   const { render } = createRenderer();
@@ -22,7 +23,6 @@ describe('<RadioGroup.Root />', () => {
   describe('extra props', () => {
     it('can override the built-in attributes', () => {
       const { container } = render(<RadioGroup.Root role="switch" />);
-      // eslint-disable-next-line testing-library/no-node-access
       expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'switch');
     });
   });
@@ -111,7 +111,6 @@ describe('<RadioGroup.Root />', () => {
     const group = screen.getByTestId('root');
     const item = screen.getByTestId('item');
 
-    // eslint-disable-next-line testing-library/no-node-access
     const input = group.querySelector<HTMLInputElement>('input')!;
 
     fireEvent.click(input);
@@ -136,12 +135,12 @@ describe('<RadioGroup.Root />', () => {
     expect(root).to.have.attribute('data-readonly', '');
     expect(root).to.have.attribute('data-required', '');
 
-    expect(item).to.have.attribute('data-radio', 'checked');
+    expect(item).to.have.attribute('data-checked', '');
     expect(item).to.have.attribute('data-disabled', '');
     expect(item).to.have.attribute('data-readonly', '');
     expect(item).to.have.attribute('data-required', '');
 
-    expect(indicator).to.have.attribute('data-radio', 'checked');
+    expect(indicator).to.have.attribute('data-checked', '');
     expect(indicator).to.have.attribute('data-disabled', '');
     expect(indicator).to.have.attribute('data-readonly', '');
     expect(indicator).to.have.attribute('data-required', '');
@@ -150,7 +149,6 @@ describe('<RadioGroup.Root />', () => {
   it('should set the name attribute on the input', () => {
     render(<RadioGroup.Root name="radio-group" />);
     const group = screen.getByRole('radiogroup');
-    // eslint-disable-next-line testing-library/no-node-access
     expect(group.nextElementSibling).to.have.attribute('name', 'radio-group');
   });
 
@@ -198,7 +196,7 @@ describe('<RadioGroup.Root />', () => {
   });
 
   it('should automatically select radio upon navigation', async () => {
-    render(
+    const { user } = await render(
       <RadioGroup.Root>
         <Radio.Root value="a" data-testid="a" />
         <Radio.Root value="b" data-testid="b" />
@@ -222,77 +220,138 @@ describe('<RadioGroup.Root />', () => {
     expect(b).to.have.attribute('aria-checked', 'true');
   });
 
-  it('should manage arrow key navigation', async () => {
-    render(
-      <div>
-        <button data-testid="before" />
-        <RadioGroup.Root>
-          <Radio.Root value="a" data-testid="a" />
-          <Radio.Root value="b" data-testid="b" />
-          <Radio.Root value="c" data-testid="c" />
-        </RadioGroup.Root>
-        <button data-testid="after" />
-      </div>,
-    );
+  describe('should manage arrow key navigation', () => {
+    [
+      ['ltr', 'ArrowRight', 'ArrowLeft'],
+      ['rtl', 'ArrowLeft', 'ArrowRight'],
+    ].forEach((entry) => {
+      const [direction, horizontalNextKey, horizontalPrevKey] = entry;
 
-    const a = screen.getByTestId('a');
-    const b = screen.getByTestId('b');
-    const c = screen.getByTestId('c');
-    const after = screen.getByTestId('after');
+      describeSkipIf(isJSDOM && direction === 'rtl')(direction, () => {
+        it(direction, async () => {
+          const { user } = await render(
+            <DirectionProvider direction={direction as TextDirection}>
+              <button data-testid="before" />
+              <RadioGroup.Root>
+                <Radio.Root value="a" data-testid="a" />
+                <Radio.Root value="b" data-testid="b" />
+                <Radio.Root value="c" data-testid="c" />
+              </RadioGroup.Root>
+              <button data-testid="after" />
+            </DirectionProvider>,
+          );
 
-    act(() => {
-      a.focus();
+          const a = screen.getByTestId('a');
+          const b = screen.getByTestId('b');
+          const c = screen.getByTestId('c');
+          const after = screen.getByTestId('after');
+
+          act(() => {
+            a.focus();
+          });
+
+          expect(a).toHaveFocus();
+
+          await user.keyboard('{ArrowDown}');
+
+          expect(b).toHaveFocus();
+
+          await user.keyboard('{ArrowDown}');
+
+          expect(c).toHaveFocus();
+
+          await user.keyboard('{ArrowDown}');
+
+          expect(a).toHaveFocus();
+
+          await user.keyboard('{ArrowUp}');
+
+          expect(c).toHaveFocus();
+
+          await user.keyboard('{ArrowUp}');
+
+          expect(b).toHaveFocus();
+
+          await user.keyboard('{ArrowUp}');
+
+          expect(a).toHaveFocus();
+
+          await user.keyboard(`{${horizontalPrevKey}}`);
+
+          expect(c).toHaveFocus();
+
+          await user.keyboard(`{${horizontalNextKey}}`);
+
+          expect(a).toHaveFocus();
+
+          await user.tab();
+
+          expect(after).toHaveFocus();
+
+          await user.tab({ shift: true });
+
+          expect(a).toHaveFocus();
+
+          await user.keyboard(`{${horizontalPrevKey}}`);
+
+          expect(c).toHaveFocus();
+
+          await user.tab({ shift: true });
+          await user.tab();
+
+          expect(c).toHaveFocus();
+        });
+      });
     });
+  });
 
-    expect(a).toHaveFocus();
+  describe('style hooks', () => {
+    it('should apply data-checked and data-unchecked to radio root and indicator', () => {
+      render(
+        <RadioGroup.Root>
+          <Radio.Root value="a" data-testid="a">
+            <Radio.Indicator data-testid="indicator-a" />
+          </Radio.Root>
+          <Radio.Root value="b" data-testid="b">
+            <Radio.Indicator data-testid="indicator-b" />
+          </Radio.Root>
+        </RadioGroup.Root>,
+      );
 
-    await user.keyboard('{ArrowDown}');
+      const a = screen.getByTestId('a');
+      const b = screen.getByTestId('b');
+      const indicatorA = screen.getByTestId('indicator-a');
+      const indicatorB = screen.getByTestId('indicator-b');
 
-    expect(b).toHaveFocus();
+      expect(a).to.have.attribute('data-unchecked', '');
+      expect(indicatorA).to.have.attribute('data-unchecked', '');
 
-    await user.keyboard('{ArrowDown}');
+      expect(b).to.have.attribute('data-unchecked', '');
+      expect(indicatorB).to.have.attribute('data-unchecked', '');
 
-    expect(c).toHaveFocus();
+      fireEvent.click(a);
 
-    await user.keyboard('{ArrowDown}');
+      expect(a).to.have.attribute('data-checked', '');
+      expect(indicatorA).to.have.attribute('data-checked', '');
 
-    expect(a).toHaveFocus();
+      expect(b).to.have.attribute('data-unchecked', '');
+      expect(indicatorB).to.have.attribute('data-unchecked', '');
 
-    await user.keyboard('{ArrowUp}');
+      fireEvent.click(b);
 
-    expect(c).toHaveFocus();
+      expect(a).to.have.attribute('data-unchecked', '');
+      expect(indicatorA).to.have.attribute('data-unchecked', '');
 
-    await user.keyboard('{ArrowUp}');
+      expect(b).to.have.attribute('data-checked', '');
+      expect(indicatorB).to.have.attribute('data-checked', '');
 
-    expect(b).toHaveFocus();
+      fireEvent.click(a);
 
-    await user.keyboard('{ArrowUp}');
+      expect(a).to.have.attribute('data-checked', '');
+      expect(indicatorA).to.have.attribute('data-checked', '');
 
-    expect(a).toHaveFocus();
-
-    await user.keyboard('{ArrowLeft}');
-
-    expect(c).toHaveFocus();
-
-    await user.keyboard('{ArrowRight}');
-
-    expect(a).toHaveFocus();
-
-    await user.tab();
-
-    expect(after).toHaveFocus();
-
-    await user.tab({ shift: true });
-
-    expect(a).toHaveFocus();
-
-    await user.keyboard('{ArrowLeft}');
-
-    expect(c).toHaveFocus();
-
-    await user.tab({ shift: true });
-    await user.tab();
-
-    expect(c).toHaveFocus();
+      expect(b).to.have.attribute('data-unchecked', '');
+      expect(indicatorB).to.have.attribute('data-unchecked', '');
+    });
   });
 });

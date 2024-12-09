@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { type TabMetadata } from '../tab/useTab';
+import type { TextDirection } from '../../direction-provider/DirectionContext';
+import { type TabMetadata } from '../tab/useTabsTab';
 import type { TabActivationDirection, TabValue } from './TabsRoot';
 
 export interface TabsRootContext {
@@ -17,13 +18,14 @@ export interface TabsRootContext {
     event: Event,
   ) => void;
   /**
+   * Sets ArrowLeft and ArrowRight behavior based on text direction.
+   * @default 'ltr'
+   */
+  direction: TextDirection;
+  /**
    * The component orientation (layout flow direction).
    */
   orientation: 'horizontal' | 'vertical';
-  /**
-   * The direction of the tabs.
-   */
-  direction: 'ltr' | 'rtl';
   /**
    * Gets the element of the Tab with the given value.
    * @param {any | undefined} value Value to find the tab for.

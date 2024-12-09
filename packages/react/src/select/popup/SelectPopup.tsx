@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { FloatingFocusManager, type Side } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { popupOpenStateMapping } from '../../utils/popupOpenStateMapping';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -13,14 +13,14 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
-  ...popupOpenStateMapping,
+  ...popupStateMapping,
   transitionStatus(value): Record<string, string> | null {
     if (value === 'entering') {
-      return { 'data-entering': '' };
+      return { 'data-starting-style': '' };
     }
 
     if (value === 'exiting') {
-      return { 'data-exiting': '' };
+      return { 'data-ending-style': '' };
     }
 
     return null;
@@ -57,7 +57,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
       open,
       transitionStatus,
       side: positioner.side,
-      alignment: positioner.alignment,
+      align: positioner.align,
     }),
     [open, transitionStatus, positioner],
   );
@@ -111,7 +111,7 @@ namespace SelectPopup {
 
   export interface State {
     side: Side | 'none';
-    alignment: 'start' | 'end' | 'center';
+    align: 'start' | 'end' | 'center';
     open: boolean;
     transitionStatus: TransitionStatus;
   }

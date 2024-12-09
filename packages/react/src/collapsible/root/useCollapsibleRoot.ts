@@ -3,18 +3,12 @@ import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
-import { useId } from '../../utils/useId';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 
 export function useCollapsibleRoot(
   parameters: useCollapsibleRoot.Parameters,
 ): useCollapsibleRoot.ReturnValue {
-  const {
-    animated = true,
-    open: openParam,
-    defaultOpen = true,
-    onOpenChange,
-    disabled = false,
-  } = parameters;
+  const { open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
 
   const [open, setOpenState] = useControlled({
     controlled: openParam,
@@ -23,9 +17,9 @@ export function useCollapsibleRoot(
     state: 'open',
   });
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true);
 
-  const [panelId, setPanelId] = React.useState<string | undefined>(useId());
+  const [panelId, setPanelId] = React.useState<string | undefined>(useBaseUiId());
 
   const setOpen = useEventCallback((nextOpen: boolean) => {
     onOpenChange?.(nextOpen);
@@ -34,7 +28,6 @@ export function useCollapsibleRoot(
 
   return React.useMemo(
     () => ({
-      animated,
       panelId,
       disabled,
       mounted,
@@ -44,17 +37,12 @@ export function useCollapsibleRoot(
       setOpen,
       transitionStatus,
     }),
-    [animated, panelId, disabled, mounted, open, setPanelId, setMounted, setOpen, transitionStatus],
+    [panelId, disabled, mounted, open, setPanelId, setMounted, setOpen, transitionStatus],
   );
 }
 
 export namespace useCollapsibleRoot {
   export interface Parameters {
-    /**
-     * If `true`, the component supports CSS/JS-based animations and transitions.
-     * @default true
-     */
-    animated?: boolean;
     /**
      * If `true`, the Collapsible is initially open.
      * This is the controlled counterpart of `defaultOpen`.
@@ -63,22 +51,21 @@ export namespace useCollapsibleRoot {
     /**
      * If `true`, the Collapsible is initially open.
      * This is the uncontrolled counterpart of `open`.
-     * @default true
+     * @default false
      */
     defaultOpen?: boolean;
     /**
      * Callback fired when the Collapsible is opened or closed.
      */
-    onOpenChange?: (open: boolean) => void;
+    onOpenChange: (open: boolean) => void;
     /**
      * If `true`, the component is disabled.
      * @default false
      */
-    disabled?: boolean;
+    disabled: boolean;
   }
 
   export interface ReturnValue {
-    animated: boolean;
     panelId: React.HTMLAttributes<Element>['id'];
     /**
      * The disabled state of the Collapsible

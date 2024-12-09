@@ -9,11 +9,26 @@
     "hiddenUntilFound": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, sets `hidden=\"until-found\"` when closed.\nIf `false`, sets `hidden` when closed."
+      "description": "If `true`, sets `hidden=\"until-found\"` when closed. Accordion panels\nwill remain mounted in the DOM when closed and overrides `keepMounted`.\nIf `false`, sets `hidden` when closed."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, accordion panels remains mounted when closed and is instead\nhidden using the `hidden` attribute.\nIf `false`, accordion panels are unmounted when closed."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
+    }
+  },
+  "cssVariables": {
+    "--accordion-panel-height": {
+      "description": "The accordion panel's height.",
+      "type": "number"
+    },
+    "--accordion-panel-width": {
+      "description": "The accordion panel's width.",
+      "type": "number"
     }
   }
 }

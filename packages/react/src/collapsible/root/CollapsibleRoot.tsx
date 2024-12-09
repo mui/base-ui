@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { NOOP } from '../../utils/noop';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
@@ -22,22 +23,20 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    animated,
     children,
     className,
-    defaultOpen,
-    disabled,
-    onOpenChange,
+    defaultOpen = false,
+    disabled = false,
+    onOpenChange: onOpenChangeProp,
     open,
     render: renderProp,
     ...otherProps
   } = props;
 
   const collapsible = useCollapsibleRoot({
-    animated,
     open,
     defaultOpen,
-    onOpenChange,
+    onOpenChange: onOpenChangeProp ?? NOOP,
     disabled,
   });
 
@@ -45,9 +44,10 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
+      hidden: !collapsible.mounted,
       transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
+    [collapsible.open, collapsible.disabled, collapsible.mounted, collapsible.transitionStatus],
   );
 
   const contextValue: CollapsibleRootContext = React.useMemo(
@@ -67,17 +67,17 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
-  if (!renderProp) {
+  if (renderProp !== null) {
     return (
       <CollapsibleRootContext.Provider value={contextValue}>
-        {children}
+        {renderElement()}
       </CollapsibleRootContext.Provider>
     );
   }
 
   return (
     <CollapsibleRootContext.Provider value={contextValue}>
-      {renderElement()}
+      {children}
     </CollapsibleRootContext.Provider>
   );
 });
@@ -86,11 +86,15 @@ export { CollapsibleRoot };
 
 export namespace CollapsibleRoot {
   export interface State
-    extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
+    extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {
+    hidden: boolean;
+  }
 
   export interface Props
-    extends useCollapsibleRoot.Parameters,
-      BaseUIComponentProps<'div', State> {}
+    extends Partial<useCollapsibleRoot.Parameters>,
+      Omit<BaseUIComponentProps<'div', State>, 'render'> {
+    render?: BaseUIComponentProps<'div', State>['render'] | null;
+  }
 }
 
 CollapsibleRoot.propTypes /* remove-proptypes */ = {
@@ -98,11 +102,6 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * If `true`, the component supports CSS/JS-based animations and transitions.
-   * @default true
-   */
-  animated: PropTypes.bool,
   /**
    * @ignore
    */
@@ -114,7 +113,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   /**
    * If `true`, the Collapsible is initially open.
    * This is the uncontrolled counterpart of `open`.
-   * @default true
+   * @default false
    */
   defaultOpen: PropTypes.bool,
   /**
@@ -132,7 +131,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
    */
   open: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * @ignore
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

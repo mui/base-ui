@@ -13,7 +13,7 @@ import {
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { OPEN_DELAY } from '../utils/constants';
+import { PATIENT_CLICK_THRESHOLD, OPEN_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
@@ -23,7 +23,7 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useUnmountAfterExitAnimation } from '../../utils/useUnmountAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -33,7 +33,6 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     delay,
     closeDelay,
     openOnHover = false,
-    animated = true,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -45,8 +44,10 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
+  const [clickEnabled, setClickEnabled] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
+  const clickEnabledTimeoutRef = React.useRef(-1);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -54,6 +55,10 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     name: 'Popover',
     state: 'open',
   });
+
+  if (!open && !clickEnabled) {
+    setClickEnabled(true);
+  }
 
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
@@ -66,18 +71,24 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
       if (nextOpen) {
         setOpenReason(reason ?? null);
-      } else {
-        setOpenReason(null);
       }
     },
   );
 
-  useUnmountAfterExitAnimation({
+  useAfterExitAnimation({
     open,
-    animated,
     animatedElementRef: popupRef,
-    setMounted,
+    onFinished: () => {
+      setMounted(false);
+      setOpenReason(null);
+    },
   });
+
+  React.useEffect(() => {
+    return () => {
+      clearTimeout(clickEnabledTimeoutRef.current);
+    };
+  }, []);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -91,7 +102,14 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
         setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
       }
 
-      if (animated && isHover) {
+      if (isHover) {
+        // Prevent impatient clicks from unexpectedly closing the popover.
+        setClickEnabled(false);
+        clearTimeout(clickEnabledTimeoutRef.current);
+        clickEnabledTimeoutRef.current = window.setTimeout(() => {
+          setClickEnabled(true);
+        }, PATIENT_CLICK_THRESHOLD);
+
         ReactDOM.flushSync(changeState);
       } else {
         changeState();
@@ -117,13 +135,20 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       close: closeDelayWithDefault,
     },
   });
-  const click = useClick(context, { stickIfOpen: false });
+
+  const click = useClick(context, {
+    enabled: clickEnabled,
+    stickIfOpen: false,
+  });
+
   const dismiss = useDismiss(context);
+
   const role = useRole(context);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
 
   const { openMethod, triggerProps } = useOpenInteractionType(open);
+
   return React.useMemo(
     () => ({
       open,
@@ -199,12 +224,6 @@ export namespace usePopoverRoot {
      * @default 0
      */
     closeDelay?: number;
-    /**
-     * Whether the popover can animate, adding animation-related attributes and allowing for exit
-     * animations to play. Useful to disable in tests to remove async behavior.
-     * @default true
-     */
-    animated?: boolean;
   }
 
   export interface ReturnValue {
