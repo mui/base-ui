@@ -1,8 +1,0 @@
-{
-  "name": "CheckboxGroupRoot",
-  "props": {
-    "onValueChange": {
-      "type": "(value, event) => void"
-    }
-  }
-}

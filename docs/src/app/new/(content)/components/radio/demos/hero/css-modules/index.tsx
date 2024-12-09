@@ -5,7 +5,7 @@ import styles from './index.module.css';
 
 export default function ExampleRadioGroup() {
   return (
-    <RadioGroup.Root
+    <RadioGroup
       aria-labelledby="apples-caption"
       defaultValue="fuji-apple"
       className={styles.RadioGroup}
@@ -34,6 +34,6 @@ export default function ExampleRadioGroup() {
         </Radio.Root>
         Granny Smith
       </label>
-    </RadioGroup.Root>
+    </RadioGroup>
   );
 }

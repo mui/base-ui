@@ -4,7 +4,7 @@ import { RadioGroup } from '@base-ui-components/react/radio-group';
 
 export default function ExampleRadioGroup() {
   return (
-    <RadioGroup.Root
+    <RadioGroup
       aria-labelledby="apples-caption"
       defaultValue="fuji-apple"
       className="flex flex-col items-start gap-1 text-gray-900"
@@ -42,6 +42,6 @@ export default function ExampleRadioGroup() {
         </Radio.Root>
         Granny Smith
       </label>
-    </RadioGroup.Root>
+    </RadioGroup>
   );
 }

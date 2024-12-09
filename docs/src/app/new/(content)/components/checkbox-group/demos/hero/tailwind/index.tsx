@@ -4,7 +4,7 @@ import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 
 export default function ExampleCheckboxGroup() {
   return (
-    <CheckboxGroup.Root
+    <CheckboxGroup
       aria-labelledby="apples-caption"
       defaultValue={['fuji-apple']}
       className="flex flex-col items-start gap-1 text-gray-900"
@@ -48,7 +48,7 @@ export default function ExampleCheckboxGroup() {
         </Checkbox.Root>
         Granny Smith
       </label>
-    </CheckboxGroup.Root>
+    </CheckboxGroup>
   );
 }
 

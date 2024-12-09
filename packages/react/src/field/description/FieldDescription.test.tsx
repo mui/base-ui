@@ -111,9 +111,9 @@ describe('<Field.Description />', () => {
       it('supports RadioGroup', () => {
         render(
           <Field.Root>
-            <RadioGroup.Root>
+            <RadioGroup>
               <Radio.Root value="1" />
-            </RadioGroup.Root>
+            </RadioGroup>
             <Field.Description data-testid="description" />
           </Field.Root>,
         );

@@ -7,7 +7,7 @@ export default function ExampleForm() {
   const [loading, setLoading] = React.useState(false);
 
   return (
-    <Form.Root
+    <Form
       className="flex flex-col gap-4"
       errors={errors}
       onClearErrors={setErrors}
@@ -47,7 +47,7 @@ export default function ExampleForm() {
       >
         Submit
       </button>
-    </Form.Root>
+    </Form>
   );
 }
 

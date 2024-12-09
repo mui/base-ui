@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useCheckboxGroupRootContext } from '../../checkbox-group/root/CheckboxGroupRootContext';
+import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
@@ -41,7 +41,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ...otherProps
   } = props;
 
-  const groupContext = useCheckboxGroupRootContext();
+  const groupContext = useCheckboxGroupContext();
   const parentContext = groupContext?.parent;
   const isGrouped = parentContext && groupContext.allValues;
 

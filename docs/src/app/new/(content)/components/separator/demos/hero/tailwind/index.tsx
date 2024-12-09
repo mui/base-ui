@@ -29,7 +29,7 @@ export default function ExampleSeparator() {
         Support
       </a>
 
-      <Separator.Root className="w-px bg-gray-300" />
+      <Separator className="w-px bg-gray-300" />
 
       <a
         href="#"

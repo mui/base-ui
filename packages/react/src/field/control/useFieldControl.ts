@@ -5,7 +5,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldControlValidation } from './useFieldControlValidation';
-import { useFormRootContext } from '../../form/root/FormRootContext';
+import { useFormContext } from '../../form/FormContext';
 import { useField } from '../useField';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -15,7 +15,7 @@ export function useFieldControl(params: useFieldControl.Parameters) {
 
   const { setControlId, labelId, setTouched, setDirty, validityData } = useFieldRootContext();
 
-  const { errors, onClearErrors } = useFormRootContext();
+  const { errors, onClearErrors } = useFormContext();
 
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();
