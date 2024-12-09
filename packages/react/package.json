@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.26.0",
-    "@floating-ui/react": "^0.26.28",
+    "@floating-ui/react": "^0.27.0",
     "@floating-ui/utils": "^0.2.8",
     "clsx": "^2.1.1",
     "prop-types": "^15.8.1",
