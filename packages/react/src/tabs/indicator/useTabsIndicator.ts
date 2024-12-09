@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { TabsListContext } from '../tabs-list/TabsListContext';
+import type { TabsListContext } from '../list/TabsListContext';
 import type { TabsRootContext } from '../root/TabsRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';

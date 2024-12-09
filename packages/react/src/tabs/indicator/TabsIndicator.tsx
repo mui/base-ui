@@ -7,7 +7,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { TabsOrientation, TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStyleHookMapping } from '../root/styleHooks';
-import { useTabsListContext } from '../tabs-list/TabsListContext';
+import { useTabsListContext } from '../list/TabsListContext';
 import { ActiveTabPosition, useTabsIndicator } from './useTabsIndicator';
 import { script as prehydrationScript } from './prehydrationScript.min';
 
