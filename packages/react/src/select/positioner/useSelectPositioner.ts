@@ -236,7 +236,7 @@ export namespace useSelectPositioner {
       /**
        * The rendered side of the Select element.
        */
-      side: 'top' | 'right' | 'bottom' | 'left' | 'none';
+      side: Side | 'none';
       /**
        * The rendered align of the Select element.
        */

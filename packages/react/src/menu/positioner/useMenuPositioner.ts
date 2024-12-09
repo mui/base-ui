@@ -177,7 +177,7 @@ export namespace useMenuPositioner {
     /**
      * The rendered side of the Menu element.
      */
-    side: 'top' | 'right' | 'bottom' | 'left';
+    side: Side;
     /**
      * The rendered align of the Menu element.
      */

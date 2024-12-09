@@ -56,7 +56,7 @@ interface UseAnchorPositioningReturnValue {
   arrowStyles: React.CSSProperties;
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
-  renderedSide: PhysicalSide;
+  renderedSide: Side;
   renderedAlign: Align;
   anchorHidden: boolean;
   refs: ReturnType<typeof useFloating>['refs'];
@@ -285,6 +285,17 @@ export function useAnchorPositioning(
   }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
 
   const renderedSide = getSide(renderedPlacement);
+  const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
+  const logicalRight = isRtl ? 'inline-start' : 'inline-end';
+  const logicalLeft = isRtl ? 'inline-end' : 'inline-start';
+  const logicalRenderedSide = (
+    {
+      top: 'top',
+      right: isLogicalSideParam ? logicalRight : 'right',
+      bottom: 'bottom',
+      left: isLogicalSideParam ? logicalLeft : 'left',
+    } satisfies Record<PhysicalSide, Side>
+  )[renderedSide];
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
@@ -305,7 +316,7 @@ export function useAnchorPositioning(
       arrowStyles,
       arrowRef,
       arrowUncentered,
-      renderedSide,
+      renderedSide: logicalRenderedSide,
       renderedAlign,
       anchorHidden,
       refs,
@@ -317,7 +328,7 @@ export function useAnchorPositioning(
       arrowStyles,
       arrowRef,
       arrowUncentered,
-      renderedSide,
+      logicalRenderedSide,
       renderedAlign,
       anchorHidden,
       refs,

@@ -4,7 +4,6 @@ import type {
   Padding,
   FloatingContext,
   FloatingRootContext,
-  Side as PhysicalSide,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
@@ -183,7 +182,7 @@ export namespace usePopoverPositioner {
     /**
      * The rendered side of the popover element.
      */
-    side: PhysicalSide;
+    side: Side;
     /**
      * The rendered align of the popover element.
      */

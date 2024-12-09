@@ -191,7 +191,7 @@ export namespace useTooltipPositioner {
     /**
      * The rendered side of the tooltip element.
      */
-    side: 'top' | 'right' | 'bottom' | 'left';
+    side: Side;
     /**
      * The rendered align of the tooltip element.
      */

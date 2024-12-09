@@ -6,11 +6,11 @@ import {
   FloatingList,
   FloatingNode,
   FloatingPortal,
-  Side,
   useFloatingNodeId,
 } from '@floating-ui/react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import type { Side } from '../../utils/useAnchorPositioning';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuPositioner } from './useMenuPositioner';
