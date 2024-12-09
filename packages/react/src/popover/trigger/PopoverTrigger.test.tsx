@@ -3,7 +3,7 @@ import { Popover } from '@base-ui-components/react/popover';
 import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { IMPATIENT_CLICK_THRESHOLD } from '../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../utils/constants';
 
 describe('<Popover.Trigger />', () => {
   const { render } = createRenderer();
@@ -85,7 +85,7 @@ describe('<Popover.Trigger />', () => {
     });
   });
 
-  describe('impatient clicks', () => {
+  describe('impatient clicks with `openOnHover=true`', () => {
     const { clock, render: renderFakeTimers } = createRenderer();
 
     clock.withFakeTimers();
@@ -101,7 +101,7 @@ describe('<Popover.Trigger />', () => {
 
       fireEvent.mouseEnter(trigger);
 
-      clock.tick(IMPATIENT_CLICK_THRESHOLD - 1);
+      clock.tick(PATIENT_CLICK_THRESHOLD - 1);
 
       await act(async () => {
         trigger.click();
@@ -121,7 +121,7 @@ describe('<Popover.Trigger />', () => {
 
       fireEvent.mouseEnter(trigger);
 
-      clock.tick(IMPATIENT_CLICK_THRESHOLD);
+      clock.tick(PATIENT_CLICK_THRESHOLD);
 
       await act(async () => {
         trigger.click();
