@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { expect } from 'chai';
+import { spy } from 'sinon';
 import { Progress } from '@base-ui-components/react/progress';
 import { createRenderer, describeConformance } from '#test-utils';
 import { ProgressRootContext } from '../root/ProgressRootContext';
@@ -27,4 +29,51 @@ describe('<Progress.Value />', () => {
     },
     refInstanceof: window.HTMLSpanElement,
   }));
+
+  describe('prop: children', () => {
+    it('renders the value when children is not provided', async () => {
+      const { getByTestId } = await render(
+        <Progress.Root value={30}>
+          <Progress.Value data-testid="value" />
+        </Progress.Root>,
+      );
+      const value = getByTestId('value');
+      expect(value).to.have.text('30%');
+    });
+
+    it('renders a formatted value when a format is provided', async () => {
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'USD',
+      };
+      function formatValue(v: number) {
+        return new Intl.NumberFormat(undefined, format).format(v);
+      }
+      const { getByTestId } = await render(
+        <Progress.Root value={30} format={format}>
+          <Progress.Value data-testid="value" />
+        </Progress.Root>,
+      );
+      const value = getByTestId('value');
+      expect(value).to.have.text(formatValue(30));
+    });
+
+    it('accepts a render function', async () => {
+      const renderSpy = spy();
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'USD',
+      };
+      function formatValue(v: number) {
+        return new Intl.NumberFormat(undefined, format).format(v);
+      }
+      await render(
+        <Progress.Root value={30} format={format}>
+          <Progress.Value data-testid="value">{renderSpy}</Progress.Value>
+        </Progress.Root>,
+      );
+      expect(renderSpy.lastCall.args[0]).to.deep.equal(formatValue(30));
+      expect(renderSpy.lastCall.args[1]).to.deep.equal(30);
+    });
+  });
 });
