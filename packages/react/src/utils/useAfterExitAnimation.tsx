@@ -1,3 +1,4 @@
+import * as ReactDOM from 'react-dom';
 import { useAnimationsFinished } from './useAnimationsFinished';
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useEventCallback } from './useEventCallback';
@@ -17,7 +18,9 @@ export function useAfterExitAnimation(parameters: useAfterExitAnimation.Paramete
   useEnhancedEffect(() => {
     function callOnFinished() {
       if (!openRef.current) {
-        onFinished();
+        // Synchronously flush the unmounting of the component so that the browser doesn't
+        // paint: https://github.com/mui/base-ui/issues/979
+        ReactDOM.flushSync(onFinished);
       }
     }
 
