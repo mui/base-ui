@@ -65,10 +65,6 @@ export const nav = [
         href: '/new/components/dialog',
       },
       {
-        label: 'Direction Provider',
-        href: '/new/components/direction-provider',
-      },
-      {
         label: 'Field',
         href: '/new/components/field',
       },
@@ -143,6 +139,15 @@ export const nav = [
       {
         label: 'Tooltip',
         href: '/new/components/tooltip',
+      },
+    ],
+  },
+  {
+    label: 'Utilities',
+    links: [
+      {
+        label: 'Direction Provider',
+        href: '/new/utilities/direction-provider',
       },
     ],
   },

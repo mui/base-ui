@@ -1,6 +1,8 @@
 import { createHighlighter } from 'shiki';
 import rehypePrettyCode from 'rehype-pretty-code';
 import { rehypeInlineCode } from './rehypeInlineCode.mjs';
+import { rehypePrettierIgnore } from './rehypePrettierIgnore.mjs';
+import { rehypeJsxExpressions } from './rehypeJsxExpressions.mjs';
 
 /** @type {Parameters<typeof import('shiki').createHighlighter>[0]['themes'][number] } */
 export const theme = {
@@ -346,5 +348,7 @@ export const rehypeSyntaxHighlighting = [
       defaultLang: 'tsx',
     },
   ],
+  rehypePrettierIgnore,
+  rehypeJsxExpressions,
   rehypeInlineCode,
 ];
