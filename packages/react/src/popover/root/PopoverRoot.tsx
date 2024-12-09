@@ -18,7 +18,7 @@ import { PortalContext } from '../../portal/PortalContext';
  * - [PopoverRoot API](https://base-ui.com/components/react-popover/#api-reference-PopoverRoot)
  */
 const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
-  const { openOnHover = false, delay, closeDelay = 0, animated = true } = props;
+  const { openOnHover = false, delay, closeDelay = 0 } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
 
@@ -46,7 +46,6 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     openOnHover,
     delay: delayWithDefault,
     closeDelay,
-    animated,
     open: props.open,
     onOpenChange: props.onOpenChange,
     defaultOpen: props.defaultOpen,
@@ -123,12 +122,6 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * Whether the popover can animate, adding animation-related attributes and allowing for exit
-   * animations to play. Useful to disable in tests to remove async behavior.
-   * @default true
-   */
-  animated: PropTypes.bool,
   /**
    * @ignore
    */

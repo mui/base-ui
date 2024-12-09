@@ -9,7 +9,7 @@ describe('<Select.ScrollUpArrow />', () => {
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
-        <Select.Root open animated={false}>
+        <Select.Root open>
           <Select.Positioner>{node}</Select.Positioner>
         </Select.Root>,
       );

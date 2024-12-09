@@ -48,6 +48,9 @@ module.exports = {
 
     // This rule doesn't recognise <label> wrapped around custom controls
     'jsx-a11y/label-has-associated-control': 'off',
+
+    // An overzealous rule that shouts at <a href="#"> in demos.
+    'jsx-a11y/anchor-is-valid': 'off',
   },
   overrides: [
     ...baseline.overrides.filter(

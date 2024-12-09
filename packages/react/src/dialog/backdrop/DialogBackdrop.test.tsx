@@ -10,7 +10,7 @@ describe('<Dialog.Backdrop />', () => {
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
       return render(
-        <Dialog.Root open modal={false} animated={false}>
+        <Dialog.Root open modal={false}>
           {node}
         </Dialog.Root>,
       );
@@ -19,7 +19,7 @@ describe('<Dialog.Backdrop />', () => {
 
   it('has role="presentation"', async () => {
     const { getByTestId } = await render(
-      <Dialog.Root open animated={false}>
+      <Dialog.Root open>
         <Dialog.Backdrop data-testid="backdrop" />
       </Dialog.Root>,
     );

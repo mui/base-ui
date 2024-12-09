@@ -8,11 +8,7 @@ describe('<Select.Positioner />', () => {
   describeConformance(<Select.Positioner />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(
-        <Select.Root open animated={false}>
-          {node}
-        </Select.Root>,
-      );
+      return render(<Select.Root open>{node}</Select.Root>);
     },
   }));
 });

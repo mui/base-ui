@@ -1,0 +1,28 @@
+# Scroll Area
+
+<Subtitle>A native scroll container with custom scrollbars.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React scroll area that provides a native scroll container with custom scrollbars."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component and place its parts the following way:
+
+```jsx title="Anatomy"
+import { ScrollArea } from '@base-ui-components/react/scroll-area';
+
+<ScrollArea.Root>
+  <ScrollArea.Viewport />
+  <ScrollArea.Scrollbar>
+    <ScrollArea.Thumb />
+  </ScrollArea.Scrollbar>
+  <ScrollArea.Corner />
+</ScrollArea.Root>;
+```
+
+<Reference component="ScrollArea" parts="Root, Viewport, Scrollbar, Thumb, Corner" />

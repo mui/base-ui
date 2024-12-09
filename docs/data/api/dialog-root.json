@@ -1,6 +1,5 @@
 {
   "props": {
-    "animated": { "type": { "name": "bool" }, "default": "true" },
     "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
     "dismissible": { "type": { "name": "bool" }, "default": "true" },
     "modal": { "type": { "name": "bool" }, "default": "true" },

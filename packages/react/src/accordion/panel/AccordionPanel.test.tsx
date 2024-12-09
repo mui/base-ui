@@ -8,7 +8,6 @@ import { AccordionItemContext } from '../item/AccordionItemContext';
 
 const accordionRootContextValue: AccordionRootContext = {
   accordionItemRefs: { current: [] },
-  animated: false,
   direction: 'ltr',
   disabled: false,
   handleValueChange: NOOP,
@@ -38,7 +37,6 @@ const accordionItemContextValue: AccordionItemContext = {
 };
 
 const collapsibleContextValue: CollapsibleRootContext = {
-  animated: false,
   panelId: ':panel:',
   disabled: false,
   mounted: true,

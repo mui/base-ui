@@ -29,6 +29,14 @@ import { Menu } from '@base-ui-components/react/menu';
         <Menu.RadioItem />
       </Menu.RadioGroup>
       <Menu.CheckboxItem />
+
+      {/* Submenu */}
+      <Menu.Root>
+        <Menu.SubmenuTrigger />
+        <Menu.Positioner>
+          <Menu.Popup>...</Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Root>
     </Menu.Popup>
   </Menu.Positioner>
 </Menu.Root>;
@@ -36,6 +44,6 @@ import { Menu } from '@base-ui-components/react/menu';
 
 <Reference
   component="Menu"
-  parts="Root, Trigger, Positioner, Popup, Arrow, Item, Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator"
+  parts="Root, Trigger, Positioner, Popup, Arrow, Item,  Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator, SubmenuTrigger"
 />
-{/* TODO: SubmenuTrigger and Separator are missing */}
+{/* TODO: Separator is missing */}

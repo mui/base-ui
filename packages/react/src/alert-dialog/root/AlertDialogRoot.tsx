@@ -17,12 +17,11 @@ import { PortalContext } from '../../portal/PortalContext';
  * - [AlertDialogRoot API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogRoot)
  */
 const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
-  const { animated = true, children, defaultOpen = false, onOpenChange, open } = props;
+  const { children, defaultOpen = false, onOpenChange, open } = props;
 
   const parentDialogRootContext = React.useContext(AlertDialogRootContext);
 
   const dialogRoot = useDialogRoot({
-    animated,
     open,
     defaultOpen,
     onOpenChange,
@@ -35,8 +34,8 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
   const hasParentDialog = Boolean(parentDialogRootContext);
 
   const contextValue = React.useMemo(
-    () => ({ ...dialogRoot, hasParentDialog, animated }),
-    [dialogRoot, hasParentDialog, animated],
+    () => ({ ...dialogRoot, hasParentDialog }),
+    [dialogRoot, hasParentDialog],
   );
 
   return (
@@ -55,13 +54,6 @@ AlertDialogRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * If `true`, the dialog supports CSS-based animations and transitions.
-   * It is kept in the DOM until the animation completes.
-   *
-   * @default true
-   */
-  animated: PropTypes.bool,
   /**
    * @ignore
    */

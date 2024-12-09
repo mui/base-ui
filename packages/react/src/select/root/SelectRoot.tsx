@@ -29,7 +29,6 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     defaultOpen = false,
     onOpenChange,
     alignOptionToTrigger = true,
-    animated = true,
     name,
     disabled = false,
     readOnly = false,
@@ -44,7 +43,6 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     defaultOpen,
     onOpenChange,
     alignOptionToTrigger,
-    animated,
     name,
     disabled,
     readOnly,
@@ -125,13 +123,6 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    * @default true
    */
   alignOptionToTrigger: PropTypes.bool,
-  /**
-   * If `true`, the Select supports CSS-based animations and transitions.
-   * It is kept in the DOM until the animation completes.
-   *
-   * @default true
-   */
-  animated: PropTypes.bool,
   /**
    * @ignore
    */

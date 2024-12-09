@@ -1,0 +1,16 @@
+{
+  "props": {
+    "direction": {
+      "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
+      "default": "'ltr'"
+    }
+  },
+  "name": "DirectionProvider",
+  "imports": ["import { DirectionProvider } from '@base-ui-components/react/direction-provider';"],
+  "classes": [],
+  "muiName": "DirectionProvider",
+  "filename": "/packages/react/src/direction-provider/DirectionProvider.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-direction-provider/\">Direction Provider</a></li></ul>",
+  "cssComponent": false
+}

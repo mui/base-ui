@@ -111,9 +111,6 @@ The `<AlertDialog.Popup>` and `<AlertDialog.Backdrop>` components support transi
 CSS animations and transitions are supported out of the box.
 If a component has a transition or animation applied to it when it closes, it will be unmounted only after the animation finishes.
 
-As this detection of exit animations requires an extra render, you may opt out of it by setting the `animated` prop on Popup and Backdrop to `false`.
-We also recommend doing so in automated tests, to avoid asynchronous behavior and make testing easier.
-
 Alternatively, you can use JavaScript-based animations with a library like framer-motion, React Spring, or similar.
 With this approach set the `keepMounted` to `true` and let the animation library control mounting and unmounting.
 

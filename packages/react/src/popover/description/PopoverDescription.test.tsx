@@ -11,7 +11,7 @@ describe('<Popover.Description />', () => {
     refInstanceof: window.HTMLParagraphElement,
     render(node) {
       return render(
-        <Popover.Root open animated={false}>
+        <Popover.Root open>
           <Popover.Positioner>
             <Popover.Popup>{node}</Popover.Popup>
           </Popover.Positioner>
@@ -22,7 +22,7 @@ describe('<Popover.Description />', () => {
 
   it('describes the popup element with its id', async () => {
     await render(
-      <Popover.Root open animated={false}>
+      <Popover.Root open>
         <Popover.Positioner>
           <Popover.Popup>
             <Popover.Description>Title</Popover.Description>
