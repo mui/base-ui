@@ -166,8 +166,7 @@ describe('<Select.Option />', () => {
     await flushMicrotasks();
 
     await user.keyboard('{ArrowDown}');
-    await user.keyboard('{ArrowUp}');
-    await user.keyboard('{ArrowUp}');
+    await user.keyboard('{ArrowDown}');
 
     await user.click(screen.getByRole('option', { name: 'three' }));
     await user.click(trigger);
@@ -175,7 +174,7 @@ describe('<Select.Option />', () => {
     await flushMicrotasks();
 
     await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'three', hidden: false })).toHaveFocus();
+      expect(screen.getByRole('option', { name: 'three' })).toHaveFocus();
     });
   });
 
