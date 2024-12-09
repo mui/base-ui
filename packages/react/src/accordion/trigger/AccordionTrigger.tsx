@@ -11,14 +11,6 @@ import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 
 /**
- *
- * Demos:
- *
- * - [Accordion](https://base-ui.com/components/react-accordion/)
- *
- * API:
- *
- * - [AccordionTrigger API](https://base-ui.com/components/react-accordion/#api-reference-AccordionTrigger)
  */
 
 const AccordionTrigger = React.forwardRef(function AccordionTrigger(

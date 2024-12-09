@@ -5,14 +5,6 @@ import { SelectScrollArrow } from '../scroll-arrow/SelectScrollArrow';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectScrollDownArrow API](https://base-ui.com/components/react-select/#api-reference-SelectScrollDownArrow)
  */
 const SelectScrollDownArrow = React.forwardRef(function SelectScrollDownArrow(
   props: SelectScrollDownArrow.Props,

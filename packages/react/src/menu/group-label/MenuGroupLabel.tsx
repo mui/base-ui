@@ -10,14 +10,6 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 const state = {};
 
 /**
- *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuGroupLabel API](https://base-ui.com/components/react-menu/#api-reference-MenuGroupLabel)
  */
 const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
   props: MenuGroupLabel.Props,

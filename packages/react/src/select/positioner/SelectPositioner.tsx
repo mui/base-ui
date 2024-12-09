@@ -13,14 +13,6 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 
 /**
- *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectPositioner API](https://base-ui.com/components/react-select/#api-reference-SelectPositioner)
  */
 const SelectPositioner = React.forwardRef(function SelectPositioner(
   props: SelectPositioner.Props,

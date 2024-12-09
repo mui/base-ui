@@ -11,14 +11,6 @@ const state = {};
 
 /**
  * A heading that labels the dialog. Renders an `<h2>` element.
- *
- * Demos:
- *
- * - [Dialog](https://base-ui.com/components/react-dialog/)
- *
- * API:
- *
- * - [DialogTitle API](https://base-ui.com/components/react-dialog/#api-reference-DialogTitle)
  */
 const DialogTitle = React.forwardRef(function DialogTitle(
   props: DialogTitle.Props,

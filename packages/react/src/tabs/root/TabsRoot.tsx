@@ -11,14 +11,6 @@ import { tabsStyleHookMapping } from './styleHooks';
 import { TabPanelMetadata } from '../panel/useTabsPanel';
 
 /**
- *
- * Demos:
- *
- * - [Tabs](https://base-ui.com/components/react-tabs/)
- *
- * API:
- *
- * - [TabsRoot API](https://base-ui.com/components/react-tabs/#api-reference-TabsRoot)
  */
 const TabsRoot = React.forwardRef(function TabsRoot(
   props: TabsRoot.Props,

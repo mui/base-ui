@@ -13,14 +13,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
- *
- * Demos:
- *
- * - [Preview Card](https://base-ui.com/components/react-preview-card/)
- *
- * API:
- *
- * - [PreviewCardPositioner API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardPositioner)
  */
 const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
   props: PreviewCardPositioner.Props,

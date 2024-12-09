@@ -11,14 +11,6 @@ import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
- *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuSubmenuTrigger API](https://base-ui.com/components/react-menu/#api-reference-MenuSubmenuTrigger)
  */
 const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   props: MenuSubmenuTrigger.Props,

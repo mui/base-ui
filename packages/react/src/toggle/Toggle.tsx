@@ -12,14 +12,6 @@ const customStyleHookMapping = {
   disabled: () => null,
 };
 /**
- *
- * Demos:
- *
- * - [Toggle](https://base-ui.com/components/react-toggle/)
- *
- * API:
- *
- * - [Toggle API](https://base-ui.com/components/react-toggle/#api-reference-Toggle)
  */
 const Toggle = React.forwardRef(function Toggle(
   props: Toggle.Props,

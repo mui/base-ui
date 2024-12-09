@@ -19,14 +19,6 @@ const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
 
 /**
  * The tooltip popup element.
- *
- * Demos:
- *
- * - [Tooltip](https://base-ui.com/components/react-tooltip/)
- *
- * API:
- *
- * - [TooltipPopup API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipPopup)
  */
 const TooltipPopup = React.forwardRef(function TooltipPopup(
   props: TooltipPopup.Props,

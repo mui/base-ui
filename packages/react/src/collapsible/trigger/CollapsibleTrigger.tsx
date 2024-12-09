@@ -9,14 +9,6 @@ import { CollapsibleRoot } from '../root/CollapsibleRoot';
 import { useCollapsibleTrigger } from './useCollapsibleTrigger';
 
 /**
- *
- * Demos:
- *
- * - [Collapsible](https://base-ui.com/components/react-collapsible/)
- *
- * API:
- *
- * - [CollapsibleTrigger API](https://base-ui.com/components/react-collapsible/#api-reference-CollapsibleTrigger)
  */
 const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   props: CollapsibleTrigger.Props,

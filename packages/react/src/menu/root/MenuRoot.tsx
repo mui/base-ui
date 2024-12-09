@@ -7,14 +7,6 @@ import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot } from './useMenuRoot';
 
 /**
- *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuRoot API](https://base-ui.com/components/react-menu/#api-reference-MenuRoot)
  */
 const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const {

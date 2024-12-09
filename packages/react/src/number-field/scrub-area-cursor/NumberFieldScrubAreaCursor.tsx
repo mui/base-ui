@@ -12,14 +12,6 @@ import { ownerDocument } from '../../utils/owner';
 
 /**
  * The scrub area cursor element.
- *
- * Demos:
- *
- * - [Number Field](https://base-ui.com/components/react-number-field/)
- *
- * API:
- *
- * - [NumberFieldScrubAreaCursor API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldScrubAreaCursor)
  */
 const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAreaCursor(
   props: NumberFieldScrubAreaCursor.Props,

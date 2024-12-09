@@ -20,14 +20,6 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * Renders the element that positions the Menu popup.
- *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuPositioner API](https://base-ui.com/components/react-menu/#api-reference-MenuPositioner)
  */
 const MenuPositioner = React.forwardRef(function MenuPositioner(
   props: MenuPositioner.Props,

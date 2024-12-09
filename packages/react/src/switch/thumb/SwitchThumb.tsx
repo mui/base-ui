@@ -9,14 +9,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { styleHookMapping } from '../styleHooks';
 
 /**
- *
- * Demos:
- *
- * - [Switch](https://base-ui.com/components/react-switch/)
- *
- * API:
- *
- * - [SwitchThumb API](https://base-ui.com/components/react-switch/#api-reference-SwitchThumb)
  */
 const SwitchThumb = React.forwardRef(function SwitchThumb(
   props: SwitchThumb.Props,

@@ -23,14 +23,6 @@ const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
 
 /**
  * Renders the popover popup element.
- *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverPopup API](https://base-ui.com/components/react-popover/#api-reference-PopoverPopup)
  */
 const PopoverPopup = React.forwardRef(function PopoverPopup(
   props: PopoverPopup.Props,

@@ -10,14 +10,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
 const state = {};
 
 /**
- *
- * Demos:
- *
- * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
- *
- * API:
- *
- * - [AlertDialogDescription API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogDescription)
  */
 const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
   props: AlertDialogDescription.Props,

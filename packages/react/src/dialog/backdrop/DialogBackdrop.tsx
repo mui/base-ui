@@ -18,14 +18,6 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
 
 /**
  * An overlay displayed beneath the popup. Renders a `<div>` element.
- *
- * Demos:
- *
- * - [Dialog](https://base-ui.com/components/react-dialog/)
- *
- * API:
- *
- * - [DialogBackdrop API](https://base-ui.com/components/react-dialog/#api-reference-DialogBackdrop)
  */
 const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdrop.Props,

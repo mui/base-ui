@@ -11,14 +11,6 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 const state = {};
 
 /**
- *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectGroupLabel API](https://base-ui.com/components/react-select/#api-reference-SelectGroupLabel)
  */
 const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   props: SelectGroupLabel.Props,

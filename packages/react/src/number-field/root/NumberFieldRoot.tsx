@@ -10,14 +10,6 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 
 /**
  * The foundation for building custom-styled number fields.
- *
- * Demos:
- *
- * - [Number Field](https://base-ui.com/components/react-number-field/)
- *
- * API:
- *
- * - [NumberFieldRoot API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldRoot)
  */
 const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   props: NumberFieldRoot.Props,

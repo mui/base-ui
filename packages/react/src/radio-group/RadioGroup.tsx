@@ -10,14 +10,6 @@ import { useRadioGroup } from './useRadioGroup';
 import { RadioGroupContext } from './RadioGroupContext';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 /**
- *
- * Demos:
- *
- * - [Radio Group](https://base-ui.com/components/react-radio-group/)
- *
- * API:
- *
- * - [RadioGroup API](https://base-ui.com/components/react-radio-group/#api-reference-RadioGroup)
  */
 const RadioGroup = React.forwardRef(function RadioGroup(
   props: RadioGroup.Props,

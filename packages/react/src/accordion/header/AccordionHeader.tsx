@@ -8,14 +8,6 @@ import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStyleHookMapping } from '../item/styleHooks';
 
 /**
- *
- * Demos:
- *
- * - [Accordion](https://base-ui.com/components/react-accordion/)
- *
- * API:
- *
- * - [AccordionHeader API](https://base-ui.com/components/react-accordion/#api-reference-AccordionHeader)
  */
 const AccordionHeader = React.forwardRef(function AccordionHeader(
   props: AccordionHeader.Props,

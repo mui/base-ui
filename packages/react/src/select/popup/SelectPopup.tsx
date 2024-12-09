@@ -20,14 +20,6 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
 };
 
 /**
- *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectPopup API](https://base-ui.com/components/react-select/#api-reference-SelectPopup)
  */
 const SelectPopup = React.forwardRef(function SelectPopup(
   props: SelectPopup.Props,

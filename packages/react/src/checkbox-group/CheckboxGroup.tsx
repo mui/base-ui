@@ -10,14 +10,6 @@ import type { BaseUIComponentProps } from '../utils/types';
 
 /**
  * The foundation for building custom-styled checkbox groups.
- *
- * Demos:
- *
- * - [Checkbox Group](https://base-ui.com/components/react-checkbox-group/)
- *
- * API:
- *
- * - [CheckboxGroup API](https://base-ui.com/components/react-checkbox-group/#api-reference-CheckboxGroup)
  */
 const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   props: CheckboxGroup.Props,

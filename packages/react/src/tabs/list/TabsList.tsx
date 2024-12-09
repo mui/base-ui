@@ -12,14 +12,6 @@ import { useTabsList } from './useTabsList';
 import { TabsListContext } from './TabsListContext';
 
 /**
- *
- * Demos:
- *
- * - [Tabs](https://base-ui.com/components/react-tabs/)
- *
- * API:
- *
- * - [TabsList API](https://base-ui.com/components/react-tabs/#api-reference-TabsList)
  */
 const TabsList = React.forwardRef(function TabsList(
   props: TabsList.Props,
