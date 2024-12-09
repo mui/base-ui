@@ -2,7 +2,7 @@
   "componentDescription": "",
   "propDescriptions": {
     "aria-labelledby": {
-      "description": "The id of the element containing a label for the slider."
+      "description": "Identifies the element (or elements) that labels the current element."
     },
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
@@ -10,16 +10,20 @@
     "defaultValue": {
       "description": "The default value of the slider. Use when the component is not controlled."
     },
-    "direction": {
-      "description": "Sets the direction. For right-to-left languages, the lowest value is on the right-hand side."
-    },
     "disabled": { "description": "If <code>true</code>, the component is disabled." },
     "largeStep": {
       "description": "The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down."
     },
+    "max": {
+      "description": "The maximum allowed value of the slider. Should not be equal to min."
+    },
+    "min": {
+      "description": "The minimum allowed value of the slider. Should not be equal to max."
+    },
     "minStepsBetweenValues": {
       "description": "The minimum steps between values in a range slider."
     },
+    "name": { "description": "Name attribute of the hidden <code>input</code> element." },
     "onValueChange": {
       "description": "Callback function that is fired when the slider&#39;s value changed.",
       "typeDescriptions": {
@@ -37,6 +41,9 @@
     },
     "orientation": { "description": "The component orientation." },
     "render": { "description": "A function to customize rendering of the component." },
+    "step": {
+      "description": "The granularity with which the slider can step through values. (A &quot;discrete&quot; slider.) The <code>min</code> prop serves as the origin for the valid values. We recommend (max - min) to be evenly divisible by the step."
+    },
     "value": {
       "description": "The value of the slider. For ranged sliders, provide an array with two values."
     }

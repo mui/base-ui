@@ -8,7 +8,7 @@
     },
     "defaultValue": {
       "type": "array",
-      "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s\nThis is the uncontrolled counterpart of `value`."
+      "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s.\nThis is the uncontrolled counterpart of `value`."
     },
     "onValueChange": {
       "type": "function(groupValue: Array<any>, event: Event) => void",
