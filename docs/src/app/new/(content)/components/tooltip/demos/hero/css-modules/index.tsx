@@ -5,12 +5,12 @@ import styles from './index.module.css';
 export default function ExampleTooltip() {
   return (
     <Tooltip.Provider>
-      <div className={styles.Group}>
+      <div className={styles.Panel}>
         <Tooltip.Root>
-          <Tooltip.Trigger className={styles.GhostButton}>
-            <BoldIcon aria-label="Bold" className={styles.Icon} />
+          <Tooltip.Trigger aria-label="Bold" className={styles.Button}>
+            <BoldIcon className={styles.Icon} />
           </Tooltip.Trigger>
-          <Tooltip.Positioner sideOffset={12}>
+          <Tooltip.Positioner sideOffset={10}>
             <Tooltip.Popup className={styles.Popup}>
               <Tooltip.Arrow className={styles.Arrow}>
                 <ArrowSvg />
@@ -21,8 +21,8 @@ export default function ExampleTooltip() {
         </Tooltip.Root>
 
         <Tooltip.Root>
-          <Tooltip.Trigger className={styles.GhostButton}>
-            <ItalicIcon aria-label="Italic" className={styles.Icon} />
+          <Tooltip.Trigger aria-label="Italic" className={styles.Button}>
+            <ItalicIcon className={styles.Icon} />
           </Tooltip.Trigger>
           <Tooltip.Positioner sideOffset={10}>
             <Tooltip.Popup className={styles.Popup}>
@@ -35,8 +35,8 @@ export default function ExampleTooltip() {
         </Tooltip.Root>
 
         <Tooltip.Root>
-          <Tooltip.Trigger className={styles.GhostButton}>
-            <UnderlineIcon aria-label="Underline" className={styles.Icon} />
+          <Tooltip.Trigger aria-label="Underline" className={styles.Button}>
+            <UnderlineIcon className={styles.Icon} />
           </Tooltip.Trigger>
           <Tooltip.Positioner sideOffset={10}>
             <Tooltip.Popup className={styles.Popup}>
