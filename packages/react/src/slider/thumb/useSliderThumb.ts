@@ -52,7 +52,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     changeValue,
     direction,
     disabled,
-    format: formatParam,
+    format,
     getAriaLabel,
     getAriaValueText,
     id: idParam,
@@ -242,7 +242,6 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       if (orientation === 'vertical') {
         cssWritingMode = isRtl ? 'vertical-rl' : 'vertical-lr';
       }
-      const format = Array.isArray(formatParam) ? formatParam[index] : formatParam;
 
       return mergeReactProps(getInputValidationProps(externalProps), {
         'aria-label': getAriaLabel ? getAriaLabel(index) : ariaLabel,
@@ -285,7 +284,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       ariaValuetext,
       changeValue,
       disabled,
-      formatParam,
+      format,
       getAriaLabel,
       getAriaValueText,
       getInputValidationProps,
@@ -345,7 +344,7 @@ export namespace useSliderThumb {
     /**
      * Options to format the input value.
      */
-    format?: Intl.NumberFormatOptions | Intl.NumberFormatOptions[];
+    format?: Intl.NumberFormatOptions;
     /**
      * Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb
      * @param {number} index The index of the input

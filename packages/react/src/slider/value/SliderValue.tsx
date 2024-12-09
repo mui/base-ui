@@ -21,7 +21,7 @@ const SliderValue = React.forwardRef(function SliderValue(
   props: SliderValue.Props,
   forwardedRef: React.ForwardedRef<HTMLOutputElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, children, ...otherProps } = props;
 
   const { inputIdMap, state, values, format } = useSliderRootContext();
 
@@ -31,6 +31,14 @@ const SliderValue = React.forwardRef(function SliderValue(
     values,
   });
 
+  const defaultDisplayValue = React.useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < values.length; i += 1) {
+      arr.push(formattedValues[i] || values[i]);
+    }
+    return arr.join(' – ');
+  }, [values, formattedValues]);
+
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'output',
@@ -38,7 +46,9 @@ const SliderValue = React.forwardRef(function SliderValue(
     className,
     ref: forwardedRef,
     extraProps: {
-      children: formattedValues,
+      children:
+        typeof children === 'function' ? children(formattedValues, values) : defaultDisplayValue,
+
       ...otherProps,
     },
     customStyleHookMapping: sliderStyleHookMapping,
@@ -48,7 +58,12 @@ const SliderValue = React.forwardRef(function SliderValue(
 });
 
 export namespace SliderValue {
-  export interface Props extends BaseUIComponentProps<'output', SliderRoot.State> {}
+  export interface Props
+    extends Omit<BaseUIComponentProps<'output', SliderRoot.State>, 'children'> {
+    children?:
+      | null
+      | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode);
+  }
 }
 
 export { SliderValue };

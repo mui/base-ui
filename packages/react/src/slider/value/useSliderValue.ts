@@ -20,22 +20,15 @@ export function useSliderValue(parameters: useSliderValue.Parameters): useSlider
     return htmlFor.trim() === '' ? undefined : htmlFor.trim();
   }, [inputIdMap]);
 
-  let formattedValues;
-
-  if (values.length > 1) {
-    formattedValues = [];
+  const formattedValues = React.useMemo(() => {
+    const arr = [];
     for (let i = 0; i < values.length; i += 1) {
-      formattedValues.push(
+      arr.push(
         formatNumber(values[i], [], Array.isArray(formatParam) ? formatParam[i] : formatParam),
       );
     }
-  } else {
-    formattedValues = formatNumber(
-      values[0],
-      [],
-      Array.isArray(formatParam) ? formatParam[0] : formatParam,
-    );
-  }
+    return arr;
+  }, [formatParam, values]);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
@@ -52,9 +45,7 @@ export function useSliderValue(parameters: useSliderValue.Parameters): useSlider
   return React.useMemo(
     () => ({
       getRootProps,
-      formattedValues: Array.isArray(formattedValues)
-        ? formattedValues.join(' – ')
-        : formattedValues,
+      formattedValues,
     }),
     [getRootProps, formattedValues],
   );
@@ -74,8 +65,8 @@ export namespace useSliderValue {
       externalProps?: React.ComponentPropsWithRef<'output'>,
     ) => React.ComponentPropsWithRef<'output'>;
     /**
-     * A formatted string value for display.
+     * The formatted value(s) of the slider
      */
-    formattedValues: string;
+    formattedValues: readonly string[];
   }
 }

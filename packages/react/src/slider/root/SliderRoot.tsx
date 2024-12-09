@@ -185,7 +185,7 @@ export namespace SliderRoot {
     /**
      * Options to format the input value.
      */
-    format?: Intl.NumberFormatOptions | Intl.NumberFormatOptions[];
+    format?: Intl.NumberFormatOptions;
     /**
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
