@@ -48,14 +48,4 @@ DialogPortal.propTypes /* remove-proptypes */ = {
   keepMounted: PropTypes.bool,
 } as any;
 
-/**
- *
- * Demos:
- *
- * - [Dialog](https://base-ui.com/components/react-dialog/)
- *
- * API:
- *
- * - [DialogPortal API](https://base-ui.com/components/react-dialog/#api-reference-DialogPortal)
- */
 export { DialogPortal };
