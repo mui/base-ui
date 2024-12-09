@@ -4,19 +4,19 @@ export const nav = [
     links: [
       {
         label: 'Quick start',
-        href: '/new/overview/quick-start',
+        href: '/react/overview/quick-start',
       },
       {
         label: 'Accessibility',
-        href: '/new/overview/accessibility',
+        href: '/react/overview/accessibility',
       },
       {
         label: 'Releases',
-        href: '/new/overview/releases',
+        href: '/react/overview/releases',
       },
       {
         label: 'About',
-        href: '/new/overview/about',
+        href: '/react/overview/about',
       },
     ],
   },
@@ -25,15 +25,15 @@ export const nav = [
     links: [
       {
         label: 'Styling',
-        href: '/new/handbook/styling',
+        href: '/react/handbook/styling',
       },
       {
         label: 'Animation',
-        href: '/new/handbook/animation',
+        href: '/react/handbook/animation',
       },
       {
         label: 'Composition',
-        href: '/new/handbook/composition',
+        href: '/react/handbook/composition',
       },
     ],
   },
@@ -42,103 +42,103 @@ export const nav = [
     links: [
       {
         label: 'Accordion',
-        href: '/new/components/accordion',
+        href: '/react/components/accordion',
       },
       {
         label: 'Alert Dialog',
-        href: '/new/components/alert-dialog',
+        href: '/react/components/alert-dialog',
       },
       {
         label: 'Checkbox',
-        href: '/new/components/checkbox',
+        href: '/react/components/checkbox',
       },
       {
         label: 'Checkbox Group',
-        href: '/new/components/checkbox-group',
+        href: '/react/components/checkbox-group',
       },
       {
         label: 'Collapsible',
-        href: '/new/components/collapsible',
+        href: '/react/components/collapsible',
       },
       {
         label: 'Dialog',
-        href: '/new/components/dialog',
+        href: '/react/components/dialog',
       },
       {
         label: 'Field',
-        href: '/new/components/field',
+        href: '/react/components/field',
       },
       {
         label: 'Fieldset',
-        href: '/new/components/fieldset',
+        href: '/react/components/fieldset',
       },
       {
         label: 'Form',
-        href: '/new/components/form',
+        href: '/react/components/form',
       },
       {
         label: 'Input',
-        href: '/new/components/input',
+        href: '/react/components/input',
       },
       {
         label: 'Menu',
-        href: '/new/components/menu',
+        href: '/react/components/menu',
       },
       {
         label: 'Number Field',
-        href: '/new/components/number-field',
+        href: '/react/components/number-field',
       },
       {
         label: 'Popover',
-        href: '/new/components/popover',
+        href: '/react/components/popover',
       },
       {
         label: 'Preview Card',
-        href: '/new/components/preview-card',
+        href: '/react/components/preview-card',
       },
       {
         label: 'Progress',
-        href: '/new/components/progress',
+        href: '/react/components/progress',
       },
       {
         label: 'Radio',
-        href: '/new/components/radio',
+        href: '/react/components/radio',
       },
       {
         label: 'Scroll Area',
-        href: '/new/components/scroll-area',
+        href: '/react/components/scroll-area',
       },
       {
         label: 'Select',
-        href: '/new/components/select',
+        href: '/react/components/select',
       },
       {
         label: 'Separator',
-        href: '/new/components/separator',
+        href: '/react/components/separator',
       },
       {
         label: 'Slider',
-        href: '/new/components/slider',
+        href: '/react/components/slider',
       },
       {
         label: 'Switch',
-        href: '/new/components/switch',
+        href: '/react/components/switch',
       },
       {
         label: 'Tabs',
-        href: '/new/components/tabs',
+        href: '/react/components/tabs',
       },
       {
         label: 'Toggle',
-        href: '/new/components/toggle',
+        href: '/react/components/toggle',
       },
       {
         label: 'Toggle Group',
-        href: '/new/components/toggle-group',
+        href: '/react/components/toggle-group',
       },
       {
         label: 'Tooltip',
-        href: '/new/components/tooltip',
+        href: '/react/components/tooltip',
       },
     ],
   },
@@ -147,7 +147,7 @@ export const nav = [
     links: [
       {
         label: 'Direction Provider',
-        href: '/new/utilities/direction-provider',
+        href: '/react/utilities/direction-provider',
       },
     ],
   },

@@ -1,8 +1,6 @@
-import { Metadata } from 'next';
 import * as React from 'react';
-import { DocsProviders } from './DocsProviders';
+import { Metadata } from 'next';
 import { Favicons } from './Favicons';
-import { GoogleAnalytics } from '../components/GoogleAnalytics';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
@@ -23,12 +21,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
           media="(prefers-color-scheme: dark)"
         />
       </head>
-      <body>
-        <DocsProviders>
-          {children}
-          <GoogleAnalytics />
-        </DocsProviders>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

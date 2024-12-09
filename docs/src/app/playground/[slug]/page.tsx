@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { type Dirent } from 'node:fs';
 import { basename, extname } from 'node:path';
 import { readdir } from 'node:fs/promises';
-import '../../../styles/style.css';
+import './styles.css';
 
 interface Props {
   params: Promise<{
