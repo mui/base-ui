@@ -7,6 +7,8 @@ import { FieldValidityData } from '../root/FieldRoot';
 
 /**
  * Render prop component that provides the field's validity state and value to its children.
+ *
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(props) {
   const { children } = props;

@@ -9,6 +9,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 const state = {};
 
 /**
+ *
+ * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 const DialogClose = React.forwardRef(function DialogClose(
   props: DialogClose.Props,

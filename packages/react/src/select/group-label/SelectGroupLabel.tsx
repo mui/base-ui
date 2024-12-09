@@ -11,6 +11,8 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 const state = {};
 
 /**
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   props: SelectGroupLabel.Props,

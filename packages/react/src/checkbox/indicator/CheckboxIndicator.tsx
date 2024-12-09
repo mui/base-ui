@@ -14,6 +14,8 @@ import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 /**
  * The indicator part of the Checkbox.
+ *
+ * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
  */
 const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   props: CheckboxIndicator.Props,

@@ -5,6 +5,8 @@ import { SelectScrollArrow } from '../scroll-arrow/SelectScrollArrow';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectScrollUpArrow = React.forwardRef(function SelectScrollUpArrow(
   props: SelectScrollUpArrow.Props,

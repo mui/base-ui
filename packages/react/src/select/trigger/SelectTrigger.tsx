@@ -9,6 +9,8 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectTrigger = React.forwardRef(function SelectTrigger(
   props: SelectTrigger.Props,

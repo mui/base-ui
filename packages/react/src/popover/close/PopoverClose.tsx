@@ -10,6 +10,8 @@ const state = {};
 
 /**
  * Renders a button that closes the popover when clicked.
+ *
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverClose = React.forwardRef(function PopoverClose(
   props: PopoverClose.Props,

@@ -14,6 +14,8 @@ import { NoSsrProps } from './NoSsr.types';
  * * Improve the time-to-first paint on the client by only rendering above the fold.
  * * Reduce the rendering time on the server.
  * * Under too heavy server load, you can turn on service degradation.
+ *
+ * Documentation: [Base UI Unstable No Ssr](https://base-ui.com/react/components/unstable-no-ssr)
  */
 function NoSsr(props: NoSsrProps): React.JSX.Element {
   const { children, defer = false, fallback = null } = props;

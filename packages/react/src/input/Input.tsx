@@ -5,6 +5,8 @@ import type { BaseUIComponentProps } from '../utils/types';
 import { Field } from '../field';
 
 /**
+ *
+ * Documentation: [Base UI Input](https://base-ui.com/react/components/input)
  */
 const Input = React.forwardRef(function Input(
   props: Input.Props,

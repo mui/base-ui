@@ -9,6 +9,8 @@ import { SelectGroupContext } from './SelectGroupContext';
 const state = {};
 
 /**
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectGroup = React.forwardRef(function SelectGroup(
   props: SelectGroup.Props,

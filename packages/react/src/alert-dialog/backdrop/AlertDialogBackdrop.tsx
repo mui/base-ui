@@ -17,6 +17,8 @@ const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> 
 };
 
 /**
+ *
+ * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   props: AlertDialogBackdrop.Props,

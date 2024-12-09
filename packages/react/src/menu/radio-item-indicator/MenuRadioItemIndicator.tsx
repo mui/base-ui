@@ -7,6 +7,8 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 
 /**
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicatorComponent(
   props: MenuRadioItemIndicator.Props,

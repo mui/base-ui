@@ -19,6 +19,8 @@ const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
 
 /**
  * The tooltip popup element.
+ *
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipPopup = React.forwardRef(function TooltipPopup(
   props: TooltipPopup.Props,

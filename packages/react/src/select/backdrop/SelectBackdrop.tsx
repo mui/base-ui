@@ -17,6 +17,8 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
 };
 
 /**
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   props: SelectBackdrop.Props,

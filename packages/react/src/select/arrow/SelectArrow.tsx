@@ -11,6 +11,8 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 
 /**
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectArrow = React.forwardRef(function SelectArrow(
   props: SelectArrow.Props,

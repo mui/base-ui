@@ -8,6 +8,8 @@ import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectValue = React.forwardRef(function SelectValue(
   props: SelectValue.Props,

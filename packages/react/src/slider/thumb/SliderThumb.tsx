@@ -24,6 +24,8 @@ function defaultRender(
   );
 }
 /**
+ *
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderThumb = React.forwardRef(function SliderThumb(
   props: SliderThumb.Props,

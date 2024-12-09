@@ -131,6 +131,8 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
 
 /**
  * An unstyled menu item to be used within a Menu.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuItem = React.forwardRef(function MenuItem(
   props: MenuItem.Props,

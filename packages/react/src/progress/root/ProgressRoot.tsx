@@ -8,6 +8,8 @@ import { progressStyleHookMapping } from './styleHooks';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
+ *
+ * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
 const ProgressRoot = React.forwardRef(function ProgressRoot(
   props: ProgressRoot.Props,

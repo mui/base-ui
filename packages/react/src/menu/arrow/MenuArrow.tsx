@@ -12,6 +12,8 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * Renders an arrow that points to the center of the anchor element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuArrow = React.forwardRef(function MenuArrow(
   props: MenuArrow.Props,

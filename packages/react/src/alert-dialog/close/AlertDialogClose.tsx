@@ -9,6 +9,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 const state = {};
 
 /**
+ *
+ * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogClose = React.forwardRef(function AlertDialogClose(
   props: AlertDialogClose.Props,

@@ -12,6 +12,8 @@ import { SliderRootContext } from './SliderRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
 /**
+ *
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderRoot = React.forwardRef(function SliderRoot(
   props: SliderRoot.Props,

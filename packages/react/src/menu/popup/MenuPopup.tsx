@@ -20,6 +20,8 @@ const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
 };
 
 /**
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuPopup = React.forwardRef(function MenuPopup(
   props: MenuPopup.Props,

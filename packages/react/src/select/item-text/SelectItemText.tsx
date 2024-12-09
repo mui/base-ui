@@ -95,6 +95,8 @@ InnerSelectItemText.propTypes /* remove-proptypes */ = {
 
 const MemoizedInnerSelectItemText = React.memo(InnerSelectItemText);
 /**
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectItemText = React.forwardRef(function SelectItemText(
   props: SelectItemText.Props,

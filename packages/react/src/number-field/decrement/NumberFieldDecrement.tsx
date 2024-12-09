@@ -8,6 +8,8 @@ import { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * The decrement stepper button.
+ *
+ * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
   props: NumberFieldDecrement.Props,

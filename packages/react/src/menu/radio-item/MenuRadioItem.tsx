@@ -144,6 +144,8 @@ const MemoizedInnerMenuRadioItem = React.memo(InnerMenuRadioItem);
 
 /**
  * An unstyled radio menu item to be used within a Menu.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   props: MenuRadioItem.Props,

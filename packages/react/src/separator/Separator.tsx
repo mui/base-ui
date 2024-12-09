@@ -7,6 +7,8 @@ import { useComponentRenderer } from '../utils/useComponentRenderer';
 const EMPTY_OBJECT = {};
 
 /**
+ *
+ * Documentation: [Base UI Separator](https://base-ui.com/react/components/separator)
  */
 const Separator = React.forwardRef(function SeparatorComponent(
   props: Separator.Props,

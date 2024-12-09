@@ -18,6 +18,8 @@ const customStyleHookMapping = {
   },
 };
 /**
+ *
+ * Documentation: [Base UI Toggle Group](https://base-ui.com/react/components/toggle-group)
  */
 const ToggleGroup = React.forwardRef(function ToggleGroup(
   props: ToggleGroup.Props,

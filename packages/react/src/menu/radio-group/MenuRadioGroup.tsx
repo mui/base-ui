@@ -127,5 +127,7 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
 const MemoizedMenuRadioGroup = React.memo(MenuRadioGroup);
 
 /**
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export { MemoizedMenuRadioGroup as MenuRadioGroup };

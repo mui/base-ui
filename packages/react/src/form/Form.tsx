@@ -8,6 +8,8 @@ import { FormContext } from './FormContext';
 import { useEventCallback } from '../utils/useEventCallback';
 
 /**
+ *
+ * Documentation: [Base UI Form](https://base-ui.com/react/components/form)
  */
 const Form = React.forwardRef(function Form(
   props: Form.Props,

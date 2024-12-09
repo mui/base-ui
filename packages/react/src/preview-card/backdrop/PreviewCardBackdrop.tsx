@@ -17,6 +17,8 @@ const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.State> 
 };
 
 /**
+ *
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   props: PreviewCardBackdrop.Props,

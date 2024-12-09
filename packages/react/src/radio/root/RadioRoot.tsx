@@ -12,6 +12,8 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 
 /**
+ *
+ * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
 const RadioRoot = React.forwardRef(function RadioRoot(
   props: RadioRoot.Props,

@@ -11,6 +11,8 @@ import { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * The foundation for building custom-styled fields.
+ *
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldRoot = React.forwardRef(function FieldRoot(
   props: FieldRoot.Props,

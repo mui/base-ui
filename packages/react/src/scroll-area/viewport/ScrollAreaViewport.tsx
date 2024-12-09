@@ -10,6 +10,8 @@ import { useScrollAreaViewport } from './useScrollAreaViewport';
 const state = {};
 
 /**
+ *
+ * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   props: ScrollAreaViewport.Props,
