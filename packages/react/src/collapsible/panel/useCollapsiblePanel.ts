@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { hasComputedStyleMapSupport } from '../../utils/hasComputedStyleMapSupport';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerWindow } from '../../utils/owner';
@@ -179,17 +178,15 @@ export function useCollapsiblePanel(
         : (originalTransitionDuration ?? '');
 
       runOnceAnimationsFinish(() => {
-        ReactDOM.flushSync(() => {
-          setContextMounted(open);
-          if (isBeforeMatch) {
-            isBeforeMatchRef.current = false;
-            frame1 = requestAnimationFrame(() => {
-              frame2 = requestAnimationFrame(() => {
-                element.style.transitionDuration = originalTransitionDurationStyleRef.current ?? '';
-              });
+        setContextMounted(open);
+        if (isBeforeMatch) {
+          isBeforeMatchRef.current = false;
+          frame1 = requestAnimationFrame(() => {
+            frame2 = requestAnimationFrame(() => {
+              element.style.transitionDuration = originalTransitionDurationStyleRef.current ?? '';
             });
-          }
-        });
+          });
+        }
       });
     }
 

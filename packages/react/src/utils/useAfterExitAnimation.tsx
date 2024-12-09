@@ -18,9 +18,7 @@ export function useAfterExitAnimation(parameters: useAfterExitAnimation.Paramete
   useEnhancedEffect(() => {
     function callOnFinished() {
       if (!openRef.current) {
-        // Synchronously flush the unmounting of the component so that the browser doesn't
-        // paint: https://github.com/mui/base-ui/issues/979
-        ReactDOM.flushSync(onFinished);
+        onFinished();
       }
     }
 
