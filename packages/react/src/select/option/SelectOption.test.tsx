@@ -146,6 +146,38 @@ describe('<Select.Option />', () => {
     expect(value.textContent).to.equal('');
   });
 
+  it.only('should focus the selected option upon opening the popup', async () => {
+    const { user } = await render(
+      <Select.Root>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value data-testid="value" />
+        </Select.Trigger>
+        <Select.Positioner>
+          <Select.Popup>
+            <Select.Option value="one">one</Select.Option>
+            <Select.Option value="two">two</Select.Option>
+            <Select.Option value="three">three</Select.Option>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+
+    await user.click(trigger);
+
+    await flushMicrotasks();
+
+    await user.click(screen.getByRole('option', { name: 'three' }));
+    await user.click(trigger);
+
+    await flushMicrotasks();
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'three' })).toHaveFocus();
+    });
+  });
+
   describe('style hooks', () => {
     it('should apply data-highlighted attribute when option is highlighted', async function test(t = {}) {
       if (!isJSDOM) {
