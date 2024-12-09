@@ -56,7 +56,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
-  const selectedOptionTextRef = React.useRef<HTMLSpanElement | null>(null);
+  const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
@@ -220,7 +220,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       getItemProps,
       listRef,
       popupRef,
-      selectedOptionTextRef,
+      selectedItemTextRef,
       floatingRootContext,
       touchModality,
       setTouchModality,

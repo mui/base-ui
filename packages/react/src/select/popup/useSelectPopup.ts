@@ -23,7 +23,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     triggerElement,
     positionerElement,
     valueRef,
-    selectedOptionTextRef,
+    selectedItemTextRef,
     popupRef,
     scrollUpArrowVisible,
     scrollDownArrowVisible,
@@ -127,7 +127,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     const viewportWidth = doc.documentElement.clientWidth;
     const availableSpaceBeneathTrigger = viewportHeight - triggerRect.bottom + triggerHeight;
 
-    const textElement = selectedOptionTextRef.current;
+    const textElement = selectedItemTextRef.current;
     const valueElement = valueRef.current;
     let offsetX = 0;
     let offsetY = 0;
@@ -208,7 +208,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     positionerElement,
     triggerElement,
     valueRef,
-    selectedOptionTextRef,
+    selectedItemTextRef,
     popupRef,
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,

@@ -37,7 +37,7 @@ export interface SelectRootContext {
   setLabel: React.Dispatch<React.SetStateAction<string>>;
   valuesRef: React.MutableRefObject<Array<any>>;
   valueRef: React.MutableRefObject<HTMLSpanElement | null>;
-  selectedOptionTextRef: React.MutableRefObject<HTMLSpanElement | null>;
+  selectedItemTextRef: React.MutableRefObject<HTMLSpanElement | null>;
   labelsRef: React.MutableRefObject<Array<string | null>>;
   touchModality: boolean;
   setTouchModality: React.Dispatch<React.SetStateAction<boolean>>;
