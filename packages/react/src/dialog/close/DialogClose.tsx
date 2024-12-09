@@ -23,8 +23,8 @@ const DialogClose = React.forwardRef(function DialogClose(
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
-  const { open, onOpenChange } = useDialogRootContext();
-  const { getRootProps } = useDialogClose({ open, onOpenChange });
+  const { open, setOpen } = useDialogRootContext();
+  const { getRootProps } = useDialogClose({ open, setOpen });
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',

@@ -62,7 +62,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     modal,
     mounted,
     nestedOpenDialogCount,
-    onOpenChange,
+    setOpen,
     open,
     openMethod,
     popupRef,
@@ -82,7 +82,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     initialFocus,
     modal,
     mounted,
-    onOpenChange,
+    setOpen,
     open,
     openMethod,
     ref: mergedRef,
@@ -117,12 +117,12 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     <FloatingPortal root={container}>
       <FloatingFocusManager
         context={floatingContext}
-        modal={modal}
+        modal
         disabled={!mounted}
         closeOnFocusOut={dismissible}
         initialFocus={resolvedInitialFocus}
         returnFocus={finalFocus}
-        outsideElementsInert
+        outsideElementsInert={modal}
       >
         {renderElement()}
       </FloatingFocusManager>

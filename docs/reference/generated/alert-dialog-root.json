@@ -8,7 +8,7 @@
       "description": "Determines whether the dialog is initally open.\nThis is an uncontrolled equivalent of the `open` prop."
     },
     "onOpenChange": {
-      "type": "(open, event) => void",
+      "type": "(open, event, reason) => void",
       "description": "Callback invoked when the dialog is being opened or closed."
     },
     "open": {
