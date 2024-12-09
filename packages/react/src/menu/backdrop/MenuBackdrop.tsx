@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
@@ -38,7 +37,7 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   props: MenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, container, ...other } = props;
+  const { className, render, keepMounted = false, ...other } = props;
   const { open, mounted, transitionStatus } = useMenuRootContext();
 
   const state: MenuBackdrop.State = React.useMemo(
@@ -63,7 +62,7 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
     return null;
   }
 
-  return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
+  return renderElement();
 });
 
 namespace MenuBackdrop {
@@ -78,11 +77,6 @@ namespace MenuBackdrop {
      * @default false
      */
     keepMounted?: boolean;
-    /**
-     * The container element to which the backdrop is appended to.
-     * @default false
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 }
 
@@ -99,14 +93,6 @@ MenuBackdrop.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * The container element to which the backdrop is appended to.
-   * @default false
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
-  ]),
   /**
    * If `true`, the backdrop remains mounted when the menu popup is closed.
    * @default false

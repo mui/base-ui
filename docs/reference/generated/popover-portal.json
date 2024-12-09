@@ -1,0 +1,15 @@
+{
+  "name": "PopoverPortal",
+  "description": "",
+  "props": {
+    "container": {
+      "type": "React.Ref | HTMLElement | null",
+      "description": "The container to render the portal element into."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to keep the portal mounted in the DOM when the popup is closed."
+    }
+  }
+}

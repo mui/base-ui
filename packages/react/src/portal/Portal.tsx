@@ -8,7 +8,7 @@ import { HTMLElementType, refType } from '../utils/proptypes';
 /**
  * @ignore - internal component.
  */
-const Portal: Portal = function Portal(props: Portal.Props) {
+function Portal(props: Portal.Props) {
   const { children, container, keepMounted = false } = props;
 
   const mounted = usePortalContext();
@@ -19,7 +19,7 @@ const Portal: Portal = function Portal(props: Portal.Props) {
   }
 
   return <FloatingPortal root={container}>{children}</FloatingPortal>;
-};
+}
 
 namespace Portal {
   export interface Props {
@@ -36,11 +36,6 @@ namespace Portal {
   }
 
   export interface State {}
-}
-
-interface Portal {
-  (props: Portal.Props): React.JSX.Element | null;
-  propTypes?: any;
 }
 
 Portal.propTypes /* remove-proptypes */ = {
