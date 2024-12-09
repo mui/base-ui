@@ -29,12 +29,12 @@
   margin: 0;
   border: none;
 
-  &[data-radio='unchecked'] {
+  &[data-unchecked] {
     border: 1px solid var(--color-gray-300);
     background-color: transparent;
   }
 
-  &[data-radio='checked'] {
+  &[data-checked] {
     background-color: var(--color-gray-900);
   }
 
@@ -49,7 +49,7 @@
   align-items: center;
   justify-content: center;
 
-  &[data-radio='unchecked'] {
+  &[data-unchecked] {
     display: none;
   }
 
