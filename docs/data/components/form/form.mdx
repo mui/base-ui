@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Form component
 description: Forms contain fields of controls to enter information for submission.
-components: FormRoot
+components: Form
 githubLabel: 'component: form'
 packageName: '@base-ui-components/react'
 ---
@@ -23,18 +23,18 @@ packageName: '@base-ui-components/react'
 
 Forms are implemented using a `Root` component and `Field` components:
 
-- `<Form.Root />` renders the `<form>` element.
+- `<Form />` renders the `<form>` element.
 - `<Field.Root />` renders an individual Field element.
 
 ```jsx
-<Form.Root>
+<Form>
   <Field.Root />
-</Form.Root>
+</Form>
 ```
 
 ## Usage
 
-Forms are intended to be used with the `Field` component, which provides labeling and validation for individual form controls. These are nested inside `Form.Root`:
+Forms are intended to be used with the `Field` component, which provides labeling and validation for individual form controls. These are nested inside `Form`:
 
 ```ts
 import { Form } from '@base-ui-components/react/form';
@@ -42,12 +42,12 @@ import { Field } from '@base-ui-components/react/field';
 ```
 
 ```jsx
-<Form.Root>
+<Form>
   <Field.Root>
     <Field.Control />
   </Field.Root>
   <button type="submit">Submit</button>
-</Form.Root>
+</Form>
 ```
 
 If any of the Fields within the Form are invalid upon submit, focus is moved to the first invalid Field's control and the submit event is prevented.
@@ -65,7 +65,7 @@ The `Field.Error` subcomponent of a Field renders error messages inside of it, w
 
 ### Server-side validation
 
-For server-side validation messages, the `Form.Root` component accepts an `errors` prop — an object whose keys map to the Field `name` prop, with each value being a string or array of strings representing error messages. The `onClearErrors` prop is called to clear these external server errors when the field's control has been changed:
+For server-side validation messages, the `Form` component accepts an `errors` prop — an object whose keys map to the Field `name` prop, with each value being a string or array of strings representing error messages. The `onClearErrors` prop is called to clear these external server errors when the field's control has been changed:
 
 ```jsx
 const [errors, setErrors] = React.useState({});
@@ -86,21 +86,21 @@ async function handleSubmit(event) {
 }
 
 return (
-  <Form.Root onSubmit={handleSubmit} errors={errors} onClearErrors={setErrors}>
+  <Form onSubmit={handleSubmit} errors={errors} onClearErrors={setErrors}>
     <Field.Root name="username">
       <Field.Control />
       <Field.Error /> {/* Populated with `errors.username` string */}
     </Field.Root>
-  </Form.Root>
+  </Form>
 );
 ```
 
-For more flexibility if required, each `Field.Root` component accepts an `invalid` boolean prop, and each `Field.Error` subcomponent accepts a `forceShow` boolean prop. These can be used as an alternative to `Form.Root`'s `errors` prop by manually targeting specific Fields and showing specific error messages.
+For more flexibility if required, each `Field.Root` component accepts an `invalid` boolean prop, and each `Field.Error` subcomponent accepts a `forceShow` boolean prop. These can be used as an alternative to `Form`'s `errors` prop by manually targeting specific Fields and showing specific error messages.
 
 ### Native validation
 
 By default, browser-native validation popups are disabled, as `Field.Error` replaces this by rendering the validation messages to allow for flexible styling. If necessary, to enable these native validation popups, re-apply the default prop:
 
 ```jsx
-<Form.Root noValidate={false}>
+<Form noValidate={false}>
 ```

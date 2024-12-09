@@ -71,11 +71,6 @@ namespace SelectTrigger {
      */
     disabled?: boolean;
     /**
-     * If `true`, allows a disabled button to receive focus.
-     * @default false
-     */
-    focusableWhenDisabled?: boolean;
-    /**
      * Label of the button
      */
     label?: string;
@@ -104,11 +99,6 @@ SelectTrigger.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
-  /**
-   * If `true`, allows a disabled button to receive focus.
-   * @default false
-   */
-  focusableWhenDisabled: PropTypes.bool,
   /**
    * @ignore
    */

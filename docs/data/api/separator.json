@@ -1,0 +1,17 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
+  },
+  "name": "Separator",
+  "imports": ["import { Separator } from '@base-ui-components/react/separator';"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "Separator",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/react/src/separator/Separator.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-separator/\">Separator</a></li></ul>",
+  "cssComponent": false
+}

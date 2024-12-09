@@ -194,7 +194,7 @@
       --color-white: initial;
       --color-black: initial;
     }
-    /* These variables are exposed in "demo-colors.css" for CSS Modules demos */
+    /* These variables are exposed in "demo-theme.css" for CSS Modules demos */
     &:not([data-demo='css-modules']) {
       --color-blue: initial;
       --color-red: initial;
@@ -213,12 +213,6 @@
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-
-  svg {
-    /* Safari messes up geometry of many basic SVGs, such as check icons in checkboxes or chevrons on menus */
-    /* Putting them on the GPU fixes that */
-    transform: translateZ(0);
   }
 
   /* Debugging red text? You just forgot to set or inherit color in your demo. */

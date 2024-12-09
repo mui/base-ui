@@ -11,11 +11,6 @@
       "default": "false",
       "description": "If `true`, the component is disabled."
     },
-    "focusableWhenDisabled": {
-      "type": "boolean",
-      "default": "false",
-      "description": "If `true`, allows a disabled button to receive focus."
-    },
     "label": {
       "type": "string",
       "description": "Label of the button"

@@ -10,7 +10,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
-import { useCheckboxGroupRootContext } from '../../checkbox-group/root/CheckboxGroupRootContext';
+import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 
 export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckboxRoot.ReturnValue {
   const {
@@ -27,7 +27,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     disabled = false,
   } = params;
 
-  const groupContext = useCheckboxGroupRootContext();
+  const groupContext = useCheckboxGroupContext();
   const groupValue = groupContext?.value;
   const setGroupValue = groupContext?.setValue;
   const defaultGroupValue = groupContext?.defaultValue;

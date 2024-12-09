@@ -4,10 +4,11 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { CompositeList } from '../../composite/list/CompositeList';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { useTabsRoot } from './useTabsRoot';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStyleHookMapping } from './styleHooks';
-import { TabPanelMetadata } from '../tab-panel/useTabPanel';
+import { TabPanelMetadata } from '../panel/useTabsPanel';
 
 /**
  *
@@ -33,6 +34,8 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     ...other
   } = props;
 
+  const direction = useDirection();
+
   const {
     getTabElementBySelectedValue,
     getTabIdByPanelValueOrIndex,
@@ -51,6 +54,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
 
   const tabsContextValue: TabsRootContext = React.useMemo(
     () => ({
+      direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValueOrIndex,
       getTabPanelIdByTabValueOrIndex,
@@ -61,6 +65,7 @@ const TabsRoot = React.forwardRef(function TabsRoot(
       value,
     }),
     [
+      direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValueOrIndex,
       getTabPanelIdByTabValueOrIndex,

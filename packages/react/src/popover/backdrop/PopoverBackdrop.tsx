@@ -5,7 +5,6 @@ import { FloatingPortal } from '@floating-ui/react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
-import { usePopoverBackdrop } from './usePopoverBackdrop';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
@@ -39,13 +38,10 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   props: PopoverBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, container, ...otherProps } = props;
-
+  const { className, render, keepMounted = false, container, ...other } = props;
   const { open, mounted, transitionStatus } = usePopoverRootContext();
 
-  const { getBackdropProps } = usePopoverBackdrop();
-
-  const state = React.useMemo(
+  const state: PopoverBackdrop.State = React.useMemo(
     () => ({
       open,
       transitionStatus,
@@ -54,12 +50,11 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getBackdropProps,
     render: render ?? 'div',
     className,
     state,
     ref: forwardedRef,
-    extraProps: otherProps,
+    extraProps: { role: 'presentation', hidden: !mounted, ...other },
     customStyleHookMapping,
   });
 

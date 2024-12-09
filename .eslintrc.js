@@ -1,5 +1,4 @@
 const baseline = require('@mui/monorepo/.eslintrc');
-const path = require('path');
 
 const OneLevelImportMessage = [
   'Prefer one level nested imports to avoid bundling everything in dev mode or breaking CJS/ESM split.',
@@ -17,8 +16,8 @@ module.exports = {
   ...baseline,
   settings: {
     'import/resolver': {
-      webpack: {
-        config: path.join(__dirname, './webpackBaseConfig.js'),
+      typescript: {
+        project: ['docs/tsconfig.json', 'packages/*/tsconfig.test.json'],
       },
     },
   },
@@ -48,13 +47,16 @@ module.exports = {
 
     // This rule doesn't recognise <label> wrapped around custom controls
     'jsx-a11y/label-has-associated-control': 'off',
+
+    // An overzealous rule that shouts at <a href="#"> in demos.
+    'jsx-a11y/anchor-is-valid': 'off',
   },
   overrides: [
     ...baseline.overrides.filter(
       (ruleSet) => !ruleSet.rules.hasOwnProperty('filenames/match-exported'),
     ),
     {
-      files: ['docs/src/app/experiments/**/*{.tsx,.js}', 'docs/pages/playground/**/*{.tsx,.js}'],
+      files: ['docs/src/app/(private)/experiments/**/*{.tsx,.js}'],
       rules: {
         '@typescript-eslint/no-use-before-define': 'off',
         'react/prop-types': 'off',

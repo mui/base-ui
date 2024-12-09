@@ -2,7 +2,7 @@
 productId: base-ui
 title: React ToggleGroup component
 description: ToggleGroup provides a set of two-state buttons that can either be off (not pressed) or on (pressed).
-components: ToggleGroupRoot
+components: ToggleGroup
 githubLabel: 'component: toggle button'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/radio-group/
 packageName: '@base-ui-components/react'
@@ -113,6 +113,22 @@ return (
   </ToggleGroup>
 );
 ```
+
+## RTL
+
+To change direction for right-to-left languages, place the component in [`DirectionProvider`](/components/react-direction-provider) with the `direction="rtl"` prop to configure RTL behavior, and set the `dir` attribute accordingly in your HTML to affect styling:
+
+```jsx
+<html dir="rtl">
+  <body>
+    <DirectionProvider direction="rtl">
+      <ToggleGroup>{/* Subcomponents */}</ToggleGroup>
+    </DirectionProvider>
+  </body>
+</html>
+```
+
+When RTL, the behavior of the left and right arrow keys are reversed - <kbd className="key">Left Arrow</kbd> moves focus to the next toggle and <kbd className="key">Right Arrow</kbd> moves focus to the previous toggle.
 
 ## Accessibility
 
