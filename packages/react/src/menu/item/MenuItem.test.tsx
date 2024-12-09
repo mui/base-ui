@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
-import { act, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
@@ -46,6 +46,26 @@ describe('<Menu.Item />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  it('calls the onClick handler when clicked', async () => {
+    const onClick = spy();
+    await render(
+      <Menu.Root open>
+        <Menu.Positioner>
+          <Menu.Popup>
+            <Menu.Item onClick={onClick} id="item">
+              Item
+            </Menu.Item>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Root>,
+    );
+
+    const item = screen.getByRole('menuitem');
+    await user.click(item);
+
+    expect(onClick.callCount).to.equal(1);
+  });
 
   it('perf: does not rerender menu items unnecessarily', async function test(t = {}) {
     if (/jsdom/.test(window.navigator.userAgent)) {

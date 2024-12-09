@@ -20,7 +20,8 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(externalRef, triggerRef);
-  const timeoutRef = React.useRef(-1);
+  const eventHandlerTimeoutRef = React.useRef(-1);
+  const allowMouseUpTriggerTimeoutRef = React.useRef(-1);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -32,19 +33,20 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
   React.useEffect(() => {
     if (open) {
       // mousedown -> mouseup on menu item should not trigger it within 200ms.
-      const timeoutId = window.setTimeout(() => {
+      allowMouseUpTriggerTimeoutRef.current = window.setTimeout(() => {
         allowMouseUpTriggerRef.current = true;
       }, 200);
 
       return () => {
-        clearTimeout(timeoutId);
+        clearTimeout(allowMouseUpTriggerTimeoutRef.current);
+        allowMouseUpTriggerTimeoutRef.current = -1;
       };
     }
 
     allowMouseUpTriggerRef.current = false;
-    if (timeoutRef.current !== -1) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = -1;
+    if (eventHandlerTimeoutRef.current !== -1) {
+      clearTimeout(eventHandlerTimeoutRef.current);
+      eventHandlerTimeoutRef.current = -1;
     }
 
     return undefined;
@@ -92,15 +94,22 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
             }
 
             // Firefox can fire this upon mousedown
-            timeoutRef.current = window.setTimeout(() => {
+            eventHandlerTimeoutRef.current = window.setTimeout(() => {
               doc.addEventListener('mouseup', handleMouseUp, { once: true });
             });
+          },
+          onClick: () => {
+            allowMouseUpTriggerRef.current = false;
+            if (allowMouseUpTriggerTimeoutRef.current !== -1) {
+              clearTimeout(allowMouseUpTriggerTimeoutRef.current);
+              allowMouseUpTriggerTimeoutRef.current = -1;
+            }
           },
         },
         getButtonProps(),
       );
     },
-    [getButtonProps, handleRef, open, setOpen, positionerRef],
+    [getButtonProps, handleRef, open, setOpen, positionerRef, allowMouseUpTriggerRef],
   );
 
   return React.useMemo(
