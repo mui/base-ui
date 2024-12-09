@@ -17,15 +17,17 @@ import { Popover } from '@base-ui-components/react/popover';
 
 <Popover.Root>
   <Popover.Trigger />
-  <Popover.Backdrop />
-  <Popover.Positioner>
-    <Popover.Popup>
-      <Popover.Arrow />
-      <Popover.Title />
-      <Popover.Description />
-      <Popover.Close />
-    </Popover.Popup>
-  </Popover.Positioner>
+  <Popover.Portal>
+    <Popover.Backdrop />
+    <Popover.Positioner>
+      <Popover.Popup>
+        <Popover.Arrow />
+        <Popover.Title />
+        <Popover.Description />
+        <Popover.Close />
+      </Popover.Popup>
+    </Popover.Positioner>
+  </Popover.Portal>
 </Popover.Root>;
 ```
 

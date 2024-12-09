@@ -24,12 +24,14 @@ import { PreviewCard } from '@base-ui-components/react/previewCard';
 
 <PreviewCard.Root>
   <PreviewCard.Trigger />
-  <PreviewCard.Backdrop />
-  <PreviewCard.Positioner>
-    <PreviewCard.Popup>
-      <PreviewCard.Arrow />
-    </PreviewCard.Popup>
-  </PreviewCard.Positioner>
+  <PreviewCard.Portal>
+    <PreviewCard.Backdrop />
+    <PreviewCard.Positioner>
+      <PreviewCard.Popup>
+        <PreviewCard.Arrow />
+      </PreviewCard.Popup>
+    </PreviewCard.Positioner>
+  </PreviewCard.Portal>
 </PreviewCard.Root>;
 ```
 

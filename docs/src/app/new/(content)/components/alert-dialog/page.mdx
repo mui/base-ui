@@ -17,12 +17,14 @@ import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 
 <AlertDialog.Root>
   <AlertDialog.Trigger />
-  <AlertDialog.Backdrop />
-  <AlertDialog.Popup>
-    <AlertDialog.Title />
-    <AlertDialog.Description />
-    <AlertDialog.Close />
-  </AlertDialog.Popup>
+  <AlertDialog.Portal>
+    <AlertDialog.Popup>
+      <AlertDialog.Backdrop />
+      <AlertDialog.Title />
+      <AlertDialog.Description />
+      <AlertDialog.Close />
+    </AlertDialog.Popup>
+  </AlertDialog.Portal>
 </AlertDialog.Root>;
 ```
 
