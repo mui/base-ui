@@ -64,7 +64,7 @@ Slider.propTypes = {
 
 const SliderOutput = React.forwardRef(function SliderOutput(props, ref) {
   return (
-    <BaseSlider.Output
+    <BaseSlider.Value
       {...props}
       ref={ref}
       className={(state) =>
