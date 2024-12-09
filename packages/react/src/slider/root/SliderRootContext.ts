@@ -4,7 +4,7 @@ import type { SliderRoot } from './SliderRoot';
 import type { useSliderRoot } from './useSliderRoot';
 
 export interface SliderRootContext extends Omit<useSliderRoot.ReturnValue, 'getRootProps'> {
-  format?: Intl.NumberFormatOptions | Intl.NumberFormatOptions[];
+  format?: Intl.NumberFormatOptions;
   state: SliderRoot.State;
 }
 

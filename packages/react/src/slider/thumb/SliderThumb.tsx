@@ -43,6 +43,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaLabel,
     getAriaValueText,
     id,
+    inputId,
     ...otherProps
   } = props;
 
@@ -88,6 +89,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaLabel,
     getAriaValueText,
     id,
+    inputId,
     largeStep,
     max,
     min,
