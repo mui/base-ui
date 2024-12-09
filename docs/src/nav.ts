@@ -65,6 +65,10 @@ export const nav = [
         href: '/new/components/dialog',
       },
       {
+        label: 'Direction Provider',
+        href: '/new/components/direction-provider',
+      },
+      {
         label: 'Field',
         href: '/new/components/field',
       },
@@ -127,6 +131,14 @@ export const nav = [
       {
         label: 'Tabs',
         href: '/new/components/tabs',
+      },
+      {
+        label: 'Toggle',
+        href: '/new/components/toggle',
+      },
+      {
+        label: 'Toggle Group',
+        href: '/new/components/toggle-group',
       },
       {
         label: 'Tooltip',

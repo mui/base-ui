@@ -4,7 +4,7 @@ import { Slider } from '@base-ui-components/react/slider';
 export default function ExampleSlider() {
   return (
     <Slider.Root defaultValue={25}>
-      <Slider.Control className="flex w-56 items-center px-2 py-3">
+      <Slider.Control className="flex w-56 items-center py-3">
         <Slider.Track className="relative h-1 w-full rounded bg-gray-200 shadow-[inset_0_0_0_1px] shadow-gray-200">
           {/* TODO remove relative when position absolute is removed */}
           <Slider.Indicator className="!relative block rounded bg-gray-700" />
