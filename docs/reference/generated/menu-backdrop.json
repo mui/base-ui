@@ -1,6 +1,6 @@
 {
-  "name": "DialogBackdrop",
-  "description": "An overlay displayed beneath the popup. Renders a `<div>` element.",
+  "name": "MenuBackdrop",
+  "description": "Renders a backdrop for the menu.",
   "props": {
     "className": {
       "type": "string | (state) => string",
@@ -14,25 +14,11 @@
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the backdrop element is kept in the DOM when closed."
+      "description": "If `true`, the backdrop remains mounted when the menu popup is closed."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
-    }
-  },
-  "attributes": {
-    "[data-open]": {
-      "description": "Present when the dialog is open."
-    },
-    "[data-closed]": {
-      "description": "Present when the dialog is closed."
-    },
-    "[data-starting-style]": {
-      "description": "Present when the dialog is animating in."
-    },
-    "[data-ending-style]": {
-      "description": "Present when the dialog is animating out."
     }
   }
 }

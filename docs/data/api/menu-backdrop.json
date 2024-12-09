@@ -8,17 +8,17 @@
     "keepMounted": { "type": { "name": "bool" }, "default": "false" },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
-  "name": "AlertDialogBackdrop",
+  "name": "MenuBackdrop",
   "imports": [
-    "import { AlertDialog } from '@base-ui-components/react/alert-dialog';\nconst AlertDialogBackdrop = AlertDialog.Backdrop;"
+    "import { Menu } from '@base-ui-components/react/menu';\nconst MenuBackdrop = Menu.Backdrop;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "AlertDialogBackdrop",
+  "muiName": "MenuBackdrop",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/alert-dialog/backdrop/AlertDialogBackdrop.tsx",
+  "filename": "/packages/react/src/menu/backdrop/MenuBackdrop.tsx",
   "inheritance": null,
-  "demos": "<ul><li><a href=\"/components/react-alert-dialog/\">Alert Dialog</a></li></ul>",
+  "demos": "<ul><li><a href=\"/components/react-menu/\">Menu</a></li></ul>",
   "cssComponent": false
 }
