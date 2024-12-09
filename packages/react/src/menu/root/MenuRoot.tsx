@@ -2,8 +2,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingTree } from '@floating-ui/react';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
-import { MenuDirection, MenuOrientation, useMenuRoot } from './useMenuRoot';
+import { MenuOrientation, useMenuRoot } from './useMenuRoot';
 
 /**
  *
@@ -17,10 +18,8 @@ import { MenuDirection, MenuOrientation, useMenuRoot } from './useMenuRoot';
  */
 const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const {
-    animated = true,
     children,
     defaultOpen = false,
-    dir: direction = 'ltr',
     disabled = false,
     closeParentOnEsc = true,
     loop = true,
@@ -30,6 +29,8 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     delay = 100,
     openOnHover: openOnHoverProp,
   } = props;
+
+  const direction = useDirection();
 
   const parentContext = useMenuRootContext(true);
   const nested = parentContext != null;
@@ -42,7 +43,6 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   }, []);
 
   const menuRoot = useMenuRoot({
-    animated,
     direction,
     disabled,
     closeParentOnEsc,
@@ -93,13 +93,6 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
 namespace MenuRoot {
   export interface Props {
-    /**
-     * If `true`, the Menu supports CSS-based animations and transitions.
-     * It is kept in the DOM until the animation completes.
-     *
-     * @default true
-     */
-    animated?: boolean;
     children: React.ReactNode;
     /**
      * If `true`, the Menu is initially open.
@@ -127,12 +120,6 @@ namespace MenuRoot {
      * @default 'vertical'
      */
     orientation?: MenuOrientation;
-    /**
-     * The direction of the Menu (left-to-right or right-to-left).
-     *
-     * @default 'ltr'
-     */
-    dir?: MenuDirection;
     /**
      * If `true`, the Menu is disabled.
      *
@@ -168,13 +155,6 @@ MenuRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the Menu supports CSS-based animations and transitions.
-   * It is kept in the DOM until the animation completes.
-   *
-   * @default true
-   */
-  animated: PropTypes.bool,
-  /**
    * @ignore
    */
   children: PropTypes.node,
@@ -199,12 +179,6 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    * @default 100
    */
   delay: PropTypes.number,
-  /**
-   * The direction of the Menu (left-to-right or right-to-left).
-   *
-   * @default 'ltr'
-   */
-  dir: PropTypes.oneOf(['ltr', 'rtl']),
   /**
    * If `true`, the Menu is disabled.
    *

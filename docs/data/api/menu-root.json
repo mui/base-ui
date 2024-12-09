@@ -1,13 +1,8 @@
 {
   "props": {
-    "animated": { "type": { "name": "bool" }, "default": "true" },
     "closeParentOnEsc": { "type": { "name": "bool" }, "default": "true" },
     "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
     "delay": { "type": { "name": "number" }, "default": "100" },
-    "dir": {
-      "type": { "name": "enum", "description": "'ltr'<br>&#124;&nbsp;'rtl'" },
-      "default": "'ltr'"
-    },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "loop": { "type": { "name": "bool" }, "default": "true" },
     "onOpenChange": { "type": { "name": "func" } },

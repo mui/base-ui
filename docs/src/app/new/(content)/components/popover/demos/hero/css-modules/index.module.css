@@ -34,6 +34,11 @@
   }
 }
 
+.Icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
 .Popup {
   box-sizing: border-box;
   padding: 1rem 1.5rem;

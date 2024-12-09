@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
 import { Radio } from '@base-ui-components/react/radio';
+import {
+  DirectionProvider,
+  type TextDirection,
+} from '@base-ui-components/react/direction-provider';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, act, screen, fireEvent, describeSkipIf } from '@mui/internal-test-utils';
@@ -131,12 +135,12 @@ describe('<RadioGroup.Root />', () => {
     expect(root).to.have.attribute('data-readonly', '');
     expect(root).to.have.attribute('data-required', '');
 
-    expect(item).to.have.attribute('data-radio', 'checked');
+    expect(item).to.have.attribute('data-checked', '');
     expect(item).to.have.attribute('data-disabled', '');
     expect(item).to.have.attribute('data-readonly', '');
     expect(item).to.have.attribute('data-required', '');
 
-    expect(indicator).to.have.attribute('data-radio', 'checked');
+    expect(indicator).to.have.attribute('data-checked', '');
     expect(indicator).to.have.attribute('data-disabled', '');
     expect(indicator).to.have.attribute('data-readonly', '');
     expect(indicator).to.have.attribute('data-required', '');
@@ -226,7 +230,7 @@ describe('<RadioGroup.Root />', () => {
       describeSkipIf(isJSDOM && direction === 'rtl')(direction, () => {
         it(direction, async () => {
           const { user } = await render(
-            <div dir={direction}>
+            <DirectionProvider direction={direction as TextDirection}>
               <button data-testid="before" />
               <RadioGroup.Root>
                 <Radio.Root value="a" data-testid="a" />
@@ -234,7 +238,7 @@ describe('<RadioGroup.Root />', () => {
                 <Radio.Root value="c" data-testid="c" />
               </RadioGroup.Root>
               <button data-testid="after" />
-            </div>,
+            </DirectionProvider>,
           );
 
           const a = screen.getByTestId('a');
@@ -298,6 +302,56 @@ describe('<RadioGroup.Root />', () => {
           expect(c).toHaveFocus();
         });
       });
+    });
+  });
+
+  describe('style hooks', () => {
+    it('should apply data-checked and data-unchecked to radio root and indicator', () => {
+      render(
+        <RadioGroup.Root>
+          <Radio.Root value="a" data-testid="a">
+            <Radio.Indicator data-testid="indicator-a" />
+          </Radio.Root>
+          <Radio.Root value="b" data-testid="b">
+            <Radio.Indicator data-testid="indicator-b" />
+          </Radio.Root>
+        </RadioGroup.Root>,
+      );
+
+      const a = screen.getByTestId('a');
+      const b = screen.getByTestId('b');
+      const indicatorA = screen.getByTestId('indicator-a');
+      const indicatorB = screen.getByTestId('indicator-b');
+
+      expect(a).to.have.attribute('data-unchecked', '');
+      expect(indicatorA).to.have.attribute('data-unchecked', '');
+
+      expect(b).to.have.attribute('data-unchecked', '');
+      expect(indicatorB).to.have.attribute('data-unchecked', '');
+
+      fireEvent.click(a);
+
+      expect(a).to.have.attribute('data-checked', '');
+      expect(indicatorA).to.have.attribute('data-checked', '');
+
+      expect(b).to.have.attribute('data-unchecked', '');
+      expect(indicatorB).to.have.attribute('data-unchecked', '');
+
+      fireEvent.click(b);
+
+      expect(a).to.have.attribute('data-unchecked', '');
+      expect(indicatorA).to.have.attribute('data-unchecked', '');
+
+      expect(b).to.have.attribute('data-checked', '');
+      expect(indicatorB).to.have.attribute('data-checked', '');
+
+      fireEvent.click(a);
+
+      expect(a).to.have.attribute('data-checked', '');
+      expect(indicatorA).to.have.attribute('data-checked', '');
+
+      expect(b).to.have.attribute('data-unchecked', '');
+      expect(indicatorB).to.have.attribute('data-unchecked', '');
     });
   });
 });

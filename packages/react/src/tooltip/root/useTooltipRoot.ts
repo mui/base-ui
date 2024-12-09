@@ -13,25 +13,22 @@ import {
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { OPEN_DELAY } from '../utils/constants';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
-import { useLatestRef } from '../../utils/useLatestRef';
 import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
     open: externalOpen,
     onOpenChange: onOpenChangeProp = () => {},
     defaultOpen = false,
-    keepMounted = false,
     hoverable = true,
-    animated = true,
     trackCursorAxis = 'none',
     delay,
     closeDelay,
@@ -63,11 +60,15 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     [onOpenChange, setOpenUnwrapped],
   );
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, animated);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(popupRef);
-
-  const openRef = useLatestRef(open);
+  useAfterExitAnimation({
+    open,
+    animatedElementRef: popupRef,
+    onFinished() {
+      setMounted(false);
+    },
+  });
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -82,7 +83,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
         setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
       }
 
-      if (animated && isHover) {
+      if (isHover) {
         // If a hover reason is provided, we need to flush the state synchronously. This ensures
         // `node.getAnimations()` knows about the new state.
         ReactDOM.flushSync(changeState);
@@ -94,18 +95,6 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
         setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
       } else if (reasonValue === 'hover') {
         setInstantTypeState(undefined);
-      }
-
-      if (!keepMounted && !openValue) {
-        if (animated) {
-          runOnceAnimationsFinish(() => {
-            if (!openRef.current) {
-              setMounted(false);
-            }
-          });
-        } else {
-          setMounted(false);
-        }
       }
     },
   });
@@ -200,12 +189,6 @@ export namespace useTooltipRoot {
      */
     hoverable?: boolean;
     /**
-     * Whether the tooltip can animate, adding animation-related attributes and allowing for exit
-     * animations to play. Useful to disable in tests to remove async behavior.
-     * @default true
-     */
-    animated?: boolean;
-    /**
      * Determines which axis the tooltip should track the cursor on.
      * @default 'none'
      */
@@ -220,11 +203,6 @@ export namespace useTooltipRoot {
      * @default 0
      */
     closeDelay?: number;
-    /**
-     * Whether the tooltip popup element stays mounted in the DOM when closed.
-     * @default false
-     */
-    keepMounted?: boolean;
   }
 
   export interface ReturnValue {

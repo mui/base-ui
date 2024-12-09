@@ -6,7 +6,6 @@ import { AccordionRootContext } from '../root/AccordionRootContext';
 
 const accordionRootContextValue: AccordionRootContext = {
   accordionItemRefs: { current: [] },
-  animated: false,
   direction: 'ltr',
   disabled: false,
   handleValueChange: NOOP,

@@ -66,7 +66,7 @@ export namespace UseToggleGroupRoot {
     value?: readonly any[];
     /**
      * The open state of the ToggleGroup represented by an array of
-     * the values of all pressed `<ToggleGroup.Item/>`s
+     * the values of all pressed `<ToggleGroup.Item/>`s.
      * This is the uncontrolled counterpart of `value`.
      */
     defaultValue?: readonly any[];
@@ -94,7 +94,7 @@ export namespace UseToggleGroupRoot {
   export interface ReturnValue {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**
-     * When `true` the component is disabled
+     * When `true` the component is disabled.
      * @false
      */
     disabled: boolean;
@@ -104,7 +104,7 @@ export namespace UseToggleGroupRoot {
     setGroupValue: (newValue: string, nextPressed: boolean, event: Event) => void;
     /**
      * The value of the ToggleGroup represented by an array of values
-     * of the items that are pressed
+     * of the items that are pressed.
      */
     value: readonly any[];
   }

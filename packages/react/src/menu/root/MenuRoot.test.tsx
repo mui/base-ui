@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, flushMicrotasks, waitFor, screen } from '@mui/internal-test-utils';
+import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
@@ -13,7 +14,7 @@ describe('<Menu.Root />', () => {
   describe('keyboard navigation', () => {
     it('changes the highlighted item using the arrow keys', async () => {
       const { getByRole, getByTestId } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>
@@ -58,7 +59,7 @@ describe('<Menu.Root />', () => {
 
     it('changes the highlighted item using the Home and End keys', async () => {
       const { getByRole, getByTestId } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>
@@ -96,7 +97,7 @@ describe('<Menu.Root />', () => {
 
     it('includes disabled items during keyboard navigation', async () => {
       const { getByRole, getByTestId } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>
@@ -143,7 +144,7 @@ describe('<Menu.Root />', () => {
         }
 
         const { getByText, getAllByRole } = await render(
-          <Menu.Root open animated={false}>
+          <Menu.Root open>
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item>Aa</Menu.Item>
@@ -187,7 +188,7 @@ describe('<Menu.Root />', () => {
         }
 
         const { getByRole, getAllByRole } = await render(
-          <Menu.Root animated={false}>
+          <Menu.Root>
             <Menu.Trigger>Toggle</Menu.Trigger>
             <Menu.Positioner>
               <Menu.Popup>
@@ -243,7 +244,7 @@ describe('<Menu.Root />', () => {
         }
 
         const { getByText, getAllByRole } = await render(
-          <Menu.Root open animated={false}>
+          <Menu.Root open>
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item>Aa</Menu.Item>
@@ -289,7 +290,7 @@ describe('<Menu.Root />', () => {
         }
 
         const { getByText, getAllByRole } = await render(
-          <Menu.Root open animated={false}>
+          <Menu.Root open>
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item>Aa</Menu.Item>
@@ -330,7 +331,7 @@ describe('<Menu.Root />', () => {
         }
 
         const { getByText, getAllByRole } = await render(
-          <Menu.Root open animated={false}>
+          <Menu.Root open>
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item>Aa</Menu.Item>
@@ -367,7 +368,7 @@ describe('<Menu.Root />', () => {
         const handleClick = spy();
 
         const { getAllByRole } = await render(
-          <Menu.Root open animated={false}>
+          <Menu.Root open>
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item onClick={() => handleClick()}>Item One</Menu.Item>
@@ -406,22 +407,24 @@ describe('<Menu.Root />', () => {
     ).forEach(([orientation, direction, openKey, closeKey]) => {
       it(`opens a nested menu of a ${orientation} ${direction.toUpperCase()} menu with ${openKey} key and closes it with ${closeKey}`, async () => {
         const { getByTestId, queryByTestId } = await render(
-          <Menu.Root open orientation={orientation} dir={direction} animated={false}>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>1</Menu.Item>
-                <Menu.Root orientation={orientation} dir={direction} animated={false}>
-                  <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
-                  <Menu.Positioner>
-                    <Menu.Popup data-testid="submenu">
-                      <Menu.Item data-testid="submenu-item-1">2.1</Menu.Item>
-                      <Menu.Item>2.2</Menu.Item>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Root>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Root>,
+          <DirectionProvider direction={direction}>
+            <Menu.Root open orientation={orientation}>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>1</Menu.Item>
+                  <Menu.Root orientation={orientation}>
+                    <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu">
+                        <Menu.Item data-testid="submenu-item-1">2.1</Menu.Item>
+                        <Menu.Item>2.2</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Root>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Root>
+          </DirectionProvider>,
         );
 
         const submenuTrigger = getByTestId('submenu-trigger');
@@ -454,7 +457,7 @@ describe('<Menu.Root />', () => {
   describe('focus management', () => {
     function Test() {
       return (
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>
@@ -530,7 +533,7 @@ describe('<Menu.Root />', () => {
       const { getByRole } = await render(
         <div>
           <input type="text" />
-          <Menu.Root animated={false}>
+          <Menu.Root>
             <Menu.Trigger>Toggle</Menu.Trigger>
             <Menu.Positioner>
               <Menu.Popup>
@@ -562,7 +565,7 @@ describe('<Menu.Root />', () => {
       const { getByRole } = await render(
         <div>
           <input type="text" />
-          <Menu.Root animated={false}>
+          <Menu.Root>
             <Menu.Trigger>Toggle</Menu.Trigger>
             <Menu.Positioner keepMounted>
               <Menu.Popup>
@@ -589,12 +592,12 @@ describe('<Menu.Root />', () => {
   describe('prop: closeParentOnEsc', () => {
     it('closes the parent menu when the Escape key is pressed by default', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
             <Menu.Popup>
               <Menu.Item>1</Menu.Item>
-              <Menu.Root animated={false}>
+              <Menu.Root>
                 <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
                 <Menu.Positioner>
                   <Menu.Popup>
@@ -636,12 +639,12 @@ describe('<Menu.Root />', () => {
 
     it('does not close the parent menu when the Escape key is pressed if `closeParentOnEsc=false`', async () => {
       const { getByRole, queryAllByRole } = await render(
-        <Menu.Root animated={false}>
+        <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner id="parent-menu">
             <Menu.Popup>
               <Menu.Item>1</Menu.Item>
-              <Menu.Root animated={false} closeParentOnEsc={false}>
+              <Menu.Root closeParentOnEsc={false}>
                 <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
                 <Menu.Positioner id="submenu">
                   <Menu.Popup>
@@ -726,6 +729,8 @@ describe('<Menu.Root />', () => {
         this?.skip?.() || t?.skip();
       }
 
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
       let animationFinished = false;
       const notifyAnimationFinished = () => {
         animationFinished = true;
@@ -777,6 +782,8 @@ describe('<Menu.Root />', () => {
       });
 
       expect(animationFinished).to.equal(true);
+
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 });
