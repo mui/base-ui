@@ -47,7 +47,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     state: 'open',
   });
 
-  const [controlledAlignOptionToTrigger, setControlledAlignOptionToTrigger] =
+  const [controlledAlignItemToTrigger, setcontrolledAlignItemToTrigger] =
     React.useState(alignItemToTriggerParam);
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
@@ -74,10 +74,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const alignItemToTrigger = Boolean(mounted && controlledAlignOptionToTrigger && !touchModality);
+  const alignItemToTrigger = Boolean(mounted && controlledAlignItemToTrigger && !touchModality);
 
-  if (!mounted && controlledAlignOptionToTrigger !== alignItemToTriggerParam) {
-    setControlledAlignOptionToTrigger(alignItemToTriggerParam);
+  if (!mounted && controlledAlignItemToTrigger !== alignItemToTriggerParam) {
+    setcontrolledAlignItemToTrigger(alignItemToTriggerParam);
   }
 
   if (!alignItemToTriggerParam || !mounted) {
@@ -201,7 +201,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setScrollUpArrowVisible,
       scrollDownArrowVisible,
       setScrollDownArrowVisible,
-      setControlledAlignOptionToTrigger,
+      setcontrolledAlignItemToTrigger,
       value,
       setValue,
       open,

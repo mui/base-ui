@@ -29,7 +29,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     scrollDownArrowVisible,
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
-    setControlledAlignOptionToTrigger,
+    setcontrolledAlignItemToTrigger,
   } = useSelectRootContext();
 
   const initialHeightRef = React.useRef(0);
@@ -176,7 +176,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     if (fallbackToAlignPopupToTrigger) {
       initialPlacedRef.current = true;
       clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
-      setControlledAlignOptionToTrigger(false);
+      setcontrolledAlignItemToTrigger(false);
       return;
     }
 
@@ -213,7 +213,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
     handleScrollArrowVisibility,
-    setControlledAlignOptionToTrigger,
+    setcontrolledAlignItemToTrigger,
   ]);
 
   React.useEffect(() => {
