@@ -61,7 +61,7 @@ async function getThemeFile(): Promise<DemoFile> {
     return themeFile;
   }
 
-  const path = 'src/styles/demo-colors.css';
+  const path = 'src/demo-theme.css';
   const content = await readFile(path, 'utf-8');
   const prettyContent = highlighter.codeToHtml(content, {
     lang: 'css',
