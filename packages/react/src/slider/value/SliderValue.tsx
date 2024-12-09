@@ -8,14 +8,15 @@ import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderValue } from './useSliderValue';
 /**
- *
  * Demos:
  *
- * - [Slider](https://base-ui.com/components/react-slider/)
+ * * [Slider](https://base-ui.com/components/react-slider/)
  *
  * API:
  *
- * - [SliderValue API](https://base-ui.com/components/react-slider/#api-reference-SliderValue)
+ * * [SliderValue API](https://base-ui.com/components/react-slider/#api-reference-SliderValue)
+ *
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderValue = React.forwardRef(function SliderValue(
   props: SliderValue.Props,
@@ -48,7 +49,6 @@ const SliderValue = React.forwardRef(function SliderValue(
     extraProps: {
       children:
         typeof children === 'function' ? children(formattedValues, values) : defaultDisplayValue,
-
       ...otherProps,
     },
     customStyleHookMapping: sliderStyleHookMapping,
@@ -76,7 +76,7 @@ SliderValue.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  children: PropTypes.node,
+  children: PropTypes.func,
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */
