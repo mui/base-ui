@@ -10,6 +10,7 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -66,7 +67,11 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     className,
     state,
     ref: mergedRef,
-    extraProps: otherProps,
+    extraProps: mergeReactProps(otherProps, {
+      style: {
+        transition: transitionStatus === 'entering' ? 'none' : undefined,
+      },
+    }),
     customStyleHookMapping,
   });
 
