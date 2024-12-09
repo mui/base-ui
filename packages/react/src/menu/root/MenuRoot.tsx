@@ -189,6 +189,11 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   loop: PropTypes.bool,
   /**
+   * Determines whether the menu is modal.
+   * @default false
+   */
+  modal: PropTypes.bool,
+  /**
    * Callback fired when the component requests to be opened or closed.
    */
   onOpenChange: PropTypes.func,

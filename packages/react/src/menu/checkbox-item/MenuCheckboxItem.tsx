@@ -73,6 +73,12 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
+   * @ignore
+   */
+  allowMouseUpTriggerRef: PropTypes.shape({
+    current: PropTypes.bool.isRequired,
+  }).isRequired,
+  /**
    * If `true`, the checkbox is checked.
    */
   checked: PropTypes.bool,
@@ -138,10 +144,6 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  treatMouseupAsClick: PropTypes.bool.isRequired,
   /**
    * @ignore
    */

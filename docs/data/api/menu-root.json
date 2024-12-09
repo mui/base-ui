@@ -5,6 +5,7 @@
     "delay": { "type": { "name": "number" }, "default": "100" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },
     "loop": { "type": { "name": "bool" }, "default": "true" },
+    "modal": { "type": { "name": "bool" }, "default": "false" },
     "onOpenChange": { "type": { "name": "func" } },
     "open": { "type": { "name": "bool" } },
     "openOnHover": { "type": { "name": "bool" } },

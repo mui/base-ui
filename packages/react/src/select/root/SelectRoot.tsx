@@ -144,6 +144,11 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
+   * Determines whether the select is modal.
+   * @default false
+   */
+  modal: PropTypes.bool,
+  /**
    * The name of the Select in the owning form.
    */
   name: PropTypes.string,

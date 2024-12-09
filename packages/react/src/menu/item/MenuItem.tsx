@@ -76,6 +76,12 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  allowMouseUpTriggerRef: PropTypes.shape({
+    current: PropTypes.bool.isRequired,
+  }).isRequired,
+  /**
+   * @ignore
+   */
   children: PropTypes.node,
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
@@ -125,10 +131,6 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  treatMouseupAsClick: PropTypes.bool.isRequired,
   /**
    * @ignore
    */

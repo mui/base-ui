@@ -12,6 +12,7 @@
     "loop": {
       "description": "If <code>true</code>, using keyboard navigation will wrap focus to the other end of the list once the end is reached."
     },
+    "modal": { "description": "Determines whether the menu is modal." },
     "onOpenChange": {
       "description": "Callback fired when the component requests to be opened or closed."
     },

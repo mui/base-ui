@@ -79,6 +79,12 @@ InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  allowMouseUpTriggerRef: PropTypes.shape({
+    current: PropTypes.bool.isRequired,
+  }).isRequired,
+  /**
+   * @ignore
+   */
   checked: PropTypes.bool.isRequired,
   /**
    * @ignore
@@ -136,10 +142,6 @@ InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   setChecked: PropTypes.func.isRequired,
-  /**
-   * @ignore
-   */
-  treatMouseupAsClick: PropTypes.bool.isRequired,
   /**
    * @ignore
    */
