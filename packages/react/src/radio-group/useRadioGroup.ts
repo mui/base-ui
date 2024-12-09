@@ -1,21 +1,21 @@
 'use client';
 import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useControlled } from '../../utils/useControlled';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
-import { useField } from '../../field/useField';
+import { mergeReactProps } from '../utils/mergeReactProps';
+import { useControlled } from '../utils/useControlled';
+import { useFieldRootContext } from '../field/root/FieldRootContext';
+import { useEnhancedEffect } from '../utils/useEnhancedEffect';
+import { useBaseUiId } from '../utils/useBaseUiId';
+import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
+import { useField } from '../field/useField';
 
 /**
  *
  * API:
  *
- * - [useRadioGroupRoot API](https://mui.com/base-ui/api/use-radio-group-root/)
+ * - [useRadioGroup API](https://mui.com/base-ui/api/use-radio-group-root/)
  */
-export function useRadioGroupRoot(params: useRadioGroupRoot.Parameters) {
+export function useRadioGroup(params: useRadioGroup.Parameters) {
   const { disabled = false, name, defaultValue, readOnly, value: externalValue } = params;
 
   const { labelId, setControlId, setTouched: setFieldTouched } = useFieldRootContext();
@@ -128,7 +128,7 @@ export function useRadioGroupRoot(params: useRadioGroupRoot.Parameters) {
   );
 }
 
-namespace useRadioGroupRoot {
+namespace useRadioGroup {
   export interface Parameters {
     name?: string;
     disabled?: boolean;

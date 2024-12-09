@@ -1,1 +1,1 @@
-export * as RadioGroup from './index.parts';
+export { RadioGroup } from './Radiogroup';

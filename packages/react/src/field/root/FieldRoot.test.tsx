@@ -235,10 +235,10 @@ describe('<Field.Root />', () => {
       it('supports RadioGroup', async () => {
         await render(
           <Field.Root validate={() => 'error'}>
-            <RadioGroup.Root data-testid="group">
+            <RadioGroup data-testid="group">
               <Radio.Root value="1">One</Radio.Root>
               <Radio.Root value="2">Two</Radio.Root>
-            </RadioGroup.Root>
+            </RadioGroup>
             <Field.Error data-testid="error" />
           </Field.Root>,
         );
@@ -479,12 +479,12 @@ describe('<Field.Root />', () => {
       it('supports RadioGroup (click)', async () => {
         await render(
           <Field.Root>
-            <RadioGroup.Root data-testid="group">
+            <RadioGroup data-testid="group">
               <Radio.Root value="1" data-testid="control">
                 One
               </Radio.Root>
               <Radio.Root value="2">Two</Radio.Root>
-            </RadioGroup.Root>
+            </RadioGroup>
           </Field.Root>,
         );
 
@@ -500,12 +500,12 @@ describe('<Field.Root />', () => {
       it('supports RadioGroup (blur)', async () => {
         await render(
           <Field.Root>
-            <RadioGroup.Root data-testid="group">
+            <RadioGroup data-testid="group">
               <Radio.Root value="1" data-testid="control">
                 One
               </Radio.Root>
               <Radio.Root value="2">Two</Radio.Root>
-            </RadioGroup.Root>
+            </RadioGroup>
             <button />
           </Field.Root>,
         );
@@ -632,10 +632,10 @@ describe('<Field.Root />', () => {
       it('supports RadioGroup', async () => {
         await render(
           <Field.Root>
-            <RadioGroup.Root data-testid="group">
+            <RadioGroup data-testid="group">
               <Radio.Root value="1">One</Radio.Root>
               <Radio.Root value="2">Two</Radio.Root>
-            </RadioGroup.Root>
+            </RadioGroup>
           </Field.Root>,
         );
 

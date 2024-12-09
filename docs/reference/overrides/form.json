@@ -1,5 +1,5 @@
 {
-  "name": "FormRoot",
+  "name": "Form",
   "props": {
     "errors": {
       "type": "Record<string, string | string[]>"

@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../utils/noop';
 
-export interface RadioGroupRootContext {
+export interface RadioGroupContext {
   disabled: boolean | undefined;
   readOnly: boolean | undefined;
   required: boolean | undefined;
@@ -13,7 +13,7 @@ export interface RadioGroupRootContext {
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const RadioGroupRootContext = React.createContext<RadioGroupRootContext>({
+export const RadioGroupContext = React.createContext<RadioGroupContext>({
   disabled: undefined,
   readOnly: undefined,
   required: undefined,
@@ -25,9 +25,9 @@ export const RadioGroupRootContext = React.createContext<RadioGroupRootContext>(
 });
 
 if (process.env.NODE_ENV !== 'production') {
-  RadioGroupRootContext.displayName = 'RadioGroupRootContext';
+  RadioGroupContext.displayName = 'RadioGroupContext';
 }
 
-export function useRadioGroupRootContext() {
-  return React.useContext(RadioGroupRootContext);
+export function useRadioGroupContext() {
+  return React.useContext(RadioGroupContext);
 }

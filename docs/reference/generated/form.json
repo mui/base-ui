@@ -7,11 +7,11 @@
       "description": "Class names applied to the element or a function that returns them based on the component's state."
     },
     "errors": {
-      "type": "object",
+      "type": "Record<string, string | string[]>",
       "description": "Object of error messages with each key mapping to the `name` prop of a Field control, usually\nfrom server-side validation."
     },
     "onClearErrors": {
-      "type": "function",
+      "type": "(errors) => void",
       "description": "Callback fired when the external server-side `error` messages should be cleared."
     },
     "render": {

@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useDirection } from '../../direction-provider/DirectionContext';
-import { useRadioGroupRoot } from './useRadioGroupRoot';
-import { RadioGroupRootContext } from './RadioGroupRootContext';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import type { BaseUIComponentProps } from '../utils/types';
+import { CompositeRoot } from '../composite/root/CompositeRoot';
+import { useComponentRenderer } from '../utils/useComponentRenderer';
+import { useEventCallback } from '../utils/useEventCallback';
+import { useDirection } from '../direction-provider/DirectionContext';
+import { useRadioGroup } from './useRadioGroup';
+import { RadioGroupContext } from './RadioGroupContext';
+import { useFieldRootContext } from '../field/root/FieldRootContext';
 /**
  *
  * Demos:
@@ -17,10 +17,10 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
  *
  * API:
  *
- * - [RadioGroupRoot API](https://base-ui.com/components/react-radio-group/#api-reference-RadioGroupRoot)
+ * - [RadioGroup API](https://base-ui.com/components/react-radio-group/#api-reference-RadioGroup)
  */
-const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
-  props: RadioGroupRoot.Props,
+const RadioGroup = React.forwardRef(function RadioGroup(
+  props: RadioGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -37,7 +37,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
   const direction = useDirection();
 
   const { getRootProps, getInputProps, checkedValue, setCheckedValue, touched, setTouched } =
-    useRadioGroupRoot(props);
+    useRadioGroup(props);
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
 
@@ -45,7 +45,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
 
   const onValueChange = useEventCallback(onValueChangeProp ?? (() => {}));
 
-  const state: RadioGroupRoot.State = React.useMemo(
+  const state: RadioGroup.State = React.useMemo(
     () => ({
       ...fieldState,
       disabled: disabled ?? false,
@@ -55,7 +55,7 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
     [fieldState, disabled, readOnly, required],
   );
 
-  const contextValue: RadioGroupRootContext = React.useMemo(
+  const contextValue: RadioGroupContext = React.useMemo(
     () => ({
       checkedValue,
       setCheckedValue,
@@ -88,14 +88,14 @@ const RadioGroupRoot = React.forwardRef(function RadioGroupRoot(
   });
 
   return (
-    <RadioGroupRootContext.Provider value={contextValue}>
+    <RadioGroupContext.Provider value={contextValue}>
       <CompositeRoot direction={direction} enableHomeAndEndKeys={false} render={renderElement()} />
       <input {...getInputProps()} />
-    </RadioGroupRootContext.Provider>
+    </RadioGroupContext.Provider>
   );
 });
 
-namespace RadioGroupRoot {
+namespace RadioGroup {
   export interface State {
     disabled: boolean | undefined;
     readOnly: boolean | undefined;
@@ -137,7 +137,7 @@ namespace RadioGroupRoot {
   }
 }
 
-RadioGroupRoot.propTypes /* remove-proptypes */ = {
+RadioGroup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -187,4 +187,4 @@ RadioGroupRoot.propTypes /* remove-proptypes */ = {
   value: PropTypes.any,
 } as any;
 
-export { RadioGroupRoot };
+export { RadioGroup };

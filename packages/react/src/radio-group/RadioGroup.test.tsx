@@ -8,21 +8,21 @@ import {
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, act, screen, fireEvent, describeSkipIf } from '@mui/internal-test-utils';
-import { describeConformance } from '../../../test/describeConformance';
+import { describeConformance } from '../../test/describeConformance';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
-describe('<RadioGroup.Root />', () => {
+describe('<RadioGroup />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<RadioGroup.Root />, () => ({
+  describeConformance(<RadioGroup />, () => ({
     refInstanceof: window.HTMLDivElement,
     render,
   }));
 
   describe('extra props', () => {
     it('can override the built-in attributes', () => {
-      const { container } = render(<RadioGroup.Root role="switch" />);
+      const { container } = render(<RadioGroup role="switch" />);
       expect(container.firstElementChild as HTMLElement).to.have.attribute('role', 'switch');
     });
   });
@@ -30,9 +30,9 @@ describe('<RadioGroup.Root />', () => {
   it('should call onValueChange when an item is clicked', () => {
     const handleChange = spy();
     render(
-      <RadioGroup.Root onValueChange={handleChange}>
+      <RadioGroup onValueChange={handleChange}>
         <Radio.Root value="a" data-testid="item" />
-      </RadioGroup.Root>,
+      </RadioGroup>,
     );
 
     const item = screen.getByTestId('item');
@@ -45,20 +45,20 @@ describe('<RadioGroup.Root />', () => {
 
   describe('prop: disabled', () => {
     it('should have the `aria-disabled` attribute', () => {
-      render(<RadioGroup.Root disabled />);
+      render(<RadioGroup disabled />);
       expect(screen.getByRole('radiogroup')).to.have.attribute('aria-disabled', 'true');
     });
 
     it('should not have the aria attribute when `disabled` is not set', () => {
-      render(<RadioGroup.Root />);
+      render(<RadioGroup />);
       expect(screen.getByRole('radiogroup')).not.to.have.attribute('aria-disabled');
     });
 
     it('should not change its state when clicked', () => {
       render(
-        <RadioGroup.Root disabled>
+        <RadioGroup disabled>
           <Radio.Root value="" data-testid="item" />
-        </RadioGroup.Root>,
+        </RadioGroup>,
       );
 
       const item = screen.getByTestId('item');
@@ -73,22 +73,22 @@ describe('<RadioGroup.Root />', () => {
 
   describe('prop: readOnly', () => {
     it('should have the `aria-readonly` attribute', () => {
-      render(<RadioGroup.Root readOnly />);
+      render(<RadioGroup readOnly />);
       const group = screen.getByRole('radiogroup');
       expect(group).to.have.attribute('aria-readonly', 'true');
     });
 
     it('should not have the aria attribute when `readOnly` is not set', () => {
-      render(<RadioGroup.Root />);
+      render(<RadioGroup />);
       const group = screen.getByRole('radiogroup');
       expect(group).not.to.have.attribute('aria-readonly');
     });
 
     it('should not change its state when clicked', () => {
       render(
-        <RadioGroup.Root readOnly>
+        <RadioGroup readOnly>
           <Radio.Root value="" data-testid="item" />
-        </RadioGroup.Root>,
+        </RadioGroup>,
       );
 
       const item = screen.getByTestId('item');
@@ -103,9 +103,9 @@ describe('<RadioGroup.Root />', () => {
 
   it('should update its state if the underlying input is toggled', () => {
     render(
-      <RadioGroup.Root data-testid="root">
+      <RadioGroup data-testid="root">
         <Radio.Root value="" data-testid="item" />
-      </RadioGroup.Root>,
+      </RadioGroup>,
     );
 
     const group = screen.getByTestId('root');
@@ -120,11 +120,11 @@ describe('<RadioGroup.Root />', () => {
 
   it('should place the style hooks on the root and subcomponents', () => {
     render(
-      <RadioGroup.Root defaultValue="1" disabled readOnly required>
+      <RadioGroup defaultValue="1" disabled readOnly required>
         <Radio.Root value="1" data-testid="item">
           <Radio.Indicator data-testid="indicator" />
         </Radio.Root>
-      </RadioGroup.Root>,
+      </RadioGroup>,
     );
 
     const root = screen.getByRole('radiogroup');
@@ -147,7 +147,7 @@ describe('<RadioGroup.Root />', () => {
   });
 
   it('should set the name attribute on the input', () => {
-    render(<RadioGroup.Root name="radio-group" />);
+    render(<RadioGroup name="radio-group" />);
     const group = screen.getByRole('radiogroup');
     expect(group.nextElementSibling).to.have.attribute('name', 'radio-group');
   });
@@ -170,11 +170,11 @@ describe('<RadioGroup.Root />', () => {
           stringifiedFormData = new URLSearchParams(formData as any).toString();
         }}
       >
-        <RadioGroup.Root name="group">
+        <RadioGroup name="group">
           <Radio.Root value="a" />
           <Radio.Root value="b" />
           <Radio.Root value="c" />
-        </RadioGroup.Root>
+        </RadioGroup>
         <button type="submit">Submit</button>
       </form>,
     );
@@ -197,10 +197,10 @@ describe('<RadioGroup.Root />', () => {
 
   it('should automatically select radio upon navigation', async () => {
     const { user } = await render(
-      <RadioGroup.Root>
+      <RadioGroup>
         <Radio.Root value="a" data-testid="a" />
         <Radio.Root value="b" data-testid="b" />
-      </RadioGroup.Root>,
+      </RadioGroup>,
     );
 
     const a = screen.getByTestId('a');
@@ -232,11 +232,11 @@ describe('<RadioGroup.Root />', () => {
           const { user } = await render(
             <DirectionProvider direction={direction as TextDirection}>
               <button data-testid="before" />
-              <RadioGroup.Root>
+              <RadioGroup>
                 <Radio.Root value="a" data-testid="a" />
                 <Radio.Root value="b" data-testid="b" />
                 <Radio.Root value="c" data-testid="c" />
-              </RadioGroup.Root>
+              </RadioGroup>
               <button data-testid="after" />
             </DirectionProvider>,
           );
@@ -308,14 +308,14 @@ describe('<RadioGroup.Root />', () => {
   describe('style hooks', () => {
     it('should apply data-checked and data-unchecked to radio root and indicator', () => {
       render(
-        <RadioGroup.Root>
+        <RadioGroup>
           <Radio.Root value="a" data-testid="a">
             <Radio.Indicator data-testid="indicator-a" />
           </Radio.Root>
           <Radio.Root value="b" data-testid="b">
             <Radio.Indicator data-testid="indicator-b" />
           </Radio.Root>
-        </RadioGroup.Root>,
+        </RadioGroup>,
       );
 
       const a = screen.getByTestId('a');
