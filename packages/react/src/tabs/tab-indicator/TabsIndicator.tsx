@@ -8,7 +8,7 @@ import type { TabsOrientation, TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsListContext } from '../tabs-list/TabsListContext';
-import { ActiveTabPosition, useTabsTabIndicator } from './useTabsTabIndicator';
+import { ActiveTabPosition, useTabsIndicator } from './useTabsIndicator';
 import { script as prehydrationScript } from './prehydrationScript.min';
 
 const noop = () => null;
@@ -21,9 +21,9 @@ const noop = () => null;
  *
  * API:
  *
- * - [TabsTabIndicator API](https://base-ui.com/components/react-tabs/#api-reference-TabsTabIndicator)
+ * - [TabsIndicator API](https://base-ui.com/components/react-tabs/#api-reference-TabsIndicator)
  */
-const TabsTabIndicator = React.forwardRef<HTMLSpanElement, TabsTabIndicator.Props>(
+const TabsIndicator = React.forwardRef<HTMLSpanElement, TabsIndicator.Props>(
   function TabIndicator(props, forwardedRef) {
     const { className, render, renderBeforeHydration = false, ...other } = props;
 
@@ -38,13 +38,13 @@ const TabsTabIndicator = React.forwardRef<HTMLSpanElement, TabsTabIndicator.Prop
 
     useOnMount(() => setIsMounted(true));
 
-    const { getRootProps, activeTabPosition: selectedTabPosition } = useTabsTabIndicator({
+    const { getRootProps, activeTabPosition: selectedTabPosition } = useTabsIndicator({
       getTabElementBySelectedValue,
       tabsListRef,
       value,
     });
 
-    const state: TabsTabIndicator.State = React.useMemo(
+    const state: TabsIndicator.State = React.useMemo(
       () => ({
         orientation,
         selectedTabPosition,
@@ -89,13 +89,13 @@ const TabsTabIndicator = React.forwardRef<HTMLSpanElement, TabsTabIndicator.Prop
   },
 );
 
-namespace TabsTabIndicator {
+namespace TabsIndicator {
   export interface State extends TabsRoot.State {
     selectedTabPosition: ActiveTabPosition | null;
     orientation: TabsOrientation;
   }
 
-  export interface Props extends BaseUIComponentProps<'span', TabsTabIndicator.State> {
+  export interface Props extends BaseUIComponentProps<'span', TabsIndicator.State> {
     /**
      * If `true`, the indicator will include code to render itself before React hydrates.
      * This will minimize the time the indicator is not visible after the SSR-generated content is downloaded.
@@ -106,9 +106,9 @@ namespace TabsTabIndicator {
   }
 }
 
-export { TabsTabIndicator };
+export { TabsIndicator };
 
-TabsTabIndicator.propTypes /* remove-proptypes */ = {
+TabsIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │

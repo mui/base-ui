@@ -1,4 +1,4 @@
-export enum TabsTabIndicatorCssVars {
+export enum TabsIndicatorCssVars {
   /**
    * Indicates the distance on the left side from the parent's container if the tab is active.
    * @type {number}

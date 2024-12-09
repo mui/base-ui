@@ -1,13 +1,21 @@
 {
+  "name": "TabsIndicator",
+  "description": "",
   "props": {
-    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
-    "renderBeforeHydration": { "type": { "name": "bool" }, "default": "false" }
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "renderBeforeHydration": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the indicator will include code to render itself before React hydrates.\nThis will minimize the time the indicator is not visible after the SSR-generated content is downloaded."
+    }
   },
-  "name": "TabsTabIndicator",
-  "imports": [
-    "import { Tabs } from '@base-ui-components/react/tabs';\nconst TabsTabIndicator = Tabs.TabIndicator;"
-  ],
   "cssVariables": {
     "--active-tab-bottom": {
       "description": "Indicates the distance on the bottom side from the parent's container if the tab is active.",
@@ -33,14 +41,5 @@
       "description": "Indicates the width of the tab if it is active.",
       "type": "number"
     }
-  },
-  "classes": [],
-  "spread": true,
-  "themeDefaultProps": true,
-  "muiName": "TabsTabIndicator",
-  "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/react/src/tabs/tab-indicator/TabsTabIndicator.tsx",
-  "inheritance": null,
-  "demos": "<ul><li><a href=\"/components/react-tabs/\">Tabs</a></li></ul>",
-  "cssComponent": false
+  }
 }

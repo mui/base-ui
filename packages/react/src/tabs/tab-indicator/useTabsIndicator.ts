@@ -5,15 +5,15 @@ import type { TabsRootContext } from '../root/TabsRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
-import { TabsTabIndicatorCssVars } from './TabsTabIndicatorCssVars';
+import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
 
 function round(value: number) {
   return Math.round(value * 100) * 0.01;
 }
 
-export function useTabsTabIndicator(
-  parameters: useTabsTabIndicator.Parameters,
-): useTabsTabIndicator.ReturnValue {
+export function useTabsIndicator(
+  parameters: useTabsIndicator.Parameters,
+): useTabsIndicator.ReturnValue {
   const { value, tabsListRef, getTabElementBySelectedValue } = parameters;
 
   const rerender = useForcedRerendering();
@@ -89,12 +89,12 @@ export function useTabsTabIndicator(
     }
 
     return {
-      [TabsTabIndicatorCssVars.activeTabLeft]: `${left}px`,
-      [TabsTabIndicatorCssVars.activeTabRight]: `${right}px`,
-      [TabsTabIndicatorCssVars.activeTabTop]: `${top}px`,
-      [TabsTabIndicatorCssVars.activeTabBottom]: `${bottom}px`,
-      [TabsTabIndicatorCssVars.activeTabWidth]: `${width}px`,
-      [TabsTabIndicatorCssVars.activeTabHeight]: `${height}px`,
+      [TabsIndicatorCssVars.activeTabLeft]: `${left}px`,
+      [TabsIndicatorCssVars.activeTabRight]: `${right}px`,
+      [TabsIndicatorCssVars.activeTabTop]: `${top}px`,
+      [TabsIndicatorCssVars.activeTabBottom]: `${bottom}px`,
+      [TabsIndicatorCssVars.activeTabWidth]: `${width}px`,
+      [TabsIndicatorCssVars.activeTabHeight]: `${height}px`,
     } as React.CSSProperties;
   }, [left, right, top, bottom, width, height, isTabSelected]);
 
@@ -121,7 +121,7 @@ export interface ActiveTabPosition {
   bottom: number;
 }
 
-export namespace useTabsTabIndicator {
+export namespace useTabsIndicator {
   export interface Parameters
     extends Pick<TabsRootContext, 'getTabElementBySelectedValue' | 'value'>,
       Pick<TabsListContext, 'tabsListRef'> {}
