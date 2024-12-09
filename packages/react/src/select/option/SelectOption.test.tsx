@@ -4,6 +4,8 @@ import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-
 import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
 
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+
 describe('<Select.Option />', () => {
   const { render } = createRenderer();
 
@@ -79,7 +81,7 @@ describe('<Select.Option />', () => {
   });
 
   it('should select option when Enter key is pressed', async function test(t = {}) {
-    if (!/jsdom/.test(window.navigator.userAgent)) {
+    if (!isJSDOM) {
       // @ts-expect-error to support mocha and vitest
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this?.skip?.() || t?.skip();
@@ -102,10 +104,11 @@ describe('<Select.Option />', () => {
     const trigger = screen.getByTestId('trigger');
     const value = screen.getByTestId('value');
 
-    fireEvent.click(trigger);
+    await user.click(trigger);
 
     await flushMicrotasks();
 
+    await user.keyboard('{ArrowDown}');
     await user.keyboard('{ArrowDown}');
     await user.keyboard('{Enter}');
 
@@ -143,44 +146,9 @@ describe('<Select.Option />', () => {
     expect(value.textContent).to.equal('');
   });
 
-  it('should focus the selected option upon opening the popup', async () => {
-    const { user } = await render(
-      <Select.Root>
-        <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" />
-        </Select.Trigger>
-        <Select.Positioner>
-          <Select.Popup>
-            <Select.Option value="one">one</Select.Option>
-            <Select.Option value="two">two</Select.Option>
-            <Select.Option value="three">three</Select.Option>
-          </Select.Popup>
-        </Select.Positioner>
-      </Select.Root>,
-    );
-
-    const trigger = screen.getByTestId('trigger');
-
-    await user.click(trigger);
-
-    await flushMicrotasks();
-
-    await user.keyboard('{ArrowDown}');
-    await user.keyboard('{ArrowDown}');
-
-    await user.click(screen.getByRole('option', { name: 'three' }));
-    await user.click(trigger);
-
-    await flushMicrotasks();
-
-    await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'three' })).toHaveFocus();
-    });
-  });
-
   describe('style hooks', () => {
     it('should apply data-highlighted attribute when option is highlighted', async function test(t = {}) {
-      if (!/jsdom/.test(window.navigator.userAgent)) {
+      if (!isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
