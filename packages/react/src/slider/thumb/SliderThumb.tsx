@@ -220,6 +220,10 @@ SliderThumb.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  inputId: PropTypes.string,
+  /**
+   * @ignore
+   */
   onBlur: PropTypes.func,
   /**
    * @ignore

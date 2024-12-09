@@ -48,7 +48,6 @@ const SliderValue = React.forwardRef(function SliderValue(
     extraProps: {
       children:
         typeof children === 'function' ? children(formattedValues, values) : defaultDisplayValue,
-
       ...otherProps,
     },
     customStyleHookMapping: sliderStyleHookMapping,
@@ -76,7 +75,7 @@ SliderValue.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  children: PropTypes.node,
+  children: PropTypes.func,
   /**
    * Class names applied to the element or a function that returns them based on the component's state.
    */
