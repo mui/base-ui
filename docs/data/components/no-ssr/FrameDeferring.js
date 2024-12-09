@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { NoSsr } from '@base-ui-components/react/no-ssr';
+import { NoSsr } from '@base-ui-components/react/unstable-no-ssr';
 import { Box } from '@mui/system';
 
 function LargeTree() {

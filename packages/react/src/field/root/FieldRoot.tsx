@@ -6,7 +6,7 @@ import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, STYLE_HOOK_MAPPING } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useFormRootContext } from '../../form/root/FormRootContext';
+import { useFormContext } from '../../form/FormContext';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
@@ -38,7 +38,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
 
   const { disabled: disabledFieldset } = useFieldsetRootContext();
 
-  const { errors } = useFormRootContext();
+  const { errors } = useFormContext();
 
   const validate = useEventCallback(validateProp || (() => null));
 

@@ -9,7 +9,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <Field.Root>
-        <CheckboxGroup.Root>
+        <CheckboxGroup>
           <CheckboxGroupLabel>Colors</CheckboxGroupLabel>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <FieldRoot>
@@ -37,7 +37,7 @@ export default function UnstyledCheckboxIndeterminateGroup() {
               <CheckboxLabel>Blue</CheckboxLabel>
             </FieldRoot>
           </div>
-        </CheckboxGroup.Root>
+        </CheckboxGroup>
       </Field.Root>
     </div>
   );
