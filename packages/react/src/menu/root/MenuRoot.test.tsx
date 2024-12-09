@@ -8,6 +8,10 @@ import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 
 describe('<Menu.Root />', () => {
+  beforeEach(() => {
+    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
   const { render } = createRenderer();
   const user = userEvent.setup();
 
@@ -761,7 +765,7 @@ describe('<Menu.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <Menu.Root open={open}>
-              <Menu.Positioner>
+              <Menu.Positioner keepMounted>
                 <Menu.Popup
                   className="animation-test-popup"
                   onAnimationEnd={notifyAnimationFinished}
@@ -782,8 +786,6 @@ describe('<Menu.Root />', () => {
       });
 
       expect(animationFinished).to.equal(true);
-
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 });

@@ -14,6 +14,10 @@ function Root(props: Popover.Root.Props) {
 }
 
 describe('<Popover.Root />', () => {
+  beforeEach(() => {
+    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
   const { render, clock } = createRenderer();
 
   it('should render the children', async () => {
@@ -188,7 +192,7 @@ describe('<Popover.Root />', () => {
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
             <Popover.Root open={open}>
-              <Popover.Positioner>
+              <Popover.Positioner keepMounted>
                 <Popover.Popup />
               </Popover.Positioner>
             </Popover.Root>
@@ -207,7 +211,7 @@ describe('<Popover.Root />', () => {
       });
     });
 
-    it('should remove the popup when animated=true and the animation finishes', async function test(t = {}) {
+    it('should remove the popup when the animation finishes', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -246,7 +250,7 @@ describe('<Popover.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <Popover.Root open={open}>
-              <Popover.Positioner>
+              <Popover.Positioner keepMounted data-testid="positioner">
                 <Popover.Popup
                   className="animation-test-popup"
                   onAnimationEnd={notifyAnimationFinished}
@@ -263,12 +267,10 @@ describe('<Popover.Root />', () => {
       await user.click(closeButton);
 
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).to.equal(null);
+        expect(screen.getByTestId('positioner')).to.have.attribute('hidden');
       });
 
       expect(animationFinished).to.equal(true);
-
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 
