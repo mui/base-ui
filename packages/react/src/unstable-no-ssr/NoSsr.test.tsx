@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer } from '@mui/internal-test-utils';
-import { NoSsr } from '@base-ui-components/react/no-ssr';
+import { NoSsr } from '.';
 
 describe('<NoSsr />', () => {
   const { render, renderToString } = createRenderer();

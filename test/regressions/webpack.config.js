@@ -1,10 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
-const webpackBaseConfig = require('../../webpackBaseConfig');
 
 module.exports = {
-  ...webpackBaseConfig,
   entry: path.resolve(__dirname, 'index.js'),
   mode: process.env.NODE_ENV || 'development',
   optimization: {
@@ -79,7 +77,6 @@ module.exports = {
     ],
   },
   resolve: {
-    ...webpackBaseConfig.resolve,
     fallback: {
       // Exclude polyfill and treat 'fs' as an empty module since it is not required. next -> gzip-size relies on it.
       fs: false,
