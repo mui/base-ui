@@ -33,17 +33,6 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
 
   const mergedRef = useForkRef(externalRef, ref);
 
-  // Manually set the tabindex.
-  // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
-  // option upon close when tabbing out: https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
-  React.useEffect(() => {
-    if (!ref.current) {
-      return;
-    }
-
-    ref.current.setAttribute('tabindex', highlighted || !open ? '0' : '-1');
-  }, [open, highlighted]);
-
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
@@ -66,6 +55,7 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
       return getButtonProps(
         mergeReactProps<'div'>(externalProps, {
           'aria-disabled': disabled || undefined,
+          tabIndex: highlighted ? 0 : -1,
           style: {
             pointerEvents: disabled ? 'none' : undefined,
           },
