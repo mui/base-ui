@@ -618,9 +618,6 @@ importers:
       '@floating-ui/react':
         specifier: ^0.27.0
         version: 0.27.0(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)
-      '@floating-ui/react-dom':
-        specifier: ^2.1.2
-        version: 2.1.2(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)
       '@floating-ui/utils':
         specifier: ^0.2.8
         version: 0.2.8
