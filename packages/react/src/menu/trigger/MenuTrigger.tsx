@@ -9,6 +9,8 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuTrigger = React.forwardRef(function MenuTrigger(
   props: MenuTrigger.Props,

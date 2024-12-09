@@ -10,6 +10,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * A description message for the field's control.
+ *
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldDescription = React.forwardRef(function FieldDescription(
   props: FieldDescription.Props,

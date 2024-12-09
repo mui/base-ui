@@ -7,6 +7,8 @@ import { useSelectItemContext } from '../item/SelectItemContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
   props: SelectItemIndicator.Props,

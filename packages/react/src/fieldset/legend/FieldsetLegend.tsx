@@ -8,6 +8,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * Renders an element that labels the fieldset.
+ *
+ * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
  */
 const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   props: FieldsetLegend.Props,

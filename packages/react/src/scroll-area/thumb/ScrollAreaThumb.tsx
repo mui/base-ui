@@ -10,6 +10,8 @@ import { useScrollAreaScrollbarContext } from '../scrollbar/ScrollAreaScrollbarC
 import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssVars';
 
 /**
+ *
+ * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
   props: ScrollAreaThumb.Props,

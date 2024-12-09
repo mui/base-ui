@@ -6,6 +6,8 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectIcon = React.forwardRef(function SelectIcon(
   props: SelectIcon.Props,

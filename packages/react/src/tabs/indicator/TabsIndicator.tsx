@@ -14,6 +14,8 @@ import { script as prehydrationScript } from './prehydrationScript.min';
 const noop = () => null;
 
 /**
+ *
+ * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
 const TabsIndicator = React.forwardRef<HTMLSpanElement, TabsIndicator.Props>(
   function TabIndicator(props, forwardedRef) {

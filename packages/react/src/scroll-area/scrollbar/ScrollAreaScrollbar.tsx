@@ -9,6 +9,8 @@ import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
 import { useScrollAreaScrollbar } from './useScrollAreaScrollbar';
 
 /**
+ *
+ * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
   props: ScrollAreaScrollbar.Props,

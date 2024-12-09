@@ -14,6 +14,8 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * The popover positioner element.
+ *
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   props: PopoverPositioner.Props,

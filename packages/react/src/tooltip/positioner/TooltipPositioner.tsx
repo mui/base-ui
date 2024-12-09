@@ -14,6 +14,8 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * The tooltip positioner element.
+ *
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   props: TooltipPositioner.Props,

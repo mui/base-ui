@@ -5,6 +5,8 @@ import { DirectionContext, type TextDirection } from './DirectionContext';
 
 /**
  * A provider that configures RTL/LTR behavior for part of an app or a whole app.
+ *
+ * Documentation: [Base UI Direction Provider](https://base-ui.com/react/components/direction-provider)
  */
 const DirectionProvider: React.FC<DirectionProvider.Props> = function DirectionProvider(props) {
   const { direction = 'ltr' } = props;

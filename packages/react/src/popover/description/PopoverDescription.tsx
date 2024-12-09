@@ -10,6 +10,8 @@ const state = {};
 
 /**
  * Renders a description element that describes the popover.
+ *
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverDescription = React.forwardRef(function PopoverDescription(
   props: PopoverDescription.Props,

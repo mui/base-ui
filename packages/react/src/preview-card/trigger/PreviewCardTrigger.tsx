@@ -8,6 +8,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
+ *
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   props: PreviewCardTrigger.Props,

@@ -7,6 +7,8 @@ import { useRadioRootContext } from '../root/RadioRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 
 /**
+ *
+ * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
 const RadioIndicator = React.forwardRef(function RadioIndicator(
   props: RadioIndicator.Props,

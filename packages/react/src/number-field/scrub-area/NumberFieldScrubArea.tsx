@@ -9,6 +9,8 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 
 /**
  * The scrub area element.
+ *
+ * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
   props: NumberFieldScrubArea.Props,

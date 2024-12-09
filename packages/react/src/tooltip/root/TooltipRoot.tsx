@@ -7,6 +7,8 @@ import { OPEN_DELAY } from '../utils/constants';
 
 /**
  * The foundation for building custom-styled tooltips.
+ *
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
   const { delay, closeDelay, hoverable = true, trackCursorAxis = 'none' } = props;

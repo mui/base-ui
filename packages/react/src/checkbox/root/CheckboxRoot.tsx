@@ -12,6 +12,8 @@ import { CheckboxRootContext } from './CheckboxRootContext';
 
 /**
  * The foundation for building custom-styled checkboxes.
+ *
+ * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
  */
 const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   props: CheckboxRoot.Props,

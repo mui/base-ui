@@ -8,6 +8,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * The foundation for building custom-styled fieldsets.
+ *
+ * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
  */
 const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   props: FieldsetRoot.Props,

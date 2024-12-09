@@ -8,6 +8,8 @@ import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderOutput } from './useSliderOutput';
 /**
+ *
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderOutput = React.forwardRef(function SliderOutput(
   props: SliderOutput.Props,

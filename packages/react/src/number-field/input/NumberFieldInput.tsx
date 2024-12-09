@@ -9,6 +9,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * The input element for the number field.
+ *
+ * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   props: NumberFieldInput.Props,
