@@ -36,7 +36,7 @@ function createTouches(touches: Touches) {
 function TestSlider(props: SliderRoot.Props) {
   return (
     <Slider.Root data-testid="root" {...props}>
-      <Slider.Output data-testid="output" />
+      <Slider.Value data-testid="value" />
       <Slider.Control data-testid="control">
         <Slider.Track>
           <Slider.Indicator />
@@ -50,7 +50,7 @@ function TestSlider(props: SliderRoot.Props) {
 function TestRangeSlider(props: SliderRoot.Props) {
   return (
     <Slider.Root data-testid="root" {...props}>
-      <Slider.Output data-testid="output" />
+      <Slider.Value data-testid="value" />
       <Slider.Control data-testid="control">
         <Slider.Track>
           <Slider.Indicator />
@@ -81,7 +81,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   it('renders a slider', async () => {
     await render(
       <Slider.Root defaultValue={30}>
-        <Slider.Output />
+        <Slider.Value />
         <Slider.Control>
           <Slider.Track>
             <Slider.Indicator />
@@ -115,7 +115,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('it has the correct aria attributes', async () => {
       const { container, getByRole, getByTestId } = await render(
         <Slider.Root defaultValue={30} aria-labelledby="labelId" data-testid="root">
-          <Slider.Output />
+          <Slider.Value />
           <Slider.Control>
             <Slider.Track>
               <Slider.Indicator />
@@ -301,7 +301,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('should render data-disabled on all subcomponents', async () => {
       const { getByTestId } = await render(
         <Slider.Root defaultValue={30} disabled data-testid="root">
-          <Slider.Output data-testid="output" />
+          <Slider.Value data-testid="value" />
           <Slider.Control data-testid="control">
             <Slider.Track data-testid="track">
               <Slider.Indicator data-testid="indicator" />
@@ -312,13 +312,13 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       );
 
       const root = getByTestId('root');
-      const output = getByTestId('output');
+      const value = getByTestId('value');
       const control = getByTestId('control');
       const track = getByTestId('track');
       const indicator = getByTestId('indicator');
       const thumb = getByTestId('thumb');
 
-      [root, output, control, track, indicator, thumb].forEach((subcomponent) => {
+      [root, value, control, track, indicator, thumb].forEach((subcomponent) => {
         expect(subcomponent).to.have.attribute('data-disabled', '');
       });
     });
@@ -415,7 +415,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(sliderRoot).to.have.attribute('data-orientation', 'horizontal');
       const sliderControl = getByTestId('control');
       expect(sliderControl).to.have.attribute('data-orientation', 'horizontal');
-      const sliderOutput = getByTestId('output');
+      const sliderOutput = getByTestId('value');
       expect(sliderOutput).to.have.attribute('data-orientation', 'horizontal');
     });
 
