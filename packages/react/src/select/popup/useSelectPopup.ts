@@ -19,7 +19,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     id,
     setOpen,
     getRootPositionerProps,
-    alignOptionToTrigger,
+    alignItemToTrigger,
     triggerElement,
     positionerElement,
     valueRef,
@@ -39,7 +39,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
   const handleScrollArrowVisibility = useEventCallback(() => {
-    if (!alignOptionToTrigger || !popupRef.current) {
+    if (!alignItemToTrigger || !popupRef.current) {
       return;
     }
 
@@ -58,7 +58,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
   useEnhancedEffect(() => {
     if (
-      alignOptionToTrigger ||
+      alignItemToTrigger ||
       !positionerElement ||
       Object.keys(originalPositionerStylesRef.current).length
     ) {
@@ -76,10 +76,10 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       marginTop: positionerElement.style.marginTop,
       marginBottom: positionerElement.style.marginBottom,
     };
-  }, [alignOptionToTrigger, positionerElement]);
+  }, [alignItemToTrigger, positionerElement]);
 
   useEnhancedEffect(() => {
-    if (mounted || alignOptionToTrigger) {
+    if (mounted || alignItemToTrigger) {
       return;
     }
 
@@ -91,12 +91,12 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     if (positionerElement) {
       clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
     }
-  }, [mounted, alignOptionToTrigger, positionerElement]);
+  }, [mounted, alignItemToTrigger, positionerElement]);
 
   useEnhancedEffect(() => {
     if (
       !mounted ||
-      !alignOptionToTrigger ||
+      !alignItemToTrigger ||
       !triggerElement ||
       !positionerElement ||
       !popupRef.current
@@ -204,7 +204,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     });
   }, [
     mounted,
-    alignOptionToTrigger,
+    alignItemToTrigger,
     positionerElement,
     triggerElement,
     valueRef,
@@ -217,7 +217,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
   ]);
 
   React.useEffect(() => {
-    if (!alignOptionToTrigger || !positionerElement || !mounted) {
+    if (!alignItemToTrigger || !positionerElement || !mounted) {
       return undefined;
     }
 
@@ -232,7 +232,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     return () => {
       win.removeEventListener('resize', handleResize);
     };
-  }, [setOpen, alignOptionToTrigger, positionerElement, mounted]);
+  }, [setOpen, alignItemToTrigger, positionerElement, mounted]);
 
   const getPopupProps: useSelectPopup.ReturnValue['getPopupProps'] = React.useCallback(
     (externalProps = {}) => {
@@ -240,7 +240,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
         ['data-id' as string]: `${id}-popup`,
         onScroll(event) {
           if (
-            !alignOptionToTrigger ||
+            !alignItemToTrigger ||
             !positionerElement ||
             !popupRef.current ||
             !initialPlacedRef.current
@@ -248,7 +248,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
             return;
           }
 
-          if (reachedMaxHeightRef.current || !alignOptionToTrigger) {
+          if (reachedMaxHeightRef.current || !alignItemToTrigger) {
             handleScrollArrowVisibility();
             return;
           }
@@ -299,7 +299,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
           handleScrollArrowVisibility();
         },
-        ...(alignOptionToTrigger && {
+        ...(alignItemToTrigger && {
           style: {
             position: 'relative',
             maxHeight: '100%',
@@ -312,7 +312,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     [
       getRootPositionerProps,
       id,
-      alignOptionToTrigger,
+      alignItemToTrigger,
       positionerElement,
       popupRef,
       handleScrollArrowVisibility,

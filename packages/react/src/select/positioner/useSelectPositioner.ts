@@ -22,9 +22,9 @@ import { useScrollLock } from '../../utils/useScrollLock';
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
-  const { open, alignOptionToTrigger, mounted, triggerElement } = useSelectRootContext();
+  const { open, alignItemToTrigger, mounted, triggerElement } = useSelectRootContext();
 
-  useScrollLock(alignOptionToTrigger && mounted, triggerElement);
+  useScrollLock(alignItemToTrigger && mounted, triggerElement);
 
   const {
     positionerStyles: enabledPositionerStyles,
@@ -39,13 +39,13 @@ export function useSelectPositioner(
   } = useAnchorPositioning({
     ...params,
     keepMounted: true,
-    trackAnchor: params.trackAnchor ?? !alignOptionToTrigger,
+    trackAnchor: params.trackAnchor ?? !alignItemToTrigger,
     mounted,
   });
 
   const positionerStyles: React.CSSProperties = React.useMemo(
-    () => (alignOptionToTrigger ? { position: 'fixed' } : enabledPositionerStyles),
-    [alignOptionToTrigger, enabledPositionerStyles],
+    () => (alignItemToTrigger ? { position: 'fixed' } : enabledPositionerStyles),
+    [alignItemToTrigger, enabledPositionerStyles],
   );
 
   const getPositionerProps: useSelectPositioner.ReturnValue['getPositionerProps'] =
@@ -75,14 +75,14 @@ export function useSelectPositioner(
         arrowRef,
         arrowUncentered,
         arrowStyles,
-        side: alignOptionToTrigger ? 'none' : renderedSide,
+        side: alignItemToTrigger ? 'none' : renderedSide,
         align: renderedAlign,
         positionerContext,
         isPositioned,
         anchorHidden,
       }) as const,
     [
-      alignOptionToTrigger,
+      alignItemToTrigger,
       arrowRef,
       arrowStyles,
       arrowUncentered,

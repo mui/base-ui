@@ -1,7 +1,7 @@
 {
   "componentDescription": "",
   "propDescriptions": {
-    "alignOptionToTrigger": {
+    "alignItemToTrigger": {
       "description": "Determines if the selected option inside the popup should align to the trigger element."
     },
     "defaultOpen": { "description": "If <code>true</code>, the Select is initially open." },

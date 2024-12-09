@@ -38,7 +38,7 @@ function AlignOptionToTriggerTrue() {
 
 function AlignOptionToTriggerFalse() {
   return (
-    <Select.Root alignOptionToTrigger={false}>
+    <Select.Root alignItemToTrigger={false}>
       <SelectTrigger aria-label="Select font">
         <Select.Value placeholder="Align popup to trigger" />
         <SelectDropdownArrow />

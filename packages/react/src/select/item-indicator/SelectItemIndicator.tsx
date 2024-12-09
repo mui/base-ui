@@ -24,7 +24,7 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
 
   const { selected } = useSelectItemContext();
 
-  const getOptionProps = React.useCallback(
+  const getItemProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         'aria-hidden': true,
@@ -41,7 +41,7 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getOptionProps,
+    propGetter: getItemProps,
     render: render ?? 'span',
     ref: forwardedRef,
     className,

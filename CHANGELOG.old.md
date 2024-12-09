@@ -597,7 +597,7 @@ _Feb 14, 2023_
 ### `@mui/base@5.0.0-alpha.118`
 
 - [base] Override the types of `slotProps` per slot (#35964) @hbjORbj
-- [Select][base] Prevent unnecessary rerendering of Select options (#35946) @michaldudak
+- [Select][base] Prevent unnecessary rerendering of select items (#35946) @michaldudak
 - [Select][base] Update the generated docs (#36183) @michaldudak
 - [useAutocomplete] Pass only valid values for the getOptionLabel prop (#36088) @rangoo94
 - [useAutocomplete] Fix `useAutocomplete` disabled prop not disabling the input (#36076) @sai6855

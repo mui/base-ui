@@ -28,7 +28,7 @@ export function useSelectTrigger(
     fieldControlValidation,
     setTouchModality,
     positionerElement,
-    alignOptionToTrigger,
+    alignItemToTrigger,
     readOnly,
   } = useSelectRootContext();
 
@@ -85,7 +85,7 @@ export function useSelectTrigger(
           ref: handleRef,
           onFocus() {
             // The popup element shouldn't obscure the focused trigger.
-            if (open && alignOptionToTrigger) {
+            if (open && alignItemToTrigger) {
               setOpen(false);
             }
           },
@@ -148,7 +148,7 @@ export function useSelectTrigger(
       readOnly,
       getButtonProps,
       open,
-      alignOptionToTrigger,
+      alignItemToTrigger,
       setOpen,
       setTouched,
       value,

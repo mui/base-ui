@@ -78,7 +78,7 @@ describe('<Select.Item />', () => {
     });
   });
 
-  it('should select option when Enter key is pressed', async function test(t = {}) {
+  it('should select item when Enter key is pressed', async function test(t = {}) {
     if (!/jsdom/.test(window.navigator.userAgent)) {
       // @ts-expect-error to support mocha and vitest
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions

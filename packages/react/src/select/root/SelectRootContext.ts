@@ -41,7 +41,7 @@ export interface SelectRootContext {
   labelsRef: React.MutableRefObject<Array<string | null>>;
   touchModality: boolean;
   setTouchModality: React.Dispatch<React.SetStateAction<boolean>>;
-  alignOptionToTrigger: boolean;
+  alignItemToTrigger: boolean;
   typingRef: React.MutableRefObject<boolean>;
   selectionRef: React.MutableRefObject<{
     allowUnselectedMouseUp: boolean;
