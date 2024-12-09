@@ -14,7 +14,7 @@
   "themeDefaultProps": true,
   "muiName": "TabsList",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/tabs/tabs-list/TabsList.tsx",
+  "filename": "/packages/react/src/tabs/list/TabsList.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tabs/\">Tabs</a></li></ul>",
   "cssComponent": false

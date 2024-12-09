@@ -4,7 +4,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
-import { useFormRootContext } from '../../form/root/FormRootContext';
+import { useFormContext } from '../../form/FormContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 import type { GenericHTMLProps } from '../../utils/types';
 
@@ -24,7 +24,7 @@ export function useFieldControlValidation() {
     state,
   } = useFieldRootContext();
 
-  const { formRef } = useFormRootContext();
+  const { formRef } = useFormContext();
 
   const timeoutRef = React.useRef(-1);
   const inputRef = React.useRef<HTMLInputElement | null>(null);

@@ -1,0 +1,27 @@
+{
+  "props": {
+    "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
+    "defaultValue": { "type": { "name": "array" } },
+    "onValueChange": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(groupValue: Array<any>, event: Event) => void",
+        "describedArgs": ["groupValue", "event"]
+      }
+    },
+    "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
+    "toggleMultiple": { "type": { "name": "bool" }, "default": "false" },
+    "value": { "type": { "name": "array" } }
+  },
+  "name": "ToggleGroup",
+  "imports": ["import { ToggleGroup } from '@base-ui-components/react/toggle-group';"],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "ToggleGroup",
+  "forwardsRefTo": "HTMLDivElement",
+  "filename": "/packages/react/src/toggle-group/ToggleGroup.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/components/react-toggle-group/\">ToggleGroup</a></li></ul>",
+  "cssComponent": false
+}

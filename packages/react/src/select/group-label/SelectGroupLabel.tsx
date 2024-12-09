@@ -34,7 +34,7 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
     setLabelId(id);
   }, [id, setLabelId]);
 
-  const getSelectOptionGroupLabelProps = React.useCallback(
+  const getSelectItemGroupLabelProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         id,
@@ -43,7 +43,7 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getSelectOptionGroupLabelProps,
+    propGetter: getSelectItemGroupLabelProps,
     render: render ?? 'div',
     ref: forwardedRef,
     state,

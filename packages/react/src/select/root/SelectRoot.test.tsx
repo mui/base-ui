@@ -17,8 +17,8 @@ describe('<Select.Root />', () => {
           </Select.Trigger>
           <Select.Positioner>
             <Select.Popup>
-              <Select.Option value="a">a</Select.Option>
-              <Select.Option value="b">b</Select.Option>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         </Select.Root>,
@@ -46,8 +46,8 @@ describe('<Select.Root />', () => {
           </Select.Trigger>
           <Select.Positioner>
             <Select.Popup>
-              <Select.Option value="a">a</Select.Option>
-              <Select.Option value="b">b</Select.Option>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         </Select.Root>,
@@ -73,8 +73,8 @@ describe('<Select.Root />', () => {
           </Select.Trigger>
           <Select.Positioner>
             <Select.Popup>
-              <Select.Option value="a">a</Select.Option>
-              <Select.Option value="b">b</Select.Option>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         </Select.Root>,
@@ -122,8 +122,8 @@ describe('<Select.Root />', () => {
             </Select.Trigger>
             <Select.Positioner>
               <Select.Popup>
-                <Select.Option value="a">a</Select.Option>
-                <Select.Option value="b">b</Select.Option>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
               </Select.Popup>
             </Select.Positioner>
           </Select.Root>
@@ -155,8 +155,8 @@ describe('<Select.Root />', () => {
           </Select.Trigger>
           <Select.Positioner>
             <Select.Popup>
-              <Select.Option value="a">a</Select.Option>
-              <Select.Option value="b">b</Select.Option>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         </Select.Root>,
@@ -176,8 +176,8 @@ describe('<Select.Root />', () => {
             </Select.Trigger>
             <Select.Positioner>
               <Select.Popup>
-                <Select.Option value="a">a</Select.Option>
-                <Select.Option value="b">b</Select.Option>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
               </Select.Popup>
             </Select.Positioner>
           </Select.Root>
@@ -303,8 +303,8 @@ describe('<Select.Root />', () => {
           </Select.Trigger>
           <Select.Positioner>
             <Select.Popup>
-              <Select.Option value="a">a</Select.Option>
-              <Select.Option value="b">b</Select.Option>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         </Select.Root>,
@@ -330,8 +330,8 @@ describe('<Select.Root />', () => {
         </Select.Trigger>
         <Select.Positioner>
           <Select.Popup>
-            <Select.Option value="a">a</Select.Option>
-            <Select.Option value="b">b</Select.Option>
+            <Select.Item value="a">a</Select.Item>
+            <Select.Item value="b">b</Select.Item>
           </Select.Popup>
         </Select.Positioner>
       </Select.Root>,
