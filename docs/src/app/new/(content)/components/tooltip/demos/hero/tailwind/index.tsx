@@ -4,7 +4,7 @@ import { Tooltip } from '@base-ui-components/react/tooltip';
 export default function ExampleTooltip() {
   return (
     <Tooltip.Provider>
-      <div className="flex rounded-md border border-gray-200 bg-gray-50 p-0.5">
+      <div className="flex gap-px rounded-md border border-gray-200 bg-gray-50 p-0.5">
         <Tooltip.Root>
           <Tooltip.Trigger className="flex size-8 items-center justify-center rounded-sm text-gray-900 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[popup-open]:bg-gray-100 focus-visible:[&:not(:hover)]:bg-transparent">
             <BoldIcon aria-label="Bold" className="size-4" />
