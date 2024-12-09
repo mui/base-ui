@@ -30,7 +30,7 @@ describe('<Checkbox.Indicator />', () => {
   it('should not render indicator by default', async () => {
     const { container } = await render(
       <Checkbox.Root>
-        <Checkbox.Indicator animated={false} />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
     const indicator = container.querySelector('span');
@@ -40,7 +40,7 @@ describe('<Checkbox.Indicator />', () => {
   it('should render indicator when checked', async () => {
     const { container } = await render(
       <Checkbox.Root checked>
-        <Checkbox.Indicator animated={false} />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
     const indicator = container.querySelector('span');
@@ -50,7 +50,7 @@ describe('<Checkbox.Indicator />', () => {
   it('should spread extra props', async () => {
     const { container } = await render(
       <Checkbox.Root defaultChecked>
-        <Checkbox.Indicator data-extra-prop="Lorem ipsum" animated={false} />
+        <Checkbox.Indicator data-extra-prop="Lorem ipsum" />
       </Checkbox.Root>,
     );
     const indicator = container.querySelector('span');
@@ -61,7 +61,7 @@ describe('<Checkbox.Indicator />', () => {
     it('should keep indicator mounted when unchecked', async () => {
       const { container } = await render(
         <Checkbox.Root>
-          <Checkbox.Indicator keepMounted animated={false} />
+          <Checkbox.Indicator keepMounted />
         </Checkbox.Root>,
       );
       const indicator = container.querySelector('span');
@@ -72,7 +72,7 @@ describe('<Checkbox.Indicator />', () => {
     it('should keep indicator mounted when checked', async () => {
       const { container } = await render(
         <Checkbox.Root checked>
-          <Checkbox.Indicator keepMounted animated={false} />
+          <Checkbox.Indicator keepMounted />
         </Checkbox.Root>,
       );
       const indicator = container.querySelector('span');
@@ -83,7 +83,7 @@ describe('<Checkbox.Indicator />', () => {
     it('should keep indicator mounted when indeterminate', async () => {
       const { container } = await render(
         <Checkbox.Root indeterminate>
-          <Checkbox.Indicator keepMounted animated={false} />
+          <Checkbox.Indicator keepMounted />
         </Checkbox.Root>,
       );
       const indicator = container.querySelector('span');

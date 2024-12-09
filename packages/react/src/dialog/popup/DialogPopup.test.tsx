@@ -11,7 +11,7 @@ describe('<Dialog.Popup />', () => {
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
       return render(
-        <Dialog.Root open modal={false} animated={false}>
+        <Dialog.Root open modal={false}>
           {node}
         </Dialog.Root>,
       );
@@ -26,7 +26,7 @@ describe('<Dialog.Popup />', () => {
     ].forEach(([keepMounted, expectedIsMounted]) => {
       it(`should ${!expectedIsMounted ? 'not ' : ''}keep the dialog mounted when keepMounted=${keepMounted}`, async () => {
         const { queryByRole } = await render(
-          <Dialog.Root open={false} modal={false} animated={false}>
+          <Dialog.Root open={false} modal={false}>
             <Dialog.Popup keepMounted={keepMounted} />
           </Dialog.Root>,
         );
@@ -47,7 +47,7 @@ describe('<Dialog.Popup />', () => {
       const { getByText, getByTestId } = await render(
         <div>
           <input />
-          <Dialog.Root modal={false} animated={false}>
+          <Dialog.Root modal={false}>
             <Dialog.Trigger>Open</Dialog.Trigger>
             <Dialog.Popup data-testid="dialog">
               <input data-testid="dialog-input" />
@@ -75,7 +75,7 @@ describe('<Dialog.Popup />', () => {
         return (
           <div>
             <input />
-            <Dialog.Root modal={false} animated={false}>
+            <Dialog.Root modal={false}>
               <Dialog.Trigger>Open</Dialog.Trigger>
               <Dialog.Popup data-testid="dialog" initialFocus={input2Ref}>
                 <input data-testid="input-1" />
@@ -111,7 +111,7 @@ describe('<Dialog.Popup />', () => {
         return (
           <div>
             <input />
-            <Dialog.Root modal={false} animated={false}>
+            <Dialog.Root modal={false}>
               <Dialog.Trigger>Open</Dialog.Trigger>
               <Dialog.Popup data-testid="dialog" initialFocus={getRef}>
                 <input data-testid="input-1" />
@@ -144,7 +144,7 @@ describe('<Dialog.Popup />', () => {
       const { getByText, user } = await render(
         <div>
           <input />
-          <Dialog.Root animated={false}>
+          <Dialog.Root>
             <Dialog.Backdrop />
             <Dialog.Trigger>Open</Dialog.Trigger>
             <Dialog.Popup>
@@ -172,7 +172,7 @@ describe('<Dialog.Popup />', () => {
         return (
           <div>
             <input />
-            <Dialog.Root animated={false}>
+            <Dialog.Root>
               <Dialog.Backdrop />
               <Dialog.Trigger>Open</Dialog.Trigger>
               <Dialog.Popup finalFocus={inputRef}>

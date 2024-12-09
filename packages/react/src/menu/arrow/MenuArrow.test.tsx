@@ -9,7 +9,7 @@ describe('<Menu.Arrow />', () => {
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
-        <Menu.Root open animated={false}>
+        <Menu.Root open>
           <Menu.Positioner>
             <Menu.Popup>{node}</Menu.Popup>
           </Menu.Positioner>

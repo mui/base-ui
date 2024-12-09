@@ -9,7 +9,7 @@ describe('<Select.OptionText />', () => {
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
-        <Select.Root open animated={false}>
+        <Select.Root open>
           <Select.Positioner>
             <Select.Option value="">{node}</Select.Option>
           </Select.Positioner>

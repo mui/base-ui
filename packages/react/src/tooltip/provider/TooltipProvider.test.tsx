@@ -14,7 +14,7 @@ describe('<Tooltip.Provider />', () => {
     it('waits for the delay before showing the tooltip', async () => {
       await render(
         <Tooltip.Provider delay={10_000}>
-          <Tooltip.Root animated={false}>
+          <Tooltip.Root>
             <Tooltip.Trigger />
             <Tooltip.Positioner>
               <Tooltip.Popup>Content</Tooltip.Popup>
@@ -48,7 +48,7 @@ describe('<Tooltip.Provider />', () => {
     it('waits for the closeDelay before hiding the tooltip', async () => {
       await render(
         <Tooltip.Provider closeDelay={400}>
-          <Tooltip.Root animated={false}>
+          <Tooltip.Root>
             <Tooltip.Trigger />
             <Tooltip.Positioner>
               <Tooltip.Popup>Content</Tooltip.Popup>

@@ -6,7 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 import type { CheckboxRoot } from '../root/CheckboxRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useAfterExitAnimation } from '../../utils/useAfterCloseAnimation';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -27,7 +27,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   props: CheckboxIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, animated = true, ...otherProps } = props;
+  const { render, className, keepMounted = false, ...otherProps } = props;
 
   const rootState = useCheckboxRootContext();
 
@@ -51,7 +51,6 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
   useAfterExitAnimation({
     open: rendered,
-    animated,
     animatedElementRef: indicatorRef,
     onFinished() {
       setMounted(false);
@@ -95,7 +94,6 @@ namespace CheckboxIndicator {
   }
 
   export interface Props extends BaseUIComponentProps<'span', State> {
-    animated?: boolean;
     /**
      * Determines if the indicator stays mounted when unchecked.
      * @default false
@@ -109,10 +107,6 @@ CheckboxIndicator.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  animated: PropTypes.bool,
   /**
    * @ignore
    */

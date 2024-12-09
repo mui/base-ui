@@ -10,18 +10,14 @@ describe('<Select.Trigger />', () => {
   describeConformance(<Select.Trigger />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(
-        <Select.Root open animated={false}>
-          {node}
-        </Select.Root>,
-      );
+      return render(<Select.Root open>{node}</Select.Root>);
     },
   }));
 
   describe('style hooks', () => {
     it('should have the data-popup-open and data-pressed attributes when open', async () => {
       await render(
-        <Select.Root animated={false}>
+        <Select.Root>
           <Select.Trigger />
         </Select.Root>,
       );

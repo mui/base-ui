@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <div>
       <h1>Ref passed to anchor</h1>
-      <Menu.Root animated={false}>
+      <Menu.Root>
         <Menu.Trigger>Trigger</Menu.Trigger>
         <Menu.Positioner
           side="bottom"

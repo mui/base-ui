@@ -31,10 +31,9 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, keepMounted = false, ...other } = props;
-  const { open, hasParentDialog, animated } = useAlertDialogRootContext();
+  const { open, hasParentDialog } = useAlertDialogRootContext();
 
   const { getRootProps, mounted, transitionStatus } = useDialogBackdrop({
-    animated,
     open,
     ref: forwardedRef,
   });

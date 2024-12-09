@@ -13,31 +13,27 @@ export type TransitionStatus = 'starting' | 'ending' | undefined;
  *     to measure the panel contents.
  * @ignore - internal hook.
  */
-export function useTransitionStatus(open: boolean, enabled = true, delayStartingStatus = false) {
+export function useTransitionStatus(open: boolean, delayStartingStatus = false) {
   const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>();
   const [mounted, setMounted] = React.useState(open);
 
-  const derivedMounted = enabled ? mounted : open;
-
-  if (enabled) {
-    if (open && !mounted) {
-      setMounted(true);
-      if (transitionStatus !== 'starting' && !delayStartingStatus) {
-        setTransitionStatus('starting');
-      }
-    }
-
-    if (!open && mounted && transitionStatus !== 'ending') {
-      setTransitionStatus('ending');
-    }
-
-    if (!open && !mounted && transitionStatus === 'ending') {
-      setTransitionStatus(undefined);
+  if (open && !mounted) {
+    setMounted(true);
+    if (transitionStatus !== 'starting' && !delayStartingStatus) {
+      setTransitionStatus('starting');
     }
   }
 
+  if (!open && mounted && transitionStatus !== 'ending') {
+    setTransitionStatus('ending');
+  }
+
+  if (!open && !mounted && transitionStatus === 'ending') {
+    setTransitionStatus(undefined);
+  }
+
   useEnhancedEffect(() => {
-    if (!enabled || !open) {
+    if (!open) {
       return undefined;
     }
 
@@ -52,14 +48,14 @@ export function useTransitionStatus(open: boolean, enabled = true, delayStarting
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [enabled, open, delayStartingStatus]);
+  }, [open, delayStartingStatus]);
 
   return React.useMemo(
     () => ({
-      mounted: derivedMounted,
+      mounted,
       setMounted,
       transitionStatus,
     }),
-    [derivedMounted, transitionStatus],
+    [mounted, transitionStatus],
   );
 }
