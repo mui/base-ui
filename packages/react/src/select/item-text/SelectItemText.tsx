@@ -5,23 +5,23 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useSelectOptionContext } from '../option/SelectOptionContext';
+import { useSelectItemContext } from '../item/SelectItemContext';
 
-interface InnerSelectOptionTextProps extends SelectOptionText.Props {
+interface InnerSelectItemTextProps extends SelectItemText.Props {
   selected: boolean;
   selectedOptionTextRef: React.RefObject<HTMLElement | null>;
   indexRef: React.RefObject<number>;
 }
 
-const InnerSelectOptionText = React.forwardRef(function InnerSelectOptionText(
-  props: InnerSelectOptionTextProps,
+const InnerSelectItemText = React.forwardRef(function InnerSelectItemText(
+  props: InnerSelectItemTextProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, selected, selectedOptionTextRef, indexRef, ...otherProps } = props;
 
   const mergedRef = useForkRef<HTMLElement>(forwardedRef);
 
-  const state: SelectOptionText.State = React.useMemo(() => ({}), []);
+  const state: SelectItemText.State = React.useMemo(() => ({}), []);
 
   const ref = React.useCallback(
     (node: HTMLElement | null) => {
@@ -50,7 +50,7 @@ const InnerSelectOptionText = React.forwardRef(function InnerSelectOptionText(
   return renderElement();
 });
 
-InnerSelectOptionText.propTypes /* remove-proptypes */ = {
+InnerSelectItemText.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -93,7 +93,7 @@ InnerSelectOptionText.propTypes /* remove-proptypes */ = {
   }).isRequired,
 } as any;
 
-const MemoizedInnerSelectOptionText = React.memo(InnerSelectOptionText);
+const MemoizedInnerSelectItemText = React.memo(InnerSelectItemText);
 /**
  *
  * Demos:
@@ -102,18 +102,18 @@ const MemoizedInnerSelectOptionText = React.memo(InnerSelectOptionText);
  *
  * API:
  *
- * - [SelectOptionText API](https://base-ui.com/components/react-select/#api-reference-SelectOptionText)
+ * - [SelectItemText API](https://base-ui.com/components/react-select/#api-reference-SelectItemText)
  */
-const SelectOptionText = React.forwardRef(function SelectOptionText(
-  props: SelectOptionText.Props,
+const SelectItemText = React.forwardRef(function SelectItemText(
+  props: SelectItemText.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { selected, indexRef } = useSelectOptionContext();
+  const { selected, indexRef } = useSelectItemContext();
   const { selectedOptionTextRef } = useSelectRootContext();
   const mergedRef = useForkRef<HTMLElement>(forwardedRef);
 
   return (
-    <MemoizedInnerSelectOptionText
+    <MemoizedInnerSelectItemText
       ref={mergedRef}
       selected={selected}
       selectedOptionTextRef={selectedOptionTextRef}
@@ -123,13 +123,13 @@ const SelectOptionText = React.forwardRef(function SelectOptionText(
   );
 });
 
-namespace SelectOptionText {
+namespace SelectItemText {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {}
 }
 
-SelectOptionText.propTypes /* remove-proptypes */ = {
+SelectItemText.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -140,4 +140,4 @@ SelectOptionText.propTypes /* remove-proptypes */ = {
   children: PropTypes.node,
 } as any;
 
-export { SelectOptionText };
+export { SelectItemText };

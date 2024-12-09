@@ -49,9 +49,9 @@ function BaseSelectExample() {
           }}
         >
           {options.map((item) => (
-            <BaseSelect.Option key={item} value={item} style={{ lineHeight: 1 }}>
-              <BaseSelect.OptionText>{item}</BaseSelect.OptionText>
-            </BaseSelect.Option>
+            <BaseSelect.Item key={item} value={item} style={{ lineHeight: 1 }}>
+              <BaseSelect.ItemText>{item}</BaseSelect.ItemText>
+            </BaseSelect.Item>
           ))}
         </BaseSelect.Popup>
         <BaseSelect.ScrollDownArrow

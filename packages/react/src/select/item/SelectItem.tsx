@@ -8,12 +8,12 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { useForkRef } from '../../utils/useForkRef';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useSelectOption } from './useSelectOption';
+import { useSelectItem } from './useSelectItem';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useLatestRef } from '../../utils/useLatestRef';
-import { SelectOptionContext } from './SelectOptionContext';
+import { SelectItemContext } from './SelectItemContext';
 
-interface InnerSelectOptionProps extends Omit<SelectOption.Props, 'value'> {
+interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
   highlighted: boolean;
   selected: boolean;
   getRootItemProps: UseInteractionsReturn['getItemProps'];
@@ -33,8 +33,8 @@ interface InnerSelectOptionProps extends Omit<SelectOption.Props, 'value'> {
   popupRef: React.RefObject<HTMLDivElement | null>;
 }
 
-const InnerSelectOption = React.forwardRef(function InnerSelectOption(
-  props: InnerSelectOptionProps,
+const InnerSelectItem = React.forwardRef(function InnerSelectItem(
+  props: InnerSelectItemProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -57,7 +57,7 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
     ...otherProps
   } = props;
 
-  const state: SelectOption.State = React.useMemo(
+  const state: SelectItem.State = React.useMemo(
     () => ({
       disabled,
       open,
@@ -67,7 +67,7 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
     [disabled, open, highlighted, selected],
   );
 
-  const { getItemProps, rootRef } = useSelectOption({
+  const { getItemProps, rootRef } = useSelectItem({
     open,
     setOpen,
     disabled,
@@ -113,13 +113,11 @@ const InnerSelectOption = React.forwardRef(function InnerSelectOption(
   );
 
   return (
-    <SelectOptionContext.Provider value={contextValue}>
-      {renderElement()}
-    </SelectOptionContext.Provider>
+    <SelectItemContext.Provider value={contextValue}>{renderElement()}</SelectItemContext.Provider>
   );
 });
 
-InnerSelectOption.propTypes /* remove-proptypes */ = {
+InnerSelectItem.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -214,7 +212,7 @@ InnerSelectOption.propTypes /* remove-proptypes */ = {
   value: PropTypes.any.isRequired,
 } as any;
 
-const MemoizedInnerSelectOption = React.memo(InnerSelectOption);
+const MemoizedInnerSelectItem = React.memo(InnerSelectItem);
 
 /**
  *
@@ -224,10 +222,10 @@ const MemoizedInnerSelectOption = React.memo(InnerSelectOption);
  *
  * API:
  *
- * - [SelectOption API](https://base-ui.com/components/react-select/#api-reference-SelectOption)
+ * - [SelectItem API](https://base-ui.com/components/react-select/#api-reference-SelectItem)
  */
-const SelectOption = React.forwardRef(function SelectOption(
-  props: SelectOption.Props,
+const SelectItem = React.forwardRef(function SelectItem(
+  props: SelectItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { value: valueProp = null, label, ...otherProps } = props;
@@ -260,7 +258,7 @@ const SelectOption = React.forwardRef(function SelectOption(
   const selected = selectedIndex === listItem.index;
 
   return (
-    <MemoizedInnerSelectOption
+    <MemoizedInnerSelectItem
       ref={mergedRef}
       highlighted={highlighted}
       selected={selected}
@@ -280,7 +278,7 @@ const SelectOption = React.forwardRef(function SelectOption(
   );
 });
 
-namespace SelectOption {
+namespace SelectItem {
   export interface State {
     disabled: boolean;
     highlighted: boolean;
@@ -308,7 +306,7 @@ namespace SelectOption {
   }
 }
 
-SelectOption.propTypes /* remove-proptypes */ = {
+SelectItem.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -334,4 +332,4 @@ SelectOption.propTypes /* remove-proptypes */ = {
   value: PropTypes.any,
 } as any;
 
-export { SelectOption };
+export { SelectItem };

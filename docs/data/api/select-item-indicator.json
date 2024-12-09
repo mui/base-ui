@@ -13,7 +13,7 @@
   "themeDefaultProps": true,
   "muiName": "SelectItemIndicator",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/react/src/select/option-indicator/SelectItemIndicator.tsx",
+  "filename": "/packages/react/src/select/item-indicator/SelectItemIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

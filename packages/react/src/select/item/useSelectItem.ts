@@ -11,9 +11,9 @@ import { useForkRef } from '../../utils/useForkRef';
  *
  * API:
  *
- * - [useSelectOption API](https://mui.com/base-ui/api/use-select-option/)
+ * - [useSelectItem API](https://mui.com/base-ui/api/use-select-option/)
  */
-export function useSelectOption(params: useSelectOption.Parameters): useSelectOption.ReturnValue {
+export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
   const {
     open,
     disabled = false,
@@ -174,7 +174,7 @@ export function useSelectOption(params: useSelectOption.Parameters): useSelectOp
   );
 }
 
-export namespace useSelectOption {
+export namespace useSelectItem {
   export interface Parameters {
     /**
      * If `true`, the select item will be disabled.

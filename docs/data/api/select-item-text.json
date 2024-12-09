@@ -9,7 +9,7 @@
   "themeDefaultProps": true,
   "muiName": "SelectItemText",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/select/option-text/SelectItemText.tsx",
+  "filename": "/packages/react/src/select/item-text/SelectItemText.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

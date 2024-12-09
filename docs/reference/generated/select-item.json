@@ -1,5 +1,5 @@
 {
-  "name": "SelectOption",
+  "name": "SelectItem",
   "description": "",
   "props": {
     "disabled": {
