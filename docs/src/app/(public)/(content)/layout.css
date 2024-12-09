@@ -1,0 +1,54 @@
+@import 'docs/src/breakpoints.css';
+
+@layer components {
+  .ContentLayoutOuter {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    background-color: var(--color-content);
+  }
+
+  .ContentLayoutInner {
+    --sidebar-width: 17.5rem;
+
+    display: grid;
+    align-items: start;
+    padding-inline: 1.5rem;
+    grid-template-columns: 1fr;
+
+    @media (--sm) {
+      padding-inline: 2.5rem;
+    }
+
+    @media (--show-side-nav) {
+      padding-inline: 0;
+      grid-template-columns: var(--sidebar-width) 1fr 3rem;
+    }
+
+    @media (--show-quick-nav) {
+      grid-template-columns: var(--sidebar-width) 1fr var(--sidebar-width);
+    }
+  }
+
+  .ContentLayoutMain {
+    min-width: 0;
+    max-width: 48rem;
+    width: 100%;
+
+    padding-top: 1.5rem;
+    padding-bottom: 5rem;
+    margin: 0 auto;
+
+    @media (--sm) {
+      padding-top: 2rem;
+    }
+
+    @media (--show-side-nav) {
+      margin: 0;
+    }
+
+    @media (--show-quick-nav) {
+      margin: 0;
+    }
+  }
+}

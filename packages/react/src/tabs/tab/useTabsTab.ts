@@ -7,8 +7,8 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useButton } from '../../use-button';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
 import type { TabsRootContext } from '../root/TabsRootContext';
-import type { useTabsList } from '../tabs-list/useTabsList';
-import type { TabsList } from '../tabs-list/TabsList';
+import type { useTabsList } from '../list/useTabsList';
+import type { TabsList } from '../list/TabsList';
 
 export interface TabMetadata {
   disabled: boolean;

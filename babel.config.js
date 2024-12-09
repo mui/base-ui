@@ -12,7 +12,6 @@ module.exports = function getBabelConfig(api) {
   const useESModules = !api.env(['node']);
 
   const defaultAlias = {
-    '@base-ui-components/react': resolveAliasPath('./packages/react/src'),
     docs: resolveAliasPath('./docs'),
     test: resolveAliasPath('./test'),
     '@mui-internal/api-docs-builder': resolveAliasPath(
