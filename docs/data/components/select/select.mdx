@@ -2,11 +2,7 @@
 productId: base-ui
 title: React Select component
 description: Select provides users with a floating element containing a list of options to choose from.
-<<<<<<< HEAD
 components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectPortal, SelectBackdrop, SelectPositioner, SelectPopup, SelectItem, SelectItemText, SelectItemIndicator, SelectGroup, SelectGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectArrow
-=======
-components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectBackdrop, SelectPositioner, SelectPopup, SelectItem, SelectItemText, SelectItemIndicator, SelectGroup, SelectGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectArrow
->>>>>>> upstream/master
 githubLabel: 'component: select'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 ---
@@ -70,20 +66,7 @@ Selects are implemented using a collection of related components:
         <Select.Separator />
       </Select.Popup>
 
-<<<<<<< HEAD
       <Select.ScrollDownArrow />
-=======
-    <Select.Popup>
-      <Select.Group>
-        <Select.GroupLabel />
-        <Select.Item>
-          <Select.ItemText />
-          <Select.ItemIndicator />
-        </Select.Item>
-      </Select.Group>
-      <Select.Separator />
-    </Select.Popup>
->>>>>>> upstream/master
 
       <Select.Arrow />
     </Select.Positioner>
@@ -307,7 +290,6 @@ function App() {
       <Select.Trigger>Trigger</Select.Trigger>
       <AnimatePresence>
         {open && (
-<<<<<<< HEAD
           <Select.Portal keepMounted>
             <Select.Positioner keepMounted>
               <Select.Popup
@@ -324,22 +306,6 @@ function App() {
               </Select.Popup>
             </Select.Positioner>
           </Select.Portal>
-=======
-          <Select.Positioner keepMounted>
-            <Select.Popup
-              render={
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                />
-              }
-            >
-              <Select.Item>Option 1</Select.Item>
-              <Select.Item>Option 2</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
->>>>>>> upstream/master
         )}
       </AnimatePresence>
     </Select.Root>

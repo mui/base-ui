@@ -31,7 +31,6 @@ export default function SelectGroup() {
         <Select.Value placeholder="Select food..." />
         <SelectDropdownArrow />
       </SelectTrigger>
-<<<<<<< HEAD
       <Select.Portal>
         <SelectPositioner sideOffset={5}>
           <SelectScrollUpArrow />
@@ -62,36 +61,6 @@ export default function SelectGroup() {
           <SelectScrollDownArrow />
         </SelectPositioner>
       </Select.Portal>
-=======
-      <SelectPositioner sideOffset={5}>
-        <SelectScrollUpArrow />
-        <SelectPopup>
-          <SelectItem>
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Select food...</Select.ItemText>
-          </SelectItem>
-          {entries.map(([group, items]) => (
-            <React.Fragment key={group}>
-              <SelectSeparator />
-              <Select.Group key={group}>
-                <SelectGroupLabel>{group}</SelectGroupLabel>
-                {items.map((item) => (
-                  <SelectItem
-                    key={item.value}
-                    value={item.value}
-                    disabled={item.value === 'banana'}
-                  >
-                    <SelectItemIndicator render={<CheckIcon />} />
-                    <Select.ItemText>{item.label}</Select.ItemText>
-                  </SelectItem>
-                ))}
-              </Select.Group>
-            </React.Fragment>
-          ))}
-        </SelectPopup>
-        <SelectScrollDownArrow />
-      </SelectPositioner>
->>>>>>> upstream/master
     </Select.Root>
   );
 }
