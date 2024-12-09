@@ -11,7 +11,7 @@ import { useForkRef } from '../../utils/useForkRef';
  *
  * API:
  *
- * - [useSelectItem API](https://mui.com/base-ui/api/use-select-option/)
+ * - [useSelectItem API](https://mui.com/base-ui/api/use-select-item/)
  */
 export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
   const {
