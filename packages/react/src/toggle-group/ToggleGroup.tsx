@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { NOOP } from '../../utils/noop';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { useDirection } from '../../direction-provider/DirectionContext';
-import { useToggleGroupRoot, type UseToggleGroupRoot } from './useToggleGroupRoot';
-import { ToggleGroupRootContext } from './ToggleGroupRootContext';
+import { NOOP } from '../utils/noop';
+import { useComponentRenderer } from '../utils/useComponentRenderer';
+import type { BaseUIComponentProps } from '../utils/types';
+import { CompositeRoot } from '../composite/root/CompositeRoot';
+import { useDirection } from '../direction-provider/DirectionContext';
+import { useToggleGroup, type UseToggleGroup } from './useToggleGroup';
+import { ToggleGroupContext } from './ToggleGroupContext';
 
 const customStyleHookMapping = {
   multiple(value: boolean) {
@@ -25,10 +25,10 @@ const customStyleHookMapping = {
  *
  * API:
  *
- * - [ToggleGroupRoot API](https://base-ui.com/components/react-toggle-group/#api-reference-ToggleGroupRoot)
+ * - [ToggleGroup API](https://base-ui.com/components/react-toggle-group/#api-reference-ToggleGroup)
  */
-const ToggleGroupRoot = React.forwardRef(function ToggleGroupRoot(
-  props: ToggleGroupRoot.Props,
+const ToggleGroup = React.forwardRef(function ToggleGroup(
+  props: ToggleGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -59,7 +59,7 @@ const ToggleGroupRoot = React.forwardRef(function ToggleGroupRoot(
     disabled: isDisabled,
     setGroupValue,
     value,
-  } = useToggleGroupRoot({
+  } = useToggleGroup({
     value: valueProp,
     defaultValue,
     disabled,
@@ -67,12 +67,12 @@ const ToggleGroupRoot = React.forwardRef(function ToggleGroupRoot(
     onValueChange: onValueChangeProp ?? NOOP,
   });
 
-  const state: ToggleGroupRoot.State = React.useMemo(
+  const state: ToggleGroup.State = React.useMemo(
     () => ({ disabled: isDisabled, multiple: toggleMultiple, orientation }),
     [isDisabled, orientation, toggleMultiple],
   );
 
-  const contextValue: ToggleGroupRootContext = React.useMemo(
+  const contextValue: ToggleGroupContext = React.useMemo(
     () => ({
       disabled: isDisabled,
       orientation,
@@ -93,24 +93,24 @@ const ToggleGroupRoot = React.forwardRef(function ToggleGroupRoot(
   });
 
   return (
-    <ToggleGroupRootContext.Provider value={contextValue}>
+    <ToggleGroupContext.Provider value={contextValue}>
       <CompositeRoot direction={direction} loop={loop} render={renderElement()} />
-    </ToggleGroupRootContext.Provider>
+    </ToggleGroupContext.Provider>
   );
 });
 
-export { ToggleGroupRoot };
+export { ToggleGroup };
 
 export type ToggleGroupOrientation = 'horizontal' | 'vertical';
 
-export namespace ToggleGroupRoot {
+export namespace ToggleGroup {
   export interface State {
     disabled: boolean;
     multiple: boolean;
   }
 
   export interface Props
-    extends Partial<UseToggleGroupRoot.Parameters>,
+    extends Partial<UseToggleGroup.Parameters>,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
      * @default false
@@ -127,7 +127,7 @@ export namespace ToggleGroupRoot {
   }
 }
 
-ToggleGroupRoot.propTypes /* remove-proptypes */ = {
+ToggleGroup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │

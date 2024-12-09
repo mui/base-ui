@@ -13,16 +13,14 @@
     "toggleMultiple": { "type": { "name": "bool" }, "default": "false" },
     "value": { "type": { "name": "array" } }
   },
-  "name": "ToggleGroupRoot",
-  "imports": [
-    "import { ToggleGroup } from '@base-ui-components/react/toggle-group';\nconst ToggleGroupRoot = ToggleGroup.Root;"
-  ],
+  "name": "ToggleGroup",
+  "imports": ["import { ToggleGroup } from '@base-ui-components/react/toggle-group';"],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "ToggleGroupRoot",
+  "muiName": "ToggleGroup",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/toggle-group/root/ToggleGroupRoot.tsx",
+  "filename": "/packages/react/src/toggle-group/ToggleGroup.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-toggle-group/\">ToggleGroup</a></li></ul>",
   "cssComponent": false

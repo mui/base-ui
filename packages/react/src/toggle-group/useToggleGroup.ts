@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import type { GenericHTMLProps } from '../../utils/types';
+import { mergeReactProps } from '../utils/mergeReactProps';
+import { useControlled } from '../utils/useControlled';
+import { useEventCallback } from '../utils/useEventCallback';
+import type { GenericHTMLProps } from '../utils/types';
 
-export function useToggleGroupRoot(
-  parameters: UseToggleGroupRoot.Parameters,
-): UseToggleGroupRoot.ReturnValue {
+export function useToggleGroup(parameters: UseToggleGroup.Parameters): UseToggleGroup.ReturnValue {
   const { value, defaultValue, disabled, onValueChange, toggleMultiple } = parameters;
 
   const [groupValue, setValueState] = useControlled({
@@ -56,7 +54,7 @@ export function useToggleGroupRoot(
 
 export type ToggleGroupOrientation = 'horizontal' | 'vertical';
 
-export namespace UseToggleGroupRoot {
+export namespace UseToggleGroup {
   export interface Parameters {
     /**
      * The open state of the ToggleGroup represented by an array of

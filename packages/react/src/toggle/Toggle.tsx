@@ -5,7 +5,7 @@ import { NOOP } from '../utils/noop';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../utils/types';
 import { CompositeItem } from '../composite/item/CompositeItem';
-import { useToggleGroupRootContext } from '../toggle-group/root/ToggleGroupRootContext';
+import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
 import { useToggle } from './useToggle';
 
 const customStyleHookMapping = {
@@ -38,7 +38,7 @@ const Toggle = React.forwardRef(function Toggle(
     ...otherProps
   } = props;
 
-  const groupContext = useToggleGroupRootContext();
+  const groupContext = useToggleGroupContext();
 
   const groupValue = groupContext?.value ?? [];
 

@@ -1,5 +1,5 @@
 {
-  "name": "ToggleGroupRoot",
+  "name": "ToggleGroup",
   "description": "",
   "props": {
     "className": {
