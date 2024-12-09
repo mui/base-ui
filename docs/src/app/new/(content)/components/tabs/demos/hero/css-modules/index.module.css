@@ -6,6 +6,7 @@
 .List {
   display: flex;
   position: relative;
+  z-index: 0;
   padding-inline: 0.25rem;
   gap: 0.25rem;
   box-shadow: inset 0 -1px var(--color-gray-200);
@@ -43,6 +44,7 @@
 
 .Indicator {
   position: absolute;
+  z-index: -1;
   left: 0;
   top: 50%;
   translate: var(--active-tab-left) -50%;

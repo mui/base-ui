@@ -4,7 +4,7 @@ import { Tabs } from '@base-ui-components/react/tabs';
 export default function ExampleScrollArea() {
   return (
     <Tabs.Root className="rounded-md border border-gray-200" defaultValue="overview">
-      <Tabs.List className="relative flex gap-1 px-1 shadow-[inset_0_-1px] shadow-gray-200">
+      <Tabs.List className="relative z-0 flex gap-1 px-1 shadow-[inset_0_-1px] shadow-gray-200">
         <Tabs.Tab
           className="margin-0 flex h-8 items-center justify-center border-0 px-2 text-xs font-medium text-gray-600 outline-0 select-none hover:text-gray-900 data-[selected]:text-gray-900"
           value="overview"
@@ -23,7 +23,7 @@ export default function ExampleScrollArea() {
         >
           Account
         </Tabs.Tab>
-        <Tabs.Indicator className="absolute top-1/2 left-0 h-6 w-[var(--active-tab-width)] -translate-y-1/2 translate-x-[var(--active-tab-left)] rounded-sm bg-gray-100 transition-all duration-200 ease-in-out" />
+        <Tabs.Indicator className="absolute top-1/2 left-0 -z-1 h-6 w-[var(--active-tab-width)] -translate-y-1/2 translate-x-[var(--active-tab-left)] rounded-sm bg-gray-100 transition-all duration-200 ease-in-out" />
       </Tabs.List>
       <Tabs.Panel className="flex h-32 items-center justify-center" value="overview">
         <OverviewIcon className="size-10 text-gray-300" />
