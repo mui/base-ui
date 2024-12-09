@@ -10,7 +10,7 @@ export default function ExampleTooltip() {
           <Tooltip.Trigger className={styles.GhostButton}>
             <BoldIcon aria-label="Bold" className={styles.Icon} />
           </Tooltip.Trigger>
-          <Tooltip.Positioner sideOffset={12}>
+          <Tooltip.Positioner sideOffset={10}>
             <Tooltip.Popup className={styles.Popup}>
               <Tooltip.Arrow className={styles.Arrow}>
                 <ArrowSvg />
