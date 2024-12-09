@@ -8,13 +8,13 @@ import { HTMLElementType, refType } from '../../utils/proptypes';
  *
  * Demos:
  *
- * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
+ * - [Dialog](https://base-ui.com/components/react-dialog/)
  *
  * API:
  *
- * - [AlertDialogPortal API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogPortal)
+ * - [DialogPortal API](https://base-ui.com/components/react-dialog/#api-reference-DialogPortal)
  */
-function AlertDialogPortal(props: Portal.Props) {
+function DialogPortal(props: Portal.Props) {
   const { children, keepMounted = false, container } = props;
   return (
     <Portal keepMounted={keepMounted} container={container}>
@@ -23,7 +23,12 @@ function AlertDialogPortal(props: Portal.Props) {
   );
 }
 
-AlertDialogPortal.propTypes /* remove-proptypes */ = {
+namespace DialogPortal {
+  export interface Props extends Portal.Props {}
+  export interface State extends Portal.State {}
+}
+
+DialogPortal.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -53,4 +58,4 @@ AlertDialogPortal.propTypes /* remove-proptypes */ = {
  *
  * - [DialogPortal API](https://base-ui.com/components/react-dialog/#api-reference-DialogPortal)
  */
-export { AlertDialogPortal };
+export { DialogPortal };

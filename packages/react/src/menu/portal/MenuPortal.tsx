@@ -23,6 +23,11 @@ function MenuPortal(props: Portal.Props) {
   );
 }
 
+namespace MenuPortal {
+  export interface Props extends Portal.Props {}
+  export interface State extends Portal.State {}
+}
+
 MenuPortal.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │

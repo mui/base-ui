@@ -23,6 +23,11 @@ function PopoverPortal(props: Portal.Props) {
   );
 }
 
+namespace PopoverPortal {
+  export interface Props extends Portal.Props {}
+  export interface State extends Portal.State {}
+}
+
 PopoverPortal.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │

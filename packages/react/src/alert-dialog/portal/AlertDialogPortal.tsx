@@ -23,6 +23,11 @@ function AlertDialogPortal(props: Portal.Props) {
   );
 }
 
+namespace AlertDialogPortal {
+  export interface Props extends Portal.Props {}
+  export interface State extends Portal.State {}
+}
+
 AlertDialogPortal.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │

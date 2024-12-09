@@ -8,13 +8,13 @@ import { HTMLElementType, refType } from '../../utils/proptypes';
  *
  * Demos:
  *
- * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
+ * - [Select](https://base-ui.com/components/react-select/)
  *
  * API:
  *
- * - [TooltipPortal API](https://base-ui.com/components/react-alert-dialog/#api-reference-TooltipPortal)
+ * - [SelectPortal API](https://base-ui.com/components/react-select/#api-reference-SelectPortal)
  */
-function TooltipPortal(props: Portal.Props) {
+function SelectPortal(props: Portal.Props) {
   const { children, keepMounted = false, container } = props;
   return (
     <Portal keepMounted={keepMounted} container={container}>
@@ -23,7 +23,12 @@ function TooltipPortal(props: Portal.Props) {
   );
 }
 
-TooltipPortal.propTypes /* remove-proptypes */ = {
+namespace SelectPortal {
+  export interface Props extends Portal.Props {}
+  export interface State extends Portal.State {}
+}
+
+SelectPortal.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -43,14 +48,4 @@ TooltipPortal.propTypes /* remove-proptypes */ = {
   keepMounted: PropTypes.bool,
 } as any;
 
-/**
- *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectPortal API](https://base-ui.com/components/react-select/#api-reference-SelectPortal)
- */
-export { TooltipPortal };
+export { SelectPortal };

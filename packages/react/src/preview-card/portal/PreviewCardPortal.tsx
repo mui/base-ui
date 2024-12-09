@@ -23,6 +23,11 @@ function PreviewCardPortal(props: Portal.Props) {
   );
 }
 
+namespace PreviewCardPortal {
+  export interface Props extends Portal.Props {}
+  export interface State extends Portal.State {}
+}
+
 PreviewCardPortal.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
