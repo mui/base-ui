@@ -16,9 +16,6 @@
 }
 
 .Indicator {
-  /* TODO remove relative when position absolute is removed */
-  position: relative !important;
-  display: block;
   border-radius: 0.25rem;
   background-color: var(--color-gray-700);
 }

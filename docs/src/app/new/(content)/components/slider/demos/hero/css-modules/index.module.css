@@ -7,18 +7,15 @@
 }
 
 .Track {
+  position: relative;
   width: 100%;
+  height: 0.25rem;
   background-color: var(--color-gray-200);
   box-shadow: inset 0 0 0 1px var(--color-gray-200);
-  height: 0.25rem;
   border-radius: 0.25rem;
-  position: relative;
 }
 
 .Indicator {
-  /* TODO remove relative when position absolute is removed */
-  position: relative !important;
-  display: block;
   border-radius: 0.25rem;
   background-color: var(--color-gray-700);
 }
