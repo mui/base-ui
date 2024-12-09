@@ -29,6 +29,7 @@ const testRootContext: MenuRootContext = {
   transitionStatus: undefined,
   typingRef: { current: false },
   modal: false,
+  allowMouseUpTriggerRef: { current: false },
 };
 
 describe('<Menu.Trigger />', () => {

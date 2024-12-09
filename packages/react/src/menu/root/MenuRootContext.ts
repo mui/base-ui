@@ -3,7 +3,6 @@ import * as React from 'react';
 import type { useMenuRoot } from './useMenuRoot';
 
 export interface MenuRootContext extends useMenuRoot.ReturnValue {
-  clickAndDragEnabled: boolean;
   disabled: boolean;
   nested: boolean;
   parentContext: MenuRootContext | undefined;

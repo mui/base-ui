@@ -40,8 +40,11 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
+  const [positionerElement, setPositionerElementUnwrapped] = React.useState<HTMLElement | null>(
+    null,
+  );
   const popupRef = React.useRef<HTMLElement>(null);
+  const positionerRef = React.useRef<HTMLElement | null>(null);
   const [hoverEnabled, setHoverEnabled] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
 
@@ -51,6 +54,13 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     name: 'useMenuRoot',
     state: 'open',
   });
+
+  const setPositionerElement = React.useCallback((value: HTMLElement | null) => {
+    positionerRef.current = value;
+    setPositionerElementUnwrapped(value);
+  }, []);
+
+  const allowMouseUpTriggerRef = React.useRef(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -159,32 +169,36 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   return React.useMemo(
     () => ({
       activeIndex,
+      allowMouseUpTriggerRef,
       floatingRootContext,
-      setTriggerElement,
-      getTriggerProps,
-      setPositionerElement,
-      getPositionerProps,
       getItemProps,
+      getPositionerProps,
+      getTriggerProps,
       itemDomElements,
       itemLabels,
       mounted,
-      transitionStatus,
-      popupRef,
       open,
+      popupRef,
+      positionerRef,
       setOpen,
+      setPositionerElement,
+      setTriggerElement,
+      transitionStatus,
     }),
     [
       activeIndex,
       floatingRootContext,
-      getTriggerProps,
-      getPositionerProps,
       getItemProps,
+      getPositionerProps,
+      getTriggerProps,
       itemDomElements,
       itemLabels,
       mounted,
-      transitionStatus,
       open,
+      positionerRef,
       setOpen,
+      transitionStatus,
+      setPositionerElement,
     ],
   );
 }
@@ -259,8 +273,10 @@ export namespace useMenuRoot {
     open: boolean;
     popupRef: React.RefObject<HTMLElement | null>;
     setOpen: (open: boolean, event: Event | undefined) => void;
+    positionerRef: React.RefObject<HTMLElement | null>;
     setPositionerElement: (element: HTMLElement | null) => void;
     setTriggerElement: (element: HTMLElement | null) => void;
     transitionStatus: 'entering' | 'exiting' | undefined;
+    allowMouseUpTriggerRef: React.RefObject<boolean>;
   }
 }

@@ -33,7 +33,7 @@ export default function Modality() {
 
 function SelectDemo({ modal, withBackdrop }: Props) {
   return (
-    <Select.Root defaultValue="system" modal={modal}>
+    <Select.Root defaultValue="system" modal={modal} alignOptionToTrigger={false}>
       <Select.Trigger aria-label="Select font" render={<Trigger />}>
         <Select.Value placeholder="System font" />
         <SelectDropdownArrow />
@@ -70,7 +70,7 @@ function MenuDemo({ modal, withBackdrop }: Props) {
 
       <Menu.Positioner align="start" sideOffset={8} render={<Positioner />}>
         <MenuPopup>
-          <MenuItem>Log out</MenuItem>
+          <MenuItem onClick={() => console.log('Log out clicked')}>Log out</MenuItem>
         </MenuPopup>
       </Menu.Positioner>
     </Menu.Root>
