@@ -1612,4 +1612,41 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(screen.getByRole('slider')).to.have.property('tabIndex', -1);
     });
   });
+
+  describe('prop: format', () => {
+    it('formats the value', async () => {
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'USD',
+      };
+      function formatValue(v: number) {
+        return new Intl.NumberFormat(undefined, format).format(v);
+      }
+      const { getByRole, getByTestId } = await render(
+        <TestSlider defaultValue={50} format={format} />,
+      );
+      const value = getByTestId('value');
+      const slider = getByRole('slider');
+      expect(value).to.have.text(formatValue(50));
+      expect(slider).to.have.attribute('aria-valuetext', formatValue(50));
+    });
+
+    it('formats range values', async () => {
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'USD',
+      };
+      function formatValue(v: number) {
+        return new Intl.NumberFormat(undefined, format).format(v);
+      }
+      const { getAllByRole, getByTestId } = await render(
+        <TestRangeSlider defaultValue={[50, 75]} format={format} />,
+      );
+      const value = getByTestId('value');
+      expect(value).to.have.text(`${formatValue(50)} – ${formatValue(75)}`);
+      const [slider1, slider2] = getAllByRole('slider');
+      expect(slider1).to.have.attribute('aria-valuetext', `${formatValue(50)} start range`);
+      expect(slider2).to.have.attribute('aria-valuetext', `${formatValue(75)} end range`);
+    });
+  });
 });

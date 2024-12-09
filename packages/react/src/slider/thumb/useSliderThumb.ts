@@ -40,7 +40,7 @@ function getDefaultAriaValueText(
     return `${formatNumber(values[index], [], format)} end range`;
   }
 
-  return undefined;
+  return format ? formatNumber(values[index], [], format) : undefined;
 }
 
 export function useSliderThumb(parameters: useSliderThumb.Parameters): useSliderThumb.ReturnValue {
