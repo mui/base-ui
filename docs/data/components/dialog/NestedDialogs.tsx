@@ -8,32 +8,34 @@ export default function NestedDialogs() {
     <BaseDialog.Root>
       <Trigger>Open</Trigger>
       <Backdrop />
-      <Popup>
-        <Title>Dialog 1</Title>
-        <Controls>
-          <BaseDialog.Root>
-            <Trigger>Open Nested</Trigger>
-            <Backdrop />
-            <Popup>
-              <Title>Dialog 2</Title>
-              <Controls>
-                <BaseDialog.Root>
-                  <Trigger>Open Nested</Trigger>
-                  <Backdrop />
-                  <Popup>
-                    <Title>Dialog 3</Title>
-                    <Controls>
-                      <Close>Close</Close>
-                    </Controls>
-                  </Popup>
-                </BaseDialog.Root>
-                <Close>Close</Close>
-              </Controls>
-            </Popup>
-          </BaseDialog.Root>
-          <Close>Close</Close>
-        </Controls>
-      </Popup>
+      <BaseDialog.Portal>
+        <Popup>
+          <Title>Dialog 1</Title>
+          <Controls>
+            <BaseDialog.Root>
+              <Trigger>Open Nested</Trigger>
+              <Backdrop />
+              <Popup>
+                <Title>Dialog 2</Title>
+                <Controls>
+                  <BaseDialog.Root>
+                    <Trigger>Open Nested</Trigger>
+                    <Backdrop />
+                    <Popup>
+                      <Title>Dialog 3</Title>
+                      <Controls>
+                        <Close>Close</Close>
+                      </Controls>
+                    </Popup>
+                  </BaseDialog.Root>
+                  <Close>Close</Close>
+                </Controls>
+              </Popup>
+            </BaseDialog.Root>
+            <Close>Close</Close>
+          </Controls>
+        </Popup>
+      </BaseDialog.Portal>
     </BaseDialog.Root>
   );
 }

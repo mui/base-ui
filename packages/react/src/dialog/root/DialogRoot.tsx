@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { DialogRootContext } from './DialogRootContext';
 import { type CommonParameters, useDialogRoot } from './useDialogRoot';
+import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the dialog. Doesn’t render its own HTML element.
@@ -44,7 +45,11 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     [dialogRoot, hasParentDialog, dismissible],
   );
 
-  return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
+  return (
+    <DialogRootContext.Provider value={contextValue}>
+      <PortalContext.Provider value={dialogRoot.mounted}>{children}</PortalContext.Provider>
+    </DialogRootContext.Provider>
+  );
 };
 
 namespace DialogRoot {

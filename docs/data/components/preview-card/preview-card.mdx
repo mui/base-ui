@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Preview Card Component
 description: Preview Cards are visual-only, interactive popups that—when hovered—display a concise preview of the content that a link navigates to.
-components: PreviewCardRoot, PreviewCardTrigger, PreviewCardPositioner, PreviewCardPopup, PreviewCardArrow, PreviewCardBackdrop
+components: PreviewCardRoot, PreviewCardTrigger, PreviewCardPortal, PreviewCardPositioner, PreviewCardPopup, PreviewCardArrow, PreviewCardBackdrop
 githubLabel: 'component: preview-card'
 ---
 
@@ -27,6 +27,7 @@ Preview Card is implemented using a collection of related components:
 - `<PreviewCard.Root />` is a top-level component that wraps the other components.
 - `<PreviewCard.Trigger />` renders the trigger element.
 - `<PreviewCard.Backdrop />` renders an optional backdrop element behind the popup.
+- `<PreviewCard.Portal />` renders the portal element that the popup is mounted into.
 - `<PreviewCard.Positioner />` renders the Preview Card's positioning element.
 - `<PreviewCard.Popup />` renders the Preview Card popup itself.
 - `<PreviewCard.Arrow />` renders an optional pointing arrow, placed inside the popup.
@@ -35,11 +36,13 @@ Preview Card is implemented using a collection of related components:
 <PreviewCard.Root>
   <PreviewCard.Trigger />
   <PreviewCard.Backdrop />
-  <PreviewCard.Positioner>
-    <PreviewCard.Popup>
-      <PreviewCard.Arrow />
-    </PreviewCard.Popup>
-  </PreviewCard.Positioner>
+  <PreviewCard.Portal>
+    <PreviewCard.Positioner>
+      <PreviewCard.Popup>
+        <PreviewCard.Arrow />
+      </PreviewCard.Popup>
+    </PreviewCard.Positioner>
+  </PreviewCard.Portal>
 </PreviewCard.Root>
 ```
 
@@ -59,9 +62,11 @@ By default, the Preview Card is placed on the bottom side of its trigger, the de
 ```jsx
 <PreviewCard.Root>
   <PreviewCard.Trigger />
-  <PreviewCard.Positioner side="right">
-    <PreviewCard.Popup>Preview Card</PreviewCard.Popup>
-  </PreviewCard.Positioner>
+  <PreviewCard.Portal>
+    <PreviewCard.Positioner side="right">
+      <PreviewCard.Popup>Preview Card</PreviewCard.Popup>
+    </PreviewCard.Positioner>
+  </PreviewCard.Portal>
 </PreviewCard.Root>
 ```
 
@@ -319,19 +324,21 @@ function App() {
       <PreviewCard.Trigger>Trigger</PreviewCard.Trigger>
       <AnimatePresence>
         {open && (
-          <PreviewCard.Positioner keepMounted>
-            <PreviewCard.Popup
-              render={
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                />
-              }
-            >
-              Preview Card
-            </PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal keepMounted>
+            <PreviewCard.Positioner keepMounted>
+              <PreviewCard.Popup
+                render={
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  />
+                }
+              >
+                Preview Card
+              </PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         )}
       </AnimatePresence>
     </PreviewCard.Root>

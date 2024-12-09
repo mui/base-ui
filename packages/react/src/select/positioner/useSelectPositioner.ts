@@ -120,10 +120,6 @@ export namespace useSelectPositioner {
      */
     positionMethod?: 'absolute' | 'fixed';
     /**
-     * The container element to which the Select popup will be appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-    /**
      * The side of the anchor element that the Select element should align to.
      * @default 'bottom'
      */

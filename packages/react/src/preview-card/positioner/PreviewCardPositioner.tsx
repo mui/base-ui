@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositioner } from './usePreviewCardPositioner';
@@ -40,7 +39,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     arrowPadding = 5,
     sticky = false,
     keepMounted = false,
-    container,
     ...otherProps
   } = props;
 
@@ -50,7 +48,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     anchor,
     floatingRootContext,
     positionMethod,
-    container,
     open,
     mounted,
     keepMounted,
@@ -110,7 +107,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
 
   return (
     <PreviewCardPositionerContext.Provider value={contextValue}>
-      <FloatingPortal root={container}>{renderElement()}</FloatingPortal>
+      {renderElement()}
     </PreviewCardPositionerContext.Provider>
   );
 });
@@ -192,13 +189,6 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
       right: PropTypes.number,
       top: PropTypes.number,
     }),
-  ]),
-  /**
-   * The container element to which the preview card popup will be appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
   ]),
   /**
    * If `true`, preview card stays mounted in the DOM when closed.

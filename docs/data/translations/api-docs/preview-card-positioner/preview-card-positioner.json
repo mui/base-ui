@@ -20,9 +20,6 @@
       "description": "The boundary that the preview card element should be constrained to."
     },
     "collisionPadding": { "description": "The padding of the collision boundary." },
-    "container": {
-      "description": "The container element to which the preview card popup will be appended to."
-    },
     "keepMounted": {
       "description": "If <code>true</code>, preview card stays mounted in the DOM when closed."
     },

@@ -16,9 +16,6 @@
       "description": "The boundary that the Menu element should be constrained to."
     },
     "collisionPadding": { "description": "The padding of the collision boundary." },
-    "container": {
-      "description": "The container element to which the Menu popup will be appended to."
-    },
     "keepMounted": {
       "description": "Whether the menu popup remains mounted in the DOM while closed."
     },

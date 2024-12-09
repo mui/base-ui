@@ -4,7 +4,6 @@
     "className": {
       "description": "Class names applied to the element or a function that returns them based on the component&#39;s state."
     },
-    "container": { "description": "The container element to which the backdrop is appended to." },
     "keepMounted": {
       "description": "If <code>true</code>, the backdrop element is kept in the DOM when closed."
     },

@@ -7,15 +7,17 @@ export default function AlertDialogWithTransitions() {
   return (
     <BaseAlertDialog.Root>
       <Trigger>Open</Trigger>
-      <Popup>
-        <Title>Animated alert dialog</Title>
-        <BaseAlertDialog.Description>
-          This alert dialog uses CSS transitions on entry and exit.
-        </BaseAlertDialog.Description>
-        <Controls>
-          <Close>Close</Close>
-        </Controls>
-      </Popup>
+      <BaseAlertDialog.Portal>
+        <Popup>
+          <Title>Animated alert dialog</Title>
+          <BaseAlertDialog.Description>
+            This alert dialog uses CSS transitions on entry and exit.
+          </BaseAlertDialog.Description>
+          <Controls>
+            <Close>Close</Close>
+          </Controls>
+        </Popup>
+      </BaseAlertDialog.Portal>
       <Backdrop />
     </BaseAlertDialog.Root>
   );

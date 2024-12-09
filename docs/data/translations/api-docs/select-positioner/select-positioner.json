@@ -16,9 +16,6 @@
       "description": "The boundary that the Select element should be constrained to."
     },
     "collisionPadding": { "description": "The padding of the collision boundary." },
-    "container": {
-      "description": "The container element to which the Select popup will be appended to."
-    },
     "positionMethod": {
       "description": "The CSS position method for positioning the Select popup element."
     },
