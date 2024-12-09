@@ -1,4 +1,3 @@
-import * as ReactDOM from 'react-dom';
 import { useAnimationsFinished } from './useAnimationsFinished';
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useEventCallback } from './useEventCallback';
