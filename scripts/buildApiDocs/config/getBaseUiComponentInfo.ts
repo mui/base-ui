@@ -27,7 +27,7 @@ export function getBaseUiComponentInfo(filename: string): ComponentInfo {
   const componentUrl = overrides[name] ?? `/components/${parentComponentPath}`;
   const url = urlJoin(baseUrl, componentUrl);
 
-  const customAnnotation = `Documentation: [${parentComponentName}](${url})`;
+  const customAnnotation = `Documentation: [Base UI ${parentComponentName}](${url})`;
 
   return {
     filename,
