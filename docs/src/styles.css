@@ -215,12 +215,6 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  svg {
-    /* Safari messes up geometry of many basic SVGs, such as check icons in checkboxes or chevrons on menus */
-    /* Putting them on the GPU fixes that */
-    transform: translateZ(0);
-  }
-
   /* Debugging red text? You just forgot to set or inherit color in your demo. */
   [data-demo] {
     &,
