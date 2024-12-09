@@ -6,6 +6,7 @@ import { SelectRootContext } from './SelectRootContext';
 import { SelectIndexContext } from './SelectIndexContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
+import { PortalContext } from '../../portal/PortalContext';
 
 /**
  *
@@ -68,7 +69,9 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
   return (
     <SelectRootContext.Provider value={selectRoot.rootContext}>
       <SelectIndexContext.Provider value={selectRoot.indexContext}>
-        {props.children}
+        <PortalContext.Provider value={rootContext.mounted}>
+          {props.children}
+        </PortalContext.Provider>
         <input
           {...rootContext.fieldControlValidation.getInputValidationProps({
             onFocus() {

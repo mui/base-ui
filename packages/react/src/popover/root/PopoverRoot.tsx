@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { PopoverRootContext } from './PopoverRootContext';
 import { usePopoverRoot } from './usePopoverRoot';
 import { OPEN_DELAY } from '../utils/constants';
+import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * The foundation for building custom-styled popovers.
@@ -103,7 +104,9 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
   );
 
   return (
-    <PopoverRootContext.Provider value={contextValue}>{props.children}</PopoverRootContext.Provider>
+    <PopoverRootContext.Provider value={contextValue}>
+      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
+    </PopoverRootContext.Provider>
   );
 };
 
