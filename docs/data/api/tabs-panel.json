@@ -5,16 +5,16 @@
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } },
     "value": { "type": { "name": "any" } }
   },
-  "name": "TabsTabPanel",
+  "name": "TabsPanel",
   "imports": [
-    "import { Tabs } from '@base-ui-components/react/tabs';\nconst TabsTabPanel = Tabs.TabPanel;"
+    "import { Tabs } from '@base-ui-components/react/tabs';\nconst TabsPanel = Tabs.Panel;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "TabsTabPanel",
+  "muiName": "TabsPanel",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/tabs/tab-panel/TabsTabPanel.tsx",
+  "filename": "/packages/react/src/tabs/panel/TabsPanel.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tabs/\">Tabs</a></li></ul>",
   "cssComponent": false

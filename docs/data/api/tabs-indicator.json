@@ -39,7 +39,7 @@
   "themeDefaultProps": true,
   "muiName": "TabsIndicator",
   "forwardsRefTo": "HTMLSpanElement",
-  "filename": "/packages/react/src/tabs/tab-indicator/TabsIndicator.tsx",
+  "filename": "/packages/react/src/tabs/indicator/TabsIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-tabs/\">Tabs</a></li></ul>",
   "cssComponent": false

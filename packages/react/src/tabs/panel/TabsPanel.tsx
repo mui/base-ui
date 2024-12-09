@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useTabPanel } from './useTabsTabPanel';
+import { useTabsPanel } from './useTabsPanel';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -16,10 +16,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * API:
  *
- * - [TabsTabPanel API](https://base-ui.com/components/react-tabs/#api-reference-TabsTabPanel)
+ * - [TabsPanel API](https://base-ui.com/components/react-tabs/#api-reference-TabsPanel)
  */
-const TabsTabPanel = React.forwardRef(function TabPanel(
-  props: TabsTabPanel.Props,
+const TabsPanel = React.forwardRef(function TabPanel(
+  props: TabsPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { children, className, value: valueProp, render, keepMounted = false, ...other } = props;
@@ -31,14 +31,14 @@ const TabsTabPanel = React.forwardRef(function TabPanel(
     tabActivationDirection,
   } = useTabsRootContext();
 
-  const { hidden, getRootProps } = useTabPanel({
+  const { hidden, getRootProps } = useTabsPanel({
     getTabIdByPanelValueOrIndex,
     rootRef: forwardedRef,
     selectedValue,
     value: valueProp,
   });
 
-  const state: TabsTabPanel.State = React.useMemo(
+  const state: TabsPanel.State = React.useMemo(
     () => ({
       hidden,
       orientation,
@@ -59,7 +59,7 @@ const TabsTabPanel = React.forwardRef(function TabPanel(
   return renderElement();
 });
 
-namespace TabsTabPanel {
+namespace TabsPanel {
   export interface State extends TabsRoot.State {
     hidden: boolean;
   }
@@ -79,9 +79,9 @@ namespace TabsTabPanel {
   }
 }
 
-export { TabsTabPanel };
+export { TabsPanel };
 
-TabsTabPanel.propTypes /* remove-proptypes */ = {
+TabsPanel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │

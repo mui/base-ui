@@ -10,10 +10,10 @@ import type { TabValue } from '../root/TabsRoot';
 
 export interface TabPanelMetadata {
   id?: string;
-  value: useTabPanel.Parameters['value'];
+  value: useTabsPanel.Parameters['value'];
 }
 
-function useTabPanel(parameters: useTabPanel.Parameters): useTabPanel.ReturnValue {
+function useTabsPanel(parameters: useTabsPanel.Parameters): useTabsPanel.ReturnValue {
   const {
     getTabIdByPanelValueOrIndex,
     rootRef: externalRef,
@@ -70,7 +70,7 @@ function useTabPanel(parameters: useTabPanel.Parameters): useTabPanel.ReturnValu
   };
 }
 
-namespace useTabPanel {
+namespace useTabsPanel {
   export interface Parameters extends Pick<TabsRootContext, 'getTabIdByPanelValueOrIndex'> {
     /**
      * The id of the TabPanel.
@@ -105,4 +105,4 @@ namespace useTabPanel {
   }
 }
 
-export { useTabPanel };
+export { useTabsPanel };
