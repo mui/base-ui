@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { useAnchorPositioning } from '../../../../packages/react/src/utils/useAnchorPositioning';
+import { useAnchorPositioning } from '../../../../../packages/react/src/utils/useAnchorPositioning';
 
 const oppositeSideMap = {
   top: 'bottom',
