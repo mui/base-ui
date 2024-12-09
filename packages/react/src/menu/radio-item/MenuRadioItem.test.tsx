@@ -24,13 +24,13 @@ const testRootContext: MenuRootContext = {
   itemLabels: { current: [] },
   open: true,
   setOpen: () => {},
-  clickAndDragEnabled: false,
-  setClickAndDragEnabled: () => {},
   popupRef: { current: null },
   mounted: true,
   transitionStatus: undefined,
   typingRef: { current: false },
   modal: false,
+  positionerRef: { current: null },
+  allowMouseUpTriggerRef: { current: false },
 };
 
 const testRadioGroupContext = {

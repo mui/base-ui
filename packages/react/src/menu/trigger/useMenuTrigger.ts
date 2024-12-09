@@ -135,10 +135,6 @@ export namespace useMenuTrigger {
      * A callback to set the open state of the Menu.
      */
     setOpen: (open: boolean, event: Event | undefined) => void;
-    /**
-     * A callback to enable/disable click and drag functionality.
-     */
-    setClickAndDragEnabled: (enabled: boolean) => void;
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     positionerRef: React.RefObject<HTMLElement | null>;
   }

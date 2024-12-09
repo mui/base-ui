@@ -58,27 +58,18 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     onTypingChange,
   });
 
-  const [localClickAndDragEnabled, setLocalClickAndDragEnabled] = React.useState(false);
-  let clickAndDragEnabled = localClickAndDragEnabled;
-  let setClickAndDragEnabled = setLocalClickAndDragEnabled;
-
-  if (parentContext != null) {
-    clickAndDragEnabled = parentContext.clickAndDragEnabled;
-    setClickAndDragEnabled = parentContext.setClickAndDragEnabled;
-  }
-
   const context: MenuRootContext = React.useMemo(
     () => ({
       ...menuRoot,
       nested,
       parentContext,
       disabled,
-      clickAndDragEnabled,
-      setClickAndDragEnabled,
+      allowMouseUpTriggerRef:
+        parentContext?.allowMouseUpTriggerRef ?? menuRoot.allowMouseUpTriggerRef,
       typingRef,
       modal,
     }),
-    [menuRoot, nested, parentContext, disabled, clickAndDragEnabled, setClickAndDragEnabled, modal],
+    [menuRoot, nested, parentContext, disabled, modal],
   );
 
   if (!nested) {

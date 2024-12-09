@@ -6,7 +6,6 @@ export interface MenuRootContext extends useMenuRoot.ReturnValue {
   disabled: boolean;
   nested: boolean;
   parentContext: MenuRootContext | undefined;
-  setClickAndDragEnabled: React.Dispatch<React.SetStateAction<boolean>>;
   typingRef: React.RefObject<boolean>;
   modal: boolean;
 }

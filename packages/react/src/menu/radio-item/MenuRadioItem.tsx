@@ -27,7 +27,7 @@ const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
     menuEvents,
     propGetter,
     render,
-    treatMouseupAsClick,
+    allowMouseUpTriggerRef,
     typingRef,
     ...other
   } = props;
@@ -41,7 +41,7 @@ const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
     id,
     menuEvents,
     ref: forwardedRef,
-    treatMouseupAsClick,
+    allowMouseUpTriggerRef,
     typingRef,
   });
 
@@ -171,7 +171,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex, clickAndDragEnabled, typingRef } = useMenuRootContext();
+  const { getItemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
   const id = useBaseUiId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -206,7 +206,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
         highlighted={highlighted}
         menuEvents={menuEvents}
         propGetter={getItemProps}
-        treatMouseupAsClick={clickAndDragEnabled}
+        allowMouseUpTriggerRef={allowMouseUpTriggerRef}
         checked={selectedValue === value}
         setChecked={setChecked}
         typingRef={typingRef}
@@ -219,7 +219,7 @@ interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
   highlighted: boolean;
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   menuEvents: FloatingEvents;
-  treatMouseupAsClick: boolean;
+  allowMouseUpTriggerRef: React.RefObject<boolean>;
   checked: boolean;
   setChecked: (event: Event) => void;
   typingRef: React.RefObject<boolean>;

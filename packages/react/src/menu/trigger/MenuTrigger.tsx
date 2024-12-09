@@ -29,7 +29,6 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     setTriggerElement,
     open,
     setOpen,
-    setClickAndDragEnabled,
     allowMouseUpTriggerRef,
     positionerRef,
   } = useMenuRootContext();
@@ -40,7 +39,6 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     setTriggerElement,
     open,
     setOpen,
-    setClickAndDragEnabled,
     allowMouseUpTriggerRef,
     positionerRef,
   });
