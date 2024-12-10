@@ -17,6 +17,10 @@ const testContext = {
 };
 
 describe('<Checkbox.Indicator />', () => {
+  beforeEach(() => {
+    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
   const { render } = createRenderer();
 
   describeConformance(<Checkbox.Indicator />, () => ({
