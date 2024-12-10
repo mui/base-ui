@@ -1,6 +1,6 @@
 {
   "name": "PopoverPositioner",
-  "description": "The popover positioner element.",
+  "description": "Positions the popover against the trigger.\nRenders a `<div>` element.",
   "props": {
     "align": {
       "type": "'start' | 'center' | 'end'",
@@ -50,7 +50,7 @@
       "description": "A function to customize rendering of the component."
     },
     "side": {
-      "type": "'top' | 'bottom' | 'left' | 'right'",
+      "type": "'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
       "default": "'bottom'",
       "description": "The side of the anchor element that the popover element should be placed at."
     },

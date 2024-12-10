@@ -1,6 +1,6 @@
 {
   "name": "SwitchRoot",
-  "description": "The foundation for building custom-styled switches.",
+  "description": "Represents the switch itself.\nRenders a `<button>` element and a hidden `<input>` beside.",
   "props": {
     "checked": {
       "type": "boolean",

@@ -1,6 +1,6 @@
 {
   "name": "DirectionProvider",
-  "description": "A provider that configures RTL/LTR behavior for part of an app or a whole app.",
+  "description": "Enables RTL behavior for Base UI components.",
   "props": {
     "direction": {
       "type": "'ltr' | 'rtl'",

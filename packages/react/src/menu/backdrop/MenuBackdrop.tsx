@@ -7,30 +7,18 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
   ...baseMapping,
-  transitionStatus(value) {
-    if (value === 'entering') {
-      return { 'data-entering': '' } as Record<string, string>;
-    }
-    if (value === 'exiting') {
-      return { 'data-exiting': '' };
-    }
-    return null;
-  },
+  ...transitionStatusMapping,
 };
 
 /**
- * Renders a backdrop for the menu.
+ * An overlay displayed beneath the menu popup.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuBackdrop API](https://base-ui.com/components/react-menu/#api-reference-MenuBackdrop)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   props: MenuBackdrop.Props,

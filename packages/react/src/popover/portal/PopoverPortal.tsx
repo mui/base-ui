@@ -5,14 +5,15 @@ import { Portal } from '../../portal/Portal';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
- *
  * Demos:
  *
- * - [Popover](https://base-ui.com/components/react-popover/)
+ * * [Popover](https://base-ui.com/components/react-popover/)
  *
  * API:
  *
- * - [PopoverPortal API](https://base-ui.com/components/react-popover/#api-reference-PopoverPortal)
+ * * [PopoverPortal API](https://base-ui.com/components/react-popover/#api-reference-PopoverPortal)
+ *
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 function PopoverPortal(props: Portal.Props) {
   const { children, keepMounted = false, container } = props;

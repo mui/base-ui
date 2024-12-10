@@ -208,9 +208,6 @@ describe('<Checkbox.Root />', () => {
 
     expect(checkbox).to.have.attribute('data-unchecked', '');
     expect(checkbox).not.to.have.attribute('data-checked');
-
-    expect(indicator).to.have.attribute('data-unchecked', '');
-    expect(indicator).not.to.have.attribute('data-checked');
   });
 
   it('should set the name attribute on the input', async () => {

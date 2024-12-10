@@ -1,6 +1,6 @@
 {
   "name": "CheckboxIndicator",
-  "description": "The indicator part of the Checkbox.",
+  "description": "Indicates whether the checkbox is ticked.\nRenders a `<span>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",
@@ -8,8 +8,8 @@
     },
     "keepMounted": {
       "type": "boolean",
-      "default": "true",
-      "description": "If `true`, the indicator stays mounted when unchecked. Useful for CSS animations."
+      "default": "false",
+      "description": "Determines if the indicator stays mounted when unchecked."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",

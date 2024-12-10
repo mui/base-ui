@@ -1,6 +1,6 @@
 {
   "name": "NumberFieldRoot",
-  "description": "The foundation for building custom-styled number fields.",
+  "description": "Groups all parts of the number field and manages its state.\nRenders a `<div>` element.",
   "props": {
     "allowWheelScrub": {
       "type": "boolean",

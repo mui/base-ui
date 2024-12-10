@@ -1,6 +1,6 @@
 {
   "name": "AlertDialogPortal",
-  "description": "",
+  "description": "Demos:\n\n* [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)\n\nAPI:\n\n* [AlertDialogPortal API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogPortal)",
   "props": {
     "container": {
       "type": "React.Ref | HTMLElement | null",

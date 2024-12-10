@@ -1,6 +1,6 @@
 {
   "name": "TooltipPortal",
-  "description": "",
+  "description": "Demos:\n\n* [Tooltip](https://base-ui.com/components/react-tooltip/)\n\nAPI:\n\n* [TooltipPortal API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipPortal)",
   "props": {
     "container": {
       "type": "React.Ref | HTMLElement | null",

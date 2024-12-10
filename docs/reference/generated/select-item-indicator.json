@@ -1,6 +1,6 @@
 {
   "name": "SelectItemIndicator",
-  "description": "",
+  "description": "Indicates whether the select item is selected.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

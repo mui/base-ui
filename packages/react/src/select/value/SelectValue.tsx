@@ -8,14 +8,10 @@ import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
+ * A text label of the currently selected item.
+ * Renders a `<span>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectValue API](https://base-ui.com/components/react-select/#api-reference-SelectValue)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectValue = React.forwardRef(function SelectValue(
   props: SelectValue.Props,

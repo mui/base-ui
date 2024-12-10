@@ -1,6 +1,7 @@
 # Base UI - Create React App example in TypeScript
 
-[Base UI](https://mui.com/base-ui/) is a library of unstyled React UI components and hooks.
+[Base UI](https://base-ui.com) is a library of unstyled UI components for
+building accessible web apps and design systems..
 
 [Create React App](https://create-react-app.dev/) is a framework for quickly creating a new React project without the need to configure complex build tools or development environments.
 

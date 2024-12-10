@@ -12,14 +12,10 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 
 /**
+ * Positions the select menu popup against the trigger.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectPositioner API](https://base-ui.com/components/react-select/#api-reference-SelectPositioner)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectPositioner = React.forwardRef(function SelectPositioner(
   props: SelectPositioner.Props,
@@ -231,7 +227,7 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    * The side of the anchor element that the Select element should align to.
    * @default 'bottom'
    */
-  side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
+  side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
    * The gap between the anchor element and the Select element.
    * @default 0

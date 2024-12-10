@@ -5,14 +5,15 @@ import { Portal } from '../../portal/Portal';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
- *
  * Demos:
  *
- * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
+ * * [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
  *
  * API:
  *
- * - [AlertDialogPortal API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogPortal)
+ * * [AlertDialogPortal API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogPortal)
+ *
+ * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 function AlertDialogPortal(props: Portal.Props) {
   const { children, keepMounted = false, container } = props;

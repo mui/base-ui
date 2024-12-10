@@ -7,14 +7,10 @@ import { useRadioRootContext } from '../root/RadioRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 
 /**
+ * Indicates whether the radio button is selected.
+ * Renders a `<span>` element.
  *
- * Demos:
- *
- * - [Radio Group](https://base-ui.com/components/react-radio-group/)
- *
- * API:
- *
- * - [RadioIndicator API](https://base-ui.com/components/react-radio-group/#api-reference-RadioIndicator)
+ * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
 const RadioIndicator = React.forwardRef(function RadioIndicator(
   props: RadioIndicator.Props,

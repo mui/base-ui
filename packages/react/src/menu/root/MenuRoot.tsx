@@ -8,14 +8,10 @@ import { MenuOrientation, useMenuRoot } from './useMenuRoot';
 import { PortalContext } from '../../portal/PortalContext';
 
 /**
+ * Groups all parts of the menu.
+ * Doesn’t render its own HTML element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuRoot API](https://base-ui.com/components/react-menu/#api-reference-MenuRoot)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const {

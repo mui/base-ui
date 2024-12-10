@@ -1,6 +1,6 @@
 {
   "name": "DialogPortal",
-  "description": "",
+  "description": "Demos:\n\n* [Dialog](https://base-ui.com/components/react-dialog/)\n\nAPI:\n\n* [DialogPortal API](https://base-ui.com/components/react-dialog/#api-reference-DialogPortal)",
   "props": {
     "container": {
       "type": "React.Ref | HTMLElement | null",

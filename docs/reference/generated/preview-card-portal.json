@@ -1,6 +1,6 @@
 {
   "name": "PreviewCardPortal",
-  "description": "",
+  "description": "Demos:\n\n* [Preview Card](https://base-ui.com/components/react-preview-card/)\n\nAPI:\n\n* [PreviewCardPortal API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardPortal)",
   "props": {
     "container": {
       "type": "React.Ref | HTMLElement | null",

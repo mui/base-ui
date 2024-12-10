@@ -14,7 +14,7 @@ describe('<Select.Group />', () => {
     },
   }));
 
-  it('should render option group with label', async () => {
+  it('should render group with label', async () => {
     await render(
       <Select.Root open>
         <Select.Positioner>
@@ -31,7 +31,7 @@ describe('<Select.Group />', () => {
     expect(screen.getByText('Fruits')).toBeVisible();
   });
 
-  it('should associate label with option group', async () => {
+  it('should associate label with group', async () => {
     await render(
       <Select.Root open>
         <Select.Positioner>

@@ -9,14 +9,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 const state = {};
 
 /**
+ * A button that closes the dialog.
+ * Renders a `<button>` element.
  *
- * Demos:
- *
- * - [Dialog](https://base-ui.com/components/react-dialog/)
- *
- * API:
- *
- * - [DialogClose API](https://base-ui.com/components/react-dialog/#api-reference-DialogClose)
+ * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 const DialogClose = React.forwardRef(function DialogClose(
   props: DialogClose.Props,

@@ -9,7 +9,7 @@ describe('<Select.Root />', () => {
   const { render } = createRenderer();
 
   describe('prop: defaultValue', () => {
-    it('should select the option by default', async () => {
+    it('should select the item by default', async () => {
       await render(
         <Select.Root defaultValue="b">
           <Select.Trigger data-testid="trigger">
@@ -38,7 +38,7 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: value', () => {
-    it('should select the option specified by the value prop', async () => {
+    it('should select the item specified by the value prop', async () => {
       await render(
         <Select.Root value="b">
           <Select.Trigger data-testid="trigger">
@@ -65,7 +65,7 @@ describe('<Select.Root />', () => {
       );
     });
 
-    it('should update the selected option when the value prop changes', async () => {
+    it('should update the selected item when the value prop changes', async () => {
       const { setProps } = await render(
         <Select.Root value="a">
           <Select.Trigger data-testid="trigger">
@@ -103,7 +103,7 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
-    it('should call onValueChange when an option is selected', async function test() {
+    it('should call onValueChange when an item is selected', async function test() {
       const handleValueChange = spy();
 
       function App() {
@@ -195,7 +195,7 @@ describe('<Select.Root />', () => {
       expect(screen.queryByRole('listbox')).not.to.equal(null);
     });
 
-    it('when `false`, should remove the popup when animated=true and there is no exit animation defined', async function test(t = {}) {
+    it('when `false`, should remove the popup when there is no exit animation defined', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -227,7 +227,7 @@ describe('<Select.Root />', () => {
       });
     });
 
-    it('when `false`, should remove the popup when animated=true and the animation finishes', async function test(t = {}) {
+    it('when `false`, should remove the popup when the animation finishes', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions

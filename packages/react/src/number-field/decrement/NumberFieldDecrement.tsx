@@ -7,15 +7,10 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * The decrement stepper button.
+ * A stepper button that decreases the field value when clicked.
+ * Renders an `<button>` element.
  *
- * Demos:
- *
- * - [Number Field](https://base-ui.com/components/react-number-field/)
- *
- * API:
- *
- * - [NumberFieldDecrement API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldDecrement)
+ * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
   props: NumberFieldDecrement.Props,

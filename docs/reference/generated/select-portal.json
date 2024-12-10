@@ -1,6 +1,6 @@
 {
   "name": "SelectPortal",
-  "description": "",
+  "description": "Demos:\n\n* [Select](https://base-ui.com/components/react-select/)\n\nAPI:\n\n* [SelectPortal API](https://base-ui.com/components/react-select/#api-reference-SelectPortal)",
   "props": {
     "container": {
       "type": "React.Ref | HTMLElement | null",

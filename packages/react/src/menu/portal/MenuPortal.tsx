@@ -5,14 +5,15 @@ import { Portal } from '../../portal/Portal';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
- *
  * Demos:
  *
- * - [Menu](https://base-ui.com/components/react-menu/)
+ * * [Menu](https://base-ui.com/components/react-menu/)
  *
  * API:
  *
- * - [MenuPortal API](https://base-ui.com/components/react-menu/#api-reference-MenuPortal)
+ * * [MenuPortal API](https://base-ui.com/components/react-menu/#api-reference-MenuPortal)
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 function MenuPortal(props: Portal.Props) {
   const { children, keepMounted = false, container } = props;

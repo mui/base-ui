@@ -5,14 +5,15 @@ import { Portal } from '../../portal/Portal';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
- *
  * Demos:
  *
- * - [Preview Card](https://base-ui.com/components/react-preview-card/)
+ * * [Preview Card](https://base-ui.com/components/react-preview-card/)
  *
  * API:
  *
- * - [PreviewCardPortal API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardPortal)
+ * * [PreviewCardPortal API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardPortal)
+ *
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 function PreviewCardPortal(props: Portal.Props) {
   const { children, keepMounted = false, container } = props;

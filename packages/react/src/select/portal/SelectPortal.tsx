@@ -5,14 +5,15 @@ import { Portal } from '../../portal/Portal';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
- *
  * Demos:
  *
- * - [Select](https://base-ui.com/components/react-select/)
+ * * [Select](https://base-ui.com/components/react-select/)
  *
  * API:
  *
- * - [SelectPortal API](https://base-ui.com/components/react-select/#api-reference-SelectPortal)
+ * * [SelectPortal API](https://base-ui.com/components/react-select/#api-reference-SelectPortal)
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 function SelectPortal(props: Portal.Props) {
   const { children, keepMounted = false, container } = props;

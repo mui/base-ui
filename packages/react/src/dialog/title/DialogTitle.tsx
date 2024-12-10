@@ -10,15 +10,10 @@ import { type BaseUIComponentProps } from '../../utils/types';
 const state = {};
 
 /**
- * A heading that labels the dialog. Renders an `<h2>` element.
+ * A heading that labels the dialog.
+ * Renders an `<h2>` element.
  *
- * Demos:
- *
- * - [Dialog](https://base-ui.com/components/react-dialog/)
- *
- * API:
- *
- * - [DialogTitle API](https://base-ui.com/components/react-dialog/#api-reference-DialogTitle)
+ * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 const DialogTitle = React.forwardRef(function DialogTitle(
   props: DialogTitle.Props,

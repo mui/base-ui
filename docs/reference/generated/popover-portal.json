@@ -1,6 +1,6 @@
 {
   "name": "PopoverPortal",
-  "description": "",
+  "description": "Demos:\n\n* [Popover](https://base-ui.com/components/react-popover/)\n\nAPI:\n\n* [PopoverPortal API](https://base-ui.com/components/react-popover/#api-reference-PopoverPortal)",
   "props": {
     "container": {
       "type": "React.Ref | HTMLElement | null",

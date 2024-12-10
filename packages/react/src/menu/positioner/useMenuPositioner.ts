@@ -4,11 +4,10 @@ import type {
   Padding,
   VirtualElement,
   FloatingContext,
-  Side,
   FloatingRootContext,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 
@@ -174,7 +173,7 @@ export namespace useMenuPositioner {
     /**
      * The rendered side of the Menu element.
      */
-    side: 'top' | 'right' | 'bottom' | 'left';
+    side: Side;
     /**
      * The rendered align of the Menu element.
      */

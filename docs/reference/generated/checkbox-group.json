@@ -1,6 +1,6 @@
 {
   "name": "CheckboxGroup",
-  "description": "The foundation for building custom-styled checkbox groups.",
+  "description": "Provides a shared state to a series of checkboxes.",
   "props": {
     "allValues": {
       "type": "string[]",

@@ -7,15 +7,12 @@ import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderOutput } from './useSliderOutput';
+
 /**
+ * Displays the current value of the slider as text.
+ * Renders an `<output>` element.
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderOutput API](https://base-ui.com/components/react-slider/#api-reference-SliderOutput)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderOutput = React.forwardRef(function SliderOutput(
   props: SliderOutput.Props,

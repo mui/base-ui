@@ -15,13 +15,7 @@ import { NoSsrProps } from './NoSsr.types';
  * * Reduce the rendering time on the server.
  * * Under too heavy server load, you can turn on service degradation.
  *
- * Demos:
- *
- * - [No SSR](https://base-ui.com/components/react-no-ssr/)
- *
- * API:
- *
- * - [NoSsr API](https://base-ui.com/components/react-no-ssr/#api-reference-NoSsr)
+ * Documentation: [Base UI Unstable No Ssr](https://base-ui.com/react/components/unstable-no-ssr)
  */
 function NoSsr(props: NoSsrProps): React.JSX.Element {
   const { children, defer = false, fallback = null } = props;

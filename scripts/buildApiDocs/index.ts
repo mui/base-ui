@@ -1,14 +1,13 @@
 import yargs, { ArgumentsCamelCase } from 'yargs';
 import { buildApi } from '@mui-internal/api-docs-builder';
 import { buildReference } from './buildReference';
-import { projectSettings, newProjectSettings } from './config/projectSettings';
+import { projectSettings } from './config/projectSettings';
 
 type CommandOptions = { grep?: string };
 
 async function run(argv: ArgumentsCamelCase<CommandOptions>) {
   const grep = argv.grep == null ? null : new RegExp(argv.grep);
-  await buildApi([projectSettings], grep);
-  await buildApi([newProjectSettings], grep, true);
+  await buildApi([projectSettings], grep, true);
   await buildReference();
 }
 

@@ -11,15 +11,10 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * A label for the field's control.
+ * An accessible label that is automatically associated with the field control.
+ * Renders a `<label>` element.
  *
- * Demos:
- *
- * - [Field](https://base-ui.com/components/react-field/)
- *
- * API:
- *
- * - [FieldLabel API](https://base-ui.com/components/react-field/#api-reference-FieldLabel)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldLabel = React.forwardRef(function FieldLabel(
   props: FieldLabel.Props,

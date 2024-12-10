@@ -7,31 +7,18 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
   ...popupStateMapping,
-  transitionStatus(value): Record<string, string> | null {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' };
-    }
-
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-
-    return null;
-  },
+  ...transitionStatusMapping,
 };
 
 /**
+ * An overlay displayed beneath the menu popup.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectBackdrop API](https://base-ui.com/components/react-select/#api-reference-SelectBackdrop)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   props: SelectBackdrop.Props,

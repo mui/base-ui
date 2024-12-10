@@ -175,7 +175,7 @@ export namespace usePreviewCardPositioner {
     /**
      * The rendered side of the preview card element.
      */
-    side: 'top' | 'right' | 'bottom' | 'left';
+    side: Side;
     /**
      * The rendered align of the preview card element.
      */

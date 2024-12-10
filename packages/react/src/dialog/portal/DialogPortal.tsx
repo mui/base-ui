@@ -5,14 +5,15 @@ import { Portal } from '../../portal/Portal';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
- *
  * Demos:
  *
- * - [Dialog](https://base-ui.com/components/react-dialog/)
+ * * [Dialog](https://base-ui.com/components/react-dialog/)
  *
  * API:
  *
- * - [DialogPortal API](https://base-ui.com/components/react-dialog/#api-reference-DialogPortal)
+ * * [DialogPortal API](https://base-ui.com/components/react-dialog/#api-reference-DialogPortal)
+ *
+ * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 function DialogPortal(props: Portal.Props) {
   const { children, keepMounted = false, container } = props;

@@ -11,28 +11,22 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * Renders an arrow that points to the center of the anchor element.
+ * Displays an element positioned against the menu anchor.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuArrow API](https://base-ui.com/components/react-menu/#api-reference-MenuArrow)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuArrow = React.forwardRef(function MenuArrow(
   props: MenuArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, hideWhenUncentered = false, ...otherProps } = props;
+  const { className, render, ...otherProps } = props;
 
   const { open } = useMenuRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
 
   const { getArrowProps } = useMenuArrow({
     arrowStyles,
-    hidden: hideWhenUncentered && arrowUncentered,
   });
 
   const state: MenuArrow.State = React.useMemo(
@@ -40,7 +34,7 @@ const MenuArrow = React.forwardRef(function MenuArrow(
       open,
       side,
       align,
-      arrowUncentered,
+      uncentered: arrowUncentered,
     }),
     [open, side, align, arrowUncentered],
   );
@@ -65,16 +59,10 @@ namespace MenuArrow {
     open: boolean;
     side: Side;
     align: Align;
-    arrowUncentered: boolean;
+    uncentered: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
-     * @default false
-     */
-    hideWhenUncentered?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 MenuArrow.propTypes /* remove-proptypes */ = {
@@ -90,11 +78,6 @@ MenuArrow.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
-   * @default false
-   */
-  hideWhenUncentered: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */

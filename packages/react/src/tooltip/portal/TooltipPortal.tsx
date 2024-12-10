@@ -5,14 +5,15 @@ import { Portal } from '../../portal/Portal';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
- *
  * Demos:
  *
- * - [Tooltip](https://base-ui.com/components/react-tooltip/)
+ * * [Tooltip](https://base-ui.com/components/react-tooltip/)
  *
  * API:
  *
- * - [TooltipPortal API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipPortal)
+ * * [TooltipPortal API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipPortal)
+ *
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 function TooltipPortal(props: Portal.Props) {
   const { children, keepMounted = false, container } = props;

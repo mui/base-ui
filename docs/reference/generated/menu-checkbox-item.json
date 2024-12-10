@@ -1,6 +1,6 @@
 {
   "name": "MenuCheckboxItem",
-  "description": "An unstyled checkbox menu item to be used within a Menu.",
+  "description": "A menu item that toggles a setting on or off.\nRenders a `<div>` element.",
   "props": {
     "checked": {
       "type": "boolean",

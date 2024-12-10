@@ -11,27 +11,22 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
+ * Displays an element positioned against the preview card anchor.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Preview Card](https://base-ui.com/components/react-preview-card/)
- *
- * API:
- *
- * - [PreviewCardArrow API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardArrow)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   props: PreviewCardArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, hideWhenUncentered, ...otherProps } = props;
+  const { render, className, ...otherProps } = props;
 
   const { open } = usePreviewCardRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePreviewCardPositionerContext();
 
   const { getArrowProps } = usePreviewCardArrow({
     arrowStyles,
-    hidden: hideWhenUncentered && arrowUncentered,
   });
 
   const state: PreviewCardArrow.State = React.useMemo(
@@ -39,8 +34,9 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
       open,
       side,
       align,
+      uncentered: arrowUncentered,
     }),
-    [open, side, align],
+    [open, side, align, arrowUncentered],
   );
 
   const mergedRef = useForkRef(arrowRef, forwardedRef);
@@ -63,15 +59,10 @@ namespace PreviewCardArrow {
     open: boolean;
     side: Side;
     align: Align;
+    uncentered: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether the `Arrow` is hidden when it can't point to the center of the anchor element.
-     * @default false
-     */
-    hideWhenUncentered?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 PreviewCardArrow.propTypes /* remove-proptypes */ = {
@@ -87,11 +78,6 @@ PreviewCardArrow.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the `Arrow` is hidden when it can't point to the center of the anchor element.
-   * @default false
-   */
-  hideWhenUncentered: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */

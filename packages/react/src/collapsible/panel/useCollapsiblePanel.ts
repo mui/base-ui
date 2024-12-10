@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { hasComputedStyleMapSupport } from '../../utils/hasComputedStyleMapSupport';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerWindow } from '../../utils/owner';
@@ -76,11 +75,15 @@ export function useCollapsiblePanel(
   const isTransitioningRef = React.useRef(false);
 
   useEnhancedEffect(() => {
-    setPanelId(id);
+    if (!keepMounted && !open) {
+      setPanelId(undefined);
+    } else {
+      setPanelId(id);
+    }
     return () => {
       setPanelId(undefined);
     };
-  }, [id, setPanelId]);
+  }, [id, setPanelId, keepMounted, open]);
 
   const handlePanelRef = useEventCallback((element: HTMLElement) => {
     if (!element) {
@@ -179,17 +182,15 @@ export function useCollapsiblePanel(
         : (originalTransitionDuration ?? '');
 
       runOnceAnimationsFinish(() => {
-        ReactDOM.flushSync(() => {
-          setContextMounted(open);
-          if (isBeforeMatch) {
-            isBeforeMatchRef.current = false;
-            frame1 = requestAnimationFrame(() => {
-              frame2 = requestAnimationFrame(() => {
-                element.style.transitionDuration = originalTransitionDurationStyleRef.current ?? '';
-              });
+        setContextMounted(open);
+        if (isBeforeMatch) {
+          isBeforeMatchRef.current = false;
+          frame1 = requestAnimationFrame(() => {
+            frame2 = requestAnimationFrame(() => {
+              element.style.transitionDuration = originalTransitionDurationStyleRef.current ?? '';
             });
-          }
-        });
+          });
+        }
       });
     }
 
@@ -204,6 +205,7 @@ export function useCollapsiblePanel(
     registerCssTransitionListeners,
     runOnceAnimationsFinish,
     setContextMounted,
+    setPanelId,
   ]);
 
   useOnMount(() => {

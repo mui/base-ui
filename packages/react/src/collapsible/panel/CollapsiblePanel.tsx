@@ -12,14 +12,10 @@ import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
 
 /**
+ * A panel with the collapsible contents.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Collapsible](https://base-ui.com/components/react-collapsible/)
- *
- * API:
- *
- * - [CollapsiblePanel API](https://base-ui.com/components/react-collapsible/#api-reference-CollapsiblePanel)
+ * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
  */
 const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   props: CollapsiblePanel.Props,

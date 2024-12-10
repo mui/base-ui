@@ -10,15 +10,10 @@ import { useFormContext } from '../../form/FormContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * Displays error messages for the field's control.
+ * An error message displayed if the field control fails validation.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Field](https://base-ui.com/components/react-field/)
- *
- * API:
- *
- * - [FieldError API](https://base-ui.com/components/react-field/#api-reference-FieldError)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldError = React.forwardRef(function FieldError(
   props: FieldError.Props,

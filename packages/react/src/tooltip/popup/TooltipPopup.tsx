@@ -10,30 +10,19 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
   ...baseMapping,
-  transitionStatus(value) {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' } as Record<string, string>;
-    }
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-    return null;
-  },
+  ...transitionStatusMapping,
 };
 
 /**
- * The tooltip popup element.
+ * A container for the tooltip contents.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Tooltip](https://base-ui.com/components/react-tooltip/)
- *
- * API:
- *
- * - [TooltipPopup API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipPopup)
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipPopup = React.forwardRef(function TooltipPopup(
   props: TooltipPopup.Props,
@@ -66,7 +55,12 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     className,
     state,
     ref: mergedRef,
-    extraProps: otherProps,
+    extraProps:
+      transitionStatus === 'starting'
+        ? mergeReactProps(otherProps, {
+            style: { transition: 'none' },
+          })
+        : otherProps,
     customStyleHookMapping,
   });
 

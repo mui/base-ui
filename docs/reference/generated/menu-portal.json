@@ -1,6 +1,6 @@
 {
   "name": "MenuPortal",
-  "description": "",
+  "description": "Demos:\n\n* [Menu](https://base-ui.com/components/react-menu/)\n\nAPI:\n\n* [MenuPortal API](https://base-ui.com/components/react-menu/#api-reference-MenuPortal)",
   "props": {
     "container": {
       "type": "React.Ref | HTMLElement | null",

@@ -117,7 +117,7 @@
   }
 }
 
-.Option {
+.Item {
   box-sizing: border-box;
   outline: 0;
   font-size: 0.9375rem;
@@ -156,16 +156,16 @@
   }
 }
 
-.OptionIndicator {
+.ItemIndicator {
   grid-column-start: 1;
 }
 
-.OptionIndicatorIcon {
+.ItemIndicatorIcon {
   display: block;
   width: 0.75rem;
   height: 0.75rem;
 }
 
-.OptionText {
+.ItemText {
   grid-column-start: 2;
 }

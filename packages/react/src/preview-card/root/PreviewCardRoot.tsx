@@ -7,14 +7,10 @@ import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { PortalContext } from '../../portal/PortalContext';
 
 /**
+ * Groups all parts of the preview card.
+ * Doesn’t render its own HTML element.
  *
- * Demos:
- *
- * - [Preview Card](https://base-ui.com/components/react-preview-card/)
- *
- * API:
- *
- * - [PreviewCardRoot API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardRoot)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(props) {
   const { delay, closeDelay } = props;
