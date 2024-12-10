@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import clsx from 'clsx';
-import { ChevronDownIcon } from '../icons/ChevronDown';
-import { ThickCheckIcon } from '../icons/ThickCheckIcon';
+import { ChevronDownIcon } from './icons/ChevronDownIcon';
+import { ThickCheckIcon } from './icons/ThickCheckIcon';
 
 export const Root = Select.Root;
 

@@ -8,7 +8,9 @@ export default function Layout({ children }: React.PropsWithChildren) {
   return (
     <DocsProviders>
       <div className="RootLayout">
-        <div className="RootLayoutContainer">{children}</div>
+        <div className="RootLayoutContainer">
+          <div className="RootLayoutContent">{children}</div>
+        </div>
       </div>
       <GoogleAnalytics />
     </DocsProviders>

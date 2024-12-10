@@ -147,7 +147,7 @@ export const nav = [
     links: [
       {
         label: 'Direction Provider',
-        href: '/react/utilities/direction-provider',
+        href: '/react/utils/direction-provider',
       },
     ],
   },

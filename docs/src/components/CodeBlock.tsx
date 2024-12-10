@@ -2,8 +2,8 @@
 import * as React from 'react';
 import copy from 'clipboard-copy';
 import clsx from 'clsx';
-import { CopyIcon } from '../icons/Copy';
-import { CheckIcon } from '../icons/Check';
+import { CopyIcon } from './icons/CopyIcon';
+import { SmallCheckIcon } from './icons/CheckIcon';
 import { GhostButton } from './GhostButton';
 
 const CodeBlockContext = React.createContext({ codeId: '', titleId: '' });
@@ -51,7 +51,7 @@ export function Panel({ className, children, ...props }: React.ComponentPropsWit
       >
         Copy
         <span className="flex size-[14px] items-center justify-center">
-          {copyTimeout ? <CheckIcon /> : <CopyIcon />}
+          {copyTimeout ? <SmallCheckIcon /> : <CopyIcon />}
         </span>
       </GhostButton>
     </div>
