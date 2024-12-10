@@ -1,5 +1,8 @@
+import * as React from 'react';
 import { Portal } from '../../portal/Portal';
 import PropTypes from 'prop-types';
+import { HTMLElementType, refType } from '../../utils/proptypes';
+
 /**
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -11,6 +14,11 @@ function SelectPortal(props: SelectPortal.Props) {
       {children}
     </Portal>
   );
+}
+
+namespace SelectPortal {
+  export interface Props extends Omit<Portal.Props, 'keepMounted'> {}
+  export interface State extends Portal.State {}
 }
 
 SelectPortal.propTypes /* remove-proptypes */ = {
@@ -25,33 +33,7 @@ SelectPortal.propTypes /* remove-proptypes */ = {
   /**
    * The container to render the portal element into.
    */
-  container: PropTypes.oneOfType([
-    (props, propName) => {
-      if (props[propName] == null) {
-        return new Error(`Prop '${propName}' is required but wasn't specified`);
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
-    PropTypes.shape({
-      current: (props, propName) => {
-        if (props[propName] == null) {
-          return null;
-        }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop '${propName}' to be of type Element`);
-        }
-        return null;
-      },
-    }),
-  ]),
+  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
 } as any;
-
-namespace SelectPortal {
-  export interface Props extends Omit<Portal.Props, 'keepMounted'> {}
-  export interface State extends Portal.State {}
-}
 
 export { SelectPortal };
