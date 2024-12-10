@@ -46,6 +46,7 @@ describe('<Collapsible.Root />', () => {
 
       const trigger = getByRole('button');
 
+      expect(trigger).to.not.have.attribute('aria-controls');
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT)).to.equal(null);
 
@@ -62,6 +63,7 @@ describe('<Collapsible.Root />', () => {
       setProps({ open: false });
       await flushMicrotasks();
 
+      expect(trigger).to.not.have.attribute('aria-controls');
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT)).to.equal(null);
     });
@@ -81,6 +83,7 @@ describe('<Collapsible.Root />', () => {
 
       const trigger = getByRole('button');
 
+      expect(trigger).to.not.have.attribute('aria-controls');
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT)).to.equal(null);
 
@@ -94,6 +97,7 @@ describe('<Collapsible.Root />', () => {
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger });
 
+      expect(trigger).to.not.have.attribute('aria-controls');
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(trigger).to.not.have.attribute('data-panel-open');
       expect(queryByText(PANEL_CONTENT)).to.equal(null);
@@ -141,6 +145,7 @@ describe('<Collapsible.Root />', () => {
 
         await user.keyboard(`[${key}]`);
 
+        expect(trigger).to.not.have.attribute('aria-controls');
         expect(trigger).to.have.attribute('aria-expanded', 'false');
         expect(trigger).not.to.have.attribute('data-panel-open');
         expect(queryByText(PANEL_CONTENT)).to.equal(null);
