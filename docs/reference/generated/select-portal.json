@@ -1,6 +1,6 @@
 {
   "name": "SelectPortal",
-  "description": "",
+  "description": "Renders a portal element into the DOM.",
   "props": {
     "container": {
       "type": "React.Ref | HTMLElement | null",

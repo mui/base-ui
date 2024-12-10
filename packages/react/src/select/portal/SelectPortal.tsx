@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
+ * Renders a portal element into the DOM.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
