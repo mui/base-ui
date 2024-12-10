@@ -7,6 +7,9 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { Side } from '../../utils/useAnchorPositioning';
+import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useForkRef } from '../../utils/useForkRef';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 /**
  * @ignore - internal component.
@@ -30,14 +33,27 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const visible = direction === 'up' ? scrollUpArrowVisible : scrollDownArrowVisible;
 
   const frameRef = React.useRef(-1);
+  const scrollArrowRef = React.useRef<HTMLDivElement | null>(null);
+  const mergedRef = useForkRef(forwardedRef, scrollArrowRef);
+
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
+
+  useAfterExitAnimation({
+    open: visible,
+    animatedElementRef: scrollArrowRef,
+    onFinished() {
+      setMounted(false);
+    },
+  });
 
   const state: SelectScrollArrow.State = React.useMemo(
     () => ({
       direction,
       visible,
       side,
+      transitionStatus,
     }),
-    [direction, visible, side],
+    [direction, visible, side, transitionStatus],
   );
 
   const getScrollArrowProps = React.useCallback(
@@ -111,11 +127,14 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   const { renderElement } = useComponentRenderer({
     propGetter: getScrollArrowProps,
-    ref: forwardedRef,
+    ref: mergedRef,
     render: render ?? 'div',
     className,
     state,
-    extraProps: otherProps,
+    extraProps: {
+      ...otherProps,
+      hidden: !mounted,
+    },
   });
 
   const shouldRender = visible || keepMounted;
@@ -131,6 +150,7 @@ namespace SelectScrollArrow {
     direction: 'up' | 'down';
     visible: boolean;
     side: Side | 'none';
+    transitionStatus: TransitionStatus;
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {
