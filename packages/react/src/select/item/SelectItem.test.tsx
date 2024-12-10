@@ -4,10 +4,10 @@ import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-
 import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
 
-describe('<Select.Option />', () => {
+describe('<Select.Item />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.Option value="" />, () => ({
+  describeConformance(<Select.Item value="" />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(<Select.Root open>{node}</Select.Root>);
@@ -21,7 +21,7 @@ describe('<Select.Option />', () => {
           <Select.Value placeholder="null" data-testid="value" />
         </Select.Trigger>
         <Select.Positioner data-testid="positioner">
-          <Select.Option value="one">one</Select.Option>
+          <Select.Item value="one">one</Select.Item>
         </Select.Positioner>
       </Select.Root>,
     );
@@ -53,9 +53,9 @@ describe('<Select.Option />', () => {
         </Select.Trigger>
         <Select.Positioner>
           <Select.Popup>
-            <Select.Option value="one">one</Select.Option>
-            <Select.Option value="two">two</Select.Option>
-            <Select.Option value="three">three</Select.Option>
+            <Select.Item value="one">one</Select.Item>
+            <Select.Item value="two">two</Select.Item>
+            <Select.Item value="three">three</Select.Item>
           </Select.Popup>
         </Select.Positioner>
       </Select.Root>,
@@ -92,8 +92,8 @@ describe('<Select.Option />', () => {
         </Select.Trigger>
         <Select.Positioner>
           <Select.Popup>
-            <Select.Option value="one">one</Select.Option>
-            <Select.Option value="two">two</Select.Option>
+            <Select.Item value="one">one</Select.Item>
+            <Select.Item value="two">two</Select.Item>
           </Select.Popup>
         </Select.Positioner>
       </Select.Root>,
@@ -122,10 +122,10 @@ describe('<Select.Option />', () => {
         </Select.Trigger>
         <Select.Positioner>
           <Select.Popup>
-            <Select.Option value="one">one</Select.Option>
-            <Select.Option value="two" disabled>
+            <Select.Item value="one">one</Select.Item>
+            <Select.Item value="two" disabled>
               two
-            </Select.Option>
+            </Select.Item>
           </Select.Popup>
         </Select.Positioner>
       </Select.Root>,
@@ -151,9 +151,9 @@ describe('<Select.Option />', () => {
         </Select.Trigger>
         <Select.Positioner>
           <Select.Popup>
-            <Select.Option value="one">one</Select.Option>
-            <Select.Option value="two">two</Select.Option>
-            <Select.Option value="three">three</Select.Option>
+            <Select.Item value="one">one</Select.Item>
+            <Select.Item value="two">two</Select.Item>
+            <Select.Item value="three">three</Select.Item>
           </Select.Popup>
         </Select.Positioner>
       </Select.Root>,
@@ -192,8 +192,8 @@ describe('<Select.Option />', () => {
           <Select.Trigger data-testid="trigger" />
           <Select.Positioner>
             <Select.Popup>
-              <Select.Option value="a">a</Select.Option>
-              <Select.Option value="b">b</Select.Option>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         </Select.Root>,
@@ -222,8 +222,8 @@ describe('<Select.Option />', () => {
           <Select.Trigger data-testid="trigger" />
           <Select.Positioner>
             <Select.Popup>
-              <Select.Option value="a">a</Select.Option>
-              <Select.Option value="b">b</Select.Option>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         </Select.Root>,

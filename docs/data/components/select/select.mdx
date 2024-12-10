@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Select component
 description: Select provides users with a floating element containing a list of options to choose from.
-components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectBackdrop, SelectPositioner, SelectPopup, SelectOption, SelectOptionText, SelectOptionIndicator, SelectGroup, SelectGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectArrow
+components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectBackdrop, SelectPositioner, SelectPopup, SelectItem, SelectItemText, SelectItemIndicator, SelectGroup, SelectGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectArrow
 githubLabel: 'component: select'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 ---
@@ -32,10 +32,10 @@ Selects are implemented using a collection of related components:
 - `<Select.Backdrop />` renders a backdrop element behind the popup.
 - `<Select.Positioner />` renders the select popup's positioning element.
 - `<Select.Popup />` renders the select popup itself.
-- `<Select.Option />` renders an option, placed inside the popup.
-- `<Select.OptionText />` renders the text of an option.
-- `<Select.OptionIndicator />` renders an option indicator inside an option to indicate it's selected (e.g. a check icon).
-- `<Select.Group />` renders a group for a set of options, wrapping `<Select.Option>` components.
+- `<Select.Item />` renders an option, placed inside the popup.
+- `<Select.ItemText />` renders the text of an option.
+- `<Select.ItemIndicator />` renders an option indicator inside an option to indicate it's selected (e.g. a check icon).
+- `<Select.Group />` renders a group for a set of options, wrapping `<Select.Item>` components.
 - `<Select.GroupLabel />` renders a label for a group of options.
 - `<Select.ScrollUpArrow />` renders a scrolling arrow for the `alignOptionToTrigger` anchoring mode.
 - `<Select.ScrollDownArrow />` renders a scrolling arrow for the `alignOptionToTrigger` anchoring mode.
@@ -57,10 +57,10 @@ Selects are implemented using a collection of related components:
     <Select.Popup>
       <Select.Group>
         <Select.GroupLabel />
-        <Select.Option>
-          <Select.OptionText />
-          <Select.OptionIndicator />
-        </Select.Option>
+        <Select.Item>
+          <Select.ItemText />
+          <Select.ItemIndicator />
+        </Select.Item>
       </Select.Group>
       <Select.Separator />
     </Select.Popup>
@@ -102,12 +102,12 @@ return (
 
 ## Option indicator
 
-The `Select.OptionIndicator` subcomponent renders an indicator inside an option to indicate it's selected. By default, it renders a check icon, but this can be customized:
+The `Select.ItemIndicator` subcomponent renders an indicator inside an option to indicate it's selected. By default, it renders a check icon, but this can be customized:
 
 ```jsx
-<Select.OptionIndicator>
+<Select.ItemIndicator>
   <MyCheckIcon />
-</Select.OptionIndicator>
+</Select.ItemIndicator>
 ```
 
 ## Modality
@@ -129,8 +129,8 @@ You may also add a backdrop to the modal Select by using the `Select.Backdrop` c
 ```jsx
 <Select.Group>
   <Select.GroupLabel>Label</Select.GroupLabel>
-  <Select.Option value="option1">Option 1</Select.Option>
-  <Select.Option value="option2">Option 2</Select.Option>
+  <Select.Item value="option1">Option 1</Select.Item>
+  <Select.Item value="option2">Option 2</Select.Item>
 </Select.Group>
 ```
 
@@ -176,7 +176,7 @@ This can be achieved by using the `--available-height` CSS variable:
 
 ## Value component
 
-The `Select.Value` subcomponent renders the selected value. This is the text content or `label` of `Select.Option` by default.
+The `Select.Value` subcomponent renders the selected value. This is the text content or `label` of `Select.Item` by default.
 
 The `placeholder` prop can be used when the value is empty. During SSR, if a default value is specified as the selected option, the value isn't available until hydration:
 
@@ -221,7 +221,7 @@ Here is an example of how to apply a symmetric scale and fade transition with th
 
 ```jsx
 <Select.Popup className="SelectPopup">
-  <Select.Option>Option 1</Select.Option>
+  <Select.Item>Option 1</Select.Item>
 </Select.Popup>
 ```
 
@@ -310,8 +310,8 @@ function App() {
                 />
               }
             >
-              <Select.Option>Option 1</Select.Option>
-              <Select.Option>Option 2</Select.Option>
+              <Select.Item>Option 1</Select.Item>
+              <Select.Item>Option 2</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         )}

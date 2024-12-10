@@ -16,38 +16,34 @@ export default function ExampleSelect() {
           <Select.Arrow className={styles.Arrow}>
             <ArrowSvg />
           </Select.Arrow>
-          <Select.Option className={styles.Option} value="sans">
-            <Select.OptionIndicator className={styles.OptionIndicator}>
+          <Select.Item className={styles.Option} value="sans">
+            <Select.ItemIndicator className={styles.OptionIndicator}>
               <CheckIcon className={styles.OptionIndicatorIcon} />
-            </Select.OptionIndicator>
-            <Select.OptionText className={styles.OptionText}>
+            </Select.ItemIndicator>
+            <Select.ItemText className={styles.OptionText}>
               Sans-serif
-            </Select.OptionText>
-          </Select.Option>
-          <Select.Option className={styles.Option} value="serif">
-            <Select.OptionIndicator className={styles.OptionIndicator}>
+            </Select.ItemText>
+          </Select.Item>
+          <Select.Item className={styles.Option} value="serif">
+            <Select.ItemIndicator className={styles.OptionIndicator}>
               <CheckIcon className={styles.OptionIndicatorIcon} />
-            </Select.OptionIndicator>
-            <Select.OptionText className={styles.OptionText}>
-              Serif
-            </Select.OptionText>
-          </Select.Option>
-          <Select.Option className={styles.Option} value="mono">
-            <Select.OptionIndicator className={styles.OptionIndicator}>
+            </Select.ItemIndicator>
+            <Select.ItemText className={styles.OptionText}>Serif</Select.ItemText>
+          </Select.Item>
+          <Select.Item className={styles.Option} value="mono">
+            <Select.ItemIndicator className={styles.OptionIndicator}>
               <CheckIcon className={styles.OptionIndicatorIcon} />
-            </Select.OptionIndicator>
-            <Select.OptionText className={styles.OptionText}>
+            </Select.ItemIndicator>
+            <Select.ItemText className={styles.OptionText}>
               Monospace
-            </Select.OptionText>
-          </Select.Option>
-          <Select.Option className={styles.Option} value="cursive">
-            <Select.OptionIndicator className={styles.OptionIndicator}>
+            </Select.ItemText>
+          </Select.Item>
+          <Select.Item className={styles.Option} value="cursive">
+            <Select.ItemIndicator className={styles.OptionIndicator}>
               <CheckIcon className={styles.OptionIndicatorIcon} />
-            </Select.OptionIndicator>
-            <Select.OptionText className={styles.OptionText}>
-              Cursive
-            </Select.OptionText>
-          </Select.Option>
+            </Select.ItemIndicator>
+            <Select.ItemText className={styles.OptionText}>Cursive</Select.ItemText>
+          </Select.Item>
         </Select.Popup>
       </Select.Positioner>
     </Select.Root>

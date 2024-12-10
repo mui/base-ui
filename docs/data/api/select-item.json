@@ -4,16 +4,16 @@
     "label": { "type": { "name": "string" } },
     "value": { "type": { "name": "any" }, "default": "null" }
   },
-  "name": "SelectOption",
+  "name": "SelectItem",
   "imports": [
-    "import { Select } from '@base-ui-components/react/select';\nconst SelectOption = Select.Option;"
+    "import { Select } from '@base-ui-components/react/select';\nconst SelectItem = Select.Item;"
   ],
   "classes": [],
   "spread": true,
   "themeDefaultProps": true,
-  "muiName": "SelectOption",
+  "muiName": "SelectItem",
   "forwardsRefTo": "HTMLDivElement",
-  "filename": "/packages/react/src/select/option/SelectOption.tsx",
+  "filename": "/packages/react/src/select/item/SelectItem.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-select/\">Select</a></li></ul>",
   "cssComponent": false

@@ -456,8 +456,8 @@ describe('<Field.Root />', () => {
               <Select.Trigger data-testid="trigger" />
               <Select.Positioner>
                 <Select.Popup>
-                  <Select.Option value="">Select</Select.Option>
-                  <Select.Option value="1">Option 1</Select.Option>
+                  <Select.Item value="">Select</Select.Item>
+                  <Select.Item value="1">Option 1</Select.Item>
                 </Select.Popup>
               </Select.Positioner>
             </Select.Root>
@@ -655,8 +655,8 @@ describe('<Field.Root />', () => {
               <Select.Trigger data-testid="trigger" />
               <Select.Positioner>
                 <Select.Popup>
-                  <Select.Option value="">Select</Select.Option>
-                  <Select.Option value="1">Option 1</Select.Option>
+                  <Select.Item value="">Select</Select.Item>
+                  <Select.Item value="1">Option 1</Select.Item>
                 </Select.Popup>
               </Select.Positioner>
             </Select.Root>

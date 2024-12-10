@@ -15,42 +15,42 @@ export default function ExampleSelect() {
           <Select.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
             <ArrowSvg />
           </Select.Arrow>
-          <Select.Option
+          <Select.Item
             className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 outline-0 select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] group-data-[side=none]:pr-12 group-data-[side=none]:text-base group-data-[side=none]:leading-4 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:-z-1 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
             value="sans"
           >
-            <Select.OptionIndicator className="col-start-1">
+            <Select.ItemIndicator className="col-start-1">
               <CheckIcon className="size-3" />
-            </Select.OptionIndicator>
-            <Select.OptionText className="col-start-2">Sans-serif</Select.OptionText>
-          </Select.Option>
-          <Select.Option
+            </Select.ItemIndicator>
+            <Select.ItemText className="col-start-2">Sans-serif</Select.ItemText>
+          </Select.Item>
+          <Select.Item
             className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 outline-0 select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] group-data-[side=none]:pr-12 group-data-[side=none]:text-base group-data-[side=none]:leading-4 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:-z-1 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
             value="serif"
           >
-            <Select.OptionIndicator className="col-start-1">
+            <Select.ItemIndicator className="col-start-1">
               <CheckIcon className="size-3" />
-            </Select.OptionIndicator>
-            <Select.OptionText className="col-start-2">Serif</Select.OptionText>
-          </Select.Option>
-          <Select.Option
+            </Select.ItemIndicator>
+            <Select.ItemText className="col-start-2">Serif</Select.ItemText>
+          </Select.Item>
+          <Select.Item
             className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 outline-0 select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] group-data-[side=none]:pr-12 group-data-[side=none]:text-base group-data-[side=none]:leading-4 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:-z-1 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
             value="mono"
           >
-            <Select.OptionIndicator className="col-start-1">
+            <Select.ItemIndicator className="col-start-1">
               <CheckIcon className="size-3" />
-            </Select.OptionIndicator>
-            <Select.OptionText className="col-start-2">Monospace</Select.OptionText>
-          </Select.Option>
-          <Select.Option
+            </Select.ItemIndicator>
+            <Select.ItemText className="col-start-2">Monospace</Select.ItemText>
+          </Select.Item>
+          <Select.Item
             className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 outline-0 select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] group-data-[side=none]:pr-12 group-data-[side=none]:text-base group-data-[side=none]:leading-4 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:-z-1 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
             value="cursive"
           >
-            <Select.OptionIndicator className="col-start-1">
+            <Select.ItemIndicator className="col-start-1">
               <CheckIcon className="size-3" />
-            </Select.OptionIndicator>
-            <Select.OptionText className="col-start-2">Cursive</Select.OptionText>
-          </Select.Option>
+            </Select.ItemIndicator>
+            <Select.ItemText className="col-start-2">Cursive</Select.ItemText>
+          </Select.Item>
         </Select.Popup>
       </Select.Positioner>
     </Select.Root>

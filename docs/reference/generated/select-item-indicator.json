@@ -1,5 +1,5 @@
 {
-  "name": "SelectOptionIndicator",
+  "name": "SelectItemIndicator",
   "description": "",
   "props": {
     "className": {
