@@ -205,11 +205,11 @@ export namespace useSelectItem {
      */
     typingRef: React.MutableRefObject<boolean>;
     /**
-     * The function to handle the selection of the option.
+     * The function to handle the selection of the item.
      */
     handleSelect: () => void;
     /**
-     * The ref to the selection state of the option.
+     * The ref to the selection state of the item.
      */
     selectionRef: React.MutableRefObject<{
       allowSelectedMouseUp: boolean;
