@@ -22,7 +22,7 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
     menuEvents,
     propGetter,
     render,
-    treatMouseupAsClick,
+    allowMouseUpTriggerRef,
     typingRef,
     ...other
   } = props;
@@ -34,7 +34,7 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
     id,
     menuEvents,
     ref: forwardedRef,
-    treatMouseupAsClick,
+    allowMouseUpTriggerRef,
     typingRef,
   });
 
@@ -73,6 +73,12 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  allowMouseUpTriggerRef: PropTypes.shape({
+    current: PropTypes.bool.isRequired,
+  }).isRequired,
   /**
    * @ignore
    */
@@ -128,10 +134,6 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  treatMouseupAsClick: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
   typingRef: PropTypes.shape({
     current: PropTypes.bool.isRequired,
   }).isRequired,
@@ -158,7 +160,7 @@ const MenuItem = React.forwardRef(function MenuItem(
   const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex, clickAndDragEnabled, typingRef } = useMenuRootContext();
+  const { getItemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
   const id = useBaseUiId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -176,7 +178,7 @@ const MenuItem = React.forwardRef(function MenuItem(
       highlighted={highlighted}
       menuEvents={menuEvents}
       propGetter={getItemProps}
-      treatMouseupAsClick={clickAndDragEnabled}
+      allowMouseUpTriggerRef={allowMouseUpTriggerRef}
       typingRef={typingRef}
     />
   );
@@ -186,7 +188,7 @@ interface InnerMenuItemProps extends MenuItem.Props {
   highlighted: boolean;
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   menuEvents: FloatingEvents;
-  treatMouseupAsClick: boolean;
+  allowMouseUpTriggerRef: React.RefObject<boolean>;
   typingRef: React.RefObject<boolean>;
 }
 

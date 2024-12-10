@@ -35,7 +35,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { id, open, popupRef, transitionStatus, alignItemToTrigger, mounted } =
+  const { id, open, popupRef, transitionStatus, alignItemToTrigger, mounted, modal } =
     useSelectRootContext();
 
   const positioner = useSelectPositionerContext();
@@ -83,8 +83,10 @@ const SelectPopup = React.forwardRef(function SelectPopup(
       )}
       <FloatingFocusManager
         context={positioner.positionerContext}
-        modal={false}
+        modal={modal}
         disabled={!mounted}
+        outsideElementsInert
+        visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
       >
         {renderElement()}
       </FloatingFocusManager>
