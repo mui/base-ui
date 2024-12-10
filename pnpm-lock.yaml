@@ -63,8 +63,8 @@ importers:
         specifier: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils
         version: https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils(@babel/core@7.26.0)(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)
       '@mui/monorepo':
-        specifier: github:mui/material-ui#v6.1.10
-        version: https://codeload.github.com/mui/material-ui/tar.gz/9b4f2aaab3c107101a9ecfa905cca3ffdcd2d081(encoding@0.1.13)
+        specifier: github:mui/material-ui#817470c5a7c2ae721401e308b961005730cdf2ab
+        version: https://codeload.github.com/mui/material-ui/tar.gz/817470c5a7c2ae721401e308b961005730cdf2ab(encoding@0.1.13)
       '@next/eslint-plugin-next':
         specifier: ^14.2.18
         version: 14.2.18
@@ -2150,8 +2150,8 @@ packages:
       react: ^18.2.0
       react-dom: ^18.2.0
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/9b4f2aaab3c107101a9ecfa905cca3ffdcd2d081':
-    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/9b4f2aaab3c107101a9ecfa905cca3ffdcd2d081}
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/817470c5a7c2ae721401e308b961005730cdf2ab':
+    resolution: {tarball: https://codeload.github.com/mui/material-ui/tar.gz/817470c5a7c2ae721401e308b961005730cdf2ab}
     version: 6.1.10
     engines: {pnpm: 9.14.4}
 
@@ -5105,8 +5105,8 @@ packages:
     resolution: {integrity: sha512-VyhnebXciFV2DESc+p6B+y0LjSm0krU4OgJN44qFAhBY0TJ+1V61tYD2+wHusZ6F9n5K+vl8k0sTy7PEfV4qpg==}
     engines: {node: '>=16.17'}
 
-  execa@9.5.1:
-    resolution: {integrity: sha512-QY5PPtSonnGwhhHDNI7+3RvY285c7iuJFFB+lU+oEzMY/gEGJ808owqJsrr8Otd1E/x07po1LkUBmdAc5duPAg==}
+  execa@9.5.2:
+    resolution: {integrity: sha512-EHlpxMCpHWSAh1dgS6bVeoLAXGnJNdR93aabr4QCGbzOM73o5XmRfM/e5FUqsw3aagP8S8XEWUWFAxnRBnAF0Q==}
     engines: {node: ^18.19.0 || >=20.5.0}
 
   expand-tilde@2.0.2:
@@ -11293,12 +11293,12 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/9b4f2aaab3c107101a9ecfa905cca3ffdcd2d081(encoding@0.1.13)':
+  '@mui/monorepo@https://codeload.github.com/mui/material-ui/tar.gz/817470c5a7c2ae721401e308b961005730cdf2ab(encoding@0.1.13)':
     dependencies:
       '@googleapis/sheets': 9.3.1(encoding@0.1.13)
       '@netlify/functions': 2.8.2
       '@slack/bolt': 4.1.1
-      execa: 9.5.1
+      execa: 9.5.2
       google-auth-library: 9.15.0(encoding@0.1.13)
     transitivePeerDependencies:
       - bufferutil
@@ -14793,7 +14793,7 @@ snapshots:
       signal-exit: 4.1.0
       strip-final-newline: 3.0.0
 
-  execa@9.5.1:
+  execa@9.5.2:
     dependencies:
       '@sindresorhus/merge-streams': 4.0.0
       cross-spawn: 7.0.3
