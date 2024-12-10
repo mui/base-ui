@@ -43,18 +43,18 @@ function SelectDemo({ modal, withBackdrop }: Props) {
 
       <Select.Positioner sideOffset={5} render={<Positioner />}>
         <SelectPopup>
-          <SelectOption value="system">
-            <SelectOptionIndicator render={<CheckIcon />} />
-            <Select.OptionText>System font</Select.OptionText>
-          </SelectOption>
-          <SelectOption value="arial">
-            <SelectOptionIndicator render={<CheckIcon />} />
-            <Select.OptionText>Arial</Select.OptionText>
-          </SelectOption>
-          <SelectOption value="roboto">
-            <SelectOptionIndicator render={<CheckIcon />} />
-            <Select.OptionText>Roboto</Select.OptionText>
-          </SelectOption>
+          <SelectItem value="system">
+            <SelectItemIndicator render={<CheckIcon />} />
+            <Select.ItemText>System font</Select.ItemText>
+          </SelectItem>
+          <SelectItem value="arial">
+            <SelectItemIndicator render={<CheckIcon />} />
+            <Select.ItemText>Arial</Select.ItemText>
+          </SelectItem>
+          <SelectItem value="roboto">
+            <SelectItemIndicator render={<CheckIcon />} />
+            <Select.ItemText>Roboto</Select.ItemText>
+          </SelectItem>
         </SelectPopup>
       </Select.Positioner>
     </Select.Root>
@@ -214,7 +214,7 @@ const SelectPopup = styled(Select.Popup)`
   --icon-margin: 4px;
 `;
 
-const SelectOption = styled(Select.Option)`
+const SelectItem = styled(Select.Item)`
   outline: 0;
   cursor: default;
   border-radius: 4px;
@@ -239,7 +239,7 @@ const SelectOption = styled(Select.Option)`
   }
 `;
 
-const SelectOptionIndicator = styled(Select.OptionIndicator)`
+const SelectItemIndicator = styled(Select.ItemIndicator)`
   margin-right: var(--icon-margin);
   visibility: hidden;
   width: var(--icon-size);
