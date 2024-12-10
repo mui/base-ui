@@ -13,13 +13,7 @@ import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 
 /**
  *
- * Demos:
- *
- * - [Radio Group](https://base-ui.com/components/react-radio-group/)
- *
- * API:
- *
- * - [RadioRoot API](https://base-ui.com/components/react-radio-group/#api-reference-RadioRoot)
+ * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
 const RadioRoot = React.forwardRef(function RadioRoot(
   props: RadioRoot.Props,

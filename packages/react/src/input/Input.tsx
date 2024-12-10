@@ -6,13 +6,7 @@ import { Field } from '../field';
 
 /**
  *
- * Demos:
- *
- * - [Input](https://base-ui.com/components/react-input/)
- *
- * API:
- *
- * - [Input API](https://base-ui.com/components/react-input/#api-reference-Input)
+ * Documentation: [Base UI Input](https://base-ui.com/react/components/input)
  */
 const Input = React.forwardRef(function Input(
   props: Input.Props,

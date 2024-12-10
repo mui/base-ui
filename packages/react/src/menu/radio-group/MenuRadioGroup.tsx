@@ -128,12 +128,6 @@ const MemoizedMenuRadioGroup = React.memo(MenuRadioGroup);
 
 /**
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuRadioGroup API](https://base-ui.com/components/react-menu/#api-reference-MenuRadioGroup)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export { MemoizedMenuRadioGroup as MenuRadioGroup };

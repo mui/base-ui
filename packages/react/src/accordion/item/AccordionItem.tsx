@@ -18,13 +18,7 @@ import { accordionStyleHookMapping } from './styleHooks';
 
 /**
  *
- * Demos:
- *
- * - [Accordion](https://base-ui.com/components/react-accordion/)
- *
- * API:
- *
- * - [AccordionItem API](https://base-ui.com/components/react-accordion/#api-reference-AccordionItem)
+ * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
 const AccordionItem = React.forwardRef(function AccordionItem(
   props: AccordionItem.Props,

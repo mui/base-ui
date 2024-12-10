@@ -21,13 +21,7 @@ const rootStyleHookMapping = {
 
 /**
  *
- * Demos:
- *
- * - [Accordion](https://base-ui.com/components/react-accordion/)
- *
- * API:
- *
- * - [AccordionRoot API](https://base-ui.com/components/react-accordion/#api-reference-AccordionRoot)
+ * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
 const AccordionRoot = React.forwardRef(function AccordionRoot(
   props: AccordionRoot.Props,

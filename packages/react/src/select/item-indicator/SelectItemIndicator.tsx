@@ -8,13 +8,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectItemIndicator API](https://base-ui.com/components/react-select/#api-reference-SelectItemIndicator)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
   props: SelectItemIndicator.Props,

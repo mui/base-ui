@@ -22,13 +22,7 @@ const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
 
 /**
  *
- * Demos:
- *
- * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
- *
- * API:
- *
- * - [AlertDialogPopup API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogPopup)
+ * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   props: AlertDialogPopup.Props,

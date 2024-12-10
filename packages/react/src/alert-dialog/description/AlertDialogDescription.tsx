@@ -11,13 +11,7 @@ const state = {};
 
 /**
  *
- * Demos:
- *
- * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
- *
- * API:
- *
- * - [AlertDialogDescription API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogDescription)
+ * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
   props: AlertDialogDescription.Props,

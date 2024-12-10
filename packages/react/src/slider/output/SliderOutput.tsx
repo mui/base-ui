@@ -9,13 +9,7 @@ import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderOutput } from './useSliderOutput';
 /**
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderOutput API](https://base-ui.com/components/react-slider/#api-reference-SliderOutput)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderOutput = React.forwardRef(function SliderOutput(
   props: SliderOutput.Props,

@@ -9,13 +9,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
- * Demos:
- *
- * - [Progress](https://base-ui.com/components/react-progress/)
- *
- * API:
- *
- * - [ProgressTrack API](https://base-ui.com/components/react-progress/#api-reference-ProgressTrack)
+ * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
 const ProgressTrack = React.forwardRef(function ProgressTrack(
   props: ProgressTrack.Props,

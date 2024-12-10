@@ -15,13 +15,7 @@ const noop = () => null;
 
 /**
  *
- * Demos:
- *
- * - [Tabs](https://base-ui.com/components/react-tabs/)
- *
- * API:
- *
- * - [TabsIndicator API](https://base-ui.com/components/react-tabs/#api-reference-TabsIndicator)
+ * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
 const TabsIndicator = React.forwardRef<HTMLSpanElement, TabsIndicator.Props>(
   function TabIndicator(props, forwardedRef) {

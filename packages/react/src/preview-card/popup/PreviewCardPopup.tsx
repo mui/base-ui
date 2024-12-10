@@ -20,13 +20,7 @@ const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.State> = {
 
 /**
  *
- * Demos:
- *
- * - [Preview Card](https://base-ui.com/components/react-preview-card/)
- *
- * API:
- *
- * - [PreviewCardPopup API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardPopup)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   props: PreviewCardPopup.Props,

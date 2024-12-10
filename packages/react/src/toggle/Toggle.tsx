@@ -13,13 +13,7 @@ const customStyleHookMapping = {
 };
 /**
  *
- * Demos:
- *
- * - [Toggle](https://base-ui.com/components/react-toggle/)
- *
- * API:
- *
- * - [Toggle API](https://base-ui.com/components/react-toggle/#api-reference-Toggle)
+ * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */
 const Toggle = React.forwardRef(function Toggle(
   props: Toggle.Props,

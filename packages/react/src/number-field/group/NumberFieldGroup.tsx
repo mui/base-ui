@@ -9,13 +9,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 /**
  * Groups interactive `NumberField` components together.
  *
- * Demos:
- *
- * - [Number Field](https://base-ui.com/components/react-number-field/)
- *
- * API:
- *
- * - [NumberFieldGroup API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldGroup)
+ * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
   props: NumberFieldGroup.Props,

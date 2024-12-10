@@ -12,13 +12,7 @@ const state = {};
 
 /**
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectGroupLabel API](https://base-ui.com/components/react-select/#api-reference-SelectGroupLabel)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   props: SelectGroupLabel.Props,

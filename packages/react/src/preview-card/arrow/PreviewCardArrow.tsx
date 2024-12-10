@@ -12,13 +12,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  *
- * Demos:
- *
- * - [Preview Card](https://base-ui.com/components/react-preview-card/)
- *
- * API:
- *
- * - [PreviewCardArrow API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardArrow)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   props: PreviewCardArrow.Props,

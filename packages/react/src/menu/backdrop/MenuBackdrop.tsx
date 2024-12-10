@@ -19,13 +19,7 @@ const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
 /**
  * Renders a backdrop for the menu.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuBackdrop API](https://base-ui.com/components/react-menu/#api-reference-MenuBackdrop)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   props: MenuBackdrop.Props,

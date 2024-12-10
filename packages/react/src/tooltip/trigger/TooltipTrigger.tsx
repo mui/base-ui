@@ -10,13 +10,7 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 /**
  * Renders a trigger element that opens the tooltip.
  *
- * Demos:
- *
- * - [Tooltip](https://base-ui.com/components/react-tooltip/)
- *
- * API:
- *
- * - [TooltipTrigger API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipTrigger)
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   props: TooltipTrigger.Props,

@@ -10,13 +10,7 @@ import { styleHookMapping } from '../styleHooks';
 
 /**
  *
- * Demos:
- *
- * - [Switch](https://base-ui.com/components/react-switch/)
- *
- * API:
- *
- * - [SwitchThumb API](https://base-ui.com/components/react-switch/#api-reference-SwitchThumb)
+ * Documentation: [Base UI Switch](https://base-ui.com/react/components/switch)
  */
 const SwitchThumb = React.forwardRef(function SwitchThumb(
   props: SwitchThumb.Props,
