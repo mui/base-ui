@@ -6,5 +6,6 @@
     },
     "render": { "description": "A function to customize rendering of the component." }
   },
-  "classDescriptions": {}
+  "classDescriptions": {},
+  "dataAttributesDescriptions": { "data-panel-open": "Present when the collapsible panel is open." }
 }

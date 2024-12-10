@@ -10,5 +10,10 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
     }
+  },
+  "dataAttributes": {
+    "data-panel-open": {
+      "description": "Present when the collapsible panel is open."
+    }
   }
 }

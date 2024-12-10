@@ -11,11 +11,11 @@
       "description": "A function to customize rendering of the component."
     }
   },
-  "attributes": {
-    "[data-modal]": {
+  "dataAttributes": {
+    "data-modal": {
       "description": "Present when the corresponding dialog is modal."
     },
-    "[data-popup-open]": {
+    "data-popup-open": {
       "description": "Present when the corresponding dialog is open."
     }
   }
