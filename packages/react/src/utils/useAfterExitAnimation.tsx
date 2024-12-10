@@ -22,7 +22,7 @@ export function useAfterExitAnimation(parameters: useAfterExitAnimation.Paramete
     }
 
     if (!open) {
-      runOnceAnimationsFinish(callOnFinished);
+      runOnceAnimationsFinish(callOnFinished, false);
     }
   }, [open, openRef, runOnceAnimationsFinish, onFinished]);
 }

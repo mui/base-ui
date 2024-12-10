@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useEventCallback } from './useEventCallback';
 
 /**
@@ -15,7 +16,7 @@ export function useAnimationsFinished(ref: React.RefObject<HTMLElement | null>) 
 
   React.useEffect(() => cancelFrames, [cancelFrames]);
 
-  return useEventCallback((fnToExecute: () => void) => {
+  return useEventCallback((fnToExecute: () => void, flushSync: boolean) => {
     cancelFrames();
 
     const element = ref.current;
@@ -31,7 +32,13 @@ export function useAnimationsFinished(ref: React.RefObject<HTMLElement | null>) 
       fnToExecute();
     } else {
       frameRef.current = requestAnimationFrame(() => {
-        Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(fnToExecute);
+        Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(() => {
+          if (flushSync) {
+            ReactDOM.flushSync(fnToExecute);
+          } else {
+            fnToExecute();
+          }
+        });
       });
     }
   });
