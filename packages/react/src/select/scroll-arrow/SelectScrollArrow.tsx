@@ -132,8 +132,8 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     className,
     state,
     extraProps: {
-      ...otherProps,
       hidden: !mounted,
+      ...otherProps,
     },
   });
 

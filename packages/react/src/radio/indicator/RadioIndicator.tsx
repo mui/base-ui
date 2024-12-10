@@ -48,8 +48,8 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
     className,
     state,
     extraProps: {
-      ...otherProps,
       hidden: !mounted,
+      ...otherProps,
     },
     customStyleHookMapping,
   });
