@@ -94,6 +94,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
         modal={modal}
         disabled={!mounted}
         outsideElementsInert
+        visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
       >
         {renderElement()}
       </FloatingFocusManager>

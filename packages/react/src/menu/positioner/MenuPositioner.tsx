@@ -142,6 +142,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
               returnFocus
               disabled={!mounted}
               outsideElementsInert
+              visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
             >
               {renderElement()}
             </FloatingFocusManager>
