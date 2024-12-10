@@ -1,11 +1,8 @@
 <!-- markdownlint-disable-next-line -->
-<p align="center">
-  <a href="https://mui.com/base-ui/" rel="noopener" target="_blank"><img width="150" height="133" src="https://mui.com/static/logo.svg" alt="Base UI logo"></a>
-</p>
 
-<h1 align="center">Base UI</h1>
+<a href="https://base-ui.com" rel="noopener" target="_blank"><img width="150" height="133" src="https://base-ui.com/static/logo.svg" alt="Base UI logo"></a>
 
-Base UI is a library of headless ("unstyled") React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.
+Base UI is a library of unstyled React components. You gain complete control over your app's CSS and accessibility features.
 
 ## Installation
 
@@ -19,7 +16,7 @@ npm install @base-ui-components/react
 
 <!-- #default-branch-switch -->
 
-Visit [https://mui.com/base-ui/](https://mui.com/base-ui/) to view the full documentation.
+Visit [base-ui.com](https://base-ui.com) to view the full documentation.
 
 ## Questions
 
