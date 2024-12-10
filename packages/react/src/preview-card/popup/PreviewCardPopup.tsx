@@ -56,9 +56,12 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     render: render ?? 'div',
     className,
     state,
-    extraProps: mergeReactProps(otherProps, {
-      style: transitionStatus === 'starting' ? { transition: 'none' } : {},
-    }),
+    extraProps:
+      transitionStatus === 'starting'
+        ? mergeReactProps(otherProps, {
+            style: { transition: 'none' },
+          })
+        : otherProps,
     customStyleHookMapping,
   });
 

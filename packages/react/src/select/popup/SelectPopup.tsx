@@ -58,9 +58,12 @@ const SelectPopup = React.forwardRef(function SelectPopup(
     className,
     state,
     customStyleHookMapping,
-    extraProps: mergeReactProps(otherProps, {
-      style: transitionStatus === 'starting' ? { transition: 'none' } : {},
-    }),
+    extraProps:
+      transitionStatus === 'starting'
+        ? mergeReactProps(otherProps, {
+            style: { transition: 'none' },
+          })
+        : otherProps,
   });
 
   const popupSelector = `[data-id="${id}-popup"]`;
