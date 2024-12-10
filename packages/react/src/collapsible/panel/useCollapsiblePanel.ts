@@ -179,18 +179,16 @@ export function useCollapsiblePanel(
         : (originalTransitionDuration ?? '');
 
       runOnceAnimationsFinish(() => {
-        ReactDOM.flushSync(() => {
-          setContextMounted(open);
-          if (isBeforeMatch) {
-            isBeforeMatchRef.current = false;
-            frame1 = requestAnimationFrame(() => {
-              frame2 = requestAnimationFrame(() => {
-                element.style.transitionDuration = originalTransitionDurationStyleRef.current ?? '';
-              });
+        setContextMounted(open);
+        if (isBeforeMatch) {
+          isBeforeMatchRef.current = false;
+          frame1 = requestAnimationFrame(() => {
+            frame2 = requestAnimationFrame(() => {
+              element.style.transitionDuration = originalTransitionDurationStyleRef.current ?? '';
             });
-          }
-        });
-      });
+          });
+        }
+      }, true);
     }
 
     return () => {
