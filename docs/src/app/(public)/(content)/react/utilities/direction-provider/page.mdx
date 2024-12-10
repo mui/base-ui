@@ -10,15 +10,19 @@
 
 ## API reference
 
-Import the component and wrap it around your app:
+Import the component and wrap it around your app to enable RTL behavior, and set the `dir` attribute accordingly to affect styling:
 
 ```jsx title="Anatomy"
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 
-// prettier-ignore
-<DirectionProvider>
-  {/* Your app or a group of components */}
-</DirectionProvider>
+<html dir="rtl">
+  <body>
+    {/* prettier-ignore */}
+    <DirectionProvider>
+      {/* Your app or a group of components */}
+    </DirectionProvider>
+  </body>
+</html>;
 ```
 
 <Reference component="DirectionProvider" />

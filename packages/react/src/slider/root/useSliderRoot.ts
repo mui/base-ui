@@ -411,12 +411,11 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     (externalProps = {}) =>
       mergeReactProps(getValidationProps(externalProps), {
         'aria-labelledby': ariaLabelledby,
-        dir: direction,
         id,
         ref: handleRootRef,
         role: 'group',
       }),
-    [ariaLabelledby, direction, getValidationProps, handleRootRef, id],
+    [ariaLabelledby, getValidationProps, handleRootRef, id],
   );
 
   return React.useMemo(
