@@ -14,7 +14,7 @@ describe('<Select.Item />', () => {
     },
   }));
 
-  it('should select the option and close popup when clicked', async () => {
+  it('should select the item and close popup when clicked', async () => {
     await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
@@ -45,7 +45,7 @@ describe('<Select.Item />', () => {
     expect(positioner).not.toBeVisible();
   });
 
-  it('navigating with keyboard should highlight option', async () => {
+  it('navigating with keyboard should highlight item', async () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
@@ -114,7 +114,7 @@ describe('<Select.Item />', () => {
     });
   });
 
-  it('should not select disabled option', async () => {
+  it('should not select disabled item', async () => {
     await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
@@ -180,7 +180,7 @@ describe('<Select.Item />', () => {
   });
 
   describe('style hooks', () => {
-    it('should apply data-highlighted attribute when option is highlighted', async function test(t = {}) {
+    it('should apply data-highlighted attribute when item is highlighted', async function test(t = {}) {
       if (!/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -216,7 +216,7 @@ describe('<Select.Item />', () => {
       expect(screen.getByRole('option', { name: 'b' })).to.have.attribute(attr, '');
     });
 
-    it('should apply data-selected attribute when option is selected', async () => {
+    it('should apply data-selected attribute when item is selected', async () => {
       await render(
         <Select.Root>
           <Select.Trigger data-testid="trigger" />
