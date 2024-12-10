@@ -57,7 +57,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     className,
     state,
     extraProps: mergeReactProps(other, {
-      style: transitionStatus === 'entering' ? { transition: 'none' } : {},
+      style: transitionStatus === 'starting' ? { transition: 'none' } : {},
     }),
     customStyleHookMapping,
     ref: mergedRef,

@@ -74,7 +74,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     className,
     state,
     extraProps: mergeReactProps(otherProps, {
-      style: transitionStatus === 'entering' ? { transition: 'none' } : {},
+      style: transitionStatus === 'starting' ? { transition: 'none' } : {},
     }),
     customStyleHookMapping,
   });

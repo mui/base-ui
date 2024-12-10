@@ -59,7 +59,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
     state,
     customStyleHookMapping,
     extraProps: mergeReactProps(otherProps, {
-      style: transitionStatus === 'entering' ? { transition: 'none' } : {},
+      style: transitionStatus === 'starting' ? { transition: 'none' } : {},
     }),
   });
 
