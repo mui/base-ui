@@ -2,32 +2,33 @@
 import * as React from 'react';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
-export type TransitionStatus = 'entering' | 'exiting' | undefined;
+export type TransitionStatus = 'starting' | 'ending' | undefined;
 
 /**
  * Provides a status string for CSS animations.
  * @param open - a boolean that determines if the element is open.
- * @param delayEnteringStatus - a boolean that set the `entering` status one
+ * @param enabled - a boolean that determines if the logic is enabled.
+ * @param delayStartingStatus - a boolean that set the `starting` status one
  *     tick later. Example use-case: collapsible needs an extra frame in order
  *     to measure the panel contents.
  * @ignore - internal hook.
  */
-export function useTransitionStatus(open: boolean, delayEnteringStatus = false) {
+export function useTransitionStatus(open: boolean, delayStartingStatus = false) {
   const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>();
   const [mounted, setMounted] = React.useState(open);
 
   if (open && !mounted) {
     setMounted(true);
-    if (transitionStatus !== 'entering' && !delayEnteringStatus) {
-      setTransitionStatus('entering');
+    if (transitionStatus !== 'starting' && !delayStartingStatus) {
+      setTransitionStatus('starting');
     }
   }
 
-  if (!open && mounted && transitionStatus !== 'exiting') {
-    setTransitionStatus('exiting');
+  if (!open && mounted && transitionStatus !== 'ending') {
+    setTransitionStatus('ending');
   }
 
-  if (!open && !mounted && transitionStatus === 'exiting') {
+  if (!open && !mounted && transitionStatus === 'ending') {
     setTransitionStatus(undefined);
   }
 
@@ -36,8 +37,8 @@ export function useTransitionStatus(open: boolean, delayEnteringStatus = false) 
       return undefined;
     }
 
-    if (delayEnteringStatus) {
-      setTransitionStatus('entering');
+    if (delayStartingStatus) {
+      setTransitionStatus('starting');
     }
 
     const frame = requestAnimationFrame(() => {
@@ -47,7 +48,7 @@ export function useTransitionStatus(open: boolean, delayEnteringStatus = false) 
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [open, delayEnteringStatus]);
+  }, [open, delayStartingStatus]);
 
   return React.useMemo(
     () => ({

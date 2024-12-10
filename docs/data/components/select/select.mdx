@@ -37,10 +37,10 @@ Selects are implemented using a collection of related components:
 - `<Select.ItemIndicator />` renders an option indicator inside an option to indicate it's selected (e.g. a check icon).
 - `<Select.Group />` renders a group for a set of options, wrapping `<Select.Item>` components.
 - `<Select.GroupLabel />` renders a label for a group of options.
-- `<Select.ScrollUpArrow />` renders a scrolling arrow for the `alignOptionToTrigger` anchoring mode.
-- `<Select.ScrollDownArrow />` renders a scrolling arrow for the `alignOptionToTrigger` anchoring mode.
+- `<Select.ScrollUpArrow />` renders a scrolling arrow for the `alignItemToTrigger` anchoring mode.
+- `<Select.ScrollDownArrow />` renders a scrolling arrow for the `alignItemToTrigger` anchoring mode.
 - `<Select.Separator />` renders a separator between option groups.
-- `<Select.Arrow />` renders the select popup's arrow when disabling `alignOptionToTrigger`.
+- `<Select.Arrow />` renders the select popup's arrow when disabling `alignItemToTrigger`.
 
 ```jsx
 <Select.Root>
@@ -138,21 +138,21 @@ You may also add a backdrop to the modal Select by using the `Select.Backdrop` c
 
 ## Align method
 
-By default, the selected option inside the popup is aligned to the trigger element. This can be disabled with the `alignOptionToTrigger` prop:
+By default, the selected item inside the popup is aligned to the trigger element. This can be disabled with the `alignItemToTrigger` prop:
 
 ```jsx
-<Select.Root alignOptionToTrigger={false}>
+<Select.Root alignItemToTrigger={false}>
 ```
 
-- **`alignOptionToTrigger={true}`**: aligns the popup such that the selected option inside of it appears centered over the trigger. If there's not enough space, it falls back to standard anchoring. This method is useful as it allows the user to select an option in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS; the scroll arrow components must be used to ensure a single pointer cycle can be used. The `[data-side]` attribute value is `none` on both `Select.Positioner` and `Select.Popup` when in this mode, allowing it to be styled differently.
-- **`alignOptionToTrigger={false}`**: aligns the popup to the trigger itself on its top or bottom side, which is the standard form of anchor positioning used in Tooltip, Popover, Menu, etc.
+- **`alignItemToTrigger={true}`**: aligns the popup such that the selected item inside of it appears centered over the trigger. If there's not enough space, it falls back to standard anchoring. This method is useful as it allows the user to select an option in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS; the scroll arrow components must be used to ensure a single pointer cycle can be used. The `[data-side]` attribute value is `none` on both `Select.Positioner` and `Select.Popup` when in this mode, allowing it to be styled differently.
+- **`alignItemToTrigger={false}`**: aligns the popup to the trigger itself on its top or bottom side, which is the standard form of anchor positioning used in Tooltip, Popover, Menu, etc.
 
 <Callout type="warning">
-  `alignOptionToTrigger` is always `false` on touch devices or touch input.
+  `alignItemToTrigger` is always `false` on touch devices or touch input.
 </Callout>
 
 <Callout type="info">
-  Scrolling is locked when `alignOptionToTrigger` is `true` to prevent unwanted scrolling of the
+  Scrolling is locked when `alignItemToTrigger` is `true` to prevent unwanted scrolling of the
   background when expanding the popup, ensuring positioning remains correct.
 </Callout>
 
@@ -178,7 +178,7 @@ This can be achieved by using the `--available-height` CSS variable:
 
 The `Select.Value` subcomponent renders the selected value. This is the text content or `label` of `Select.Item` by default.
 
-The `placeholder` prop can be used when the value is empty. During SSR, if a default value is specified as the selected option, the value isn't available until hydration:
+The `placeholder` prop can be used when the value is empty. During SSR, if a default value is specified as the selected item, the value isn't available until hydration:
 
 ```jsx
 <Select.Trigger>
@@ -196,7 +196,7 @@ A function can be specified as a child to customize the rendering of the value:
 
 To add an arrow (caret or triangle) inside the select popup that points toward the center of the anchor element, use the `Select.Arrow` component:
 
-<Callout type="warning">This is not supported when `alignOptionToTrigger` is `true`.</Callout>
+<Callout type="warning">This is not supported when `alignItemToTrigger` is `true`.</Callout>
 
 ```jsx
 <Select.Positioner>

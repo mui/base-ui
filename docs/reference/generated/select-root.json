@@ -2,10 +2,10 @@
   "name": "SelectRoot",
   "description": "",
   "props": {
-    "alignOptionToTrigger": {
+    "alignItemToTrigger": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines if the selected option inside the popup should align to the trigger element."
+      "description": "Determines if the selected item inside the popup should align to the trigger element."
     },
     "defaultOpen": {
       "type": "boolean",

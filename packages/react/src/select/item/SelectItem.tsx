@@ -131,7 +131,7 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the select option will be disabled.
+   * If `true`, the select item will be disabled.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -150,7 +150,7 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
     current: PropTypes.number.isRequired,
   }).isRequired,
   /**
-   * A text representation of the select option's content.
+   * A text representation of the select item's content.
    * Used for keyboard text navigation matching.
    */
   label: PropTypes.string,
@@ -289,17 +289,17 @@ namespace SelectItem {
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'id'> {
     children?: React.ReactNode;
     /**
-     * The value of the select option.
+     * The value of the select item.
      * @default null
      */
     value?: any;
     /**
-     * If `true`, the select option will be disabled.
+     * If `true`, the select item will be disabled.
      * @default false
      */
     disabled?: boolean;
     /**
-     * A text representation of the select option's content.
+     * A text representation of the select item's content.
      * Used for keyboard text navigation matching.
      */
     label?: string;
@@ -316,17 +316,17 @@ SelectItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the select option will be disabled.
+   * If `true`, the select item will be disabled.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * A text representation of the select option's content.
+   * A text representation of the select item's content.
    * Used for keyboard text navigation matching.
    */
   label: PropTypes.string,
   /**
-   * The value of the select option.
+   * The value of the select item.
    * @default null
    */
   value: PropTypes.any,

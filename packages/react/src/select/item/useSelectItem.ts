@@ -86,7 +86,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               return;
             }
 
-            // With `alignOptionToTrigger`, avoid re-rendering the root due to `onMouseLeave`
+            // With `alignItemToTrigger`, avoid re-rendering the root due to `onMouseLeave`
             // firing and causing a performance issue when expanding the popup.
             if (popup.offsetHeight === prevPopupHeightRef.current) {
               // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
@@ -205,11 +205,11 @@ export namespace useSelectItem {
      */
     typingRef: React.MutableRefObject<boolean>;
     /**
-     * The function to handle the selection of the option.
+     * The function to handle the selection of the item.
      */
     handleSelect: () => void;
     /**
-     * The ref to the selection state of the option.
+     * The ref to the selection state of the item.
      */
     selectionRef: React.MutableRefObject<{
       allowSelectedMouseUp: boolean;

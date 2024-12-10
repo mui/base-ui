@@ -1,6 +1,6 @@
 {
   "props": {
-    "alignOptionToTrigger": { "type": { "name": "bool" }, "default": "true" },
+    "alignItemToTrigger": { "type": { "name": "bool" }, "default": "true" },
     "defaultOpen": { "type": { "name": "bool" }, "default": "false" },
     "defaultValue": { "type": { "name": "any" }, "default": "null" },
     "disabled": { "type": { "name": "bool" }, "default": "false" },

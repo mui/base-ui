@@ -27,7 +27,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     open,
     defaultOpen = false,
     onOpenChange,
-    alignOptionToTrigger = true,
+    alignItemToTrigger = true,
     name,
     disabled = false,
     readOnly = false,
@@ -42,7 +42,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     open,
     defaultOpen,
     onOpenChange,
-    alignOptionToTrigger,
+    alignItemToTrigger,
     name,
     disabled,
     readOnly,
@@ -118,10 +118,10 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * Determines if the selected option inside the popup should align to the trigger element.
+   * Determines if the selected item inside the popup should align to the trigger element.
    * @default true
    */
-  alignOptionToTrigger: PropTypes.bool,
+  alignItemToTrigger: PropTypes.bool,
   /**
    * @ignore
    */
