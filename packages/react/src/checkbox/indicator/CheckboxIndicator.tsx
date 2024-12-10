@@ -38,15 +38,12 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
   const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
-  const hidden = !mounted;
-
   const state: CheckboxIndicator.State = React.useMemo(
     () => ({
       ...rootState,
       transitionStatus,
-      hidden,
     }),
-    [rootState, hidden, transitionStatus],
+    [rootState, transitionStatus],
   );
 
   useAfterExitAnimation({
@@ -74,7 +71,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     className,
     customStyleHookMapping,
     extraProps: {
-      hidden,
+      hidden: !mounted,
       ...otherProps,
     },
   });
@@ -89,7 +86,6 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
 namespace CheckboxIndicator {
   export interface State extends CheckboxRoot.State {
-    hidden: boolean;
     transitionStatus: TransitionStatus;
   }
 
