@@ -7,7 +7,7 @@ import { useRadioRootContext } from '../root/RadioRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 import { useForkRef } from '../../utils/useForkRef';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
  *
@@ -62,7 +62,7 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
     },
   });
 
-  const shouldRender = keepMounted || state.checked;
+  const shouldRender = keepMounted || rendered;
   if (!shouldRender) {
     return null;
   }
@@ -81,6 +81,7 @@ namespace RadioIndicator {
 
   export interface State {
     checked: boolean;
+    transitionStatus: TransitionStatus;
   }
 }
 

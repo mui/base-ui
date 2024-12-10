@@ -76,7 +76,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     },
   });
 
-  const shouldRender = keepMounted || state.checked || state.indeterminate;
+  const shouldRender = keepMounted || rendered;
   if (!shouldRender) {
     return null;
   }
