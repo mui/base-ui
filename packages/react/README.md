@@ -1,5 +1,4 @@
 <!-- markdownlint-disable-next-line -->
-
 <a href="https://base-ui.com" rel="noopener" target="_blank"><img width="150" height="133" src="https://base-ui.com/static/logo.svg" alt="Base UI logo"></a>
 
 Base UI is a library of unstyled React components. You gain complete control over your app's CSS and accessibility features.
