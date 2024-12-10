@@ -31,7 +31,7 @@ export default function RangeSlider() {
         <span id="ControlledRangeLabel" className={classes.label}>
           Controlled Range
         </span>
-        <Slider.Output className={classes.output} />
+        <Slider.Value className={classes.output} />
         <Slider.Control className={classes.control}>
           <Slider.Track className={classes.track}>
             <Slider.Indicator className={classes.indicator} />
@@ -49,7 +49,7 @@ export default function RangeSlider() {
         <span id="UncontrolledRangeLabel" className={classes.label}>
           Uncontrolled Range
         </span>
-        <Slider.Output className={classes.output} />
+        <Slider.Value className={classes.output} />
         <Slider.Control className={classes.control}>
           <Slider.Track className={classes.track}>
             <Slider.Indicator className={classes.indicator} />

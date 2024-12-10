@@ -1,5 +1,5 @@
 {
-  "name": "SliderOutput",
+  "name": "SliderValue",
   "description": "",
   "props": {
     "className": {

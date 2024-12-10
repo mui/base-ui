@@ -22,7 +22,7 @@ export default function App() {
         onValueChange={(newValue) => setVal1(newValue as number)}
         onValueCommitted={(newValue) => setVal2(newValue as number)}
       >
-        <Slider.Output className={classes.output} />
+        <Slider.Value className={classes.output} />
         <Slider.Control className={classes.control}>
           <Slider.Track className={classes.track}>
             <Slider.Indicator className={classes.indicator} />

@@ -11,6 +11,7 @@
       "description": "The default value of the slider. Use when the component is not controlled."
     },
     "disabled": { "description": "If <code>true</code>, the component is disabled." },
+    "format": { "description": "Options to format the input value." },
     "largeStep": {
       "description": "The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down."
     },
