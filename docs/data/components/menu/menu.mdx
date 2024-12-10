@@ -87,6 +87,8 @@ By default, the menu is placed on the bottom side of its trigger, the default an
 </Menu.Root>
 ```
 
+The `side` prop also supports `inline-start` and `inline-end` as logical counterparts to `'left'` and `'right'`, which will automatically adapt to right-to-left automatically.
+
 You can also change the align of the menu in relation to its anchor. By default, aligned to the leading edge of an anchor, but it can be configured otherwise using the `align` prop:
 
 ```jsx
@@ -295,6 +297,8 @@ To change direction for right-to-left languages, place the menu in [`DirectionPr
   </body>
 </html>
 ```
+
+Additionally, be sure to use logical `side`s - `inline-start` and `inline-end` - for the `Positioner`.
 
 In a RTL menu, <kbd>Left Arrow</kbd> opens submenus while <kbd>Right Arrow</kbd> closes them.
 

@@ -1,14 +1,13 @@
 import * as React from 'react';
 import type {
   VirtualElement,
-  Side,
   Padding,
   FloatingRootContext,
   FloatingContext,
   Middleware,
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
-import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
@@ -237,7 +236,7 @@ export namespace useSelectPositioner {
       /**
        * The rendered side of the Select element.
        */
-      side: 'top' | 'right' | 'bottom' | 'left' | 'none';
+      side: Side | 'none';
       /**
        * The rendered align of the Select element.
        */
