@@ -33,7 +33,7 @@ export default function Modality() {
 
 function SelectDemo({ modal, withBackdrop }: Props) {
   return (
-    <Select.Root defaultValue="system" modal={modal} alignOptionToTrigger={false}>
+    <Select.Root defaultValue="system" modal={modal} alignItemToTrigger={false}>
       <Select.Trigger aria-label="Select font" render={<Trigger />}>
         <Select.Value placeholder="System font" />
         <SelectDropdownArrow />

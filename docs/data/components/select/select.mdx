@@ -112,9 +112,10 @@ The `Select.ItemIndicator` subcomponent renders an indicator inside an option to
 
 ## Modality
 
-By default, the Select is non-modal, so elements outside it can be interacted with.
-To make it modal, use the `modal` prop.
-You may also add a backdrop to the modal Select by using the `Select.Backdrop` component, to indicate that the outside elements are inert.
+By default, the Select is modal, so elements outside it cannot be interacted with.
+To make it nonmodal, use the `modal` prop to `false`.
+
+Modal selects may also use a backdrop by using the `Select.Backdrop` component, to indicate that the outside elements are inert.
 
 ```jsx
 <Select.Root modal>

@@ -29,7 +29,7 @@
     },
     "modal": {
       "type": "boolean",
-      "default": "false",
+      "default": "true",
       "description": "Determines whether the menu is modal."
     },
     "onOpenChange": {

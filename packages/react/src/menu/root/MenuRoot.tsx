@@ -23,7 +23,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     disabled = false,
     closeParentOnEsc = true,
     loop = true,
-    modal = false,
+    modal = true,
     onOpenChange,
     open,
     orientation = 'vertical',
@@ -100,7 +100,7 @@ namespace MenuRoot {
     loop?: boolean;
     /**
      * Determines whether the menu is modal.
-     * @default false
+     * @default true
      */
     modal?: boolean;
     /**
@@ -190,7 +190,7 @@ MenuRoot.propTypes /* remove-proptypes */ = {
   loop: PropTypes.bool,
   /**
    * Determines whether the menu is modal.
-   * @default false
+   * @default true
    */
   modal: PropTypes.bool,
   /**

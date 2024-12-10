@@ -24,7 +24,7 @@
     },
     "modal": {
       "type": "boolean",
-      "default": "false",
+      "default": "true",
       "description": "Determines whether the select is modal."
     },
     "name": {

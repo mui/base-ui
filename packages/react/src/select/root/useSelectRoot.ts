@@ -343,7 +343,7 @@ export namespace useSelectRoot {
     transitionStatus?: TransitionStatus;
     /**
      * Determines whether the select is modal.
-     * @default false
+     * @default true
      */
     modal?: boolean;
   }

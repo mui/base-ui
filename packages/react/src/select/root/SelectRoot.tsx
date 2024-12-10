@@ -32,7 +32,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     disabled = false,
     readOnly = false,
     required = false,
-    modal = false,
+    modal = true,
   } = props;
 
   const selectRoot = useSelectRoot<Value>({
@@ -145,7 +145,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   disabled: PropTypes.bool,
   /**
    * Determines whether the select is modal.
-   * @default false
+   * @default true
    */
   modal: PropTypes.bool,
   /**
