@@ -14,6 +14,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { refType } from '../../utils/proptypes';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
@@ -72,7 +73,12 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     render: render ?? 'div',
     className,
     state,
-    extraProps: otherProps,
+    extraProps:
+      transitionStatus === 'starting'
+        ? mergeReactProps(otherProps, {
+            style: { transition: 'none' },
+          })
+        : otherProps,
     customStyleHookMapping,
   });
 
