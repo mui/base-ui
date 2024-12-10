@@ -6,7 +6,9 @@ import { usePortalContext } from './PortalContext';
 import { HTMLElementType, refType } from '../utils/proptypes';
 
 /**
- * @ignore - internal component.
+ * Renders a portal element into the DOM.
+ *
+ * Documentation: [Base UI Portal](https://base-ui.com/react/components/portal)
  */
 function Portal(props: Portal.Props) {
   const { children, container, keepMounted = false } = props;
