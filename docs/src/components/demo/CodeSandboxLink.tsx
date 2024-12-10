@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
 import { createCodeSandbox } from 'docs/src/blocks/sandbox/createCodeSandbox';
-import { ExternalLinkIcon } from 'docs/src/icons/ExternalLink';
+import { ExternalLinkIcon } from 'docs/src/components/icons/ExternalLinkIcon';
 import { GhostButton } from '../GhostButton';
 
 const COMMIT_REF = process.env.PULL_REQUEST_ID ? process.env.COMMIT_REF : undefined;
