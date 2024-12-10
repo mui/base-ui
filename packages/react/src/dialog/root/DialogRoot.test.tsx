@@ -8,6 +8,10 @@ import { createRenderer } from '#test-utils';
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<Dialog.Root />', () => {
+  beforeEach(() => {
+    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
   const { render } = createRenderer();
 
   describe('uncontrolled mode', () => {
@@ -47,7 +51,7 @@ describe('<Dialog.Root />', () => {
       expect(queryByRole('dialog')).to.equal(null);
     });
 
-    it('should remove the popup when animated=true and there is no exit animation defined', async function test(t = {}) {
+    it('should remove the popup when there is no exit animation defined', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -77,7 +81,7 @@ describe('<Dialog.Root />', () => {
       });
     });
 
-    it('should remove the popup when animated=true and the animation finishes', async function test(t = {}) {
+    it('should remove the popup when the animation finishes', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -118,7 +122,9 @@ describe('<Dialog.Root />', () => {
             <Dialog.Root open={open}>
               <Dialog.Popup
                 className="animation-test-popup"
+                data-testid="popup"
                 onAnimationEnd={notifyAnimationFinished}
+                keepMounted
               />
             </Dialog.Root>
           </div>
@@ -131,12 +137,10 @@ describe('<Dialog.Root />', () => {
       await user.click(closeButton);
 
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).to.equal(null);
+        expect(screen.getByTestId('popup')).to.have.attribute('hidden');
       });
 
       expect(animationFinished).to.equal(true);
-
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 
@@ -281,7 +285,7 @@ describe('<Dialog.Root />', () => {
       <Dialog.Root open modal={false}>
         {/* eslint-disable-next-line react/no-danger */}
         <style dangerouslySetInnerHTML={{ __html: css }} />
-        <Dialog.Popup className="dialog" onTransitionEnd={notifyTransitionEnd} />
+        <Dialog.Popup className="dialog" onTransitionEnd={notifyTransitionEnd} keepMounted />
       </Dialog.Root>,
     );
 
@@ -293,7 +297,5 @@ describe('<Dialog.Root />', () => {
     });
 
     expect(notifyTransitionEnd.callCount).to.equal(1);
-
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
   });
 });

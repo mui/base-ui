@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useEventCallback } from './useEventCallback';
 
 /**
@@ -31,7 +32,11 @@ export function useAnimationsFinished(ref: React.RefObject<HTMLElement | null>) 
       fnToExecute();
     } else {
       frameRef.current = requestAnimationFrame(() => {
-        Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(fnToExecute);
+        Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(() => {
+          // Synchronously flush the unmounting of the component so that the browser doesn't
+          // paint: https://github.com/mui/base-ui/issues/979
+          ReactDOM.flushSync(fnToExecute);
+        });
       });
     }
   });

@@ -19,6 +19,10 @@ function Trigger(props: PreviewCard.Trigger.Props) {
 }
 
 describe('<PreviewCard.Root />', () => {
+  beforeEach(() => {
+    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
   const { render, clock } = createRenderer();
 
   describe('uncontrolled open', () => {
@@ -148,7 +152,7 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
 
-    it('should remove the popup when animated=true and there is no exit animation defined', async function test(t = {}) {
+    it('should remove the popup when there is no exit animation defined', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -180,7 +184,7 @@ describe('<PreviewCard.Root />', () => {
       });
     });
 
-    it('should remove the popup when animated=true and the animation finishes', async function test(t = {}) {
+    it('should remove the popup when the animation finishes', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -219,7 +223,7 @@ describe('<PreviewCard.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <PreviewCard.Root open={open}>
-              <PreviewCard.Positioner>
+              <PreviewCard.Positioner keepMounted data-testid="positioner">
                 <PreviewCard.Popup
                   className="animation-test-popup"
                   onAnimationEnd={notifyAnimationFinished}
@@ -238,12 +242,10 @@ describe('<PreviewCard.Root />', () => {
       await user.click(closeButton);
 
       await waitFor(() => {
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.getByTestId('positioner')).to.have.attribute('hidden');
       });
 
       expect(animationFinished).to.equal(true);
-
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 
