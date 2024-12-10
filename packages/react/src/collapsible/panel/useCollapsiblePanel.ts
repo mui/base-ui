@@ -76,10 +76,10 @@ export function useCollapsiblePanel(
   const isTransitioningRef = React.useRef(false);
 
   useEnhancedEffect(() => {
-    setPanelId(id);
-
     if (!keepMounted && !open) {
       setPanelId(undefined);
+    } else {
+      setPanelId(id);
     }
     return () => {
       setPanelId(undefined);
