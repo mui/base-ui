@@ -20,8 +20,8 @@ const scrollbarSize = 10;
 
 export default function ScrollAreaInset() {
   return (
-    <ScrollAreaRoot gutter={scrollbarSize}>
-      <ScrollAreaViewport>
+    <ScrollAreaRoot>
+      <ScrollAreaViewport style={{ paddingInlineEnd: scrollbarSize }}>
         <div style={{ padding: '10px 20px' }}>
           <h3 style={{ margin: '20px 0 10px' }}>User IDs</h3>
           <ul
