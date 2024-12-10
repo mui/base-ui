@@ -195,7 +195,7 @@ export namespace useSelectPositioner {
      */
     nodeId?: string;
     /**
-     * If specified, positions the popup relative to the selected option inside it.
+     * If specified, positions the popup relative to the selected item inside it.
      */
     inner?: Middleware;
     /**

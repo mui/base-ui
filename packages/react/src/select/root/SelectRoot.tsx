@@ -116,7 +116,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * Determines if the selected option inside the popup should align to the trigger element.
+   * Determines if the selected item inside the popup should align to the trigger element.
    * @default true
    */
   alignItemToTrigger: PropTypes.bool,

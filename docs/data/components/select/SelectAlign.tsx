@@ -3,11 +3,11 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { css, styled } from '@mui/system';
 
-function AlignOptionToTriggerTrue() {
+function AlignItemToTriggerTrue() {
   return (
     <Select.Root>
       <SelectTrigger aria-label="Select font">
-        <Select.Value placeholder="Align option to trigger" />
+        <Select.Value placeholder="Align item to trigger" />
         <SelectDropdownArrow />
       </SelectTrigger>
       <SelectPositioner sideOffset={5}>
@@ -15,7 +15,7 @@ function AlignOptionToTriggerTrue() {
         <SelectPopup>
           <SelectItem>
             <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Align option to trigger</Select.ItemText>
+            <Select.ItemText>Align item to trigger</Select.ItemText>
           </SelectItem>
           <SelectItem value="system">
             <SelectItemIndicator render={<CheckIcon />} />
@@ -36,7 +36,7 @@ function AlignOptionToTriggerTrue() {
   );
 }
 
-function AlignOptionToTriggerFalse() {
+function AlignItemToTriggerFalse() {
   return (
     <Select.Root alignItemToTrigger={false}>
       <SelectTrigger aria-label="Select font">
@@ -79,8 +79,8 @@ export default function SelectAlign() {
         gap: 10,
       }}
     >
-      <AlignOptionToTriggerTrue />
-      <AlignOptionToTriggerFalse />
+      <AlignItemToTriggerTrue />
+      <AlignItemToTriggerFalse />
     </div>
   );
 }

@@ -65,7 +65,7 @@ describe('<Select.Root />', () => {
       );
     });
 
-    it('should update the selected option when the value prop changes', async () => {
+    it('should update the selected item when the value prop changes', async () => {
       const { setProps } = await render(
         <Select.Root value="a">
           <Select.Trigger data-testid="trigger">

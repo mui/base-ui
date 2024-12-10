@@ -143,7 +143,7 @@ describe('<Select.Item />', () => {
     expect(value.textContent).to.equal('');
   });
 
-  it('should focus the selected option upon opening the popup', async () => {
+  it('should focus the selected item upon opening the popup', async () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">

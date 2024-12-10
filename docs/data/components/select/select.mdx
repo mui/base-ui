@@ -126,13 +126,13 @@ The `Select.ItemIndicator` subcomponent renders an indicator inside an option to
 
 ## Align method
 
-By default, the selected option inside the popup is aligned to the trigger element. This can be disabled with the `alignItemToTrigger` prop:
+By default, the selected item inside the popup is aligned to the trigger element. This can be disabled with the `alignItemToTrigger` prop:
 
 ```jsx
 <Select.Root alignItemToTrigger={false}>
 ```
 
-- **`alignItemToTrigger={true}`**: aligns the popup such that the selected option inside of it appears centered over the trigger. If there's not enough space, it falls back to standard anchoring. This method is useful as it allows the user to select an option in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS; the scroll arrow components must be used to ensure a single pointer cycle can be used. The `[data-side]` attribute value is `none` on both `Select.Positioner` and `Select.Popup` when in this mode, allowing it to be styled differently.
+- **`alignItemToTrigger={true}`**: aligns the popup such that the selected item inside of it appears centered over the trigger. If there's not enough space, it falls back to standard anchoring. This method is useful as it allows the user to select an option in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS; the scroll arrow components must be used to ensure a single pointer cycle can be used. The `[data-side]` attribute value is `none` on both `Select.Positioner` and `Select.Popup` when in this mode, allowing it to be styled differently.
 - **`alignItemToTrigger={false}`**: aligns the popup to the trigger itself on its top or bottom side, which is the standard form of anchor positioning used in Tooltip, Popover, Menu, etc.
 
 <Callout type="warning">
@@ -166,7 +166,7 @@ This can be achieved by using the `--available-height` CSS variable:
 
 The `Select.Value` subcomponent renders the selected value. This is the text content or `label` of `Select.Item` by default.
 
-The `placeholder` prop can be used when the value is empty. During SSR, if a default value is specified as the selected option, the value isn't available until hydration:
+The `placeholder` prop can be used when the value is empty. During SSR, if a default value is specified as the selected item, the value isn't available until hydration:
 
 ```jsx
 <Select.Trigger>
