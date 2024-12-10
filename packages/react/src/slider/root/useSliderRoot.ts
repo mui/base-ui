@@ -154,7 +154,9 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     name: 'Slider',
   });
 
-  const controlRef: React.MutableRefObject<HTMLElement | null> = React.useRef(null);
+  const sliderRef = React.useRef<HTMLElement>(null);
+  const controlRef: React.RefObject<HTMLElement | null> = React.useRef(null);
+  const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
 
   const id = useBaseUiId(idProp);
 
@@ -188,8 +190,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     },
     [inputValidationRef],
   );
-
-  const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
 
   // Map with index (DOM position) as the key and the id attribute of each thumb <input> element as the value
   const [inputIdMap, setInputMap] = React.useState(() => new Map<number, string>());
@@ -246,8 +246,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       val == null ? min : clamp(val, min, max),
     );
   }, [max, min, range, valueState]);
-
-  const sliderRef = React.useRef<HTMLDivElement>(null);
 
   const handleRootRef = useForkRef(rootRef, sliderRef);
 
@@ -313,13 +311,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     ],
   );
 
-  const isRtl = direction === 'rtl';
-
   const previousIndexRef = React.useRef<number | null>(null);
-  let axis = orientation;
-  if (isRtl && orientation === 'horizontal') {
-    axis += '-reverse';
-  }
 
   const getFingerNewValue = React.useCallback(
     ({
@@ -333,14 +325,18 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       offset?: number;
     }) => {
       const { current: sliderControl } = controlRef;
+
       if (!sliderControl) {
         return null;
       }
 
+      const isRtl = direction === 'rtl';
+      const isVertical = orientation === 'vertical';
+
       const { width, height, bottom, left } = sliderControl!.getBoundingClientRect();
       let percent;
 
-      if (axis.indexOf('vertical') === 0) {
+      if (isVertical) {
         percent = (bottom - finger.y) / height + offset;
       } else {
         percent = (finger.x - left) / width + offset * (isRtl ? -1 : 1);
@@ -348,7 +344,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
       percent = Math.min(percent, 1);
 
-      if (axis.indexOf('-reverse') !== -1) {
+      if (isRtl && !isVertical) {
         percent = 1 - percent;
       }
 
@@ -393,7 +389,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
       return { newValue, activeIndex, newPercentageValue: percent };
     },
-    [axis, isRtl, max, min, minStepsBetweenValues, range, step, values],
+    [direction, max, min, minStepsBetweenValues, orientation, range, step, values],
   );
 
   useEnhancedEffect(() => {
@@ -429,7 +425,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       active,
       areValuesEqual,
       'aria-labelledby': ariaLabelledby,
-      axis,
       changeValue,
       direction,
       disabled,
@@ -461,7 +456,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       active,
       areValuesEqual,
       ariaLabelledby,
-      axis,
       changeValue,
       direction,
       disabled,
@@ -600,10 +594,6 @@ export namespace useSliderRoot {
      */
     areValuesEqual: (newValue: number | ReadonlyArray<number>) => boolean;
     'aria-labelledby'?: string;
-    /**
-     * The orientation of the slider.
-     */
-    axis: Orientation | 'horizontal-reverse';
     changeValue: (
       valueInput: number,
       index: number,
