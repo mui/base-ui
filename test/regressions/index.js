@@ -69,7 +69,12 @@ function excludeDemoFixture(suite, name, path) {
 }
 
 // Also use some of the demos to avoid code duplication.
-const importDemos = require.context('docs/data', true, /\.js$/, 'lazy');
+const importDemos = require.context(
+  'docs/src/app/(public)/(content)/react/components',
+  true,
+  /\.tsx$/,
+  'lazy',
+);
 const demoFixtures = [];
 
 importDemos
