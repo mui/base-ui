@@ -1,10 +1,6 @@
 {
   "props": {
     "className": { "type": { "name": "union", "description": "func<br>&#124;&nbsp;string" } },
-    "gutter": {
-      "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" },
-      "default": "0"
-    },
     "render": { "type": { "name": "union", "description": "element<br>&#124;&nbsp;func" } }
   },
   "name": "ScrollAreaRoot",
