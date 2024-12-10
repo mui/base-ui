@@ -106,7 +106,7 @@
   --text-lg--letter-spacing: -0.0025em;
 
   --text-xl: 1.3125rem;
-  --text-xl--line-height: 1.75rem;
+  --text-xl--line-height: 1.625rem;
   --text-xl--letter-spacing: -0.005em;
 
   --text-2xl: 1.5rem;
@@ -211,6 +211,7 @@
 
 @layer all {
   body {
+    font-synthesis: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
