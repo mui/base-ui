@@ -1,6 +1,6 @@
 {
   "name": "SliderTrack",
-  "description": "",
+  "description": "Contains the slider indicator and represents the entire range of the slider.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

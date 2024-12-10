@@ -1,6 +1,6 @@
 {
   "name": "Input",
-  "description": "",
+  "description": "A native input element that automatically works with [Field](https://base-ui.com/react/components/field).\nRenders an `<input>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

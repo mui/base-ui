@@ -1,6 +1,6 @@
 {
   "name": "MenuPositioner",
-  "description": "Renders the element that positions the Menu popup.",
+  "description": "Positions the menu popup against the trigger.\nRenders a `<div>` element.",
   "props": {
     "align": {
       "type": "'start' | 'center' | 'end'",

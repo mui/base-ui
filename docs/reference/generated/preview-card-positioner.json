@@ -1,6 +1,6 @@
 {
   "name": "PreviewCardPositioner",
-  "description": "",
+  "description": "Positions the popup against the trigger.\nRenders a `<div>` element.",
   "props": {
     "align": {
       "type": "'start' | 'center' | 'end'",

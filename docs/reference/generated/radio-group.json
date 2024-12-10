@@ -1,6 +1,6 @@
 {
   "name": "RadioGroup",
-  "description": "",
+  "description": "Provides a shared state to a series of radio buttons.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

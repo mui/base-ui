@@ -1,6 +1,6 @@
 {
   "name": "SliderThumb",
-  "description": "",
+  "description": "The draggable part of the the slider at the tip of the indicator.\nRenders a `<div>` element.",
   "props": {
     "aria-label": {
       "type": "string",

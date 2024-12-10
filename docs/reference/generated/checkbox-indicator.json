@@ -1,6 +1,6 @@
 {
   "name": "CheckboxIndicator",
-  "description": "The indicator part of the Checkbox.",
+  "description": "Indicates whether the checkbox is ticked.\nRenders a `<span>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

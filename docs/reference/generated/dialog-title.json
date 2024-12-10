@@ -1,6 +1,6 @@
 {
   "name": "DialogTitle",
-  "description": "A heading that labels the dialog. Renders an `<h2>` element.",
+  "description": "A heading that labels the dialog.\nRenders an `<h2>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

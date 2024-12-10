@@ -1,6 +1,6 @@
 {
   "name": "NumberFieldGroup",
-  "description": "Groups interactive `NumberField` components together.",
+  "description": "Groups the input with the increment and decrement buttons.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

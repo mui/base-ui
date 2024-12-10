@@ -1,6 +1,6 @@
 {
   "name": "FieldControl",
-  "description": "The field's control element. This is not necessary to use when using a native Base UI input\ncomponent (Checkbox, Switch, NumberField, Slider, Radio Group etc).",
+  "description": "The form control to label and validate.\nRenders an `<input>` element.\n\nYou can omit this part and use any Base UI input component instead. For example,\n[Input](https://base-ui.com/react/components/input), [Checkbox](https://base-ui.com/react/components/checkbox),\nor [Select](https://base-ui.com/react/components/select), among others, will work with Field out of the box.",
   "props": {
     "className": {
       "type": "string | (state) => string",

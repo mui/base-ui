@@ -1,6 +1,6 @@
 {
   "name": "PopoverTrigger",
-  "description": "Renders a trigger element that opens the popover.",
+  "description": "A button that opens the popover.\nRenders a `<button>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

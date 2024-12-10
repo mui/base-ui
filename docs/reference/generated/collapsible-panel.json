@@ -1,6 +1,6 @@
 {
   "name": "CollapsiblePanel",
-  "description": "",
+  "description": "A panel with the collapsible contents.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

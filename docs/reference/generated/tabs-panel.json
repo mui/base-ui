@@ -1,6 +1,6 @@
 {
   "name": "TabsPanel",
-  "description": "",
+  "description": "A panel displayed when the corresponding tab is active.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",
