@@ -1,7 +1,7 @@
 .Accordion {
   box-sizing: border-box;
   display: flex;
-  width: 24rem;
+  width: 100rem;
   max-width: calc(100vw - 8rem);
   flex-direction: column;
   justify-content: center;
