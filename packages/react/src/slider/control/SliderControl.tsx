@@ -61,7 +61,7 @@ const SliderControl = React.forwardRef(function SliderControl(
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
-    render: renderProp ?? 'span',
+    render: renderProp ?? 'div',
     state,
     className,
     extraProps: otherProps,
@@ -72,7 +72,7 @@ const SliderControl = React.forwardRef(function SliderControl(
 });
 
 export namespace SliderControl {
-  export interface Props extends BaseUIComponentProps<'span', SliderRoot.State> {}
+  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
 }
 
 export { SliderControl };

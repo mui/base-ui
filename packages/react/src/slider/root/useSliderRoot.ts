@@ -588,8 +588,8 @@ export namespace useSliderRoot {
 
   export interface ReturnValue {
     getRootProps: (
-      externalProps?: React.ComponentPropsWithRef<'span'>,
-    ) => React.ComponentPropsWithRef<'span'>;
+      externalProps?: React.ComponentPropsWithRef<'div'>,
+    ) => React.ComponentPropsWithRef<'div'>;
     /**
      * The index of the active thumb.
      */
