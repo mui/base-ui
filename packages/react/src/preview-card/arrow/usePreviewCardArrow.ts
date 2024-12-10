@@ -4,18 +4,15 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 export function usePreviewCardArrow(
   params: usePreviewCardArrow.Parameters,
 ): usePreviewCardArrow.ReturnValue {
-  const { arrowStyles, hidden } = params;
+  const { arrowStyles } = params;
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps<'div'>(externalProps, {
-        style: {
-          ...arrowStyles,
-          ...(hidden && { visibility: 'hidden' }),
-        },
+        style: arrowStyles,
       });
     },
-    [arrowStyles, hidden],
+    [arrowStyles],
   );
 
   return React.useMemo(
