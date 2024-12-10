@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Portal } from '../../portal/Portal';
 import PropTypes from 'prop-types';
