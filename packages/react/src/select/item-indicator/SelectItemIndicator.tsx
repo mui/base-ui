@@ -6,6 +6,8 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSelectItemContext } from '../item/SelectItemContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useForkRef } from '../../utils/useForkRef';
+import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 /**
  *
@@ -28,6 +30,8 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
   const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(selected);
+
   const getItemProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
@@ -40,8 +44,9 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
   const state: SelectItemIndicator.State = React.useMemo(
     () => ({
       selected,
+      transitionStatus,
     }),
-    [selected],
+    [selected, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -50,10 +55,21 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
     ref: mergedRef,
     className,
     state,
-    extraProps: otherProps,
+    extraProps: {
+      hidden: !mounted,
+      ...otherProps,
+    },
   });
 
-  const shouldRender = selected || keepMounted;
+  useAfterExitAnimation({
+    open: selected,
+    animatedElementRef: indicatorRef,
+    onFinished() {
+      setMounted(false);
+    },
+  });
+
+  const shouldRender = keepMounted || selected;
   if (!shouldRender) {
     return null;
   }
@@ -74,6 +90,7 @@ namespace SelectItemIndicator {
 
   export interface State {
     selected: boolean;
+    transitionStatus: TransitionStatus;
   }
 }
 
