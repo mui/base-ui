@@ -77,10 +77,14 @@ export function useCollapsiblePanel(
 
   useEnhancedEffect(() => {
     setPanelId(id);
+
+    if (!keepMounted && !open) {
+      setPanelId(undefined);
+    }
     return () => {
       setPanelId(undefined);
     };
-  }, [id, setPanelId]);
+  }, [id, setPanelId, keepMounted, open]);
 
   const handlePanelRef = useEventCallback((element: HTMLElement) => {
     if (!element) {
@@ -204,6 +208,7 @@ export function useCollapsiblePanel(
     registerCssTransitionListeners,
     runOnceAnimationsFinish,
     setContextMounted,
+    setPanelId,
   ]);
 
   useOnMount(() => {
