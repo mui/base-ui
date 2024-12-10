@@ -216,10 +216,11 @@
   }
 
   /* Debugging red text? You just forgot to set or inherit color in your demo. */
-  [data-demo] {
-    &,
-    :where(&) :where(button, input, textarea) {
-      color: red;
-    }
+  :where([data-demo]) {
+    color: red;
+  }
+  /* Controls usually have #000 text that needs to be explicitly overridden; only Tailwind reset handles it */
+  :where([data-demo]:not([data-demo='tailwind'])) :where(button, input, textarea) {
+    color: red;
   }
 }
