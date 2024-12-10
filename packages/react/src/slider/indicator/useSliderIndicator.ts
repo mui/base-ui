@@ -45,20 +45,17 @@ export function useSliderIndicator(
     const trackLeap = percentageValues[percentageValues.length - 1] - trackOffset;
 
     internalStyles = {
-      position: 'absolute',
       ...axisProps[axis].offset(trackOffset),
       ...axisProps[axis].leap(trackLeap),
     };
   } else if (orientation === 'vertical') {
     internalStyles = {
-      position: 'absolute',
       bottom: 0,
       height: `${percentageValues[0]}%`,
       width: 'inherit',
     };
   } else {
     internalStyles = {
-      position: 'absolute',
       [isRtl ? 'right' : 'left']: 0,
       width: `${percentageValues[0]}%`,
       height: 'inherit',
