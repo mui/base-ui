@@ -29,7 +29,13 @@ const SliderTrack = React.forwardRef(function SliderTrack(
     state,
     className,
     ref: forwardedRef,
-    extraProps: otherProps,
+    extraProps: {
+      ...otherProps,
+      style: {
+        position: 'relative',
+        ...otherProps.style,
+      },
+    },
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
