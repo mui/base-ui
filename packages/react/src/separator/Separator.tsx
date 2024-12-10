@@ -8,13 +8,7 @@ const EMPTY_OBJECT = {};
 
 /**
  *
- * Demos:
- *
- * - [Separator](https://base-ui.com/components/react-separator/)
- *
- * API:
- *
- * - [Separator API](https://base-ui.com/components/react-separator/#api-reference-Separator)
+ * Documentation: [Base UI Separator](https://base-ui.com/react/components/separator)
  */
 const Separator = React.forwardRef(function SeparatorComponent(
   props: Separator.Props,

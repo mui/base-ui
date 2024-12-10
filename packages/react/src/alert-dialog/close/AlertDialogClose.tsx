@@ -10,13 +10,7 @@ const state = {};
 
 /**
  *
- * Demos:
- *
- * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
- *
- * API:
- *
- * - [AlertDialogClose API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogClose)
+ * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogClose = React.forwardRef(function AlertDialogClose(
   props: AlertDialogClose.Props,

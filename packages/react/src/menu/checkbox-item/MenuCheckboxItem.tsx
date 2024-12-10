@@ -155,13 +155,7 @@ const MemoizedInnerMenuCheckboxItem = React.memo(InnerMenuCheckboxItem);
 /**
  * An unstyled checkbox menu item to be used within a Menu.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuCheckboxItem API](https://base-ui.com/components/react-menu/#api-reference-MenuCheckboxItem)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   props: MenuCheckboxItem.Props,

@@ -11,13 +11,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 /**
  * A description message for the field's control.
  *
- * Demos:
- *
- * - [Field](https://base-ui.com/components/react-field/)
- *
- * API:
- *
- * - [FieldDescription API](https://base-ui.com/components/react-field/#api-reference-FieldDescription)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldDescription = React.forwardRef(function FieldDescription(
   props: FieldDescription.Props,

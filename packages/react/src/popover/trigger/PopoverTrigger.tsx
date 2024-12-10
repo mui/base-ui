@@ -14,13 +14,7 @@ import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 /**
  * Renders a trigger element that opens the popover.
  *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverTrigger API](https://base-ui.com/components/react-popover/#api-reference-PopoverTrigger)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   props: PopoverTrigger.Props,

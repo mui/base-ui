@@ -7,13 +7,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectIcon API](https://base-ui.com/components/react-select/#api-reference-SelectIcon)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectIcon = React.forwardRef(function SelectIcon(
   props: SelectIcon.Props,

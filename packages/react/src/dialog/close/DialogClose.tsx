@@ -10,13 +10,7 @@ const state = {};
 
 /**
  *
- * Demos:
- *
- * - [Dialog](https://base-ui.com/components/react-dialog/)
- *
- * API:
- *
- * - [DialogClose API](https://base-ui.com/components/react-dialog/#api-reference-DialogClose)
+ * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 const DialogClose = React.forwardRef(function DialogClose(
   props: DialogClose.Props,

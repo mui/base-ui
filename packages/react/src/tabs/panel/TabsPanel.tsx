@@ -10,13 +10,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
- * Demos:
- *
- * - [Tabs](https://base-ui.com/components/react-tabs/)
- *
- * API:
- *
- * - [TabsPanel API](https://base-ui.com/components/react-tabs/#api-reference-TabsPanel)
+ * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
 const TabsPanel = React.forwardRef(function TabPanel(
   props: TabsPanel.Props,

@@ -19,13 +19,7 @@ const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.State> = {
 /**
  * Renders a backdrop for the popover.
  *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverBackdrop API](https://base-ui.com/components/react-popover/#api-reference-PopoverBackdrop)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   props: PopoverBackdrop.Props,

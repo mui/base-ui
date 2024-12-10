@@ -9,13 +9,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 /**
  * Renders an element that labels the fieldset.
  *
- * Demos:
- *
- * - [Fieldset](https://base-ui.com/components/react-fieldset/)
- *
- * API:
- *
- * - [FieldsetLegend API](https://base-ui.com/components/react-fieldset/#api-reference-FieldsetLegend)
+ * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
  */
 const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   props: FieldsetLegend.Props,

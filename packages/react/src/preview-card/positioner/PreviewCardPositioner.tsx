@@ -14,13 +14,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  *
- * Demos:
- *
- * - [Preview Card](https://base-ui.com/components/react-preview-card/)
- *
- * API:
- *
- * - [PreviewCardPositioner API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardPositioner)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
   props: PreviewCardPositioner.Props,

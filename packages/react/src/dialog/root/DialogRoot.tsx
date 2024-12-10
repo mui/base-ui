@@ -7,13 +7,7 @@ import { type CommonParameters, useDialogRoot } from './useDialogRoot';
 /**
  * Groups all parts of the dialog. Doesn’t render its own HTML element.
  *
- * Demos:
- *
- * - [Dialog](https://base-ui.com/components/react-dialog/)
- *
- * API:
- *
- * - [DialogRoot API](https://base-ui.com/components/react-dialog/#api-reference-DialogRoot)
+ * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
   const {

@@ -10,13 +10,7 @@ import { useCollapsibleTrigger } from './useCollapsibleTrigger';
 
 /**
  *
- * Demos:
- *
- * - [Collapsible](https://base-ui.com/components/react-collapsible/)
- *
- * API:
- *
- * - [CollapsibleTrigger API](https://base-ui.com/components/react-collapsible/#api-reference-CollapsibleTrigger)
+ * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
  */
 const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   props: CollapsibleTrigger.Props,

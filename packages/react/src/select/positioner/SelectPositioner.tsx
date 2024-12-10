@@ -14,13 +14,7 @@ import { SelectPositionerContext } from './SelectPositionerContext';
 
 /**
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectPositioner API](https://base-ui.com/components/react-select/#api-reference-SelectPositioner)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectPositioner = React.forwardRef(function SelectPositioner(
   props: SelectPositioner.Props,

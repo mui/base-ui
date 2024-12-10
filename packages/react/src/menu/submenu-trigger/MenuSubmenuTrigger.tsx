@@ -12,13 +12,7 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuSubmenuTrigger API](https://base-ui.com/components/react-menu/#api-reference-MenuSubmenuTrigger)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   props: MenuSubmenuTrigger.Props,

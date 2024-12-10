@@ -24,13 +24,7 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
 /**
  * A container for the dialog contents. Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Dialog](https://base-ui.com/components/react-dialog/)
- *
- * API:
- *
- * - [DialogPopup API](https://base-ui.com/components/react-dialog/#api-reference-DialogPopup)
+ * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopup.Props,

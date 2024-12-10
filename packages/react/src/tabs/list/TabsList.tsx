@@ -13,13 +13,7 @@ import { TabsListContext } from './TabsListContext';
 
 /**
  *
- * Demos:
- *
- * - [Tabs](https://base-ui.com/components/react-tabs/)
- *
- * API:
- *
- * - [TabsList API](https://base-ui.com/components/react-tabs/#api-reference-TabsList)
+ * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
 const TabsList = React.forwardRef(function TabsList(
   props: TabsList.Props,

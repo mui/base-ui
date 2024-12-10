@@ -9,13 +9,7 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 
 /**
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectRoot API](https://base-ui.com/components/react-select/#api-reference-SelectRoot)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectRoot: SelectRoot = function SelectRoot<Value>(
   props: SelectRoot.Props<Value>,

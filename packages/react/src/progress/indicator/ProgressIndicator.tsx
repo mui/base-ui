@@ -10,13 +10,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 
 /**
  *
- * Demos:
- *
- * - [Progress](https://base-ui.com/components/react-progress/)
- *
- * API:
- *
- * - [ProgressIndicator API](https://base-ui.com/components/react-progress/#api-reference-ProgressIndicator)
+ * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
 const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   props: ProgressIndicator.Props,

@@ -12,13 +12,7 @@ import { BaseUIComponentProps } from '../../utils/types';
  * The field's control element. This is not necessary to use when using a native Base UI input
  * component (Checkbox, Switch, NumberField, Slider, Radio Group etc).
  *
- * Demos:
- *
- * - [Field](https://base-ui.com/components/react-field/)
- *
- * API:
- *
- * - [FieldControl API](https://base-ui.com/components/react-field/#api-reference-FieldControl)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldControl = React.forwardRef(function FieldControl(
   props: FieldControl.Props,
