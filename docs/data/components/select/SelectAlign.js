@@ -7,7 +7,7 @@ function AlignItemToTriggerTrue() {
   return (
     <Select.Root>
       <SelectTrigger aria-label="Select font">
-        <Select.Value placeholder="Align option to trigger" />
+        <Select.Value placeholder="Align item to trigger" />
         <SelectDropdownArrow />
       </SelectTrigger>
       <SelectPositioner sideOffset={5}>
@@ -15,7 +15,7 @@ function AlignItemToTriggerTrue() {
         <SelectPopup>
           <SelectItem>
             <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Align option to trigger</Select.ItemText>
+            <Select.ItemText>Align item to trigger</Select.ItemText>
           </SelectItem>
           <SelectItem value="system">
             <SelectItemIndicator render={<CheckIcon />} />
