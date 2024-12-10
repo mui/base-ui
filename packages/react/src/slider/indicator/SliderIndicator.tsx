@@ -36,7 +36,7 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
-    render: render ?? 'span',
+    render: render ?? 'div',
     state,
     className,
     ref: forwardedRef,
@@ -48,7 +48,7 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
 });
 
 export namespace SliderIndicator {
-  export interface Props extends BaseUIComponentProps<'span', SliderRoot.State> {}
+  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
 }
 
 export { SliderIndicator };

@@ -12,15 +12,15 @@ import { useSliderThumb } from './useSliderThumb';
 import { isReactVersionAtLeast } from '../../utils/reactVersion';
 
 function defaultRender(
-  props: React.ComponentPropsWithRef<'span'>,
+  props: React.ComponentPropsWithRef<'div'>,
   inputProps: React.ComponentPropsWithRef<'input'>,
 ) {
   const { children, ...thumbProps } = props;
   return (
-    <span {...thumbProps}>
+    <div {...thumbProps}>
       {children}
       <input {...inputProps} />
-    </span>
+    </div>
   );
 }
 /**
@@ -35,7 +35,7 @@ function defaultRender(
  */
 const SliderThumb = React.forwardRef(function SliderThumb(
   props: SliderThumb.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     render: renderProp,
@@ -148,7 +148,7 @@ export namespace SliderThumb {
 
   export interface Props
     extends Partial<Omit<useSliderThumb.Parameters, 'rootRef'>>,
-      Omit<BaseUIComponentProps<'span', State>, 'render'> {
+      Omit<BaseUIComponentProps<'div', State>, 'render'> {
     onPointerLeave?: React.PointerEventHandler;
     onPointerOver?: React.PointerEventHandler;
     onBlur?: React.FocusEventHandler;
@@ -159,7 +159,7 @@ export namespace SliderThumb {
      */
     render?:
       | ((
-          props: React.ComponentPropsWithRef<'span'>,
+          props: React.ComponentPropsWithRef<'div'>,
           inputProps: React.ComponentPropsWithRef<'input'>,
           state: State,
         ) => React.ReactElement)

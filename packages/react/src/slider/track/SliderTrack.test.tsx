@@ -60,6 +60,6 @@ describe('<Slider.Track />', () => {
         <SliderRootContext.Provider value={testRootContext}>{node}</SliderRootContext.Provider>,
       );
     },
-    refInstanceof: window.HTMLSpanElement,
+    refInstanceof: window.HTMLDivElement,
   }));
 });

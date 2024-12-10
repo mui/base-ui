@@ -100,7 +100,7 @@ const SliderControl = React.forwardRef(function SliderControl(
 
 const SliderTrack = React.forwardRef(function SliderTrack(
   props: BaseSlider.Track.Props,
-  ref: React.ForwardedRef<HTMLSpanElement>,
+  ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
     <BaseSlider.Track
@@ -120,7 +120,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
 
 const SliderThumb = React.forwardRef(function SliderThumb(
   props: BaseSlider.Thumb.Props,
-  ref: React.ForwardedRef<HTMLSpanElement>,
+  ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
     <BaseSlider.Thumb
@@ -142,7 +142,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 
 const SliderIndicator = React.forwardRef(function SliderIndicator(
   props: BaseSlider.Indicator.Props,
-  ref: React.ForwardedRef<HTMLSpanElement>,
+  ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
     <BaseSlider.Indicator
