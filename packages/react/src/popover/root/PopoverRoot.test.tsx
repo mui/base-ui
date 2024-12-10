@@ -178,7 +178,7 @@ describe('<Popover.Root />', () => {
       expect(handleChange.firstCall.args[0]).to.equal(false);
     });
 
-    it('should remove the popup and there is no exit animation defined', async function test(t = {}) {
+    it('should remove the popup when there is no exit animation defined', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
