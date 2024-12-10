@@ -2,7 +2,7 @@
   "name": "DialogRoot",
   "props": {
     "onOpenChange": {
-      "type": "(open, event) => void"
+      "type": "(open, event, reason) => void"
     }
   }
 }

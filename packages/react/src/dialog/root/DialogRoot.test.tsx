@@ -140,6 +140,96 @@ describe('<Dialog.Root />', () => {
     });
   });
 
+  describe('prop: onOpenChange', () => {
+    it('calls onOpenChange with the new open state', async () => {
+      const handleOpenChange = spy();
+
+      const { user } = await render(
+        <Dialog.Root onOpenChange={handleOpenChange}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Popup>
+            <Dialog.Close>Close</Dialog.Close>
+          </Dialog.Popup>
+        </Dialog.Root>,
+      );
+
+      expect(handleOpenChange.callCount).to.equal(0);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      expect(handleOpenChange.callCount).to.equal(1);
+      expect(handleOpenChange.firstCall.args[0]).to.equal(true);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      expect(handleOpenChange.callCount).to.equal(2);
+      expect(handleOpenChange.secondCall.args[0]).to.equal(false);
+    });
+
+    it('calls onOpenChange with the reason for change when clicked on trigger and close button', async () => {
+      const handleOpenChange = spy();
+
+      const { user } = await render(
+        <Dialog.Root onOpenChange={handleOpenChange}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Popup>
+            <Dialog.Close>Close</Dialog.Close>
+          </Dialog.Popup>
+        </Dialog.Root>,
+      );
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      expect(handleOpenChange.callCount).to.equal(1);
+      expect(handleOpenChange.firstCall.args[2]).to.equal('click');
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      expect(handleOpenChange.callCount).to.equal(2);
+      expect(handleOpenChange.secondCall.args[2]).to.equal('click');
+    });
+
+    it('calls onOpenChange with the reason for change when pressed Esc while the dialog is open', async () => {
+      const handleOpenChange = spy();
+
+      const { user } = await render(
+        <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Popup>
+            <Dialog.Close>Close</Dialog.Close>
+          </Dialog.Popup>
+        </Dialog.Root>,
+      );
+
+      await user.keyboard('[Escape]');
+
+      expect(handleOpenChange.callCount).to.equal(1);
+      expect(handleOpenChange.firstCall.args[2]).to.equal('escape-key');
+    });
+
+    it('calls onOpenChange with the reason for change when user clicks outside while the dialog is open', async () => {
+      const handleOpenChange = spy();
+
+      const { user } = await render(
+        <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Popup>
+            <Dialog.Close>Close</Dialog.Close>
+          </Dialog.Popup>
+        </Dialog.Root>,
+      );
+
+      await user.click(document.body);
+
+      expect(handleOpenChange.callCount).to.equal(1);
+      expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
+    });
+  });
+
   describeSkipIf(isJSDOM)('prop: modal', () => {
     it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
       const { user } = await render(

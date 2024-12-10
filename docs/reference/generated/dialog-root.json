@@ -18,7 +18,7 @@
       "description": "Determines whether the dialog is modal."
     },
     "onOpenChange": {
-      "type": "(open, event) => void",
+      "type": "(open, event, reason) => void",
       "description": "Callback invoked when the dialog is being opened or closed."
     },
     "open": {
