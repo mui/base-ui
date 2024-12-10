@@ -1,6 +1,6 @@
 {
   "name": "DialogPopup",
-  "attributes": {
+  "dataAttributes": {
     "[data-open]": {
       "description": "Present when the dialog is open."
     },

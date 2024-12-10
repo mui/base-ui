@@ -81,7 +81,10 @@ export async function buildReference() {
       console.warn(`Missing component description: ${componentData.name}`);
     }
 
-    const attributes = componentOverrides?.attributes;
+    const dataAttributes =
+      !!componentData?.dataAttributes || componentOverrides?.dataAttributes
+        ? { ...componentData?.dataAttributes, ...componentOverrides?.dataAttributes }
+        : undefined;
     const cssVariables =
       !!componentData?.cssVariables || componentOverrides?.cssVariables
         ? { ...componentData?.cssVariables, ...componentOverrides?.cssVariables }
@@ -91,7 +94,7 @@ export async function buildReference() {
       name: componentData.name,
       description: descriptionData.componentDescription,
       props,
-      attributes,
+      dataAttributes,
       cssVariables,
     };
 

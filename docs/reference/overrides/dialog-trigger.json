@@ -1,6 +1,6 @@
 {
   "name": "DialogTrigger",
-  "attributes": {
+  "dataAttributes": {
     "[data-modal]": {
       "description": "Present when the corresponding dialog is modal."
     },

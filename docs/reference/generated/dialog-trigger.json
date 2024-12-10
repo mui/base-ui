@@ -11,7 +11,7 @@
       "description": "A function to customize rendering of the component."
     }
   },
-  "attributes": {
+  "dataAttributes": {
     "[data-modal]": {
       "description": "Present when the corresponding dialog is modal."
     },
