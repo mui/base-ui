@@ -5,6 +5,18 @@ about: 'File a bug report'
 
 ## Bug report
 
+### Current behavior
+
+Provide a clear and concise description of the current behavior you're experiencing. If applicable, provide screenshots and/or videos.
+
+### Expected behavior
+
+Provide a clear and concise description of the expected behavior.
+
+### Reproducible example
+
+Link to a CodeSandbox, StackBlitz, or other IDE.
+
 ### Base UI version
 
 e.g. v1.0.2
@@ -20,18 +32,6 @@ Mac OS/Windows/Other etc.
 ### Which assistive tech are you using (if applicable)?
 
 Voiceover/JAWS etc.
-
-### Current Behavior
-
-Provide a clear and concise description of the current behaviour you're experiencing. If applicable, provide screenshots and/or videos.
-
-### Expected behavior
-
-Provide a clear and concise description of the expected behaviour.
-
-### Reproducible example
-
-Link to a CodeSandbox, StackBlitz, or other IDE.
 
 ### Additional context
 
