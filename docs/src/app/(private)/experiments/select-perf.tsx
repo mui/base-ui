@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Select as BaseSelect } from '@base-ui-components/react/select';
 
-const options = [...Array(1000)].map((_, i) => `Item ${i + 1}`);
+const items = [...Array(1000)].map((_, i) => `Item ${i + 1}`);
 
 const arrowStyles: React.CSSProperties = {
   width: 'calc(100% - 2px)',
@@ -48,7 +48,7 @@ function BaseSelectExample() {
             scrollPadding: 15,
           }}
         >
-          {options.map((item) => (
+          {items.map((item) => (
             <BaseSelect.Item key={item} value={item} style={{ lineHeight: 1 }}>
               <BaseSelect.ItemText>{item}</BaseSelect.ItemText>
             </BaseSelect.Item>

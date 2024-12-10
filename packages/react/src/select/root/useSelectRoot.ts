@@ -25,7 +25,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     disabled = false,
     readOnly = false,
     required = false,
-    alignOptionToTrigger: alignOptionToTriggerParam = true,
+    alignItemToTrigger: alignItemToTriggerParam = true,
   } = params;
 
   const id = useBaseUiId();
@@ -47,8 +47,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     state: 'open',
   });
 
-  const [controlledAlignOptionToTrigger, setControlledAlignOptionToTrigger] =
-    React.useState(alignOptionToTriggerParam);
+  const [controlledAlignItemToTrigger, setcontrolledAlignItemToTrigger] =
+    React.useState(alignItemToTriggerParam);
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
@@ -56,7 +56,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
-  const selectedOptionTextRef = React.useRef<HTMLSpanElement | null>(null);
+  const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
@@ -74,13 +74,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const alignOptionToTrigger = Boolean(mounted && controlledAlignOptionToTrigger && !touchModality);
+  const alignItemToTrigger = Boolean(mounted && controlledAlignItemToTrigger && !touchModality);
 
-  if (!mounted && controlledAlignOptionToTrigger !== alignOptionToTriggerParam) {
-    setControlledAlignOptionToTrigger(alignOptionToTriggerParam);
+  if (!mounted && controlledAlignItemToTrigger !== alignItemToTriggerParam) {
+    setcontrolledAlignItemToTrigger(alignItemToTriggerParam);
   }
 
-  if (!alignOptionToTriggerParam || !mounted) {
+  if (!alignItemToTriggerParam || !mounted) {
     if (scrollUpArrowVisible) {
       setScrollUpArrowVisible(false);
     }
@@ -125,7 +125,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         setSelectedIndex(index);
         setLabel(labelsRef.current[index] ?? '');
       } else if (value) {
-        warn(`The value \`${stringValue}\` is not present in the Select options.`);
+        warn(`The value \`${stringValue}\` is not present in the select items.`);
       }
     });
   }, [value]);
@@ -157,7 +157,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     selectedIndex,
     onNavigate: setActiveIndex,
     // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
-    // the `alignOptionToTrigger` prop enabled, causing a performance issue on Chrome.
+    // the `alignItemToTrigger` prop enabled, causing a performance issue on Chrome.
     focusItemOnHover: false,
   });
 
@@ -201,7 +201,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setScrollUpArrowVisible,
       scrollDownArrowVisible,
       setScrollDownArrowVisible,
-      setControlledAlignOptionToTrigger,
+      setcontrolledAlignItemToTrigger,
       value,
       setValue,
       open,
@@ -220,11 +220,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       getItemProps,
       listRef,
       popupRef,
-      selectedOptionTextRef,
+      selectedItemTextRef,
       floatingRootContext,
       touchModality,
       setTouchModality,
-      alignOptionToTrigger,
+      alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
     }),
@@ -250,7 +250,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       getItemProps,
       floatingRootContext,
       touchModality,
-      alignOptionToTrigger,
+      alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
     ],
@@ -330,10 +330,10 @@ export namespace useSelectRoot {
      */
     open?: boolean;
     /**
-     * Determines if the selected option inside the popup should align to the trigger element.
+     * Determines if the selected item inside the popup should align to the trigger element.
      * @default true
      */
-    alignOptionToTrigger?: boolean;
+    alignItemToTrigger?: boolean;
     /**
      * The transition status of the Select.
      */

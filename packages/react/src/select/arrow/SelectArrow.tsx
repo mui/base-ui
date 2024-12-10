@@ -26,7 +26,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
 ) {
   const { className, render, hideWhenUncentered = false, ...otherProps } = props;
 
-  const { open, alignOptionToTrigger } = useSelectRootContext();
+  const { open, alignItemToTrigger } = useSelectRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useSelectPositionerContext();
 
   const getArrowProps = React.useCallback(
@@ -62,7 +62,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
     customStyleHookMapping: popupStateMapping,
   });
 
-  if (alignOptionToTrigger) {
+  if (alignItemToTrigger) {
     return null;
   }
 
