@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { useButton } from '@base-ui-components/react/use-button';
+import { useButton } from '.';
 
 describe('useButton', () => {
   const { render } = createRenderer();

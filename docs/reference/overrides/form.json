@@ -1,0 +1,11 @@
+{
+  "name": "Form",
+  "props": {
+    "errors": {
+      "type": "Record<string, string | string[]>"
+    },
+    "onClearErrors": {
+      "type": "(errors) => void"
+    }
+  }
+}

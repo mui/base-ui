@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { useRadioGroupRootContext } from '../../radio-group/root/RadioGroupRootContext';
+import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
 /**
@@ -15,7 +15,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
   const { disabled, readOnly, value, required } = params;
 
   const { checkedValue, setCheckedValue, onValueChange, touched, setTouched } =
-    useRadioGroupRootContext();
+    useRadioGroupContext();
 
   const { setDirty, validityData, setTouched: setFieldTouched } = useFieldRootContext();
 

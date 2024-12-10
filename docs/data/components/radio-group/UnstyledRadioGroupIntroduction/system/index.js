@@ -6,7 +6,7 @@ import { styled } from '@mui/system';
 
 export default function UnstyledRadioGroupIntroduction() {
   return (
-    <RadioGroup.Root name="root" style={{ display: 'flex', gap: 8 }}>
+    <RadioGroup name="root" style={{ display: 'flex', gap: 8 }}>
       <RadioItem value="light">
         <Indicator />
         Light
@@ -19,7 +19,7 @@ export default function UnstyledRadioGroupIntroduction() {
         <Indicator />
         Heavy
       </RadioItem>
-    </RadioGroup.Root>
+    </RadioGroup>
   );
 }
 

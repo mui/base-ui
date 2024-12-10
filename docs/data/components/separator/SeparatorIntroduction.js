@@ -13,7 +13,7 @@ export default function SeparatorIntroduction() {
   );
 }
 
-const StyledSeparator = styled(Separator.Root)`
+const StyledSeparator = styled(Separator)`
   display: inline-block;
   height: 16px;
   width: 1px;

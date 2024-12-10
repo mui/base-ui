@@ -1,1 +1,1 @@
-export * as CheckboxGroup from './index.parts';
+export { CheckboxGroup } from './CheckboxGroup';
