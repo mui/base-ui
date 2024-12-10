@@ -44,7 +44,6 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    axis,
     changeValue,
     direction,
     disabled,
@@ -110,17 +109,16 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     return {
       position: 'absolute',
       [{
-        horizontal: 'left',
-        'horizontal-reverse': 'right',
+        horizontal: 'insetInlineStart',
         vertical: 'bottom',
-      }[axis]]: `${percent}%`,
+      }[orientation]]: `${percent}%`,
       [isVertical ? 'left' : 'top']: '50%',
       transform: `translate(${(isVertical || !isRtl ? -1 : 1) * 50}%, ${(isVertical ? 1 : -1) * 50}%)`,
       // So the non active thumb doesn't show its label on hover.
       pointerEvents: activeIndex !== -1 && activeIndex !== index ? 'none' : undefined,
       zIndex: activeIndex === index ? 1 : undefined,
     };
-  }, [activeIndex, axis, isRtl, orientation, percent, index]);
+  }, [activeIndex, isRtl, orientation, percent, index]);
 
   const getRootProps: useSliderThumb.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) => {
@@ -313,7 +311,6 @@ export namespace useSliderThumb {
       useSliderRoot.ReturnValue,
       | 'active'
       | 'aria-labelledby'
-      | 'axis'
       | 'changeValue'
       | 'direction'
       | 'largeStep'

@@ -7,7 +7,6 @@ import { NOOP } from '../../utils/noop';
 const testRootContext: SliderRootContext = {
   active: -1,
   areValuesEqual: () => true,
-  axis: 'horizontal',
   changeValue: NOOP,
   direction: 'ltr',
   dragging: false,
@@ -60,6 +59,6 @@ describe('<Slider.Indicator />', () => {
         <SliderRootContext.Provider value={testRootContext}>{node}</SliderRootContext.Provider>,
       );
     },
-    refInstanceof: window.HTMLSpanElement,
+    refInstanceof: window.HTMLDivElement,
   }));
 });

@@ -9,6 +9,8 @@ import type { SliderRoot } from './SliderRoot';
 
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
 
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+
 const GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL = {
   width: 100,
   height: 10,
@@ -165,17 +167,19 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describe('rtl', () => {
+  describeSkipIf(isJSDOM)('rtl', () => {
     it('should handle RTL', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
-        <DirectionProvider direction="rtl">
-          <TestSlider value={30} onValueChange={handleValueChange} />
-        </DirectionProvider>,
+        <div dir="rtl">
+          <DirectionProvider direction="rtl">
+            <TestSlider value={30} onValueChange={handleValueChange} />
+          </DirectionProvider>
+        </div>,
       );
       const sliderControl = getByTestId('control');
       const sliderThumb = getByTestId('thumb');
-      expect(sliderThumb.style.right).to.equal('30%');
+      expect(sliderThumb.style.insetInlineStart).to.equal('30%');
 
       stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
@@ -325,7 +329,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
     it('should not respond to drag events after becoming disabled', async function test(t = {}) {
       // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -364,7 +368,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
     it('should not respond to drag events if disabled', async function test(t = {}) {
       // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -420,7 +424,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('does not set the orientation via appearance for WebKit browsers', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent) || !/WebKit/.test(window.navigator.userAgent)) {
+      if (isJSDOM || !/WebKit/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -1111,7 +1115,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   describe('form submission', () => {
     // doesn't work with two `<input type="range" />` elements with the same name attribute
     it('includes the slider value in formData when the `name` attribute is provided', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // FormData is not available in JSDOM
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
