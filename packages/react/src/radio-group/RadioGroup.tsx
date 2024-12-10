@@ -9,7 +9,10 @@ import { useDirection } from '../direction-provider/DirectionContext';
 import { useRadioGroup } from './useRadioGroup';
 import { RadioGroupContext } from './RadioGroupContext';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
+
 /**
+ * Provides a shared state to a series of radio buttons.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio)
  */

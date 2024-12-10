@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { FloatingDelayGroup } from '@floating-ui/react';
 
 /**
- * Provides a shared delay for tooltips so that once a tooltip is shown, the rest of the tooltips in
- * the group will not wait for the delay before showing.
+ * Provides a shared delay for multiple tooltips. The grouping logic ensures that
+ * once a tooltip becomes visible, the adjacent tooltips will be shown instantly.
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */

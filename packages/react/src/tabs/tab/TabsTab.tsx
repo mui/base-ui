@@ -9,6 +9,8 @@ import { useTabsRootContext } from '../root/TabsRootContext';
 import { useTabsListContext } from '../list/TabsListContext';
 
 /**
+ * An individual interactive tab button that toggles the corresponding panel.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */

@@ -7,6 +7,8 @@ import { useComponentRenderer } from '../utils/useComponentRenderer';
 const EMPTY_OBJECT = {};
 
 /**
+ * A separator element accessible to screen readers.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Separator](https://base-ui.com/react/components/separator)
  */

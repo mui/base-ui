@@ -11,7 +11,8 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * A label for the field's control.
+ * An accessible label that is automatically associated with the field control.
+ * Renders a `<label>` element.
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */

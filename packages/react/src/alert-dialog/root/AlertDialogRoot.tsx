@@ -6,6 +6,8 @@ import { AlertDialogRootContext } from './AlertDialogRootContext';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
 
 /**
+ * Groups all parts of the alert dialog.
+ * Doesn’t render its own HTML element.
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */

@@ -5,6 +5,8 @@ import type { BaseUIComponentProps } from '../utils/types';
 import { Field } from '../field';
 
 /**
+ * A native input element that automatically works with [Field](https://base-ui.com/react/components/field).
+ * Renders an `<input>` element.
  *
  * Documentation: [Base UI Input](https://base-ui.com/react/components/input)
  */

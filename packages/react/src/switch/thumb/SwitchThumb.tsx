@@ -9,6 +9,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { styleHookMapping } from '../styleHooks';
 
 /**
+ * The movable part of the switch that indicates whether the switch is on or off.
+ * Renders a `<span>`.
  *
  * Documentation: [Base UI Switch](https://base-ui.com/react/components/switch)
  */

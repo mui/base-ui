@@ -12,6 +12,8 @@ const customStyleHookMapping = {
   disabled: () => null,
 };
 /**
+ * A two-state button that can be on or off.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */

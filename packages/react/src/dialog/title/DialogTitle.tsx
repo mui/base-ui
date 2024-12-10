@@ -10,7 +10,8 @@ import { type BaseUIComponentProps } from '../../utils/types';
 const state = {};
 
 /**
- * A heading that labels the dialog. Renders an `<h2>` element.
+ * A heading that labels the dialog.
+ * Renders an `<h2>` element.
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */

@@ -14,6 +14,8 @@ import { script as prehydrationScript } from './prehydrationScript.min';
 const noop = () => null;
 
 /**
+ * A visual indicator that can be styled to match the position of the currently active tab.
+ * Renders a `<span>` element.
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */

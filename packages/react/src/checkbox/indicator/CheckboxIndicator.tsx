@@ -13,7 +13,8 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 /**
- * The indicator part of the Checkbox.
+ * Indicates whether the checkbox is ticked.
+ * Renders a `<span>` element.
  *
  * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
  */

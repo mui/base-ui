@@ -17,18 +17,18 @@ Import the component and place its parts the following way:
 import { NumberField } from '@base-ui-components/react/number-field';
 
 <NumberField.Root>
+  <NumberField.ScrubArea>
+    <NumberField.ScrubAreaCursor />
+  </NumberField.ScrubArea>
   <NumberField.Group>
     <NumberField.Decrement />
     <NumberField.Input />
     <NumberField.Increment />
-    <NumberField.ScrubArea>
-      <NumberField.ScrubAreaCursor />
-    </NumberField.ScrubArea>
   </NumberField.Group>
 </NumberField.Root>;
 ```
 
 <Reference
   component="NumberField"
-  parts="Root, Group, Decrement, Input, Increment, ScrubArea, ScrubAreaCursor"
+  parts="Root, ScrubArea, ScrubAreaCursor, Group, Decrement, Input, Increment"
 />

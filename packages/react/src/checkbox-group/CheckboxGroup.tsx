@@ -9,7 +9,7 @@ import { useFieldRootContext } from '../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../utils/types';
 
 /**
- * The foundation for building custom-styled checkbox groups.
+ * Provides a shared state to a series of checkboxes.
  *
  * Documentation: [Base UI Checkbox Group](https://base-ui.com/react/components/checkbox-group)
  */

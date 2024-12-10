@@ -8,6 +8,8 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 
 /**
+ * Groups all parts of the select.
+ * Doesn’t render its own HTML element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */

@@ -12,7 +12,8 @@ import {
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 /**
- * Renders a trigger element that opens the popover.
+ * A button that opens the popover.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */

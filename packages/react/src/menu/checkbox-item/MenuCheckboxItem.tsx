@@ -153,7 +153,8 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
 const MemoizedInnerMenuCheckboxItem = React.memo(InnerMenuCheckboxItem);
 
 /**
- * An unstyled checkbox menu item to be used within a Menu.
+ * A menu item that toggles a setting on or off.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */

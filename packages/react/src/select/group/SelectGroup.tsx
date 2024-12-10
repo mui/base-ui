@@ -9,6 +9,8 @@ import { SelectGroupContext } from './SelectGroupContext';
 const state = {};
 
 /**
+ * Groups related select items with the corresponding label.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */

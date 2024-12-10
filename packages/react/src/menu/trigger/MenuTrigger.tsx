@@ -9,6 +9,8 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
+ * A button that opens the menu.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */

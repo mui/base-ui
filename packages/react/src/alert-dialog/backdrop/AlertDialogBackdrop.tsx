@@ -17,6 +17,8 @@ const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> 
 };
 
 /**
+ * An overlay displayed beneath the popup.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */

@@ -22,7 +22,8 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
 };
 
 /**
- * A container for the dialog contents. Renders a `<div>` element.
+ * A container for the dialog contents.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */

@@ -8,6 +8,8 @@ import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStyleHookMapping } from '../item/styleHooks';
 
 /**
+ * A heading that labels the corresponding panel.
+ * Renders an `<h3>` element.
  *
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */

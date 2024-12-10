@@ -8,6 +8,8 @@ import { ProgressRoot } from '../root/ProgressRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
+ * Contains the progress bar indicator.
+ * Renders a `<span>` element.
  *
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */

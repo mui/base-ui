@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { DirectionContext, type TextDirection } from './DirectionContext';
 
 /**
- * A provider that configures RTL/LTR behavior for part of an app or a whole app.
+ * Enables RTL behavior for Base UI components.
  *
  * Documentation: [Base UI Direction Provider](https://base-ui.com/react/utils/direction-provider)
  */

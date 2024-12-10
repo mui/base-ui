@@ -8,6 +8,8 @@ import { MenuGroupContext } from './MenuGroupContext';
 const state = {};
 
 /**
+ * Groups related menu items with the corresponding label.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */

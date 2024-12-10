@@ -215,6 +215,8 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
 const MemoizedInnerSelectItem = React.memo(InnerSelectItem);
 
 /**
+ * An individual option in the select menu.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */

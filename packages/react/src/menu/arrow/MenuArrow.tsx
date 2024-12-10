@@ -11,7 +11,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * Renders an arrow that points to the center of the anchor element.
+ * Displays an element positioned against the menu anchor.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */

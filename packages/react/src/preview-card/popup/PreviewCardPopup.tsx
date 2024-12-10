@@ -19,6 +19,8 @@ const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.State> = {
 };
 
 /**
+ * A container for the preview card contents.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */

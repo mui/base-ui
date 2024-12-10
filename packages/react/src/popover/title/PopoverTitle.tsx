@@ -9,7 +9,8 @@ import { usePopoverTitle } from './usePopoverTitle';
 const state = {};
 
 /**
- * Renders a title element that labels the popover.
+ * A heading that labels the popover.
+ * Renders an `<h2>` element.
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */

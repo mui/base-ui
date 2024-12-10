@@ -15,6 +15,8 @@ import { accordionStyleHookMapping } from '../item/styleHooks';
 import { AccordionPanelCssVars } from './AccordionPanelCssVars';
 
 /**
+ * A collapsible panel with the accordion item contents.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */

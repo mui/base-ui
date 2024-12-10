@@ -7,6 +7,8 @@ import { useRadioRootContext } from '../root/RadioRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 
 /**
+ * Indicates whether the radio button is selected.
+ * Renders a `<span>` element.
  *
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */

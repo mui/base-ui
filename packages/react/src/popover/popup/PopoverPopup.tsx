@@ -22,7 +22,8 @@ const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
 };
 
 /**
- * Renders the popover popup element.
+ * A container for the popover contents.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */

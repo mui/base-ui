@@ -9,7 +9,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 
 /**
- * The foundation for building custom-styled number fields.
+ * Groups all parts of the number field and manages its state.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
