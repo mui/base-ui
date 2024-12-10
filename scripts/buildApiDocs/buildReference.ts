@@ -82,11 +82,11 @@ export async function buildReference() {
     }
 
     const dataAttributes =
-      !!componentData?.dataAttributes || componentOverrides?.dataAttributes
+      !!componentData?.dataAttributes || !!componentOverrides?.dataAttributes
         ? { ...componentData?.dataAttributes, ...componentOverrides?.dataAttributes }
         : undefined;
     const cssVariables =
-      !!componentData?.cssVariables || componentOverrides?.cssVariables
+      !!componentData?.cssVariables || !!componentOverrides?.cssVariables
         ? { ...componentData?.cssVariables, ...componentOverrides?.cssVariables }
         : undefined;
 
