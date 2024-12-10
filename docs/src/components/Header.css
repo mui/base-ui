@@ -1,6 +1,8 @@
 @layer components {
   .Header {
     @apply text-sm;
+    position: absolute;
+    top: 0;
     height: var(--header-height);
     width: 100%;
   }

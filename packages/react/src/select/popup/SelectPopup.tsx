@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, type Side } from '@floating-ui/react';
+import { FloatingFocusManager } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import type { Side } from '../../utils/useAnchorPositioning';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';

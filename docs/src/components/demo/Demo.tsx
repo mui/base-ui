@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import * as BaseDemo from 'docs/src/blocks/Demo';
-import { CopyIcon } from 'docs/src/icons/Copy';
+import { CopyIcon } from 'docs/src/components/icons/CopyIcon';
 import clsx from 'clsx';
-import { CheckIcon } from 'docs/src/icons/Check';
+import { CheckIcon } from 'docs/src/components/icons/CheckIcon';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { DemoSourceBrowser } from './DemoSourceBrowser';

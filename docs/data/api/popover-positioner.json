@@ -40,7 +40,7 @@
     "side": {
       "type": {
         "name": "enum",
-        "description": "'bottom'<br>&#124;&nbsp;'left'<br>&#124;&nbsp;'right'<br>&#124;&nbsp;'top'"
+        "description": "'bottom'<br>&#124;&nbsp;'inline-end'<br>&#124;&nbsp;'inline-start'<br>&#124;&nbsp;'left'<br>&#124;&nbsp;'right'<br>&#124;&nbsp;'top'"
       },
       "default": "'bottom'"
     },

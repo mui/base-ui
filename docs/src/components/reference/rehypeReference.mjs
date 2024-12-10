@@ -1,5 +1,5 @@
 // @ts-check
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { visitParents } from 'unist-util-visit-parents';
 import kebabCase from 'lodash/kebabCase.js';
 import startCase from 'lodash/startCase.js';
@@ -49,8 +49,14 @@ export function rehypeReference() {
 
       if (parts) {
         componentDefs = parts.split(/,\s*/).map((part) => {
-          const filename = `${kebabCase(component)}-${kebabCase(part)}.json`;
-          const pathname = join(process.cwd(), 'reference/generated', filename);
+          let filename = `${kebabCase(component)}-${kebabCase(part)}.json`;
+          let pathname = join(process.cwd(), 'reference/generated', filename);
+
+          if (!existsSync(pathname)) {
+            filename = `${kebabCase(part)}.json`;
+            pathname = join(process.cwd(), 'reference/generated', filename);
+          }
+
           const jsonContents = readFileSync(pathname, 'utf-8');
           return JSON.parse(jsonContents);
         });
@@ -70,9 +76,10 @@ export function rehypeReference() {
         1,
         ...componentDefs.flatMap((def) => {
           const subtree = [];
-          const name = parts
-            ? startCase(def.name.substring(component.length))
-            : startCase(def.name);
+          const name =
+            parts && def.name.startsWith(component)
+              ? startCase(def.name.substring(component.length))
+              : startCase(def.name);
 
           // Insert an <h3> with the part name
           subtree.push(

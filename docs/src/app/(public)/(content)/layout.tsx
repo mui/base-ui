@@ -8,32 +8,27 @@ import './layout.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
-    <React.Fragment>
+    <div className="ContentLayoutRoot">
       <Header />
+      <SideNav.Root>
+        {nav.map((section) => (
+          <SideNav.Section key={section.label}>
+            <SideNav.Heading>{section.label}</SideNav.Heading>
+            <SideNav.List>
+              {section.links.map((link) => (
+                <SideNav.Item key={link.href} href={link.href}>
+                  {link.label}
+                </SideNav.Item>
+              ))}
+            </SideNav.List>
+          </SideNav.Section>
+        ))}
+      </SideNav.Root>
 
-      <div className="ContentLayoutOuter">
-        <div className="ContentLayoutInner">
-          <SideNav.Root>
-            {nav.map((section) => (
-              <SideNav.Section key={section.label}>
-                <SideNav.Heading>{section.label}</SideNav.Heading>
-                <SideNav.List>
-                  {section.links.map((link) => (
-                    <SideNav.Item key={link.href} href={link.href}>
-                      {link.label}
-                    </SideNav.Item>
-                  ))}
-                </SideNav.List>
-              </SideNav.Section>
-            ))}
-          </SideNav.Root>
-
-          <main className="ContentLayoutMain">
-            <QuickNav.Container>{children}</QuickNav.Container>
-          </main>
-        </div>
-      </div>
-    </React.Fragment>
+      <main className="ContentLayoutMain">
+        <QuickNav.Container>{children}</QuickNav.Container>
+      </main>
+    </div>
   );
 }
 
