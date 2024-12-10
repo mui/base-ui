@@ -1,1 +1,1 @@
-export * as Separator from './index.parts';
+export { Separator } from './Separator';

@@ -135,9 +135,9 @@ export function DemoVariantSelector({
           />
           <Select.Popup>
             {currentVariantLanguages.map((language) => (
-              <Select.Option key={language.value} value={language.value}>
+              <Select.Item key={language.value} value={language.value}>
                 {language.label}
-              </Select.Option>
+              </Select.Item>
             ))}
           </Select.Popup>
         </Select.Root>
@@ -151,9 +151,9 @@ export function DemoVariantSelector({
           />
           <Select.Popup>
             {Object.keys(variantsMap).map((variantName) => (
-              <Select.Option key={variantName} value={variantName}>
+              <Select.Item key={variantName} value={variantName}>
                 {translations.variants[variantName]}
-              </Select.Option>
+              </Select.Item>
             ))}
           </Select.Popup>
         </Select.Root>

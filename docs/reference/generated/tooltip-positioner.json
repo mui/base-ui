@@ -54,7 +54,7 @@
       "description": "A function to customize rendering of the component."
     },
     "side": {
-      "type": "'top' | 'bottom' | 'left' | 'right'",
+      "type": "'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
       "default": "'top'",
       "description": "The side of the anchor element that the tooltip element should be placed at."
     },

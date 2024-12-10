@@ -11,18 +11,11 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
   ...baseMapping,
-  transitionStatus(value) {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' } as Record<string, string>;
-    }
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-    return null;
-  },
+  ...transitionStatusMapping,
 };
 
 /**

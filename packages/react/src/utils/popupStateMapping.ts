@@ -9,8 +9,12 @@ const PRESSABLE_TRIGGER_HOOK = {
   'data-pressed': '',
 };
 
-const POPUP_HOOK = {
+const POPUP_OPEN_HOOK = {
   'data-open': '',
+};
+
+const POPUP_CLOSED_HOOK = {
+  'data-closed': '',
 };
 
 const ANCHOR_HIDDEN_HOOK = {
@@ -38,9 +42,9 @@ export const pressableTriggerOpenStateMapping = {
 export const popupStateMapping = {
   open(value) {
     if (value) {
-      return POPUP_HOOK;
+      return POPUP_OPEN_HOOK;
     }
-    return null;
+    return POPUP_CLOSED_HOOK;
   },
   anchorHidden(value) {
     if (value) {

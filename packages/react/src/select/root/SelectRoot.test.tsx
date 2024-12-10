@@ -9,7 +9,7 @@ describe('<Select.Root />', () => {
   const { render } = createRenderer();
 
   describe('prop: defaultValue', () => {
-    it('should select the option by default', async () => {
+    it('should select the item by default', async () => {
       await render(
         <Select.Root defaultValue="b">
           <Select.Trigger data-testid="trigger">
@@ -17,8 +17,8 @@ describe('<Select.Root />', () => {
           </Select.Trigger>
           <Select.Positioner>
             <Select.Popup>
-              <Select.Option value="a">a</Select.Option>
-              <Select.Option value="b">b</Select.Option>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         </Select.Root>,
@@ -38,7 +38,7 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: value', () => {
-    it('should select the option specified by the value prop', async () => {
+    it('should select the item specified by the value prop', async () => {
       await render(
         <Select.Root value="b">
           <Select.Trigger data-testid="trigger">
@@ -46,8 +46,8 @@ describe('<Select.Root />', () => {
           </Select.Trigger>
           <Select.Positioner>
             <Select.Popup>
-              <Select.Option value="a">a</Select.Option>
-              <Select.Option value="b">b</Select.Option>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         </Select.Root>,
@@ -65,7 +65,7 @@ describe('<Select.Root />', () => {
       );
     });
 
-    it('should update the selected option when the value prop changes', async () => {
+    it('should update the selected item when the value prop changes', async () => {
       const { setProps } = await render(
         <Select.Root value="a">
           <Select.Trigger data-testid="trigger">
@@ -73,8 +73,8 @@ describe('<Select.Root />', () => {
           </Select.Trigger>
           <Select.Positioner>
             <Select.Popup>
-              <Select.Option value="a">a</Select.Option>
-              <Select.Option value="b">b</Select.Option>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         </Select.Root>,
@@ -103,7 +103,7 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
-    it('should call onValueChange when an option is selected', async function test() {
+    it('should call onValueChange when an item is selected', async function test() {
       const handleValueChange = spy();
 
       function App() {
@@ -122,8 +122,8 @@ describe('<Select.Root />', () => {
             </Select.Trigger>
             <Select.Positioner>
               <Select.Popup>
-                <Select.Option value="a">a</Select.Option>
-                <Select.Option value="b">b</Select.Option>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
               </Select.Popup>
             </Select.Positioner>
           </Select.Root>
@@ -155,8 +155,8 @@ describe('<Select.Root />', () => {
           </Select.Trigger>
           <Select.Positioner>
             <Select.Popup>
-              <Select.Option value="a">a</Select.Option>
-              <Select.Option value="b">b</Select.Option>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         </Select.Root>,
@@ -176,8 +176,8 @@ describe('<Select.Root />', () => {
             </Select.Trigger>
             <Select.Positioner>
               <Select.Popup>
-                <Select.Option value="a">a</Select.Option>
-                <Select.Option value="b">b</Select.Option>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
               </Select.Popup>
             </Select.Positioner>
           </Select.Root>
@@ -303,8 +303,8 @@ describe('<Select.Root />', () => {
           </Select.Trigger>
           <Select.Positioner>
             <Select.Popup>
-              <Select.Option value="a">a</Select.Option>
-              <Select.Option value="b">b</Select.Option>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         </Select.Root>,
@@ -330,8 +330,8 @@ describe('<Select.Root />', () => {
         </Select.Trigger>
         <Select.Positioner>
           <Select.Popup>
-            <Select.Option value="a">a</Select.Option>
-            <Select.Option value="b">b</Select.Option>
+            <Select.Item value="a">a</Select.Item>
+            <Select.Item value="b">b</Select.Item>
           </Select.Popup>
         </Select.Positioner>
       </Select.Root>,
