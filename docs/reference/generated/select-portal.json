@@ -1,0 +1,10 @@
+{
+  "name": "SelectPortal",
+  "description": "",
+  "props": {
+    "container": {
+      "type": "React.Ref | HTMLElement | null",
+      "description": "The container to render the portal element into."
+    }
+  }
+}
