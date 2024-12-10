@@ -98,14 +98,17 @@ export function useTabsIndicator(
     } as React.CSSProperties;
   }, [left, right, top, bottom, width, height, isTabSelected]);
 
+  const displayIndicator = isTabSelected && width > 0 && height > 0;
+
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps<'span'>(externalProps, {
         role: 'presentation',
         style,
+        hidden: !displayIndicator, // do not display the indicator before the layout is settled
       });
     },
-    [style],
+    [style, displayIndicator],
   );
 
   return {
