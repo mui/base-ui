@@ -8,7 +8,7 @@ import startCase from 'lodash/startCase';
 import urlJoin from 'url-join';
 
 const overrides: Record<string, string> = {
-  DirectoryProvider: '/utils/direction-provider',
+  DirectionProvider: '/utils/direction-provider',
   RadioGroup: '/components/radio',
 };
 
