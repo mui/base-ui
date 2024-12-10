@@ -11,7 +11,7 @@
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SliderIndicator",
-  "forwardsRefTo": "HTMLSpanElement",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/react/src/slider/indicator/SliderIndicator.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-slider/\">Slider</a></li></ul>",

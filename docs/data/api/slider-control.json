@@ -11,7 +11,7 @@
   "spread": true,
   "themeDefaultProps": true,
   "muiName": "SliderControl",
-  "forwardsRefTo": "HTMLSpanElement",
+  "forwardsRefTo": "HTMLDivElement",
   "filename": "/packages/react/src/slider/control/SliderControl.tsx",
   "inheritance": null,
   "demos": "<ul><li><a href=\"/components/react-slider/\">Slider</a></li></ul>",
