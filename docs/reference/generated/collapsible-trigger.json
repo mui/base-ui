@@ -13,8 +13,7 @@
   },
   "dataAttributes": {
     "[data-panel-open]": {
-      "description": "Indicates whether the collapsible panel is opened.",
-      "type": "boolean"
+      "description": "Indicates whether the collapsible panel is opened."
     }
   }
 }
