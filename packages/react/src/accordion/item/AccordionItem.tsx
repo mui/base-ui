@@ -17,6 +17,8 @@ import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStyleHookMapping } from './styleHooks';
 
 /**
+ * Groups an accordion header with the corresponding panel.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */

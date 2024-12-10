@@ -11,6 +11,8 @@ import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 
 /**
+ * A button that opens and closes the corresponding panel.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */

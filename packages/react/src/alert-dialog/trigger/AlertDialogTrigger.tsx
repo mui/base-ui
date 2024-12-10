@@ -8,6 +8,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
+ * A button that opens the alert dialog.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */

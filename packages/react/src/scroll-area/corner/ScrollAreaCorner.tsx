@@ -10,6 +10,8 @@ import { useForkRef } from '../../utils/useForkRef';
 const state = {};
 
 /**
+ * A small rectangular area that appears at the intersection of horizontal and vertical scrollbars.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */

@@ -6,7 +6,10 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import type { SliderRoot } from '../root/SliderRoot';
 import { sliderStyleHookMapping } from '../root/styleHooks';
+
 /**
+ * Contains the slider indicator and represents the entire range of the slider.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */

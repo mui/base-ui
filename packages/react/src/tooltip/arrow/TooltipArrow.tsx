@@ -10,7 +10,8 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * Renders an arrow that points to the center of the anchor element.
+ * Displays an element positioned against the tooltip anchor.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */

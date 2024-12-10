@@ -1,6 +1,6 @@
 {
   "name": "PreviewCardRoot",
-  "description": "",
+  "description": "Groups all parts of the preview card.\nDoesn’t render its own HTML element.",
   "props": {
     "closeDelay": {
       "type": "number",

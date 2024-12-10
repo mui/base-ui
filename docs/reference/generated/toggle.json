@@ -1,6 +1,6 @@
 {
   "name": "Toggle",
-  "description": "",
+  "description": "A two-state button that can be on or off.\nRenders a `<button>` element.",
   "props": {
     "aria-label": {
       "type": "string",

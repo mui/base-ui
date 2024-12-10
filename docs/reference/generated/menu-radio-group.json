@@ -1,6 +1,6 @@
 {
   "name": "MenuRadioGroup",
-  "description": "",
+  "description": "Groups related radio items.\nRenders a `<div>` element.",
   "props": {
     "children": {
       "type": "React.ReactNode",

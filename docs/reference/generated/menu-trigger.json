@@ -1,6 +1,6 @@
 {
   "name": "MenuTrigger",
-  "description": "",
+  "description": "A button that opens the menu.\nRenders a `<button>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

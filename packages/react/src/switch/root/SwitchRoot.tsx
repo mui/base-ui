@@ -11,7 +11,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { refType } from '../../utils/proptypes';
 
 /**
- * The foundation for building custom-styled switches.
+ * Represents the switch itself.
+ * Renders a `<button>` element and a hidden `<input>` beside.
  *
  * Documentation: [Base UI Switch](https://base-ui.com/react/components/switch)
  */

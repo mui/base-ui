@@ -13,7 +13,8 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * The tooltip positioner element.
+ * Positions the tooltip against the trigger.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */

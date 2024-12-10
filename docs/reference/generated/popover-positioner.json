@@ -1,6 +1,6 @@
 {
   "name": "PopoverPositioner",
-  "description": "The popover positioner element.",
+  "description": "Positions the popover against the trigger.\nRenders a `<div>` element.",
   "props": {
     "align": {
       "type": "'start' | 'center' | 'end'",

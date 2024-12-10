@@ -21,6 +21,8 @@ const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
 };
 
 /**
+ * A container for the alert dialog contents.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */

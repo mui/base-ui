@@ -1,6 +1,6 @@
 {
   "name": "ProgressTrack",
-  "description": "",
+  "description": "Contains the progress bar indicator.\nRenders a `<span>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

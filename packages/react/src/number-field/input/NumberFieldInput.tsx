@@ -8,7 +8,8 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * The input element for the number field.
+ * The native input control in the number field.
+ * Renders an `<input>` element.
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */

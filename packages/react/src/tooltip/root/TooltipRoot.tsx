@@ -6,7 +6,8 @@ import { useTooltipRoot } from './useTooltipRoot';
 import { OPEN_DELAY } from '../utils/constants';
 
 /**
- * The foundation for building custom-styled tooltips.
+ * Groups all parts of the tooltip.
+ * Doesn’t render its own HTML element.
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */

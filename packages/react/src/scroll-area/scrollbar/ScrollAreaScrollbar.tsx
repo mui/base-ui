@@ -9,6 +9,8 @@ import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
 import { useScrollAreaScrollbar } from './useScrollAreaScrollbar';
 
 /**
+ * A vertical or horizontal scrollbar for the scroll area.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */

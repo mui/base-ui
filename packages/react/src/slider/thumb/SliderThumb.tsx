@@ -23,7 +23,10 @@ function defaultRender(
     </span>
   );
 }
+
 /**
+ * The draggable part of the the slider at the tip of the indicator.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */

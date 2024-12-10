@@ -11,6 +11,8 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
+ * Displays an element positioned against the preview card anchor.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */

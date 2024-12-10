@@ -9,6 +9,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 const state = {};
 
 /**
+ * A button that closes the alert dialog.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */

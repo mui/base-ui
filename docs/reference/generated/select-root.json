@@ -1,6 +1,6 @@
 {
   "name": "SelectRoot",
-  "description": "",
+  "description": "Groups all parts of the select.\nDoesn’t render its own HTML element.",
   "props": {
     "alignItemToTrigger": {
       "type": "boolean",

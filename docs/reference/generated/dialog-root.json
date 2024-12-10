@@ -1,6 +1,6 @@
 {
   "name": "DialogRoot",
-  "description": "Groups all parts of the dialog. Doesn’t render its own HTML element.",
+  "description": "Groups all parts of the dialog.\nDoesn’t render its own HTML element.",
   "props": {
     "defaultOpen": {
       "type": "boolean",

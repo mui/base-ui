@@ -7,6 +7,8 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 
 /**
+ * Indicates whether the radio item is selected.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */

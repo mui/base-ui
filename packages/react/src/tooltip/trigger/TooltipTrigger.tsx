@@ -8,7 +8,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * Renders a trigger element that opens the tooltip.
+ * An element to attach the tooltip to.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */

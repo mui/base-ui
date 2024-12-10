@@ -9,7 +9,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 const state = {};
 
 /**
- * Renders a description element that describes the popover.
+ * A paragraph with additional information about the popover.
+ * Renders a `<p>` element.
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */

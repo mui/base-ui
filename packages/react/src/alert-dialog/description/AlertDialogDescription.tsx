@@ -10,6 +10,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 const state = {};
 
 /**
+ * A paragraph with additional information about the alert dialog.
+ * Renders a `<p>` element.
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */

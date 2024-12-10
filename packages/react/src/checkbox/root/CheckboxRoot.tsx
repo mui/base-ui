@@ -11,7 +11,8 @@ import { type UseCheckboxRoot, useCheckboxRoot } from './useCheckboxRoot';
 import { CheckboxRootContext } from './CheckboxRootContext';
 
 /**
- * The foundation for building custom-styled checkboxes.
+ * Represents the checkbox itself.
+ * Renders a `<button>` element and a hidden `<input>` beside.
  *
  * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
  */

@@ -1,6 +1,6 @@
 {
   "name": "ScrollAreaViewport",
-  "description": "",
+  "description": "The actual scrollable container of the scroll area.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

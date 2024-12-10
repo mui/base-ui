@@ -5,7 +5,8 @@ import { DialogRootContext } from './DialogRootContext';
 import { type CommonParameters, useDialogRoot } from './useDialogRoot';
 
 /**
- * Groups all parts of the dialog. Doesn’t render its own HTML element.
+ * Groups all parts of the dialog.
+ * Doesn’t render its own HTML element.
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */

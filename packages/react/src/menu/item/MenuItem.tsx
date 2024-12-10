@@ -57,7 +57,10 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
 const MemoizedInnerMenuItem = React.memo(InnerMenuItem);
 
 /**
- * An unstyled menu item to be used within a Menu.
+ * An individual interactive item in the menu.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 
 InnerMenuItem.propTypes /* remove-proptypes */ = {
@@ -130,7 +133,8 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
 } as any;
 
 /**
- * An unstyled menu item to be used within a Menu.
+ * An individual interactive item in the menu.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */

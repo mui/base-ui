@@ -17,7 +17,8 @@ const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.State> = {
 };
 
 /**
- * Renders a backdrop for the popover.
+ * An overlay displayed beneath the popover.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */

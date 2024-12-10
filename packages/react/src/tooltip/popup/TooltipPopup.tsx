@@ -18,7 +18,8 @@ const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
 };
 
 /**
- * The tooltip popup element.
+ * A container for the tooltip contents.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */

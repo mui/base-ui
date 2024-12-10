@@ -1,6 +1,6 @@
 {
   "name": "SelectTrigger",
-  "description": "",
+  "description": "A button that opens the select menu.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

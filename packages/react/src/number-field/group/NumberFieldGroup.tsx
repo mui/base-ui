@@ -7,7 +7,8 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * Groups interactive `NumberField` components together.
+ * Groups the input with the increment and decrement buttons.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */

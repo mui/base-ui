@@ -60,7 +60,10 @@ const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
 });
 
 /**
- * An unstyled menu item to be used within a Menu.
+ * A menu item that works like a radio button in a given group.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 
 InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
@@ -143,7 +146,8 @@ InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
 const MemoizedInnerMenuRadioItem = React.memo(InnerMenuRadioItem);
 
 /**
- * An unstyled radio menu item to be used within a Menu.
+ * A menu item that works like a radio button in a given group.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */

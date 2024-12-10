@@ -1,6 +1,6 @@
 {
   "name": "AccordionPanel",
-  "description": "",
+  "description": "A collapsible panel with the accordion item contents.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

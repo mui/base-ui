@@ -10,7 +10,8 @@ import { useFormContext } from '../../form/FormContext';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * The foundation for building custom-styled fields.
+ * Groups all parts of the field.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */

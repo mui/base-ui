@@ -17,7 +17,8 @@ const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
 };
 
 /**
- * Renders a backdrop for the menu.
+ * An overlay displayed beneath the menu popup.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */

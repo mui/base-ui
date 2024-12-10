@@ -1,6 +1,6 @@
 {
   "name": "PreviewCardArrow",
-  "description": "",
+  "description": "Displays an element positioned against the preview card anchor.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

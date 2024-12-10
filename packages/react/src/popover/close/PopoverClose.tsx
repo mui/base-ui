@@ -9,7 +9,8 @@ import { usePopoverClose } from './usePopoverClose';
 const state = {};
 
 /**
- * Renders a button that closes the popover when clicked.
+ * A button that closes the popover.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */

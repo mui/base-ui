@@ -81,17 +81,20 @@ export function rehypeReference() {
               ? startCase(def.name.substring(component.length))
               : startCase(def.name);
 
-          // Insert an <h3> with the part name
-          subtree.push(
-            createMdxElement({
-              name: 'h3',
-              children: [{ type: 'text', value: name }],
-            }),
-          );
+          // Insert an <h3> with the part name and parse descriptions as markdown.
+          // Single-part components headings and descriptions aren't displayed
+          // because they duplicate the page title and subtitle anyway.
+          if (parts) {
+            subtree.push(
+              createMdxElement({
+                name: 'h3',
+                children: [{ type: 'text', value: name }],
+              }),
+            );
 
-          // Parse component description as markdown
-          if (def.description) {
-            subtree.push(...createHast(def.description).children);
+            if (parts && def.description) {
+              subtree.push(...createHast(def.description).children);
+            }
           }
 
           subtree.push(

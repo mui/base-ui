@@ -17,7 +17,9 @@ const customStyleHookMapping = {
     return null;
   },
 };
+
 /**
+ * Provides a shared state to a series of toggle buttons.
  *
  * Documentation: [Base UI Toggle Group](https://base-ui.com/react/components/toggle-group)
  */

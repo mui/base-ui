@@ -11,6 +11,8 @@ import { tabsStyleHookMapping } from './styleHooks';
 import { TabPanelMetadata } from '../panel/useTabsPanel';
 
 /**
+ * Groups the tabs and the corresponding panels.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */

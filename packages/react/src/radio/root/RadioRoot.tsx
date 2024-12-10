@@ -12,6 +12,8 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 
 /**
+ * Represents the radio button itself.
+ * Renders a `<button>` element and a hidden `<input>` beside.
  *
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */

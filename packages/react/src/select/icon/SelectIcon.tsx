@@ -6,6 +6,8 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
+ * An icon that indicates that the trigger button opens a select menu.
+ * Renders a `<span>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */

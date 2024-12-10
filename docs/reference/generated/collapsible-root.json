@@ -1,6 +1,6 @@
 {
   "name": "CollapsibleRoot",
-  "description": "",
+  "description": "Groups all parts of the collapsible.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

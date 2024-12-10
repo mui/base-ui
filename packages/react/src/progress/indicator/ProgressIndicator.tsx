@@ -9,6 +9,8 @@ import { progressStyleHookMapping } from '../root/styleHooks';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
+ * Visualizes the completion status of the task.
+ * Renders a `<span>` element.
  *
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */

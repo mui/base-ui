@@ -9,7 +9,8 @@ import { STYLE_HOOK_MAPPING } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * A description message for the field's control.
+ * A paragraph with additional information about the field.
+ * Renders a `<p>` element.
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */

@@ -19,7 +19,8 @@ import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * Renders the element that positions the Menu popup.
+ * Positions the menu popup against the trigger.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */

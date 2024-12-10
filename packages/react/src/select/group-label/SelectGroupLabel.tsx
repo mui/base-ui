@@ -11,6 +11,8 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 const state = {};
 
 /**
+ * An accessible label that is automatically associated with its parent group.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */

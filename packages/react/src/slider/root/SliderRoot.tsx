@@ -12,6 +12,8 @@ import { SliderRootContext } from './SliderRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
 /**
+ * Groups all parts of the slider.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */

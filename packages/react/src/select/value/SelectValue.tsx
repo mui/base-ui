@@ -8,6 +8,8 @@ import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
+ * A text label of the currently selected item.
+ * Renders a `<span>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */

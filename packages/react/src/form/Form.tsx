@@ -8,6 +8,8 @@ import { FormContext } from './FormContext';
 import { useEventCallback } from '../utils/useEventCallback';
 
 /**
+ * A native form element with consolidated error handling.
+ * Renders a `<form>` element.
  *
  * Documentation: [Base UI Form](https://base-ui.com/react/components/form)
  */

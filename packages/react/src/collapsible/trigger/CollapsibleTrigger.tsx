@@ -9,6 +9,8 @@ import { CollapsibleRoot } from '../root/CollapsibleRoot';
 import { useCollapsibleTrigger } from './useCollapsibleTrigger';
 
 /**
+ * A button that opens and closes the collapsible panel.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
  */
