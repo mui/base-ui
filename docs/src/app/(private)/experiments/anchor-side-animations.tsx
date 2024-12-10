@@ -4,10 +4,12 @@ import classes from './anchor-side-animations.module.css';
 
 export default function AnchorSideAnimations() {
   return (
-    <div>
+    <div style={{ maxWidth: 500 }}>
       <p>
-        The transition should always play translating the popup toward the trigger
-        with it flipping to the opposite side as the result of a collision.
+        The animation should always play translating <strong>toward</strong> the
+        trigger on the first open. Its side is `top` by default, but flips to the
+        bottom as the result of a collision. This demo determines if it successfully
+        waits for the side to be calculated before playing the animation.
       </p>
       <Popover.Root>
         <Popover.Trigger>transition</Popover.Trigger>

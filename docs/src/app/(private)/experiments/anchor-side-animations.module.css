@@ -1,7 +1,7 @@
 @keyframes translate-down {
-  from {
+  to {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(20px);
   }
 }
 
@@ -26,10 +26,6 @@
     &[data-ending-style] {
       opacity: 0;
 
-      &[data-side='top'] {
-        transform: translateY(-20px);
-      }
-
       &[data-side='bottom'] {
         transform: translateY(20px);
       }
@@ -37,12 +33,14 @@
   }
 
   &[data-type='animation'] {
-    &[data-side='top'] {
-      animation: translate-down 0.5s;
-    }
-
     &[data-side='bottom'] {
       animation: translate-up 0.5s;
+    }
+
+    &[data-ending-style] {
+      &[data-side='bottom'] {
+        animation: translate-down 0.5s;
+      }
     }
   }
 }
