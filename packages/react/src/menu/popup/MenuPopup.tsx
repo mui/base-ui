@@ -11,6 +11,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
   ...baseMapping,
@@ -65,7 +66,9 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     render: render || 'div',
     className,
     state,
-    extraProps: other,
+    extraProps: mergeReactProps(other, {
+      style: transitionStatus === 'entering' ? { transition: 'none' } : {},
+    }),
     customStyleHookMapping,
     ref: mergedRef,
   });

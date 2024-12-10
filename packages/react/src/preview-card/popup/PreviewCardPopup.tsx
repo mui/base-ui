@@ -11,6 +11,7 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.State> = {
   ...baseMapping,
@@ -66,7 +67,9 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     render: render ?? 'div',
     className,
     state,
-    extraProps: otherProps,
+    extraProps: mergeReactProps(otherProps, {
+      style: transitionStatus === 'entering' ? { transition: 'none' } : {},
+    }),
     customStyleHookMapping,
   });
 
