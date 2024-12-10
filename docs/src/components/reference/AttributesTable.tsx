@@ -41,7 +41,7 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
           return (
             <Table.Row key={name}>
               <Table.RowHeader>
-                <Code className="text-navy">{name}</Code>
+                <Code className="text-navy">{`[${name}]`}</Code>
               </Table.RowHeader>
               <Table.Cell>
                 <AttributeType />

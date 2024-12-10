@@ -22,16 +22,16 @@
     }
   },
   "dataAttributes": {
-    "[data-open]": {
+    "data-open": {
       "description": "Present when the dialog is open."
     },
-    "[data-closed]": {
+    "data-closed": {
       "description": "Present when the dialog is closed."
     },
-    "[data-starting-style]": {
+    "data-starting-style": {
       "description": "Present when the dialog is animating in."
     },
-    "[data-ending-style]": {
+    "data-ending-style": {
       "description": "Present when the dialog is animating out."
     }
   }

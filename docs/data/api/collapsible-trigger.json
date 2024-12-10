@@ -8,7 +8,7 @@
     "import { Collapsible } from '@base-ui-components/react/collapsible';\nconst CollapsibleTrigger = Collapsible.Trigger;"
   ],
   "dataAttributes": {
-    "[data-panel-open]": { "description": "Indicates whether the collapsible panel is opened." }
+    "data-panel-open": { "description": "Indicates whether the collapsible panel is opened." }
   },
   "classes": [],
   "spread": true,

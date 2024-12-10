@@ -8,6 +8,6 @@
   },
   "classDescriptions": {},
   "dataAttributesDescriptions": {
-    "[data-panel-open]": "Indicates whether the collapsible panel is opened."
+    "data-panel-open": "Indicates whether the collapsible panel is opened."
   }
 }

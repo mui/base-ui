@@ -1,22 +1,22 @@
 {
   "name": "DialogPopup",
   "dataAttributes": {
-    "[data-open]": {
+    "data-open": {
       "description": "Present when the dialog is open."
     },
-    "[data-closed]": {
+    "data-closed": {
       "description": "Present when the dialog is closed."
     },
-    "[data-starting-style]": {
+    "data-starting-style": {
       "description": "Present when the dialog is animating in."
     },
-    "[data-ending-style]": {
+    "data-ending-style": {
       "description": "Present when the dialog is animating out."
     },
-    "[data-modal]": {
+    "data-modal": {
       "description": "Present when the dialog is modal."
     },
-    "[data-nested-dialogs]": {
+    "data-nested-dialogs": {
       "type": "number",
       "description": "Indicates how many dialogs are nested within."
     }
