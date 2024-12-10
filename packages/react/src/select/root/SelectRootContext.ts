@@ -24,7 +24,7 @@ export interface SelectRootContext {
   setScrollUpArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
   scrollDownArrowVisible: boolean;
   setScrollDownArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  setControlledAlignOptionToTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  setcontrolledAlignItemToTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
   getRootTriggerProps: (props?: GenericHTMLProps) => GenericHTMLProps;
@@ -37,11 +37,11 @@ export interface SelectRootContext {
   setLabel: React.Dispatch<React.SetStateAction<string>>;
   valuesRef: React.MutableRefObject<Array<any>>;
   valueRef: React.MutableRefObject<HTMLSpanElement | null>;
-  selectedOptionTextRef: React.MutableRefObject<HTMLSpanElement | null>;
+  selectedItemTextRef: React.MutableRefObject<HTMLSpanElement | null>;
   labelsRef: React.MutableRefObject<Array<string | null>>;
   touchModality: boolean;
   setTouchModality: React.Dispatch<React.SetStateAction<boolean>>;
-  alignOptionToTrigger: boolean;
+  alignItemToTrigger: boolean;
   typingRef: React.MutableRefObject<boolean>;
   selectionRef: React.MutableRefObject<{
     allowUnselectedMouseUp: boolean;

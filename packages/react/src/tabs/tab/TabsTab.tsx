@@ -6,7 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TabsOrientation, TabValue } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import { useTabsListContext } from '../tabs-list/TabsListContext';
+import { useTabsListContext } from '../list/TabsListContext';
 
 /**
  *

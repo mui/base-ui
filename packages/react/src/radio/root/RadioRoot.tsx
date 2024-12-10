@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useRadioGroupRootContext } from '../../radio-group/root/RadioGroupRootContext';
+import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { useRadioRoot } from './useRadioRoot';
 import { RadioRootContext } from './RadioRootContext';
 import { CompositeItem } from '../../composite/item/CompositeItem';
@@ -39,7 +39,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     readOnly: readOnlyRoot,
     required: requiredRoot,
     setCheckedValue,
-  } = useRadioGroupRootContext();
+  } = useRadioGroupContext();
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
 

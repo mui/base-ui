@@ -76,7 +76,7 @@ export default function FormIntroduction() {
   );
 }
 
-const FormRoot = styled(Form.Root)`
+const FormRoot = styled(Form)`
   width: 275px;
 `;
 

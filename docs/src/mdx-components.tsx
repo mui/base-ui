@@ -18,7 +18,7 @@ interface MDXComponents {
 
 export const mdxComponents: MDXComponents = {
   a: (props) => <Link {...props} />,
-  code: (props) => <Code className="mx-[0.1em]" {...props} />,
+  code: (props) => <Code className="data-[inline]:mx-[0.1em]" {...props} />,
   h1: (props) => (
     <React.Fragment>
       <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />

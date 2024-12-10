@@ -2,8 +2,8 @@
 import * as React from 'react';
 import copy from 'clipboard-copy';
 import clsx from 'clsx';
-import { CopyIcon } from '../icons/Copy';
-import { CheckIcon } from '../icons/Check';
+import { CopyIcon } from './icons/CopyIcon';
+import { CheckIcon } from './icons/CheckIcon';
 import { GhostButton } from './GhostButton';
 
 const CodeBlockContext = React.createContext({ codeId: '', titleId: '' });

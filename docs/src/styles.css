@@ -106,7 +106,7 @@
   --text-lg--letter-spacing: -0.0025em;
 
   --text-xl: 1.3125rem;
-  --text-xl--line-height: 1.75rem;
+  --text-xl--line-height: 1.625rem;
   --text-xl--letter-spacing: -0.005em;
 
   --text-2xl: 1.5rem;
@@ -194,7 +194,7 @@
       --color-white: initial;
       --color-black: initial;
     }
-    /* These variables are exposed in "demo-colors.css" for CSS Modules demos */
+    /* These variables are exposed in "demo-theme.css" for CSS Modules demos */
     &:not([data-demo='css-modules']) {
       --color-blue: initial;
       --color-red: initial;
@@ -211,21 +211,17 @@
 
 @layer all {
   body {
+    font-synthesis: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  svg {
-    /* Safari messes up geometry of many basic SVGs, such as check icons in checkboxes or chevrons on menus */
-    /* Putting them on the GPU fixes that */
-    transform: translateZ(0);
-  }
-
   /* Debugging red text? You just forgot to set or inherit color in your demo. */
-  [data-demo] {
-    &,
-    :where(&) :where(button, input, textarea) {
-      color: red;
-    }
+  :where([data-demo]) {
+    color: red;
+  }
+  /* Controls usually have #000 text that needs to be explicitly overridden; only Tailwind reset handles it */
+  :where([data-demo]:not([data-demo='tailwind'])) :where(button, input, textarea) {
+    color: red;
   }
 }

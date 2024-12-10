@@ -1,30 +1,22 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, type Side } from '@floating-ui/react';
+import { FloatingFocusManager } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import type { Side } from '../../utils/useAnchorPositioning';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,
-  transitionStatus(value): Record<string, string> | null {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' };
-    }
-
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-
-    return null;
-  },
+  ...transitionStatusMapping,
 };
 
 /**
@@ -43,7 +35,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { id, open, popupRef, transitionStatus, alignOptionToTrigger, mounted } =
+  const { id, open, popupRef, transitionStatus, alignItemToTrigger, mounted } =
     useSelectRootContext();
 
   const positioner = useSelectPositionerContext();
@@ -83,7 +75,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 
   return (
     <React.Fragment>
-      {id && alignOptionToTrigger && (
+      {id && alignItemToTrigger && (
         <style
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={html}

@@ -1,1 +1,1 @@
-export { Root as Toggle } from './index.parts';
+export { Toggle } from './Toggle';

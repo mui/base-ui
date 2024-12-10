@@ -1,0 +1,31 @@
+{
+  "name": "ToggleGroup",
+  "description": "",
+  "props": {
+    "className": {
+      "type": "string | (state) => string",
+      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    },
+    "defaultValue": {
+      "type": "array",
+      "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s.\nThis is the uncontrolled counterpart of `value`."
+    },
+    "onValueChange": {
+      "type": "function(groupValue: Array<any>, event: Event) => void",
+      "description": "Callback fired when the pressed states of the ToggleGroup changes."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "A function to customize rendering of the component."
+    },
+    "toggleMultiple": {
+      "type": "boolean",
+      "default": "false",
+      "description": "When `false` only one item in the group can be pressed. If any item in\nthe group becomes pressed, the others will become unpressed.\nWhen `true` multiple items can be pressed."
+    },
+    "value": {
+      "type": "array",
+      "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s\nThis is the controlled counterpart of `defaultValue`."
+    }
+  }
+}

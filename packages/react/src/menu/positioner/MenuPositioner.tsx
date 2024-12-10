@@ -6,11 +6,11 @@ import {
   FloatingList,
   FloatingNode,
   FloatingPortal,
-  Side,
   useFloatingNodeId,
 } from '@floating-ui/react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import type { Side } from '../../utils/useAnchorPositioning';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuPositioner } from './useMenuPositioner';
@@ -253,7 +253,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    * The side of the anchor element that the Menu element should align to.
    * @default 'bottom'
    */
-  side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
+  side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
    * The gap between the anchor element and the Menu element.
    * @default 0

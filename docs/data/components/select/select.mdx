@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Select component
 description: Select provides users with a floating element containing a list of options to choose from.
-components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectBackdrop, SelectPositioner, SelectPopup, SelectOption, SelectOptionText, SelectOptionIndicator, SelectGroup, SelectGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectArrow
+components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectBackdrop, SelectPositioner, SelectPopup, SelectItem, SelectItemText, SelectItemIndicator, SelectGroup, SelectGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectArrow
 githubLabel: 'component: select'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 ---
@@ -32,15 +32,15 @@ Selects are implemented using a collection of related components:
 - `<Select.Backdrop />` renders a backdrop element behind the popup.
 - `<Select.Positioner />` renders the select popup's positioning element.
 - `<Select.Popup />` renders the select popup itself.
-- `<Select.Option />` renders an option, placed inside the popup.
-- `<Select.OptionText />` renders the text of an option.
-- `<Select.OptionIndicator />` renders an option indicator inside an option to indicate it's selected (e.g. a check icon).
-- `<Select.Group />` renders a group for a set of options, wrapping `<Select.Option>` components.
+- `<Select.Item />` renders an option, placed inside the popup.
+- `<Select.ItemText />` renders the text of an option.
+- `<Select.ItemIndicator />` renders an option indicator inside an option to indicate it's selected (e.g. a check icon).
+- `<Select.Group />` renders a group for a set of options, wrapping `<Select.Item>` components.
 - `<Select.GroupLabel />` renders a label for a group of options.
-- `<Select.ScrollUpArrow />` renders a scrolling arrow for the `alignOptionToTrigger` anchoring mode.
-- `<Select.ScrollDownArrow />` renders a scrolling arrow for the `alignOptionToTrigger` anchoring mode.
+- `<Select.ScrollUpArrow />` renders a scrolling arrow for the `alignItemToTrigger` anchoring mode.
+- `<Select.ScrollDownArrow />` renders a scrolling arrow for the `alignItemToTrigger` anchoring mode.
 - `<Select.Separator />` renders a separator between option groups.
-- `<Select.Arrow />` renders the select popup's arrow when disabling `alignOptionToTrigger`.
+- `<Select.Arrow />` renders the select popup's arrow when disabling `alignItemToTrigger`.
 
 ```jsx
 <Select.Root>
@@ -57,10 +57,10 @@ Selects are implemented using a collection of related components:
     <Select.Popup>
       <Select.Group>
         <Select.GroupLabel />
-        <Select.Option>
-          <Select.OptionText />
-          <Select.OptionIndicator />
-        </Select.Option>
+        <Select.Item>
+          <Select.ItemText />
+          <Select.ItemIndicator />
+        </Select.Item>
       </Select.Group>
       <Select.Separator />
     </Select.Popup>
@@ -102,12 +102,12 @@ return (
 
 ## Option indicator
 
-The `Select.OptionIndicator` subcomponent renders an indicator inside an option to indicate it's selected. By default, it renders a check icon, but this can be customized:
+The `Select.ItemIndicator` subcomponent renders an indicator inside an option to indicate it's selected. By default, it renders a check icon, but this can be customized:
 
 ```jsx
-<Select.OptionIndicator>
+<Select.ItemIndicator>
   <MyCheckIcon />
-</Select.OptionIndicator>
+</Select.ItemIndicator>
 ```
 
 ## Grouped options
@@ -117,8 +117,8 @@ The `Select.OptionIndicator` subcomponent renders an indicator inside an option 
 ```jsx
 <Select.Group>
   <Select.GroupLabel>Label</Select.GroupLabel>
-  <Select.Option value="option1">Option 1</Select.Option>
-  <Select.Option value="option2">Option 2</Select.Option>
+  <Select.Item value="option1">Option 1</Select.Item>
+  <Select.Item value="option2">Option 2</Select.Item>
 </Select.Group>
 ```
 
@@ -126,21 +126,21 @@ The `Select.OptionIndicator` subcomponent renders an indicator inside an option 
 
 ## Align method
 
-By default, the selected option inside the popup is aligned to the trigger element. This can be disabled with the `alignOptionToTrigger` prop:
+By default, the selected item inside the popup is aligned to the trigger element. This can be disabled with the `alignItemToTrigger` prop:
 
 ```jsx
-<Select.Root alignOptionToTrigger={false}>
+<Select.Root alignItemToTrigger={false}>
 ```
 
-- **`alignOptionToTrigger={true}`**: aligns the popup such that the selected option inside of it appears centered over the trigger. If there's not enough space, it falls back to standard anchoring. This method is useful as it allows the user to select an option in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS; the scroll arrow components must be used to ensure a single pointer cycle can be used. The `[data-side]` attribute value is `none` on both `Select.Positioner` and `Select.Popup` when in this mode, allowing it to be styled differently.
-- **`alignOptionToTrigger={false}`**: aligns the popup to the trigger itself on its top or bottom side, which is the standard form of anchor positioning used in Tooltip, Popover, Menu, etc.
+- **`alignItemToTrigger={true}`**: aligns the popup such that the selected item inside of it appears centered over the trigger. If there's not enough space, it falls back to standard anchoring. This method is useful as it allows the user to select an option in a single click or "pointer cycle" (pointer down, pointer move, pointer up). This is the native behavior on macOS; the scroll arrow components must be used to ensure a single pointer cycle can be used. The `[data-side]` attribute value is `none` on both `Select.Positioner` and `Select.Popup` when in this mode, allowing it to be styled differently.
+- **`alignItemToTrigger={false}`**: aligns the popup to the trigger itself on its top or bottom side, which is the standard form of anchor positioning used in Tooltip, Popover, Menu, etc.
 
 <Callout type="warning">
-  `alignOptionToTrigger` is always `false` on touch devices or touch input.
+  `alignItemToTrigger` is always `false` on touch devices or touch input.
 </Callout>
 
 <Callout type="info">
-  Scrolling is locked when `alignOptionToTrigger` is `true` to prevent unwanted scrolling of the
+  Scrolling is locked when `alignItemToTrigger` is `true` to prevent unwanted scrolling of the
   background when expanding the popup, ensuring positioning remains correct.
 </Callout>
 
@@ -164,9 +164,9 @@ This can be achieved by using the `--available-height` CSS variable:
 
 ## Value component
 
-The `Select.Value` subcomponent renders the selected value. This is the text content or `label` of `Select.Option` by default.
+The `Select.Value` subcomponent renders the selected value. This is the text content or `label` of `Select.Item` by default.
 
-The `placeholder` prop can be used when the value is empty. During SSR, if a default value is specified as the selected option, the value isn't available until hydration:
+The `placeholder` prop can be used when the value is empty. During SSR, if a default value is specified as the selected item, the value isn't available until hydration:
 
 ```jsx
 <Select.Trigger>
@@ -184,7 +184,7 @@ A function can be specified as a child to customize the rendering of the value:
 
 To add an arrow (caret or triangle) inside the select popup that points toward the center of the anchor element, use the `Select.Arrow` component:
 
-<Callout type="warning">This is not supported when `alignOptionToTrigger` is `true`.</Callout>
+<Callout type="warning">This is not supported when `alignItemToTrigger` is `true`.</Callout>
 
 ```jsx
 <Select.Positioner>
@@ -209,7 +209,7 @@ Here is an example of how to apply a symmetric scale and fade transition with th
 
 ```jsx
 <Select.Popup className="SelectPopup">
-  <Select.Option>Option 1</Select.Option>
+  <Select.Item>Option 1</Select.Item>
 </Select.Popup>
 ```
 
@@ -298,8 +298,8 @@ function App() {
                 />
               }
             >
-              <Select.Option>Option 1</Select.Option>
-              <Select.Option>Option 2</Select.Option>
+              <Select.Item>Option 1</Select.Item>
+              <Select.Item>Option 2</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         )}

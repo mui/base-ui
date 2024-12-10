@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Menu component
 description: The Menu component provide end users with a list of options on temporary surfaces.
-components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, MenuSubmenuTrigger, MenuArrow, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuCheckboxItem, MenuCheckboxItemIndicator, MenuGroup, MenuGroupLabel
+components: MenuItem, MenuPositioner, MenuPopup, MenuRoot, MenuTrigger, MenuSubmenuTrigger, MenuArrow, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuCheckboxItem, MenuCheckboxItemIndicator, MenuGroup, MenuGroupLabel, MenuBackdrop
 githubLabel: 'component: menu'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
 ---
@@ -25,6 +25,7 @@ Menus are implemented using a collection of related components:
 
 - `<Menu.Root />` is a top-level component that facilitates communication between other components. It does not render to the DOM.
 - `<Menu.Trigger />` is an optional component (a button by default) that, when clicked, shows the menu. When not used, menu can be shown programmatically using the `open` prop.
+- `<Menu.Backdrop />` renders an optional backdrop element behind the menu popup.
 - `<Menu.Positioner />` renders the element responsible for positioning the popup.
 - `<Menu.Popup />` is the menu popup.
 - `<Menu.Item />` is the menu item.
@@ -42,6 +43,8 @@ Menus are implemented using a collection of related components:
 ```tsx
 <Menu.Root>
   <Menu.Trigger />
+
+  <Menu.Backdrop />
 
   <Menu.Positioner>
     <Menu.Popup>
@@ -83,6 +86,8 @@ By default, the menu is placed on the bottom side of its trigger, the default an
   </Menu.Positioner>
 </Menu.Root>
 ```
+
+The `side` prop also supports `inline-start` and `inline-end` as logical counterparts to `'left'` and `'right'`, which will automatically adapt to right-to-left automatically.
 
 You can also change the align of the menu in relation to its anchor. By default, aligned to the leading edge of an anchor, but it can be configured otherwise using the `align` prop:
 
@@ -292,6 +297,8 @@ To change direction for right-to-left languages, place the menu in [`DirectionPr
   </body>
 </html>
 ```
+
+Additionally, be sure to use logical `side`s - `inline-start` and `inline-end` - for the `Positioner`.
 
 In a RTL menu, <kbd>Left Arrow</kbd> opens submenus while <kbd>Right Arrow</kbd> closes them.
 

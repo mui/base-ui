@@ -4,7 +4,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 import { NOOP } from '../../utils/noop';
 import { CompositeRootContext } from '../../composite/root/CompositeRootContext';
 import { TabsRootContext } from '../root/TabsRootContext';
-import { TabsListContext } from '../tabs-list/TabsListContext';
+import { TabsListContext } from '../list/TabsListContext';
 
 describe('<Tabs.Tab />', () => {
   const { render } = createRenderer();
