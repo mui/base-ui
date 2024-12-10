@@ -15,7 +15,7 @@ export function useMenuSubmenuTrigger(
     ref: externalRef,
     menuEvents,
     setTriggerElement,
-    treatMouseupAsClick,
+    allowMouseUpTriggerRef,
     typingRef,
   } = parameters;
 
@@ -26,7 +26,7 @@ export function useMenuSubmenuTrigger(
     id,
     menuEvents,
     ref: externalRef,
-    treatMouseupAsClick,
+    allowMouseUpTriggerRef,
     typingRef,
   });
 
@@ -77,7 +77,7 @@ export namespace useSubmenuTrigger {
     /**
      * If `true`, the menu item will listen for mouseup events and treat them as clicks.
      */
-    treatMouseupAsClick: boolean;
+    allowMouseUpTriggerRef: React.RefObject<boolean>;
     /**
      * A ref that is set to `true` when the user is using the typeahead feature.
      */

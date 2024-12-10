@@ -7,6 +7,7 @@
     "defaultOpen": { "description": "If <code>true</code>, the Select is initially open." },
     "defaultValue": { "description": "The default value of the select." },
     "disabled": { "description": "If <code>true</code>, the Select is disabled." },
+    "modal": { "description": "Determines whether the select is modal." },
     "name": { "description": "The name of the Select in the owning form." },
     "onOpenChange": {
       "description": "Callback fired when the component requests to be opened or closed."

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingEvents } from '@floating-ui/react';
+import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
@@ -14,12 +14,14 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
     open,
     setOpen,
     setTriggerElement,
-    setClickAndDragEnabled,
+    positionerRef,
+    allowMouseUpTriggerRef,
   } = parameters;
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
-
   const mergedRef = useForkRef(externalRef, triggerRef);
+  const eventHandlerTimeoutRef = React.useRef(-1);
+  const allowMouseUpTriggerTimeoutRef = React.useRef(-1);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -27,9 +29,30 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
   });
 
   const handleRef = useForkRef(buttonRef, setTriggerElement);
-  const ignoreNextClick = React.useRef(false);
 
-  const getRootProps = React.useCallback(
+  React.useEffect(() => {
+    if (open) {
+      // mousedown -> mouseup on menu item should not trigger it within 200ms.
+      allowMouseUpTriggerTimeoutRef.current = window.setTimeout(() => {
+        allowMouseUpTriggerRef.current = true;
+      }, 200);
+
+      return () => {
+        clearTimeout(allowMouseUpTriggerTimeoutRef.current);
+        allowMouseUpTriggerTimeoutRef.current = -1;
+      };
+    }
+
+    allowMouseUpTriggerRef.current = false;
+    if (eventHandlerTimeoutRef.current !== -1) {
+      clearTimeout(eventHandlerTimeoutRef.current);
+      eventHandlerTimeoutRef.current = -1;
+    }
+
+    return undefined;
+  }, [allowMouseUpTriggerRef, open]);
+
+  const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return mergeReactProps(
         externalProps,
@@ -37,53 +60,64 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
           'aria-haspopup': 'menu' as const,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
-          onMouseDown: (event: MouseEvent) => {
+          onMouseDown: (event: React.MouseEvent) => {
             if (open) {
               return;
             }
 
-            // prevents closing the menu right after it was opened
-            ignoreNextClick.current = true;
-            event.preventDefault();
+            const doc = ownerDocument(event.currentTarget);
 
-            setClickAndDragEnabled(true);
-            const mousedownTarget = event.target as Element;
-
-            function handleDocumentMouseUp(mouseUpEvent: MouseEvent) {
-              const mouseupTarget = mouseUpEvent.target as HTMLElement;
-              if (mouseupTarget?.dataset?.handleMouseup === 'true') {
-                mouseupTarget.click();
-              } else if (
-                mouseupTarget !== triggerRef.current &&
-                !triggerRef.current?.contains(mouseupTarget)
-              ) {
-                setOpen(false, mouseUpEvent);
+            function handleMouseUp(mouseEvent: MouseEvent) {
+              if (!triggerRef.current) {
+                return;
               }
 
-              setClickAndDragEnabled(false);
-              ownerDocument(mousedownTarget).removeEventListener('mouseup', handleDocumentMouseUp);
+              const mouseUpTarget = mouseEvent.target as Element | null;
+
+              const triggerRect = triggerRef.current.getBoundingClientRect();
+
+              const isInsideTrigger =
+                mouseEvent.clientX >= triggerRect.left &&
+                mouseEvent.clientX <= triggerRect.right &&
+                mouseEvent.clientY >= triggerRect.top &&
+                mouseEvent.clientY <= triggerRect.bottom;
+
+              if (
+                isInsideTrigger ||
+                contains(positionerRef.current, mouseUpTarget) ||
+                contains(triggerRef.current, mouseUpTarget)
+              ) {
+                return;
+              }
+
+              setOpen(false, mouseEvent);
             }
 
-            ownerDocument(mousedownTarget).addEventListener('mouseup', handleDocumentMouseUp);
+            // Firefox can fire this upon mousedown
+            eventHandlerTimeoutRef.current = window.setTimeout(() => {
+              doc.addEventListener('mouseup', handleMouseUp, { once: true });
+            });
           },
           onClick: () => {
-            if (ignoreNextClick.current) {
-              ignoreNextClick.current = false;
+            allowMouseUpTriggerRef.current = false;
+            if (allowMouseUpTriggerTimeoutRef.current !== -1) {
+              clearTimeout(allowMouseUpTriggerTimeoutRef.current);
+              allowMouseUpTriggerTimeoutRef.current = -1;
             }
           },
         },
         getButtonProps(),
       );
     },
-    [getButtonProps, handleRef, open, setOpen, setClickAndDragEnabled],
+    [getButtonProps, handleRef, open, setOpen, positionerRef, allowMouseUpTriggerRef],
   );
 
   return React.useMemo(
     () => ({
-      getRootProps,
-      rootRef: handleRef,
+      getTriggerProps,
+      triggerRef: handleRef,
     }),
-    [getRootProps, handleRef],
+    [getTriggerProps, handleRef],
   );
 }
 
@@ -110,26 +144,20 @@ export namespace useMenuTrigger {
      * A callback to set the open state of the Menu.
      */
     setOpen: (open: boolean, event: Event | undefined) => void;
-    /**
-     * The FloatingEvents instance of the menu's root.
-     */
-    menuEvents: FloatingEvents;
-    /**
-     * A callback to enable/disable click and drag functionality.
-     */
-    setClickAndDragEnabled: (enabled: boolean) => void;
+    allowMouseUpTriggerRef: React.RefObject<boolean>;
+    positionerRef: React.RefObject<HTMLElement | null>;
   }
 
   export interface ReturnValue {
     /**
-     * Resolver for the root slot's props.
+     * Resolver for the trigger's props.
      * @param externalProps props for the root slot
      * @returns props that should be spread on the root slot
      */
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**
-     * The ref to the root element.
+     * The ref to the trigger element.
      */
-    rootRef: React.RefCallback<Element> | null;
+    triggerRef: React.RefCallback<Element> | null;
   }
 }

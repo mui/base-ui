@@ -23,6 +23,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     disabled = false,
     closeParentOnEsc = true,
     loop = true,
+    modal = true,
     onOpenChange,
     open,
     orientation = 'vertical',
@@ -57,26 +58,18 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     onTypingChange,
   });
 
-  const [localClickAndDragEnabled, setLocalClickAndDragEnabled] = React.useState(false);
-  let clickAndDragEnabled = localClickAndDragEnabled;
-  let setClickAndDragEnabled = setLocalClickAndDragEnabled;
-
-  if (parentContext != null) {
-    clickAndDragEnabled = parentContext.clickAndDragEnabled;
-    setClickAndDragEnabled = parentContext.setClickAndDragEnabled;
-  }
-
   const context: MenuRootContext = React.useMemo(
     () => ({
       ...menuRoot,
       nested,
       parentContext,
       disabled,
-      clickAndDragEnabled,
-      setClickAndDragEnabled,
+      allowMouseUpTriggerRef:
+        parentContext?.allowMouseUpTriggerRef ?? menuRoot.allowMouseUpTriggerRef,
       typingRef,
+      modal,
     }),
-    [menuRoot, nested, parentContext, disabled, clickAndDragEnabled, setClickAndDragEnabled],
+    [menuRoot, nested, parentContext, disabled, modal],
   );
 
   if (!nested) {
@@ -105,6 +98,11 @@ namespace MenuRoot {
      * @default true
      */
     loop?: boolean;
+    /**
+     * Determines whether the menu is modal.
+     * @default true
+     */
+    modal?: boolean;
     /**
      * Callback fired when the component requests to be opened or closed.
      */
@@ -190,6 +188,11 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    * @default true
    */
   loop: PropTypes.bool,
+  /**
+   * Determines whether the menu is modal.
+   * @default true
+   */
+  modal: PropTypes.bool,
   /**
    * Callback fired when the component requests to be opened or closed.
    */
