@@ -38,10 +38,12 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
             useMDXComponents: () => inlineMdxComponents,
           });
 
+          const attributeName = name.startsWith('[') ? name : `[${name}]`;
+
           return (
             <Table.Row key={name}>
               <Table.RowHeader>
-                <Code className="text-navy">{`[${name}]`}</Code>
+                <Code className="text-navy">{attributeName}</Code>
               </Table.RowHeader>
               <Table.Cell>
                 <AttributeType />
