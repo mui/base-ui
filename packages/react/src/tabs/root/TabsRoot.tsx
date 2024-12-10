@@ -11,14 +11,10 @@ import { tabsStyleHookMapping } from './styleHooks';
 import { TabPanelMetadata } from '../panel/useTabsPanel';
 
 /**
+ * Groups the tabs and the corresponding panels.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Tabs](https://base-ui.com/components/react-tabs/)
- *
- * API:
- *
- * - [TabsRoot API](https://base-ui.com/components/react-tabs/#api-reference-TabsRoot)
+ * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
 const TabsRoot = React.forwardRef(function TabsRoot(
   props: TabsRoot.Props,

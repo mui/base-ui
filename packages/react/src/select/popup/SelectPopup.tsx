@@ -21,14 +21,10 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
 };
 
 /**
+ * A container for the select items.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectPopup API](https://base-ui.com/components/react-select/#api-reference-SelectPopup)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectPopup = React.forwardRef(function SelectPopup(
   props: SelectPopup.Props,

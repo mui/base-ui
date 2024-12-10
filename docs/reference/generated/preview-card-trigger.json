@@ -1,6 +1,6 @@
 {
   "name": "PreviewCardTrigger",
-  "description": "",
+  "description": "A link that opens the preview card.\nRenders an `<a>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

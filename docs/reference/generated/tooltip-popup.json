@@ -1,6 +1,6 @@
 {
   "name": "TooltipPopup",
-  "description": "The tooltip popup element.",
+  "description": "A container for the tooltip contents.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

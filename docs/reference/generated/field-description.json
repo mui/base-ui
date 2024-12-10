@@ -1,6 +1,6 @@
 {
   "name": "FieldDescription",
-  "description": "A description message for the field's control.",
+  "description": "A paragraph with additional information about the field.\nRenders a `<p>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

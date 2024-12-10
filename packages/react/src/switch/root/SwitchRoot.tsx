@@ -11,15 +11,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { refType } from '../../utils/proptypes';
 
 /**
- * The foundation for building custom-styled switches.
+ * Represents the switch itself.
+ * Renders a `<button>` element and a hidden `<input>` beside.
  *
- * Demos:
- *
- * - [Switch](https://base-ui.com/components/react-switch/)
- *
- * API:
- *
- * - [SwitchRoot API](https://base-ui.com/components/react-switch/#api-reference-SwitchRoot)
+ * Documentation: [Base UI Switch](https://base-ui.com/react/components/switch)
  */
 const SwitchRoot = React.forwardRef(function SwitchRoot(
   props: SwitchRoot.Props,

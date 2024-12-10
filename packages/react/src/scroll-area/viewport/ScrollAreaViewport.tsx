@@ -10,14 +10,10 @@ import { useScrollAreaViewport } from './useScrollAreaViewport';
 const state = {};
 
 /**
+ * The actual scrollable container of the scroll area.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Scroll Area](https://base-ui.com/components/react-scroll-area/)
- *
- * API:
- *
- * - [ScrollAreaViewport API](https://base-ui.com/components/react-scroll-area/#api-reference-ScrollAreaViewport)
+ * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   props: ScrollAreaViewport.Props,

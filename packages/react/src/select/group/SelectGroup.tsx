@@ -9,14 +9,10 @@ import { SelectGroupContext } from './SelectGroupContext';
 const state = {};
 
 /**
+ * Groups related select items with the corresponding label.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectGroup API](https://base-ui.com/components/react-select/#api-reference-SelectGroup)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectGroup = React.forwardRef(function SelectGroup(
   props: SelectGroup.Props,

@@ -1,6 +1,6 @@
 {
   "name": "DialogBackdrop",
-  "description": "An overlay displayed beneath the popup. Renders a `<div>` element.",
+  "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

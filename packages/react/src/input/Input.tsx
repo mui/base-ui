@@ -5,14 +5,10 @@ import type { BaseUIComponentProps } from '../utils/types';
 import { Field } from '../field';
 
 /**
+ * A native input element that automatically works with [Field](https://base-ui.com/react/components/field).
+ * Renders an `<input>` element.
  *
- * Demos:
- *
- * - [Input](https://base-ui.com/components/react-input/)
- *
- * API:
- *
- * - [Input API](https://base-ui.com/components/react-input/#api-reference-Input)
+ * Documentation: [Base UI Input](https://base-ui.com/react/components/input)
  */
 const Input = React.forwardRef(function Input(
   props: Input.Props,

@@ -21,14 +21,10 @@ const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
 };
 
 /**
+ * A container for the menu items.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuPopup API](https://base-ui.com/components/react-menu/#api-reference-MenuPopup)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuPopup = React.forwardRef(function MenuPopup(
   props: MenuPopup.Props,

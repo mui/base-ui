@@ -1,6 +1,6 @@
 {
   "name": "MenuPopup",
-  "description": "",
+  "description": "A container for the menu items.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

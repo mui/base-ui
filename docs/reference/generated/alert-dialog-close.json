@@ -1,6 +1,6 @@
 {
   "name": "AlertDialogClose",
-  "description": "",
+  "description": "A button that closes the alert dialog.\nRenders a `<button>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

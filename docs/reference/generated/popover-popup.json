@@ -1,6 +1,6 @@
 {
   "name": "PopoverPopup",
-  "description": "Renders the popover popup element.",
+  "description": "A container for the popover contents.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

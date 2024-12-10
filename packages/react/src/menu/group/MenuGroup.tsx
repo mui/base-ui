@@ -8,14 +8,10 @@ import { MenuGroupContext } from './MenuGroupContext';
 const state = {};
 
 /**
+ * Groups related menu items with the corresponding label.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuGroup API](https://base-ui.com/components/react-menu/#api-reference-MenuGroup)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuGroup = React.forwardRef(function MenuGroup(
   props: MenuGroup.Props,

@@ -1,6 +1,6 @@
 {
   "name": "MenuCheckboxItemIndicator",
-  "description": "",
+  "description": "Indicates whether the checkbox item is ticked.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

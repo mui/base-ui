@@ -1,6 +1,6 @@
 {
   "name": "TabsTab",
-  "description": "",
+  "description": "An individual interactive tab button that toggles the corresponding panel.\nRenders a `<button>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

@@ -10,14 +10,10 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 const state = {};
 
 /**
+ * An accessible label that is automatically associated with its parent group.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuGroupLabel API](https://base-ui.com/components/react-menu/#api-reference-MenuGroupLabel)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
   props: MenuGroupLabel.Props,
