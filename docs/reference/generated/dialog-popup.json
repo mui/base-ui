@@ -8,7 +8,7 @@
     },
     "finalFocus": {
       "type": "React.Ref",
-      "description": "Determines the element to focus when the dialog is closed.\nBy default, focus returns to trigger."
+      "description": "Determines the element to focus when the dialog is closed.\nBy default, focus returns to the trigger."
     },
     "initialFocus": {
       "type": "React.Ref | (interactionType => HTMLElement | null)",
