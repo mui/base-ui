@@ -104,11 +104,11 @@ export function rehypeReference() {
             }),
           );
 
-          if (def.attributes) {
+          if (def.dataAttributes) {
             subtree.push(
               createMdxElement({
                 name: ATTRIBUTES_TABLE,
-                props: { data: def.attributes },
+                props: { data: def.dataAttributes },
               }),
             );
           }
