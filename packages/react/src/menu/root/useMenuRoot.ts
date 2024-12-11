@@ -203,7 +203,8 @@ export namespace useMenuRoot {
      */
     onOpenChange: ((open: boolean, event?: Event) => void) | undefined;
     /**
-     * If `true`, the Menu is initially open.
+     * Whether the menu is initially open.
+     * To render a controlled menu, use the `open` prop instead.
      */
     defaultOpen: boolean;
     /**

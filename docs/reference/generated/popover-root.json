@@ -10,7 +10,7 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the popover popup is open by default. Use when uncontrolled."
+      "description": "Whether the popover is initially open.\nTo render a controlled popover, use the `open` prop instead."
     },
     "delay": {
       "type": "number",

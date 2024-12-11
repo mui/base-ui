@@ -169,7 +169,8 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 export namespace useTooltipRoot {
   export interface Parameters {
     /**
-     * Whether the tooltip popup is open by default. Use when uncontrolled.
+     * Whether the tooltip is initially open.
+     * To render a controlled tooltip, use the `open` prop instead.
      * @default false
      */
     defaultOpen?: boolean;

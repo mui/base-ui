@@ -98,8 +98,8 @@ namespace MenuRoot {
   export interface Props {
     children: React.ReactNode;
     /**
-     * If `true`, the Menu is initially open.
-     *
+     * Whether the menu is initially open.
+     * To render a controlled menu, use the `open` prop instead.
      * @default false
      */
     defaultOpen?: boolean;
@@ -171,8 +171,8 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   closeParentOnEsc: PropTypes.bool,
   /**
-   * If `true`, the Menu is initially open.
-   *
+   * Whether the menu is initially open.
+   * To render a controlled menu, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,

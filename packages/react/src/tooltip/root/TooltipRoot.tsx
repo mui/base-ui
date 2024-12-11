@@ -111,7 +111,8 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   closeDelay: PropTypes.number,
   /**
-   * Whether the tooltip popup is open by default. Use when uncontrolled.
+   * Whether the tooltip is initially open.
+   * To render a controlled tooltip, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,

@@ -10,7 +10,7 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the tooltip popup is open by default. Use when uncontrolled."
+      "description": "Whether the tooltip is initially open.\nTo render a controlled tooltip, use the `open` prop instead."
     },
     "delay": {
       "type": "number",

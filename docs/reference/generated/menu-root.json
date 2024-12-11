@@ -10,7 +10,7 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the Menu is initially open."
+      "description": "Whether the menu is initially open.\nTo render a controlled menu, use the `open` prop instead."
     },
     "delay": {
       "type": "number",

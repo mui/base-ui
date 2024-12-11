@@ -10,7 +10,7 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the Select is initially open."
+      "description": "Whether the select menu is initially open.\nTo render a controlled select menu, use the `open` prop instead."
     },
     "defaultValue": {
       "type": "any",
