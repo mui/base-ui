@@ -25,14 +25,8 @@
     }
   },
   "dataAttributes": {
-    "data-open": {
-      "description": "Present when the dialog is open."
-    },
     "data-closed": {
       "description": "Present when the dialog is closed."
-    },
-    "data-starting-style": {
-      "description": "Present when the dialog is animating in."
     },
     "data-ending-style": {
       "description": "Present when the dialog is animating out."
@@ -41,8 +35,14 @@
       "description": "Present when the dialog is modal."
     },
     "data-nested-dialogs": {
-      "type": "number",
-      "description": "Indicates how many dialogs are nested within."
+      "description": "Indicates how many dialogs are nested within.",
+      "type": "number"
+    },
+    "data-open": {
+      "description": "Present when the dialog is open."
+    },
+    "data-starting-style": {
+      "description": "Present when the dialog is animating in."
     }
   },
   "cssVariables": {
