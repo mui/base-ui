@@ -144,7 +144,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     [getReferenceProps],
   );
 
-  const getPositionerProps = React.useCallback(
+  const getPopupProps = React.useCallback(
     (externalProps?: GenericHTMLProps) =>
       getFloatingProps(
         mergeReactProps(externalProps, {
@@ -163,7 +163,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       setTriggerElement,
       getTriggerProps,
       setPositionerElement,
-      getPositionerProps,
+      getPopupProps,
       getItemProps,
       itemDomElements,
       itemLabels,
@@ -177,7 +177,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       activeIndex,
       floatingRootContext,
       getTriggerProps,
-      getPositionerProps,
+      getPopupProps,
       getItemProps,
       itemDomElements,
       itemLabels,
@@ -253,7 +253,7 @@ export namespace useMenuRoot {
     activeIndex: number | null;
     floatingRootContext: FloatingRootContext;
     getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
     itemLabels: React.MutableRefObject<(string | null)[]>;

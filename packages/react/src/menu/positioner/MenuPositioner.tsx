@@ -1,12 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {
-  FloatingFocusManager,
-  FloatingList,
-  FloatingNode,
-  useFloatingNodeId,
-} from '@floating-ui/react';
+import { FloatingList, FloatingNode, useFloatingNodeId } from '@floating-ui/react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { Side } from '../../utils/useAnchorPositioning';
@@ -14,7 +9,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuPositioner } from './useMenuPositioner';
 import { HTMLElementType } from '../../utils/proptypes';
-import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
@@ -44,16 +39,8 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     ...otherProps
   } = props;
 
-  const {
-    open,
-    floatingRootContext,
-    getPositionerProps,
-    setPositionerElement,
-    nested,
-    itemDomElements,
-    itemLabels,
-    mounted,
-  } = useMenuRootContext();
+  const { open, floatingRootContext, setPositionerElement, itemDomElements, itemLabels, mounted } =
+    useMenuRootContext();
 
   const nodeId = useFloatingNodeId();
 
@@ -106,8 +93,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: (externalProps: GenericHTMLProps) =>
-      positioner.getPositionerProps(getPositionerProps(externalProps)),
+    propGetter: positioner.getPositionerProps,
     render: render ?? 'div',
     className,
     state,
@@ -125,15 +111,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     <MenuPositionerContext.Provider value={contextValue}>
       <FloatingNode id={nodeId}>
         <FloatingList elementsRef={itemDomElements} labelsRef={itemLabels}>
-          <FloatingFocusManager
-            context={positioner.floatingContext}
-            modal={false}
-            initialFocus={nested ? -1 : 0}
-            returnFocus
-            disabled={!mounted}
-          >
-            {renderElement()}
-          </FloatingFocusManager>
+          {renderElement()}
         </FloatingList>
       </FloatingNode>
     </MenuPositionerContext.Provider>

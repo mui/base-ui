@@ -645,13 +645,13 @@ describe('<Menu.Root />', () => {
       const { getByRole, queryAllByRole } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner id="parent-menu">
-            <Menu.Popup>
+          <Menu.Positioner>
+            <Menu.Popup id="parent-menu">
               <Menu.Item>1</Menu.Item>
               <Menu.Root closeParentOnEsc={false}>
                 <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
-                <Menu.Positioner id="submenu">
-                  <Menu.Popup>
+                <Menu.Positioner>
+                  <Menu.Popup id="submenu">
                     <Menu.Item>2.1</Menu.Item>
                     <Menu.Item>2.2</Menu.Item>
                   </Menu.Popup>
