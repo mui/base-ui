@@ -81,7 +81,7 @@
     "@mui/monorepo": "github:mui/material-ui#817470c5a7c2ae721401e308b961005730cdf2ab",
     "@next/eslint-plugin-next": "^14.2.18",
     "@octokit/rest": "^20.1.1",
-    "@playwright/test": "1.49.0",
+    "@playwright/test": "1.49.1",
     "@tailwindcss/postcss": "4.0.0-beta.2",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.13",
