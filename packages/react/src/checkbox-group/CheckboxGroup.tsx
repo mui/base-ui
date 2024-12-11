@@ -63,8 +63,9 @@ const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       defaultValue,
       setValue,
       parent,
+      disabled,
     }),
-    [allValues, value, defaultValue, setValue, parent],
+    [allValues, value, defaultValue, setValue, parent, disabled],
   );
 
   return (

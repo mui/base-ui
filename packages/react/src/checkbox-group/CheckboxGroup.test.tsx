@@ -131,4 +131,72 @@ describe('<CheckboxGroup />', () => {
       expect(blue).to.have.attribute('aria-checked', 'false');
     });
   });
+
+  describe('prop: disabled', () => {
+    it('disables all checkboxes when `true`', () => {
+      function App() {
+        return (
+          <CheckboxGroup disabled>
+            <Checkbox.Root name="red" data-testid="red" />
+            <Checkbox.Root name="green" data-testid="green" />
+            <Checkbox.Root name="blue" data-testid="blue" />
+          </CheckboxGroup>
+        );
+      }
+
+      render(<App />);
+
+      const red = screen.getByTestId('red');
+      const green = screen.getByTestId('green');
+      const blue = screen.getByTestId('blue');
+
+      expect(red).to.have.attribute('disabled', '');
+      expect(green).to.have.attribute('disabled', '');
+      expect(blue).to.have.attribute('disabled', '');
+    });
+
+    it('does not disable all checkboxes when `false`', () => {
+      function App() {
+        return (
+          <CheckboxGroup disabled={false}>
+            <Checkbox.Root name="red" data-testid="red" />
+            <Checkbox.Root name="green" data-testid="green" />
+            <Checkbox.Root name="blue" data-testid="blue" />
+          </CheckboxGroup>
+        );
+      }
+
+      render(<App />);
+
+      const red = screen.getByTestId('red');
+      const green = screen.getByTestId('green');
+      const blue = screen.getByTestId('blue');
+
+      expect(red).not.to.have.attribute('disabled', '');
+      expect(green).not.to.have.attribute('disabled', '');
+      expect(blue).not.to.have.attribute('disabled', '');
+    });
+
+    it('takes precedence over individual checkboxes', () => {
+      function App() {
+        return (
+          <CheckboxGroup disabled>
+            <Checkbox.Root name="red" data-testid="red" disabled={false} />
+            <Checkbox.Root name="green" data-testid="green" />
+            <Checkbox.Root name="blue" data-testid="blue" />
+          </CheckboxGroup>
+        );
+      }
+
+      render(<App />);
+
+      const red = screen.getByTestId('red');
+      const green = screen.getByTestId('green');
+      const blue = screen.getByTestId('blue');
+
+      expect(red).to.have.attribute('disabled', '');
+      expect(green).to.have.attribute('disabled', '');
+      expect(blue).to.have.attribute('disabled', '');
+    });
+  });
 });
