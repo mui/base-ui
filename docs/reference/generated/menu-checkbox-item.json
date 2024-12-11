@@ -31,7 +31,7 @@
     },
     "onCheckedChange": {
       "type": "function",
-      "description": "Callback fired when the checked state is changed."
+      "description": "Event handler called when the checkbox item is ticked or unticked."
     },
     "onClick": {
       "type": "(event) => void",

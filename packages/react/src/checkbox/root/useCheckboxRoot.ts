@@ -211,10 +211,10 @@ export namespace UseCheckboxRoot {
      */
     disabled?: boolean;
     /**
-     * Callback fired when the checked state is changed.
+     * Event handler called when the checkbox is ticked or unticked.
      *
      * @param {boolean} checked The new checked state.
-     * @param {Event} event The event source of the callback.
+     * @param {Event} event The corresponding event that initiated the change.
      */
     onCheckedChange?: (checked: boolean, event: Event) => void;
     /**

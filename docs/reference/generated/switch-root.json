@@ -30,7 +30,7 @@
     },
     "onCheckedChange": {
       "type": "(checked, event) => void",
-      "description": "Callback fired when the checked state is changed."
+      "description": "Event handler called when the switch is activated or deactivated."
     },
     "readOnly": {
       "type": "boolean",

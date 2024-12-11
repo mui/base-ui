@@ -136,7 +136,7 @@ Toggle.propTypes /* remove-proptypes */ = {
    * Callback fired when the pressed state is changed.
    *
    * @param {boolean} pressed The new pressed state.
-   * @param {Event} event The event source of the callback.
+   * @param {Event} event The corresponding event that initiated the change.
    */
   onPressedChange: PropTypes.func,
   /**

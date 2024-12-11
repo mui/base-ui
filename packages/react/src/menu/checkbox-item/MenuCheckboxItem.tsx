@@ -127,7 +127,7 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
     on: PropTypes.func.isRequired,
   }).isRequired,
   /**
-   * Callback fired when the checked state is changed.
+   * Event handler called when the checkbox item is ticked or unticked.
    */
   onCheckedChange: PropTypes.func,
   /**
@@ -232,7 +232,7 @@ namespace MenuCheckboxItem {
      */
     defaultChecked?: boolean;
     /**
-     * Callback fired when the checked state is changed.
+     * Event handler called when the checkbox item is ticked or unticked.
      */
     onCheckedChange?: (checked: boolean, event: Event) => void;
     children?: React.ReactNode;
@@ -306,7 +306,7 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   label: PropTypes.string,
   /**
-   * Callback fired when the checked state is changed.
+   * Event handler called when the checkbox item is ticked or unticked.
    */
   onCheckedChange: PropTypes.func,
   /**

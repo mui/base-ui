@@ -161,7 +161,7 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    * Callback fired when the pressed states of the ToggleGroup changes.
    *
    * @param {any[]} groupValue An array of the `value`s of all the pressed items.
-   * @param {Event} event The event source of the callback.
+   * @param {Event} event The corresponding event that initiated the change.
    */
   onValueChange: PropTypes.func,
   /**

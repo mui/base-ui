@@ -252,7 +252,7 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    * Callback function that is fired when the slider's value changed.
    *
    * @param {number | number[]} value The new value.
-   * @param {Event} event The event source of the callback.
+   * @param {Event} event The corresponding event that initiated the change.
    * You can pull out the new value by accessing `event.target.value` (any).
    * @param {number} activeThumbIndex Index of the currently moved thumb.
    */
@@ -261,7 +261,7 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    * Callback function that is fired when the `pointerup` is triggered.
    *
    * @param {number | number[]} value The new value.
-   * @param {Event} event The event source of the callback.
+   * @param {Event} event The corresponding event that initiated the change.
    * **Warning**: This is a generic event not a change event.
    */
   onValueCommitted: PropTypes.func,
