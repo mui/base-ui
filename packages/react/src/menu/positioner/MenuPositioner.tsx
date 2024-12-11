@@ -36,7 +36,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    container,
     ...otherProps
   } = props;
 
@@ -49,7 +48,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     anchor,
     floatingRootContext,
     positionMethod,
-    container,
     open,
     mounted,
     side,
@@ -113,7 +111,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     <MenuPositionerContext.Provider value={contextValue}>
       <FloatingNode id={nodeId}>
         <FloatingList elementsRef={itemDomElements} labelsRef={itemLabels}>
-          <FloatingPortal root={props.container}>{renderElement()}</FloatingPortal>
+          {renderElement()}
         </FloatingList>
       </FloatingNode>
     </MenuPositionerContext.Provider>
@@ -197,13 +195,6 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
       right: PropTypes.number,
       top: PropTypes.number,
     }),
-  ]),
-  /**
-   * The container element to which the Menu popup will be appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
   ]),
   /**
    * Whether the menu popup remains mounted in the DOM while closed.
