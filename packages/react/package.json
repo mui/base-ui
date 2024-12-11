@@ -81,16 +81,16 @@
     "@floating-ui/utils": "^0.2.8",
     "clsx": "^2.1.1",
     "prop-types": "^15.8.1",
-    "use-sync-external-store": "^1.2.2"
+    "use-sync-external-store": "^1.4.0"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.17.0",
+    "@arethetypeswrong/cli": "^0.17.1",
     "@mui/internal-test-utils": "https://pkg.csb.dev/mui/material-ui/commit/92c23999/@mui/internal-test-utils",
-    "@testing-library/react": "^16.0.1",
+    "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
     "@types/chai": "^4.3.20",
     "@types/chai-dom": "^1.11.3",
-    "@types/prop-types": "^15.7.13",
+    "@types/prop-types": "^15.7.14",
     "@types/react": "npm:types-react@19.0.0-rc.1",
     "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
     "@types/sinon": "^17.0.3",
