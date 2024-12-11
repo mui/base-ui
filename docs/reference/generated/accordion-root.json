@@ -52,5 +52,10 @@
       "type": "array",
       "description": "The value of the currently open `Accordion.Item`\nThis is the controlled counterpart of `defaultValue`."
     }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the accordion is disabled."
+    }
   }
 }
