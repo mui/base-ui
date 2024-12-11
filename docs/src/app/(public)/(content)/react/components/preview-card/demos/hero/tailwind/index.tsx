@@ -15,25 +15,27 @@ export default function ExamplePreviewCard() {
         remain into the digital age.
       </p>
 
-      <PreviewCard.Positioner sideOffset={8}>
-        <PreviewCard.Popup className="flex w-[240px] origin-[var(--transform-origin)] flex-col gap-2 rounded-lg bg-[canvas] p-2 shadow-lg shadow-gray-200 outline outline-gray-200 transition-[transform,scale,opacity] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300 [[data-starting-style],[data-ending-style]]:scale-90 [[data-starting-style],[data-ending-style]]:opacity-0">
-          <PreviewCard.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
-            <ArrowSvg />
-          </PreviewCard.Arrow>
-          <img
-            width="448"
-            height="300"
-            className="block w-full rounded-sm"
-            src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
-            alt="Station Hofplein signage in Rotterdam, Netherlands"
-          />
-          <p className="text-sm text-pretty text-gray-900">
-            <strong>Typography</strong> is the art and science of arranging type to
-            make written language clear, visually appealing, and effective in
-            communication.
-          </p>
-        </PreviewCard.Popup>
-      </PreviewCard.Positioner>
+      <PreviewCard.Portal>
+        <PreviewCard.Positioner sideOffset={8}>
+          <PreviewCard.Popup className="flex w-[240px] origin-[var(--transform-origin)] flex-col gap-2 rounded-lg bg-[canvas] p-2 shadow-lg shadow-gray-200 outline outline-gray-200 transition-[transform,scale,opacity] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300 [[data-starting-style],[data-ending-style]]:scale-90 [[data-starting-style],[data-ending-style]]:opacity-0">
+            <PreviewCard.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
+              <ArrowSvg />
+            </PreviewCard.Arrow>
+            <img
+              width="448"
+              height="300"
+              className="block w-full rounded-sm"
+              src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
+              alt="Station Hofplein signage in Rotterdam, Netherlands"
+            />
+            <p className="text-sm text-pretty text-gray-900">
+              <strong>Typography</strong> is the art and science of arranging type to
+              make written language clear, visually appealing, and effective in
+              communication.
+            </p>
+          </PreviewCard.Popup>
+        </PreviewCard.Positioner>
+      </PreviewCard.Portal>
     </PreviewCard.Root>
   );
 }

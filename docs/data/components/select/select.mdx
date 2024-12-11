@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Select component
 description: Select provides users with a floating element containing a list of options to choose from.
-components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectBackdrop, SelectPositioner, SelectPopup, SelectItem, SelectItemText, SelectItemIndicator, SelectGroup, SelectGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectArrow
+components: SelectRoot, SelectTrigger, SelectValue, SelectIcon, SelectPortal, SelectBackdrop, SelectPositioner, SelectPopup, SelectItem, SelectItemText, SelectItemIndicator, SelectGroup, SelectGroupLabel, SelectScrollUpArrow, SelectScrollDownArrow, SelectArrow
 githubLabel: 'component: select'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 ---
@@ -30,6 +30,7 @@ Selects are implemented using a collection of related components:
 - `<Select.Value />` renders the value of the select.
 - `<Select.Icon />` renders a caret icon.
 - `<Select.Backdrop />` renders a backdrop element behind the popup.
+- `<Select.Portal />` renders the select popup in a portal.
 - `<Select.Positioner />` renders the select popup's positioning element.
 - `<Select.Popup />` renders the select popup itself.
 - `<Select.Item />` renders an option, placed inside the popup.
@@ -49,26 +50,27 @@ Selects are implemented using a collection of related components:
     <Select.Icon />
   </Select.Trigger>
 
-  <Select.Backdrop />
+  <Select.Portal>
+    <Select.Backdrop />
+    <Select.Positioner>
+      <Select.ScrollUpArrow />
 
-  <Select.Positioner>
-    <Select.ScrollUpArrow />
+      <Select.Popup>
+        <Select.Group>
+          <Select.GroupLabel />
+          <Select.Item>
+            <Select.ItemText />
+            <Select.ItemIndicator />
+          </Select.Item>
+        </Select.Group>
+        <Select.Separator />
+      </Select.Popup>
 
-    <Select.Popup>
-      <Select.Group>
-        <Select.GroupLabel />
-        <Select.Item>
-          <Select.ItemText />
-          <Select.ItemIndicator />
-        </Select.Item>
-      </Select.Group>
-      <Select.Separator />
-    </Select.Popup>
+      <Select.ScrollDownArrow />
 
-    <Select.ScrollDownArrow />
-
-    <Select.Arrow />
-  </Select.Positioner>
+      <Select.Arrow />
+    </Select.Positioner>
+  </Select.Portal>
 </Select.Root>
 ```
 
@@ -288,20 +290,22 @@ function App() {
       <Select.Trigger>Trigger</Select.Trigger>
       <AnimatePresence>
         {open && (
-          <Select.Positioner keepMounted>
-            <Select.Popup
-              render={
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                />
-              }
-            >
-              <Select.Item>Option 1</Select.Item>
-              <Select.Item>Option 2</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal keepMounted>
+            <Select.Positioner keepMounted>
+              <Select.Popup
+                render={
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  />
+                }
+              >
+                <Select.Item>Option 1</Select.Item>
+                <Select.Item>Option 2</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         )}
       </AnimatePresence>
     </Select.Root>

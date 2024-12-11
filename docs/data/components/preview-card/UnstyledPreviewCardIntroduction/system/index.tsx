@@ -6,32 +6,34 @@ import { styled } from '@mui/system';
 export default function UnstyledPreviewCardIntroduction() {
   return (
     <PreviewCard.Root>
-      <TriggerLink href="#">@base_ui</TriggerLink>
-      <PreviewCard.Positioner sideOffset={8}>
-        <PreviewCardPopup>
-          <img
-            src="https://pbs.twimg.com/profile_images/1798056009291997184/B-prVmUP_400x400.jpg"
-            alt="Base UI Logo"
-            width={80}
-            height={80}
-            style={{ borderRadius: '50%' }}
-          />
-          <h2 style={{ fontSize: 20, margin: 0 }}>Base UI</h2>
-          <p>
-            Unstyled React components and hooks (@base-ui-components/react), by
-            @MUI_hq.
-          </p>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <span>
-              <strong>1</strong> Following
-            </span>
-            <span>
-              <strong>1,000</strong> Followers
-            </span>
-          </div>
-          <PreviewCardArrow />
-        </PreviewCardPopup>
-      </PreviewCard.Positioner>
+      <TriggerLink href="#">@Base_UI</TriggerLink>
+      <PreviewCard.Portal>
+        <PreviewCard.Positioner sideOffset={8}>
+          <PreviewCardPopup>
+            <img
+              src="https://pbs.twimg.com/profile_images/1798056009291997184/B-prVmUP_400x400.jpg"
+              alt="Base UI Logo"
+              width={80}
+              height={80}
+              style={{ borderRadius: '50%' }}
+            />
+            <h2 style={{ fontSize: 20, margin: 0 }}>Base UI</h2>
+            <p>
+              Unstyled React components and hooks (@base-ui-components/react), by
+              @MUI_hq.
+            </p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <span>
+                <strong>1</strong> Following
+              </span>
+              <span>
+                <strong>1,000</strong> Followers
+              </span>
+            </div>
+            <PreviewCardArrow />
+          </PreviewCardPopup>
+        </PreviewCard.Positioner>
+      </PreviewCard.Portal>
     </PreviewCard.Root>
   );
 }

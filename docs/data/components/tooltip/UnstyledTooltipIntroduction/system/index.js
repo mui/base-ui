@@ -9,30 +9,36 @@ export default function UnstyledTooltipIntroduction() {
       <Tooltip.Provider closeDelay={100}>
         <Tooltip.Root>
           <AnchorButton aria-label="bold">B</AnchorButton>
-          <Tooltip.Positioner sideOffset={7}>
-            <TooltipPopup>
-              Bold
-              <TooltipArrow />
-            </TooltipPopup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner sideOffset={7}>
+              <TooltipPopup>
+                Bold
+                <TooltipArrow />
+              </TooltipPopup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Tooltip.Root>
         <Tooltip.Root>
           <AnchorButton aria-label="italic">I</AnchorButton>
-          <Tooltip.Positioner sideOffset={7}>
-            <TooltipPopup>
-              Italic
-              <TooltipArrow />
-            </TooltipPopup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner sideOffset={7}>
+              <TooltipPopup>
+                Italic
+                <TooltipArrow />
+              </TooltipPopup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Tooltip.Root>
         <Tooltip.Root>
           <AnchorButton aria-label="underline">U</AnchorButton>
-          <Tooltip.Positioner sideOffset={7}>
-            <TooltipPopup>
-              Underline
-              <TooltipArrow />
-            </TooltipPopup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner sideOffset={7}>
+              <TooltipPopup>
+                Underline
+                <TooltipArrow />
+              </TooltipPopup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Tooltip.Root>
       </Tooltip.Provider>
     </div>

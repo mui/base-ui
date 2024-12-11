@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { AlertDialogRootContext } from './AlertDialogRootContext';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
+import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the alert dialog.
@@ -35,7 +36,7 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
 
   return (
     <AlertDialogRootContext.Provider value={contextValue}>
-      {children}
+      <PortalContext.Provider value={dialogRoot.mounted}>{children}</PortalContext.Provider>
     </AlertDialogRootContext.Provider>
   );
 };

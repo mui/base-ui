@@ -90,10 +90,6 @@ export namespace usePreviewCardPositioner {
      */
     positionMethod?: 'absolute' | 'fixed';
     /**
-     * The container element to which the preview card popup will be appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-    /**
      * The side of the anchor element that the preview card element should align to.
      * @default 'bottom'
      */

@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
 import { useForkRef } from '../../utils/useForkRef';
@@ -26,7 +25,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     render,
     className,
     anchor,
-    container,
     keepMounted = false,
     positionMethod = 'absolute',
     side = 'top',
@@ -100,7 +98,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 
   return (
     <TooltipPositionerContext.Provider value={contextValue}>
-      <FloatingPortal root={container}>{renderElement()}</FloatingPortal>
+      {renderElement()}
     </TooltipPositionerContext.Provider>
   );
 });
@@ -115,12 +113,7 @@ namespace TooltipPositioner {
 
   export interface Props
     extends BaseUIComponentProps<'div', State>,
-      useTooltipPositioner.SharedParameters {
-    /**
-     * The container element the tooltip positioner is appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-  }
+      useTooltipPositioner.SharedParameters {}
 }
 
 TooltipPositioner.propTypes /* remove-proptypes */ = {
@@ -188,13 +181,6 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
       right: PropTypes.number,
       top: PropTypes.number,
     }),
-  ]),
-  /**
-   * The container element the tooltip positioner is appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
   ]),
   /**
    * Whether the tooltip remains mounted in the DOM while closed.

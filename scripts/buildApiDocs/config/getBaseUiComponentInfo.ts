@@ -27,7 +27,12 @@ export function getBaseUiComponentInfo(filename: string): ComponentInfo {
   const componentUrl = overrides[name] ?? `/components/${parentComponentPath}`;
   const url = urlJoin(baseUrl, componentUrl);
 
-  const customAnnotation = `Documentation: [Base UI ${parentComponentName}](${url})`;
+  // Foreign components that aren't associated with any given component.
+  const EXCLUDED_NAMES = ['Portal'];
+
+  const customAnnotation = EXCLUDED_NAMES.includes(name)
+    ? `Documentation: https://base-ui.com`
+    : `Documentation: [Base UI ${parentComponentName}](${url})`;
 
   return {
     filename,

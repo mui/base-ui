@@ -94,10 +94,6 @@ export namespace useMenuPositioner {
      */
     positionMethod?: 'absolute' | 'fixed';
     /**
-     * The container element to which the Menu popup will be appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-    /**
      * The side of the anchor element that the Menu element should align to.
      * @default 'bottom'
      */

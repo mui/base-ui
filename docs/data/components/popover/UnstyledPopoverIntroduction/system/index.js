@@ -7,13 +7,15 @@ export default function UnstyledPopoverIntroduction() {
   return (
     <Popover.Root>
       <AnchorButton>Trigger</AnchorButton>
-      <Popover.Positioner sideOffset={8}>
-        <PopoverPopup>
-          <PopoverTitle>Popover Title</PopoverTitle>
-          <PopoverDescription>Popover Description</PopoverDescription>
-          <PopoverArrow />
-        </PopoverPopup>
-      </Popover.Positioner>
+      <Popover.Portal>
+        <Popover.Positioner sideOffset={8}>
+          <PopoverPopup>
+            <PopoverTitle>Popover Title</PopoverTitle>
+            <PopoverDescription>Popover Description</PopoverDescription>
+            <PopoverArrow />
+          </PopoverPopup>
+        </Popover.Positioner>
+      </Popover.Portal>
     </Popover.Root>
   );
 }

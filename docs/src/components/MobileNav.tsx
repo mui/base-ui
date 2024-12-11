@@ -24,6 +24,8 @@ export function Backdrop({ className, ...props }: Dialog.Backdrop.Props) {
   return <Dialog.Backdrop className={clsx('MobileNavBackdrop', className)} {...props} />;
 }
 
+export const Portal = Dialog.Portal;
+
 export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
   const setOpen = React.useContext(MobileNavStateCallback);
   const rem = React.useRef(16);

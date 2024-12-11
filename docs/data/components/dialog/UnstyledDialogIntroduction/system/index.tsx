@@ -8,21 +8,23 @@ export default function UnstyledDialogIntroduction() {
     <Dialog.Root>
       <TriggerButton>Subscribe</TriggerButton>
       <Backdrop />
-      <Popup>
-        <Title>Subscribe</Title>
-        <Description>
-          Enter your email address to subscribe to our newsletter.
-        </Description>
-        <TextField
-          type="email"
-          aria-label="Email address"
-          placeholder="name@example.com"
-        />
-        <Controls>
-          <CloseButton>Subscribe</CloseButton>
-          <CloseButton>Cancel</CloseButton>
-        </Controls>
-      </Popup>
+      <Dialog.Portal>
+        <Popup>
+          <Title>Subscribe</Title>
+          <Description>
+            Enter your email address to subscribe to our newsletter.
+          </Description>
+          <TextField
+            type="email"
+            aria-label="Email address"
+            placeholder="name@example.com"
+          />
+          <Controls>
+            <CloseButton>Subscribe</CloseButton>
+            <CloseButton>Cancel</CloseButton>
+          </Controls>
+        </Popup>
+      </Dialog.Portal>
     </Dialog.Root>
   );
 }
