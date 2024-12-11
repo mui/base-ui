@@ -280,6 +280,9 @@ const SelectItem = React.forwardRef(function SelectItem(
 
 namespace SelectItem {
   export interface State {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     highlighted: boolean;
     selected: boolean;

@@ -101,6 +101,9 @@ export type ToggleGroupOrientation = 'horizontal' | 'vertical';
 
 export namespace ToggleGroup {
   export interface State {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     multiple: boolean;
   }

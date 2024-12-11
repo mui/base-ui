@@ -117,6 +117,9 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
 export namespace AccordionRoot {
   export interface State {
     value: AccordionValue;
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     orientation: AccordionOrientation;
   }

@@ -221,6 +221,9 @@ interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
 
 namespace MenuRadioItem {
   export type State = {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     highlighted: boolean;
     /**

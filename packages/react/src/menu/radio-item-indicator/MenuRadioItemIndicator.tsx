@@ -78,6 +78,9 @@ namespace MenuRadioItemIndicator {
      * Whether the radio item is currently selected.
      */
     checked: boolean;
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     highlighted: boolean;
   }

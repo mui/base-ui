@@ -92,6 +92,9 @@ namespace MenuSubmenuTrigger {
   }
 
   export interface State {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     highlighted: boolean;
     /**

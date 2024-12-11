@@ -118,6 +118,9 @@ namespace CheckboxRoot {
      * Whether the checkbox is currently ticked.
      */
     checked: boolean;
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     readOnly: boolean;
     /**

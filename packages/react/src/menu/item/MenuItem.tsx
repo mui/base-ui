@@ -186,6 +186,9 @@ interface InnerMenuItemProps extends MenuItem.Props {
 
 namespace MenuItem {
   export type State = {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     highlighted: boolean;
   };

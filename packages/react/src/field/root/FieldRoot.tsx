@@ -154,6 +154,9 @@ export interface FieldValidityData {
 
 namespace FieldRoot {
   export interface State {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     touched: boolean;
     dirty: boolean;

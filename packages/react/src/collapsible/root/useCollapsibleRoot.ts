@@ -69,7 +69,7 @@ export namespace useCollapsibleRoot {
   export interface ReturnValue {
     panelId: React.HTMLAttributes<Element>['id'];
     /**
-     * The disabled state of the Collapsible
+     * Whether the component should ignore user actions.
      */
     disabled: boolean;
     mounted: boolean;

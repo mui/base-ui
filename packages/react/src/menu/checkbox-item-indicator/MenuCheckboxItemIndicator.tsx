@@ -78,6 +78,9 @@ namespace MenuCheckboxItemIndicator {
      * Whether the checkbox item is currently ticked.
      */
     checked: boolean;
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     highlighted: boolean;
   }

@@ -76,6 +76,9 @@ const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
 namespace CheckboxGroup {
   export interface State extends FieldRoot.State {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
   }
   export interface Props extends BaseUIComponentProps<'div', State> {

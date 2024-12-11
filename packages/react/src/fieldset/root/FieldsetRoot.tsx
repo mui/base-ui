@@ -54,6 +54,9 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
 
 namespace FieldsetRoot {
   export type State = {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
   };
 

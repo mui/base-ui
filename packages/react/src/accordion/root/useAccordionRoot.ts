@@ -233,7 +233,7 @@ export namespace useAccordionRoot {
     accordionItemRefs: React.RefObject<(HTMLElement | null)[]>;
     direction: Direction;
     /**
-     * Whether the component is currently disabled.
+     * Whether the component should ignore user actions.
      */
     disabled: boolean;
     handleValueChange: (value: number | string, nextOpen: boolean) => void;

@@ -74,6 +74,9 @@ export { Toggle };
 export namespace Toggle {
   export interface State {
     pressed: boolean;
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
   }
 
