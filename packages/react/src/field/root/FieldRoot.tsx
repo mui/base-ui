@@ -192,7 +192,7 @@ namespace FieldRoot {
      */
     validationDebounceTime?: number;
     /**
-     * Determines if the field is forcefully marked as invalid.
+     * Whether the field is forcefully marked as invalid.
      */
     invalid?: boolean;
   }
@@ -219,7 +219,7 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * Determines if the field is forcefully marked as invalid.
+   * Whether the field is forcefully marked as invalid.
    */
   invalid: PropTypes.bool,
   /**

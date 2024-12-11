@@ -36,7 +36,7 @@
     "invalid": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the input element is invalid."
+      "description": "Whether the field is forcefully marked as invalid."
     },
     "largeStep": {
       "type": "number",

@@ -13,7 +13,7 @@
     },
     "invalid": {
       "type": "boolean",
-      "description": "Determines if the field is forcefully marked as invalid."
+      "description": "Whether the field is forcefully marked as invalid."
     },
     "name": {
       "type": "string",

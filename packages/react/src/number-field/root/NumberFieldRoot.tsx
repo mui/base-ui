@@ -190,7 +190,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * If `true`, the input element is invalid.
+   * Whether the field is forcefully marked as invalid.
    * @default false
    */
   invalid: PropTypes.bool,

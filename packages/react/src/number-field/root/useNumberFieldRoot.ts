@@ -817,7 +817,7 @@ export namespace UseNumberFieldRoot {
      */
     disabled?: boolean;
     /**
-     * If `true`, the input element is invalid.
+     * Whether the field is forcefully marked as invalid.
      * @default false
      */
     invalid?: boolean;
