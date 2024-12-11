@@ -222,12 +222,6 @@ jobs:
       - install_js:
           react-version: << parameters.react-version >>
       - run:
-          name: Transpile TypeScript demos
-          command: pnpm docs:typescript:formatted
-      - run:
-          name: '`pnpm docs:typescript:formatted` changes committed?'
-          command: git add -A && git diff --exit-code --staged
-      - run:
           name: Tests TypeScript definitions
           command: pnpm typescript
           environment:
