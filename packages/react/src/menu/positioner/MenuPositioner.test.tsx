@@ -226,7 +226,7 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      const positioner = getByTestId('menu');
+      const positioner = getByTestId('positioner');
       expect(positioner.style.getPropertyValue('transform')).to.equal(`translate(200px, 100px)`);
     });
   });
