@@ -15,5 +15,19 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
+  },
+  "dataAttributes": {
+    "data-closed": {
+      "description": "Present when the dialog is closed."
+    },
+    "data-ending-style": {
+      "description": "Present when the dialog is animating out."
+    },
+    "data-open": {
+      "description": "Present when the dialog is open."
+    },
+    "data-starting-style": {
+      "description": "Present when the dialog is animating in."
+    }
   }
 }

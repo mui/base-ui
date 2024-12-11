@@ -21,6 +21,24 @@
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the accordion item is disabled."
+    },
+    "data-ending-style": {
+      "description": "Present when the panel is animating out."
+    },
+    "data-index": {
+      "description": "Indicates the index of the accordion item.",
+      "type": "number"
+    },
+    "data-open": {
+      "description": "Present when the accordion panel is open."
+    },
+    "data-starting-style": {
+      "description": "Present when the panel is animating in."
+    }
+  },
   "cssVariables": {
     "--accordion-panel-height": {
       "description": "The accordion panel's height.",

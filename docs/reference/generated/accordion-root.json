@@ -52,5 +52,10 @@
       "type": "array",
       "description": "The controlled value of the item(s) that should be expanded.\nTo render an controlled accordion, use the `defaultValue` prop instead."
     }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the accordion is disabled."
+    }
   }
 }

@@ -10,5 +10,22 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
+  },
+  "dataAttributes": {
+    "data-dirty": {
+      "description": "Present when the field's value has changed."
+    },
+    "data-disabled": {
+      "description": "Present when the field is disabled."
+    },
+    "data-invalid": {
+      "description": "Present when the field is in invalid state."
+    },
+    "data-touched": {
+      "description": "Present when the field has been thouched."
+    },
+    "data-valid": {
+      "description": "Present when the field is in valid state."
+    }
   }
 }
