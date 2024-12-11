@@ -49,7 +49,7 @@ export namespace useCollapsibleRoot {
      */
     open?: boolean;
     /**
-     * Whether the collapsible is initially open.
+     * Whether the collapsible panel is initially open.
      *
      * To render a controlled collapsible, use the `open` prop instead.
      * @default false

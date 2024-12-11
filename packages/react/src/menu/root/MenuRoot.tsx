@@ -111,7 +111,7 @@ namespace MenuRoot {
      */
     loop?: boolean;
     /**
-     * Event handler called when the dialog is opened or closed.
+     * Event handler called when the menu is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event) => void;
     /**

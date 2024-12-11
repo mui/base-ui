@@ -74,6 +74,9 @@ namespace MenuRadioItemIndicator {
   }
 
   export interface State {
+    /**
+     * Whether the radio item is currently selected.
+     */
     checked: boolean;
     disabled: boolean;
     highlighted: boolean;

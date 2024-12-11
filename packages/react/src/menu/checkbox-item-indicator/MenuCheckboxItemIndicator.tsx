@@ -74,6 +74,9 @@ namespace MenuCheckboxItemIndicator {
   }
 
   export interface State {
+    /**
+     * Whether the checkbox item is currently ticked.
+     */
     checked: boolean;
     disabled: boolean;
     highlighted: boolean;

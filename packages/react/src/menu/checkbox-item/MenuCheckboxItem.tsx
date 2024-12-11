@@ -73,7 +73,9 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the checkbox is checked.
+   * Whether the checkbox item is currently ticked.
+   *
+   * To render an uncontrolled checkbox item, use the `defaultChecked` prop instead.
    */
   checked: PropTypes.bool,
   /**
@@ -92,8 +94,9 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   closeOnClick: PropTypes.bool,
   /**
-   * The default checked state. Use when the component is uncontrolled.
+   * Whether the checkbox item is initially ticked.
    *
+   * To render a controlled checkbox item, use the `checked` prop instead.
    * @default false
    */
   defaultChecked: PropTypes.bool,
@@ -208,17 +211,23 @@ namespace MenuCheckboxItem {
   export type State = {
     disabled: boolean;
     highlighted: boolean;
+    /**
+     * Whether the checkbox item is currently ticked.
+     */
     checked: boolean;
   };
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * If `true`, the checkbox is checked.
+     * Whether the checkbox item is currently ticked.
+     *
+     * To render an uncontrolled checkbox item, use the `defaultChecked` prop instead.
      */
     checked?: boolean;
     /**
-     * The default checked state. Use when the component is uncontrolled.
+     * Whether the checkbox item is initially ticked.
      *
+     * To render a controlled checkbox item, use the `checked` prop instead.
      * @default false
      */
     defaultChecked?: boolean;
@@ -260,7 +269,9 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the checkbox is checked.
+   * Whether the checkbox item is currently ticked.
+   *
+   * To render an uncontrolled checkbox item, use the `defaultChecked` prop instead.
    */
   checked: PropTypes.bool,
   /**
@@ -274,8 +285,9 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   closeOnClick: PropTypes.bool,
   /**
-   * The default checked state. Use when the component is uncontrolled.
+   * Whether the checkbox item is initially ticked.
    *
+   * To render a controlled checkbox item, use the `checked` prop instead.
    * @default false
    */
   defaultChecked: PropTypes.bool,

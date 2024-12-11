@@ -150,12 +150,15 @@ export namespace useSwitchRoot {
      */
     id?: string;
     /**
-     * If `true`, the switch is checked.
+     * Whether the switch is currently active.
+     *
+     * To render an uncontrolled switch, use the `defaultChecked` prop instead.
      */
     checked?: boolean;
     /**
-     * The default checked state. Use when the component is uncontrolled.
+     * Whether the switch is initially active.
      *
+     * To render a controlled switch, use the `checked` prop instead.
      * @default false
      */
     defaultChecked?: boolean;
@@ -196,7 +199,7 @@ export namespace useSwitchRoot {
 
   export interface ReturnValue {
     /**
-     * If `true`, the component will be checked.
+     * Whether the switch is currently active.
      */
     checked: boolean;
     /**

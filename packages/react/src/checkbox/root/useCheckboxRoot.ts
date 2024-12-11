@@ -192,14 +192,16 @@ export namespace UseCheckboxRoot {
      */
     name?: string;
     /**
-     * If `true`, the component is checked.
+     * Whether the checkbox is currently ticked.
      *
+     * To render an uncontrolled checkbox, use the `defaultChecked` prop instead.
      * @default undefined
      */
     checked?: boolean;
     /**
-     * The default checked state. Use when the component is not controlled.
+     * Whether the checkbox is initially ticked.
      *
+     * To render a controlled checkbox, use the `checked` prop instead.
      * @default false
      */
     defaultChecked?: boolean;
@@ -252,7 +254,7 @@ export namespace UseCheckboxRoot {
 
   export interface ReturnValue {
     /**
-     * If `true`, the checkbox is checked.
+     * Whether the checkbox is currently ticked.
      */
     checked: boolean;
     /**

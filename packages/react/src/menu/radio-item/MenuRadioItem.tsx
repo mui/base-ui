@@ -223,6 +223,9 @@ namespace MenuRadioItem {
   export type State = {
     disabled: boolean;
     highlighted: boolean;
+    /**
+     * Whether the radio item is currently selected.
+     */
     checked: boolean;
   };
 

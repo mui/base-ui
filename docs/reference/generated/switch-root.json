@@ -4,7 +4,7 @@
   "props": {
     "checked": {
       "type": "boolean",
-      "description": "If `true`, the switch is checked."
+      "description": "Whether the switch is currently active.\n\nTo render an uncontrolled switch, use the `defaultChecked` prop instead."
     },
     "className": {
       "type": "string | (state) => string",
@@ -13,7 +13,7 @@
     "defaultChecked": {
       "type": "boolean",
       "default": "false",
-      "description": "The default checked state. Use when the component is uncontrolled."
+      "description": "Whether the switch is initially active.\n\nTo render a controlled switch, use the `checked` prop instead."
     },
     "disabled": {
       "type": "boolean",

@@ -74,6 +74,9 @@ namespace SwitchRoot {
       Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {}
 
   export interface State extends FieldRoot.State {
+    /**
+     * Whether the switch is currently active.
+     */
     checked: boolean;
     disabled: boolean;
     readOnly: boolean;
@@ -87,7 +90,9 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the switch is checked.
+   * Whether the switch is currently active.
+   *
+   * To render an uncontrolled switch, use the `defaultChecked` prop instead.
    */
   checked: PropTypes.bool,
   /**
@@ -100,8 +105,9 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default checked state. Use when the component is uncontrolled.
+   * Whether the switch is initially active.
    *
+   * To render a controlled switch, use the `checked` prop instead.
    * @default false
    */
   defaultChecked: PropTypes.bool,

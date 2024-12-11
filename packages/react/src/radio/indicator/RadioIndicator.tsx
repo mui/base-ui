@@ -47,6 +47,9 @@ namespace RadioIndicator {
   }
 
   export interface State {
+    /**
+     * Whether the radio button is currently selected.
+     */
     checked: boolean;
   }
 }

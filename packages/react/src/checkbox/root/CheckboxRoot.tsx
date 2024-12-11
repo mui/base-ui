@@ -114,6 +114,9 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
 namespace CheckboxRoot {
   export interface State extends FieldRoot.State {
+    /**
+     * Whether the checkbox is currently ticked.
+     */
     checked: boolean;
     disabled: boolean;
     readOnly: boolean;
@@ -131,8 +134,9 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the component is checked.
+   * Whether the checkbox is currently ticked.
    *
+   * To render an uncontrolled checkbox, use the `defaultChecked` prop instead.
    * @default undefined
    */
   checked: PropTypes.bool,
@@ -146,8 +150,9 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default checked state. Use when the component is not controlled.
+   * Whether the checkbox is initially ticked.
    *
+   * To render a controlled checkbox, use the `checked` prop instead.
    * @default false
    */
   defaultChecked: PropTypes.bool,

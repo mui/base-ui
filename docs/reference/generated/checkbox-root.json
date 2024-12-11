@@ -5,7 +5,7 @@
     "checked": {
       "type": "boolean",
       "default": "undefined",
-      "description": "If `true`, the component is checked."
+      "description": "Whether the checkbox is currently ticked.\n\nTo render an uncontrolled checkbox, use the `defaultChecked` prop instead."
     },
     "className": {
       "type": "string | (state) => string",
@@ -14,7 +14,7 @@
     "defaultChecked": {
       "type": "boolean",
       "default": "false",
-      "description": "The default checked state. Use when the component is not controlled."
+      "description": "Whether the checkbox is initially ticked.\n\nTo render a controlled checkbox, use the `checked` prop instead."
     },
     "disabled": {
       "type": "boolean",

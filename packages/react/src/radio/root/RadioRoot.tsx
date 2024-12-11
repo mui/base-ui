@@ -104,6 +104,9 @@ namespace RadioRoot {
   }
 
   export interface State {
+    /**
+     * Whether the radio button is currently selected.
+     */
     checked: boolean;
     disabled: boolean;
     readOnly: boolean;

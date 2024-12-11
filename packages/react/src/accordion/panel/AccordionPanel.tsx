@@ -120,7 +120,6 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
    *
    * Overrides the `keepMounted` prop and uses `hidden="until-found"`
    * to hide the element without removing it from the DOM.
-   *
    * @default false
    */
   hiddenUntilFound: PropTypes.bool,
