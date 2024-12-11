@@ -8,14 +8,10 @@ import { progressStyleHookMapping } from './styleHooks';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
+ * Groups all parts of the progress bar and provides the task completion status to screen readers.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Progress](https://base-ui.com/components/react-progress/)
- *
- * API:
- *
- * - [ProgressRoot API](https://base-ui.com/components/react-progress/#api-reference-ProgressRoot)
+ * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
 const ProgressRoot = React.forwardRef(function ProgressRoot(
   props: ProgressRoot.Props,

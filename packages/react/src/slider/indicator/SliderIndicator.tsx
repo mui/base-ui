@@ -7,15 +7,12 @@ import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderIndicator } from './useSliderIndicator';
+
 /**
+ * Visualizes the current value of the slider.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderIndicator API](https://base-ui.com/components/react-slider/#api-reference-SliderIndicator)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderIndicator = React.forwardRef(function SliderIndicator(
   props: SliderIndicator.Props,
@@ -23,11 +20,9 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { axis, direction, disabled, orientation, state, percentageValues } =
-    useSliderRootContext();
+  const { direction, disabled, orientation, state, percentageValues } = useSliderRootContext();
 
   const { getRootProps } = useSliderIndicator({
-    axis,
     direction,
     disabled,
     orientation,
@@ -36,7 +31,7 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
-    render: render ?? 'span',
+    render: render ?? 'div',
     state,
     className,
     ref: forwardedRef,
@@ -48,7 +43,7 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
 });
 
 export namespace SliderIndicator {
-  export interface Props extends BaseUIComponentProps<'span', SliderRoot.State> {}
+  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
 }
 
 export { SliderIndicator };

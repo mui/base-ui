@@ -4,62 +4,45 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
-const axisProps = {
-  horizontal: {
-    offset: (percent: number) => ({ left: `${percent}%` }),
-    leap: (percent: number) => ({ width: `${percent}%`, height: 'inherit' }),
-  },
-  'horizontal-reverse': {
-    offset: (percent: number) => ({ right: `${percent}%` }),
-    leap: (percent: number) => ({ width: `${percent}%`, height: 'inherit' }),
-  },
-  vertical: {
-    offset: (percent: number) => ({ bottom: `${percent}%` }),
-    leap: (percent: number) => ({ height: `${percent}%`, width: 'inherit' }),
-  },
-};
+function getRangeStyles(orientation: useSliderRoot.Orientation, offset: number, leap: number) {
+  if (orientation === 'vertical') {
+    return {
+      bottom: `${offset}%`,
+      height: `${leap}%`,
+      width: 'inherit',
+    };
+  }
+
+  return {
+    insetInlineStart: `${offset}%`,
+    width: `${leap}%`,
+    height: 'inherit',
+  };
+}
 
 /**
- *
- * Demos:
- *
- * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
- *
- * API:
- *
- * - [useSliderIndicator API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-indicator)
  */
 export function useSliderIndicator(
   parameters: useSliderIndicator.Parameters,
 ): useSliderIndicator.ReturnValue {
-  const { axis, direction, orientation, percentageValues } = parameters;
-
-  const isRange = percentageValues.length > 1;
-
-  const isRtl = direction === 'rtl';
+  const { orientation, percentageValues } = parameters;
 
   let internalStyles;
 
-  if (isRange) {
+  if (percentageValues.length > 1) {
     const trackOffset = percentageValues[0];
     const trackLeap = percentageValues[percentageValues.length - 1] - trackOffset;
 
-    internalStyles = {
-      position: 'absolute',
-      ...axisProps[axis].offset(trackOffset),
-      ...axisProps[axis].leap(trackLeap),
-    };
+    internalStyles = getRangeStyles(orientation, trackOffset, trackLeap);
   } else if (orientation === 'vertical') {
     internalStyles = {
-      position: 'absolute',
       bottom: 0,
       height: `${percentageValues[0]}%`,
       width: 'inherit',
     };
   } else {
     internalStyles = {
-      position: 'absolute',
-      [isRtl ? 'right' : 'left']: 0,
+      insetInlineStart: 0,
       width: `${percentageValues[0]}%`,
       height: 'inherit',
     };
@@ -86,7 +69,7 @@ export namespace useSliderIndicator {
   export interface Parameters
     extends Pick<
       useSliderRoot.ReturnValue,
-      'axis' | 'direction' | 'disabled' | 'orientation' | 'percentageValues'
+      'direction' | 'disabled' | 'orientation' | 'percentageValues'
     > {}
 
   export interface ReturnValue {

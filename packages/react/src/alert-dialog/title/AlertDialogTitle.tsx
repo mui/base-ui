@@ -10,14 +10,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 const state = {};
 
 /**
+ * A heading that labels the dialog.
+ * Renders an `<h2>` element.
  *
- * Demos:
- *
- * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
- *
- * API:
- *
- * - [AlertDialogTitle API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogTitle)
+ * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
   props: AlertDialogTitle.Props,

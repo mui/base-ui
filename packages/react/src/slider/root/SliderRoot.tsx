@@ -12,14 +12,10 @@ import { SliderRootContext } from './SliderRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
 /**
+ * Groups all parts of the slider.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderRoot API](https://base-ui.com/components/react-slider/#api-reference-SliderRoot)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderRoot = React.forwardRef(function SliderRoot(
   props: SliderRoot.Props,
@@ -174,7 +170,7 @@ export namespace SliderRoot {
         | 'step'
         | 'value'
       >,
-      Omit<BaseUIComponentProps<'span', State>, 'defaultValue' | 'onChange' | 'values'> {
+      Omit<BaseUIComponentProps<'div', State>, 'defaultValue' | 'onChange' | 'values'> {
     /**
      * The default value of the slider. Use when the component is not controlled.
      */

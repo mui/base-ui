@@ -1,6 +1,6 @@
 {
   "name": "PreviewCardPopup",
-  "description": "",
+  "description": "A container for the preview card contents.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

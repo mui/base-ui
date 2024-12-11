@@ -17,14 +17,10 @@ import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStyleHookMapping } from './styleHooks';
 
 /**
+ * Groups an accordion header with the corresponding panel.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Accordion](https://base-ui.com/components/react-accordion/)
- *
- * API:
- *
- * - [AccordionItem API](https://base-ui.com/components/react-accordion/#api-reference-AccordionItem)
+ * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
 const AccordionItem = React.forwardRef(function AccordionItem(
   props: AccordionItem.Props,

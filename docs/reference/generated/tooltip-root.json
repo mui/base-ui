@@ -1,6 +1,6 @@
 {
   "name": "TooltipRoot",
-  "description": "The foundation for building custom-styled tooltips.",
+  "description": "Groups all parts of the tooltip.\nDoesn’t render its own HTML element.",
   "props": {
     "closeDelay": {
       "type": "number",

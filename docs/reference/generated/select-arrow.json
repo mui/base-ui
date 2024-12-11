@@ -1,6 +1,6 @@
 {
   "name": "SelectArrow",
-  "description": "",
+  "description": "Displays an element positioned against the select menu anchor.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

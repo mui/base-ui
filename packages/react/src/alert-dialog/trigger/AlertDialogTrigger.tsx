@@ -8,14 +8,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
+ * A button that opens the alert dialog.
+ * Renders a `<button>` element.
  *
- * Demos:
- *
- * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
- *
- * API:
- *
- * - [AlertDialogTrigger API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogTrigger)
+ * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   props: AlertDialogTrigger.Props,

@@ -1,6 +1,6 @@
 {
   "name": "TabsRoot",
-  "description": "",
+  "description": "Groups the tabs and the corresponding panels.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

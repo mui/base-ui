@@ -1,6 +1,6 @@
 {
   "name": "MenuBackdrop",
-  "description": "Renders a backdrop for the menu.",
+  "description": "An overlay displayed beneath the menu popup.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

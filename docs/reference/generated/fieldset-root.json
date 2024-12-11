@@ -1,6 +1,6 @@
 {
   "name": "FieldsetRoot",
-  "description": "The foundation for building custom-styled fieldsets.",
+  "description": "Groups the fieldset legend and the associated fields.\nRenders a `<fieldset>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

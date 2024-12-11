@@ -1,6 +1,6 @@
 {
   "name": "TooltipProvider",
-  "description": "Provides a shared delay for tooltips so that once a tooltip is shown, the rest of the tooltips in\nthe group will not wait for the delay before showing.",
+  "description": "Provides a shared delay for multiple tooltips. The grouping logic ensures that\nonce a tooltip becomes visible, the adjacent tooltips will be shown instantly.",
   "props": {
     "closeDelay": {
       "type": "number",

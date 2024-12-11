@@ -201,7 +201,7 @@ export function useSliderControl(
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps(externalProps, {
-        onPointerDown(event: React.PointerEvent<HTMLSpanElement>) {
+        onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
           if (disabled) {
             return;
           }

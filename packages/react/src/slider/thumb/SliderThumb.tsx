@@ -12,30 +12,27 @@ import { useSliderThumb } from './useSliderThumb';
 import { isReactVersionAtLeast } from '../../utils/reactVersion';
 
 function defaultRender(
-  props: React.ComponentPropsWithRef<'span'>,
+  props: React.ComponentPropsWithRef<'div'>,
   inputProps: React.ComponentPropsWithRef<'input'>,
 ) {
   const { children, ...thumbProps } = props;
   return (
-    <span {...thumbProps}>
+    <div {...thumbProps}>
       {children}
       <input {...inputProps} />
-    </span>
+    </div>
   );
 }
+
 /**
+ * The draggable part of the the slider at the tip of the indicator.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderThumb API](https://base-ui.com/components/react-slider/#api-reference-SliderThumb)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderThumb = React.forwardRef(function SliderThumb(
   props: SliderThumb.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     render: renderProp,
@@ -54,7 +51,6 @@ const SliderThumb = React.forwardRef(function SliderThumb(
   const {
     active: activeIndex,
     'aria-labelledby': ariaLabelledby,
-    axis,
     changeValue,
     direction,
     disabled: contextDisabled,
@@ -84,7 +80,6 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    axis,
     changeValue,
     direction,
     disabled: disabledProp || contextDisabled,
@@ -148,7 +143,7 @@ export namespace SliderThumb {
 
   export interface Props
     extends Partial<Omit<useSliderThumb.Parameters, 'rootRef'>>,
-      Omit<BaseUIComponentProps<'span', State>, 'render'> {
+      Omit<BaseUIComponentProps<'div', State>, 'render'> {
     onPointerLeave?: React.PointerEventHandler;
     onPointerOver?: React.PointerEventHandler;
     onBlur?: React.FocusEventHandler;
@@ -159,7 +154,7 @@ export namespace SliderThumb {
      */
     render?:
       | ((
-          props: React.ComponentPropsWithRef<'span'>,
+          props: React.ComponentPropsWithRef<'div'>,
           inputProps: React.ComponentPropsWithRef<'input'>,
           state: State,
         ) => React.ReactElement)

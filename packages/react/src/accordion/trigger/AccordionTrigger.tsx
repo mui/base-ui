@@ -11,14 +11,10 @@ import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 
 /**
+ * A button that opens and closes the corresponding panel.
+ * Renders a `<button>` element.
  *
- * Demos:
- *
- * - [Accordion](https://base-ui.com/components/react-accordion/)
- *
- * API:
- *
- * - [AccordionTrigger API](https://base-ui.com/components/react-accordion/#api-reference-AccordionTrigger)
+ * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
 
 const AccordionTrigger = React.forwardRef(function AccordionTrigger(

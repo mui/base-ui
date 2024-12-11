@@ -1,6 +1,6 @@
 {
   "name": "SelectPositioner",
-  "description": "",
+  "description": "Positions the select menu popup against the trigger.\nRenders a `<div>` element.",
   "props": {
     "align": {
       "type": "'start' | 'center' | 'end'",

@@ -1,6 +1,6 @@
 {
   "name": "PopoverRoot",
-  "description": "The foundation for building custom-styled popovers.",
+  "description": "Groups all parts of the popover.\nDoesn’t render its own HTML element.",
   "props": {
     "closeDelay": {
       "type": "number",

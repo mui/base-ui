@@ -8,15 +8,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * A button that opens the dialog. Renders a `<button>` element.
+ * A button that opens the dialog.
+ * Renders a `<button>` element.
  *
- * Demos:
- *
- * - [Dialog](https://base-ui.com/components/react-dialog/)
- *
- * API:
- *
- * - [DialogTrigger API](https://base-ui.com/components/react-dialog/#api-reference-DialogTrigger)
+ * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 const DialogTrigger = React.forwardRef(function DialogTrigger(
   props: DialogTrigger.Props,

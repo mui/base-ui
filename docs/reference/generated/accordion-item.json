@@ -1,6 +1,6 @@
 {
   "name": "AccordionItem",
-  "description": "",
+  "description": "Groups an accordion header with the corresponding panel.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

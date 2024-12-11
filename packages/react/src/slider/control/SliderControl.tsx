@@ -7,15 +7,12 @@ import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderControl } from './useSliderControl';
+
 /**
+ * The clickable, interactive part of the slider.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderControl API](https://base-ui.com/components/react-slider/#api-reference-SliderControl)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderControl = React.forwardRef(function SliderControl(
   props: SliderControl.Props,
@@ -61,7 +58,7 @@ const SliderControl = React.forwardRef(function SliderControl(
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
-    render: renderProp ?? 'span',
+    render: renderProp ?? 'div',
     state,
     className,
     extraProps: otherProps,
@@ -72,7 +69,7 @@ const SliderControl = React.forwardRef(function SliderControl(
 });
 
 export namespace SliderControl {
-  export interface Props extends BaseUIComponentProps<'span', SliderRoot.State> {}
+  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
 }
 
 export { SliderControl };

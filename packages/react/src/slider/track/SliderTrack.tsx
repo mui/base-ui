@@ -6,15 +6,12 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import type { SliderRoot } from '../root/SliderRoot';
 import { sliderStyleHookMapping } from '../root/styleHooks';
+
 /**
+ * Contains the slider indicator and represents the entire range of the slider.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderTrack API](https://base-ui.com/components/react-slider/#api-reference-SliderTrack)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderTrack = React.forwardRef(function SliderTrack(
   props: SliderTrack.Props,
@@ -25,11 +22,17 @@ const SliderTrack = React.forwardRef(function SliderTrack(
   const { state } = useSliderRootContext();
 
   const { renderElement } = useComponentRenderer({
-    render: render ?? 'span',
+    render: render ?? 'div',
     state,
     className,
     ref: forwardedRef,
-    extraProps: otherProps,
+    extraProps: {
+      ...otherProps,
+      style: {
+        position: 'relative',
+        ...otherProps.style,
+      },
+    },
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
@@ -37,7 +40,7 @@ const SliderTrack = React.forwardRef(function SliderTrack(
 });
 
 export namespace SliderTrack {
-  export interface Props extends BaseUIComponentProps<'span', SliderRoot.State> {}
+  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
 }
 
 export { SliderTrack };
@@ -59,4 +62,8 @@ SliderTrack.propTypes /* remove-proptypes */ = {
    * A function to customize rendering of the component.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * @ignore
+   */
+  style: PropTypes.object,
 } as any;
