@@ -111,8 +111,8 @@ namespace TabsList {
      */
     activateOnFocus?: boolean;
     /**
-     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
-     *
+     * Whether to loop keyboard focus back to the first item
+     * when the end of the list is reached while using the arrow keys.
      * @default true
      */
     loop?: boolean;
@@ -143,8 +143,8 @@ TabsList.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
-   *
+   * Whether to loop keyboard focus back to the first item
+   * when the end of the list is reached while using the arrow keys.
    * @default true
    */
   loop: PropTypes.bool,

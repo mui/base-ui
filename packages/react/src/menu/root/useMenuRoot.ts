@@ -207,7 +207,8 @@ export namespace useMenuRoot {
      */
     defaultOpen: boolean;
     /**
-     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+     * Whether to loop keyboard focus back to the first item
+     * when the end of the list is reached while using the arrow keys.
      */
     loop: boolean;
     /**

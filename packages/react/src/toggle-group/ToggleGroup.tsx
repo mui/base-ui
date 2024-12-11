@@ -118,6 +118,8 @@ export namespace ToggleGroup {
      */
     orientation?: ToggleGroupOrientation;
     /**
+     * Whether to loop keyboard focus back to the first item
+     * when the end of the list is reached while using the arrow keys.
      * @default true
      */
     loop?: boolean;
@@ -150,6 +152,8 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
+   * Whether to loop keyboard focus back to the first item
+   * when the end of the list is reached while using the arrow keys.
    * @default true
    */
   loop: PropTypes.bool,
