@@ -211,7 +211,8 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    */
   openMultiple: PropTypes.bool,
   /**
-   * The visual orientation of the accordion. Controls how arrow keys work.
+   * The visual orientation of the accordion.
+   * Controls whether the roving focus uses left/right or up/down arrow keys.
    * @default 'vertical'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
