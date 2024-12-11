@@ -6,15 +6,10 @@ import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityD
 import { FieldValidityData } from '../root/FieldRoot';
 
 /**
- * Render prop component that provides the field's validity state and value to its children.
+ * Used to display a custom message based on the field’s validity.
+ * Requires `children` to be a function that accepts field validity state as an argument.
  *
- * Demos:
- *
- * - [Field](https://base-ui.com/components/react-field/)
- *
- * API:
- *
- * - [FieldValidity API](https://base-ui.com/components/react-field/#api-reference-FieldValidity)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(props) {
   const { children } = props;

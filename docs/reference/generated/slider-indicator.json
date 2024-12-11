@@ -1,6 +1,6 @@
 {
   "name": "SliderIndicator",
-  "description": "",
+  "description": "Visualizes the current value of the slider.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

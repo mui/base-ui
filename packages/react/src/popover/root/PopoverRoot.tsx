@@ -6,15 +6,10 @@ import { usePopoverRoot } from './usePopoverRoot';
 import { OPEN_DELAY } from '../utils/constants';
 
 /**
- * The foundation for building custom-styled popovers.
+ * Groups all parts of the popover.
+ * Doesn’t render its own HTML element.
  *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverRoot API](https://base-ui.com/components/react-popover/#api-reference-PopoverRoot)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
   const { openOnHover = false, delay, closeDelay = 0 } = props;

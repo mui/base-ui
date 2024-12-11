@@ -1,0 +1,32 @@
+# Alert Dialog
+
+<Subtitle>A dialog that requires user response to proceed.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React alert dialog component that requires user response to proceed."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component and place its parts the following way:
+
+```jsx title="Anatomy"
+import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+
+<AlertDialog.Root>
+  <AlertDialog.Trigger />
+  <AlertDialog.Backdrop />
+  <AlertDialog.Popup>
+    <AlertDialog.Title />
+    <AlertDialog.Description />
+    <AlertDialog.Close />
+  </AlertDialog.Popup>
+</AlertDialog.Root>;
+```
+
+<Reference
+  component="AlertDialog"
+  parts="Root, Trigger, Backdrop, Popup, Title, Description, Close"
+/>

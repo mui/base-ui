@@ -9,6 +9,10 @@ import { useEventCallback } from '../../utils/useEventCallback';
 const EMPTY_OBJECT = {};
 const NOOP = () => {};
 
+/**
+ * Groups related radio items.
+ * Renders a `<div>` element.
+ */
 const MenuRadioGroup = React.forwardRef(function MenuRadioGroup(
   props: MenuRadioGroup.Props,
   forwardedRef: React.ForwardedRef<Element>,
@@ -127,13 +131,9 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
 const MemoizedMenuRadioGroup = React.memo(MenuRadioGroup);
 
 /**
+ * Groups related radio items.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuRadioGroup API](https://base-ui.com/components/react-menu/#api-reference-MenuRadioGroup)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export { MemoizedMenuRadioGroup as MenuRadioGroup };

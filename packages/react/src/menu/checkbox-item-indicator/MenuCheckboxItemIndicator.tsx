@@ -7,14 +7,10 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 
 /**
+ * Indicates whether the checkbox item is ticked.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuCheckboxItemIndicator API](https://base-ui.com/components/react-menu/#api-reference-MenuCheckboxItemIndicator)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndicatorComponent(
   props: MenuCheckboxItemIndicator.Props,

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useCheckboxGroupRootContext } from '../../checkbox-group/root/CheckboxGroupRootContext';
+import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
@@ -11,15 +11,10 @@ import { type UseCheckboxRoot, useCheckboxRoot } from './useCheckboxRoot';
 import { CheckboxRootContext } from './CheckboxRootContext';
 
 /**
- * The foundation for building custom-styled checkboxes.
+ * Represents the checkbox itself.
+ * Renders a `<button>` element and a hidden `<input>` beside.
  *
- * Demos:
- *
- * - [Checkbox](https://base-ui.com/components/react-checkbox/)
- *
- * API:
- *
- * - [CheckboxRoot API](https://base-ui.com/components/react-checkbox/#api-reference-CheckboxRoot)
+ * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
  */
 const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   props: CheckboxRoot.Props,
@@ -41,7 +36,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ...otherProps
   } = props;
 
-  const groupContext = useCheckboxGroupRootContext();
+  const groupContext = useCheckboxGroupContext();
   const parentContext = groupContext?.parent;
   const isGrouped = parentContext && groupContext.allValues;
 

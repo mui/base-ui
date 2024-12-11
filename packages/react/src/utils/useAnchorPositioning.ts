@@ -16,11 +16,13 @@ import {
   type VirtualElement,
   type Padding,
   type FloatingContext,
+  type Side as PhysicalSide,
 } from '@floating-ui/react';
 import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
+import { useDirection } from '../direction-provider/DirectionContext';
 
-export type Side = 'top' | 'bottom' | 'left' | 'right';
+export type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 export type Align = 'start' | 'center' | 'end';
 export type Boundary = 'clipping-ancestors' | Element | Element[] | Rect;
 
@@ -74,7 +76,7 @@ export function useAnchorPositioning(
     anchor,
     floatingRootContext,
     positionMethod = 'absolute',
-    side = 'top',
+    side: sideParam = 'top',
     sideOffset = 0,
     align = 'center',
     alignOffset = 0,
@@ -89,6 +91,20 @@ export function useAnchorPositioning(
     allowAxisFlip = true,
     nodeId,
   } = params;
+
+  const direction = useDirection();
+  const isRtl = direction === 'rtl';
+
+  const side = (
+    {
+      top: 'top',
+      right: 'right',
+      bottom: 'bottom',
+      left: 'left',
+      'inline-end': isRtl ? 'left' : 'right',
+      'inline-start': isRtl ? 'right' : 'left',
+    } satisfies Record<Side, PhysicalSide>
+  )[sideParam];
 
   const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
 
@@ -269,6 +285,17 @@ export function useAnchorPositioning(
   }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
 
   const renderedSide = getSide(renderedPlacement);
+  const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
+  const logicalRight = isRtl ? 'inline-start' : 'inline-end';
+  const logicalLeft = isRtl ? 'inline-end' : 'inline-start';
+  const logicalRenderedSide = (
+    {
+      top: 'top',
+      right: isLogicalSideParam ? logicalRight : 'right',
+      bottom: 'bottom',
+      left: isLogicalSideParam ? logicalLeft : 'left',
+    } satisfies Record<PhysicalSide, Side>
+  )[renderedSide];
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
@@ -289,7 +316,7 @@ export function useAnchorPositioning(
       arrowStyles,
       arrowRef,
       arrowUncentered,
-      renderedSide,
+      renderedSide: logicalRenderedSide,
       renderedAlign,
       anchorHidden,
       refs,
@@ -301,7 +328,7 @@ export function useAnchorPositioning(
       arrowStyles,
       arrowRef,
       arrowUncentered,
-      renderedSide,
+      logicalRenderedSide,
       renderedAlign,
       anchorHidden,
       refs,

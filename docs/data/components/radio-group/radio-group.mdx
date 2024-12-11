@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Radio Group component
 description: Radio Groups contain a set of checkable buttons where only one of the buttons can be checked at a time.
-components: RadioGroupRoot, RadioRoot, RadioIndicator
+components: RadioGroup, RadioRoot, RadioIndicator
 githubLabel: 'component: radio'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/radio/
 ---
@@ -25,16 +25,16 @@ waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/radio/
 
 Radio Group is composed of a `Root` and `Radio` components:
 
-- `<RadioGroup.Root />` is a top-level element that wraps the other components.
+- `<RadioGroup />` is a top-level element that wraps the other components.
 - `<Radio.Root />` renders an individual `<button>` radio item.
 - `<Radio.Indicator />` renders a `<span>` for providing a visual indicator. You can style this itself and/or place an icon inside.
 
 ```jsx
-<RadioGroup.Root>
+<RadioGroup>
   <Radio.Root>
     <Radio.Indicator />
   </Radio.Root>
-</RadioGroup.Root>
+</RadioGroup>
 ```
 
 ## Identifying items
@@ -42,14 +42,14 @@ Radio Group is composed of a `Root` and `Radio` components:
 The `value` prop is required on `Radio.Root` to identify it in the Radio Group:
 
 ```jsx
-<RadioGroup.Root>
+<RadioGroup>
   <Radio.Root value="a">
     <Radio.Indicator />
   </Radio.Root>
   <Radio.Root value="b">
     <Radio.Indicator />
   </Radio.Root>
-</RadioGroup.Root>
+</RadioGroup>
 ```
 
 ## Default value
@@ -57,10 +57,10 @@ The `value` prop is required on `Radio.Root` to identify it in the Radio Group:
 The `defaultValue` prop determines the initial value of the component when uncontrolled, linked to the `value` prop on an individual Radio item:
 
 ```jsx
-<RadioGroup.Root defaultValue="a">
+<RadioGroup defaultValue="a">
   <Radio.Root value="a" />
   <Radio.Root value="b" />
-</RadioGroup.Root>
+</RadioGroup>
 ```
 
 ## Controlled
@@ -71,10 +71,10 @@ The `value` and `onValueChange` props contain the `value` string of the currentl
 const [value, setValue] = React.useState('a');
 
 return (
-  <RadioGroup.Root value={value} onValueChange={setValue}>
+  <RadioGroup value={value} onValueChange={setValue}>
     <Radio.Root value="a" />
     <Radio.Root value="b" />
-  </RadioGroup.Root>
+  </RadioGroup>
 );
 ```
 
@@ -118,7 +118,7 @@ To change direction for right-to-left languages, place the component in [`Direct
 <html dir="rtl">
   <body>
     <DirectionProvider direction="rtl">
-      <RadioGroup.Root /> {/* RTL keyboard behavior */}
+      <RadioGroup /> {/* RTL keyboard behavior */}
     </DirectionProvider>
   </body>
 </html>

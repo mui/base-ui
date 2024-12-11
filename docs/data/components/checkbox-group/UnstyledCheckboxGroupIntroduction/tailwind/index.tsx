@@ -32,7 +32,7 @@ export default function UnstyledCheckboxIntroduction() {
   return (
     <div className={isDarkMode ? 'dark' : ''} style={{ display: 'flex', gap: 12 }}>
       <Field.Root>
-        <CheckboxGroup.Root defaultValue={['red']}>
+        <CheckboxGroup defaultValue={['red']}>
           <Field.Label className="mb-2 flex text-lg font-bold">Colors</Field.Label>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <Label>
@@ -60,7 +60,7 @@ export default function UnstyledCheckboxIntroduction() {
               Blue
             </Label>
           </div>
-        </CheckboxGroup.Root>
+        </CheckboxGroup>
       </Field.Root>
     </div>
   );

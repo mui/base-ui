@@ -1,0 +1,28 @@
+# Tabs
+
+<Subtitle>A component for toggling between related panels on the same page.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React scroll area that provides a native scroll container with custom scrollbars."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component and place its parts the following way:
+
+```jsx title="Anatomy"
+import { Tabs } from '@base-ui-components/react/tabs';
+
+<Tabs.Root>
+  <Tabs.List>
+    <Tabs.Tab />
+    <Tabs.Indicator />
+  </Tabs.List>
+  <Tabs.Panel />
+</Tabs.Root>;
+```
+
+<Reference component="Tabs" parts="Root, List, Tab, Indicator, Panel" />

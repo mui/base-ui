@@ -15,9 +15,10 @@
 /docs/.env.local
 /docs/.next
 /docs/export
-/docs/src/app/playground/*
-!/docs/src/app/playground/\[slug\]
+/docs/src/app/(private)/playground/*
+!/docs/src/app/(private)/playground/\[slug\]
 /docs/public/feed/
+/docs/reference/temp/*
 /test/regressions/screenshots
 # created by netlify dev (to perform local debug)
 .netlify

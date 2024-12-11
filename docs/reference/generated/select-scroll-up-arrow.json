@@ -1,6 +1,6 @@
 {
   "name": "SelectScrollUpArrow",
-  "description": "",
+  "description": "An element that scrolls the select menu down when hovered.\nRenders a `<div>` element.",
   "props": {
     "keepMounted": {
       "type": "boolean",

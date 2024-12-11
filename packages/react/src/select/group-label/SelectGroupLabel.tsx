@@ -11,14 +11,10 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 const state = {};
 
 /**
+ * An accessible label that is automatically associated with its parent group.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectGroupLabel API](https://base-ui.com/components/react-select/#api-reference-SelectGroupLabel)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   props: SelectGroupLabel.Props,
@@ -34,7 +30,7 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
     setLabelId(id);
   }, [id, setLabelId]);
 
-  const getSelectOptionGroupLabelProps = React.useCallback(
+  const getSelectItemGroupLabelProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         id,
@@ -43,7 +39,7 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getSelectOptionGroupLabelProps,
+    propGetter: getSelectItemGroupLabelProps,
     render: render ?? 'div',
     ref: forwardedRef,
     state,

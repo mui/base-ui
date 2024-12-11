@@ -1,6 +1,6 @@
 {
   "name": "PopoverTitle",
-  "description": "Renders a title element that labels the popover.",
+  "description": "A heading that labels the popover.\nRenders an `<h2>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

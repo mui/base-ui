@@ -3,10 +3,8 @@ import * as React from 'react';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ScrollArea } from '@base-ui-components/react/scroll-area';
+import { ScrollArea, SCROLL_TIMEOUT } from '@base-ui-components/react/scroll-area';
 import scrollIntoView from 'scroll-into-view-if-needed';
-// eslint-disable-next-line no-restricted-imports
-import { SCROLL_TIMEOUT } from '@base-ui-components/react/scroll-area/constants';
 import { HEADER_HEIGHT } from './Header';
 
 interface SideNavContextValue {

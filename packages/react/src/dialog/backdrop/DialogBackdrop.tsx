@@ -2,52 +2,38 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import { useDialogBackdrop } from './useDialogBackdrop';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { HTMLElementType } from '../../utils/proptypes';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
   ...baseMapping,
-  transitionStatus: (value) => {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' } as Record<string, string>;
-    }
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-    return null;
-  },
+  ...transitionStatusMapping,
 };
 
 /**
- * An overlay displayed beneath the popup. Renders a `<div>` element.
+ * An overlay displayed beneath the popup.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Dialog](https://base-ui.com/components/react-dialog/)
- *
- * API:
- *
- * - [DialogBackdrop API](https://base-ui.com/components/react-dialog/#api-reference-DialogBackdrop)
+ * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = false, ...other } = props;
-  const { open, hasParentDialog } = useDialogRootContext();
-
-  const { getRootProps, mounted, transitionStatus } = useDialogBackdrop({
-    open,
-    ref: forwardedRef,
-  });
+  const { render, className, keepMounted = false, container, ...other } = props;
+  const { open, hasParentDialog, mounted, transitionStatus } = useDialogRootContext();
 
   const state: DialogBackdrop.State = React.useMemo(
-    () => ({ open, transitionStatus }),
+    () => ({
+      open,
+      transitionStatus,
+    }),
     [open, transitionStatus],
   );
 
@@ -55,21 +41,18 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     render: render ?? 'div',
     className,
     state,
-    propGetter: getRootProps,
-    extraProps: other,
+    ref: forwardedRef,
+    extraProps: { role: 'presentation', hidden: !mounted, ...other },
     customStyleHookMapping,
   });
 
-  if (!mounted && !keepMounted) {
+  // no need to render nested backdrops
+  const shouldRender = (keepMounted || mounted) && !hasParentDialog;
+  if (!shouldRender) {
     return null;
   }
 
-  if (hasParentDialog) {
-    // no need to render nested backdrops
-    return null;
-  }
-
-  return <FloatingPortal>{renderElement()}</FloatingPortal>;
+  return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
 });
 
 namespace DialogBackdrop {
@@ -80,6 +63,11 @@ namespace DialogBackdrop {
      * @default false
      */
     keepMounted?: boolean;
+    /**
+     * The container element to which the backdrop is appended to.
+     * @default false
+     */
+    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 
   export interface State {
@@ -101,6 +89,14 @@ DialogBackdrop.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * The container element to which the backdrop is appended to.
+   * @default false
+   */
+  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    HTMLElementType,
+    PropTypes.func,
+  ]),
   /**
    * If `true`, the backdrop element is kept in the DOM when closed.
    *

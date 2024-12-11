@@ -1,0 +1,31 @@
+@layer components {
+  .HomepageRoot {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding-top: 3rem;
+    padding-bottom: calc(3rem + 5vh);
+    padding-inline: 3rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .HomepageContent {
+    width: 100%;
+    max-width: 25rem;
+    text-wrap: balance;
+  }
+
+  .HomepageHeading {
+    font-size: var(--text-xl);
+    font-weight: 500;
+    line-height: var(--text-xl--line-height);
+    letter-spacing: var(--text-xl--letter-spacing);
+    margin-bottom: 0.5rem;
+  }
+
+  .HomepageCaption {
+    color: var(--color-gray-600);
+    margin-bottom: 2rem;
+  }
+}

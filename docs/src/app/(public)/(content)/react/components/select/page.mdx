@@ -1,0 +1,46 @@
+# Select
+
+<Subtitle>A common form component for choosing a predefined value in a dropdown menu.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React select component that allows you for choosing a predefined value in a dropdown menu."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component and place its parts the following way:
+
+```jsx title="Anatomy"
+import { Select } from '@base-ui-components/react/select';
+
+<Select.Root>
+  <Select.Trigger>
+    <Select.Value />
+    <Select.Icon />
+  </Select.Trigger>
+
+  <Select.Backdrop />
+  <Select.Positioner>
+    <Select.ScrollUpArrow />
+    <Select.Popup>
+      <Select.Arrow />
+      <Select.Item>
+        <Select.ItemText />
+        <Select.ItemIndicator />
+      </Select.Item>
+      <Select.Separator />
+      <Select.Group>
+        <Select.GroupLabel />
+      </Select.Group>
+    </Select.Popup>
+    <Select.ScrollDownArrow />
+  </Select.Positioner>
+</Select.Root>;
+```
+
+<Reference
+  component="Select"
+  parts="Root, Trigger, Value, Icon, Backdrop, Positioner, Popup, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
+/>

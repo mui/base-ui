@@ -8,15 +8,10 @@ import { useForkRef } from '../../utils/useForkRef';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 
 /**
- * The scrub area element.
+ * An interactive area where the user can click and drag to change the field value.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Number Field](https://base-ui.com/components/react-number-field/)
- *
- * API:
- *
- * - [NumberFieldScrubArea API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldScrubArea)
+ * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
   props: NumberFieldScrubArea.Props,

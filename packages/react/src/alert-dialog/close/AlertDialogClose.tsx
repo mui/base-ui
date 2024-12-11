@@ -9,14 +9,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 const state = {};
 
 /**
+ * A button that closes the alert dialog.
+ * Renders a `<button>` element.
  *
- * Demos:
- *
- * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
- *
- * API:
- *
- * - [AlertDialogClose API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogClose)
+ * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogClose = React.forwardRef(function AlertDialogClose(
   props: AlertDialogClose.Props,

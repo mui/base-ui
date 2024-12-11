@@ -8,14 +8,10 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 
 /**
+ * Groups all parts of the select.
+ * Doesn’t render its own HTML element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectRoot API](https://base-ui.com/components/react-select/#api-reference-SelectRoot)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectRoot: SelectRoot = function SelectRoot<Value>(
   props: SelectRoot.Props<Value>,
@@ -27,7 +23,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     open,
     defaultOpen = false,
     onOpenChange,
-    alignOptionToTrigger = true,
+    alignItemToTrigger = true,
     name,
     disabled = false,
     readOnly = false,
@@ -41,7 +37,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     open,
     defaultOpen,
     onOpenChange,
-    alignOptionToTrigger,
+    alignItemToTrigger,
     name,
     disabled,
     readOnly,
@@ -116,10 +112,10 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * Determines if the selected option inside the popup should align to the trigger element.
+   * Determines if the selected item inside the popup should align to the trigger element.
    * @default true
    */
-  alignOptionToTrigger: PropTypes.bool,
+  alignItemToTrigger: PropTypes.bool,
   /**
    * @ignore
    */

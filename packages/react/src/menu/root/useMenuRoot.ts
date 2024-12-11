@@ -14,7 +14,7 @@ import {
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useControlled } from '../../utils/useControlled';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
@@ -261,6 +261,6 @@ export namespace useMenuRoot {
     setOpen: (open: boolean, event: Event | undefined) => void;
     setPositionerElement: (element: HTMLElement | null) => void;
     setTriggerElement: (element: HTMLElement | null) => void;
-    transitionStatus: 'entering' | 'exiting' | undefined;
+    transitionStatus: TransitionStatus;
   }
 }

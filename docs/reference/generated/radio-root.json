@@ -1,6 +1,6 @@
 {
   "name": "RadioRoot",
-  "description": "",
+  "description": "Represents the radio button itself.\nRenders a `<button>` element and a hidden `<input>` beside.",
   "props": {
     "value": {
       "type": "any",

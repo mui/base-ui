@@ -7,15 +7,10 @@ import { useFieldsetRootContext } from '../root/FieldsetRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * Renders an element that labels the fieldset.
+ * An accessible label that is automatically associated with the fieldset.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Fieldset](https://base-ui.com/components/react-fieldset/)
- *
- * API:
- *
- * - [FieldsetLegend API](https://base-ui.com/components/react-fieldset/#api-reference-FieldsetLegend)
+ * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
  */
 const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   props: FieldsetLegend.Props,

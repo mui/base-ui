@@ -7,15 +7,12 @@ import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderControl } from './useSliderControl';
+
 /**
+ * The clickable, interactive part of the slider.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderControl API](https://base-ui.com/components/react-slider/#api-reference-SliderControl)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderControl = React.forwardRef(function SliderControl(
   props: SliderControl.Props,

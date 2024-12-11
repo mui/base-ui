@@ -6,19 +6,14 @@ import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldError } from './useFieldError';
 import { STYLE_HOOK_MAPPING } from '../utils/constants';
-import { useFormRootContext } from '../../form/root/FormRootContext';
+import { useFormContext } from '../../form/FormContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * Displays error messages for the field's control.
+ * An error message displayed if the field control fails validation.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Field](https://base-ui.com/components/react-field/)
- *
- * API:
- *
- * - [FieldError API](https://base-ui.com/components/react-field/#api-reference-FieldError)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldError = React.forwardRef(function FieldError(
   props: FieldError.Props,
@@ -28,7 +23,7 @@ const FieldError = React.forwardRef(function FieldError(
 
   const { validityData, state, name } = useFieldRootContext(false);
 
-  const { errors } = useFormRootContext();
+  const { errors } = useFormContext();
 
   const formError = name ? errors[name] : null;
 

@@ -1,6 +1,6 @@
 {
   "name": "TooltipTrigger",
-  "description": "Renders a trigger element that opens the tooltip.",
+  "description": "An element to attach the tooltip to.\nRenders a `<button>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

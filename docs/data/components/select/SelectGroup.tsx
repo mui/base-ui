@@ -34,24 +34,24 @@ export default function SelectGroup() {
       <SelectPositioner sideOffset={5}>
         <SelectScrollUpArrow />
         <SelectPopup>
-          <SelectOption>
-            <SelectOptionIndicator render={<CheckIcon />} />
-            <Select.OptionText>Select food...</Select.OptionText>
-          </SelectOption>
+          <SelectItem>
+            <SelectItemIndicator render={<CheckIcon />} />
+            <Select.ItemText>Select food...</Select.ItemText>
+          </SelectItem>
           {entries.map(([group, items]) => (
             <React.Fragment key={group}>
               <SelectSeparator />
               <Select.Group key={group}>
                 <SelectGroupLabel>{group}</SelectGroupLabel>
                 {items.map((item) => (
-                  <SelectOption
+                  <SelectItem
                     key={item.value}
                     value={item.value}
                     disabled={item.value === 'banana'}
                   >
-                    <SelectOptionIndicator render={<CheckIcon />} />
-                    <Select.OptionText>{item.label}</Select.OptionText>
-                  </SelectOption>
+                    <SelectItemIndicator render={<CheckIcon />} />
+                    <Select.ItemText>{item.label}</Select.ItemText>
+                  </SelectItem>
                 ))}
               </Select.Group>
             </React.Fragment>
@@ -149,7 +149,7 @@ const SelectPopup = styled(Select.Popup)`
   --icon-margin: 4px;
 `;
 
-const SelectOption = styled(Select.Option)`
+const SelectItem = styled(Select.Item)`
   outline: 0;
   cursor: default;
   border-radius: 4px;
@@ -174,7 +174,7 @@ const SelectOption = styled(Select.Option)`
   }
 `;
 
-const SelectOptionIndicator = styled(Select.OptionIndicator)`
+const SelectItemIndicator = styled(Select.ItemIndicator)`
   margin-right: var(--icon-margin);
   visibility: hidden;
   width: var(--icon-size);
