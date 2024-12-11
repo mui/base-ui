@@ -170,7 +170,7 @@ function App(props) {
         families: ['Unica 77'],
         urls: ['../../docs/src/styles.css'],
       },
-      timeout: 30000,
+      timeout: 20000,
       active: () => {
         setFontState('active');
       },
