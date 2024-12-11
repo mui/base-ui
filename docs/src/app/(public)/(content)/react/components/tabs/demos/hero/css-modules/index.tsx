@@ -15,7 +15,7 @@ export default function ExampleScrollArea() {
         <Tabs.Tab className={styles.Tab} value="account">
           Account
         </Tabs.Tab>
-        <Tabs.Indicator className={styles.Indicator} />
+        <Tabs.Indicator className={styles.Indicator} renderBeforeHydration />
       </Tabs.List>
       <Tabs.Panel className={styles.Panel} value="overview">
         <OverviewIcon className={styles.Icon} />
