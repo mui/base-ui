@@ -167,10 +167,10 @@ function App(props) {
   React.useEffect(() => {
     webfontloader.load({
       custom: {
-        families: ['Unica 77', 'system-ui', 'sans-serif'],
+        families: ['Unica 77'],
         urls: ['../../docs/src/styles.css'],
       },
-      timeout: 20000,
+      timeout: 30000,
       active: () => {
         setFontState('active');
       },
