@@ -12,4 +12,12 @@ export enum AccordionPanelDataAttributes {
    * Present when the accordion item is disabled.
    */
   disabled = 'data-disabled',
+  /**
+   * Present when the panel is animating in.
+   */
+  startingStyle = 'data-starting-style',
+  /**
+   * Present when the panel is animating out.
+   */
+  endingStyle = 'data-ending-style',
 }

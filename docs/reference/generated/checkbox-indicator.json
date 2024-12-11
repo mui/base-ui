@@ -23,11 +23,17 @@
     "data-disabled": {
       "description": "Present when the checkbox is disabled."
     },
+    "data-ending-style": {
+      "description": "Present when the checkbox indicator is animating out."
+    },
     "data-readonly": {
       "description": "Present when the checkbox is readonly."
     },
     "data-required": {
       "description": "Present when the checkbox is required."
+    },
+    "data-starting-style": {
+      "description": "Present when the checkbox indicator is animating in."
     },
     "data-unchecked": {
       "description": "Present when the checkbox is not checked."
