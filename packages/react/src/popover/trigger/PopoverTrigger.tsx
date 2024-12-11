@@ -57,6 +57,9 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
 namespace PopoverTrigger {
   export interface State {
+    /**
+     * Whether the popover is currently open.
+     */
     open: boolean;
   }
 

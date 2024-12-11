@@ -178,7 +178,7 @@ export namespace useSelectPositioner {
      */
     mounted: boolean;
     /**
-     * If `true`, the Select is open.
+     * Whether the select menu is currently open.
      */
     open?: boolean;
     /**

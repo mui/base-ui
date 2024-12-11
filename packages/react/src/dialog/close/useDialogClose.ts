@@ -21,7 +21,7 @@ export function useDialogClose(params: useDialogClose.Parameters): useDialogClos
 export namespace useDialogClose {
   export interface Parameters {
     /**
-     * Determines whether the dialog is open.
+     * Whether the dialog is currently open.
      */
     open: boolean;
     /**

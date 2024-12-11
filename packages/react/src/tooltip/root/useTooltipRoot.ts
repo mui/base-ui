@@ -175,8 +175,7 @@ export namespace useTooltipRoot {
      */
     defaultOpen?: boolean;
     /**
-     * Whether the tooltip popup is open. Use when controlled.
-     * @default false
+     * Whether the tooltip is currently open.
      */
     open?: boolean;
     /**

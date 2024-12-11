@@ -56,6 +56,9 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
 
 namespace PopoverArrow {
   export interface State {
+    /**
+     * Whether the popover is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;

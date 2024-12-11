@@ -28,8 +28,7 @@
     },
     "open": {
       "type": "boolean",
-      "default": "false",
-      "description": "Whether the tooltip popup is open. Use when controlled."
+      "description": "Whether the tooltip is currently open."
     },
     "trackCursorAxis": {
       "type": "'none' | 'x' | 'y' | 'both'",

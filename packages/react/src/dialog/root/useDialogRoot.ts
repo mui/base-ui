@@ -154,7 +154,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
 
 export interface CommonParameters {
   /**
-   * Determines whether the dialog is open.
+   * Whether the dialog is currently open.
    */
   open?: boolean;
   /**
@@ -217,7 +217,7 @@ export namespace useDialogRoot {
      */
     onOpenChange: (open: boolean, event?: Event) => void;
     /**
-     * Determines if the dialog is open.
+     * Whether the dialog is currently open.
      */
     open: boolean;
     /**

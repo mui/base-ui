@@ -73,6 +73,9 @@ namespace SelectTrigger {
   }
 
   export interface State {
+    /**
+     * Whether the select menu is currently open.
+     */
     open: boolean;
   }
 }

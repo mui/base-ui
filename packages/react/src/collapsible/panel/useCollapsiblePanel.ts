@@ -322,7 +322,7 @@ export namespace useCollapsiblePanel {
     keepMounted: boolean;
     mounted: boolean;
     /**
-     * The open state of the Collapsible.
+     * Whether the collapsible panel is currently open.
      */
     open: boolean;
     ref: React.Ref<HTMLElement>;

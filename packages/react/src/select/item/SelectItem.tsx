@@ -283,6 +283,9 @@ namespace SelectItem {
     disabled: boolean;
     highlighted: boolean;
     selected: boolean;
+    /**
+     * Whether the select menu is currently open.
+     */
     open: boolean;
   }
 

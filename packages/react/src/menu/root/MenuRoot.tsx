@@ -114,8 +114,7 @@ namespace MenuRoot {
      */
     onOpenChange?: (open: boolean, event?: Event) => void;
     /**
-     * Allows to control whether the dropdown is open.
-     * This is a controlled counterpart of `defaultOpen`.
+     * Whether the menu is currently open.
      */
     open?: boolean;
     /**
@@ -198,8 +197,7 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   onOpenChange: PropTypes.func,
   /**
-   * Allows to control whether the dropdown is open.
-   * This is a controlled counterpart of `defaultOpen`.
+   * Whether the menu is currently open.
    */
   open: PropTypes.bool,
   /**

@@ -130,6 +130,9 @@ namespace DialogPopup {
   }
 
   export interface State {
+    /**
+     * Whether the dialog is currently open.
+     */
     open: boolean;
     nestedOpenDialogCount: number;
     transitionStatus: TransitionStatus;

@@ -55,6 +55,9 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
 
 namespace PreviewCardBackdrop {
   export interface State {
+    /**
+     * Whether the preview card is currently open.
+     */
     open: boolean;
     transitionStatus: TransitionStatus;
   }

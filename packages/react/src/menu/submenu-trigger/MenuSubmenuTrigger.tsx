@@ -94,6 +94,9 @@ namespace MenuSubmenuTrigger {
   export interface State {
     disabled: boolean;
     highlighted: boolean;
+    /**
+     * Whether the menu is currently open.
+     */
     open: boolean;
   }
 }

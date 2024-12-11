@@ -193,7 +193,7 @@ export namespace useSelectItem {
      */
     ref?: React.Ref<Element>;
     /**
-     * The open state of the select.
+     * Whether the select menu is currently open.
      */
     open: boolean;
     /**

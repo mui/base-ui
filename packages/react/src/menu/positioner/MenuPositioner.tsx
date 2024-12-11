@@ -142,6 +142,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
 export namespace MenuPositioner {
   export interface State {
+    /**
+     * Whether the menu is currently open.
+     */
     open: boolean;
     side: Side;
     align: 'start' | 'end' | 'center';

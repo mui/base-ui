@@ -23,7 +23,7 @@
     },
     "open": {
       "type": "boolean",
-      "description": "Determines whether the dialog is open."
+      "description": "Whether the dialog is currently open."
     }
   }
 }

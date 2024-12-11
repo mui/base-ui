@@ -201,8 +201,7 @@ export namespace usePopoverRoot {
      */
     defaultOpen?: boolean;
     /**
-     * Whether the popover popup is open. Use when controlled.
-     * @default false
+     * Whether the popover is currently open.
      */
     open?: boolean;
     /**

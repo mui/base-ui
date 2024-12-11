@@ -44,8 +44,8 @@ export function useCollapsibleRoot(
 export namespace useCollapsibleRoot {
   export interface Parameters {
     /**
-     * If `true`, the Collapsible is initially open.
-     * This is the controlled counterpart of `defaultOpen`.
+     * Whether the collapsible panel is currently open.
+     * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
      */
     open?: boolean;
     /**
@@ -73,7 +73,8 @@ export namespace useCollapsibleRoot {
     disabled: boolean;
     mounted: boolean;
     /**
-     * The open state of the Collapsible
+     * Whether the collapsible panel is currently open.
+     * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
      */
     open: boolean;
     setPanelId: (id: string | undefined) => void;

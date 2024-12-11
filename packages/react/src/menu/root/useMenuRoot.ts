@@ -194,8 +194,7 @@ export type MenuOrientation = 'horizontal' | 'vertical';
 export namespace useMenuRoot {
   export interface Parameters {
     /**
-     * Allows to control whether the Menu is open.
-     * This is a controlled counterpart of `defaultOpen`.
+     * Whether the menu is currently open.
      */
     open: boolean | undefined;
     /**

@@ -132,8 +132,7 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   onOpenChange: PropTypes.func,
   /**
-   * Whether the tooltip popup is open. Use when controlled.
-   * @default false
+   * Whether the tooltip is currently open.
    */
   open: PropTypes.bool,
   /**

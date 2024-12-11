@@ -76,7 +76,7 @@ export function useMenuPositioner(
 export namespace useMenuPositioner {
   export interface SharedParameters {
     /**
-     * If `true`, the Menu is open.
+     * Whether the menu is currently open.
      */
     open?: boolean;
     /**

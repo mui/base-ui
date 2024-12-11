@@ -70,6 +70,9 @@ namespace MenuTrigger {
   }
 
   export type State = {
+    /**
+     * Whether the menu is currently open.
+     */
     open: boolean;
   };
 }

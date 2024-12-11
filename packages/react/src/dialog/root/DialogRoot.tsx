@@ -83,7 +83,7 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   onOpenChange: PropTypes.func,
   /**
-   * Determines whether the dialog is open.
+   * Whether the dialog is currently open.
    */
   open: PropTypes.bool,
 } as any;

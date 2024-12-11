@@ -324,8 +324,7 @@ export namespace useSelectRoot {
      */
     onOpenChange?: (open: boolean, event: Event | undefined) => void;
     /**
-     * Allows to control whether the dropdown is open.
-     * This is a controlled counterpart of `defaultOpen`.
+     * Whether the select menu is currently open.
      */
     open?: boolean;
     /**

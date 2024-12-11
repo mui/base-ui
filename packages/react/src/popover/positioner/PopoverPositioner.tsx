@@ -96,6 +96,9 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
 namespace PopoverPositioner {
   export interface State {
+    /**
+     * Whether the popover is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;

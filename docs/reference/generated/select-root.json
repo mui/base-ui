@@ -36,7 +36,7 @@
     },
     "open": {
       "type": "boolean",
-      "description": "Allows to control whether the dropdown is open.\nThis is a controlled counterpart of `defaultOpen`."
+      "description": "Whether the select menu is currently open."
     },
     "readOnly": {
       "type": "boolean",

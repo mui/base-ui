@@ -105,6 +105,9 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 
 namespace TooltipPositioner {
   export interface State {
+    /**
+     * Whether the tooltip is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;

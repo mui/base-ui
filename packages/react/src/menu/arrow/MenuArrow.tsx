@@ -56,6 +56,9 @@ const MenuArrow = React.forwardRef(function MenuArrow(
 
 namespace MenuArrow {
   export interface State {
+    /**
+     * Whether the menu is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;

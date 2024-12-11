@@ -103,7 +103,7 @@ export namespace useMenuTrigger {
      */
     setTriggerElement: (element: HTMLElement | null) => void;
     /**
-     * If `true`, the Menu is open.
+     * Whether the menu is currently open.
      */
     open: boolean;
     /**

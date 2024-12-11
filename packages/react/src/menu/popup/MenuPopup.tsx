@@ -82,6 +82,9 @@ namespace MenuPopup {
     transitionStatus: TransitionStatus;
     side: Side;
     align: 'start' | 'end' | 'center';
+    /**
+     * Whether the menu is currently open.
+     */
     open: boolean;
   };
 }

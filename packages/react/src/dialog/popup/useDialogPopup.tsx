@@ -105,7 +105,7 @@ export namespace useDialogPopup {
      */
     modal: boolean;
     /**
-     * Determines if the dialog is open.
+     * Whether the dialog is currently open.
      */
     open: boolean;
     openMethod: InteractionType | null;

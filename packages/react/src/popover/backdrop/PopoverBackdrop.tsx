@@ -55,6 +55,9 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 
 namespace PopoverBackdrop {
   export interface State {
+    /**
+     * Whether the popover is currently open.
+     */
     open: boolean;
     transitionStatus: TransitionStatus;
   }

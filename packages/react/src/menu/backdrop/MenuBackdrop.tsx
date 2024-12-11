@@ -54,6 +54,9 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
 
 namespace MenuBackdrop {
   export interface State {
+    /**
+     * Whether the menu is currently open.
+     */
     open: boolean;
     transitionStatus: TransitionStatus;
   }

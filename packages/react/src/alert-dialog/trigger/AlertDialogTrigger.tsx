@@ -41,6 +41,9 @@ namespace AlertDialogTrigger {
   export interface Props extends BaseUIComponentProps<'button', State> {}
 
   export interface State {
+    /**
+     * Whether the dialog is currently open.
+     */
     open: boolean;
   }
 }

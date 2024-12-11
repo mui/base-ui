@@ -110,6 +110,9 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
 
 namespace PreviewCardPositioner {
   export interface State {
+    /**
+     * Whether the preview card is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;

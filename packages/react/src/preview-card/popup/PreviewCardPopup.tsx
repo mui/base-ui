@@ -70,6 +70,9 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
 
 namespace PreviewCardPopup {
   export interface State {
+    /**
+     * Whether the preview card is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;

@@ -22,7 +22,7 @@
     },
     "open": {
       "type": "boolean",
-      "description": "If `true`, the Collapsible is initially open.\nThis is the controlled counterpart of `defaultOpen`."
+      "description": "Whether the collapsible panel is currently open.\nTo render an uncontrolled collapsible, use the `defaultOpen` prop instead."
     }
   }
 }

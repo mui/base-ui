@@ -69,6 +69,9 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
 
 namespace TooltipPopup {
   export interface State {
+    /**
+     * Whether the tooltip is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;

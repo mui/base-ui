@@ -40,6 +40,9 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
 
 namespace TooltipTrigger {
   export interface State {
+    /**
+     * Whether the tooltip is currently open.
+     */
     open: boolean;
   }
 

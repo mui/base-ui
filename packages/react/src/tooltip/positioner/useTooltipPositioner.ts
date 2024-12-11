@@ -81,8 +81,7 @@ export namespace useTooltipPositioner {
       | React.MutableRefObject<Element | null>
       | (() => Element | VirtualElement | null);
     /**
-     * Whether the tooltip is open.
-     * @default false
+     * Whether the tooltip is currently open.
      */
     open?: boolean;
     /**
@@ -161,8 +160,7 @@ export namespace useTooltipPositioner {
      */
     mounted: boolean;
     /**
-     * Whether the tooltip is open.
-     * @default false
+     * Whether the tooltip is currently open.
      */
     open?: boolean;
     /**

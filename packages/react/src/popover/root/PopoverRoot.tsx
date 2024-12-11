@@ -143,8 +143,7 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   onOpenChange: PropTypes.func,
   /**
-   * Whether the popover popup is open. Use when controlled.
-   * @default false
+   * Whether the popover is currently open.
    */
   open: PropTypes.bool,
   /**

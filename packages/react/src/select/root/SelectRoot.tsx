@@ -152,8 +152,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * Allows to control whether the dropdown is open.
-   * This is a controlled counterpart of `defaultOpen`.
+   * Whether the select menu is currently open.
    */
   open: PropTypes.bool,
   /**

@@ -97,6 +97,9 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
 
 namespace PopoverPopup {
   export interface State {
+    /**
+     * Whether the popover is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;

@@ -148,8 +148,7 @@ export namespace usePopoverPositioner {
      */
     mounted: boolean;
     /**
-     * Whether the popover is open.
-     * @default false
+     * Whether the popover is currently open.
      */
     open?: boolean;
     /**

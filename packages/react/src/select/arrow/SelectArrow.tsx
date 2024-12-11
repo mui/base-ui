@@ -64,6 +64,9 @@ const SelectArrow = React.forwardRef(function SelectArrow(
 
 namespace SelectArrow {
   export interface State {
+    /**
+     * Whether the select menu is currently open.
+     */
     open: boolean;
     side: Side | 'none';
     align: Align;

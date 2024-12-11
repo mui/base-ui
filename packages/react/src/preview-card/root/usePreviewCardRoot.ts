@@ -152,8 +152,7 @@ export namespace usePreviewCardRoot {
      */
     defaultOpen?: boolean;
     /**
-     * Whether the preview card popup is open. Use when controlled.
-     * @default false
+     * Whether the preview card is currently open.
      */
     open?: boolean;
     /**

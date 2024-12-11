@@ -56,6 +56,9 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
 
 namespace PreviewCardArrow {
   export interface State {
+    /**
+     * Whether the preview card is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;

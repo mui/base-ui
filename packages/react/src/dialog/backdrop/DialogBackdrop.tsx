@@ -63,6 +63,9 @@ namespace DialogBackdrop {
   }
 
   export interface State {
+    /**
+     * Whether the dialog is currently open.
+     */
     open: boolean;
     transitionStatus: TransitionStatus;
   }

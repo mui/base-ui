@@ -55,6 +55,9 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
 
 namespace TooltipArrow {
   export interface State {
+    /**
+     * Whether the tooltip is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;

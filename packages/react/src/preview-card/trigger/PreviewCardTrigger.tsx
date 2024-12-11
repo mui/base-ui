@@ -40,6 +40,9 @@ const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
 
 namespace PreviewCardTrigger {
   export interface State {
+    /**
+     * Whether the preview card is currently open.
+     */
     open: boolean;
   }
 
