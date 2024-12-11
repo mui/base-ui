@@ -40,10 +40,9 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
-      hidden: !collapsible.mounted,
       transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.open, collapsible.disabled, collapsible.mounted, collapsible.transitionStatus],
+    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
   );
 
   const contextValue: CollapsibleRootContext = React.useMemo(
@@ -82,9 +81,7 @@ export { CollapsibleRoot };
 
 export namespace CollapsibleRoot {
   export interface State
-    extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {
-    hidden: boolean;
-  }
+    extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
 
   export interface Props
     extends Partial<useCollapsibleRoot.Parameters>,
