@@ -196,8 +196,9 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   readOnly: PropTypes.bool,
   /**
-   * Allows you to replace the default HTML element that the component
-   * renders with another element, or compose it with another component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),

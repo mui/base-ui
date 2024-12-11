@@ -150,8 +150,9 @@ export namespace SliderThumb {
     onFocus?: React.FocusEventHandler;
     onKeyDown?: React.KeyboardEventHandler;
     /**
-     * Allows you to replace the default HTML element that the component
-     * renders with another element, or compose it with another component.
+     * Allows you to replace the component’s HTML element
+     * with a different tag, or compose it with another component.
+     *
      * Accepts a `ReactElement` or a function that returns the element to render.
      */
     render?:
@@ -231,8 +232,9 @@ SliderThumb.propTypes /* remove-proptypes */ = {
    */
   onPointerOver: PropTypes.func,
   /**
-   * Allows you to replace the default HTML element that the component
-   * renders with another element, or compose it with another component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
