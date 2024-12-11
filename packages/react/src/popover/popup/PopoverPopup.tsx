@@ -108,16 +108,15 @@ namespace PopoverPopup {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * Determines an element to focus when the popover is opened.
-     * It can be either a ref to the element or a function that returns such a ref.
-     * If not provided, the first focusable element is focused.
+     * Determines the element to focus when the popover is opened.
+     * By default, the first focusable element is focused.
      */
     initialFocus?:
       | React.RefObject<HTMLElement | null>
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
     /**
-     * Determines an element to focus after the popover is closed.
-     * If not provided, the focus returns to the trigger.
+     * Determines the element to focus when the popover is closed.
+     * By default, focus returns to trigger.
      */
     finalFocus?: React.RefObject<HTMLElement | null>;
   }
@@ -138,14 +137,13 @@ PopoverPopup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Determines an element to focus after the popover is closed.
-   * If not provided, the focus returns to the trigger.
+   * Determines the element to focus when the popover is closed.
+   * By default, focus returns to trigger.
    */
   finalFocus: refType,
   /**
-   * Determines an element to focus when the popover is opened.
-   * It can be either a ref to the element or a function that returns such a ref.
-   * If not provided, the first focusable element is focused.
+   * Determines the element to focus when the popover is opened.
+   * By default, the first focusable element is focused.
    */
   initialFocus: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     PropTypes.func,

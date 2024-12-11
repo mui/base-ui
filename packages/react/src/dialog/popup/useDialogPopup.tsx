@@ -126,9 +126,8 @@ export namespace useDialogPopup {
      */
     setPopupElementId: (id: string | undefined) => void;
     /**
-     * Determines an element to focus when the dialog is opened.
-     * It can be either a ref to the element or a function that returns such a ref.
-     * If not provided, the first focusable element is focused.
+     * Determines the element to focus when the dialog is opened.
+     * By default, the first focusable element is focused.
      */
     initialFocus?:
       | React.RefObject<HTMLElement | null>

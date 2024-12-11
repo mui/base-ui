@@ -115,16 +115,15 @@ namespace DialogPopup {
      */
     keepMounted?: boolean;
     /**
-     * Determines an element to focus when the dialog is opened.
-     * It can be either a ref to the element or a function that returns such a ref.
-     * If not provided, the first focusable element is focused.
+     * Determines the element to focus when the dialog is opened.
+     * By default, the first focusable element is focused.
      */
     initialFocus?:
       | React.RefObject<HTMLElement | null>
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
     /**
-     * Determines an element to focus after the dialog is closed.
-     * If not provided, the focus returns to the trigger.
+     * Determines the element to focus when the dialog is closed.
+     * By default, focus returns to trigger.
      */
     finalFocus?: React.RefObject<HTMLElement | null>;
   }
@@ -154,8 +153,8 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Determines an element to focus after the dialog is closed.
-   * If not provided, the focus returns to the trigger.
+   * Determines the element to focus when the dialog is closed.
+   * By default, focus returns to trigger.
    */
   finalFocus: refType,
   /**
@@ -163,9 +162,8 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * Determines an element to focus when the dialog is opened.
-   * It can be either a ref to the element or a function that returns such a ref.
-   * If not provided, the first focusable element is focused.
+   * Determines the element to focus when the dialog is opened.
+   * By default, the first focusable element is focused.
    */
   initialFocus: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     PropTypes.func,
