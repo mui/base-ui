@@ -65,6 +65,17 @@
       "description": "If `true`, allow the Menu to remain in stuck view while the anchor element is scrolled out\nof view."
     }
   },
+  "dataAttributes": {
+    "data-anchor-hidden": {
+      "description": "Present when the anchor is hidden."
+    },
+    "data-open": {
+      "description": "Present when the menu popup is open."
+    },
+    "data-unchecked": {
+      "description": "Present when the menu popup is closed."
+    }
+  },
   "cssVariables": {
     "--anchor-height": {
       "description": "The anchor's height.",

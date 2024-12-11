@@ -1,4 +1,4 @@
-import { FieldControlDataAttributes } from "../control/FieldControlDataAttributes";
+import { FieldControlDataAttributes } from '../control/FieldControlDataAttributes';
 
 export const DEFAULT_VALIDITY_STATE = {
   badInput: false,

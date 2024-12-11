@@ -19,5 +19,13 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
     }
+  },
+  "dataAttributes": {
+    "data-popup-open": {
+      "description": "Present when the corresponding menu is open."
+    },
+    "data-pressed": {
+      "description": "Present when the trigger is pressed."
+    }
   }
 }

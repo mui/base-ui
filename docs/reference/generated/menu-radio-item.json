@@ -29,5 +29,13 @@
       "type": "(event) => void",
       "description": "The click handler for the menu item."
     }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the menu radio item is selected."
+    },
+    "data-unchecked": {
+      "description": "Present when the menu radio item is not selected."
+    }
   }
 }
