@@ -8,7 +8,7 @@ describe('<Menu.Popup />', () => {
   describeConformance(<Menu.Popup />, () => ({
     render: (node) => {
       return render(
-        <Menu.Root>
+        <Menu.Root open>
           <Menu.Positioner>{node}</Menu.Positioner>
         </Menu.Root>,
       );
