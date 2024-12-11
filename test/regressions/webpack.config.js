@@ -58,6 +58,8 @@ module.exports = {
               modules: {
                 auto: true,
                 namedExport: false,
+                exportLocalsConvention: 'as-is',
+                localIdentName: '[local]_[hash:base64:5]',
               },
             },
           },
