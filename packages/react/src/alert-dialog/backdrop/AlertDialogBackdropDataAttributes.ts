@@ -1,4 +1,4 @@
-export enum DialogPopupDataAttributes {
+export enum AlertDialogBackdropDataAttributes {
   /**
    * Present when the dialog is open.
    */
@@ -15,9 +15,4 @@ export enum DialogPopupDataAttributes {
    * Present when the dialog is animating out.
    */
   endingStyle = 'data-ending-style',
-  /**
-   * Indicates how many dialogs are nested within.
-   * @type {number}
-   */
-  nestedDialogs = 'data-nested-dialogs',
 }

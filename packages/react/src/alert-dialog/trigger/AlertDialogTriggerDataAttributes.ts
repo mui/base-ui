@@ -1,4 +1,4 @@
-export enum DialogTriggerDataAttributes {
+export enum AlertDialogTriggerDataAttributes {
   /**
    * Present when the corresponding dialog is open.
    */

@@ -31,9 +31,6 @@
     "data-ending-style": {
       "description": "Present when the dialog is animating out."
     },
-    "data-modal": {
-      "description": "Present when the dialog is modal."
-    },
     "data-nested-dialogs": {
       "description": "Indicates how many dialogs are nested within.",
       "type": "number"
