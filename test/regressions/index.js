@@ -166,12 +166,9 @@ function App(props) {
   const [fontState, setFontState] = React.useState('pending');
   React.useEffect(() => {
     webfontloader.load({
-      google: {
-        families: ['Roboto:300,400,500,700', 'Inter:300,400,500,600,700,800,900', 'Material+Icons'],
-      },
       custom: {
-        families: ['Font Awesome 5 Free:n9'],
-        urls: ['https://use.fontawesome.com/releases/v5.1.0/css/all.css'],
+        families: ['Unica 77', 'system-ui', 'sans-serif'],
+        urls: ['../../docs/src/styles.css'],
       },
       timeout: 20000,
       active: () => {
