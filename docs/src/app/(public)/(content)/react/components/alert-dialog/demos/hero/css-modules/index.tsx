@@ -8,8 +8,8 @@ export default function ExampleAlertDialog() {
       <AlertDialog.Trigger data-color="red" className={styles.Button}>
         Discard draft
       </AlertDialog.Trigger>
-      <AlertDialog.Backdrop className={styles.Backdrop} />
       <AlertDialog.Portal>
+        <AlertDialog.Backdrop className={styles.Backdrop} />
         <AlertDialog.Popup className={styles.Popup}>
           <AlertDialog.Title className={styles.Title}>
             Discard draft?

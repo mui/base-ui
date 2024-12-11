@@ -6,8 +6,8 @@ export default function ExampleDialog() {
   return (
     <Dialog.Root>
       <Dialog.Trigger className={styles.Button}>View notifications</Dialog.Trigger>
-      <Dialog.Backdrop className={styles.Backdrop} />
       <Dialog.Portal>
+        <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Popup className={styles.Popup}>
           <Dialog.Title className={styles.Title}>Notifications</Dialog.Title>
           <Dialog.Description className={styles.Description}>
