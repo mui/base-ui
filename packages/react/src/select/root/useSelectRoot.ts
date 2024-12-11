@@ -320,7 +320,7 @@ export namespace useSelectRoot {
      */
     defaultOpen?: boolean;
     /**
-     * Callback fired when the component requests to be opened or closed.
+     * Event handler called when the select menu is opened or closed.
      */
     onOpenChange?: (open: boolean, event: Event | undefined) => void;
     /**

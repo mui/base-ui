@@ -24,7 +24,7 @@
     },
     "onOpenChange": {
       "type": "(open, event, reason) => void",
-      "description": "Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled."
+      "description": "Event handler called when the tooltip is opened or closed."
     },
     "open": {
       "type": "boolean",

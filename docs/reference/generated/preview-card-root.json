@@ -19,7 +19,7 @@
     },
     "onOpenChange": {
       "type": "(open, event, reason) => void",
-      "description": "Callback fired when the preview card popup is requested to be opened or closed. Use when\ncontrolled."
+      "description": "Event handler called when the preview card is opened or closed."
     },
     "open": {
       "type": "boolean",

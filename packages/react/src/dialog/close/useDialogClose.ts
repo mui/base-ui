@@ -25,7 +25,7 @@ export namespace useDialogClose {
      */
     open: boolean;
     /**
-     * Callback invoked when the dialog is being opened or closed.
+     * Event handler called when the dialog is opened or closed.
      */
     onOpenChange: (open: boolean) => void;
   }

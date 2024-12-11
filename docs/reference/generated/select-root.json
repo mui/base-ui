@@ -28,7 +28,7 @@
     },
     "onOpenChange": {
       "type": "function",
-      "description": "Callback fired when the component requests to be opened or closed."
+      "description": "Event handler called when the select menu is opened or closed."
     },
     "onValueChange": {
       "type": "function",

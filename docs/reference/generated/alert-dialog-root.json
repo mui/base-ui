@@ -9,7 +9,7 @@
     },
     "onOpenChange": {
       "type": "(open, event) => void",
-      "description": "Callback invoked when the dialog is being opened or closed."
+      "description": "Event handler called when the dialog is opened or closed."
     },
     "open": {
       "type": "boolean",

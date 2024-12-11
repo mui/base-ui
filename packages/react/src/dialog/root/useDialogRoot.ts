@@ -169,7 +169,7 @@ export interface CommonParameters {
    */
   modal?: boolean;
   /**
-   * Callback invoked when the dialog is being opened or closed.
+   * Event handler called when the dialog is opened or closed.
    */
   onOpenChange?: (open: boolean, event?: Event) => void;
   /**
@@ -213,7 +213,7 @@ export namespace useDialogRoot {
      */
     onNestedDialogOpen?: (ownChildrenCount: number) => void;
     /**
-     * Callback to fire when the dialog is requested to be opened or closed.
+     * Event handler called when the dialog is opened or closed.
      */
     onOpenChange: (open: boolean, event?: Event) => void;
     /**

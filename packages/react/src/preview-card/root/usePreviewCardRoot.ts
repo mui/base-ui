@@ -156,8 +156,7 @@ export namespace usePreviewCardRoot {
      */
     open?: boolean;
     /**
-     * Callback fired when the preview card popup is requested to be opened or closed. Use when
-     * controlled.
+     * Event handler called when the preview card is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**

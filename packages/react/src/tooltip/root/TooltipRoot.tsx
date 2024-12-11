@@ -128,7 +128,7 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   hoverable: PropTypes.bool,
   /**
-   * Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled.
+   * Event handler called when the tooltip is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**

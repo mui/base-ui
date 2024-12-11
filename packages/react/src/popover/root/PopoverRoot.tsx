@@ -138,8 +138,7 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
-   * Callback fired when the popover popup is requested to be opened or closed. Use when
-   * controlled.
+   * Event handler called when the popover is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**

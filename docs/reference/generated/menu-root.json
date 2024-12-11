@@ -29,7 +29,7 @@
     },
     "onOpenChange": {
       "type": "(open, event) => void",
-      "description": "Callback fired when the component requests to be opened or closed."
+      "description": "Event handler called when the menu is opened or closed."
     },
     "open": {
       "type": "boolean",

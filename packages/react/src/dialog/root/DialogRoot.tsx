@@ -79,7 +79,7 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   modal: PropTypes.bool,
   /**
-   * Callback invoked when the dialog is being opened or closed.
+   * Event handler called when the dialog is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
