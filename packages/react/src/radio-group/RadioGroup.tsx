@@ -94,29 +94,35 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 
 namespace RadioGroup {
   export interface State {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean | undefined;
+    /**
+     * Whether the user should be unable to select a different radio button in the group.
+     */
     readOnly: boolean | undefined;
   }
 
   export interface Props
     extends Omit<BaseUIComponentProps<'div', State>, 'value' | 'defaultValue'> {
     /**
-     * Determines if the radio group is disabled.
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;
     /**
-     * Determines if the radio group is readonly.
+     * Whether the user should be unable to select a different radio button in the group.
      * @default false
      */
     readOnly?: boolean;
     /**
-     * Determines if the radio group is required.
+     * Whether the user must choose a value before submitting a form.
      * @default false
      */
     required?: boolean;
     /**
-     * The name of the radio group submitted with the form data.
+     * Identifies the field when a form is submitted.
      */
     name?: string;
     /**
@@ -144,7 +150,8 @@ RadioGroup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -152,12 +159,12 @@ RadioGroup.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.any,
   /**
-   * Determines if the radio group is disabled.
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * The name of the radio group submitted with the form data.
+   * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
   /**
@@ -165,16 +172,19 @@ RadioGroup.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * Determines if the radio group is readonly.
+   * Whether the user should be unable to select a different radio button in the group.
    * @default false
    */
   readOnly: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * Determines if the radio group is required.
+   * Whether the user must choose a value before submitting a form.
    * @default false
    */
   required: PropTypes.bool,

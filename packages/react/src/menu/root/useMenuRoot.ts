@@ -194,20 +194,22 @@ export type MenuOrientation = 'horizontal' | 'vertical';
 export namespace useMenuRoot {
   export interface Parameters {
     /**
-     * Allows to control whether the Menu is open.
-     * This is a controlled counterpart of `defaultOpen`.
+     * Whether the menu is currently open.
      */
     open: boolean | undefined;
     /**
-     * Callback fired when the component requests to be opened or closed.
+     * Event handler called when the menu is opened or closed.
      */
     onOpenChange: ((open: boolean, event?: Event) => void) | undefined;
     /**
-     * If `true`, the Menu is initially open.
+     * Whether the menu is initially open.
+     *
+     * To render a controlled menu, use the `open` prop instead.
      */
     defaultOpen: boolean;
     /**
-     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+     * Whether to loop keyboard focus back to the first item
+     * when the end of the list is reached while using the arrow keys.
      */
     loop: boolean;
     /**
@@ -223,7 +225,7 @@ export namespace useMenuRoot {
      */
     direction: TextDirection;
     /**
-     * If `true`, the Menu is disabled.
+     * Whether the component should ignore user actions.
      */
     disabled: boolean;
     /**

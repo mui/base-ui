@@ -76,7 +76,7 @@ export function useMenuPositioner(
 export namespace useMenuPositioner {
   export interface SharedParameters {
     /**
-     * If `true`, the Menu is open.
+     * Whether the menu is currently open.
      */
     open?: boolean;
     /**
@@ -124,7 +124,7 @@ export namespace useMenuPositioner {
      */
     collisionPadding?: Padding;
     /**
-     * Whether the menu popup remains mounted in the DOM while closed.
+     * Whether to keep the HTML element in the DOM while the menu is hidden.
      * @default false
      */
     keepMounted?: boolean;

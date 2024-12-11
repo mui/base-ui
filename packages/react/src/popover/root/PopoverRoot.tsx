@@ -127,7 +127,9 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   closeDelay: PropTypes.number,
   /**
-   * Whether the popover popup is open by default. Use when uncontrolled.
+   * Whether the popover is initially open.
+   *
+   * To render a controlled popover, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
@@ -137,13 +139,11 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
-   * Callback fired when the popover popup is requested to be opened or closed. Use when
-   * controlled.
+   * Event handler called when the popover is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
-   * Whether the popover popup is open. Use when controlled.
-   * @default false
+   * Whether the popover is currently open.
    */
   open: PropTypes.bool,
   /**

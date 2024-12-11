@@ -142,6 +142,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
 export namespace MenuPositioner {
   export interface State {
+    /**
+     * Whether the menu is currently open.
+     */
     open: boolean;
     side: Side;
     align: 'start' | 'end' | 'center';
@@ -187,7 +190,8 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -219,7 +223,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * Whether the menu popup remains mounted in the DOM while closed.
+   * Whether to keep the HTML element in the DOM while the menu is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,
@@ -229,7 +233,10 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

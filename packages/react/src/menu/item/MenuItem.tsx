@@ -73,7 +73,8 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -83,7 +84,7 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    */
   closeOnClick: PropTypes.bool,
   /**
-   * If `true`, the menu item will be disabled.
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -117,7 +118,10 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    */
   propGetter: PropTypes.func.isRequired,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
@@ -182,6 +186,9 @@ interface InnerMenuItemProps extends MenuItem.Props {
 
 namespace MenuItem {
   export type State = {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     highlighted: boolean;
   };
@@ -193,7 +200,7 @@ namespace MenuItem {
      */
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
-     * If `true`, the menu item will be disabled.
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;
@@ -231,7 +238,7 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   closeOnClick: PropTypes.bool,
   /**
-   * If `true`, the menu item will be disabled.
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,

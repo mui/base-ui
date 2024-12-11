@@ -107,7 +107,9 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    */
   closeDelay: PropTypes.number,
   /**
-   * Whether the preview card popup is open by default. Use when uncontrolled.
+   * Whether the preview card is initially open.
+   *
+   * To render a controlled preview card, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
@@ -117,13 +119,11 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
-   * Callback fired when the preview card popup is requested to be opened or closed. Use when
-   * controlled.
+   * Event handler called when the preview card is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
-   * Whether the preview card popup is open. Use when controlled.
-   * @default false
+   * Whether the preview card is currently open.
    */
   open: PropTypes.bool,
 } as any;

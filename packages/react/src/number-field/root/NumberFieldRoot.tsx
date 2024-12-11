@@ -99,31 +99,31 @@ export namespace NumberFieldRoot {
 
   export interface State extends FieldRoot.State {
     /**
-     * The raw number value of the input element.
+     * The raw numeric value of the field.
      */
     value: number | null;
     /**
-     * The string value of the input element.
+     * The formatted string value presented in the input element.
      */
     inputValue: string;
     /**
-     * If `true`, the input element is required.
+     * Whether the user must enter a value before submitting a form.
      */
     required: boolean;
     /**
-     * If `true`, the input element is disabled.
+     * Whether the component should ignore user actions.
      */
     disabled: boolean;
     /**
-     * If `true`, the input element is invalid.
+     * Whether the field is currently invalid.
      */
     invalid: boolean;
     /**
-     * If `true`, the input element is read only.
+     * Whether the user should be unable to change the field value.
      */
     readOnly: boolean;
     /**
-     * If `true`, the value is being scrubbed.
+     * Whether the user is currently scrubbing the field.
      */
     scrubbing: boolean;
   }
@@ -150,7 +150,8 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -158,7 +159,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.number,
   /**
-   * If `true`, the input element is disabled.
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -189,7 +190,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * If `true`, the input element is invalid.
+   * Whether the field is forcefully marked as invalid.
    * @default false
    */
   invalid: PropTypes.bool,
@@ -208,7 +209,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   min: PropTypes.number,
   /**
-   * The name of the input element.
+   * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
   /**
@@ -218,16 +219,19 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * If `true`, the input element is read only.
+   * Whether the user should be unable to change the field value.
    * @default false
    */
   readOnly: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * If `true`, the input element is required.
+   * Whether the user must enter a value before submitting a form.
    * @default false
    */
   required: PropTypes.bool,

@@ -4,47 +4,47 @@
   "props": {
     "checked": {
       "type": "boolean",
-      "description": "If `true`, the switch is checked."
+      "description": "Whether the switch is currently active.\n\nTo render an uncontrolled switch, use the `defaultChecked` prop instead."
     },
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "defaultChecked": {
       "type": "boolean",
       "default": "false",
-      "description": "The default checked state. Use when the component is uncontrolled."
+      "description": "Whether the switch is initially active.\n\nTo render a controlled switch, use the `checked` prop instead."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the component is disabled and can't be interacted with."
+      "description": "Whether the component should ignore user actions."
     },
     "inputRef": {
       "type": "React.Ref",
-      "description": "Ref to the underlying input element."
+      "description": "A React ref to access the hidden `<input>` element."
     },
     "name": {
       "type": "string",
-      "description": "Name of the underlying input element."
+      "description": "Identifies the field when a form is submitted."
     },
     "onCheckedChange": {
       "type": "(checked, event) => void",
-      "description": "Callback fired when the checked state is changed."
+      "description": "Event handler called when the switch is activated or deactivated."
     },
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the component is read-only.\nFunctionally, this is equivalent to being disabled, but the assistive technologies will announce this differently."
+      "description": "Whether the user should be unable to activate or deactivate the switch."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     },
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the switch must be checked for the browser validation to pass."
+      "description": "Whether the user must activate the switch before submitting a form."
     }
   }
 }

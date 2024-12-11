@@ -110,27 +110,28 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 namespace DialogPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * If `true`, the dialog element is kept in the DOM when closed.
-     *
+     * Whether to keep the HTML element in the DOM while the dialog is hidden.
      * @default false
      */
     keepMounted?: boolean;
     /**
-     * Determines an element to focus when the dialog is opened.
-     * It can be either a ref to the element or a function that returns such a ref.
-     * If not provided, the first focusable element is focused.
+     * Determines the element to focus when the dialog is opened.
+     * By default, the first focusable element is focused.
      */
     initialFocus?:
       | React.RefObject<HTMLElement | null>
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
     /**
-     * Determines an element to focus after the dialog is closed.
-     * If not provided, the focus returns to the trigger.
+     * Determines the element to focus when the dialog is closed.
+     * By default, focus returns to trigger.
      */
     finalFocus?: React.RefObject<HTMLElement | null>;
   }
 
   export interface State {
+    /**
+     * Whether the dialog is currently open.
+     */
     open: boolean;
     nestedOpenDialogCount: number;
     transitionStatus: TransitionStatus;
@@ -147,12 +148,13 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Determines an element to focus after the dialog is closed.
-   * If not provided, the focus returns to the trigger.
+   * Determines the element to focus when the dialog is closed.
+   * By default, focus returns to trigger.
    */
   finalFocus: refType,
   /**
@@ -160,22 +162,23 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * Determines an element to focus when the dialog is opened.
-   * It can be either a ref to the element or a function that returns such a ref.
-   * If not provided, the first focusable element is focused.
+   * Determines the element to focus when the dialog is opened.
+   * By default, the first focusable element is focused.
    */
   initialFocus: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     PropTypes.func,
     refType,
   ]),
   /**
-   * If `true`, the dialog element is kept in the DOM when closed.
-   *
+   * Whether to keep the HTML element in the DOM while the dialog is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
