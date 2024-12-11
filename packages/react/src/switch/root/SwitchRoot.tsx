@@ -117,7 +117,7 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * Ref to the underlying input element.
+   * A React ref to access the supplementary `<input>` element.
    */
   inputRef: refType,
   /**

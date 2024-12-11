@@ -168,7 +168,7 @@ export namespace useSwitchRoot {
      */
     disabled?: boolean;
     /**
-     * Ref to the underlying input element.
+     * A React ref to access the supplementary `<input>` element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**

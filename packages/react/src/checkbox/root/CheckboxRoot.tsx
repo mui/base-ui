@@ -170,7 +170,7 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   indeterminate: PropTypes.bool,
   /**
-   * The ref to the input element.
+   * A React ref to access the supplementary `<input>` element.
    */
   inputRef: PropTypes.oneOfType([
     PropTypes.func,

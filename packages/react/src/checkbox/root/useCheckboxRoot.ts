@@ -241,7 +241,7 @@ export namespace UseCheckboxRoot {
      */
     indeterminate?: boolean;
     /**
-     * The ref to the input element.
+     * A React ref to access the supplementary `<input>` element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**

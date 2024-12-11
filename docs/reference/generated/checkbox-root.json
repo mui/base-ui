@@ -28,7 +28,7 @@
     },
     "inputRef": {
       "type": "React.Ref",
-      "description": "The ref to the input element."
+      "description": "* A React ref to access the supplementary `<input>` element."
     },
     "name": {
       "type": "string",
