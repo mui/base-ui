@@ -236,8 +236,7 @@ export namespace UseCheckboxRoot {
      */
     autoFocus?: boolean;
     /**
-     * If `true`, the checkbox will be indeterminate.
-     *
+     * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
      * @default false
      */
     indeterminate?: boolean;

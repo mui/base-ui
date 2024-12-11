@@ -24,7 +24,7 @@
     "indeterminate": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the checkbox will be indeterminate."
+      "description": "Whether the checkbox is in a mixed state: neither ticked, nor unticked."
     },
     "inputRef": {
       "type": "React.Ref",

@@ -121,6 +121,9 @@ namespace CheckboxRoot {
     disabled: boolean;
     readOnly: boolean;
     required: boolean;
+    /**
+     * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
+     */
     indeterminate: boolean;
   }
   export interface Props
@@ -162,8 +165,7 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * If `true`, the checkbox will be indeterminate.
-   *
+   * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
    * @default false
    */
   indeterminate: PropTypes.bool,
