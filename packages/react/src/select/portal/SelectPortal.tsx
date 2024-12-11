@@ -5,7 +5,7 @@ import { Portal } from '../../portal/Portal';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
- * Renders a portal element into the DOM.
+ * Renders a portal element that moves its children to a different part of the DOM.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
