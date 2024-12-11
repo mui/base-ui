@@ -18,9 +18,9 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   props: ScrollAreaRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, dir, gutter = 0, ...otherProps } = props;
+  const { render, className, dir, ...otherProps } = props;
 
-  const scrollAreaRoot = useScrollAreaRoot({ dir, gutter });
+  const scrollAreaRoot = useScrollAreaRoot({ dir });
 
   const { rootId } = scrollAreaRoot;
 
@@ -36,10 +36,9 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const contextValue = React.useMemo(
     () => ({
       dir,
-      gutter,
       ...scrollAreaRoot,
     }),
-    [dir, gutter, scrollAreaRoot],
+    [dir, scrollAreaRoot],
   );
 
   const viewportId = `[data-id="${rootId}-viewport"]`;
@@ -65,13 +64,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 });
 
 namespace ScrollAreaRoot {
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Determines the space to account for inset scrollbars.
-     * @default 0
-     */
-    gutter?: number | string;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {}
 }
@@ -94,11 +87,6 @@ ScrollAreaRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   dir: PropTypes.string,
-  /**
-   * Determines the space to account for inset scrollbars.
-   * @default 0
-   */
-  gutter: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
