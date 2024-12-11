@@ -1,6 +1,6 @@
 {
   "name": "DialogPopup",
-  "description": "A container for the dialog contents. Renders a `<div>` element.",
+  "description": "A container for the dialog contents.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

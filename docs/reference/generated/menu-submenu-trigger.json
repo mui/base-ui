@@ -1,6 +1,6 @@
 {
   "name": "MenuSubmenuTrigger",
-  "description": "",
+  "description": "A menu item that opens a submenu.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

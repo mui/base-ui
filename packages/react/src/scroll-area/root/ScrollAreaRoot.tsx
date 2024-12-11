@@ -9,14 +9,10 @@ import { useScrollAreaRoot } from './useScrollAreaRoot';
 const state = {};
 
 /**
+ * Groups all parts of the scroll area.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Scroll Area](https://base-ui.com/components/react-scroll-area/)
- *
- * API:
- *
- * - [ScrollAreaRoot API](https://base-ui.com/components/react-scroll-area/#api-reference-ScrollAreaRoot)
+ * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   props: ScrollAreaRoot.Props,

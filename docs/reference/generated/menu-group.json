@@ -1,6 +1,6 @@
 {
   "name": "MenuGroup",
-  "description": "",
+  "description": "Groups related menu items with the corresponding label.\nRenders a `<div>` element.",
   "props": {
     "children": {
       "type": "React.ReactNode",

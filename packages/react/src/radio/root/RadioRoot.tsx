@@ -12,14 +12,10 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 
 /**
+ * Represents the radio button itself.
+ * Renders a `<button>` element and a hidden `<input>` beside.
  *
- * Demos:
- *
- * - [Radio Group](https://base-ui.com/components/react-radio-group/)
- *
- * API:
- *
- * - [RadioRoot API](https://base-ui.com/components/react-radio-group/#api-reference-RadioRoot)
+ * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
 const RadioRoot = React.forwardRef(function RadioRoot(
   props: RadioRoot.Props,

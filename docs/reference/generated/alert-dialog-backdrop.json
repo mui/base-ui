@@ -1,6 +1,6 @@
 {
   "name": "AlertDialogBackdrop",
-  "description": "",
+  "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

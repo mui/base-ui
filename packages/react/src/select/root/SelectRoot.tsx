@@ -8,14 +8,10 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 
 /**
+ * Groups all parts of the select.
+ * Doesn’t render its own HTML element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectRoot API](https://base-ui.com/components/react-select/#api-reference-SelectRoot)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectRoot: SelectRoot = function SelectRoot<Value>(
   props: SelectRoot.Props<Value>,

@@ -14,6 +14,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { refType } from '../../utils/proptypes';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
@@ -22,15 +23,10 @@ const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
 };
 
 /**
- * Renders the popover popup element.
+ * A container for the popover contents.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverPopup API](https://base-ui.com/components/react-popover/#api-reference-PopoverPopup)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverPopup = React.forwardRef(function PopoverPopup(
   props: PopoverPopup.Props,
@@ -77,7 +73,12 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     render: render ?? 'div',
     className,
     state,
-    extraProps: otherProps,
+    extraProps:
+      transitionStatus === 'starting'
+        ? mergeReactProps(otherProps, {
+            style: { transition: 'none' },
+          })
+        : otherProps,
     customStyleHookMapping,
   });
 

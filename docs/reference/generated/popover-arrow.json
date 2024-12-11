@@ -1,6 +1,6 @@
 {
   "name": "PopoverArrow",
-  "description": "Renders an arrow that points to the center of the anchor element.",
+  "description": "Displays an element positioned against the popover anchor.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

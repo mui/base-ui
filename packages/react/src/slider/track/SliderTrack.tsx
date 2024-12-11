@@ -6,15 +6,12 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import type { SliderRoot } from '../root/SliderRoot';
 import { sliderStyleHookMapping } from '../root/styleHooks';
+
 /**
+ * Contains the slider indicator and represents the entire range of the slider.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderTrack API](https://base-ui.com/components/react-slider/#api-reference-SliderTrack)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderTrack = React.forwardRef(function SliderTrack(
   props: SliderTrack.Props,

@@ -7,15 +7,12 @@ import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderIndicator } from './useSliderIndicator';
+
 /**
+ * Visualizes the current value of the slider.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderIndicator API](https://base-ui.com/components/react-slider/#api-reference-SliderIndicator)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderIndicator = React.forwardRef(function SliderIndicator(
   props: SliderIndicator.Props,

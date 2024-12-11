@@ -7,15 +7,10 @@ import { useFieldsetRoot } from './useFieldsetRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * The foundation for building custom-styled fieldsets.
+ * Groups the fieldset legend and the associated fields.
+ * Renders a `<fieldset>` element.
  *
- * Demos:
- *
- * - [Fieldset](https://base-ui.com/components/react-fieldset/)
- *
- * API:
- *
- * - [FieldsetRoot API](https://base-ui.com/components/react-fieldset/#api-reference-FieldsetRoot)
+ * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
  */
 const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   props: FieldsetRoot.Props,

@@ -1,6 +1,6 @@
 {
   "name": "SwitchThumb",
-  "description": "",
+  "description": "The movable part of the switch that indicates whether the switch is on or off.\nRenders a `<span>`.",
   "props": {
     "className": {
       "type": "string | (state) => string",

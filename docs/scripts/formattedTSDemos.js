@@ -9,7 +9,7 @@
  * List of demos or folders to ignore when transpiling.
  * Only ignore files that aren't used in the UI.
  */
-const ignoreList = ['/pages.ts'];
+const ignoreList = [];
 
 const path = require('path');
 const fse = require('fs-extra');

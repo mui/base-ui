@@ -1,6 +1,6 @@
 {
   "name": "NumberFieldIncrement",
-  "description": "The increment stepper button.",
+  "description": "A stepper button that increases the field value when clicked.\nRenders an `<button>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

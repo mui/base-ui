@@ -3,10 +3,7 @@ import { Collapsible } from '@base-ui-components/react/collapsible';
 
 export default function ExampleCollapsible() {
   return (
-    <Collapsible.Root
-      className="flex min-h-36 w-56 flex-col justify-center text-gray-900"
-      render={<div />}
-    >
+    <Collapsible.Root className="flex min-h-36 w-56 flex-col justify-center text-gray-900">
       <Collapsible.Trigger className="group flex items-center gap-2 rounded-sm bg-gray-100 px-2 py-1 text-sm font-medium hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-blue-800 active:bg-gray-200">
         <ChevronIcon className="size-3 transition-all ease-out group-data-[panel-open]:rotate-90" />
         Recovery keys

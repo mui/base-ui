@@ -12,6 +12,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { Side } from '../../utils/useAnchorPositioning';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
@@ -20,14 +21,10 @@ const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
 };
 
 /**
+ * A container for the menu items.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuPopup API](https://base-ui.com/components/react-menu/#api-reference-MenuPopup)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuPopup = React.forwardRef(function MenuPopup(
   props: MenuPopup.Props,
@@ -59,7 +56,12 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     render: render || 'div',
     className,
     state,
-    extraProps: other,
+    extraProps:
+      transitionStatus === 'starting'
+        ? mergeReactProps(other, {
+            style: { transition: 'none' },
+          })
+        : other,
     customStyleHookMapping,
     ref: mergedRef,
   });

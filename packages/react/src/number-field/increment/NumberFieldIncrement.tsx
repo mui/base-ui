@@ -7,15 +7,10 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * The increment stepper button.
+ * A stepper button that increases the field value when clicked.
+ * Renders an `<button>` element.
  *
- * Demos:
- *
- * - [Number Field](https://base-ui.com/components/react-number-field/)
- *
- * API:
- *
- * - [NumberFieldIncrement API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldIncrement)
+ * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
   props: NumberFieldIncrement.Props,

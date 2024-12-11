@@ -1,6 +1,6 @@
 {
   "name": "ScrollAreaScrollbar",
-  "description": "",
+  "description": "A vertical or horizontal scrollbar for the scroll area.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

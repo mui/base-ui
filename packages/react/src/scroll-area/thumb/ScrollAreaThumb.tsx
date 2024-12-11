@@ -10,14 +10,10 @@ import { useScrollAreaScrollbarContext } from '../scrollbar/ScrollAreaScrollbarC
 import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssVars';
 
 /**
+ * The draggable part of the the scrollbar that indicates the current scroll position.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Scroll Area](https://base-ui.com/components/react-scroll-area/)
- *
- * API:
- *
- * - [ScrollAreaThumb API](https://base-ui.com/components/react-scroll-area/#api-reference-ScrollAreaThumb)
+ * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
   props: ScrollAreaThumb.Props,

@@ -11,15 +11,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * Renders an arrow that points to the center of the anchor element.
+ * Displays an element positioned against the popover anchor.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverArrow API](https://base-ui.com/components/react-popover/#api-reference-PopoverArrow)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverArrow = React.forwardRef(function PopoverArrow(
   props: PopoverArrow.Props,

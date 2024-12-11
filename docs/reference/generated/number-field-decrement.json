@@ -1,6 +1,6 @@
 {
   "name": "NumberFieldDecrement",
-  "description": "The decrement stepper button.",
+  "description": "A stepper button that decreases the field value when clicked.\nRenders an `<button>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

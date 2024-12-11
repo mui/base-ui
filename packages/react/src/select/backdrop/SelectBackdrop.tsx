@@ -17,14 +17,10 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
 };
 
 /**
+ * An overlay displayed beneath the menu popup.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectBackdrop API](https://base-ui.com/components/react-select/#api-reference-SelectBackdrop)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   props: SelectBackdrop.Props,

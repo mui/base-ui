@@ -11,14 +11,10 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 
 /**
+ * Displays an element positioned against the select menu anchor.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectArrow API](https://base-ui.com/components/react-select/#api-reference-SelectArrow)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectArrow = React.forwardRef(function SelectArrow(
   props: SelectArrow.Props,

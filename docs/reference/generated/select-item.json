@@ -1,6 +1,6 @@
 {
   "name": "SelectItem",
-  "description": "",
+  "description": "An individual option in the select menu.\nRenders a `<div>` element.",
   "props": {
     "disabled": {
       "type": "boolean",

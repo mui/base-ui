@@ -5,14 +5,10 @@ import { SelectScrollArrow } from '../scroll-arrow/SelectScrollArrow';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
+ * An element that scrolls the select menu down when hovered.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectScrollDownArrow API](https://base-ui.com/components/react-select/#api-reference-SelectScrollDownArrow)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectScrollDownArrow = React.forwardRef(function SelectScrollDownArrow(
   props: SelectScrollDownArrow.Props,

@@ -21,14 +21,6 @@ function getRangeStyles(orientation: useSliderRoot.Orientation, offset: number, 
 }
 
 /**
- *
- * Demos:
- *
- * - [Slider](https://mui.com/base-ui/react-slider/#hooks)
- *
- * API:
- *
- * - [useSliderIndicator API](https://mui.com/base-ui/react-slider/hooks-api/#use-slider-indicator)
  */
 export function useSliderIndicator(
   parameters: useSliderIndicator.Parameters,

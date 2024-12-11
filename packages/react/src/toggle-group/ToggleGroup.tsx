@@ -17,15 +17,11 @@ const customStyleHookMapping = {
     return null;
   },
 };
+
 /**
+ * Provides a shared state to a series of toggle buttons.
  *
- * Demos:
- *
- * - [ToggleGroup](https://base-ui.com/components/react-toggle-group/)
- *
- * API:
- *
- * - [ToggleGroup API](https://base-ui.com/components/react-toggle-group/#api-reference-ToggleGroup)
+ * Documentation: [Base UI Toggle Group](https://base-ui.com/react/components/toggle-group)
  */
 const ToggleGroup = React.forwardRef(function ToggleGroup(
   props: ToggleGroup.Props,

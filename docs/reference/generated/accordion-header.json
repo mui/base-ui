@@ -1,6 +1,6 @@
 {
   "name": "AccordionHeader",
-  "description": "",
+  "description": "A heading that labels the corresponding panel.\nRenders an `<h3>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

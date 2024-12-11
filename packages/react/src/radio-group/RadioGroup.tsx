@@ -9,15 +9,12 @@ import { useDirection } from '../direction-provider/DirectionContext';
 import { useRadioGroup } from './useRadioGroup';
 import { RadioGroupContext } from './RadioGroupContext';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
+
 /**
+ * Provides a shared state to a series of radio buttons.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Radio Group](https://base-ui.com/components/react-radio-group/)
- *
- * API:
- *
- * - [RadioGroup API](https://base-ui.com/components/react-radio-group/#api-reference-RadioGroup)
+ * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio)
  */
 const RadioGroup = React.forwardRef(function RadioGroup(
   props: RadioGroup.Props,

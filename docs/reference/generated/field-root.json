@@ -1,6 +1,6 @@
 {
   "name": "FieldRoot",
-  "description": "The foundation for building custom-styled fields.",
+  "description": "Groups all parts of the field.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

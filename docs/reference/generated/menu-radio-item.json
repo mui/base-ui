@@ -1,6 +1,6 @@
 {
   "name": "MenuRadioItem",
-  "description": "An unstyled radio menu item to be used within a Menu.",
+  "description": "A menu item that works like a radio button in a given group.\nRenders a `<div>` element.",
   "props": {
     "value": {
       "type": "any",

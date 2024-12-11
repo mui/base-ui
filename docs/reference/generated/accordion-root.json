@@ -1,6 +1,6 @@
 {
   "name": "AccordionRoot",
-  "description": "",
+  "description": "Groups all parts of the accordion.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

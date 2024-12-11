@@ -9,14 +9,10 @@ import { TabsRoot, type TabValue } from '../root/TabsRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
+ * A panel displayed when the corresponding tab is active.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Tabs](https://base-ui.com/components/react-tabs/)
- *
- * API:
- *
- * - [TabsPanel API](https://base-ui.com/components/react-tabs/#api-reference-TabsPanel)
+ * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
 const TabsPanel = React.forwardRef(function TabPanel(
   props: TabsPanel.Props,
