@@ -24,6 +24,8 @@ export function Backdrop({ className, ...props }: Dialog.Backdrop.Props) {
   return <Dialog.Backdrop className={clsx('MobileNavBackdrop', className)} {...props} />;
 }
 
+export const Portal = Dialog.Portal;
+
 export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
   const setOpen = React.useContext(MobileNavStateCallback);
   const rem = React.useRef(16);
@@ -33,91 +35,89 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
   }, []);
 
   return (
-    <Dialog.Portal>
-      <Dialog.Popup className={clsx('MobileNavPopup', className)} {...props}>
-        <MountEffect />
-        <div className="MobileNavBottomOverscroll" />
-        <div
-          className="MobileNavViewport"
-          onScroll={(event) => {
-            const viewport = event.currentTarget;
-            if (viewport.scrollTop > (HEADER_HEIGHT * rem.current) / 16) {
-              viewport.setAttribute('data-clipped', '');
-            } else {
-              viewport.removeAttribute('data-clipped');
-            }
-          }}
-          onTouchStart={(event) => {
-            const viewport = event.currentTarget;
+    <Dialog.Popup className={clsx('MobileNavPopup', className)} {...props}>
+      <MountEffect />
+      <div className="MobileNavBottomOverscroll" />
+      <div
+        className="MobileNavViewport"
+        onScroll={(event) => {
+          const viewport = event.currentTarget;
+          if (viewport.scrollTop > (HEADER_HEIGHT * rem.current) / 16) {
+            viewport.setAttribute('data-clipped', '');
+          } else {
+            viewport.removeAttribute('data-clipped');
+          }
+        }}
+        onTouchStart={(event) => {
+          const viewport = event.currentTarget;
 
-            // Consider flicks from scroll top only (iOS does the same with its sheets)
-            if (viewport.scrollTop <= 0) {
-              viewport.addEventListener(
-                'touchend',
-                function handleTouchEnd() {
-                  // If touch ended and we are overscrolling past a threshold...
-                  if (viewport.scrollTop < -32) {
-                    const y = viewport.scrollTop;
-                    viewport.addEventListener(
-                      'scroll',
-                      function handleNextScroll() {
-                        // ...look at whether the system's intertia scrolling is continuing the motion
-                        // in the same direction. If so, the flick is strong enough to close the dialog.
-                        if (viewport.scrollTop < y) {
-                          // It's gonna eventually bounce back to scrollTop 0. We need to counteract this
-                          // a bit so that the close transition doesn't appear slower than it should.
-                          viewport.style.translate = `0px -${y}px`;
-                          viewport.style.transform = `400ms`;
-                          setOpen(false);
+          // Consider flicks from scroll top only (iOS does the same with its sheets)
+          if (viewport.scrollTop <= 0) {
+            viewport.addEventListener(
+              'touchend',
+              function handleTouchEnd() {
+                // If touch ended and we are overscrolling past a threshold...
+                if (viewport.scrollTop < -32) {
+                  const y = viewport.scrollTop;
+                  viewport.addEventListener(
+                    'scroll',
+                    function handleNextScroll() {
+                      // ...look at whether the system's intertia scrolling is continuing the motion
+                      // in the same direction. If so, the flick is strong enough to close the dialog.
+                      if (viewport.scrollTop < y) {
+                        // It's gonna eventually bounce back to scrollTop 0. We need to counteract this
+                        // a bit so that the close transition doesn't appear slower than it should.
+                        viewport.style.translate = `0px -${y}px`;
+                        viewport.style.transform = `400ms`;
+                        setOpen(false);
 
-                          // Sometimes the first scroll event comes with the same scroll position
-                          // If so, give it another chance, call ourselves recursively
-                        } else if (viewport.scrollTop === y) {
-                          viewport.addEventListener('scroll', handleNextScroll, { once: true });
-                        }
-                      },
-                      { once: true },
-                    );
-                  }
-                },
-                { once: true },
-              );
-            }
-          }}
-        >
-          <div className="MobileNavViewportInner">
-            {/* We need the area behind the panel to close on tap but also to scroll the viewport. */}
-            <Dialog.Close className="MobileNavBackdropTapArea" tabIndex={-1} render={<div />} />
+                        // Sometimes the first scroll event comes with the same scroll position
+                        // If so, give it another chance, call ourselves recursively
+                      } else if (viewport.scrollTop === y) {
+                        viewport.addEventListener('scroll', handleNextScroll, { once: true });
+                      }
+                    },
+                    { once: true },
+                  );
+                }
+              },
+              { once: true },
+            );
+          }
+        }}
+      >
+        <div className="MobileNavViewportInner">
+          {/* We need the area behind the panel to close on tap but also to scroll the viewport. */}
+          <Dialog.Close className="MobileNavBackdropTapArea" tabIndex={-1} render={<div />} />
 
-            <nav className="MobileNavPanel">
-              {/* Reverse order to place the close button at the end of the DOM, but at sticky top visually */}
-              <div className="flex flex-col-reverse">
-                <div>{children}</div>
-                <div className="MobileNavCloseContainer">
-                  <Dialog.Close aria-label="Close the navigation" className="MobileNavClose">
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 12 12"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M0.75 0.75L6 6M11.25 11.25L6 6M6 6L0.75 11.25M6 6L11.25 0.75"
-                        stroke="currentcolor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </Dialog.Close>
-                </div>
+          <nav className="MobileNavPanel">
+            {/* Reverse order to place the close button at the end of the DOM, but at sticky top visually */}
+            <div className="flex flex-col-reverse">
+              <div>{children}</div>
+              <div className="MobileNavCloseContainer">
+                <Dialog.Close aria-label="Close the navigation" className="MobileNavClose">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M0.75 0.75L6 6M11.25 11.25L6 6M6 6L0.75 11.25M6 6L11.25 0.75"
+                      stroke="currentcolor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Dialog.Close>
               </div>
-            </nav>
-          </div>
+            </div>
+          </nav>
         </div>
-      </Dialog.Popup>
-    </Dialog.Portal>
+      </div>
+    </Dialog.Popup>
   );
 }
 
