@@ -94,7 +94,13 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 
 namespace RadioGroup {
   export interface State {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean | undefined;
+    /**
+     * Whether the user should be unable to select a different radio button in the group.
+     */
     readOnly: boolean | undefined;
   }
 
@@ -106,7 +112,7 @@ namespace RadioGroup {
      */
     disabled?: boolean;
     /**
-     * Determines if the radio group is readonly.
+     * Whether the user should be unable to select a different radio button in the group.
      * @default false
      */
     readOnly?: boolean;
@@ -166,7 +172,7 @@ RadioGroup.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * Determines if the radio group is readonly.
+   * Whether the user should be unable to select a different radio button in the group.
    * @default false
    */
   readOnly: PropTypes.bool,

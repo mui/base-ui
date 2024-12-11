@@ -28,7 +28,7 @@
     },
     "inputRef": {
       "type": "React.Ref",
-      "description": "A React ref to access the supplementary `<input>` element."
+      "description": "A React ref to access the hidden `<input>` element."
     },
     "name": {
       "type": "string",
@@ -47,7 +47,7 @@
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the component is read only."
+      "description": "Whether the user should be unable to tick or untick the checkbox."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",

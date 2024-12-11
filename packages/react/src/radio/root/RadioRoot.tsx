@@ -97,7 +97,7 @@ namespace RadioRoot {
      */
     required?: boolean;
     /**
-     * Determines if the radio is readonly.
+     * Whether the user should be unable to select the radio button.
      * @default false
      */
     readOnly?: boolean;
@@ -109,6 +109,9 @@ namespace RadioRoot {
      */
     checked: boolean;
     disabled: boolean;
+    /**
+     * Whether the user should be unable to select the radio button.
+     */
     readOnly: boolean;
     /**
      * Whether the user must choose a value before submitting a form.
@@ -137,7 +140,7 @@ RadioRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * Determines if the radio is readonly.
+   * Whether the user should be unable to select the radio button.
    * @default false
    */
   readOnly: PropTypes.bool,

@@ -168,7 +168,7 @@ export namespace useSwitchRoot {
      */
     disabled?: boolean;
     /**
-     * A React ref to access the supplementary `<input>` element.
+     * A React ref to access the hidden `<input>` element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**
@@ -183,9 +183,7 @@ export namespace useSwitchRoot {
      */
     onCheckedChange?: (checked: boolean, event: Event) => void;
     /**
-     * If `true`, the component is read-only.
-     * Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently.
-     *
+     * Whether the user should be unable to activate or deactivate the switch.
      * @default false
      */
     readOnly?: boolean;

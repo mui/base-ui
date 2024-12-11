@@ -22,7 +22,7 @@
     },
     "inputRef": {
       "type": "React.Ref",
-      "description": "A React ref to access the supplementary `<input>` element."
+      "description": "A React ref to access the hidden `<input>` element."
     },
     "name": {
       "type": "string",
@@ -35,7 +35,7 @@
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the component is read-only.\nFunctionally, this is equivalent to being disabled, but the assistive technologies will announce this differently."
+      "description": "Whether the user should be unable to activate or deactivate the switch."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",

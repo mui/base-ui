@@ -19,7 +19,7 @@
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "Determines if the radio is readonly."
+      "description": "Whether the user should be unable to select the radio button."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",

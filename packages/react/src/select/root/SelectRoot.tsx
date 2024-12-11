@@ -157,7 +157,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   open: PropTypes.bool,
   /**
-   * If `true`, the Select is read-only.
+   * Whether the user should be unable to choose a different option from the select menu.
    * @default false
    */
   readOnly: PropTypes.bool,

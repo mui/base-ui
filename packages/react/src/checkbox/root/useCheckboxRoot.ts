@@ -217,8 +217,7 @@ export namespace UseCheckboxRoot {
      */
     onCheckedChange?: (checked: boolean, event: Event) => void;
     /**
-     * If `true`, the component is read only.
-     *
+     * Whether the user should be unable to tick or untick the checkbox.
      * @default false
      */
     readOnly?: boolean;
@@ -239,7 +238,7 @@ export namespace UseCheckboxRoot {
      */
     indeterminate?: boolean;
     /**
-     * A React ref to access the supplementary `<input>` element.
+     * A React ref to access the hidden `<input>` element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**

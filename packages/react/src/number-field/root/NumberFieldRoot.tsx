@@ -99,11 +99,11 @@ export namespace NumberFieldRoot {
 
   export interface State extends FieldRoot.State {
     /**
-     * The raw number value of the input element.
+     * The raw numeric value of the field.
      */
     value: number | null;
     /**
-     * The string value of the input element.
+     * The formatted string value presented in the input element.
      */
     inputValue: string;
     /**
@@ -115,15 +115,15 @@ export namespace NumberFieldRoot {
      */
     disabled: boolean;
     /**
-     * If `true`, the input element is invalid.
+     * Whether the field is currently invalid.
      */
     invalid: boolean;
     /**
-     * If `true`, the input element is read only.
+     * Whether the user should be unable to change the field value.
      */
     readOnly: boolean;
     /**
-     * If `true`, the value is being scrubbed.
+     * Whether the user is currently scrubbing the field.
      */
     scrubbing: boolean;
   }
@@ -219,7 +219,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * If `true`, the input element is read only.
+   * Whether the user should be unable to change the field value.
    * @default false
    */
   readOnly: PropTypes.bool,

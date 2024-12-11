@@ -41,7 +41,7 @@
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the Select is read-only."
+      "description": "Whether the user should be unable to choose a different option from the select menu."
     },
     "required": {
       "type": "boolean",

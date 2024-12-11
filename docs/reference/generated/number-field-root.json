@@ -62,7 +62,7 @@
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the input element is read only."
+      "description": "Whether the user should be unable to change the field value."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",

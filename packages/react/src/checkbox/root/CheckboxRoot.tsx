@@ -122,6 +122,9 @@ namespace CheckboxRoot {
      * Whether the component should ignore user actions.
      */
     disabled: boolean;
+    /**
+     * Whether the user should be unable to tick or untick the checkbox.
+     */
     readOnly: boolean;
     /**
      * Whether the user must tick the checkbox before submitting a form.
@@ -176,7 +179,7 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   indeterminate: PropTypes.bool,
   /**
-   * A React ref to access the supplementary `<input>` element.
+   * A React ref to access the hidden `<input>` element.
    */
   inputRef: PropTypes.oneOfType([
     PropTypes.func,
@@ -202,8 +205,7 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   parent: PropTypes.bool,
   /**
-   * If `true`, the component is read only.
-   *
+   * Whether the user should be unable to tick or untick the checkbox.
    * @default false
    */
   readOnly: PropTypes.bool,

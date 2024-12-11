@@ -827,7 +827,7 @@ export namespace UseNumberFieldRoot {
      */
     autoFocus?: boolean;
     /**
-     * If `true`, the input element is read only.
+     * Whether the user should be unable to change the field value.
      * @default false
      */
     readOnly?: boolean;
