@@ -6,11 +6,11 @@ import {
   FloatingList,
   FloatingNode,
   FloatingPortal,
-  Side,
   useFloatingNodeId,
 } from '@floating-ui/react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import type { Side } from '../../utils/useAnchorPositioning';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuPositioner } from './useMenuPositioner';
@@ -19,15 +19,10 @@ import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * Renders the element that positions the Menu popup.
+ * Positions the menu popup against the trigger.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuPositioner API](https://base-ui.com/components/react-menu/#api-reference-MenuPositioner)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuPositioner = React.forwardRef(function MenuPositioner(
   props: MenuPositioner.Props,
@@ -253,7 +248,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    * The side of the anchor element that the Menu element should align to.
    * @default 'bottom'
    */
-  side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
+  side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
    * The gap between the anchor element and the Menu element.
    * @default 0

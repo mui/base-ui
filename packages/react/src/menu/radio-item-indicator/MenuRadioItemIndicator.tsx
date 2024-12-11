@@ -7,14 +7,10 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 
 /**
+ * Indicates whether the radio item is selected.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuRadioItemIndicator API](https://base-ui.com/components/react-menu/#api-reference-MenuRadioItemIndicator)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicatorComponent(
   props: MenuRadioItemIndicator.Props,

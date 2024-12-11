@@ -94,15 +94,12 @@ InnerSelectItemText.propTypes /* remove-proptypes */ = {
 } as any;
 
 const MemoizedInnerSelectItemText = React.memo(InnerSelectItemText);
+
 /**
+ * A text label of the select item.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectItemText API](https://base-ui.com/components/react-select/#api-reference-SelectItemText)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectItemText = React.forwardRef(function SelectItemText(
   props: SelectItemText.Props,

@@ -23,15 +23,12 @@ function defaultRender(
     </span>
   );
 }
+
 /**
+ * The draggable part of the the slider at the tip of the indicator.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderThumb API](https://base-ui.com/components/react-slider/#api-reference-SliderThumb)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderThumb = React.forwardRef(function SliderThumb(
   props: SliderThumb.Props,

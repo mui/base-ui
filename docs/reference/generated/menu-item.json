@@ -1,6 +1,6 @@
 {
   "name": "MenuItem",
-  "description": "An unstyled menu item to be used within a Menu.",
+  "description": "An individual interactive item in the menu.\nRenders a `<div>` element.",
   "props": {
     "closeOnClick": {
       "type": "boolean",

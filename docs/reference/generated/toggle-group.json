@@ -1,6 +1,6 @@
 {
   "name": "ToggleGroup",
-  "description": "",
+  "description": "Provides a shared state to a series of toggle buttons.",
   "props": {
     "className": {
       "type": "string | (state) => string",

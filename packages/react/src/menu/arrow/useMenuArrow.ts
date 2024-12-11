@@ -26,7 +26,6 @@ export function useMenuArrow(params: useMenuArrow.Parameters): useMenuArrow.Retu
 export namespace useMenuArrow {
   export interface Parameters {
     arrowStyles: React.CSSProperties;
-    hidden?: boolean;
   }
 
   export interface ReturnValue {

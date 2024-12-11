@@ -1,6 +1,6 @@
 {
   "name": "SliderRoot",
-  "description": "",
+  "description": "Groups all parts of the slider.\nRenders a `<div>` element.",
   "props": {
     "aria-labelledby": {
       "type": "string",

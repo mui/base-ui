@@ -10,15 +10,10 @@ import { useFormContext } from '../../form/FormContext';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * The foundation for building custom-styled fields.
+ * Groups all parts of the field.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Field](https://base-ui.com/components/react-field/)
- *
- * API:
- *
- * - [FieldRoot API](https://base-ui.com/components/react-field/#api-reference-FieldRoot)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldRoot = React.forwardRef(function FieldRoot(
   props: FieldRoot.Props,

@@ -1,6 +1,6 @@
 {
   "name": "PopoverBackdrop",
-  "description": "Renders a backdrop for the popover.",
+  "description": "An overlay displayed beneath the popover.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

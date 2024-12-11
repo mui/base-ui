@@ -1,6 +1,6 @@
 {
   "name": "DialogTrigger",
-  "description": "A button that opens the dialog. Renders a `<button>` element.",
+  "description": "A button that opens the dialog.\nRenders a `<button>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

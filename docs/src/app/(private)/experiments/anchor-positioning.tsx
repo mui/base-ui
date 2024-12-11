@@ -9,6 +9,8 @@ const oppositeSideMap = {
   bottom: 'top',
   left: 'right',
   right: 'left',
+  'inline-start': 'right',
+  'inline-end': 'left',
 } as const;
 
 type Size = 'xs' | 's' | 'm' | 'l' | 'xl';

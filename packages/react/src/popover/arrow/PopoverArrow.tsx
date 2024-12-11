@@ -11,28 +11,22 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * Renders an arrow that points to the center of the anchor element.
+ * Displays an element positioned against the popover anchor.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverArrow API](https://base-ui.com/components/react-popover/#api-reference-PopoverArrow)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverArrow = React.forwardRef(function PopoverArrow(
   props: PopoverArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, hideWhenUncentered = false, ...otherProps } = props;
+  const { className, render, ...otherProps } = props;
 
   const { open } = usePopoverRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
 
   const { getArrowProps } = usePopoverArrow({
     arrowStyles,
-    hidden: hideWhenUncentered && arrowUncentered,
   });
 
   const state: PopoverArrow.State = React.useMemo(
@@ -40,7 +34,7 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
       open,
       side,
       align,
-      arrowUncentered,
+      uncentered: arrowUncentered,
     }),
     [open, side, align, arrowUncentered],
   );
@@ -65,16 +59,10 @@ namespace PopoverArrow {
     open: boolean;
     side: Side;
     align: Align;
-    arrowUncentered: boolean;
+    uncentered: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
-     * @default false
-     */
-    hideWhenUncentered?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 PopoverArrow.propTypes /* remove-proptypes */ = {
@@ -90,11 +78,6 @@ PopoverArrow.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
-   * @default false
-   */
-  hideWhenUncentered: PropTypes.bool,
   /**
    * A function to customize rendering of the component.
    */

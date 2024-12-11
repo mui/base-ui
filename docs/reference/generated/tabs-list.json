@@ -1,6 +1,6 @@
 {
   "name": "TabsList",
-  "description": "",
+  "description": "Groups the individual tab buttons.\nRenders a `<div>` element.",
   "props": {
     "activateOnFocus": {
       "type": "boolean",
