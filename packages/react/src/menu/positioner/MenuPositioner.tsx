@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingList, FloatingNode, FloatingPortal, useFloatingNodeId } from '@floating-ui/react';
+import { FloatingList, FloatingNode, useFloatingNodeId } from '@floating-ui/react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { Side } from '../../utils/useAnchorPositioning';
