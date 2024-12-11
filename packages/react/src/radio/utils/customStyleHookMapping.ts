@@ -1,4 +1,6 @@
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 export const customStyleHookMapping = {
   checked(value): Record<string, string> {
@@ -7,4 +9,8 @@ export const customStyleHookMapping = {
     }
     return { 'data-unchecked': '' };
   },
-} satisfies CustomStyleHookMapping<{ checked: boolean }>;
+  ...transitionStatusMapping,
+} satisfies CustomStyleHookMapping<{
+  checked: boolean;
+  transitionStatus: TransitionStatus;
+}>;
