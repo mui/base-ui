@@ -18,7 +18,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     thumbXRef,
     cornerRef,
     dir,
-    gutter,
     setCornerSize,
     setThumbSize,
     rootId,
@@ -175,24 +174,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     };
   }, [computeThumb, viewportRef]);
 
-  const wrapperStyles: React.CSSProperties = React.useMemo(() => {
-    const styles: React.CSSProperties = {};
-
-    if (!gutter) {
-      return styles;
-    }
-
-    // Unconditional for layout stability: prevent layout shifts when the vertical scrollbar is
-    // hidden/shown.
-    styles[dir === 'rtl' ? 'paddingLeft' : 'paddingRight'] = gutter;
-
-    if (!hiddenState.scrollbarXHidden) {
-      styles.paddingBottom = gutter;
-    }
-
-    return styles;
-  }, [hiddenState, dir, gutter]);
-
   const getViewportProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
@@ -211,7 +192,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
             ref={contentWrapperRef}
             style={{
               minWidth: 'fit-content',
-              ...wrapperStyles,
             }}
           >
             {children}
@@ -222,7 +202,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       rootId,
       hiddenState.scrollbarXHidden,
       hiddenState.scrollbarYHidden,
-      wrapperStyles,
       children,
       computeThumb,
       handleScroll,
