@@ -134,7 +134,7 @@ export namespace useTooltipPositioner {
      */
     arrowPadding?: number;
     /**
-     * Whether the tooltip remains mounted in the DOM while closed.
+     * Whether to keep the HTML element in the DOM while the tooltip is hidden.
      * @default false
      */
     keepMounted?: boolean;

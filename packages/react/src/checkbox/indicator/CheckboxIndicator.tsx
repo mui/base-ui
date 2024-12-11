@@ -86,7 +86,7 @@ namespace CheckboxIndicator {
 
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
-     * Determines if the indicator stays mounted when unchecked.
+     * Whether to keep the element in the DOM when the checkbox is not checked.
      * @default false
      */
     keepMounted?: boolean;
@@ -103,16 +103,19 @@ CheckboxIndicator.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Determines if the indicator stays mounted when unchecked.
+   * Whether to keep the element in the DOM when the checkbox is not checked.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the default HTML element that the component
+   * renders with another element, or compose it with another component.
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

@@ -132,7 +132,7 @@ export namespace usePreviewCardPositioner {
      */
     arrowPadding?: number;
     /**
-     * If `true`, preview card stays mounted in the DOM when closed.
+     * Whether to keep the HTML element in the DOM while the preview card is hidden.
      * @default false
      */
     keepMounted?: boolean;

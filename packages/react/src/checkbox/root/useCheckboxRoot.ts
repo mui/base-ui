@@ -204,8 +204,7 @@ export namespace UseCheckboxRoot {
      */
     defaultChecked?: boolean;
     /**
-     * If `true`, the component is disabled.
-     *
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;

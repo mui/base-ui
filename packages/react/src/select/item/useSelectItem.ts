@@ -177,7 +177,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 export namespace useSelectItem {
   export interface Parameters {
     /**
-     * If `true`, the select item will be disabled.
+     * Whether the component should ignore user actions.
      */
     disabled: boolean;
     /**

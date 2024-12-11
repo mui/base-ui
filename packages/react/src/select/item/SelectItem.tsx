@@ -127,11 +127,12 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the select item will be disabled.
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -165,7 +166,9 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
     current: PropTypes.object,
   }).isRequired,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the default HTML element that the component
+   * renders with another element, or compose it with another component.
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
@@ -290,7 +293,7 @@ namespace SelectItem {
      */
     value?: any;
     /**
-     * If `true`, the select item will be disabled.
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;
@@ -312,7 +315,7 @@ SelectItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the select item will be disabled.
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,

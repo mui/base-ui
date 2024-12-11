@@ -223,7 +223,7 @@ export namespace useMenuRoot {
      */
     direction: TextDirection;
     /**
-     * If `true`, the Menu is disabled.
+     * Whether the component should ignore user actions.
      */
     disabled: boolean;
     /**

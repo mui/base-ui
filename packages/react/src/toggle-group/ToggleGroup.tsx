@@ -109,6 +109,7 @@ export namespace ToggleGroup {
     extends Partial<UseToggleGroup.Parameters>,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;
@@ -133,7 +134,8 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -143,6 +145,7 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.array,
   /**
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -162,7 +165,9 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the default HTML element that the component
+   * renders with another element, or compose it with another component.
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

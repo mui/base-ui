@@ -296,8 +296,7 @@ export namespace useSelectRoot {
      */
     readOnly?: boolean;
     /**
-     * If `true`, the Select is disabled.
-     *
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;

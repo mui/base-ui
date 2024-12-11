@@ -111,29 +111,32 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, sets `hidden="until-found"` when closed. Accordion panels
-   * will remain mounted in the DOM when closed and overrides `keepMounted`.
-   * If `false`, sets `hidden` when closed.
-   * @default false
+   * Allows the browser’s built-in page search to find and expand the panel contents.
+   * Overrides the `keepMounted` prop and uses `hidden="until-found"`
+   * to hide the element instead of removing it from the DOM.
+   *
+   * [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/hidden#the_hidden_until_found_state)
    */
-  hiddenUntilFound: PropTypes.bool,
+  hiddenUntilFound: PropTypes.bool.isRequired,
   /**
    * @ignore
    */
   id: PropTypes.string,
   /**
-   * If `true`, accordion panels remains mounted when closed and is instead
-   * hidden using the `hidden` attribute.
-   * If `false`, accordion panels are unmounted when closed.
+   * Whether to keep the element in the DOM while the panel is closed.
+   * This prop is ignored when `hiddenUntilFound` is used.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the default HTML element that the component
+   * renders with another element, or compose it with another component.
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

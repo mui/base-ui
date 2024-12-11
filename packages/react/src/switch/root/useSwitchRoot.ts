@@ -160,8 +160,7 @@ export namespace useSwitchRoot {
      */
     defaultChecked?: boolean;
     /**
-     * If `true`, the component is disabled and can't be interacted with.
-     *
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;

@@ -124,8 +124,7 @@ namespace MenuRoot {
      */
     orientation?: MenuOrientation;
     /**
-     * If `true`, the Menu is disabled.
-     *
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;
@@ -183,8 +182,7 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
-   * If `true`, the Menu is disabled.
-   *
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,

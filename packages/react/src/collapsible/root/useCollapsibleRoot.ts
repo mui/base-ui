@@ -55,11 +55,11 @@ export namespace useCollapsibleRoot {
      */
     defaultOpen?: boolean;
     /**
-     * Callback fired when the Collapsible is opened or closed.
+     * Event handler called when the panel is opened or closed.
      */
     onOpenChange: (open: boolean) => void;
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled: boolean;

@@ -78,7 +78,7 @@ export namespace useToggle {
      */
     defaultPressed?: boolean;
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled: boolean;
@@ -109,7 +109,7 @@ export namespace useToggle {
      */
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**
-     * If `true`, the Toggle is disabled.
+     * Whether the component should ignore user actions.
      */
     disabled: boolean;
     /**

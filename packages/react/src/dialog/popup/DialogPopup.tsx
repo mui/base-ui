@@ -110,8 +110,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 namespace DialogPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * If `true`, the dialog element is kept in the DOM when closed.
-     *
+     * Whether to keep the HTML element in the DOM while the dialog is hidden.
      * @default false
      */
     keepMounted?: boolean;
@@ -147,7 +146,8 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -169,13 +169,14 @@ DialogPopup.propTypes /* remove-proptypes */ = {
     refType,
   ]),
   /**
-   * If `true`, the dialog element is kept in the DOM when closed.
-   *
+   * Whether to keep the HTML element in the DOM while the dialog is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the default HTML element that the component
+   * renders with another element, or compose it with another component.
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

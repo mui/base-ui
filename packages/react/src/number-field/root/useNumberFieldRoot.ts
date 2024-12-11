@@ -812,7 +812,7 @@ export namespace UseNumberFieldRoot {
      */
     required?: boolean;
     /**
-     * If `true`, the input element is disabled.
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;

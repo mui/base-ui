@@ -71,7 +71,7 @@ export namespace useMenuItem {
      */
     closeOnClick: boolean;
     /**
-     * If `true`, the menu item will be disabled.
+     * Whether the component should ignore user actions.
      */
     disabled: boolean;
     /**

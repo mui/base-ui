@@ -136,16 +136,17 @@ export namespace AccordionRoot {
       >,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
-     * If `true`, sets `hidden="until-found"` when closed. Accordion panels
-     * will remain mounted in the DOM when closed and overrides `keepMounted`.
-     * If `false`, sets `hidden` when closed.
+     * Allows the browser’s built-in page search to find and expand the panel contents.
+     * Overrides the `keepMounted` prop and uses `hidden="until-found"`
+     * to hide the element instead of removing it from the DOM.
+     *
+     * [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/hidden#the_hidden_until_found_state)
      * @default false
      */
     hiddenUntilFound?: boolean;
     /**
-     * If `true`, accordion panels remains mounted when closed and is instead
-     * hidden using the `hidden` attribute.
-     * If `false`, accordion panels are unmounted when closed.
+     * Whether to keep the element in the DOM while the panel is closed.
+     * This prop is ignored when `hiddenUntilFound` is used.
      * @default false
      */
     keepMounted?: boolean;
@@ -164,61 +165,64 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default value representing the currently open `Accordion.Item`
-   * This is the uncontrolled counterpart of `value`.
+   * The uncontrolled value of the item(s) that should be expanded.
+   * To render a controlled accordion, use the `value` prop instead.
    */
   defaultValue: PropTypes.array,
   /**
-   * If `true`, the component is disabled.
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * If `true`, sets `hidden="until-found"` when closed. Accordion panels
-   * will remain mounted in the DOM when closed and overrides `keepMounted`.
-   * If `false`, sets `hidden` when closed.
-   * @default false
+   * Allows the browser’s built-in page search to find and expand the panel contents.
+   * Overrides the `keepMounted` prop and uses `hidden="until-found"`
+   * to hide the element instead of removing it from the DOM.
+   *
+   * [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/hidden#the_hidden_until_found_state)
    */
-  hiddenUntilFound: PropTypes.bool,
+  hiddenUntilFound: PropTypes.bool.isRequired,
   /**
-   * If `true`, accordion panels remains mounted when closed and is instead
-   * hidden using the `hidden` attribute.
-   * If `false`, accordion panels are unmounted when closed.
+   * Whether to keep the element in the DOM while the panel is closed.
+   * This prop is ignored when `hiddenUntilFound` is used.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * If `true`, focus will loop when moving focus between `Trigger`s using
-   * the arrow keys.
+   * Whether to loop keyboard focus back to the first item
+   * when the end of the list is reached using the arrow keys.
    * @default true
    */
   loop: PropTypes.bool,
   /**
-   * Callback fired when an Accordion section is opened or closed.
-   * The value representing the involved section is provided as an argument.
+   * Event handler called when an accordion item is expanded or collapsed.
+   * Provides the new value as an argument.
    */
   onValueChange: PropTypes.func,
   /**
-   * Whether multiple Accordion sections can be opened at the same time.
+   * Whether multiple items can be open at the same time.
    * @default true
    */
   openMultiple: PropTypes.bool,
   /**
-   * The orientation of the accordion.
+   * The visual orientation of the accordion. Controls how arrow keys work.
    * @default 'vertical'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the default HTML element that the component
+   * renders with another element, or compose it with another component.
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The value of the currently open `Accordion.Item`
-   * This is the controlled counterpart of `defaultValue`.
+   * The controlled value of the item(s) that should be expanded.
+   * To render an controlled accordion, use the `defaultValue` prop instead.
    */
   value: PropTypes.array,
 } as any;

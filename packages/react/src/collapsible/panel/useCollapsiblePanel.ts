@@ -308,16 +308,17 @@ export function useCollapsiblePanel(
 export namespace useCollapsiblePanel {
   export interface Parameters {
     /**
-     * If `true`, sets the hidden state using `hidden="until-found"`. The panel
-     * remains mounted in the DOM when closed and overrides `keepMounted`.
-     * If `false`, sets the hidden state using `hidden`.
+     * Allows the browser’s built-in page search to find and expand the panel contents.
+     * Overrides the `keepMounted` prop and uses `hidden="until-found"`
+     * to hide the element instead of removing it from the DOM.
+     *
+     * [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/hidden#the_hidden_until_found_state)
      */
     hiddenUntilFound: boolean;
     panelId: React.HTMLAttributes<Element>['id'];
     /**
-     * If `true` the panel remains mounted in the DOM when closed and is hidden
-     * using the HTML `hidden` attribute.
-     * Using `hiddenUntilFound` overrides this and forces `keepMounted={true}`
+     * Whether to keep the element in the DOM while the panel is closed.
+     * This prop is ignored when `hiddenUntilFound` is used.
      */
     keepMounted: boolean;
     mounted: boolean;
