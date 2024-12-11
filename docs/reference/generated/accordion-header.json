@@ -10,5 +10,14 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
     }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the accordion item is disabled."
+    },
+    "data-index": {
+      "description": "Indicates the index of the accordion item.",
+      "type": "number"
+    }
   }
 }

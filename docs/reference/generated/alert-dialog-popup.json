@@ -23,5 +23,23 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
     }
+  },
+  "dataAttributes": {
+    "data-closed": {
+      "description": "Present when the dialog is closed."
+    },
+    "data-ending-style": {
+      "description": "Present when the dialog is animating out."
+    },
+    "data-nested-dialogs": {
+      "description": "Indicates how many dialogs are nested within.",
+      "type": "number"
+    },
+    "data-open": {
+      "description": "Present when the dialog is open."
+    },
+    "data-starting-style": {
+      "description": "Present when the dialog is animating in."
+    }
   }
 }

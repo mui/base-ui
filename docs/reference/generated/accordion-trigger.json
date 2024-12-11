@@ -10,5 +10,13 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
     }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the accordion item is disabled."
+    },
+    "data-panel-open": {
+      "description": "Present when the accordion panel is open."
+    }
   }
 }
