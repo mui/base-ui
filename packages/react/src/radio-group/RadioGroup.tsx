@@ -111,7 +111,7 @@ namespace RadioGroup {
      */
     readOnly?: boolean;
     /**
-     * Determines if the radio group is required.
+     * Whether the user must choose a value before submitting a form.
      * @default false
      */
     required?: boolean;
@@ -178,7 +178,7 @@ RadioGroup.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * Determines if the radio group is required.
+   * Whether the user must choose a value before submitting a form.
    * @default false
    */
   required: PropTypes.bool,

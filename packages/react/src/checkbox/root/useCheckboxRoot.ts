@@ -223,8 +223,7 @@ export namespace UseCheckboxRoot {
      */
     readOnly?: boolean;
     /**
-     * If `true`, the `input` element is required.
-     *
+     * Whether the user must tick the checkbox before submitting a form.
      * @default false
      */
     required?: boolean;

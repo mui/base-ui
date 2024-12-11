@@ -44,7 +44,7 @@
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the switch must be checked for the browser validation to pass."
+      "description": "Whether the user must activate the switch before submitting a form."
     }
   }
 }

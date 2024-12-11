@@ -286,7 +286,7 @@ export namespace useSelectRoot {
      */
     id?: string;
     /**
-     * If `true`, the Select is required.
+     * Whether the user must choose a value before submitting a form.
      * @default false
      */
     required?: boolean;

@@ -56,7 +56,7 @@
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the `input` element is required."
+      "description": "Whether the user must tick the checkbox before submitting a form."
     }
   }
 }

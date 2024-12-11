@@ -120,6 +120,9 @@ namespace CheckboxRoot {
     checked: boolean;
     disabled: boolean;
     readOnly: boolean;
+    /**
+     * Whether the user must tick the checkbox before submitting a form.
+     */
     required: boolean;
     /**
      * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
@@ -209,8 +212,7 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * If `true`, the `input` element is required.
-   *
+   * Whether the user must tick the checkbox before submitting a form.
    * @default false
    */
   required: PropTypes.bool,

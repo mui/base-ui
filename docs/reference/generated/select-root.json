@@ -46,7 +46,7 @@
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the Select is required."
+      "description": "Whether the user must choose a value before submitting a form."
     },
     "value": {
       "type": "any",

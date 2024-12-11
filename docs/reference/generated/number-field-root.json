@@ -71,7 +71,7 @@
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the input element is required."
+      "description": "Whether the user must enter a value before submitting a form."
     },
     "smallStep": {
       "type": "number",

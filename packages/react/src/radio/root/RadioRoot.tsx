@@ -92,7 +92,7 @@ namespace RadioRoot {
      */
     disabled?: boolean;
     /**
-     * Determines if the radio is required.
+     * Whether the user must choose a value before submitting a form.
      * @default false
      */
     required?: boolean;
@@ -110,6 +110,9 @@ namespace RadioRoot {
     checked: boolean;
     disabled: boolean;
     readOnly: boolean;
+    /**
+     * Whether the user must choose a value before submitting a form.
+     */
     required: boolean;
   }
 }
@@ -146,7 +149,7 @@ RadioRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * Determines if the radio is required.
+   * Whether the user must choose a value before submitting a form.
    * @default false
    */
   required: PropTypes.bool,

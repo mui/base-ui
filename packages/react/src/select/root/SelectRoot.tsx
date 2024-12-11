@@ -162,7 +162,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   readOnly: PropTypes.bool,
   /**
-   * If `true`, the Select is required.
+   * Whether the user must choose a value before submitting a form.
    * @default false
    */
   required: PropTypes.bool,

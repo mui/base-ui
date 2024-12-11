@@ -190,8 +190,7 @@ export namespace useSwitchRoot {
      */
     readOnly?: boolean;
     /**
-     * If `true`, the switch must be checked for the browser validation to pass.
-     *
+     * Whether the user must activate the switch before submitting a form.
      * @default false
      */
     required?: boolean;

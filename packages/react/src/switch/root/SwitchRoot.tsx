@@ -80,6 +80,9 @@ namespace SwitchRoot {
     checked: boolean;
     disabled: boolean;
     readOnly: boolean;
+    /**
+     * Whether the user must activate the switch before submitting a form.
+     */
     required: boolean;
   }
 }
@@ -146,8 +149,7 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * If `true`, the switch must be checked for the browser validation to pass.
-   *
+   * Whether the user must activate the switch before submitting a form.
    * @default false
    */
   required: PropTypes.bool,

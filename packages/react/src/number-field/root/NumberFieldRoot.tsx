@@ -107,7 +107,7 @@ export namespace NumberFieldRoot {
      */
     inputValue: string;
     /**
-     * If `true`, the input element is required.
+     * Whether the user must enter a value before submitting a form.
      */
     required: boolean;
     /**
@@ -231,7 +231,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * If `true`, the input element is required.
+   * Whether the user must enter a value before submitting a form.
    * @default false
    */
   required: PropTypes.bool,

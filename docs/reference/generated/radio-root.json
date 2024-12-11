@@ -28,7 +28,7 @@
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "Determines if the radio is required."
+      "description": "Whether the user must choose a value before submitting a form."
     }
   }
 }

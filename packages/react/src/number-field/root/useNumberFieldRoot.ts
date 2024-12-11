@@ -807,7 +807,7 @@ export namespace UseNumberFieldRoot {
      */
     largeStep?: number;
     /**
-     * If `true`, the input element is required.
+     * Whether the user must enter a value before submitting a form.
      * @default false
      */
     required?: boolean;
