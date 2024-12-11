@@ -9,7 +9,7 @@ import { MenuRootContext } from '../root/MenuRootContext';
 
 const testRootContext: MenuRootContext = {
   floatingRootContext: undefined as unknown as FloatingRootContext,
-  getPositionerProps: (p) => ({ ...p }),
+  getPopupProps: (p) => ({ ...p }),
   getTriggerProps: (p) => ({ ...p }),
   getItemProps: (p) => ({ ...p }),
   parentContext: undefined,
@@ -58,7 +58,13 @@ describe('<Menu.Positioner />', () => {
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>
-              <Menu.Positioner side="bottom" align="start" anchor={anchor} arrowPadding={0}>
+              <Menu.Positioner
+                side="bottom"
+                align="start"
+                anchor={anchor}
+                arrowPadding={0}
+                data-testid="positioner"
+              >
                 <Menu.Popup>
                   <Menu.Item>1</Menu.Item>
                   <Menu.Item>2</Menu.Item>
@@ -70,16 +76,16 @@ describe('<Menu.Positioner />', () => {
         );
       }
 
-      const { getByRole, getByTestId } = await render(<TestComponent />);
+      const { getByTestId } = await render(<TestComponent />);
 
-      const popup = getByRole('menu');
+      const positioner = getByTestId('positioner');
       const anchor = getByTestId('anchor');
 
       const anchorPosition = anchor.getBoundingClientRect();
 
       await flushMicrotasks();
 
-      expect(popup.style.getPropertyValue('transform')).to.equal(
+      expect(positioner.style.getPropertyValue('transform')).to.equal(
         `translate(${anchorPosition.left}px, ${anchorPosition.bottom}px)`,
       );
     });
@@ -100,7 +106,13 @@ describe('<Menu.Positioner />', () => {
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>
-              <Menu.Positioner side="bottom" align="start" anchor={anchor} arrowPadding={0}>
+              <Menu.Positioner
+                side="bottom"
+                align="start"
+                anchor={anchor}
+                arrowPadding={0}
+                data-testid="positioner"
+              >
                 <Menu.Popup>
                   <Menu.Item>1</Menu.Item>
                   <Menu.Item>2</Menu.Item>
@@ -112,16 +124,16 @@ describe('<Menu.Positioner />', () => {
         );
       }
 
-      const { getByRole, getByTestId } = await render(<TestComponent />);
+      const { getByTestId } = await render(<TestComponent />);
 
-      const popup = getByRole('menu');
+      const positioner = getByTestId('positioner');
       const anchor = getByTestId('anchor');
 
       const anchorPosition = anchor.getBoundingClientRect();
 
       await flushMicrotasks();
 
-      expect(popup.style.getPropertyValue('transform')).to.equal(
+      expect(positioner.style.getPropertyValue('transform')).to.equal(
         `translate(${anchorPosition.left}px, ${anchorPosition.bottom}px)`,
       );
     });
@@ -144,7 +156,13 @@ describe('<Menu.Positioner />', () => {
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>
-              <Menu.Positioner side="bottom" align="start" anchor={getAnchor} arrowPadding={0}>
+              <Menu.Positioner
+                side="bottom"
+                align="start"
+                anchor={getAnchor}
+                arrowPadding={0}
+                data-testid="positioner"
+              >
                 <Menu.Popup>
                   <Menu.Item>1</Menu.Item>
                   <Menu.Item>2</Menu.Item>
@@ -156,16 +174,16 @@ describe('<Menu.Positioner />', () => {
         );
       }
 
-      const { getByRole, getByTestId } = await render(<TestComponent />);
+      const { getByTestId } = await render(<TestComponent />);
 
-      const popup = getByRole('menu');
+      const positioner = getByTestId('positioner');
       const anchor = getByTestId('anchor');
 
       const anchorPosition = anchor.getBoundingClientRect();
 
       await flushMicrotasks();
 
-      expect(popup.style.getPropertyValue('transform')).to.equal(
+      expect(positioner.style.getPropertyValue('transform')).to.equal(
         `translate(${anchorPosition.left}px, ${anchorPosition.bottom}px)`,
       );
     });
@@ -191,9 +209,15 @@ describe('<Menu.Positioner />', () => {
 
       const virtualElement = { getBoundingClientRect: () => boundingRect };
 
-      const { getByRole } = await render(
+      const { getByTestId } = await render(
         <Menu.Root open>
-          <Menu.Positioner side="bottom" align="start" anchor={virtualElement} arrowPadding={0}>
+          <Menu.Positioner
+            side="bottom"
+            align="start"
+            anchor={virtualElement}
+            arrowPadding={0}
+            data-testid="positioner"
+          >
             <Menu.Popup>
               <Menu.Item>1</Menu.Item>
               <Menu.Item>2</Menu.Item>
@@ -202,8 +226,8 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      const popup = getByRole('menu');
-      expect(popup.style.getPropertyValue('transform')).to.equal(`translate(200px, 100px)`);
+      const positioner = getByTestId('menu');
+      expect(positioner.style.getPropertyValue('transform')).to.equal(`translate(200px, 100px)`);
     });
   });
 
