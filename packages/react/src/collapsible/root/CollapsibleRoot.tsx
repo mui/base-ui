@@ -109,6 +109,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * Whether the collapsible panel is initially open.
+   *
    * To render a controlled collapsible, use the `open` prop instead.
    * @default false
    */

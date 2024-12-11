@@ -315,6 +315,7 @@ export namespace useSelectRoot {
     defaultValue?: Value | null;
     /**
      * Whether the select menu is initially open.
+     *
      * To render a controlled select menu, use the `open` prop instead.
      * @default false
      */

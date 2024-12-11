@@ -170,6 +170,7 @@ export namespace useTooltipRoot {
   export interface Parameters {
     /**
      * Whether the tooltip is initially open.
+     *
      * To render a controlled tooltip, use the `open` prop instead.
      * @default false
      */

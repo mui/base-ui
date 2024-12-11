@@ -196,6 +196,7 @@ export namespace usePopoverRoot {
   export interface Parameters {
     /**
      * Whether the popover is initially open.
+     *
      * To render a controlled popover, use the `open` prop instead.
      * @default false
      */

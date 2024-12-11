@@ -125,6 +125,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   children: PropTypes.node,
   /**
    * Whether the select menu is initially open.
+   *
    * To render a controlled select menu, use the `open` prop instead.
    * @default false
    */

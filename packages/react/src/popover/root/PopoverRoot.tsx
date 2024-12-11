@@ -128,6 +128,7 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
   closeDelay: PropTypes.number,
   /**
    * Whether the popover is initially open.
+   *
    * To render a controlled popover, use the `open` prop instead.
    * @default false
    */

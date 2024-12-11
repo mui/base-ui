@@ -99,6 +99,7 @@ namespace MenuRoot {
     children: React.ReactNode;
     /**
      * Whether the menu is initially open.
+     *
      * To render a controlled menu, use the `open` prop instead.
      * @default false
      */
@@ -171,6 +172,7 @@ MenuRoot.propTypes /* remove-proptypes */ = {
   closeParentOnEsc: PropTypes.bool,
   /**
    * Whether the menu is initially open.
+   *
    * To render a controlled menu, use the `open` prop instead.
    * @default false
    */

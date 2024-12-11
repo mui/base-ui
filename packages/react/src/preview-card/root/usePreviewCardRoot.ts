@@ -147,6 +147,7 @@ export namespace usePreviewCardRoot {
   export interface Parameters {
     /**
      * Whether the preview card is initially open.
+     *
      * To render a controlled preview card, use the `open` prop instead.
      * @default false
      */

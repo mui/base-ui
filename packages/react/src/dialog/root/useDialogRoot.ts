@@ -159,6 +159,7 @@ export interface CommonParameters {
   open?: boolean;
   /**
    * Whether the dialog is initially open.
+   *
    * To render a controlled dialog, use the `open` prop instead.
    * @default false
    */

@@ -5,7 +5,7 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the dialog is initially open.\nTo render a controlled dialog, use the `open` prop instead."
+      "description": "Whether the dialog is initially open.\n\nTo render a controlled dialog, use the `open` prop instead."
     },
     "onOpenChange": {
       "type": "(open, event) => void",
