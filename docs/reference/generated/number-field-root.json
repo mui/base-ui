@@ -53,7 +53,7 @@
     },
     "name": {
       "type": "string",
-      "description": "The name of the input element."
+      "description": "Identifies the field when a form is submitted."
     },
     "onValueChange": {
       "type": "(value, event) => void",

@@ -245,7 +245,7 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   minStepsBetweenValues: PropTypes.number,
   /**
-   * Name attribute of the hidden `input` element.
+   * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
   /**

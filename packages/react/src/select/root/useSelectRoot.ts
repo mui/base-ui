@@ -278,7 +278,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 export namespace useSelectRoot {
   export interface Parameters<Value> {
     /**
-     * The name of the Select in the owning form.
+     * Identifies the field when a form is submitted.
      */
     name?: string;
     /**

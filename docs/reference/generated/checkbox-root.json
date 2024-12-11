@@ -28,12 +28,12 @@
     },
     "inputRef": {
       "type": "React.Ref",
-      "description": "* A React ref to access the supplementary `<input>` element."
+      "description": "A React ref to access the supplementary `<input>` element."
     },
     "name": {
       "type": "string",
       "default": "undefined",
-      "description": "Name of the underlying input element."
+      "description": "Identifies the field when a form is submitted."
     },
     "onCheckedChange": {
       "type": "(checked, event) => void",

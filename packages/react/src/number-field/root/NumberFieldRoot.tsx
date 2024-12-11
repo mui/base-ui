@@ -209,7 +209,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   min: PropTypes.number,
   /**
-   * The name of the input element.
+   * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
   /**

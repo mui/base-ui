@@ -168,7 +168,8 @@ namespace FieldRoot {
      */
     disabled?: boolean;
     /**
-     * The field's name. Takes precedence over the `name` prop of the `Field.Control` component.
+     * Identifies the field when a form is submitted.
+     * Takes precedence over the `name` prop on the `<Field.Control>` component.
      */
     name?: string;
     /**
@@ -219,7 +220,8 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   invalid: PropTypes.bool,
   /**
-   * The field's name. Takes precedence over the `name` prop of the `Field.Control` component.
+   * Identifies the field when a form is submitted.
+   * Takes precedence over the `name` prop on the `<Field.Control>` component.
    */
   name: PropTypes.string,
   /**

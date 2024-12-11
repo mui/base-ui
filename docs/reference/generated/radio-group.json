@@ -17,7 +17,7 @@
     },
     "name": {
       "type": "string",
-      "description": "The name of the radio group submitted with the form data."
+      "description": "Identifies the field when a form is submitted."
     },
     "onValueChange": {
       "type": "(value, event) => void",

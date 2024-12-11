@@ -41,7 +41,7 @@
     },
     "name": {
       "type": "string",
-      "description": "Name attribute of the hidden `input` element."
+      "description": "Identifies the field when a form is submitted."
     },
     "onValueChange": {
       "type": "(value, event, activeThumbIndex) => void",

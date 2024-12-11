@@ -116,7 +116,7 @@ namespace RadioGroup {
      */
     required?: boolean;
     /**
-     * The name of the radio group submitted with the form data.
+     * Identifies the field when a form is submitted.
      */
     name?: string;
     /**
@@ -158,7 +158,7 @@ RadioGroup.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * The name of the radio group submitted with the form data.
+   * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
   /**

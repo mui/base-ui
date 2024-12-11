@@ -832,7 +832,7 @@ export namespace UseNumberFieldRoot {
      */
     readOnly?: boolean;
     /**
-     * The name of the input element.
+     * Identifies the field when a form is submitted.
      */
     name?: string;
     /**

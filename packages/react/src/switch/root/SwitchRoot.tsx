@@ -121,7 +121,7 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
    */
   inputRef: refType,
   /**
-   * Name of the underlying input element.
+   * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
   /**

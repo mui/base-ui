@@ -141,7 +141,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * The name of the Select in the owning form.
+   * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
   /**

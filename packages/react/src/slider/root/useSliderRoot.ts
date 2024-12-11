@@ -519,7 +519,7 @@ export namespace useSliderRoot {
      */
     minStepsBetweenValues?: number;
     /**
-     * Name attribute of the hidden `input` element.
+     * Identifies the field when a form is submitted.
      */
     name?: string;
     /**
