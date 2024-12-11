@@ -20,11 +20,17 @@
     "data-checked": {
       "description": "Present when the checkbox is checked."
     },
+    "data-dirty": {
+      "description": "Present when the checkbox's value has changed."
+    },
     "data-disabled": {
       "description": "Present when the checkbox is disabled."
     },
     "data-ending-style": {
       "description": "Present when the checkbox indicator is animating out."
+    },
+    "data-invalid": {
+      "description": "Present when the checkbox is in invalid state."
     },
     "data-readonly": {
       "description": "Present when the checkbox is readonly."
@@ -35,8 +41,14 @@
     "data-starting-style": {
       "description": "Present when the checkbox indicator is animating in."
     },
+    "data-touched": {
+      "description": "Present when the checkbox has been thouched."
+    },
     "data-unchecked": {
       "description": "Present when the checkbox is not checked."
+    },
+    "data-valid": {
+      "description": "Present when the checkbox is in valid state."
     }
   }
 }
