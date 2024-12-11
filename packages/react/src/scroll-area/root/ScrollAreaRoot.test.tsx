@@ -72,64 +72,6 @@ describe('<ScrollArea.Root />', () => {
         expect(style.paddingRight).to.equal('0px');
         expect(style.paddingBottom).to.equal('0px');
       });
-
-      it('should add padding for inset scrollbars', async () => {
-        await render(
-          <ScrollArea.Root
-            gutter={SCROLLBAR_WIDTH}
-            style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
-          >
-            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
-              <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
-            </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar
-              orientation="vertical"
-              style={{ width: SCROLLBAR_WIDTH, height: '100%' }}
-            />
-            <ScrollArea.Scrollbar
-              orientation="horizontal"
-              style={{ height: SCROLLBAR_HEIGHT, width: '100%' }}
-            />
-          </ScrollArea.Root>,
-        );
-
-        const contentWrapper = screen.getByTestId('viewport').firstElementChild!;
-        const style = getComputedStyle(contentWrapper);
-
-        expect(style.paddingRight).to.equal(`${SCROLLBAR_WIDTH}px`);
-        expect(style.paddingBottom).to.equal(`${SCROLLBAR_HEIGHT}px`);
-      });
-    });
-
-    describe('prop: dir', () => {
-      it('should adjust inset padding for rtl', async () => {
-        await render(
-          <ScrollArea.Root
-            dir="rtl"
-            gutter={SCROLLBAR_WIDTH}
-            style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
-          >
-            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
-              <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
-            </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar
-              orientation="vertical"
-              style={{ width: SCROLLBAR_WIDTH, height: '100%' }}
-            />
-            <ScrollArea.Scrollbar
-              orientation="horizontal"
-              style={{ height: SCROLLBAR_HEIGHT, width: '100%' }}
-            />
-          </ScrollArea.Root>,
-        );
-
-        const contentWrapper = screen.getByTestId('viewport').firstElementChild!;
-        const style = getComputedStyle(contentWrapper);
-
-        expect(style.paddingLeft).to.equal(`${SCROLLBAR_WIDTH}px`);
-        expect(style.paddingRight).not.to.equal(`${SCROLLBAR_WIDTH}px`);
-        expect(style.paddingBottom).to.equal(`${SCROLLBAR_HEIGHT}px`);
-      });
     });
 
     it('accounts for scrollbar padding', async () => {
