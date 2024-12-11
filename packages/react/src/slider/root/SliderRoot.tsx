@@ -170,7 +170,7 @@ export namespace SliderRoot {
         | 'step'
         | 'value'
       >,
-      Omit<BaseUIComponentProps<'span', State>, 'defaultValue' | 'onChange' | 'values'> {
+      Omit<BaseUIComponentProps<'div', State>, 'defaultValue' | 'onChange' | 'values'> {
     /**
      * The default value of the slider. Use when the component is not controlled.
      */
