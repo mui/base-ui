@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useFloatingTree } from '@floating-ui/react';
+import { FloatingFocusManager, useFloatingTree } from '@floating-ui/react';
 import { useMenuPopup } from './useMenuPopup';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -31,8 +31,11 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { render, className, ...other } = props;
-  const { open, setOpen, popupRef, transitionStatus } = useMenuRootContext();
-  const { side, align } = useMenuPositionerContext();
+
+  const { open, setOpen, popupRef, transitionStatus, nested, mounted, getPopupProps } =
+    useMenuRootContext();
+  const { side, align, floatingContext } = useMenuPositionerContext();
+
   const { events: menuEvents } = useFloatingTree()!;
 
   useMenuPopup({
@@ -53,6 +56,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   );
 
   const { renderElement } = useComponentRenderer({
+    propGetter: getPopupProps,
     render: render || 'div',
     className,
     state,
@@ -66,7 +70,16 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     ref: mergedRef,
   });
 
-  return renderElement();
+  return (
+    <FloatingFocusManager
+      context={floatingContext}
+      modal={false}
+      initialFocus={nested ? -1 : 0}
+      disabled={!mounted}
+    >
+      {renderElement()}
+    </FloatingFocusManager>
+  );
 });
 
 namespace MenuPopup {
