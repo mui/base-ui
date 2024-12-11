@@ -1,6 +1,6 @@
 {
-  "name": "SliderOutput",
-  "description": "Displays the current value of the slider as text.\nRenders an `<output>` element.",
+  "name": "SliderValue",
+  "description": "Demos:\n\n* [Slider](https://base-ui.com/components/react-slider/)\n\nAPI:\n\n* [SliderValue API](https://base-ui.com/components/react-slider/#api-reference-SliderValue)",
   "props": {
     "className": {
       "type": "string | (state) => string",
