@@ -6,7 +6,7 @@ import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
- * By default, the portal element is appended to the `<body>`.
+ * By default, the portal element is appended to `<body>`.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */

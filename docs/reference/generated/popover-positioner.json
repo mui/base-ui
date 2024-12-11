@@ -38,7 +38,7 @@
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to keep the HTML element in the DOM when the popover is hidden."
+      "description": "Whether to keep the HTML element in the DOM while the popover is hidden."
     },
     "positionMethod": {
       "type": "'absolute' | 'fixed'",

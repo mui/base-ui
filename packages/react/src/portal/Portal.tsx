@@ -7,7 +7,7 @@ import { HTMLElementType, refType } from '../utils/proptypes';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
- * By default, the portal element is appended to the `<body>`.
+ * By default, the portal element is appended to `<body>`.
  *
  * Documentation: https://base-ui.com
  */
@@ -32,7 +32,7 @@ namespace Portal {
      */
     container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
     /**
-     * Whether to keep the portal mounted in the DOM when the popup is hidden.
+     * Whether to keep the portal mounted in the DOM while the popup is hidden.
      * @default false
      */
     keepMounted?: boolean;
@@ -55,7 +55,7 @@ Portal.propTypes /* remove-proptypes */ = {
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
   /**
-   * Whether to keep the portal mounted in the DOM when the popup is hidden.
+   * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,

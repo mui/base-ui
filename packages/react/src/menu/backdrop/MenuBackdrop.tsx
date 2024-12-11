@@ -63,7 +63,7 @@ namespace MenuBackdrop {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * Whether to keep the HTML element in the DOM when the menu is hidden.
+     * Whether to keep the HTML element in the DOM while the menu is hidden.
      * @default false
      */
     keepMounted?: boolean;
@@ -85,7 +85,7 @@ MenuBackdrop.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Whether to keep the HTML element in the DOM when the menu is hidden.
+   * Whether to keep the HTML element in the DOM while the menu is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,

@@ -131,7 +131,7 @@ export namespace usePopoverPositioner {
      */
     arrowPadding?: number;
     /**
-     * Whether to keep the HTML element in the DOM when the popover is hidden.
+     * Whether to keep the HTML element in the DOM while the popover is hidden.
      * @default false
      */
     keepMounted?: boolean;
