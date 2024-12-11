@@ -4,16 +4,16 @@
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the backdrop remains mounted when the menu popup is closed."
+      "description": "Whether to keep the HTML element in the DOM when the menu is hidden."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the default HTML element that the component\nrenders with another element, or compose it with another component.\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   }
 }

@@ -15,7 +15,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the menu item will be disabled."
+      "description": "Whether the component should ignore user actions."
     },
     "id": {
       "type": "string",

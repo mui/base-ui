@@ -4,21 +4,21 @@
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "hiddenUntilFound": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, sets the hidden state using `hidden=\"until-found\"`. The panel\nremains mounted in the DOM when closed and overrides `keepMounted`.\nIf `false`, sets the hidden state using `hidden`."
+      "description": "Allows the browser’s built-in page search to find and expand the panel contents.\nOverrides the `keepMounted` prop and uses `hidden=\"until-found\"`\nto hide the element instead of removing it from the DOM.\n\n[MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/hidden#the_hidden_until_found_state)"
     },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the panel remains mounted when closed and is instead\nhidden using the `hidden` attribute\nIf `false`, the panel is unmounted when closed.\nIf the `hiddenUntilFound` prop is used, the panel overrides this prop and\nis remains mounted when closed."
+      "description": "Whether to keep the element in the DOM while the panel is hidden.\nThis prop is ignored when `hiddenUntilFound` is used."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the default HTML element that the component\nrenders with another element, or compose it with another component.\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
   "cssVariables": {

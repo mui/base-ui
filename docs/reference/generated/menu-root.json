@@ -20,7 +20,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the Menu is disabled."
+      "description": "Whether the component should ignore user actions."
     },
     "loop": {
       "type": "boolean",

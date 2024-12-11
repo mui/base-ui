@@ -4,7 +4,7 @@
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "defaultOpen": {
       "type": "boolean",
@@ -14,11 +14,11 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the component is disabled."
+      "description": "Whether the component should ignore user actions."
     },
     "onOpenChange": {
       "type": "(open) => void",
-      "description": "Callback fired when the Collapsible is opened or closed."
+      "description": "Event handler called when the panel is opened or closed."
     },
     "open": {
       "type": "boolean",

@@ -121,8 +121,9 @@ AccordionPanel.propTypes /* remove-proptypes */ = {
    * to hide the element instead of removing it from the DOM.
    *
    * [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/hidden#the_hidden_until_found_state)
+   * @default false
    */
-  hiddenUntilFound: PropTypes.bool.isRequired,
+  hiddenUntilFound: PropTypes.bool,
   /**
    * @ignore
    */

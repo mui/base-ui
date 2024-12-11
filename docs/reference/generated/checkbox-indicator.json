@@ -4,16 +4,16 @@
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Determines if the indicator stays mounted when unchecked."
+      "description": "Whether to keep the element in the DOM when the checkbox is not checked."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the default HTML element that the component\nrenders with another element, or compose it with another component.\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   }
 }

@@ -4,12 +4,12 @@
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the field is disabled. Takes precedence over the `disabled` prop of the `Field.Control`\ncomponent."
+      "description": "Whether the component should ignore user actions.\nTakes precedence over the `disabled` prop on the `<Field.Control>` component."
     },
     "invalid": {
       "type": "boolean",
@@ -21,7 +21,7 @@
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the default HTML element that the component\nrenders with another element, or compose it with another component.\nAccepts a `ReactElement` or a function that returns the element to render."
     },
     "validate": {
       "type": "(value) => string | string[] | null | Promise",
