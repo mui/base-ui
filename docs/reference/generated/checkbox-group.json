@@ -31,5 +31,10 @@
       "type": "string[]",
       "description": "The currently checked values of the checkbox group. Use when controlled."
     }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the checkbox group is disabled."
+    }
   }
 }
