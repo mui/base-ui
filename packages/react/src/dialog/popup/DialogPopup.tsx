@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
+import { FloatingFocusManager } from '@floating-ui/react';
 import { useDialogPopup } from './useDialogPopup';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { refType, HTMLElementType } from '../../utils/proptypes';
+import { refType } from '../../utils/proptypes';
 import { type BaseUIComponentProps } from '../../utils/types';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -31,16 +31,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    className,
-    container,
-    finalFocus,
-    id,
-    initialFocus,
-    keepMounted = false,
-    render,
-    ...other
-  } = props;
+  const { className, finalFocus, id, initialFocus, keepMounted = false, render, ...other } = props;
 
   const {
     descriptionElementId,
@@ -102,28 +93,22 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   }
 
   return (
-    <FloatingPortal root={container}>
-      <FloatingFocusManager
-        context={floatingContext}
-        modal={modal}
-        disabled={!mounted}
-        closeOnFocusOut={dismissible}
-        initialFocus={resolvedInitialFocus}
-        returnFocus={finalFocus}
-        outsideElementsInert
-      >
-        {renderElement()}
-      </FloatingFocusManager>
-    </FloatingPortal>
+    <FloatingFocusManager
+      context={floatingContext}
+      modal={modal}
+      disabled={!mounted}
+      closeOnFocusOut={dismissible}
+      initialFocus={resolvedInitialFocus}
+      returnFocus={finalFocus}
+      outsideElementsInert
+    >
+      {renderElement()}
+    </FloatingFocusManager>
   );
 });
 
 namespace DialogPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * The container element to which the popup is appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
     /**
      * If `true`, the dialog element is kept in the DOM when closed.
      *
@@ -165,10 +150,6 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * The container element to which the popup is appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
   /**
    * Determines an element to focus after the dialog is closed.
    * If not provided, the focus returns to the trigger.

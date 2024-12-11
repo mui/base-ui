@@ -6,10 +6,6 @@
       "type": "string | (state) => string",
       "description": "Class names applied to the element or a function that returns them based on the component's state."
     },
-    "container": {
-      "type": "React.Ref | HTMLElement | null",
-      "description": "The container element to which the popup is appended to."
-    },
     "finalFocus": {
       "type": "React.Ref",
       "description": "Determines an element to focus after the dialog is closed.\nIf not provided, the focus returns to the trigger."

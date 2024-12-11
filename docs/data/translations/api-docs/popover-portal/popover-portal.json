@@ -1,0 +1,10 @@
+{
+  "componentDescription": "",
+  "propDescriptions": {
+    "container": { "description": "The container to render the portal element into." },
+    "keepMounted": {
+      "description": "Whether to keep the portal mounted in the DOM when the popup is closed."
+    }
+  },
+  "classDescriptions": {}
+}

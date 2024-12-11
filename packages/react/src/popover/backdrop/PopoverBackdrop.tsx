@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
@@ -26,7 +24,8 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   props: PopoverBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, container, ...other } = props;
+  const { className, render, keepMounted = false, ...other } = props;
+
   const { open, mounted, transitionStatus } = usePopoverRootContext();
 
   const state: PopoverBackdrop.State = React.useMemo(
@@ -51,7 +50,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     return null;
   }
 
-  return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
+  return renderElement();
 });
 
 namespace PopoverBackdrop {
@@ -66,11 +65,6 @@ namespace PopoverBackdrop {
      * @default false
      */
     keepMounted?: boolean;
-    /**
-     * The container element to which the backdrop is appended to.
-     * @default false
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 }
 
@@ -87,14 +81,6 @@ PopoverBackdrop.propTypes /* remove-proptypes */ = {
    * Class names applied to the element or a function that returns them based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * The container element to which the backdrop is appended to.
-   * @default false
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
-  ]),
   /**
    * If `true`, the backdrop remains mounted when the popover content is closed.
    * @default false

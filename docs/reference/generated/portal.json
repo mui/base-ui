@@ -1,0 +1,15 @@
+{
+  "name": "Portal",
+  "description": "Renders a portal element that moves its children to a different part of the DOM.",
+  "props": {
+    "container": {
+      "type": "React.Ref | HTMLElement | null",
+      "description": "The container to render the portal element into."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to keep the portal mounted in the DOM when the popup is closed."
+    }
+  }
+}

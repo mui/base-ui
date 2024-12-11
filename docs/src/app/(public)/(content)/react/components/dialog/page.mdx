@@ -17,16 +17,21 @@ import { Dialog } from '@base-ui-components/react/dialog';
 
 <Dialog.Root>
   <Dialog.Trigger />
-  <Dialog.Backdrop />
-  <Dialog.Popup>
-    <Dialog.Title />
-    <Dialog.Description />
-    <Dialog.Close />
-  </Dialog.Popup>
+  <Dialog.Portal>
+    <Dialog.Backdrop />
+    <Dialog.Popup>
+      <Dialog.Title />
+      <Dialog.Description />
+      <Dialog.Close />
+    </Dialog.Popup>
+  </Dialog.Portal>
 </Dialog.Root>;
 ```
 
-<Reference component="Dialog" parts="Root, Trigger, Backdrop, Popup, Title, Description, Close" />
+<Reference
+  component="Dialog"
+  parts="Root, Trigger, Portal, Backdrop, Popup, Title, Description, Close"
+/>
 
 ## Examples
 
@@ -37,10 +42,12 @@ By default, Dialog is an uncontrolled component that manages its own state.
 ```tsx title="Uncontrolled dialog"
 <Dialog.Root>
   <Dialog.Trigger>Open</Dialog.Trigger>
-  <Dialog.Popup>
-    <Dialog.Title>Example dialog</Dialog.Title>
-    <Dialog.Close>Close</Dialog.Close>
-  </Dialog.Popup>
+  <Dialog.Portal>
+    <Dialog.Popup>
+      <Dialog.Title>Example dialog</Dialog.Title>
+      <Dialog.Close>Close</Dialog.Close>
+    </Dialog.Popup>
+  </Dialog.Portal>
 </Dialog.Root>
 ```
 
@@ -51,17 +58,19 @@ const [open, setOpen] = React.useState(false);
 return (
   <Dialog.Root open={open} onOpenChange={setOpen}>
     <Dialog.Trigger>Open</Dialog.Trigger>
-    <Dialog.Popup>
-      <form
-        // Close the dialog once the form data is submitted
-        onSubmit={async () => {
-          await submitData();
-          setOpen(false);
-        }}
-      >
-        ...
-      </form>
-    </Dialog.Popup>
+    <Dialog.Portal>
+      <Dialog.Popup>
+        <form
+          // Close the dialog once the form data is submitted
+          onSubmit={async () => {
+            await submitData();
+            setOpen(false);
+          }}
+        >
+          ...
+        </form>
+      </Dialog.Popup>
+    </Dialog.Portal>
   </Dialog.Root>
 );
 ```

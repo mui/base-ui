@@ -2,6 +2,7 @@ export { SelectRoot as Root } from './root/SelectRoot';
 export { SelectTrigger as Trigger } from './trigger/SelectTrigger';
 export { SelectValue as Value } from './value/SelectValue';
 export { SelectIcon as Icon } from './icon/SelectIcon';
+export { SelectPortal as Portal } from './portal/SelectPortal';
 export { SelectBackdrop as Backdrop } from './backdrop/SelectBackdrop';
 export { SelectPositioner as Positioner } from './positioner/SelectPositioner';
 export { SelectPopup as Popup } from './popup/SelectPopup';

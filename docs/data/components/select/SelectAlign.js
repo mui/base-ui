@@ -10,28 +10,30 @@ function AlignItemToTriggerTrue() {
         <Select.Value placeholder="Align item to trigger" />
         <SelectDropdownArrow />
       </SelectTrigger>
-      <SelectPositioner sideOffset={5}>
-        <SelectScrollUpArrow />
-        <SelectPopup>
-          <SelectItem>
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Align item to trigger</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="system">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>System font</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="arial">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Arial</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="roboto">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Roboto</Select.ItemText>
-          </SelectItem>
-        </SelectPopup>
-        <SelectScrollDownArrow />
-      </SelectPositioner>
+      <Select.Portal>
+        <SelectPositioner sideOffset={5}>
+          <SelectScrollUpArrow />
+          <SelectPopup>
+            <SelectItem>
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Align option to trigger</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="system">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>System font</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="arial">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Arial</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="roboto">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Roboto</Select.ItemText>
+            </SelectItem>
+          </SelectPopup>
+          <SelectScrollDownArrow />
+        </SelectPositioner>
+      </Select.Portal>
     </Select.Root>
   );
 }

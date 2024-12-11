@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -36,7 +35,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    container,
     ...otherProps
   } = props;
 
@@ -47,7 +45,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     anchor,
     floatingRootContext,
     positionMethod,
-    container,
     mounted,
     side,
     sideOffset,
@@ -85,11 +82,9 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
-      <FloatingPortal root={container}>
-        <SelectPositionerContext.Provider value={positioner}>
-          {renderElement()}
-        </SelectPositionerContext.Provider>
-      </FloatingPortal>
+      <SelectPositionerContext.Provider value={positioner}>
+        {renderElement()}
+      </SelectPositionerContext.Provider>
     </CompositeList>
   );
 });
@@ -217,31 +212,6 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
       left: PropTypes.number,
       right: PropTypes.number,
       top: PropTypes.number,
-    }),
-  ]),
-  /**
-   * The container element to which the Select popup will be appended to.
-   */
-  container: PropTypes.oneOfType([
-    (props, propName) => {
-      if (props[propName] == null) {
-        return new Error(`Prop '${propName}' is required but wasn't specified`);
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
-    PropTypes.shape({
-      current: (props, propName) => {
-        if (props[propName] == null) {
-          return null;
-        }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop '${propName}' to be of type Element`);
-        }
-        return null;
-      },
     }),
   ]),
   /**
