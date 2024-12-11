@@ -1,6 +1,6 @@
 {
   "name": "Portal",
-  "description": "Renders a portal element that moves its children to a different part of the DOM.",
+  "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to the `<body>`.",
   "props": {
     "container": {
       "type": "React.Ref | HTMLElement | null",

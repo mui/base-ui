@@ -6,7 +6,8 @@ import { usePortalContext } from './PortalContext';
 import { HTMLElementType, refType } from '../utils/proptypes';
 
 /**
- * Renders a portal element that moves its children to a different part of the DOM.
+ * A portal element that moves the popup to a different part of the DOM.
+ * By default, the portal element is appended to the `<body>`.
  *
  * Documentation: https://base-ui.com
  */
