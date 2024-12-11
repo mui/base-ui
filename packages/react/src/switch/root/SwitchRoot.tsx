@@ -78,6 +78,9 @@ namespace SwitchRoot {
      * Whether the switch is currently active.
      */
     checked: boolean;
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     /**
      * Whether the user should be unable to activate or deactivate the switch.

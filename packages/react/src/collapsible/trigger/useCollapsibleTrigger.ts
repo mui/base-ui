@@ -50,6 +50,9 @@ export namespace useCollapsibleTrigger {
      *  The id of the element controlled by the Trigger
      */
     panelId: React.HTMLAttributes<Element>['id'];
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     /**
      * Whether the collapsible panel is currently open.
