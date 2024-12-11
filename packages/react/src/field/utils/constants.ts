@@ -1,3 +1,5 @@
+import { FieldControlDataAttributes } from "../control/FieldControlDataAttributes";
+
 export const DEFAULT_VALIDITY_STATE = {
   badInput: false,
   customError: false,
@@ -19,11 +21,11 @@ export const STYLE_HOOK_MAPPING = {
     }
     if (value) {
       return {
-        'data-valid': '',
+        [FieldControlDataAttributes.valid]: '',
       };
     }
     return {
-      'data-invalid': '',
+      [FieldControlDataAttributes.invalid]: '',
     };
   },
 };
