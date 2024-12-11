@@ -137,10 +137,9 @@ export namespace AccordionRoot {
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
      * Allows the browser’s built-in page search to find and expand the panel contents.
-     * Overrides the `keepMounted` prop and uses `hidden="until-found"`
-     * to hide the element instead of removing it from the DOM.
      *
-     * [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/hidden#the_hidden_until_found_state)
+     * Overrides the `keepMounted` prop and uses `hidden="until-found"`
+     * to hide the element without removing it from the DOM.
      * @default false
      */
     hiddenUntilFound?: boolean;
@@ -181,10 +180,10 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   disabled: PropTypes.bool,
   /**
    * Allows the browser’s built-in page search to find and expand the panel contents.
-   * Overrides the `keepMounted` prop and uses `hidden="until-found"`
-   * to hide the element instead of removing it from the DOM.
    *
-   * [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/hidden#the_hidden_until_found_state)
+   * Overrides the `keepMounted` prop and uses `hidden="until-found"`
+   * to hide the element without removing it from the DOM.
+   *
    * @default false
    */
   hiddenUntilFound: PropTypes.bool,

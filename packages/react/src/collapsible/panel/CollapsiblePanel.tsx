@@ -93,10 +93,10 @@ namespace CollapsiblePanel {
   export interface Props extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
     /**
      * Allows the browser’s built-in page search to find and expand the panel contents.
-     * Overrides the `keepMounted` prop and uses `hidden="until-found"`
-     * to hide the element instead of removing it from the DOM.
      *
-     * [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/hidden#the_hidden_until_found_state)
+     * Overrides the `keepMounted` prop and uses `hidden="until-found"`
+     * to hide the element without removing it from the DOM.
+     *
      * @default false
      */
     hiddenUntilFound?: boolean;
@@ -125,10 +125,10 @@ CollapsiblePanel.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * Allows the browser’s built-in page search to find and expand the panel contents.
-   * Overrides the `keepMounted` prop and uses `hidden="until-found"`
-   * to hide the element instead of removing it from the DOM.
    *
-   * [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/hidden#the_hidden_until_found_state)
+   * Overrides the `keepMounted` prop and uses `hidden="until-found"`
+   * to hide the element without removing it from the DOM.
+   *
    * @default false
    */
   hiddenUntilFound: PropTypes.bool,
