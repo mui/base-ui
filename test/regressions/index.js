@@ -4,6 +4,7 @@ import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import webfontloader from 'webfontloader';
 import TestViewer from './TestViewer';
+import 'docs/src/styles.css';
 import 'docs/src/demo-theme.css';
 import './tailwind.css';
 
