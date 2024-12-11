@@ -15,5 +15,22 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "A function to customize rendering of the component."
     }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the checkbox is checked."
+    },
+    "data-disabled": {
+      "description": "Present when the checkbox is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the checkbox is readonly."
+    },
+    "data-required": {
+      "description": "Present when the checkbox is required."
+    },
+    "data-unchecked": {
+      "description": "Present when the checkbox is not checked."
+    }
   }
 }

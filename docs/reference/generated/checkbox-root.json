@@ -58,5 +58,22 @@
       "default": "false",
       "description": "If `true`, the `input` element is required."
     }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the checkbox is checked."
+    },
+    "data-disabled": {
+      "description": "Present when the checkbox is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the checkbox is readonly."
+    },
+    "data-required": {
+      "description": "Present when the checkbox is required."
+    },
+    "data-unchecked": {
+      "description": "Present when the checkbox is not checked."
+    }
   }
 }
