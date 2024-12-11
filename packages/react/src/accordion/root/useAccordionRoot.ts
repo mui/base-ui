@@ -204,7 +204,7 @@ export namespace useAccordionRoot {
     direction: Direction;
     /**
      * Whether to loop keyboard focus back to the first item
-     * when the end of the list is reached using the arrow keys.
+     * when the end of the list is reached while using the arrow keys.
      * @default true
      */
     loop: boolean;
