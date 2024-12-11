@@ -131,7 +131,7 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
    * Event handler called when the switch is activated or deactivated.
    *
    * @param {boolean} checked The new checked state.
-   * @param {React.ChangeEvent<HTMLInputElement>} event The corresponding event that initiated the change.
+   * @param {Event} event The corresponding event that initiated the change.
    */
   onCheckedChange: PropTypes.func,
   /**
