@@ -1,13 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {
-  FloatingFocusManager,
-  FloatingList,
-  FloatingNode,
-  FloatingPortal,
-  useFloatingNodeId,
-} from '@floating-ui/react';
+import { FloatingList, FloatingNode, useFloatingNodeId } from '@floating-ui/react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { Side } from '../../utils/useAnchorPositioning';
@@ -15,7 +9,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuPositioner } from './useMenuPositioner';
 import { HTMLElementType } from '../../utils/proptypes';
-import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
@@ -42,20 +36,11 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    container,
     ...otherProps
   } = props;
 
-  const {
-    open,
-    floatingRootContext,
-    getPositionerProps,
-    setPositionerElement,
-    nested,
-    itemDomElements,
-    itemLabels,
-    mounted,
-  } = useMenuRootContext();
+  const { open, floatingRootContext, setPositionerElement, itemDomElements, itemLabels, mounted } =
+    useMenuRootContext();
 
   const nodeId = useFloatingNodeId();
 
@@ -63,7 +48,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     anchor,
     floatingRootContext,
     positionMethod,
-    container,
     open,
     mounted,
     side,
@@ -109,8 +93,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: (externalProps: GenericHTMLProps) =>
-      positioner.getPositionerProps(getPositionerProps(externalProps)),
+    propGetter: positioner.getPositionerProps,
     render: render ?? 'div',
     className,
     state,
@@ -128,17 +111,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     <MenuPositionerContext.Provider value={contextValue}>
       <FloatingNode id={nodeId}>
         <FloatingList elementsRef={itemDomElements} labelsRef={itemLabels}>
-          <FloatingPortal root={props.container}>
-            <FloatingFocusManager
-              context={positioner.floatingContext}
-              modal={false}
-              initialFocus={nested ? -1 : 0}
-              returnFocus
-              disabled={!mounted}
-            >
-              {renderElement()}
-            </FloatingFocusManager>
-          </FloatingPortal>
+          {renderElement()}
         </FloatingList>
       </FloatingNode>
     </MenuPositionerContext.Provider>
@@ -147,6 +120,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
 export namespace MenuPositioner {
   export interface State {
+    /**
+     * Whether the menu is currently open.
+     */
     open: boolean;
     side: Side;
     align: 'start' | 'end' | 'center';
@@ -192,7 +168,8 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -224,14 +201,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The container element to which the Menu popup will be appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
-  ]),
-  /**
-   * Whether the menu popup remains mounted in the DOM while closed.
+   * Whether to keep the HTML element in the DOM while the menu is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,
@@ -241,7 +211,10 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

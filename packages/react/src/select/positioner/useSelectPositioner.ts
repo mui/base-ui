@@ -119,10 +119,6 @@ export namespace useSelectPositioner {
      */
     positionMethod?: 'absolute' | 'fixed';
     /**
-     * The container element to which the Select popup will be appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-    /**
      * The side of the anchor element that the Select element should align to.
      * @default 'bottom'
      */
@@ -153,7 +149,7 @@ export namespace useSelectPositioner {
      */
     collisionPadding?: Padding;
     /**
-     * Whether the select popup remains mounted in the DOM while closed.
+     * Whether to keep the HTML element in the DOM while the select menu is hidden.
      * @default true
      */
     keepMounted?: boolean;
@@ -182,7 +178,7 @@ export namespace useSelectPositioner {
      */
     mounted: boolean;
     /**
-     * If `true`, the Select is open.
+     * Whether the select menu is currently open.
      */
     open?: boolean;
     /**

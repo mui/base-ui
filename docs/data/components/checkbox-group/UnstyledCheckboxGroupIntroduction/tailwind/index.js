@@ -92,7 +92,8 @@ const Checkbox = React.forwardRef(function Checkbox(props, ref) {
 
 Checkbox.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };
@@ -118,7 +119,8 @@ const Indicator = React.forwardRef(function Indicator(props, ref) {
 
 Indicator.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };

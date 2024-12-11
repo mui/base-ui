@@ -2,6 +2,7 @@
 import * as React from 'react';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { CheckboxRoot } from '../root/CheckboxRoot';
+import { CheckboxRootDataAttributes } from '../root/CheckboxRootDataAttributes';
 
 export function useCustomStyleHookMapping(state: CheckboxRoot.State) {
   return React.useMemo<CustomStyleHookMapping<typeof state>>(
@@ -14,12 +15,12 @@ export function useCustomStyleHookMapping(state: CheckboxRoot.State) {
 
         if (value) {
           return {
-            'data-checked': '',
+            [CheckboxRootDataAttributes.checked]: '',
           };
         }
 
         return {
-          'data-unchecked': '',
+          [CheckboxRootDataAttributes.unchecked]: '',
         };
       },
     }),

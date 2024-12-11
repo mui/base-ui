@@ -4,20 +4,16 @@
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
-    },
-    "container": {
-      "type": "React.Ref | HTMLElement | null",
-      "description": "The element the `Backdrop` is appended to."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the `Backdrop` remains mounted when the Preview Card `Popup` is closed."
+      "description": "Whether to keep the HTML element in the DOM while the preview card is hidden."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   }
 }

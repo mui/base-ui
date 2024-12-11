@@ -195,18 +195,18 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 export namespace usePopoverRoot {
   export interface Parameters {
     /**
-     * Whether the popover popup is open by default. Use when uncontrolled.
+     * Whether the popover is initially open.
+     *
+     * To render a controlled popover, use the `open` prop instead.
      * @default false
      */
     defaultOpen?: boolean;
     /**
-     * Whether the popover popup is open. Use when controlled.
-     * @default false
+     * Whether the popover is currently open.
      */
     open?: boolean;
     /**
-     * Callback fired when the popover popup is requested to be opened or closed. Use when
-     * controlled.
+     * Event handler called when the popover is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**

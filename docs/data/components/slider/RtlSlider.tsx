@@ -10,7 +10,11 @@ export default function RtlSlider() {
   const isDarkMode = useIsDarkMode();
   return (
     <DirectionProvider direction="rtl">
-      <div className={isDarkMode ? 'dark' : ''} style={{ width: 320, margin: 32 }}>
+      <div
+        className={isDarkMode ? 'dark' : ''}
+        style={{ width: 320, margin: 32 }}
+        dir="rtl"
+      >
         <Slider.Root
           defaultValue={50}
           aria-labelledby="VolumeSliderLabel"

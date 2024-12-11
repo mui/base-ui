@@ -5,7 +5,7 @@
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should be kept mounted when it is not rendered."
+      "description": "Whether to keep the HTML element in the DOM while the select menu is not scrollable."
     }
   }
 }

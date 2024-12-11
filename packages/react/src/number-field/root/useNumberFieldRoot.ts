@@ -807,17 +807,17 @@ export namespace UseNumberFieldRoot {
      */
     largeStep?: number;
     /**
-     * If `true`, the input element is required.
+     * Whether the user must enter a value before submitting a form.
      * @default false
      */
     required?: boolean;
     /**
-     * If `true`, the input element is disabled.
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;
     /**
-     * If `true`, the input element is invalid.
+     * Whether the field is forcefully marked as invalid.
      * @default false
      */
     invalid?: boolean;
@@ -827,12 +827,12 @@ export namespace UseNumberFieldRoot {
      */
     autoFocus?: boolean;
     /**
-     * If `true`, the input element is read only.
+     * Whether the user should be unable to change the field value.
      * @default false
      */
     readOnly?: boolean;
     /**
-     * The name of the input element.
+     * Identifies the field when a form is submitted.
      */
     name?: string;
     /**

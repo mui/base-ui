@@ -154,13 +154,13 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
 
 export interface CommonParameters {
   /**
-   * Determines whether the dialog is open.
+   * Whether the dialog is currently open.
    */
   open?: boolean;
   /**
-   * Determines whether the dialog is initally open.
-   * This is an uncontrolled equivalent of the `open` prop.
+   * Whether the dialog is initially open.
    *
+   * To render a controlled dialog, use the `open` prop instead.
    * @default false
    */
   defaultOpen?: boolean;
@@ -170,7 +170,7 @@ export interface CommonParameters {
    */
   modal?: boolean;
   /**
-   * Callback invoked when the dialog is being opened or closed.
+   * Event handler called when the dialog is opened or closed.
    */
   onOpenChange?: (open: boolean, event?: Event) => void;
   /**
@@ -214,11 +214,11 @@ export namespace useDialogRoot {
      */
     onNestedDialogOpen?: (ownChildrenCount: number) => void;
     /**
-     * Callback to fire when the dialog is requested to be opened or closed.
+     * Event handler called when the dialog is opened or closed.
      */
     onOpenChange: (open: boolean, event?: Event) => void;
     /**
-     * Determines if the dialog is open.
+     * Whether the dialog is currently open.
      */
     open: boolean;
     /**

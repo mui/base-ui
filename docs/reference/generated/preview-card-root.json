@@ -10,7 +10,7 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the preview card popup is open by default. Use when uncontrolled."
+      "description": "Whether the preview card is initially open.\n\nTo render a controlled preview card, use the `open` prop instead."
     },
     "delay": {
       "type": "number",
@@ -19,12 +19,11 @@
     },
     "onOpenChange": {
       "type": "(open, event, reason) => void",
-      "description": "Callback fired when the preview card popup is requested to be opened or closed. Use when\ncontrolled."
+      "description": "Event handler called when the preview card is opened or closed."
     },
     "open": {
       "type": "boolean",
-      "default": "false",
-      "description": "Whether the preview card popup is open. Use when controlled."
+      "description": "Whether the preview card is currently open."
     }
   }
 }

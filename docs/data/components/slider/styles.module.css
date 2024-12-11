@@ -48,6 +48,7 @@
 }
 
 .indicator {
+  position: absolute;
   height: 2px;
   border-radius: 9999px;
   background-color: var(--color-gray-900);

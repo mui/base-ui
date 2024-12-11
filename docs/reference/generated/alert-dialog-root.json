@@ -5,15 +5,15 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "Determines whether the dialog is initally open.\nThis is an uncontrolled equivalent of the `open` prop."
+      "description": "Whether the dialog is initially open.\n\nTo render a controlled dialog, use the `open` prop instead."
     },
     "onOpenChange": {
       "type": "(open, event) => void",
-      "description": "Callback invoked when the dialog is being opened or closed."
+      "description": "Event handler called when the dialog is opened or closed."
     },
     "open": {
       "type": "boolean",
-      "description": "Determines whether the dialog is open."
+      "description": "Whether the dialog is currently open."
     }
   }
 }

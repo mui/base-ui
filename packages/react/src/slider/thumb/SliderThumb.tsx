@@ -12,15 +12,15 @@ import { useSliderThumb } from './useSliderThumb';
 import { isReactVersionAtLeast } from '../../utils/reactVersion';
 
 function defaultRender(
-  props: React.ComponentPropsWithRef<'span'>,
+  props: React.ComponentPropsWithRef<'div'>,
   inputProps: React.ComponentPropsWithRef<'input'>,
 ) {
   const { children, ...thumbProps } = props;
   return (
-    <span {...thumbProps}>
+    <div {...thumbProps}>
       {children}
       <input {...inputProps} />
-    </span>
+    </div>
   );
 }
 
@@ -32,7 +32,7 @@ function defaultRender(
  */
 const SliderThumb = React.forwardRef(function SliderThumb(
   props: SliderThumb.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     render: renderProp,
@@ -51,7 +51,6 @@ const SliderThumb = React.forwardRef(function SliderThumb(
   const {
     active: activeIndex,
     'aria-labelledby': ariaLabelledby,
-    axis,
     changeValue,
     direction,
     disabled: contextDisabled,
@@ -81,7 +80,6 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    axis,
     changeValue,
     direction,
     disabled: disabledProp || contextDisabled,
@@ -145,18 +143,21 @@ export namespace SliderThumb {
 
   export interface Props
     extends Partial<Omit<useSliderThumb.Parameters, 'rootRef'>>,
-      Omit<BaseUIComponentProps<'span', State>, 'render'> {
+      Omit<BaseUIComponentProps<'div', State>, 'render'> {
     onPointerLeave?: React.PointerEventHandler;
     onPointerOver?: React.PointerEventHandler;
     onBlur?: React.FocusEventHandler;
     onFocus?: React.FocusEventHandler;
     onKeyDown?: React.KeyboardEventHandler;
     /**
-     * A function to customize rendering of the component.
+     * Allows you to replace the component’s HTML element
+     * with a different tag, or compose it with another component.
+     *
+     * Accepts a `ReactElement` or a function that returns the element to render.
      */
     render?:
       | ((
-          props: React.ComponentPropsWithRef<'span'>,
+          props: React.ComponentPropsWithRef<'div'>,
           inputProps: React.ComponentPropsWithRef<'input'>,
           state: State,
         ) => React.ReactElement)
@@ -184,7 +185,8 @@ SliderThumb.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -230,7 +232,10 @@ SliderThumb.propTypes /* remove-proptypes */ = {
    */
   onPointerOver: PropTypes.func,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     PropTypes.func,

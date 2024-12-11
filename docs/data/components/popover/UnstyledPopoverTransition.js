@@ -8,12 +8,14 @@ export default function UnstyledPopoverTransition() {
     <div style={{ display: 'flex', gap: 12 }}>
       <Popover.Root>
         <AnchorButton>Trigger</AnchorButton>
-        <Popover.Positioner sideOffset={5}>
-          <PopoverPopup>
-            <PopoverTitle>Popover Title</PopoverTitle>
-            <PopoverDescription>Popover Description</PopoverDescription>
-          </PopoverPopup>
-        </Popover.Positioner>
+        <Popover.Portal>
+          <Popover.Positioner sideOffset={5}>
+            <PopoverPopup>
+              <PopoverTitle>Popover Title</PopoverTitle>
+              <PopoverDescription>Popover Description</PopoverDescription>
+            </PopoverPopup>
+          </Popover.Positioner>
+        </Popover.Portal>
       </Popover.Root>
     </div>
   );

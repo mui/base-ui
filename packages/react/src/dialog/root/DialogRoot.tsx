@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { DialogRootContext } from './DialogRootContext';
 import { type CommonParameters, useDialogRoot } from './useDialogRoot';
+import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the dialog.
@@ -39,7 +40,11 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     [dialogRoot, hasParentDialog, dismissible],
   );
 
-  return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
+  return (
+    <DialogRootContext.Provider value={contextValue}>
+      <PortalContext.Provider value={dialogRoot.mounted}>{children}</PortalContext.Provider>
+    </DialogRootContext.Provider>
+  );
 };
 
 namespace DialogRoot {
@@ -58,9 +63,9 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Determines whether the dialog is initally open.
-   * This is an uncontrolled equivalent of the `open` prop.
+   * Whether the dialog is initially open.
    *
+   * To render a controlled dialog, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
@@ -75,11 +80,11 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   modal: PropTypes.bool,
   /**
-   * Callback invoked when the dialog is being opened or closed.
+   * Event handler called when the dialog is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
-   * Determines whether the dialog is open.
+   * Whether the dialog is currently open.
    */
   open: PropTypes.bool,
 } as any;

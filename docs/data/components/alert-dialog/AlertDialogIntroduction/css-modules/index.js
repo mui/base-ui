@@ -10,16 +10,18 @@ export default function AlertDialogIntroduction() {
         Subscribe
       </AlertDialog.Trigger>
       <AlertDialog.Backdrop className={classes.backdrop} />
-      <AlertDialog.Popup className={classes.popup}>
-        <AlertDialog.Title className={classes.title}>Subscribe</AlertDialog.Title>
-        <AlertDialog.Description>
-          Are you sure you want to subscribe?
-        </AlertDialog.Description>
-        <div className={classes.controls}>
-          <AlertDialog.Close className={classes.close}>Yes</AlertDialog.Close>
-          <AlertDialog.Close className={classes.close}>No</AlertDialog.Close>
-        </div>
-      </AlertDialog.Popup>
+      <AlertDialog.Portal>
+        <AlertDialog.Popup className={classes.popup}>
+          <AlertDialog.Title className={classes.title}>Subscribe</AlertDialog.Title>
+          <AlertDialog.Description>
+            Are you sure you want to subscribe?
+          </AlertDialog.Description>
+          <div className={classes.controls}>
+            <AlertDialog.Close className={classes.close}>Yes</AlertDialog.Close>
+            <AlertDialog.Close className={classes.close}>No</AlertDialog.Close>
+          </div>
+        </AlertDialog.Popup>
+      </AlertDialog.Portal>
     </AlertDialog.Root>
   );
 }

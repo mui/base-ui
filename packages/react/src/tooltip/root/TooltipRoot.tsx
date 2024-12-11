@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useTooltipRoot } from './useTooltipRoot';
 import { OPEN_DELAY } from '../utils/constants';
+import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the tooltip.
@@ -81,7 +82,9 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
   );
 
   return (
-    <TooltipRootContext.Provider value={contextValue}>{props.children}</TooltipRootContext.Provider>
+    <TooltipRootContext.Provider value={contextValue}>
+      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
+    </TooltipRootContext.Provider>
   );
 };
 
@@ -108,7 +111,9 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   closeDelay: PropTypes.number,
   /**
-   * Whether the tooltip popup is open by default. Use when uncontrolled.
+   * Whether the tooltip is initially open.
+   *
+   * To render a controlled tooltip, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
@@ -124,12 +129,11 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   hoverable: PropTypes.bool,
   /**
-   * Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled.
+   * Event handler called when the tooltip is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
-   * Whether the tooltip popup is open. Use when controlled.
-   * @default false
+   * Whether the tooltip is currently open.
    */
   open: PropTypes.bool,
   /**

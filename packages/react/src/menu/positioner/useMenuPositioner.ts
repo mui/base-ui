@@ -76,7 +76,7 @@ export function useMenuPositioner(
 export namespace useMenuPositioner {
   export interface SharedParameters {
     /**
-     * If `true`, the Menu is open.
+     * Whether the menu is currently open.
      */
     open?: boolean;
     /**
@@ -93,10 +93,6 @@ export namespace useMenuPositioner {
      * @default 'absolute'
      */
     positionMethod?: 'absolute' | 'fixed';
-    /**
-     * The container element to which the Menu popup will be appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
     /**
      * The side of the anchor element that the Menu element should align to.
      * @default 'bottom'
@@ -128,7 +124,7 @@ export namespace useMenuPositioner {
      */
     collisionPadding?: Padding;
     /**
-     * Whether the menu popup remains mounted in the DOM while closed.
+     * Whether to keep the HTML element in the DOM while the menu is hidden.
      * @default false
      */
     keepMounted?: boolean;
