@@ -87,7 +87,7 @@ namespace RadioRoot {
      */
     value: unknown;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -135,7 +135,7 @@ RadioRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,

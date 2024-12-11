@@ -155,7 +155,7 @@ export interface FieldValidityData {
 namespace FieldRoot {
   export interface State {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     touched: boolean;
@@ -165,7 +165,7 @@ namespace FieldRoot {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * Takes precedence over the `disabled` prop on the `<Field.Control>` component.
      * @default false
      */
@@ -213,7 +213,7 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * Takes precedence over the `disabled` prop on the `<Field.Control>` component.
    * @default false
    */

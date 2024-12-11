@@ -225,7 +225,7 @@ export namespace useMenuRoot {
      */
     direction: TextDirection;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**

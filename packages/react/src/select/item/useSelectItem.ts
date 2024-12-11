@@ -168,7 +168,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 export namespace useSelectItem {
   export interface Parameters {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**

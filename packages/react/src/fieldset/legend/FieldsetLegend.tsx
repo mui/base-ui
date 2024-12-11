@@ -44,7 +44,7 @@ const FieldsetLegend = React.forwardRef(function FieldsetLegend(
 namespace FieldsetLegend {
   export interface State {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
   }

@@ -59,7 +59,7 @@ namespace MenuTrigger {
   export interface Props extends BaseUIComponentProps<'button', State> {
     children?: React.ReactNode;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -92,7 +92,7 @@ MenuTrigger.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,

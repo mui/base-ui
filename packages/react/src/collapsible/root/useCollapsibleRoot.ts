@@ -60,7 +60,7 @@ export namespace useCollapsibleRoot {
      */
     onOpenChange: (open: boolean) => void;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled: boolean;
@@ -69,7 +69,7 @@ export namespace useCollapsibleRoot {
   export interface ReturnValue {
     panelId: React.HTMLAttributes<Element>['id'];
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     mounted: boolean;

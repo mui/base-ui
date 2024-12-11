@@ -125,7 +125,7 @@ export namespace SliderRoot {
      */
     activeThumbIndex: number;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
@@ -176,7 +176,7 @@ export namespace SliderRoot {
      */
     defaultValue?: number | ReadonlyArray<number>;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -214,7 +214,7 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.number), PropTypes.number]),
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
