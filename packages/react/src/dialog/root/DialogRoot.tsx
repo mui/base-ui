@@ -70,12 +70,12 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * Determines whether the dialog should close when clicking outside of it.
+   * Determines whether the dialog should close on outside clicks.
    * @default true
    */
   dismissible: PropTypes.bool,
   /**
-   * Determines whether the dialog is modal.
+   * Whether the dialog should prevent outside clicks and lock page scroll when open.
    * @default true
    */
   modal: PropTypes.bool,
