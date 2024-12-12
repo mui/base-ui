@@ -8,15 +8,10 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * The input element for the number field.
+ * The native input control in the number field.
+ * Renders an `<input>` element.
  *
- * Demos:
- *
- * - [Number Field](https://base-ui.com/components/react-number-field/)
- *
- * API:
- *
- * - [NumberFieldInput API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldInput)
+ * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   props: NumberFieldInput.Props,
@@ -55,11 +50,15 @@ NumberFieldInput.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

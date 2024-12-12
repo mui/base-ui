@@ -4,16 +4,13 @@ import PropTypes from 'prop-types';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { usePreviewCardRoot } from './usePreviewCardRoot';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
+import { PortalContext } from '../../portal/PortalContext';
 
 /**
+ * Groups all parts of the preview card.
+ * Doesn’t render its own HTML element.
  *
- * Demos:
- *
- * - [Preview Card](https://base-ui.com/components/react-preview-card/)
- *
- * API:
- *
- * - [PreviewCardRoot API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardRoot)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(props) {
   const { delay, closeDelay } = props;
@@ -82,7 +79,7 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
 
   return (
     <PreviewCardRootContext.Provider value={contextValue}>
-      {props.children}
+      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
     </PreviewCardRootContext.Provider>
   );
 };
@@ -110,7 +107,9 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    */
   closeDelay: PropTypes.number,
   /**
-   * Whether the preview card popup is open by default. Use when uncontrolled.
+   * Whether the preview card is initially open.
+   *
+   * To render a controlled preview card, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
@@ -120,13 +119,11 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
-   * Callback fired when the preview card popup is requested to be opened or closed. Use when
-   * controlled.
+   * Event handler called when the preview card is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
-   * Whether the preview card popup is open. Use when controlled.
-   * @default false
+   * Whether the preview card is currently open.
    */
   open: PropTypes.bool,
 } as any;

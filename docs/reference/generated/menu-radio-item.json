@@ -1,6 +1,6 @@
 {
   "name": "MenuRadioItem",
-  "description": "An unstyled radio menu item to be used within a Menu.",
+  "description": "A menu item that works like a radio button in a given group.\nRenders a `<div>` element.",
   "props": {
     "value": {
       "type": "any",
@@ -15,7 +15,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the menu item will be disabled."
+      "description": "Whether the component should ignore user interaction."
     },
     "id": {
       "type": "string",
@@ -28,6 +28,14 @@
     "onClick": {
       "type": "(event) => void",
       "description": "The click handler for the menu item."
+    }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the menu radio item is selected."
+    },
+    "data-unchecked": {
+      "description": "Present when the menu radio item is not selected."
     }
   }
 }

@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -13,14 +12,10 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 
 /**
+ * Positions the select menu popup against the trigger.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectPositioner API](https://base-ui.com/components/react-select/#api-reference-SelectPositioner)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectPositioner = React.forwardRef(function SelectPositioner(
   props: SelectPositioner.Props,
@@ -40,7 +35,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    container,
     ...otherProps
   } = props;
 
@@ -51,7 +45,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     anchor,
     floatingRootContext,
     positionMethod,
-    container,
     mounted,
     side,
     sideOffset,
@@ -89,11 +82,9 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
-      <FloatingPortal root={container}>
-        <SelectPositionerContext.Provider value={positioner}>
-          {renderElement()}
-        </SelectPositionerContext.Provider>
-      </FloatingPortal>
+      <SelectPositionerContext.Provider value={positioner}>
+        {renderElement()}
+      </SelectPositionerContext.Provider>
     </CompositeList>
   );
 });
@@ -117,17 +108,18 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The align of the Select element to the anchor element along its cross axis.
+   * How to align the popup relative to the specified side.
    * @default 'start'
    */
   align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the Select element along its align axis.
+   * Additional offset along the alignment axis of the element.
    * @default 0
    */
   alignOffset: PropTypes.number,
   /**
-   * The anchor element to which the Select popup will be placed at.
+   * An element to position the popup against.
+   * By default, the popup will be positioned against the trigger.
    */
   anchor: PropTypes.oneOfType([
     (props, propName) => {
@@ -166,8 +158,9 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * Determines the padding between the arrow and the Select popup's edges. Useful when the popover
-   * popup has rounded corners via `border-radius`.
+   * Minimum distance to maintain between the arrow and the edges of the popup.
+   *
+   * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
    * @default 5
    */
   arrowPadding: PropTypes.number,
@@ -176,11 +169,12 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The boundary that the Select element should be constrained to.
+   * An element or a rectangle that delimits the area that the popup is confined to.
    * @default 'clipping-ancestors'
    */
   collisionBoundary: PropTypes.oneOfType([
@@ -211,7 +205,7 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The padding of the collision boundary.
+   * Additional space to maintain from the edge of the collision boundary.
    * @default 5
    */
   collisionPadding: PropTypes.oneOfType([
@@ -224,46 +218,25 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The container element to which the Select popup will be appended to.
-   */
-  container: PropTypes.oneOfType([
-    (props, propName) => {
-      if (props[propName] == null) {
-        return new Error(`Prop '${propName}' is required but wasn't specified`);
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
-    PropTypes.shape({
-      current: (props, propName) => {
-        if (props[propName] == null) {
-          return null;
-        }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop '${propName}' to be of type Element`);
-        }
-        return null;
-      },
-    }),
-  ]),
-  /**
    * The CSS position method for positioning the Select popup element.
    * @default 'absolute'
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The side of the anchor element that the Select element should align to.
+   * Which side of the anchor element to align the popup against.
+   * May automatically change to avoid collisions.
    * @default 'bottom'
    */
   side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
-   * The gap between the anchor element and the Select element.
+   * Distance between the anchor and the popup.
    * @default 0
    */
   sideOffset: PropTypes.number,

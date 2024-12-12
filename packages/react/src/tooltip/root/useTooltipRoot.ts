@@ -169,22 +169,22 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 export namespace useTooltipRoot {
   export interface Parameters {
     /**
-     * Whether the tooltip popup is open by default. Use when uncontrolled.
+     * Whether the tooltip is initially open.
+     *
+     * To render a controlled tooltip, use the `open` prop instead.
      * @default false
      */
     defaultOpen?: boolean;
     /**
-     * Whether the tooltip popup is open. Use when controlled.
-     * @default false
+     * Whether the tooltip is currently open.
      */
     open?: boolean;
     /**
-     * Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled.
+     * Event handler called when the tooltip is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
-     * Whether the user can move their cursor from the trigger element toward the tooltip popup element
-     * without it closing using a "safe polygon" technique.
+     * Whether the tooltip contents can be hovered without closing the tooltip.
      * @default true
      */
     hoverable?: boolean;

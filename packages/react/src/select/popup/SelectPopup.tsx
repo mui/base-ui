@@ -12,6 +12,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
@@ -20,14 +21,10 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
 };
 
 /**
+ * A container for the select items.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectPopup API](https://base-ui.com/components/react-select/#api-reference-SelectPopup)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectPopup = React.forwardRef(function SelectPopup(
   props: SelectPopup.Props,
@@ -61,7 +58,12 @@ const SelectPopup = React.forwardRef(function SelectPopup(
     className,
     state,
     customStyleHookMapping,
-    extraProps: otherProps,
+    extraProps:
+      transitionStatus === 'starting'
+        ? mergeReactProps(otherProps, {
+            style: { transition: 'none' },
+          })
+        : otherProps,
   });
 
   const popupSelector = `[data-id="${id}-popup"]`;
@@ -121,7 +123,8 @@ SelectPopup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -129,7 +132,10 @@ SelectPopup.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

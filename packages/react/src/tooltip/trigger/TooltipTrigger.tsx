@@ -8,15 +8,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * Renders a trigger element that opens the tooltip.
+ * An element to attach the tooltip to.
+ * Renders a `<button>` element.
  *
- * Demos:
- *
- * - [Tooltip](https://base-ui.com/components/react-tooltip/)
- *
- * API:
- *
- * - [TooltipTrigger API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipTrigger)
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   props: TooltipTrigger.Props,
@@ -45,6 +40,9 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
 
 namespace TooltipTrigger {
   export interface State {
+    /**
+     * Whether the tooltip is currently open.
+     */
     open: boolean;
   }
 
@@ -57,11 +55,15 @@ TooltipTrigger.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

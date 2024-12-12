@@ -1,14 +1,31 @@
 {
   "name": "FieldDescription",
-  "description": "A description message for the field's control.",
+  "description": "A paragraph with additional information about the field.\nRenders a `<p>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-dirty": {
+      "description": "Present when the field's value has changed."
+    },
+    "data-disabled": {
+      "description": "Present when the field is disabled."
+    },
+    "data-invalid": {
+      "description": "Present when the field is in invalid state."
+    },
+    "data-touched": {
+      "description": "Present when the field has been touched."
+    },
+    "data-valid": {
+      "description": "Present when the field is in valid state."
     }
   }
 }

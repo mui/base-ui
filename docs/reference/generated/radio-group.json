@@ -1,10 +1,10 @@
 {
   "name": "RadioGroup",
-  "description": "",
+  "description": "Provides a shared state to a series of radio buttons.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "defaultValue": {
       "type": "any",
@@ -13,11 +13,11 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Determines if the radio group is disabled."
+      "description": "Whether the component should ignore user interaction."
     },
     "name": {
       "type": "string",
-      "description": "The name of the radio group submitted with the form data."
+      "description": "Identifies the field when a form is submitted."
     },
     "onValueChange": {
       "type": "(value, event) => void",
@@ -26,16 +26,16 @@
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "Determines if the radio group is readonly."
+      "description": "Whether the user should be unable to select a different radio button in the group."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     },
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "Determines if the radio group is required."
+      "description": "Whether the user must choose a value before submitting a form."
     },
     "value": {
       "type": "any",

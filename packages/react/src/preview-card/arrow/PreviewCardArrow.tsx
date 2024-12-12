@@ -11,14 +11,10 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
+ * Displays an element positioned against the preview card anchor.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Preview Card](https://base-ui.com/components/react-preview-card/)
- *
- * API:
- *
- * - [PreviewCardArrow API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardArrow)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   props: PreviewCardArrow.Props,
@@ -60,6 +56,9 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
 
 namespace PreviewCardArrow {
   export interface State {
+    /**
+     * Whether the preview card is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;
@@ -79,11 +78,15 @@ PreviewCardArrow.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

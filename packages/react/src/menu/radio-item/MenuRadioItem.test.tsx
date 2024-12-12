@@ -11,7 +11,7 @@ import { MenuRootContext } from '../root/MenuRootContext';
 
 const testRootContext: MenuRootContext = {
   floatingRootContext: {} as FloatingRootContext,
-  getPositionerProps: (p) => ({ ...p }),
+  getPopupProps: (p) => ({ ...p }),
   getTriggerProps: (p) => ({ ...p }),
   getItemProps: (p) => ({ ...p }),
   parentContext: undefined,

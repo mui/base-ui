@@ -10,42 +10,48 @@ export default function ExampleTooltip() {
           <Tooltip.Trigger aria-label="Bold" className={styles.Button}>
             <BoldIcon className={styles.Icon} />
           </Tooltip.Trigger>
-          <Tooltip.Positioner sideOffset={10}>
-            <Tooltip.Popup className={styles.Popup}>
-              <Tooltip.Arrow className={styles.Arrow}>
-                <ArrowSvg />
-              </Tooltip.Arrow>
-              Bold
-            </Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner sideOffset={10}>
+              <Tooltip.Popup className={styles.Popup}>
+                <Tooltip.Arrow className={styles.Arrow}>
+                  <ArrowSvg />
+                </Tooltip.Arrow>
+                Bold
+              </Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Tooltip.Root>
 
         <Tooltip.Root>
           <Tooltip.Trigger aria-label="Italic" className={styles.Button}>
             <ItalicIcon className={styles.Icon} />
           </Tooltip.Trigger>
-          <Tooltip.Positioner sideOffset={10}>
-            <Tooltip.Popup className={styles.Popup}>
-              <Tooltip.Arrow className={styles.Arrow}>
-                <ArrowSvg />
-              </Tooltip.Arrow>
-              Italic
-            </Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner sideOffset={10}>
+              <Tooltip.Popup className={styles.Popup}>
+                <Tooltip.Arrow className={styles.Arrow}>
+                  <ArrowSvg />
+                </Tooltip.Arrow>
+                Italic
+              </Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Tooltip.Root>
 
         <Tooltip.Root>
           <Tooltip.Trigger aria-label="Underline" className={styles.Button}>
             <UnderlineIcon className={styles.Icon} />
           </Tooltip.Trigger>
-          <Tooltip.Positioner sideOffset={10}>
-            <Tooltip.Popup className={styles.Popup}>
-              <Tooltip.Arrow className={styles.Arrow}>
-                <ArrowSvg />
-              </Tooltip.Arrow>
-              Underline
-            </Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner sideOffset={10}>
+              <Tooltip.Popup className={styles.Popup}>
+                <Tooltip.Arrow className={styles.Arrow}>
+                  <ArrowSvg />
+                </Tooltip.Arrow>
+                Underline
+              </Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Tooltip.Root>
       </div>
     </Tooltip.Provider>

@@ -1,6 +1,6 @@
 {
   "name": "MenuRoot",
-  "description": "",
+  "description": "Groups all parts of the menu.\nDoesn’t render its own HTML element.",
   "props": {
     "closeParentOnEsc": {
       "type": "boolean",
@@ -10,7 +10,7 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the Menu is initially open."
+      "description": "Whether the menu is initially open.\n\nTo render a controlled menu, use the `open` prop instead."
     },
     "delay": {
       "type": "number",
@@ -20,25 +20,25 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the Menu is disabled."
+      "description": "Whether the component should ignore user interaction."
     },
     "loop": {
       "type": "boolean",
       "default": "true",
-      "description": "If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached."
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
     "modal": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines whether the menu is modal."
+      "description": "Whether the menu is modal."
     },
     "onOpenChange": {
       "type": "(open, event) => void",
-      "description": "Callback fired when the component requests to be opened or closed."
+      "description": "Event handler called when the menu is opened or closed."
     },
     "open": {
       "type": "boolean",
-      "description": "Allows to control whether the dropdown is open.\nThis is a controlled counterpart of `defaultOpen`."
+      "description": "Whether the menu is currently open."
     },
     "openOnHover": {
       "type": "boolean",

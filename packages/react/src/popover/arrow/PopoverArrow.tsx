@@ -11,15 +11,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * Renders an arrow that points to the center of the anchor element.
+ * Displays an element positioned against the popover anchor.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverArrow API](https://base-ui.com/components/react-popover/#api-reference-PopoverArrow)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverArrow = React.forwardRef(function PopoverArrow(
   props: PopoverArrow.Props,
@@ -61,6 +56,9 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
 
 namespace PopoverArrow {
   export interface State {
+    /**
+     * Whether the popover is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;
@@ -80,11 +78,15 @@ PopoverArrow.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

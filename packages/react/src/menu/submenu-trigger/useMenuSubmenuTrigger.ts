@@ -59,7 +59,7 @@ export namespace useSubmenuTrigger {
     id: string | undefined;
     highlighted: boolean;
     /**
-     * If `true`, the menu item will be disabled.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**

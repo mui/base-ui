@@ -124,7 +124,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 export namespace useMenuTrigger {
   export interface Parameters {
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -137,7 +137,7 @@ export namespace useMenuTrigger {
      */
     setTriggerElement: (element: HTMLElement | null) => void;
     /**
-     * If `true`, the Menu is open.
+     * Whether the menu is currently open.
      */
     open: boolean;
     /**

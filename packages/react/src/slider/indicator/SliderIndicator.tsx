@@ -7,15 +7,12 @@ import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderIndicator } from './useSliderIndicator';
+
 /**
+ * Visualizes the current value of the slider.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderIndicator API](https://base-ui.com/components/react-slider/#api-reference-SliderIndicator)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderIndicator = React.forwardRef(function SliderIndicator(
   props: SliderIndicator.Props,
@@ -23,11 +20,9 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { axis, direction, disabled, orientation, state, percentageValues } =
-    useSliderRootContext();
+  const { direction, disabled, orientation, state, percentageValues } = useSliderRootContext();
 
   const { getRootProps } = useSliderIndicator({
-    axis,
     direction,
     disabled,
     orientation,
@@ -36,7 +31,7 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
-    render: render ?? 'span',
+    render: render ?? 'div',
     state,
     className,
     ref: forwardedRef,
@@ -48,7 +43,7 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
 });
 
 export namespace SliderIndicator {
-  export interface Props extends BaseUIComponentProps<'span', SliderRoot.State> {}
+  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
 }
 
 export { SliderIndicator };
@@ -63,11 +58,15 @@ SliderIndicator.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

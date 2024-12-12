@@ -12,14 +12,10 @@ import { SliderRootContext } from './SliderRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
 /**
+ * Groups all parts of the slider.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderRoot API](https://base-ui.com/components/react-slider/#api-reference-SliderRoot)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderRoot = React.forwardRef(function SliderRoot(
   props: SliderRoot.Props,
@@ -129,7 +125,7 @@ export namespace SliderRoot {
      */
     activeThumbIndex: number;
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
@@ -174,13 +170,13 @@ export namespace SliderRoot {
         | 'step'
         | 'value'
       >,
-      Omit<BaseUIComponentProps<'span', State>, 'defaultValue' | 'onChange' | 'values'> {
+      Omit<BaseUIComponentProps<'div', State>, 'defaultValue' | 'onChange' | 'values'> {
     /**
      * The default value of the slider. Use when the component is not controlled.
      */
     defaultValue?: number | ReadonlyArray<number>;
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -209,7 +205,8 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -217,7 +214,7 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.number), PropTypes.number]),
   /**
-   * If `true`, the component is disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -248,14 +245,14 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   minStepsBetweenValues: PropTypes.number,
   /**
-   * Name attribute of the hidden `input` element.
+   * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
   /**
    * Callback function that is fired when the slider's value changed.
    *
    * @param {number | number[]} value The new value.
-   * @param {Event} event The event source of the callback.
+   * @param {Event} event The corresponding event that initiated the change.
    * You can pull out the new value by accessing `event.target.value` (any).
    * @param {number} activeThumbIndex Index of the currently moved thumb.
    */
@@ -264,7 +261,7 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    * Callback function that is fired when the `pointerup` is triggered.
    *
    * @param {number | number[]} value The new value.
-   * @param {Event} event The event source of the callback.
+   * @param {Event} event The corresponding event that initiated the change.
    * **Warning**: This is a generic event not a change event.
    */
   onValueCommitted: PropTypes.func,
@@ -274,7 +271,10 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

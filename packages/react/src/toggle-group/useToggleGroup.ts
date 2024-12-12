@@ -72,12 +72,12 @@ export namespace UseToggleGroup {
      * Callback fired when the pressed states of the ToggleGroup changes.
      *
      * @param {any[]} groupValue An array of the `value`s of all the pressed items.
-     * @param {Event} event The event source of the callback.
+     * @param {Event} event The corresponding event that initiated the change.
      */
     onValueChange: (groupValue: any[], event: Event) => void;
     /**
-     * When `true` the component is disabled
-     * @false
+     * Whether the component should ignore user interaction.
+     * @default false
      */
     disabled: boolean;
     /**
@@ -92,8 +92,8 @@ export namespace UseToggleGroup {
   export interface ReturnValue {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**
-     * When `true` the component is disabled.
-     * @false
+     * Whether the component should ignore user interaction.
+     * @default false
      */
     disabled: boolean;
     /**

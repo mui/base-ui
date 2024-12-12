@@ -13,15 +13,10 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 /**
- * The indicator part of the Checkbox.
+ * Indicates whether the checkbox is ticked.
+ * Renders a `<span>` element.
  *
- * Demos:
- *
- * - [Checkbox](https://base-ui.com/components/react-checkbox/)
- *
- * API:
- *
- * - [CheckboxIndicator API](https://base-ui.com/components/react-checkbox/#api-reference-CheckboxIndicator)
+ * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
  */
 const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   props: CheckboxIndicator.Props,
@@ -91,7 +86,7 @@ namespace CheckboxIndicator {
 
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
-     * Determines if the indicator stays mounted when unchecked.
+     * Whether to keep the element in the DOM when the checkbox is not checked.
      * @default false
      */
     keepMounted?: boolean;
@@ -108,16 +103,20 @@ CheckboxIndicator.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Determines if the indicator stays mounted when unchecked.
+   * Whether to keep the element in the DOM when the checkbox is not checked.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

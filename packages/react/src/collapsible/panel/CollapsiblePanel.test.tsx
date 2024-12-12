@@ -23,7 +23,6 @@ const contextValue: CollapsibleRootContext = {
   state: {
     open: true,
     disabled: false,
-    hidden: false,
     transitionStatus: undefined,
   },
 };
@@ -59,6 +58,9 @@ describe('<Collapsible.Panel />', () => {
       const trigger = getByRole('button');
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(trigger.getAttribute('aria-controls')).to.equal(
+        queryByText(PANEL_CONTENT)?.getAttribute('id'),
+      );
       expect(queryByText(PANEL_CONTENT)).to.not.equal(null);
       expect(queryByText(PANEL_CONTENT)).not.toBeVisible();
       expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-closed');
@@ -76,6 +78,9 @@ describe('<Collapsible.Panel />', () => {
       await flushMicrotasks();
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(trigger.getAttribute('aria-controls')).to.equal(
+        queryByText(PANEL_CONTENT)?.getAttribute('id'),
+      );
       expect(queryByText(PANEL_CONTENT)).not.toBeVisible();
       expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-closed');
     });

@@ -5,14 +5,10 @@ import { SelectScrollArrow } from '../scroll-arrow/SelectScrollArrow';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
+ * An element that scrolls the select menu down when hovered.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectScrollDownArrow API](https://base-ui.com/components/react-select/#api-reference-SelectScrollDownArrow)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectScrollDownArrow = React.forwardRef(function SelectScrollDownArrow(
   props: SelectScrollDownArrow.Props,
@@ -25,7 +21,7 @@ namespace SelectScrollDownArrow {
   export interface State {}
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * Whether the component should be kept mounted when it is not rendered.
+     * Whether to keep the HTML element in the DOM while the select menu is not scrollable.
      * @default false
      */
     keepMounted?: boolean;
@@ -42,7 +38,7 @@ SelectScrollDownArrow.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Whether the component should be kept mounted when it is not rendered.
+   * Whether to keep the HTML element in the DOM while the select menu is not scrollable.
    * @default false
    */
   keepMounted: PropTypes.bool,

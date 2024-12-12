@@ -1,43 +1,39 @@
 {
   "name": "SelectPositioner",
-  "description": "",
+  "description": "Positions the select menu popup against the trigger.\nRenders a `<div>` element.",
   "props": {
     "align": {
       "type": "'start' | 'center' | 'end'",
       "default": "'start'",
-      "description": "The align of the Select element to the anchor element along its cross axis."
+      "description": "How to align the popup relative to the specified side."
     },
     "alignOffset": {
       "type": "number",
       "default": "0",
-      "description": "The offset of the Select element along its align axis."
+      "description": "Additional offset along the alignment axis of the element."
     },
     "anchor": {
       "type": "React.Ref | Element | VirtualElement | (() => Element | VirtualElement | null) | null",
-      "description": "The anchor element to which the Select popup will be placed at."
+      "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
     },
     "arrowPadding": {
       "type": "number",
       "default": "5",
-      "description": "Determines the padding between the arrow and the Select popup's edges. Useful when the popover\npopup has rounded corners via `border-radius`."
+      "description": "Minimum distance to maintain between the arrow and the edges of the popup.\n\nUse it to prevent the arrow element from hanging out of the rounded corners of a popup."
     },
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "collisionBoundary": {
       "type": "'clippingAncestors' | Element | Element[] | Rect",
       "default": "'clipping-ancestors'",
-      "description": "The boundary that the Select element should be constrained to."
+      "description": "An element or a rectangle that delimits the area that the popup is confined to."
     },
     "collisionPadding": {
       "type": "number | Rect",
       "default": "5",
-      "description": "The padding of the collision boundary."
-    },
-    "container": {
-      "type": "React.Ref | HTMLElement | null",
-      "description": "The container element to which the Select popup will be appended to."
+      "description": "Additional space to maintain from the edge of the collision boundary."
     },
     "positionMethod": {
       "type": "'absolute' | 'fixed'",
@@ -46,17 +42,17 @@
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     },
     "side": {
       "type": "'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
       "default": "'bottom'",
-      "description": "The side of the anchor element that the Select element should align to."
+      "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions."
     },
     "sideOffset": {
       "type": "number",
       "default": "0",
-      "description": "The gap between the anchor element and the Select element."
+      "description": "Distance between the anchor and the popup."
     },
     "sticky": {
       "type": "boolean",

@@ -105,12 +105,12 @@ export namespace useDialogPopup {
      */
     modal: boolean;
     /**
-     * Determines if the dialog is open.
+     * Whether the dialog is currently open.
      */
     open: boolean;
     openMethod: InteractionType | null;
     /**
-     * Callback fired when the dialog is requested to be opened or closed.
+     * Event handler called when the dialog is opened or closed.
      */
     onOpenChange: (open: boolean, event?: Event) => void;
     /**
@@ -126,9 +126,8 @@ export namespace useDialogPopup {
      */
     setPopupElementId: (id: string | undefined) => void;
     /**
-     * Determines an element to focus when the dialog is opened.
-     * It can be either a ref to the element or a function that returns such a ref.
-     * If not provided, the first focusable element is focused.
+     * Determines the element to focus when the dialog is opened.
+     * By default, the first focusable element is focused.
      */
     initialFocus?:
       | React.RefObject<HTMLElement | null>

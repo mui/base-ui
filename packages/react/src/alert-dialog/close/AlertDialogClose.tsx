@@ -9,14 +9,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 const state = {};
 
 /**
+ * A button that closes the alert dialog.
+ * Renders a `<button>` element.
  *
- * Demos:
- *
- * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
- *
- * API:
- *
- * - [AlertDialogClose API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogClose)
+ * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogClose = React.forwardRef(function AlertDialogClose(
   props: AlertDialogClose.Props,
@@ -54,11 +50,15 @@ AlertDialogClose.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

@@ -74,7 +74,8 @@ export function usePopoverPositioner(
 export namespace usePopoverPositioner {
   export interface SharedParameters {
     /**
-     * The element to which the popover element is anchored to.
+     * An element to position the popup against.
+     * By default, the popup will be positioned against the trigger.
      */
     anchor?:
       | Element
@@ -83,55 +84,56 @@ export namespace usePopoverPositioner {
       | React.MutableRefObject<Element | null>
       | (() => Element | VirtualElement | null);
     /**
-     * The CSS position strategy for positioning the popover element.
+     * Determines which CSS `position` property to use.
      * @default 'absolute'
      */
     positionMethod?: 'absolute' | 'fixed';
     /**
-     * The side of the anchor element that the popover element should be placed at.
+     * Which side of the anchor element to align the popup against.
+     * May automatically change to avoid collisions.
      * @default 'bottom'
      */
     side?: Side;
     /**
-     * The gap between the anchor element and the popover element.
+     * Distance between the anchor and the popup.
      * @default 0
      */
     sideOffset?: number;
     /**
-     * The align of the popover element to the anchor element along its cross axis.
+     * How to align the popup relative to the specified side.
      * @default 'center'
      */
     align?: 'start' | 'end' | 'center';
     /**
-     * The offset of the popover element along its align axis.
+     * Additional offset along the alignment axis of the element.
      * @default 0
      */
     alignOffset?: number;
     /**
-     * The boundary that the popover element should be constrained to.
+     * An element or a rectangle that delimits the area that the popup is confined to.
      * @default 'clipping-ancestors'
      */
     collisionBoundary?: Boundary;
     /**
-     * The padding between the popover element and the edges of the collision boundary to add
-     * whitespace between them to prevent them from touching.
+     * Additional space to maintain from the edge of the collision boundary.
      * @default 5
      */
     collisionPadding?: Padding;
     /**
-     * Whether to allow the popover to remain stuck in view while the anchor element is scrolled out
-     * of view.
+     * Whether to maintain the popup in the viewport after
+     * the anchor element is scrolled out of view.
      * @default false
      */
     sticky?: boolean;
     /**
-     * Determines the padding between the arrow and the popover edges. Useful when the popover
-     * element has rounded corners via `border-radius`.
+     * Minimum distance to maintain between the arrow and the edges of the popup.
+     *
+     * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
      * @default 5
      */
     arrowPadding?: number;
     /**
-     * Whether the popover remains mounted in the DOM while closed.
+     * Whether to keep the HTML element in the DOM while the popover is hidden.
      * @default false
      */
     keepMounted?: boolean;
@@ -148,8 +150,7 @@ export namespace usePopoverPositioner {
      */
     mounted: boolean;
     /**
-     * Whether the popover is open.
-     * @default false
+     * Whether the popover is currently open.
      */
     open?: boolean;
     /**

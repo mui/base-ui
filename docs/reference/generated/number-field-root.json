@@ -1,6 +1,6 @@
 {
   "name": "NumberFieldRoot",
-  "description": "The foundation for building custom-styled number fields.",
+  "description": "Groups all parts of the number field and manages its state.\nRenders a `<div>` element.",
   "props": {
     "allowWheelScrub": {
       "type": "boolean",
@@ -14,7 +14,7 @@
     },
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "defaultValue": {
       "type": "number",
@@ -23,7 +23,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the input element is disabled."
+      "description": "Whether the component should ignore user interaction."
     },
     "format": {
       "type": "Intl.NumberFormatOptions",
@@ -36,7 +36,7 @@
     "invalid": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the input element is invalid."
+      "description": "Whether the field is forcefully marked as invalid."
     },
     "largeStep": {
       "type": "number",
@@ -53,7 +53,7 @@
     },
     "name": {
       "type": "string",
-      "description": "The name of the input element."
+      "description": "Identifies the field when a form is submitted."
     },
     "onValueChange": {
       "type": "(value, event) => void",
@@ -62,16 +62,16 @@
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the input element is read only."
+      "description": "Whether the user should be unable to change the field value."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     },
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the input element is required."
+      "description": "Whether the user must enter a value before submitting a form."
     },
     "smallStep": {
       "type": "number",

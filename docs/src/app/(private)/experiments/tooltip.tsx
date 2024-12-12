@@ -89,16 +89,16 @@ export const TooltipPopup = styled(Tooltip.Popup)`
     transition-property: opacity, transform, visibility;
     transition-duration: 0.2s;
 
-    &[data-ending-style] {
-      opacity: 0;
-      transform: scale(0);
-    }
-
     @starting-style {
-      &[data-open] {
+      & {
         opacity: 0;
         transform: scale(0.8);
       }
+    }
+
+    &[data-ending-style] {
+      opacity: 0;
+      transform: scale(0);
     }
   }
 `;
@@ -188,6 +188,12 @@ export default function TooltipTransitionExperiment() {
       </Tooltip.Root>
 
       <h3>CSS Transition with `@starting-style`</h3>
+      <p>
+        No longer supported due to{' '}
+        <a href="https://github.com/mui/base-ui/pull/992">
+          https://github.com/mui/base-ui/pull/992
+        </a>
+      </p>
       <Tooltip.Root>
         <AnchorButton>Anchor</AnchorButton>
         <Tooltip.Positioner sideOffset={7}>

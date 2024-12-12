@@ -78,7 +78,7 @@ export namespace useToggle {
      */
     defaultPressed?: boolean;
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled: boolean;
@@ -86,7 +86,7 @@ export namespace useToggle {
      * Callback fired when the pressed state is changed.
      *
      * @param {boolean} pressed The new pressed state.
-     * @param {Event} event The event source of the callback.
+     * @param {Event} event The corresponding event that initiated the change.
      */
     onPressedChange: (pressed: boolean, event: Event) => void;
     /**
@@ -109,7 +109,7 @@ export namespace useToggle {
      */
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**
-     * If `true`, the Toggle is disabled.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**

@@ -8,14 +8,10 @@ import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStyleHookMapping } from '../item/styleHooks';
 
 /**
+ * A heading that labels the corresponding panel.
+ * Renders an `<h3>` element.
  *
- * Demos:
- *
- * - [Accordion](https://base-ui.com/components/react-accordion/)
- *
- * API:
- *
- * - [AccordionHeader API](https://base-ui.com/components/react-accordion/#api-reference-AccordionHeader)
+ * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
 const AccordionHeader = React.forwardRef(function AccordionHeader(
   props: AccordionHeader.Props,
@@ -53,11 +49,15 @@ AccordionHeader.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

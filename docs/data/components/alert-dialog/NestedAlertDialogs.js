@@ -8,32 +8,34 @@ export default function NestedAlertDialogs() {
     <BaseAlertDialog.Root>
       <Trigger>Open</Trigger>
       <Backdrop />
-      <Popup>
-        <Title>Alert Dialog 1</Title>
-        <Controls>
-          <BaseAlertDialog.Root>
-            <Trigger>Open Nested</Trigger>
-            <Backdrop />
-            <Popup>
-              <Title>Alert Dialog 2</Title>
-              <Controls>
-                <BaseAlertDialog.Root>
-                  <Trigger>Open Nested</Trigger>
-                  <Backdrop />
-                  <Popup>
-                    <Title>Alert Dialog 3</Title>
-                    <Controls>
-                      <Close>Close</Close>
-                    </Controls>
-                  </Popup>
-                </BaseAlertDialog.Root>
-                <Close>Close</Close>
-              </Controls>
-            </Popup>
-          </BaseAlertDialog.Root>
-          <Close>Close</Close>
-        </Controls>
-      </Popup>
+      <BaseAlertDialog.Portal>
+        <Popup>
+          <Title>Alert Dialog 1</Title>
+          <Controls>
+            <BaseAlertDialog.Root>
+              <Trigger>Open Nested</Trigger>
+              <Backdrop />
+              <Popup>
+                <Title>Alert Dialog 2</Title>
+                <Controls>
+                  <BaseAlertDialog.Root>
+                    <Trigger>Open Nested</Trigger>
+                    <Backdrop />
+                    <Popup>
+                      <Title>Alert Dialog 3</Title>
+                      <Controls>
+                        <Close>Close</Close>
+                      </Controls>
+                    </Popup>
+                  </BaseAlertDialog.Root>
+                  <Close>Close</Close>
+                </Controls>
+              </Popup>
+            </BaseAlertDialog.Root>
+            <Close>Close</Close>
+          </Controls>
+        </Popup>
+      </BaseAlertDialog.Portal>
     </BaseAlertDialog.Root>
   );
 }

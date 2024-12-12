@@ -1,43 +1,43 @@
 {
   "name": "CheckboxRoot",
-  "description": "The foundation for building custom-styled checkboxes.",
+  "description": "Represents the checkbox itself.\nRenders a `<button>` element and a hidden `<input>` beside.",
   "props": {
     "checked": {
       "type": "boolean",
       "default": "undefined",
-      "description": "If `true`, the component is checked."
+      "description": "Whether the checkbox is currently ticked.\n\nTo render an uncontrolled checkbox, use the `defaultChecked` prop instead."
     },
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "defaultChecked": {
       "type": "boolean",
       "default": "false",
-      "description": "The default checked state. Use when the component is not controlled."
+      "description": "Whether the checkbox is initially ticked.\n\nTo render a controlled checkbox, use the `checked` prop instead."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the component is disabled."
+      "description": "Whether the component should ignore user interaction."
     },
     "indeterminate": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the checkbox will be indeterminate."
+      "description": "Whether the checkbox is in a mixed state: neither ticked, nor unticked."
     },
     "inputRef": {
       "type": "React.Ref",
-      "description": "The ref to the input element."
+      "description": "A React ref to access the hidden `<input>` element."
     },
     "name": {
       "type": "string",
       "default": "undefined",
-      "description": "Name of the underlying input element."
+      "description": "Identifies the field when a form is submitted."
     },
     "onCheckedChange": {
       "type": "(checked, event) => void",
-      "description": "Callback fired when the checked state is changed."
+      "description": "Event handler called when the checkbox is ticked or unticked."
     },
     "parent": {
       "type": "boolean",
@@ -47,16 +47,45 @@
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the component is read only."
+      "description": "Whether the user should be unable to tick or untick the checkbox."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     },
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the `input` element is required."
+      "description": "Whether the user must tick the checkbox before submitting a form."
+    }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the checkbox is checked."
+    },
+    "data-dirty": {
+      "description": "Present when the checkbox's value has changed (when wrapped in Field.Root)."
+    },
+    "data-disabled": {
+      "description": "Present when the checkbox is disabled."
+    },
+    "data-invalid": {
+      "description": "Present when the checkbox is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-readonly": {
+      "description": "Present when the checkbox is readonly."
+    },
+    "data-required": {
+      "description": "Present when the checkbox is required."
+    },
+    "data-touched": {
+      "description": "Present when the checkbox has been touched (when wrapped in Field.Root)."
+    },
+    "data-unchecked": {
+      "description": "Present when the checkbox is not checked."
+    },
+    "data-valid": {
+      "description": "Present when the checkbox is in valid state (when wrapped in Field.Root).."
     }
   }
 }

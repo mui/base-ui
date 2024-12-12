@@ -17,14 +17,10 @@ import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStyleHookMapping } from './styleHooks';
 
 /**
+ * Groups an accordion header with the corresponding panel.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Accordion](https://base-ui.com/components/react-accordion/)
- *
- * API:
- *
- * - [AccordionItem API](https://base-ui.com/components/react-accordion/#api-reference-AccordionItem)
+ * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
 const AccordionItem = React.forwardRef(function AccordionItem(
   props: AccordionItem.Props,
@@ -165,20 +161,24 @@ AccordionItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the component is disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * Callback fired when the Collapsible is opened or closed.
+   * Event handler called when the panel is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

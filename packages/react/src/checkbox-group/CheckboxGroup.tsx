@@ -9,15 +9,9 @@ import { useFieldRootContext } from '../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../utils/types';
 
 /**
- * The foundation for building custom-styled checkbox groups.
+ * Provides a shared state to a series of checkboxes.
  *
- * Demos:
- *
- * - [Checkbox Group](https://base-ui.com/components/react-checkbox-group/)
- *
- * API:
- *
- * - [CheckboxGroup API](https://base-ui.com/components/react-checkbox-group/#api-reference-CheckboxGroup)
+ * Documentation: [Base UI Checkbox Group](https://base-ui.com/react/components/checkbox-group)
  */
 const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   props: CheckboxGroup.Props,
@@ -82,6 +76,9 @@ const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
 namespace CheckboxGroup {
   export interface State extends FieldRoot.State {
+    /**
+     * Whether the component should ignore user interaction.
+     */
     disabled: boolean;
   }
   export interface Props extends BaseUIComponentProps<'div', State> {
@@ -103,7 +100,7 @@ namespace CheckboxGroup {
      */
     allValues?: string[];
     /**
-     * Whether the checkbox group is disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -124,7 +121,8 @@ CheckboxGroup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -132,7 +130,7 @@ CheckboxGroup.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.arrayOf(PropTypes.string),
   /**
-   * Whether the checkbox group is disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -142,7 +140,10 @@ CheckboxGroup.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

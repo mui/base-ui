@@ -1,10 +1,10 @@
 {
   "name": "Form",
-  "description": "",
+  "description": "A native form element with consolidated error handling.\nRenders a `<form>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "errors": {
       "type": "Record<string, string | string[]>",
@@ -16,7 +16,7 @@
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   }
 }

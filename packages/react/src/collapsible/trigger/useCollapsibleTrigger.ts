@@ -50,9 +50,13 @@ export namespace useCollapsibleTrigger {
      *  The id of the element controlled by the Trigger
      */
     panelId: React.HTMLAttributes<Element>['id'];
+    /**
+     * Whether the component should ignore user interaction.
+     */
     disabled: boolean;
     /**
-     * The open state of the Collapsible
+     * Whether the collapsible panel is currently open.
+     * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
      */
     open: boolean;
     rootRef: React.Ref<Element>;

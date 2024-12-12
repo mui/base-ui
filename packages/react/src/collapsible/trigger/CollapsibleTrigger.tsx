@@ -9,14 +9,10 @@ import { CollapsibleRoot } from '../root/CollapsibleRoot';
 import { useCollapsibleTrigger } from './useCollapsibleTrigger';
 
 /**
+ * A button that opens and closes the collapsible panel.
+ * Renders a `<button>` element.
  *
- * Demos:
- *
- * - [Collapsible](https://base-ui.com/components/react-collapsible/)
- *
- * API:
- *
- * - [CollapsibleTrigger API](https://base-ui.com/components/react-collapsible/#api-reference-CollapsibleTrigger)
+ * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
  */
 const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   props: CollapsibleTrigger.Props,
@@ -62,7 +58,8 @@ CollapsibleTrigger.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -74,7 +71,10 @@ CollapsibleTrigger.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

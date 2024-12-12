@@ -9,22 +9,18 @@ import { useScrollAreaRoot } from './useScrollAreaRoot';
 const state = {};
 
 /**
+ * Groups all parts of the scroll area.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Scroll Area](https://base-ui.com/components/react-scroll-area/)
- *
- * API:
- *
- * - [ScrollAreaRoot API](https://base-ui.com/components/react-scroll-area/#api-reference-ScrollAreaRoot)
+ * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   props: ScrollAreaRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, dir, gutter = 0, ...otherProps } = props;
+  const { render, className, dir, ...otherProps } = props;
 
-  const scrollAreaRoot = useScrollAreaRoot({ dir, gutter });
+  const scrollAreaRoot = useScrollAreaRoot({ dir });
 
   const { rootId } = scrollAreaRoot;
 
@@ -40,10 +36,9 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const contextValue = React.useMemo(
     () => ({
       dir,
-      gutter,
       ...scrollAreaRoot,
     }),
-    [dir, gutter, scrollAreaRoot],
+    [dir, scrollAreaRoot],
   );
 
   const viewportId = `[data-id="${rootId}-viewport"]`;
@@ -69,13 +64,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 });
 
 namespace ScrollAreaRoot {
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Determines the space to account for inset scrollbars.
-     * @default 0
-     */
-    gutter?: number | string;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {}
 }
@@ -90,7 +79,8 @@ ScrollAreaRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -98,12 +88,10 @@ ScrollAreaRoot.propTypes /* remove-proptypes */ = {
    */
   dir: PropTypes.string,
   /**
-   * Determines the space to account for inset scrollbars.
-   * @default 0
-   */
-  gutter: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

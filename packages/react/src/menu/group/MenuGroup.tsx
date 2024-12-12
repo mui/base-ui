@@ -8,14 +8,10 @@ import { MenuGroupContext } from './MenuGroupContext';
 const state = {};
 
 /**
+ * Groups related menu items with the corresponding label.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuGroup API](https://base-ui.com/components/react-menu/#api-reference-MenuGroup)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuGroup = React.forwardRef(function MenuGroup(
   props: MenuGroup.Props,
@@ -52,11 +48,15 @@ MenuGroup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

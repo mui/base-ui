@@ -5,16 +5,13 @@ import { FloatingTree } from '@floating-ui/react';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot } from './useMenuRoot';
+import { PortalContext } from '../../portal/PortalContext';
 
 /**
+ * Groups all parts of the menu.
+ * Doesn’t render its own HTML element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuRoot API](https://base-ui.com/components/react-menu/#api-reference-MenuRoot)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const {
@@ -76,40 +73,47 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     // set up a FloatingTree to provide the context to nested menus
     return (
       <FloatingTree>
-        <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>
+        <MenuRootContext.Provider value={context}>
+          <PortalContext.Provider value={context.mounted}>{children}</PortalContext.Provider>
+        </MenuRootContext.Provider>
       </FloatingTree>
     );
   }
 
-  return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
+  return (
+    <MenuRootContext.Provider value={context}>
+      <PortalContext.Provider value={context.mounted}>{children}</PortalContext.Provider>
+    </MenuRootContext.Provider>
+  );
 };
 
 namespace MenuRoot {
   export interface Props {
     children: React.ReactNode;
     /**
-     * If `true`, the Menu is initially open.
+     * Whether the menu is initially open.
      *
+     * To render a controlled menu, use the `open` prop instead.
      * @default false
      */
     defaultOpen?: boolean;
     /**
-     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+     * Whether to loop keyboard focus back to the first item
+     * when the end of the list is reached while using the arrow keys.
      * @default true
      */
     loop?: boolean;
     /**
-     * Determines whether the menu is modal.
+     * Whether the menu is modal.
      * @default true
      */
     modal?: boolean;
     /**
-     * Callback fired when the component requests to be opened or closed.
+     * Event handler called when the menu is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event) => void;
     /**
-     * Allows to control whether the dropdown is open.
-     * This is a controlled counterpart of `defaultOpen`.
+     * Whether the menu is currently open.
      */
     open?: boolean;
     /**
@@ -119,8 +123,7 @@ namespace MenuRoot {
      */
     orientation?: MenuOrientation;
     /**
-     * If `true`, the Menu is disabled.
-     *
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -166,8 +169,9 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   closeParentOnEsc: PropTypes.bool,
   /**
-   * If `true`, the Menu is initially open.
+   * Whether the menu is initially open.
    *
+   * To render a controlled menu, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
@@ -178,28 +182,27 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
-   * If `true`, the Menu is disabled.
-   *
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+   * Whether to loop keyboard focus back to the first item
+   * when the end of the list is reached while using the arrow keys.
    * @default true
    */
   loop: PropTypes.bool,
   /**
-   * Determines whether the menu is modal.
+   * Whether the menu is modal.
    * @default true
    */
   modal: PropTypes.bool,
   /**
-   * Callback fired when the component requests to be opened or closed.
+   * Event handler called when the menu is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
-   * Allows to control whether the dropdown is open.
-   * This is a controlled counterpart of `defaultOpen`.
+   * Whether the menu is currently open.
    */
   open: PropTypes.bool,
   /**

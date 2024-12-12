@@ -8,14 +8,10 @@ import { FormContext } from './FormContext';
 import { useEventCallback } from '../utils/useEventCallback';
 
 /**
+ * A native form element with consolidated error handling.
+ * Renders a `<form>` element.
  *
- * Demos:
- *
- * - [Form](https://base-ui.com/components/react-form/)
- *
- * API:
- *
- * - [Form API](https://base-ui.com/components/react-form/#api-reference-Form)
+ * Documentation: [Base UI Form](https://base-ui.com/react/components/form)
  */
 const Form = React.forwardRef(function Form(
   props: Form.Props,
@@ -118,7 +114,8 @@ Form.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -135,7 +132,10 @@ Form.propTypes /* remove-proptypes */ = {
    */
   onSubmit: PropTypes.func,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

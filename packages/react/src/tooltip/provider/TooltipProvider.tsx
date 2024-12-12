@@ -4,16 +4,10 @@ import PropTypes from 'prop-types';
 import { FloatingDelayGroup } from '@floating-ui/react';
 
 /**
- * Provides a shared delay for tooltips so that once a tooltip is shown, the rest of the tooltips in
- * the group will not wait for the delay before showing.
+ * Provides a shared delay for multiple tooltips. The grouping logic ensures that
+ * once a tooltip becomes visible, the adjacent tooltips will be shown instantly.
  *
- * Demos:
- *
- * - [Tooltip](https://base-ui.com/components/react-tooltip/)
- *
- * API:
- *
- * - [TooltipProvider API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipProvider)
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvider(props) {
   const { delay, closeDelay, timeout = 400 } = props;
@@ -28,16 +22,16 @@ namespace TooltipProvider {
   export interface Props {
     children?: React.ReactNode;
     /**
-     * The delay in milliseconds until tooltips within the group are open.
+     * How long to wait before opening a tooltip. Specified in milliseconds.
      */
     delay?: number;
     /**
-     * The delay in milliseconds until tooltips within the group are closed.
+     * How long to wait before closing a tooltip. Specified in milliseconds.
      */
     closeDelay?: number;
     /**
-     * The timeout in milliseconds until the grouping logic is no longer active after the last tooltip
-     * in the group has closed.
+     * Another tooltip will open instantly if the previous tooltip
+     * is closed within this timeout. Specified in milliseconds.
      * @default 400
      */
     timeout?: number;
@@ -54,16 +48,16 @@ TooltipProvider.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The delay in milliseconds until tooltips within the group are closed.
+   * How long to wait before closing a tooltip. Specified in milliseconds.
    */
   closeDelay: PropTypes.number,
   /**
-   * The delay in milliseconds until tooltips within the group are open.
+   * How long to wait before opening a tooltip. Specified in milliseconds.
    */
   delay: PropTypes.number,
   /**
-   * The timeout in milliseconds until the grouping logic is no longer active after the last tooltip
-   * in the group has closed.
+   * Another tooltip will open instantly if the previous tooltip
+   * is closed within this timeout. Specified in milliseconds.
    * @default 400
    */
   timeout: PropTypes.number,

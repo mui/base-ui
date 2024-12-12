@@ -1,6 +1,6 @@
 {
   "name": "TooltipRoot",
-  "description": "The foundation for building custom-styled tooltips.",
+  "description": "Groups all parts of the tooltip.\nDoesn’t render its own HTML element.",
   "props": {
     "closeDelay": {
       "type": "number",
@@ -10,7 +10,7 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the tooltip popup is open by default. Use when uncontrolled."
+      "description": "Whether the tooltip is initially open.\n\nTo render a controlled tooltip, use the `open` prop instead."
     },
     "delay": {
       "type": "number",
@@ -20,16 +20,15 @@
     "hoverable": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether the user can move their cursor from the trigger element toward the tooltip popup element\nwithout it closing using a \"safe polygon\" technique."
+      "description": "Whether the tooltip contents can be hovered without closing the tooltip."
     },
     "onOpenChange": {
       "type": "(open, event, reason) => void",
-      "description": "Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled."
+      "description": "Event handler called when the tooltip is opened or closed."
     },
     "open": {
       "type": "boolean",
-      "default": "false",
-      "description": "Whether the tooltip popup is open. Use when controlled."
+      "description": "Whether the tooltip is currently open."
     },
     "trackCursorAxis": {
       "type": "'none' | 'x' | 'y' | 'both'",

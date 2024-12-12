@@ -8,15 +8,10 @@ import { useForkRef } from '../../utils/useForkRef';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 
 /**
- * The scrub area element.
+ * An interactive area where the user can click and drag to change the field value.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Number Field](https://base-ui.com/components/react-number-field/)
- *
- * API:
- *
- * - [NumberFieldScrubArea API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldScrubArea)
+ * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
   props: NumberFieldScrubArea.Props,
@@ -85,7 +80,8 @@ NumberFieldScrubArea.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -100,7 +96,10 @@ NumberFieldScrubArea.propTypes /* remove-proptypes */ = {
    */
   pixelSensitivity: PropTypes.number,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

@@ -1,27 +1,27 @@
 {
   "name": "FieldRoot",
-  "description": "The foundation for building custom-styled fields.",
+  "description": "Groups all parts of the field.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the field is disabled. Takes precedence over the `disabled` prop of the `Field.Control`\ncomponent."
+      "description": "Whether the component should ignore user interaction.\nTakes precedence over the `disabled` prop on the `<Field.Control>` component."
     },
     "invalid": {
       "type": "boolean",
-      "description": "Determines if the field is forcefully marked as invalid."
+      "description": "Whether the field is forcefully marked as invalid."
     },
     "name": {
       "type": "string",
-      "description": "The field's name. Takes precedence over the `name` prop of the `Field.Control` component."
+      "description": "Identifies the field when a form is submitted.\nTakes precedence over the `name` prop on the `<Field.Control>` component."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     },
     "validate": {
       "type": "(value) => string | string[] | null | Promise",
@@ -36,6 +36,17 @@
       "type": "'onBlur' | 'onChange'",
       "default": "'onBlur'",
       "description": "Determines when validation should be triggered."
+    }
+  },
+  "dataAttributes": {
+    "data-dirty": {
+      "description": "Present when the field's value has changed."
+    },
+    "data-disabled": {
+      "description": "Present when the field is disabled."
+    },
+    "data-touched": {
+      "description": "Present when the field has been touched."
     }
   }
 }

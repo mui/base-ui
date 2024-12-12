@@ -9,15 +9,10 @@ import { usePopoverClose } from './usePopoverClose';
 const state = {};
 
 /**
- * Renders a button that closes the popover when clicked.
+ * A button that closes the popover.
+ * Renders a `<button>` element.
  *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverClose API](https://base-ui.com/components/react-popover/#api-reference-PopoverClose)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverClose = React.forwardRef(function PopoverClose(
   props: PopoverClose.Props,
@@ -61,11 +56,15 @@ PopoverClose.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

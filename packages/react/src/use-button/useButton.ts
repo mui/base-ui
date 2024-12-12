@@ -143,7 +143,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 export namespace useButton {
   export interface Parameters {
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;

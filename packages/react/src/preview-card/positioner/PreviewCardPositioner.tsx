@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositioner } from './usePreviewCardPositioner';
@@ -13,14 +12,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
+ * Positions the popup against the trigger.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Preview Card](https://base-ui.com/components/react-preview-card/)
- *
- * API:
- *
- * - [PreviewCardPositioner API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardPositioner)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
   props: PreviewCardPositioner.Props,
@@ -40,7 +35,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     arrowPadding = 5,
     sticky = false,
     keepMounted = false,
-    container,
     ...otherProps
   } = props;
 
@@ -50,7 +44,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     anchor,
     floatingRootContext,
     positionMethod,
-    container,
     open,
     mounted,
     keepMounted,
@@ -110,13 +103,16 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
 
   return (
     <PreviewCardPositionerContext.Provider value={contextValue}>
-      <FloatingPortal root={container}>{renderElement()}</FloatingPortal>
+      {renderElement()}
     </PreviewCardPositionerContext.Provider>
   );
 });
 
 namespace PreviewCardPositioner {
   export interface State {
+    /**
+     * Whether the preview card is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;
@@ -134,17 +130,18 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The align of the preview card element to the anchor element along its cross axis.
+   * How to align the popup relative to the specified side.
    * @default 'center'
    */
   align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the preview card element along its align axis.
+   * Additional offset along the alignment axis of the element.
    * @default 0
    */
   alignOffset: PropTypes.number,
   /**
-   * The anchor element to which the preview card popup will be placed at.
+   * An element to position the popup against.
+   * By default, the popup will be positioned against the trigger.
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
@@ -152,8 +149,9 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
     PropTypes.func,
   ]),
   /**
-   * Determines the padding between the arrow and the preview card popup's edges. Useful when the
-   * preview card popup has rounded corners via `border-radius`.
+   * Minimum distance to maintain between the arrow and the edges of the popup.
+   *
+   * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
    * @default 5
    */
   arrowPadding: PropTypes.number,
@@ -162,11 +160,12 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The boundary that the preview card element should be constrained to.
+   * An element or a rectangle that delimits the area that the popup is confined to.
    * @default 'clipping-ancestors'
    */
   collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
@@ -181,7 +180,7 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The padding of the collision boundary.
+   * Additional space to maintain from the edge of the collision boundary.
    * @default 5
    */
   collisionPadding: PropTypes.oneOfType([
@@ -194,33 +193,30 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The container element to which the preview card popup will be appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
-  ]),
-  /**
-   * If `true`, preview card stays mounted in the DOM when closed.
+   * Whether to keep the HTML element in the DOM while the preview card is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * The CSS position strategy for positioning the preview card popup element.
+   * Determines which CSS `position` property to use.
    * @default 'absolute'
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The side of the anchor element that the preview card element should align to.
+   * Which side of the anchor element to align the popup against.
+   * May automatically change to avoid collisions.
    * @default 'bottom'
    */
   side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
-   * The gap between the anchor element and the preview card element.
+   * Distance between the anchor and the popup.
    * @default 0
    */
   sideOffset: PropTypes.number,

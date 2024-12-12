@@ -93,12 +93,28 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     params.onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
+
+    // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
+    // option upon close when tabbing out due to `keepMounted=true`:
+    // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
+    // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
+    // when tabbing outside.
+    if (!nextOpen && activeIndex !== null) {
+      const activeOption = listRef.current[activeIndex];
+      // Wait for Floating UI's focus effect to have fired
+      queueMicrotask(() => {
+        activeOption?.setAttribute('tabindex', '-1');
+      });
+    }
   });
 
   useAfterExitAnimation({
     open,
     animatedElementRef: popupRef,
-    onFinished: () => setMounted(false),
+    onFinished() {
+      setMounted(false);
+      setActiveIndex(null);
+    },
   });
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
@@ -156,7 +172,14 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     listRef,
     activeIndex,
     selectedIndex,
-    onNavigate: setActiveIndex,
+    onNavigate(nextActiveIndex) {
+      // Retain the highlight while transitioning out.
+      if (nextActiveIndex === null && !open) {
+        return;
+      }
+
+      setActiveIndex(nextActiveIndex);
+    },
     // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
     // the `alignItemToTrigger` prop enabled, causing a performance issue on Chrome.
     focusItemOnHover: false,
@@ -281,7 +304,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 export namespace useSelectRoot {
   export interface Parameters<Value> {
     /**
-     * The name of the Select in the owning form.
+     * Identifies the field when a form is submitted.
      */
     name?: string;
     /**
@@ -289,18 +312,17 @@ export namespace useSelectRoot {
      */
     id?: string;
     /**
-     * If `true`, the Select is required.
+     * Whether the user must choose a value before submitting a form.
      * @default false
      */
     required?: boolean;
     /**
-     * If `true`, the Select is read-only.
+     * Whether the user should be unable to choose a different option from the select menu.
      * @default false
      */
     readOnly?: boolean;
     /**
-     * If `true`, the Select is disabled.
-     *
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -318,18 +340,18 @@ export namespace useSelectRoot {
      */
     defaultValue?: Value | null;
     /**
-     * If `true`, the Select is initially open.
+     * Whether the select menu is initially open.
      *
+     * To render a controlled select menu, use the `open` prop instead.
      * @default false
      */
     defaultOpen?: boolean;
     /**
-     * Callback fired when the component requests to be opened or closed.
+     * Event handler called when the select menu is opened or closed.
      */
     onOpenChange?: (open: boolean, event: Event | undefined) => void;
     /**
-     * Allows to control whether the dropdown is open.
-     * This is a controlled counterpart of `defaultOpen`.
+     * Whether the select menu is currently open.
      */
     open?: boolean;
     /**
@@ -342,7 +364,7 @@ export namespace useSelectRoot {
      */
     transitionStatus?: TransitionStatus;
     /**
-     * Determines whether the select is modal.
+     * Whether the select is modal.
      * @default true
      */
     modal?: boolean;

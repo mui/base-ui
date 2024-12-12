@@ -9,6 +9,10 @@ import { useEventCallback } from '../../utils/useEventCallback';
 const EMPTY_OBJECT = {};
 const NOOP = () => {};
 
+/**
+ * Groups related radio items.
+ * Renders a `<div>` element.
+ */
 const MenuRadioGroup = React.forwardRef(function MenuRadioGroup(
   props: MenuRadioGroup.Props,
   forwardedRef: React.ForwardedRef<Element>,
@@ -100,7 +104,8 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -115,7 +120,10 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
@@ -127,13 +135,9 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
 const MemoizedMenuRadioGroup = React.memo(MenuRadioGroup);
 
 /**
+ * Groups related radio items.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuRadioGroup API](https://base-ui.com/components/react-menu/#api-reference-MenuRadioGroup)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export { MemoizedMenuRadioGroup as MenuRadioGroup };

@@ -9,14 +9,10 @@ import { TabsRoot, type TabValue } from '../root/TabsRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
+ * A panel displayed when the corresponding tab is active.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Tabs](https://base-ui.com/components/react-tabs/)
- *
- * API:
- *
- * - [TabsPanel API](https://base-ui.com/components/react-tabs/#api-reference-TabsPanel)
+ * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
 const TabsPanel = React.forwardRef(function TabPanel(
   props: TabsPanel.Props,
@@ -72,7 +68,7 @@ namespace TabsPanel {
      */
     value?: TabValue;
     /**
-     * If `true`, keeps the contents of the hidden TabPanel in the DOM.
+     * Whether to keep the HTML element in the DOM while the panel is hidden.
      * @default false
      */
     keepMounted?: boolean;
@@ -91,16 +87,20 @@ TabsPanel.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, keeps the contents of the hidden TabPanel in the DOM.
+   * Whether to keep the HTML element in the DOM while the panel is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
