@@ -93,6 +93,7 @@ export async function buildReference() {
     const json: ComponentDef = {
       name: componentData.name,
       description: descriptionData.componentDescription,
+      // manually sort since overrides may interrupt alphabetical order
       props: Object.fromEntries(Object.entries(props).sort()),
       dataAttributes,
       cssVariables,
