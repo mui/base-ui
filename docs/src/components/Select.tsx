@@ -7,7 +7,6 @@ import { ThickCheckIcon } from './icons/ThickCheckIcon';
 export const Root = Select.Root;
 
 interface TriggerProps extends Select.Trigger.Props {
-  render: NonNullable<Select.Trigger.Props['render']>;
   ssrFallback?: string;
   placeholder?: Select.Value.Props['placeholder'];
 }
