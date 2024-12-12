@@ -131,7 +131,8 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The default value of the select.
+   * The uncontrolled value of the select when it’s initially rendered.
+   * To render a controlled select, use the `value` prop instead.
    * @default null
    */
   defaultValue: PropTypes.any,

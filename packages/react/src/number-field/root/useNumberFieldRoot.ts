@@ -840,7 +840,8 @@ export namespace UseNumberFieldRoot {
      */
     value?: number | null;
     /**
-     * The default value of the input element. Use when the component is not controlled.
+     * The uncontrolled value of the field when it’s initially rendered.
+     * To render a controlled number field, use the `value` prop instead.
      */
     defaultValue?: number;
     /**

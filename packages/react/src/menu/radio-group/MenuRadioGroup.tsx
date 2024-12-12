@@ -79,8 +79,8 @@ namespace MenuRadioGroup {
      */
     value?: any;
     /**
-     * The default value of the selected radio button.
-     * This is the uncontrolled equivalent of `value`.
+     * The uncontrolled value of the radio group when it’s initially rendered.
+     * To render a controlled radio group, use the `value` prop instead.
      */
     defaultValue?: any;
     /**
@@ -109,8 +109,8 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default value of the selected radio button.
-   * This is the uncontrolled equivalent of `value`.
+   * The uncontrolled value of the radio group when it’s initially rendered.
+   * To render a controlled radio group, use the `value` prop instead.
    */
   defaultValue: PropTypes.any,
   /**

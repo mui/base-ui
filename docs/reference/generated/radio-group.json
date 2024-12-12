@@ -8,7 +8,7 @@
     },
     "defaultValue": {
       "type": "any",
-      "description": "The default value of the selected radio button. Use when uncontrolled."
+      "description": "The uncontrolled value of the radio group when it’s initially rendered.\nTo render a controlled radio group, use the `value` prop instead."
     },
     "disabled": {
       "type": "boolean",

@@ -12,7 +12,7 @@
     },
     "defaultValue": {
       "type": "any",
-      "description": "The default value of the selected radio button.\nThis is the uncontrolled equivalent of `value`."
+      "description": "The uncontrolled value of the radio group when it’s initially rendered.\nTo render a controlled radio group, use the `value` prop instead."
     },
     "onValueChange": {
       "type": "(value, event) => void",

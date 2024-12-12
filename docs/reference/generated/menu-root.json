@@ -42,7 +42,7 @@
     "orientation": {
       "type": "'horizontal' | 'vertical'",
       "default": "'vertical'",
-      "description": "The visual orientation of the menu.\nControls whether the roving focus uses up/down or left/right arrow keys."
+      "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys."
     }
   }
 }

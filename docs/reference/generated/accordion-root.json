@@ -42,7 +42,7 @@
     "orientation": {
       "type": "'horizontal' | 'vertical'",
       "default": "'vertical'",
-      "description": "The visual orientation of the accordion.\nControls whether the roving focus uses left/right or up/down arrow keys."
+      "description": "The visual orientation of the accordion.\nControls whether roving focus uses left/right or up/down arrow keys."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
