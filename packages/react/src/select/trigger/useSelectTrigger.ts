@@ -30,7 +30,6 @@ export function useSelectTrigger(
     positionerElement,
     alignItemToTrigger,
     readOnly,
-    id,
   } = useSelectRootContext();
 
   const { labelId, setTouched } = useFieldRootContext();
@@ -80,7 +79,6 @@ export function useSelectTrigger(
       return mergeReactProps<'button'>(
         fieldControlValidation.getValidationProps(externalProps),
         {
-          id,
           'aria-labelledby': labelId,
           'aria-readonly': readOnly || undefined,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
@@ -145,7 +143,6 @@ export function useSelectTrigger(
     },
     [
       fieldControlValidation,
-      id,
       labelId,
       readOnly,
       handleRef,
