@@ -15,7 +15,8 @@
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     },
     "children": {
-      "type": "React.ReactElement | (value) => React.ReactElement"
+      "type": "React.ReactElement | (value) => React.ReactElement",
+      "description": "Allows you to customize the rendering of the text.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   }
 }

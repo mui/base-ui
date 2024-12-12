@@ -70,7 +70,7 @@ export async function buildReference() {
     const descriptionData: PropsTranslations = JSON.parse(descriptionJsonContents);
 
     for (const prop in props) {
-      props[prop].description = descriptionData.propDescriptions[prop]?.description;
+      props[prop].description ??= descriptionData.propDescriptions[prop]?.description;
 
       if (!descriptionData.propDescriptions[prop]?.description) {
         console.warn(`Missing prop description: ${componentData.name} / ${prop}`);
