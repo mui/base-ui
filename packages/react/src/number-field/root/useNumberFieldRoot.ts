@@ -387,8 +387,22 @@ export function useNumberFieldRoot(
   );
 
   const getCommonButtonProps = React.useCallback(
-    (isIncrement: boolean, externalProps = {}) =>
-      mergeReactProps<'button'>(externalProps, {
+    (isIncrement: boolean, externalProps = {}) => {
+      function commitValue(nativeEvent: MouseEvent) {
+        allowInputSyncRef.current = true;
+
+        // The input may be dirty but not yet blurred, so the value won't have been committed.
+        const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
+
+        if (parsedValue !== null) {
+          // The increment value function needs to know the current input value to increment it
+          // correctly.
+          valueRef.current = parsedValue;
+          setValue(parsedValue, nativeEvent);
+        }
+      }
+
+      return mergeReactProps<'button'>(externalProps, {
         disabled: disabled || (isIncrement ? isMax : isMin),
         type: 'button',
         'aria-readonly': readOnly || undefined,
@@ -419,17 +433,7 @@ export function useNumberFieldRoot(
             return;
           }
 
-          allowInputSyncRef.current = true;
-
-          // The input may be dirty but not yet blurred, so the value won't have been committed.
-          const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
-
-          if (parsedValue !== null) {
-            // The increment value function needs to know the current input value to increment it
-            // correctly.
-            valueRef.current = parsedValue;
-            setValue(parsedValue, event.nativeEvent);
-          }
+          commitValue(event.nativeEvent);
 
           const amount = getStepAmount() ?? DEFAULT_STEP;
 
@@ -443,18 +447,9 @@ export function useNumberFieldRoot(
           }
 
           isPressedRef.current = true;
-          allowInputSyncRef.current = true;
           incrementDownCoordsRef.current = { x: event.clientX, y: event.clientY };
 
-          // The input may be dirty but not yet blurred, so the value won't have been committed.
-          const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
-
-          if (parsedValue !== null) {
-            // The increment value function needs to know the current input value to increment it
-            // correctly.
-            valueRef.current = parsedValue;
-            setValue(parsedValue, event.nativeEvent);
-          }
+          commitValue(event.nativeEvent);
 
           // Note: "pen" is sometimes returned for mouse usage on Linux Chrome.
           if (event.pointerType !== 'touch') {
@@ -520,7 +515,8 @@ export function useNumberFieldRoot(
 
           stopAutoChange();
         },
-      }),
+      });
+    },
     [
       disabled,
       isMax,
