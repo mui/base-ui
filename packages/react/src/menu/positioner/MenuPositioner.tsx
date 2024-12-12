@@ -39,15 +39,8 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     ...otherProps
   } = props;
 
-  const {
-    open,
-    floatingRootContext,
-    setPositionerElement,
-    nested,
-    itemDomElements,
-    itemLabels,
-    mounted,
-  } = useMenuRootContext();
+  const { open, floatingRootContext, setPositionerElement, itemDomElements, itemLabels, mounted } =
+    useMenuRootContext();
 
   const nodeId = useFloatingNodeId();
 
