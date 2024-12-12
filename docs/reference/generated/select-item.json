@@ -1,20 +1,20 @@
 {
   "name": "SelectItem",
-  "description": "",
+  "description": "An individual option in the select menu.\nRenders a `<div>` element.",
   "props": {
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the select option will be disabled."
+      "description": "Whether the component should ignore user actions."
     },
     "label": {
       "type": "string",
-      "description": "A text representation of the select option's content.\nUsed for keyboard text navigation matching."
+      "description": "A text representation of the select item's content.\nUsed for keyboard text navigation matching."
     },
     "value": {
       "type": "any",
       "default": "null",
-      "description": "The value of the select option."
+      "description": "The value of the select item."
     }
   }
 }

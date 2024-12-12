@@ -3,42 +3,44 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { css, styled } from '@mui/system';
 
-function AlignOptionToTriggerTrue() {
+function AlignItemToTriggerTrue() {
   return (
     <Select.Root>
       <SelectTrigger aria-label="Select font">
-        <Select.Value placeholder="Align option to trigger" />
+        <Select.Value placeholder="Align item to trigger" />
         <SelectDropdownArrow />
       </SelectTrigger>
-      <SelectPositioner sideOffset={5}>
-        <SelectScrollUpArrow />
-        <SelectPopup>
-          <SelectItem>
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Align option to trigger</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="system">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>System font</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="arial">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Arial</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="roboto">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Roboto</Select.ItemText>
-          </SelectItem>
-        </SelectPopup>
-        <SelectScrollDownArrow />
-      </SelectPositioner>
+      <Select.Portal>
+        <SelectPositioner sideOffset={5}>
+          <SelectScrollUpArrow />
+          <SelectPopup>
+            <SelectItem>
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Align option to trigger</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="system">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>System font</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="arial">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Arial</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="roboto">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Roboto</Select.ItemText>
+            </SelectItem>
+          </SelectPopup>
+          <SelectScrollDownArrow />
+        </SelectPositioner>
+      </Select.Portal>
     </Select.Root>
   );
 }
 
-function AlignOptionToTriggerFalse() {
+function AlignItemToTriggerFalse() {
   return (
-    <Select.Root alignOptionToTrigger={false}>
+    <Select.Root alignItemToTrigger={false}>
       <SelectTrigger aria-label="Select font">
         <Select.Value placeholder="Align popup to trigger" />
         <SelectDropdownArrow />
@@ -79,8 +81,8 @@ export default function SelectAlign() {
         gap: 10,
       }}
     >
-      <AlignOptionToTriggerTrue />
-      <AlignOptionToTriggerFalse />
+      <AlignItemToTriggerTrue />
+      <AlignItemToTriggerFalse />
     </div>
   );
 }

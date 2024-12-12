@@ -90,10 +90,6 @@ export namespace usePreviewCardPositioner {
      */
     positionMethod?: 'absolute' | 'fixed';
     /**
-     * The container element to which the preview card popup will be appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-    /**
      * The side of the anchor element that the preview card element should align to.
      * @default 'bottom'
      */
@@ -136,7 +132,7 @@ export namespace usePreviewCardPositioner {
      */
     arrowPadding?: number;
     /**
-     * If `true`, preview card stays mounted in the DOM when closed.
+     * Whether to keep the HTML element in the DOM while the preview card is hidden.
      * @default false
      */
     keepMounted?: boolean;
@@ -154,7 +150,7 @@ export namespace usePreviewCardPositioner {
      */
     mounted: boolean;
     /**
-     * If `true`, the preview card is open.
+     * Whether the preview card is currently open.
      */
     open?: boolean;
     /**
@@ -179,7 +175,7 @@ export namespace usePreviewCardPositioner {
     /**
      * The rendered side of the preview card element.
      */
-    side: 'top' | 'right' | 'bottom' | 'left';
+    side: Side;
     /**
      * The rendered align of the preview card element.
      */

@@ -56,13 +56,14 @@
   .RootLayoutContainer {
     position: relative;
     display: flex;
+    flex-direction: column;
     margin-inline: auto;
     min-height: 100dvh;
     max-width: calc(var(--breakpoint-max-layout-width) - var(--root-layout-padding-x) * 2);
-    flex-direction: column;
-    padding-bottom: var(--header-height);
 
     @media (--show-side-nav) {
+      padding-block: var(--header-height);
+
       &::before,
       &::after {
         content: '';
@@ -82,5 +83,12 @@
         margin-right: -1px;
       }
     }
+  }
+
+  .RootLayoutContent {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    background-color: var(--color-content);
   }
 }

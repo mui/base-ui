@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Popover Component
 description: Popovers are interactive floating elements that display rich content, anchored to a trigger element when a user clicks or optionally hovers over it.
-components: PopoverRoot, PopoverTrigger, PopoverPositioner, PopoverPopup, PopoverArrow, PopoverBackdrop, PopoverTitle, PopoverDescription, PopoverClose
+components: PopoverRoot, PopoverTrigger, PopoverPortal, PopoverPositioner, PopoverPopup, PopoverArrow, PopoverBackdrop, PopoverTitle, PopoverDescription, PopoverClose
 githubLabel: 'component: popover'
 ---
 
@@ -29,6 +29,7 @@ Popover is implemented using a collection of related components:
 - `<Popover.Root />` is a top-level component that wraps the other components.
 - `<Popover.Trigger />` renders the trigger element.
 - `<Popover.Backdrop />` renders an optional backdrop element behind the popup.
+- `<Popover.Portal />` renders the portal element that the popup is rendered into.
 - `<Popover.Positioner />` renders the popover's positioning element.
 - `<Popover.Popup />` renders the popover popup itself.
 - `<Popover.Arrow />` renders an optional pointing arrow, placed inside the popup.
@@ -40,14 +41,16 @@ Popover is implemented using a collection of related components:
 <Popover.Root>
   <Popover.Trigger />
   <Popover.Backdrop />
-  <Popover.Positioner>
-    <Popover.Popup>
-      <Popover.Arrow />
-      <Popover.Title />
-      <Popover.Description />
-      <Popover.Close />
-    </Popover.Popup>
-  </Popover.Positioner>
+  <Popover.Portal>
+    <Popover.Positioner>
+      <Popover.Popup>
+        <Popover.Arrow />
+        <Popover.Title />
+        <Popover.Description />
+        <Popover.Close />
+      </Popover.Popup>
+    </Popover.Positioner>
+  </Popover.Portal>
 </Popover.Root>
 ```
 
@@ -58,11 +61,15 @@ By default, the popover is placed on the bottom side of its trigger, the default
 ```jsx
 <Popover.Root>
   <Popover.Trigger />
-  <Popover.Positioner side="right">
-    <Popover.Popup>Popover</Popover.Popup>
-  </Popover.Positioner>
+  <Popover.Portal>
+    <Popover.Positioner side="right">
+      <Popover.Popup>Popover</Popover.Popup>
+    </Popover.Positioner>
+  </Popover.Portal>
 </Popover.Root>
 ```
+
+The `side` prop also supports `inline-start` and `inline-end` as logical counterparts to `'left'` and `'right'`, which will automatically adapt to right-to-left automatically when used with [`DirectionProvider`](/components/react-direction-provider).
 
 You can also change the align of the popover in relation to its anchor. By default, it is centered, but it can be aligned to an edge of the anchor using the `align` prop:
 
@@ -362,19 +369,21 @@ function App() {
       <Popover.Trigger>Trigger</Popover.Trigger>
       <AnimatePresence>
         {open && (
-          <Popover.Positioner keepMounted>
-            <Popover.Popup
-              render={
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                />
-              }
-            >
-              Popover
-            </Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal keepMounted>
+            <Popover.Positioner keepMounted>
+              <Popover.Popup
+                render={
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  />
+                }
+              >
+                Popover
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         )}
       </AnimatePresence>
     </Popover.Root>

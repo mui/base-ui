@@ -4,6 +4,8 @@ import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-
 import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
 
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+
 describe('<Select.Item />', () => {
   const { render } = createRenderer();
 
@@ -14,7 +16,7 @@ describe('<Select.Item />', () => {
     },
   }));
 
-  it('should select the option and close popup when clicked', async () => {
+  it('should select the item and close popup when clicked', async () => {
     await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
@@ -45,7 +47,7 @@ describe('<Select.Item />', () => {
     expect(positioner).not.toBeVisible();
   });
 
-  it('navigating with keyboard should highlight option', async () => {
+  it('navigating with keyboard should highlight item', async () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
@@ -78,8 +80,8 @@ describe('<Select.Item />', () => {
     });
   });
 
-  it('should select option when Enter key is pressed', async function test(t = {}) {
-    if (!/jsdom/.test(window.navigator.userAgent)) {
+  it('should select item when Enter key is pressed', async function test(t = {}) {
+    if (!isJSDOM) {
       // @ts-expect-error to support mocha and vitest
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this?.skip?.() || t?.skip();
@@ -102,10 +104,11 @@ describe('<Select.Item />', () => {
     const trigger = screen.getByTestId('trigger');
     const value = screen.getByTestId('value');
 
-    fireEvent.click(trigger);
+    await user.click(trigger);
 
     await flushMicrotasks();
 
+    await user.keyboard('{ArrowDown}');
     await user.keyboard('{ArrowDown}');
     await user.keyboard('{Enter}');
 
@@ -114,7 +117,7 @@ describe('<Select.Item />', () => {
     });
   });
 
-  it('should not select disabled option', async () => {
+  it('should not select disabled item', async () => {
     await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
@@ -143,7 +146,7 @@ describe('<Select.Item />', () => {
     expect(value.textContent).to.equal('');
   });
 
-  it('should focus the selected option upon opening the popup', async () => {
+  it('should focus the selected item upon opening the popup', async () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
@@ -165,23 +168,19 @@ describe('<Select.Item />', () => {
 
     await flushMicrotasks();
 
-    await user.keyboard('{ArrowDown}');
-    await user.keyboard('{ArrowUp}');
-    await user.keyboard('{ArrowUp}');
-
     await user.click(screen.getByRole('option', { name: 'three' }));
     await user.click(trigger);
 
     await flushMicrotasks();
 
     await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'three', hidden: false })).toHaveFocus();
+      expect(screen.getByRole('option', { name: 'three' })).toHaveFocus();
     });
   });
 
   describe('style hooks', () => {
-    it('should apply data-highlighted attribute when option is highlighted', async function test(t = {}) {
-      if (!/jsdom/.test(window.navigator.userAgent)) {
+    it('should apply data-highlighted attribute when item is highlighted', async function test(t = {}) {
+      if (!isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -216,7 +215,7 @@ describe('<Select.Item />', () => {
       expect(screen.getByRole('option', { name: 'b' })).to.have.attribute(attr, '');
     });
 
-    it('should apply data-selected attribute when option is selected', async () => {
+    it('should apply data-selected attribute when item is selected', async () => {
       await render(
         <Select.Root>
           <Select.Trigger data-testid="trigger" />

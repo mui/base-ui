@@ -11,15 +11,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { refType } from '../../utils/proptypes';
 
 /**
- * The foundation for building custom-styled switches.
+ * Represents the switch itself.
+ * Renders a `<button>` element and a hidden `<input>` beside.
  *
- * Demos:
- *
- * - [Switch](https://base-ui.com/components/react-switch/)
- *
- * API:
- *
- * - [SwitchRoot API](https://base-ui.com/components/react-switch/#api-reference-SwitchRoot)
+ * Documentation: [Base UI Switch](https://base-ui.com/react/components/switch)
  */
 const SwitchRoot = React.forwardRef(function SwitchRoot(
   props: SwitchRoot.Props,
@@ -79,9 +74,21 @@ namespace SwitchRoot {
       Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {}
 
   export interface State extends FieldRoot.State {
+    /**
+     * Whether the switch is currently active.
+     */
     checked: boolean;
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
+    /**
+     * Whether the user should be unable to activate or deactivate the switch.
+     */
     readOnly: boolean;
+    /**
+     * Whether the user must activate the switch before submitting a form.
+     */
     required: boolean;
   }
 }
@@ -92,7 +99,9 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the switch is checked.
+   * Whether the switch is currently active.
+   *
+   * To render an uncontrolled switch, use the `defaultChecked` prop instead.
    */
   checked: PropTypes.bool,
   /**
@@ -100,50 +109,51 @@ SwitchRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default checked state. Use when the component is uncontrolled.
+   * Whether the switch is initially active.
    *
+   * To render a controlled switch, use the `checked` prop instead.
    * @default false
    */
   defaultChecked: PropTypes.bool,
   /**
-   * If `true`, the component is disabled and can't be interacted with.
-   *
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * Ref to the underlying input element.
+   * A React ref to access the hidden `<input>` element.
    */
   inputRef: refType,
   /**
-   * Name of the underlying input element.
+   * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
   /**
-   * Callback fired when the checked state is changed.
+   * Event handler called when the switch is activated or deactivated.
    *
    * @param {boolean} checked The new checked state.
-   * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
+   * @param {Event} event The corresponding event that initiated the change.
    */
   onCheckedChange: PropTypes.func,
   /**
-   * If `true`, the component is read-only.
-   * Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently.
-   *
+   * Whether the user should be unable to activate or deactivate the switch.
    * @default false
    */
   readOnly: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * If `true`, the switch must be checked for the browser validation to pass.
-   *
+   * Whether the user must activate the switch before submitting a form.
    * @default false
    */
   required: PropTypes.bool,

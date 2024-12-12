@@ -10,9 +10,11 @@ export const MenuGroup = BaseMenu.Group;
 
 const MenuItems = React.forwardRef(function MenuItems(props, ref) {
   return (
-    <BaseMenu.Positioner className={classes.positioner} ref={ref}>
-      <BaseMenu.Popup className={classes.popup}>{props.children}</BaseMenu.Popup>
-    </BaseMenu.Positioner>
+    <BaseMenu.Portal>
+      <BaseMenu.Positioner className={classes.positioner} ref={ref}>
+        <BaseMenu.Popup className={classes.popup}>{props.children}</BaseMenu.Popup>
+      </BaseMenu.Positioner>
+    </BaseMenu.Portal>
   );
 });
 

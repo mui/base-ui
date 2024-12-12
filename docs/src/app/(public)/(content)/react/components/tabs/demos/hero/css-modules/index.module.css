@@ -40,6 +40,19 @@
       color: var(--color-gray-900);
     }
   }
+
+  &:focus-visible {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0.25rem 0;
+      border-radius: 0.25rem;
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+    }
+  }
 }
 
 .Indicator {
@@ -58,10 +71,18 @@
 }
 
 .Panel {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 8rem;
+  outline: 0;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+    border-radius: 0.375rem;
+  }
 }
 
 .Icon {

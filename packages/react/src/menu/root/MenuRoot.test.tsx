@@ -8,6 +8,10 @@ import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 
 describe('<Menu.Root />', () => {
+  beforeEach(() => {
+    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
   const { render } = createRenderer();
   const user = userEvent.setup();
 
@@ -641,13 +645,13 @@ describe('<Menu.Root />', () => {
       const { getByRole, queryAllByRole } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner id="parent-menu">
-            <Menu.Popup>
+          <Menu.Positioner>
+            <Menu.Popup id="parent-menu">
               <Menu.Item>1</Menu.Item>
               <Menu.Root closeParentOnEsc={false}>
                 <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
-                <Menu.Positioner id="submenu">
-                  <Menu.Popup>
+                <Menu.Positioner>
+                  <Menu.Popup id="submenu">
                     <Menu.Item>2.1</Menu.Item>
                     <Menu.Item>2.2</Menu.Item>
                   </Menu.Popup>
@@ -690,7 +694,7 @@ describe('<Menu.Root />', () => {
   });
 
   describe('controlled mode', () => {
-    it('should remove the popup when animated=true and there is no exit animation defined', async function test(t = {}) {
+    it('should remove the popup when and there is no exit animation defined', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -722,7 +726,7 @@ describe('<Menu.Root />', () => {
       });
     });
 
-    it('should remove the popup when animated=true and the animation finishes', async function test(t = {}) {
+    it('should remove the popup when the animation finishes', async function test(t = {}) {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -761,7 +765,7 @@ describe('<Menu.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <Menu.Root open={open}>
-              <Menu.Positioner>
+              <Menu.Positioner keepMounted>
                 <Menu.Popup
                   className="animation-test-popup"
                   onAnimationEnd={notifyAnimationFinished}
@@ -782,8 +786,6 @@ describe('<Menu.Root />', () => {
       });
 
       expect(animationFinished).to.equal(true);
-
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 });

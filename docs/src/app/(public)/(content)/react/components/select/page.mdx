@@ -21,28 +21,28 @@ import { Select } from '@base-ui-components/react/select';
     <Select.Icon />
   </Select.Trigger>
 
-  <Select.Backdrop />
-  <Select.Positioner>
-    <Select.ScrollUpArrow />
-    <Select.Popup>
-      <Select.Arrow />
-      <Select.Item>
-        <Select.ItemText />
-        <Select.ItemIndicator />
-      </Select.Item>
-      <Select.Separator />
-      <Select.Group>
-        <Select.GroupLabel />
-      </Select.Group>
-    </Select.Popup>
-    <Select.ScrollDownArrow />
-  </Select.Positioner>
+  <Select.Portal>
+    <Select.Backdrop />
+    <Select.Positioner>
+      <Select.ScrollUpArrow />
+      <Select.Popup>
+        <Select.Arrow />
+        <Select.Item>
+          <Select.ItemText />
+          <Select.ItemIndicator />
+        </Select.Item>
+        <Select.Separator />
+        <Select.Group>
+          <Select.GroupLabel />
+        </Select.Group>
+      </Select.Popup>
+      <Select.ScrollDownArrow />
+    </Select.Positioner>
+  </Select.Portal>
 </Select.Root>;
 ```
 
 <Reference
   component="Select"
-  parts="Root, Trigger, Value, Icon, Backdrop, Positioner, Popup, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow"
+  parts="Root, Trigger, Value, Icon, Backdrop, Portal, Positioner, Popup, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
 />
-
-{/* TODO: Separator is missing */}

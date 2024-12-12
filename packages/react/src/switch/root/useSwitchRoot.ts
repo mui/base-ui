@@ -150,46 +150,45 @@ export namespace useSwitchRoot {
      */
     id?: string;
     /**
-     * If `true`, the switch is checked.
+     * Whether the switch is currently active.
+     *
+     * To render an uncontrolled switch, use the `defaultChecked` prop instead.
      */
     checked?: boolean;
     /**
-     * The default checked state. Use when the component is uncontrolled.
+     * Whether the switch is initially active.
      *
+     * To render a controlled switch, use the `checked` prop instead.
      * @default false
      */
     defaultChecked?: boolean;
     /**
-     * If `true`, the component is disabled and can't be interacted with.
-     *
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;
     /**
-     * Ref to the underlying input element.
+     * A React ref to access the hidden `<input>` element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**
-     * Name of the underlying input element.
+     * Identifies the field when a form is submitted.
      */
     name?: string;
     /**
-     * Callback fired when the checked state is changed.
+     * Event handler called when the switch is activated or deactivated.
      *
      * @param {boolean} checked The new checked state.
-     * @param {React.ChangeEvent<HTMLInputElement>} event The event source of the callback.
+     * @param {Event} event The corresponding event that initiated the change.
      */
     onCheckedChange?: (checked: boolean, event: Event) => void;
     /**
-     * If `true`, the component is read-only.
-     * Functionally, this is equivalent to being disabled, but the assistive technologies will announce this differently.
-     *
+     * Whether the user should be unable to activate or deactivate the switch.
      * @default false
      */
     readOnly?: boolean;
     /**
-     * If `true`, the switch must be checked for the browser validation to pass.
-     *
+     * Whether the user must activate the switch before submitting a form.
      * @default false
      */
     required?: boolean;
@@ -197,7 +196,7 @@ export namespace useSwitchRoot {
 
   export interface ReturnValue {
     /**
-     * If `true`, the component will be checked.
+     * Whether the switch is currently active.
      */
     checked: boolean;
     /**

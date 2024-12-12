@@ -11,33 +11,26 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 
 /**
+ * Displays an element positioned against the select menu anchor.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectArrow API](https://base-ui.com/components/react-select/#api-reference-SelectArrow)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectArrow = React.forwardRef(function SelectArrow(
   props: SelectArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, hideWhenUncentered = false, ...otherProps } = props;
+  const { className, render, ...otherProps } = props;
 
-  const { open, alignOptionToTrigger } = useSelectRootContext();
+  const { open, alignItemToTrigger } = useSelectRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useSelectPositionerContext();
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
-        style: {
-          ...arrowStyles,
-          ...(hideWhenUncentered && arrowUncentered ? { visibility: 'hidden' } : {}),
-        },
+        style: arrowStyles,
       }),
-    [arrowStyles, hideWhenUncentered, arrowUncentered],
+    [arrowStyles],
   );
 
   const state: SelectArrow.State = React.useMemo(
@@ -45,7 +38,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
       open,
       side,
       align,
-      arrowUncentered,
+      uncentered: arrowUncentered,
     }),
     [open, side, align, arrowUncentered],
   );
@@ -62,7 +55,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
     customStyleHookMapping: popupStateMapping,
   });
 
-  if (alignOptionToTrigger) {
+  if (alignItemToTrigger) {
     return null;
   }
 
@@ -71,19 +64,16 @@ const SelectArrow = React.forwardRef(function SelectArrow(
 
 namespace SelectArrow {
   export interface State {
+    /**
+     * Whether the select menu is currently open.
+     */
     open: boolean;
     side: Side | 'none';
     align: Align;
-    arrowUncentered: boolean;
+    uncentered: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
-     * @default false
-     */
-    hideWhenUncentered?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 SelectArrow.propTypes /* remove-proptypes */ = {
@@ -96,16 +86,15 @@ SelectArrow.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
-   * @default false
-   */
-  hideWhenUncentered: PropTypes.bool,
-  /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

@@ -1,16 +1,16 @@
 {
   "name": "SelectRoot",
-  "description": "",
+  "description": "Groups all parts of the select.\nDoesn’t render its own HTML element.",
   "props": {
-    "alignOptionToTrigger": {
+    "alignItemToTrigger": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines if the selected option inside the popup should align to the trigger element."
+      "description": "Determines if the selected item inside the popup should align to the trigger element."
     },
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the Select is initially open."
+      "description": "Whether the select menu is initially open.\n\nTo render a controlled select menu, use the `open` prop instead."
     },
     "defaultValue": {
       "type": "any",
@@ -20,15 +20,15 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the Select is disabled."
+      "description": "Whether the component should ignore user actions."
     },
     "name": {
       "type": "string",
-      "description": "The name of the Select in the owning form."
+      "description": "Identifies the field when a form is submitted."
     },
     "onOpenChange": {
       "type": "function",
-      "description": "Callback fired when the component requests to be opened or closed."
+      "description": "Event handler called when the select menu is opened or closed."
     },
     "onValueChange": {
       "type": "function",
@@ -36,17 +36,17 @@
     },
     "open": {
       "type": "boolean",
-      "description": "Allows to control whether the dropdown is open.\nThis is a controlled counterpart of `defaultOpen`."
+      "description": "Whether the select menu is currently open."
     },
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the Select is read-only."
+      "description": "Whether the user should be unable to choose a different option from the select menu."
     },
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the Select is required."
+      "description": "Whether the user must choose a value before submitting a form."
     },
     "value": {
       "type": "any",

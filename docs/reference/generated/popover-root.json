@@ -1,6 +1,6 @@
 {
   "name": "PopoverRoot",
-  "description": "The foundation for building custom-styled popovers.",
+  "description": "Groups all parts of the popover.\nDoesn’t render its own HTML element.",
   "props": {
     "closeDelay": {
       "type": "number",
@@ -10,7 +10,7 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the popover popup is open by default. Use when uncontrolled."
+      "description": "Whether the popover is initially open.\n\nTo render a controlled popover, use the `open` prop instead."
     },
     "delay": {
       "type": "number",
@@ -19,12 +19,11 @@
     },
     "onOpenChange": {
       "type": "(open, event, reason) => void",
-      "description": "Callback fired when the popover popup is requested to be opened or closed. Use when\ncontrolled."
+      "description": "Event handler called when the popover is opened or closed."
     },
     "open": {
       "type": "boolean",
-      "default": "false",
-      "description": "Whether the popover popup is open. Use when controlled."
+      "description": "Whether the popover is currently open."
     },
     "openOnHover": {
       "type": "boolean",

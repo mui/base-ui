@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositioner } from './usePreviewCardPositioner';
@@ -13,14 +12,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
+ * Positions the popup against the trigger.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Preview Card](https://base-ui.com/components/react-preview-card/)
- *
- * API:
- *
- * - [PreviewCardPositioner API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardPositioner)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
   props: PreviewCardPositioner.Props,
@@ -40,7 +35,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     arrowPadding = 5,
     sticky = false,
     keepMounted = false,
-    container,
     ...otherProps
   } = props;
 
@@ -50,7 +44,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     anchor,
     floatingRootContext,
     positionMethod,
-    container,
     open,
     mounted,
     keepMounted,
@@ -110,13 +103,16 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
 
   return (
     <PreviewCardPositionerContext.Provider value={contextValue}>
-      <FloatingPortal root={container}>{renderElement()}</FloatingPortal>
+      {renderElement()}
     </PreviewCardPositionerContext.Provider>
   );
 });
 
 namespace PreviewCardPositioner {
   export interface State {
+    /**
+     * Whether the preview card is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;
@@ -162,7 +158,8 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -194,14 +191,7 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The container element to which the preview card popup will be appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
-  ]),
-  /**
-   * If `true`, preview card stays mounted in the DOM when closed.
+   * Whether to keep the HTML element in the DOM while the preview card is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,
@@ -211,14 +201,17 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * The side of the anchor element that the preview card element should align to.
    * @default 'bottom'
    */
-  side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
+  side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
    * The gap between the anchor element and the preview card element.
    * @default 0

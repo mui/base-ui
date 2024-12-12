@@ -1,14 +1,13 @@
 import * as React from 'react';
 import type {
   VirtualElement,
-  Side,
   Padding,
   FloatingRootContext,
   FloatingContext,
   Middleware,
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
-import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
@@ -22,9 +21,9 @@ import { useScrollLock } from '../../utils/useScrollLock';
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
-  const { open, alignOptionToTrigger, mounted, triggerElement } = useSelectRootContext();
+  const { open, alignItemToTrigger, mounted, triggerElement } = useSelectRootContext();
 
-  useScrollLock(alignOptionToTrigger && mounted, triggerElement);
+  useScrollLock(alignItemToTrigger && mounted, triggerElement);
 
   const {
     positionerStyles: enabledPositionerStyles,
@@ -39,13 +38,13 @@ export function useSelectPositioner(
   } = useAnchorPositioning({
     ...params,
     keepMounted: true,
-    trackAnchor: params.trackAnchor ?? !alignOptionToTrigger,
+    trackAnchor: params.trackAnchor ?? !alignItemToTrigger,
     mounted,
   });
 
   const positionerStyles: React.CSSProperties = React.useMemo(
-    () => (alignOptionToTrigger ? { position: 'fixed' } : enabledPositionerStyles),
-    [alignOptionToTrigger, enabledPositionerStyles],
+    () => (alignItemToTrigger ? { position: 'fixed' } : enabledPositionerStyles),
+    [alignItemToTrigger, enabledPositionerStyles],
   );
 
   const getPositionerProps: useSelectPositioner.ReturnValue['getPositionerProps'] =
@@ -75,14 +74,14 @@ export function useSelectPositioner(
         arrowRef,
         arrowUncentered,
         arrowStyles,
-        side: alignOptionToTrigger ? 'none' : renderedSide,
+        side: alignItemToTrigger ? 'none' : renderedSide,
         align: renderedAlign,
         positionerContext,
         isPositioned,
         anchorHidden,
       }) as const,
     [
-      alignOptionToTrigger,
+      alignItemToTrigger,
       arrowRef,
       arrowStyles,
       arrowUncentered,
@@ -120,10 +119,6 @@ export namespace useSelectPositioner {
      */
     positionMethod?: 'absolute' | 'fixed';
     /**
-     * The container element to which the Select popup will be appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-    /**
      * The side of the anchor element that the Select element should align to.
      * @default 'bottom'
      */
@@ -154,7 +149,7 @@ export namespace useSelectPositioner {
      */
     collisionPadding?: Padding;
     /**
-     * Whether the select popup remains mounted in the DOM while closed.
+     * Whether to keep the HTML element in the DOM while the select menu is hidden.
      * @default true
      */
     keepMounted?: boolean;
@@ -183,7 +178,7 @@ export namespace useSelectPositioner {
      */
     mounted: boolean;
     /**
-     * If `true`, the Select is open.
+     * Whether the select menu is currently open.
      */
     open?: boolean;
     /**
@@ -195,7 +190,7 @@ export namespace useSelectPositioner {
      */
     nodeId?: string;
     /**
-     * If specified, positions the popup relative to the selected option inside it.
+     * If specified, positions the popup relative to the selected item inside it.
      */
     inner?: Middleware;
     /**
@@ -237,7 +232,7 @@ export namespace useSelectPositioner {
       /**
        * The rendered side of the Select element.
        */
-      side: 'top' | 'right' | 'bottom' | 'left' | 'none';
+      side: Side | 'none';
       /**
        * The rendered align of the Select element.
        */

@@ -11,28 +11,22 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * Renders an arrow that points to the center of the anchor element.
+ * Displays an element positioned against the menu anchor.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuArrow API](https://base-ui.com/components/react-menu/#api-reference-MenuArrow)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuArrow = React.forwardRef(function MenuArrow(
   props: MenuArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, hideWhenUncentered = false, ...otherProps } = props;
+  const { className, render, ...otherProps } = props;
 
   const { open } = useMenuRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
 
   const { getArrowProps } = useMenuArrow({
     arrowStyles,
-    hidden: hideWhenUncentered && arrowUncentered,
   });
 
   const state: MenuArrow.State = React.useMemo(
@@ -40,7 +34,7 @@ const MenuArrow = React.forwardRef(function MenuArrow(
       open,
       side,
       align,
-      arrowUncentered,
+      uncentered: arrowUncentered,
     }),
     [open, side, align, arrowUncentered],
   );
@@ -62,19 +56,16 @@ const MenuArrow = React.forwardRef(function MenuArrow(
 
 namespace MenuArrow {
   export interface State {
+    /**
+     * Whether the menu is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;
-    arrowUncentered: boolean;
+    uncentered: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
-     * @default false
-     */
-    hideWhenUncentered?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 MenuArrow.propTypes /* remove-proptypes */ = {
@@ -87,16 +78,15 @@ MenuArrow.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the arrow is hidden when it can't point to the center of the anchor element.
-   * @default false
-   */
-  hideWhenUncentered: PropTypes.bool,
-  /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

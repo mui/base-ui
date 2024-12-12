@@ -1,44 +1,31 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.State> = {
   ...baseMapping,
-  transitionStatus(value) {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' } as Record<string, string>;
-    }
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-    return null;
-  },
+  ...transitionStatusMapping,
 };
 
 /**
- * Renders a backdrop for the popover.
+ * An overlay displayed beneath the popover.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverBackdrop API](https://base-ui.com/components/react-popover/#api-reference-PopoverBackdrop)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   props: PopoverBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, container, ...other } = props;
+  const { className, render, keepMounted = false, ...other } = props;
+
   const { open, mounted, transitionStatus } = usePopoverRootContext();
 
   const state: PopoverBackdrop.State = React.useMemo(
@@ -63,26 +50,24 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     return null;
   }
 
-  return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
+  return renderElement();
 });
 
 namespace PopoverBackdrop {
   export interface State {
+    /**
+     * Whether the popover is currently open.
+     */
     open: boolean;
     transitionStatus: TransitionStatus;
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * If `true`, the backdrop remains mounted when the popover content is closed.
+     * Whether to keep the HTML element in the DOM while the popover is hidden.
      * @default false
      */
     keepMounted?: boolean;
-    /**
-     * The container element to which the backdrop is appended to.
-     * @default false
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 }
 
@@ -96,24 +81,20 @@ PopoverBackdrop.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The container element to which the backdrop is appended to.
-   * @default false
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
-  ]),
-  /**
-   * If `true`, the backdrop remains mounted when the popover content is closed.
+   * Whether to keep the HTML element in the DOM while the popover is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

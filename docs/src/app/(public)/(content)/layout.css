@@ -1,18 +1,12 @@
 @import 'docs/src/breakpoints.css';
 
 @layer components {
-  .ContentLayoutOuter {
-    display: flex;
-    flex-grow: 1;
-    flex-direction: column;
-    background-color: var(--color-content);
-  }
-
-  .ContentLayoutInner {
+  .ContentLayoutRoot {
     --sidebar-width: 17.5rem;
 
     display: grid;
     align-items: start;
+    padding-top: var(--header-height);
     padding-inline: 1.5rem;
     grid-template-columns: 1fr;
 
@@ -21,6 +15,7 @@
     }
 
     @media (--show-side-nav) {
+      padding-top: 0;
       padding-inline: 0;
       grid-template-columns: var(--sidebar-width) 1fr 3rem;
     }

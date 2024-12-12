@@ -14,7 +14,7 @@ import {
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useControlled } from '../../utils/useControlled';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
@@ -144,7 +144,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     [getReferenceProps],
   );
 
-  const getPositionerProps = React.useCallback(
+  const getPopupProps = React.useCallback(
     (externalProps?: GenericHTMLProps) =>
       getFloatingProps(
         mergeReactProps(externalProps, {
@@ -163,7 +163,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       setTriggerElement,
       getTriggerProps,
       setPositionerElement,
-      getPositionerProps,
+      getPopupProps,
       getItemProps,
       itemDomElements,
       itemLabels,
@@ -177,7 +177,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       activeIndex,
       floatingRootContext,
       getTriggerProps,
-      getPositionerProps,
+      getPopupProps,
       getItemProps,
       itemDomElements,
       itemLabels,
@@ -194,20 +194,22 @@ export type MenuOrientation = 'horizontal' | 'vertical';
 export namespace useMenuRoot {
   export interface Parameters {
     /**
-     * Allows to control whether the Menu is open.
-     * This is a controlled counterpart of `defaultOpen`.
+     * Whether the menu is currently open.
      */
     open: boolean | undefined;
     /**
-     * Callback fired when the component requests to be opened or closed.
+     * Event handler called when the menu is opened or closed.
      */
     onOpenChange: ((open: boolean, event?: Event) => void) | undefined;
     /**
-     * If `true`, the Menu is initially open.
+     * Whether the menu is initially open.
+     *
+     * To render a controlled menu, use the `open` prop instead.
      */
     defaultOpen: boolean;
     /**
-     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+     * Whether to loop keyboard focus back to the first item
+     * when the end of the list is reached while using the arrow keys.
      */
     loop: boolean;
     /**
@@ -223,7 +225,7 @@ export namespace useMenuRoot {
      */
     direction: TextDirection;
     /**
-     * If `true`, the Menu is disabled.
+     * Whether the component should ignore user actions.
      */
     disabled: boolean;
     /**
@@ -251,7 +253,7 @@ export namespace useMenuRoot {
     activeIndex: number | null;
     floatingRootContext: FloatingRootContext;
     getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
     itemLabels: React.MutableRefObject<(string | null)[]>;
@@ -261,6 +263,6 @@ export namespace useMenuRoot {
     setOpen: (open: boolean, event: Event | undefined) => void;
     setPositionerElement: (element: HTMLElement | null) => void;
     setTriggerElement: (element: HTMLElement | null) => void;
-    transitionStatus: 'entering' | 'exiting' | undefined;
+    transitionStatus: TransitionStatus;
   }
 }

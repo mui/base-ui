@@ -7,15 +7,10 @@ import { useFieldsetRoot } from './useFieldsetRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * The foundation for building custom-styled fieldsets.
+ * Groups the fieldset legend and the associated fields.
+ * Renders a `<fieldset>` element.
  *
- * Demos:
- *
- * - [Fieldset](https://base-ui.com/components/react-fieldset/)
- *
- * API:
- *
- * - [FieldsetRoot API](https://base-ui.com/components/react-fieldset/#api-reference-FieldsetRoot)
+ * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
  */
 const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   props: FieldsetRoot.Props,
@@ -59,6 +54,9 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
 
 namespace FieldsetRoot {
   export type State = {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
   };
 
@@ -75,7 +73,8 @@ FieldsetRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -83,7 +82,10 @@ FieldsetRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

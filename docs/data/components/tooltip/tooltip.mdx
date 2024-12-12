@@ -2,7 +2,7 @@
 productId: base-ui
 title: React Tooltip component
 description: Tooltips are visual-only floating elements that display information about a trigger element when a user hovers or focuses it.
-components: TooltipProvider, TooltipRoot, TooltipTrigger, TooltipPositioner, TooltipPopup, TooltipArrow
+components: TooltipProvider, TooltipRoot, TooltipTrigger, TooltipPortal, TooltipPositioner, TooltipPopup, TooltipArrow
 githubLabel: 'component: tooltip'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
 ---
@@ -34,11 +34,13 @@ Tooltip is implemented using a collection of related components:
 <Tooltip.Provider>
   <Tooltip.Root>
     <Tooltip.Trigger />
-    <Tooltip.Positioner>
-      <Tooltip.Popup>
-        <Tooltip.Arrow />
-      </Tooltip.Popup>
-    </Tooltip.Positioner>
+    <Tooltip.Portal>
+      <Tooltip.Positioner>
+        <Tooltip.Popup>
+          <Tooltip.Arrow />
+        </Tooltip.Popup>
+      </Tooltip.Positioner>
+    </Tooltip.Portal>
   </Tooltip.Root>
 </Tooltip.Provider>
 ```
@@ -64,9 +66,11 @@ Tooltips are only for sighted users with access to a pointer with hover capabili
   <Tooltip.Trigger aria-label="Edit">
     <EditIcon />
   </Tooltip.Trigger>
-  <Tooltip.Positioner>
-    <Tooltip.Popup>Edit</Tooltip.Popup>
-  </Tooltip.Positioner>
+  <Tooltip.Portal>
+    <Tooltip.Positioner>
+      <Tooltip.Popup>Edit</Tooltip.Popup>
+    </Tooltip.Positioner>
+  </Tooltip.Portal>
 </Tooltip.Root>
 ```
 
@@ -81,11 +85,15 @@ By default, the tooltip is placed on the top side of its trigger, the default an
 ```jsx
 <Tooltip.Root>
   <Tooltip.Trigger />
-  <Tooltip.Positioner side="right">
-    <Tooltip.Popup>Tooltip</Tooltip.Popup>
-  </Tooltip.Positioner>
+  <Tooltip.Portal>
+    <Tooltip.Positioner side="right">
+      <Tooltip.Popup>Tooltip</Tooltip.Popup>
+    </Tooltip.Positioner>
+  </Tooltip.Portal>
 </Tooltip.Root>
 ```
+
+The `side` prop also supports `inline-start` and `inline-end` as logical counterparts to `'left'` and `'right'`, which will automatically adapt to right-to-left automatically when used with [`DirectionProvider`](/components/react-direction-provider).
 
 You can also change the align of the tooltip in relation to its anchor. By default, it is centered, but it can be aligned to an edge of the anchor using the `align` prop:
 
@@ -296,19 +304,21 @@ function App() {
       <Tooltip.Trigger>Trigger</Tooltip.Trigger>
       <AnimatePresence>
         {open && (
-          <Tooltip.Positioner keepMounted>
-            <Tooltip.Popup
-              render={
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                />
-              }
-            >
-              Tooltip
-            </Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal keepMounted>
+            <Tooltip.Positioner keepMounted>
+              <Tooltip.Popup
+                render={
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  />
+                }
+              >
+                Tooltip
+              </Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         )}
       </AnimatePresence>
     </Tooltip.Root>

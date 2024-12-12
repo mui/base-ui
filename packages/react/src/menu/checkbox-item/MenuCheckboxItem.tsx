@@ -73,7 +73,9 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the checkbox is checked.
+   * Whether the checkbox item is currently ticked.
+   *
+   * To render an uncontrolled checkbox item, use the `defaultChecked` prop instead.
    */
   checked: PropTypes.bool,
   /**
@@ -81,7 +83,8 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -91,13 +94,14 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   closeOnClick: PropTypes.bool,
   /**
-   * The default checked state. Use when the component is uncontrolled.
+   * Whether the checkbox item is initially ticked.
    *
+   * To render a controlled checkbox item, use the `checked` prop instead.
    * @default false
    */
   defaultChecked: PropTypes.bool,
   /**
-   * If `true`, the menu item will be disabled.
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -123,7 +127,7 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
     on: PropTypes.func.isRequired,
   }).isRequired,
   /**
-   * Callback fired when the checked state is changed.
+   * Event handler called when the checkbox item is ticked or unticked.
    */
   onCheckedChange: PropTypes.func,
   /**
@@ -135,7 +139,10 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   propGetter: PropTypes.func.isRequired,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
@@ -153,15 +160,10 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
 const MemoizedInnerMenuCheckboxItem = React.memo(InnerMenuCheckboxItem);
 
 /**
- * An unstyled checkbox menu item to be used within a Menu.
+ * A menu item that toggles a setting on or off.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuCheckboxItem API](https://base-ui.com/components/react-menu/#api-reference-MenuCheckboxItem)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   props: MenuCheckboxItem.Props,
@@ -207,24 +209,33 @@ interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
 
 namespace MenuCheckboxItem {
   export type State = {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     highlighted: boolean;
+    /**
+     * Whether the checkbox item is currently ticked.
+     */
     checked: boolean;
   };
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * If `true`, the checkbox is checked.
+     * Whether the checkbox item is currently ticked.
+     *
+     * To render an uncontrolled checkbox item, use the `defaultChecked` prop instead.
      */
     checked?: boolean;
     /**
-     * The default checked state. Use when the component is uncontrolled.
+     * Whether the checkbox item is initially ticked.
      *
+     * To render a controlled checkbox item, use the `checked` prop instead.
      * @default false
      */
     defaultChecked?: boolean;
     /**
-     * Callback fired when the checked state is changed.
+     * Event handler called when the checkbox item is ticked or unticked.
      */
     onCheckedChange?: (checked: boolean, event: Event) => void;
     children?: React.ReactNode;
@@ -233,7 +244,7 @@ namespace MenuCheckboxItem {
      */
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
-     * If `true`, the menu item will be disabled.
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;
@@ -261,7 +272,9 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the checkbox is checked.
+   * Whether the checkbox item is currently ticked.
+   *
+   * To render an uncontrolled checkbox item, use the `defaultChecked` prop instead.
    */
   checked: PropTypes.bool,
   /**
@@ -275,13 +288,14 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   closeOnClick: PropTypes.bool,
   /**
-   * The default checked state. Use when the component is uncontrolled.
+   * Whether the checkbox item is initially ticked.
    *
+   * To render a controlled checkbox item, use the `checked` prop instead.
    * @default false
    */
   defaultChecked: PropTypes.bool,
   /**
-   * If `true`, the menu item will be disabled.
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -295,7 +309,7 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   label: PropTypes.string,
   /**
-   * Callback fired when the checked state is changed.
+   * Event handler called when the checkbox item is ticked or unticked.
    */
   onCheckedChange: PropTypes.func,
   /**

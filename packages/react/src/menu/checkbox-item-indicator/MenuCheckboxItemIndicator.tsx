@@ -7,14 +7,10 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 
 /**
+ * Indicates whether the checkbox item is ticked.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Menu](https://base-ui.com/components/react-menu/)
- *
- * API:
- *
- * - [MenuCheckboxItemIndicator API](https://base-ui.com/components/react-menu/#api-reference-MenuCheckboxItemIndicator)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndicatorComponent(
   props: MenuCheckboxItemIndicator.Props,
@@ -50,17 +46,20 @@ MenuCheckboxItemIndicator.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the component is mounted even if the checkbox is not checked.
-   *
+   * Whether to keep the HTML element in the DOM when the checkbox item is not checked.
    * @default true
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
@@ -68,15 +67,20 @@ MenuCheckboxItemIndicator.propTypes /* remove-proptypes */ = {
 namespace MenuCheckboxItemIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
-     * If `true`, the component is mounted even if the checkbox is not checked.
-     *
+     * Whether to keep the HTML element in the DOM when the checkbox item is not checked.
      * @default true
      */
     keepMounted?: boolean;
   }
 
   export interface State {
+    /**
+     * Whether the checkbox item is currently ticked.
+     */
     checked: boolean;
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     highlighted: boolean;
   }

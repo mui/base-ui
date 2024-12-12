@@ -8,14 +8,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
+ * A link that opens the preview card.
+ * Renders an `<a>` element.
  *
- * Demos:
- *
- * - [Preview Card](https://base-ui.com/components/react-preview-card/)
- *
- * API:
- *
- * - [PreviewCardTrigger API](https://base-ui.com/components/react-preview-card/#api-reference-PreviewCardTrigger)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   props: PreviewCardTrigger.Props,
@@ -44,6 +40,9 @@ const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
 
 namespace PreviewCardTrigger {
   export interface State {
+    /**
+     * Whether the preview card is currently open.
+     */
     open: boolean;
   }
 
@@ -60,11 +59,15 @@ PreviewCardTrigger.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

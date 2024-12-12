@@ -11,41 +11,43 @@ export default function ExampleSelect() {
           <ChevronUpDownIcon />
         </Select.Icon>
       </Select.Trigger>
-      <Select.Positioner className={styles.Positioner} sideOffset={8}>
-        <Select.Popup className={styles.Popup}>
-          <Select.Arrow className={styles.Arrow}>
-            <ArrowSvg />
-          </Select.Arrow>
-          <Select.Item className={styles.Option} value="sans">
-            <Select.ItemIndicator className={styles.OptionIndicator}>
-              <CheckIcon className={styles.OptionIndicatorIcon} />
-            </Select.ItemIndicator>
-            <Select.ItemText className={styles.OptionText}>
-              Sans-serif
-            </Select.ItemText>
-          </Select.Item>
-          <Select.Item className={styles.Option} value="serif">
-            <Select.ItemIndicator className={styles.OptionIndicator}>
-              <CheckIcon className={styles.OptionIndicatorIcon} />
-            </Select.ItemIndicator>
-            <Select.ItemText className={styles.OptionText}>Serif</Select.ItemText>
-          </Select.Item>
-          <Select.Item className={styles.Option} value="mono">
-            <Select.ItemIndicator className={styles.OptionIndicator}>
-              <CheckIcon className={styles.OptionIndicatorIcon} />
-            </Select.ItemIndicator>
-            <Select.ItemText className={styles.OptionText}>
-              Monospace
-            </Select.ItemText>
-          </Select.Item>
-          <Select.Item className={styles.Option} value="cursive">
-            <Select.ItemIndicator className={styles.OptionIndicator}>
-              <CheckIcon className={styles.OptionIndicatorIcon} />
-            </Select.ItemIndicator>
-            <Select.ItemText className={styles.OptionText}>Cursive</Select.ItemText>
-          </Select.Item>
-        </Select.Popup>
-      </Select.Positioner>
+      <Select.Portal>
+        <Select.Positioner className={styles.Positioner} sideOffset={8}>
+          <Select.Popup className={styles.Popup}>
+            <Select.Arrow className={styles.Arrow}>
+              <ArrowSvg />
+            </Select.Arrow>
+            <Select.Item className={styles.Item} value="sans">
+              <Select.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Select.ItemIndicator>
+              <Select.ItemText className={styles.ItemText}>
+                Sans-serif
+              </Select.ItemText>
+            </Select.Item>
+            <Select.Item className={styles.Item} value="serif">
+              <Select.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Select.ItemIndicator>
+              <Select.ItemText className={styles.ItemText}>Serif</Select.ItemText>
+            </Select.Item>
+            <Select.Item className={styles.Item} value="mono">
+              <Select.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Select.ItemIndicator>
+              <Select.ItemText className={styles.ItemText}>
+                Monospace
+              </Select.ItemText>
+            </Select.Item>
+            <Select.Item className={styles.Item} value="cursive">
+              <Select.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Select.ItemIndicator>
+              <Select.ItemText className={styles.ItemText}>Cursive</Select.ItemText>
+            </Select.Item>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Portal>
     </Select.Root>
   );
 }

@@ -12,15 +12,10 @@ import {
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 /**
- * Renders a trigger element that opens the popover.
+ * A button that opens the popover.
+ * Renders a `<button>` element.
  *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverTrigger API](https://base-ui.com/components/react-popover/#api-reference-PopoverTrigger)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   props: PopoverTrigger.Props,
@@ -62,6 +57,9 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
 namespace PopoverTrigger {
   export interface State {
+    /**
+     * Whether the popover is currently open.
+     */
     open: boolean;
   }
 
@@ -74,11 +72,15 @@ PopoverTrigger.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

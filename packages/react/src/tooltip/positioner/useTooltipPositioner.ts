@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { Padding, VirtualElement, FloatingRootContext } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { Boundary, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 
@@ -81,8 +81,7 @@ export namespace useTooltipPositioner {
       | React.MutableRefObject<Element | null>
       | (() => Element | VirtualElement | null);
     /**
-     * Whether the tooltip is open.
-     * @default false
+     * Whether the tooltip is currently open.
      */
     open?: boolean;
     /**
@@ -94,7 +93,7 @@ export namespace useTooltipPositioner {
      * The side of the anchor element that the tooltip element should be placed at.
      * @default 'top'
      */
-    side?: 'top' | 'right' | 'bottom' | 'left';
+    side?: Side;
     /**
      * The gap between the anchor element and the tooltip element.
      * @default 0
@@ -134,7 +133,7 @@ export namespace useTooltipPositioner {
      */
     arrowPadding?: number;
     /**
-     * Whether the tooltip remains mounted in the DOM while closed.
+     * Whether to keep the HTML element in the DOM while the tooltip is hidden.
      * @default false
      */
     keepMounted?: boolean;
@@ -161,8 +160,7 @@ export namespace useTooltipPositioner {
      */
     mounted: boolean;
     /**
-     * Whether the tooltip is open.
-     * @default false
+     * Whether the tooltip is currently open.
      */
     open?: boolean;
     /**
@@ -191,7 +189,7 @@ export namespace useTooltipPositioner {
     /**
      * The rendered side of the tooltip element.
      */
-    side: 'top' | 'right' | 'bottom' | 'left';
+    side: Side;
     /**
      * The rendered align of the tooltip element.
      */

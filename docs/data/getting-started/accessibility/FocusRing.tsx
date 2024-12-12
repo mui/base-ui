@@ -56,6 +56,7 @@ const SliderTrack = styled(BaseSlider.Track)`
 `;
 
 const SliderIndicator = styled(BaseSlider.Indicator)`
+  position: absolute;
   border-radius: 6px;
   background-color: currentColor;
 `;

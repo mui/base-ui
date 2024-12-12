@@ -7,14 +7,10 @@ import { useRadioRootContext } from '../root/RadioRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 
 /**
+ * Indicates whether the radio button is selected.
+ * Renders a `<span>` element.
  *
- * Demos:
- *
- * - [Radio Group](https://base-ui.com/components/react-radio-group/)
- *
- * API:
- *
- * - [RadioIndicator API](https://base-ui.com/components/react-radio-group/#api-reference-RadioIndicator)
+ * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
 const RadioIndicator = React.forwardRef(function RadioIndicator(
   props: RadioIndicator.Props,
@@ -44,13 +40,16 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
 namespace RadioIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
-     * Whether the component should be kept mounted when not checked.
+     * Whether to keep the HTML element in the DOM when the radio button is inactive.
      * @default true
      */
     keepMounted?: boolean;
   }
 
   export interface State {
+    /**
+     * Whether the radio button is currently selected.
+     */
     checked: boolean;
   }
 }
@@ -65,16 +64,20 @@ RadioIndicator.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Whether the component should be kept mounted when not checked.
+   * Whether to keep the HTML element in the DOM when the radio button is inactive.
    * @default true
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

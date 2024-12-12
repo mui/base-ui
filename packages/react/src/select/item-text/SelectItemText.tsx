@@ -9,7 +9,7 @@ import { useSelectItemContext } from '../item/SelectItemContext';
 
 interface InnerSelectItemTextProps extends SelectItemText.Props {
   selected: boolean;
-  selectedOptionTextRef: React.RefObject<HTMLElement | null>;
+  selectedItemTextRef: React.RefObject<HTMLElement | null>;
   indexRef: React.RefObject<number>;
 }
 
@@ -17,7 +17,7 @@ const InnerSelectItemText = React.forwardRef(function InnerSelectItemText(
   props: InnerSelectItemTextProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, selected, selectedOptionTextRef, indexRef, ...otherProps } = props;
+  const { className, render, selected, selectedItemTextRef, indexRef, ...otherProps } = props;
 
   const mergedRef = useForkRef<HTMLElement>(forwardedRef);
 
@@ -31,12 +31,12 @@ const InnerSelectItemText = React.forwardRef(function InnerSelectItemText(
 
       // Wait for the DOM indices to be set.
       queueMicrotask(() => {
-        if (selected || (selectedOptionTextRef.current === null && indexRef.current === 0)) {
-          selectedOptionTextRef.current = node;
+        if (selected || (selectedItemTextRef.current === null && indexRef.current === 0)) {
+          selectedItemTextRef.current = node;
         }
       });
     },
-    [mergedRef, selected, selectedOptionTextRef, indexRef],
+    [mergedRef, selected, selectedItemTextRef, indexRef],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -60,7 +60,8 @@ InnerSelectItemText.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -70,7 +71,10 @@ InnerSelectItemText.propTypes /* remove-proptypes */ = {
     current: PropTypes.number.isRequired,
   }).isRequired,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
@@ -80,7 +84,7 @@ InnerSelectItemText.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  selectedOptionTextRef: PropTypes.shape({
+  selectedItemTextRef: PropTypes.shape({
     current: (props, propName) => {
       if (props[propName] == null) {
         return null;
@@ -94,29 +98,26 @@ InnerSelectItemText.propTypes /* remove-proptypes */ = {
 } as any;
 
 const MemoizedInnerSelectItemText = React.memo(InnerSelectItemText);
+
 /**
+ * A text label of the select item.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectItemText API](https://base-ui.com/components/react-select/#api-reference-SelectItemText)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectItemText = React.forwardRef(function SelectItemText(
   props: SelectItemText.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { selected, indexRef } = useSelectItemContext();
-  const { selectedOptionTextRef } = useSelectRootContext();
+  const { selectedItemTextRef } = useSelectRootContext();
   const mergedRef = useForkRef<HTMLElement>(forwardedRef);
 
   return (
     <MemoizedInnerSelectItemText
       ref={mergedRef}
       selected={selected}
-      selectedOptionTextRef={selectedOptionTextRef}
+      selectedItemTextRef={selectedItemTextRef}
       indexRef={indexRef}
       {...props}
     />

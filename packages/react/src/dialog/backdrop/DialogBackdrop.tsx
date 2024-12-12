@@ -1,44 +1,30 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { HTMLElementType } from '../../utils/proptypes';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
   ...baseMapping,
-  transitionStatus: (value) => {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' } as Record<string, string>;
-    }
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-    return null;
-  },
+  ...transitionStatusMapping,
 };
 
 /**
- * An overlay displayed beneath the popup. Renders a `<div>` element.
+ * An overlay displayed beneath the popup.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Dialog](https://base-ui.com/components/react-dialog/)
- *
- * API:
- *
- * - [DialogBackdrop API](https://base-ui.com/components/react-dialog/#api-reference-DialogBackdrop)
+ * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = false, container, ...other } = props;
+  const { render, className, keepMounted = false, ...other } = props;
   const { open, hasParentDialog, mounted, transitionStatus } = useDialogRootContext();
 
   const state: DialogBackdrop.State = React.useMemo(
@@ -64,25 +50,22 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     return null;
   }
 
-  return <FloatingPortal root={container}>{renderElement()}</FloatingPortal>;
+  return renderElement();
 });
 
 namespace DialogBackdrop {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * If `true`, the backdrop element is kept in the DOM when closed.
-     *
+     * Whether to keep the HTML element in the DOM while the dialog is hidden.
      * @default false
      */
     keepMounted?: boolean;
-    /**
-     * The container element to which the backdrop is appended to.
-     * @default false
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
   }
 
   export interface State {
+    /**
+     * Whether the dialog is currently open.
+     */
     open: boolean;
     transitionStatus: TransitionStatus;
   }
@@ -98,25 +81,20 @@ DialogBackdrop.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The container element to which the backdrop is appended to.
-   * @default false
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
-  ]),
-  /**
-   * If `true`, the backdrop element is kept in the DOM when closed.
-   *
+   * Whether to keep the HTML element in the DOM while the dialog is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

@@ -38,7 +38,8 @@ const Progress = React.forwardRef(function Progress(props, ref) {
 
 Progress.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };
@@ -62,7 +63,8 @@ const ProgressTrack = React.forwardRef(function ProgressTrack(props, ref) {
 
 ProgressTrack.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };
@@ -86,7 +88,8 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(props, ref
 
 ProgressIndicator.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };

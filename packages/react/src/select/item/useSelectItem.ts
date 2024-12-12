@@ -33,17 +33,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 
   const mergedRef = useForkRef(externalRef, ref);
 
-  // Manually set the tabindex.
-  // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
-  // option upon close when tabbing out: https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
-  React.useEffect(() => {
-    if (!ref.current) {
-      return;
-    }
-
-    ref.current.setAttribute('tabindex', highlighted || !open ? '0' : '-1');
-  }, [open, highlighted]);
-
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
@@ -66,6 +55,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
       return getButtonProps(
         mergeReactProps<'div'>(externalProps, {
           'aria-disabled': disabled || undefined,
+          tabIndex: highlighted ? 0 : -1,
           style: {
             pointerEvents: disabled ? 'none' : undefined,
           },
@@ -82,11 +72,11 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           },
           onMouseLeave() {
             const popup = popupRef.current;
-            if (!popup) {
+            if (!popup || !open) {
               return;
             }
 
-            // With `alignOptionToTrigger`, avoid re-rendering the root due to `onMouseLeave`
+            // With `alignItemToTrigger`, avoid re-rendering the root due to `onMouseLeave`
             // firing and causing a performance issue when expanding the popup.
             if (popup.offsetHeight === prevPopupHeightRef.current) {
               // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
@@ -157,6 +147,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
       getButtonProps,
       highlighted,
       indexRef,
+      open,
       popupRef,
       selected,
       selectionRef,
@@ -177,7 +168,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 export namespace useSelectItem {
   export interface Parameters {
     /**
-     * If `true`, the select item will be disabled.
+     * Whether the component should ignore user actions.
      */
     disabled: boolean;
     /**
@@ -193,7 +184,7 @@ export namespace useSelectItem {
      */
     ref?: React.Ref<Element>;
     /**
-     * The open state of the select.
+     * Whether the select menu is currently open.
      */
     open: boolean;
     /**
@@ -205,11 +196,11 @@ export namespace useSelectItem {
      */
     typingRef: React.MutableRefObject<boolean>;
     /**
-     * The function to handle the selection of the option.
+     * The function to handle the selection of the item.
      */
     handleSelect: () => void;
     /**
-     * The ref to the selection state of the option.
+     * The ref to the selection state of the item.
      */
     selectionRef: React.MutableRefObject<{
       allowSelectedMouseUp: boolean;

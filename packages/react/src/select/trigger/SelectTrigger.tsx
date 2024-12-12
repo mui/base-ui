@@ -9,14 +9,10 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
+ * A button that opens the select menu.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectTrigger API](https://base-ui.com/components/react-select/#api-reference-SelectTrigger)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectTrigger = React.forwardRef(function SelectTrigger(
   props: SelectTrigger.Props,
@@ -66,7 +62,7 @@ namespace SelectTrigger {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;
@@ -77,6 +73,9 @@ namespace SelectTrigger {
   }
 
   export interface State {
+    /**
+     * Whether the select menu is currently open.
+     */
     open: boolean;
   }
 }
@@ -91,11 +90,12 @@ SelectTrigger.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the component is disabled.
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -108,7 +108,10 @@ SelectTrigger.propTypes /* remove-proptypes */ = {
    */
   label: PropTypes.string,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

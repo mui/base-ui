@@ -10,15 +10,10 @@ import { useFormContext } from '../../form/FormContext';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * The foundation for building custom-styled fields.
+ * Groups all parts of the field.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Field](https://base-ui.com/components/react-field/)
- *
- * API:
- *
- * - [FieldRoot API](https://base-ui.com/components/react-field/#api-reference-FieldRoot)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldRoot = React.forwardRef(function FieldRoot(
   props: FieldRoot.Props,
@@ -159,6 +154,9 @@ export interface FieldValidityData {
 
 namespace FieldRoot {
   export interface State {
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
     touched: boolean;
     dirty: boolean;
@@ -167,13 +165,14 @@ namespace FieldRoot {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * Whether the field is disabled. Takes precedence over the `disabled` prop of the `Field.Control`
-     * component.
+     * Whether the component should ignore user actions.
+     * Takes precedence over the `disabled` prop on the `<Field.Control>` component.
      * @default false
      */
     disabled?: boolean;
     /**
-     * The field's name. Takes precedence over the `name` prop of the `Field.Control` component.
+     * Identifies the field when a form is submitted.
+     * Takes precedence over the `name` prop on the `<Field.Control>` component.
      */
     name?: string;
     /**
@@ -193,7 +192,7 @@ namespace FieldRoot {
      */
     validationDebounceTime?: number;
     /**
-     * Determines if the field is forcefully marked as invalid.
+     * Whether the field is forcefully marked as invalid.
      */
     invalid?: boolean;
   }
@@ -209,25 +208,30 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Whether the field is disabled. Takes precedence over the `disabled` prop of the `Field.Control`
-   * component.
+   * Whether the component should ignore user actions.
+   * Takes precedence over the `disabled` prop on the `<Field.Control>` component.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * Determines if the field is forcefully marked as invalid.
+   * Whether the field is forcefully marked as invalid.
    */
   invalid: PropTypes.bool,
   /**
-   * The field's name. Takes precedence over the `name` prop of the `Field.Control` component.
+   * Identifies the field when a form is submitted.
+   * Takes precedence over the `name` prop on the `<Field.Control>` component.
    */
   name: PropTypes.string,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

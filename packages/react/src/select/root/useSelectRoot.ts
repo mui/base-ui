@@ -25,7 +25,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     disabled = false,
     readOnly = false,
     required = false,
-    alignOptionToTrigger: alignOptionToTriggerParam = true,
+    alignItemToTrigger: alignItemToTriggerParam = true,
   } = params;
 
   const id = useBaseUiId();
@@ -47,8 +47,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     state: 'open',
   });
 
-  const [controlledAlignOptionToTrigger, setControlledAlignOptionToTrigger] =
-    React.useState(alignOptionToTriggerParam);
+  const [controlledAlignItemToTrigger, setcontrolledAlignItemToTrigger] =
+    React.useState(alignItemToTriggerParam);
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
@@ -56,7 +56,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
-  const selectedOptionTextRef = React.useRef<HTMLSpanElement | null>(null);
+  const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
@@ -74,13 +74,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const alignOptionToTrigger = Boolean(mounted && controlledAlignOptionToTrigger && !touchModality);
+  const alignItemToTrigger = Boolean(mounted && controlledAlignItemToTrigger && !touchModality);
 
-  if (!mounted && controlledAlignOptionToTrigger !== alignOptionToTriggerParam) {
-    setControlledAlignOptionToTrigger(alignOptionToTriggerParam);
+  if (!mounted && controlledAlignItemToTrigger !== alignItemToTriggerParam) {
+    setcontrolledAlignItemToTrigger(alignItemToTriggerParam);
   }
 
-  if (!alignOptionToTriggerParam || !mounted) {
+  if (!alignItemToTriggerParam || !mounted) {
     if (scrollUpArrowVisible) {
       setScrollUpArrowVisible(false);
     }
@@ -92,12 +92,28 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     params.onOpenChange?.(nextOpen, event);
     setOpenUnwrapped(nextOpen);
+
+    // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
+    // option upon close when tabbing out due to `keepMounted=true`:
+    // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
+    // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
+    // when tabbing outside.
+    if (!nextOpen && activeIndex !== null) {
+      const activeOption = listRef.current[activeIndex];
+      // Wait for Floating UI's focus effect to have fired
+      queueMicrotask(() => {
+        activeOption?.setAttribute('tabindex', '-1');
+      });
+    }
   });
 
   useAfterExitAnimation({
     open,
     animatedElementRef: popupRef,
-    onFinished: () => setMounted(false),
+    onFinished() {
+      setMounted(false);
+      setActiveIndex(null);
+    },
   });
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
@@ -125,7 +141,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         setSelectedIndex(index);
         setLabel(labelsRef.current[index] ?? '');
       } else if (value) {
-        warn(`The value \`${stringValue}\` is not present in the Select options.`);
+        warn(`The value \`${stringValue}\` is not present in the select items.`);
       }
     });
   }, [value]);
@@ -155,9 +171,16 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     listRef,
     activeIndex,
     selectedIndex,
-    onNavigate: setActiveIndex,
+    onNavigate(nextActiveIndex) {
+      // Retain the highlight while transitioning out.
+      if (nextActiveIndex === null && !open) {
+        return;
+      }
+
+      setActiveIndex(nextActiveIndex);
+    },
     // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
-    // the `alignOptionToTrigger` prop enabled, causing a performance issue on Chrome.
+    // the `alignItemToTrigger` prop enabled, causing a performance issue on Chrome.
     focusItemOnHover: false,
   });
 
@@ -201,7 +224,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setScrollUpArrowVisible,
       scrollDownArrowVisible,
       setScrollDownArrowVisible,
-      setControlledAlignOptionToTrigger,
+      setcontrolledAlignItemToTrigger,
       value,
       setValue,
       open,
@@ -220,11 +243,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       getItemProps,
       listRef,
       popupRef,
-      selectedOptionTextRef,
+      selectedItemTextRef,
       floatingRootContext,
       touchModality,
       setTouchModality,
-      alignOptionToTrigger,
+      alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
     }),
@@ -250,7 +273,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       getItemProps,
       floatingRootContext,
       touchModality,
-      alignOptionToTrigger,
+      alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
     ],
@@ -278,7 +301,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 export namespace useSelectRoot {
   export interface Parameters<Value> {
     /**
-     * The name of the Select in the owning form.
+     * Identifies the field when a form is submitted.
      */
     name?: string;
     /**
@@ -286,18 +309,17 @@ export namespace useSelectRoot {
      */
     id?: string;
     /**
-     * If `true`, the Select is required.
+     * Whether the user must choose a value before submitting a form.
      * @default false
      */
     required?: boolean;
     /**
-     * If `true`, the Select is read-only.
+     * Whether the user should be unable to choose a different option from the select menu.
      * @default false
      */
     readOnly?: boolean;
     /**
-     * If `true`, the Select is disabled.
-     *
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;
@@ -315,25 +337,25 @@ export namespace useSelectRoot {
      */
     defaultValue?: Value | null;
     /**
-     * If `true`, the Select is initially open.
+     * Whether the select menu is initially open.
      *
+     * To render a controlled select menu, use the `open` prop instead.
      * @default false
      */
     defaultOpen?: boolean;
     /**
-     * Callback fired when the component requests to be opened or closed.
+     * Event handler called when the select menu is opened or closed.
      */
     onOpenChange?: (open: boolean, event: Event | undefined) => void;
     /**
-     * Allows to control whether the dropdown is open.
-     * This is a controlled counterpart of `defaultOpen`.
+     * Whether the select menu is currently open.
      */
     open?: boolean;
     /**
-     * Determines if the selected option inside the popup should align to the trigger element.
+     * Determines if the selected item inside the popup should align to the trigger element.
      * @default true
      */
-    alignOptionToTrigger?: boolean;
+    alignItemToTrigger?: boolean;
     /**
      * The transition status of the Select.
      */

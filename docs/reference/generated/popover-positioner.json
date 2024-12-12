@@ -1,6 +1,6 @@
 {
   "name": "PopoverPositioner",
-  "description": "The popover positioner element.",
+  "description": "Positions the popover against the trigger.\nRenders a `<div>` element.",
   "props": {
     "align": {
       "type": "'start' | 'center' | 'end'",
@@ -23,7 +23,7 @@
     },
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "collisionBoundary": {
       "type": "'clippingAncestors' | Element | Element[] | Rect",
@@ -35,14 +35,10 @@
       "default": "5",
       "description": "The padding between the popover element and the edges of the collision boundary to add\nwhitespace between them to prevent them from touching."
     },
-    "container": {
-      "type": "React.Ref | HTMLElement | null",
-      "description": "The element the popover positioner element is appended to."
-    },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the popover remains mounted in the DOM while closed."
+      "description": "Whether to keep the HTML element in the DOM when the popover is hidden."
     },
     "positionMethod": {
       "type": "'absolute' | 'fixed'",
@@ -51,10 +47,10 @@
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     },
     "side": {
-      "type": "'top' | 'bottom' | 'left' | 'right'",
+      "type": "'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
       "default": "'bottom'",
       "description": "The side of the anchor element that the popover element should be placed at."
     },

@@ -9,15 +9,10 @@ import { STYLE_HOOK_MAPPING } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * A description message for the field's control.
+ * A paragraph with additional information about the field.
+ * Renders a `<p>` element.
  *
- * Demos:
- *
- * - [Field](https://base-ui.com/components/react-field/)
- *
- * API:
- *
- * - [FieldDescription API](https://base-ui.com/components/react-field/#api-reference-FieldDescription)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldDescription = React.forwardRef(function FieldDescription(
   props: FieldDescription.Props,
@@ -58,7 +53,8 @@ FieldDescription.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -66,7 +62,10 @@ FieldDescription.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

@@ -10,14 +10,10 @@ import { useScrollAreaScrollbarContext } from '../scrollbar/ScrollAreaScrollbarC
 import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssVars';
 
 /**
+ * The draggable part of the the scrollbar that indicates the current scroll position.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Scroll Area](https://base-ui.com/components/react-scroll-area/)
- *
- * API:
- *
- * - [ScrollAreaThumb API](https://base-ui.com/components/react-scroll-area/#api-reference-ScrollAreaThumb)
+ * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
   props: ScrollAreaThumb.Props,
@@ -84,11 +80,15 @@ ScrollAreaThumb.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

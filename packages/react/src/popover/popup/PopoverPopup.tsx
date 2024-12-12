@@ -14,30 +14,19 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { refType } from '../../utils/proptypes';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
   ...baseMapping,
-  transitionStatus(value) {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' } as Record<string, string>;
-    }
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-    return null;
-  },
+  ...transitionStatusMapping,
 };
 
 /**
- * Renders the popover popup element.
+ * A container for the popover contents.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverPopup API](https://base-ui.com/components/react-popover/#api-reference-PopoverPopup)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverPopup = React.forwardRef(function PopoverPopup(
   props: PopoverPopup.Props,
@@ -84,7 +73,12 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     render: render ?? 'div',
     className,
     state,
-    extraProps: otherProps,
+    extraProps:
+      transitionStatus === 'starting'
+        ? mergeReactProps(otherProps, {
+            style: { transition: 'none' },
+          })
+        : otherProps,
     customStyleHookMapping,
   });
 
@@ -103,6 +97,9 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
 
 namespace PopoverPopup {
   export interface State {
+    /**
+     * Whether the popover is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;
@@ -111,16 +108,15 @@ namespace PopoverPopup {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * Determines an element to focus when the popover is opened.
-     * It can be either a ref to the element or a function that returns such a ref.
-     * If not provided, the first focusable element is focused.
+     * Determines the element to focus when the popover is opened.
+     * By default, the first focusable element is focused.
      */
     initialFocus?:
       | React.RefObject<HTMLElement | null>
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
     /**
-     * Determines an element to focus after the popover is closed.
-     * If not provided, the focus returns to the trigger.
+     * Determines the element to focus when the popover is closed.
+     * By default, focus returns to trigger.
      */
     finalFocus?: React.RefObject<HTMLElement | null>;
   }
@@ -136,25 +132,28 @@ PopoverPopup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Determines an element to focus after the popover is closed.
-   * If not provided, the focus returns to the trigger.
+   * Determines the element to focus when the popover is closed.
+   * By default, focus returns to trigger.
    */
   finalFocus: refType,
   /**
-   * Determines an element to focus when the popover is opened.
-   * It can be either a ref to the element or a function that returns such a ref.
-   * If not provided, the first focusable element is focused.
+   * Determines the element to focus when the popover is opened.
+   * By default, the first focusable element is focused.
    */
   initialFocus: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     PropTypes.func,
     refType,
   ]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

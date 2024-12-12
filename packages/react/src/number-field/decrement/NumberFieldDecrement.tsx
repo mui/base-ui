@@ -7,15 +7,10 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * The decrement stepper button.
+ * A stepper button that decreases the field value when clicked.
+ * Renders an `<button>` element.
  *
- * Demos:
- *
- * - [Number Field](https://base-ui.com/components/react-number-field/)
- *
- * API:
- *
- * - [NumberFieldDecrement API](https://base-ui.com/components/react-number-field/#api-reference-NumberFieldDecrement)
+ * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
   props: NumberFieldDecrement.Props,
@@ -52,11 +47,15 @@ NumberFieldDecrement.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

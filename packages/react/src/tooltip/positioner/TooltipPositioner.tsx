@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { HTMLElementType } from '../../utils/proptypes';
 import { useForkRef } from '../../utils/useForkRef';
@@ -13,15 +12,10 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * The tooltip positioner element.
+ * Positions the tooltip against the trigger.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Tooltip](https://base-ui.com/components/react-tooltip/)
- *
- * API:
- *
- * - [TooltipPositioner API](https://base-ui.com/components/react-tooltip/#api-reference-TooltipPositioner)
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   props: TooltipPositioner.Props,
@@ -31,7 +25,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     render,
     className,
     anchor,
-    container,
     keepMounted = false,
     positionMethod = 'absolute',
     side = 'top',
@@ -105,13 +98,16 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 
   return (
     <TooltipPositionerContext.Provider value={contextValue}>
-      <FloatingPortal root={container}>{renderElement()}</FloatingPortal>
+      {renderElement()}
     </TooltipPositionerContext.Provider>
   );
 });
 
 namespace TooltipPositioner {
   export interface State {
+    /**
+     * Whether the tooltip is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;
@@ -120,12 +116,7 @@ namespace TooltipPositioner {
 
   export interface Props
     extends BaseUIComponentProps<'div', State>,
-      useTooltipPositioner.SharedParameters {
-    /**
-     * The container element the tooltip positioner is appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-  }
+      useTooltipPositioner.SharedParameters {}
 }
 
 TooltipPositioner.propTypes /* remove-proptypes */ = {
@@ -162,7 +153,8 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -195,14 +187,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The container element the tooltip positioner is appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
-  ]),
-  /**
-   * Whether the tooltip remains mounted in the DOM while closed.
+   * Whether to keep the HTML element in the DOM while the tooltip is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,
@@ -212,14 +197,17 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * The side of the anchor element that the tooltip element should be placed at.
    * @default 'top'
    */
-  side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
+  side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
    * The gap between the anchor element and the tooltip element.
    * @default 0

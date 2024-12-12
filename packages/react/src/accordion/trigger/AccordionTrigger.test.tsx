@@ -48,7 +48,6 @@ const collapsibleContextValue: CollapsibleRootContext = {
   state: {
     open: true,
     disabled: false,
-    hidden: false,
     transitionStatus: undefined,
   },
 };

@@ -1,6 +1,6 @@
 {
   "name": "MenuItem",
-  "description": "An unstyled menu item to be used within a Menu.",
+  "description": "An individual interactive item in the menu.\nRenders a `<div>` element.",
   "props": {
     "closeOnClick": {
       "type": "boolean",
@@ -10,7 +10,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the menu item will be disabled."
+      "description": "Whether the component should ignore user actions."
     },
     "id": {
       "type": "string",

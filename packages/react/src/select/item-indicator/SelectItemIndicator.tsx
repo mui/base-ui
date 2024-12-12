@@ -7,14 +7,10 @@ import { useSelectItemContext } from '../item/SelectItemContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
+ * Indicates whether the select item is selected.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectItemIndicator API](https://base-ui.com/components/react-select/#api-reference-SelectItemIndicator)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
   props: SelectItemIndicator.Props,
@@ -24,7 +20,7 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
 
   const { selected } = useSelectItemContext();
 
-  const getOptionProps = React.useCallback(
+  const getItemProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         'aria-hidden': true,
@@ -41,7 +37,7 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getOptionProps,
+    propGetter: getItemProps,
     render: render ?? 'span',
     ref: forwardedRef,
     className,
@@ -61,8 +57,7 @@ namespace SelectItemIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
     children?: React.ReactNode;
     /**
-     * If `true`, the item indicator remains mounted when the item is not
-     * selected.
+     * Whether to keep the HTML element in the DOM when the item is not selected.
      * @default false
      */
     keepMounted?: boolean;
@@ -83,17 +78,20 @@ SelectItemIndicator.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the item indicator remains mounted when the item is not
-   * selected.
+   * Whether to keep the HTML element in the DOM when the item is not selected.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

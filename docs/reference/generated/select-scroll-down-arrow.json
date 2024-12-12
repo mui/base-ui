@@ -1,11 +1,11 @@
 {
   "name": "SelectScrollDownArrow",
-  "description": "",
+  "description": "An element that scrolls the select menu down when hovered.\nRenders a `<div>` element.",
   "props": {
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should be kept mounted when it is not rendered."
+      "description": "Whether to keep the HTML element in the DOM while the select menu is not scrollable."
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "MenuPositioner",
-  "description": "Renders the element that positions the Menu popup.",
+  "description": "Positions the menu popup against the trigger.\nRenders a `<div>` element.",
   "props": {
     "align": {
       "type": "'start' | 'center' | 'end'",
@@ -23,7 +23,7 @@
     },
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "collisionBoundary": {
       "type": "'clippingAncestors' | Element | Element[] | Rect",
@@ -35,14 +35,10 @@
       "default": "5",
       "description": "The padding of the collision boundary."
     },
-    "container": {
-      "type": "React.Ref | HTMLElement | null",
-      "description": "The container element to which the Menu popup will be appended to."
-    },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the menu popup remains mounted in the DOM while closed."
+      "description": "Whether to keep the HTML element in the DOM while the menu is hidden."
     },
     "positionMethod": {
       "type": "'absolute' | 'fixed'",
@@ -51,10 +47,10 @@
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     },
     "side": {
-      "type": "'top' | 'bottom' | 'left' | 'right'",
+      "type": "'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
       "default": "'bottom'",
       "description": "The side of the anchor element that the Menu element should align to."
     },
@@ -67,6 +63,17 @@
       "type": "boolean",
       "default": "false",
       "description": "If `true`, allow the Menu to remain in stuck view while the anchor element is scrolled out\nof view."
+    }
+  },
+  "dataAttributes": {
+    "data-anchor-hidden": {
+      "description": "Present when the anchor is hidden."
+    },
+    "data-open": {
+      "description": "Present when the menu popup is open."
+    },
+    "data-unchecked": {
+      "description": "Present when the menu popup is closed."
     }
   },
   "cssVariables": {

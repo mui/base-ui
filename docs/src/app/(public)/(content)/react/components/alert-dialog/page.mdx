@@ -17,13 +17,18 @@ import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 
 <AlertDialog.Root>
   <AlertDialog.Trigger />
-  <AlertDialog.Backdrop />
-  <AlertDialog.Popup>
-    <AlertDialog.Title />
-    <AlertDialog.Description />
-    <AlertDialog.Close />
-  </AlertDialog.Popup>
+  <AlertDialog.Portal>
+    <AlertDialog.Backdrop />
+    <AlertDialog.Popup>
+      <AlertDialog.Title />
+      <AlertDialog.Description />
+      <AlertDialog.Close />
+    </AlertDialog.Popup>
+  </AlertDialog.Portal>
 </AlertDialog.Root>;
 ```
 
-<Reference component="AlertDialog" parts="Root, Trigger, Backdrop, Popup, Title, Description" />
+<Reference
+  component="AlertDialog"
+  parts="Root, Trigger, Portal, Backdrop, Popup, Title, Description, Close"
+/>

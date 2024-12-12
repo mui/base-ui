@@ -7,15 +7,12 @@ import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderOutput } from './useSliderOutput';
+
 /**
+ * Displays the current value of the slider as text.
+ * Renders an `<output>` element.
  *
- * Demos:
- *
- * - [Slider](https://base-ui.com/components/react-slider/)
- *
- * API:
- *
- * - [SliderOutput API](https://base-ui.com/components/react-slider/#api-reference-SliderOutput)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderOutput = React.forwardRef(function SliderOutput(
   props: SliderOutput.Props,
@@ -61,11 +58,15 @@ SliderOutput.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

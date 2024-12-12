@@ -1,56 +1,36 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, FloatingPortal } from '@floating-ui/react';
+import { FloatingFocusManager } from '@floating-ui/react';
 import { useDialogPopup } from '../../dialog/popup/useDialogPopup';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { refType, HTMLElementType } from '../../utils/proptypes';
+import { refType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
   ...baseMapping,
+  ...transitionStatusMapping,
   nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
-  transitionStatus: (value) => {
-    if (value === 'entering') {
-      return { 'data-starting-style': '' } as Record<string, string>;
-    }
-    if (value === 'exiting') {
-      return { 'data-ending-style': '' };
-    }
-    return null;
-  },
 };
 
 /**
+ * A container for the alert dialog contents.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Alert Dialog](https://base-ui.com/components/react-alert-dialog/)
- *
- * API:
- *
- * - [AlertDialogPopup API](https://base-ui.com/components/react-alert-dialog/#api-reference-AlertDialogPopup)
+ * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   props: AlertDialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    className,
-    container,
-    id,
-    keepMounted = false,
-    render,
-    initialFocus,
-    finalFocus,
-    ...other
-  } = props;
+  const { className, id, keepMounted = false, render, initialFocus, finalFocus, ...other } = props;
 
   const {
     descriptionElementId,
@@ -114,49 +94,44 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   }
 
   return (
-    <FloatingPortal root={container}>
-      <FloatingFocusManager
-        context={floatingContext}
-        modal
-        disabled={!mounted}
-        initialFocus={resolvedInitialFocus}
-        returnFocus={finalFocus}
-        outsideElementsInert
-      >
-        {renderElement()}
-      </FloatingFocusManager>
-    </FloatingPortal>
+    <FloatingFocusManager
+      context={floatingContext}
+      modal
+      disabled={!mounted}
+      initialFocus={resolvedInitialFocus}
+      returnFocus={finalFocus}
+      outsideElementsInert
+    >
+      {renderElement()}
+    </FloatingFocusManager>
   );
 });
 
 namespace AlertDialogPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * The container element to which the popup is appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-    /**
-     * If `true`, the dialog element is kept in the DOM when closed.
-     *
+     * Whether to keep the element in the DOM while the alert dialog is hidden.
      * @default false
      */
     keepMounted?: boolean;
     /**
-     * Determines an element to focus when the dialog is opened.
-     * It can be either a ref to the element or a function that returns such a ref.
-     * If not provided, the first focusable element is focused.
+     * Determines the element to focus when the dialog is opened.
+     * By default, the first focusable element is focused.
      */
     initialFocus?:
       | React.RefObject<HTMLElement | null>
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
     /**
-     * Determines an element to focus after the dialog is closed.
-     * If not provided, the focus returns to the trigger.
+     * Determines the element to focus when the dialog is closed.
+     * By default, focus returns to trigger.
      */
     finalFocus?: React.RefObject<HTMLElement | null>;
   }
 
   export interface State {
+    /**
+     * Whether the dialog is currently open.
+     */
     open: boolean;
     nestedOpenDialogCount: number;
     transitionStatus: TransitionStatus;
@@ -173,16 +148,13 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The container element to which the popup is appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
-  /**
-   * Determines an element to focus after the dialog is closed.
-   * If not provided, the focus returns to the trigger.
+   * Determines the element to focus when the dialog is closed.
+   * By default, focus returns to trigger.
    */
   finalFocus: refType,
   /**
@@ -190,22 +162,23 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * Determines an element to focus when the dialog is opened.
-   * It can be either a ref to the element or a function that returns such a ref.
-   * If not provided, the first focusable element is focused.
+   * Determines the element to focus when the dialog is opened.
+   * By default, the first focusable element is focused.
    */
   initialFocus: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     PropTypes.func,
     refType,
   ]),
   /**
-   * If `true`, the dialog element is kept in the DOM when closed.
-   *
+   * Whether to keep the element in the DOM while the alert dialog is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

@@ -1,8 +1,7 @@
 // @ts-check
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { visitParents } from 'unist-util-visit-parents';
 import kebabCase from 'lodash/kebabCase.js';
-import startCase from 'lodash/startCase.js';
 import { join } from 'path';
 import { createMdxElement } from 'docs/src/mdx/createMdxElement.mjs';
 import { createHast } from 'docs/src/mdx/createHast.mjs';
@@ -49,8 +48,14 @@ export function rehypeReference() {
 
       if (parts) {
         componentDefs = parts.split(/,\s*/).map((part) => {
-          const filename = `${kebabCase(component)}-${kebabCase(part)}.json`;
-          const pathname = join(process.cwd(), 'reference/generated', filename);
+          let filename = `${kebabCase(component)}-${kebabCase(part)}.json`;
+          let pathname = join(process.cwd(), 'reference/generated', filename);
+
+          if (!existsSync(pathname)) {
+            filename = `${kebabCase(part)}.json`;
+            pathname = join(process.cwd(), 'reference/generated', filename);
+          }
+
           const jsonContents = readFileSync(pathname, 'utf-8');
           return JSON.parse(jsonContents);
         });
@@ -70,21 +75,28 @@ export function rehypeReference() {
         1,
         ...componentDefs.flatMap((def) => {
           const subtree = [];
-          const name = parts
-            ? startCase(def.name.substring(component.length))
-            : startCase(def.name);
+          const name =
+            parts && def.name.startsWith(component)
+              ? def.name.substring(component.length)
+              : def.name;
 
-          // Insert an <h3> with the part name
-          subtree.push(
-            createMdxElement({
-              name: 'h3',
-              children: [{ type: 'text', value: name }],
-            }),
-          );
+          // Insert an <h3> with the part name and parse descriptions as markdown.
+          // Single-part components headings and descriptions aren't displayed
+          // because they duplicate the page title and subtitle anyway.
+          if (parts) {
+            subtree.push(
+              createMdxElement({
+                name: 'h3',
+                children: [{ type: 'text', value: name }],
+                props: {
+                  id: kebabCase(name),
+                },
+              }),
+            );
 
-          // Parse component description as markdown
-          if (def.description) {
-            subtree.push(...createHast(def.description).children);
+            if (parts && def.description) {
+              subtree.push(...createHast(def.description).children);
+            }
           }
 
           subtree.push(
@@ -94,11 +106,11 @@ export function rehypeReference() {
             }),
           );
 
-          if (def.attributes) {
+          if (def.dataAttributes) {
             subtree.push(
               createMdxElement({
                 name: ATTRIBUTES_TABLE,
-                props: { data: def.attributes },
+                props: { data: def.dataAttributes },
               }),
             );
           }

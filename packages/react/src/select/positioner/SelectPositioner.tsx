@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -13,14 +12,10 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 
 /**
+ * Positions the select menu popup against the trigger.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Select](https://base-ui.com/components/react-select/)
- *
- * API:
- *
- * - [SelectPositioner API](https://base-ui.com/components/react-select/#api-reference-SelectPositioner)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectPositioner = React.forwardRef(function SelectPositioner(
   props: SelectPositioner.Props,
@@ -40,7 +35,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    container,
     ...otherProps
   } = props;
 
@@ -51,7 +45,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     anchor,
     floatingRootContext,
     positionMethod,
-    container,
     mounted,
     side,
     sideOffset,
@@ -89,11 +82,9 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
-      <FloatingPortal root={container}>
-        <SelectPositionerContext.Provider value={positioner}>
-          {renderElement()}
-        </SelectPositionerContext.Provider>
-      </FloatingPortal>
+      <SelectPositionerContext.Provider value={positioner}>
+        {renderElement()}
+      </SelectPositionerContext.Provider>
     </CompositeList>
   );
 });
@@ -176,7 +167,8 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -224,44 +216,22 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The container element to which the Select popup will be appended to.
-   */
-  container: PropTypes.oneOfType([
-    (props, propName) => {
-      if (props[propName] == null) {
-        return new Error(`Prop '${propName}' is required but wasn't specified`);
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
-    PropTypes.shape({
-      current: (props, propName) => {
-        if (props[propName] == null) {
-          return null;
-        }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop '${propName}' to be of type Element`);
-        }
-        return null;
-      },
-    }),
-  ]),
-  /**
    * The CSS position method for positioning the Select popup element.
    * @default 'absolute'
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * The side of the anchor element that the Select element should align to.
    * @default 'bottom'
    */
-  side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
+  side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
    * The gap between the anchor element and the Select element.
    * @default 0

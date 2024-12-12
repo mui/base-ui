@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { Side } from '@floating-ui/react';
+import type { FloatingContext } from '@floating-ui/react';
+import type { Side } from '../../utils/useAnchorPositioning';
 
 export interface MenuPositionerContext {
   /**
@@ -14,6 +15,7 @@ export interface MenuPositionerContext {
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
+  floatingContext: FloatingContext;
 }
 
 export const MenuPositionerContext = React.createContext<MenuPositionerContext | undefined>(

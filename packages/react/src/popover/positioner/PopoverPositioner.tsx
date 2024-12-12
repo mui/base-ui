@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
@@ -13,15 +12,10 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * The popover positioner element.
+ * Positions the popover against the trigger.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverPositioner API](https://base-ui.com/components/react-popover/#api-reference-PopoverPositioner)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   props: PopoverPositioner.Props,
@@ -31,7 +25,6 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     render,
     className,
     anchor,
-    container,
     keepMounted = false,
     positionMethod = 'absolute',
     side = 'bottom',
@@ -96,13 +89,16 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      <FloatingPortal root={container}>{renderElement()}</FloatingPortal>
+      {renderElement()}
     </PopoverPositionerContext.Provider>
   );
 });
 
 namespace PopoverPositioner {
   export interface State {
+    /**
+     * Whether the popover is currently open.
+     */
     open: boolean;
     side: Side;
     align: Align;
@@ -111,12 +107,7 @@ namespace PopoverPositioner {
 
   export interface Props
     extends usePopoverPositioner.SharedParameters,
-      BaseUIComponentProps<'div', State> {
-    /**
-     * The element the popover positioner element is appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-  }
+      BaseUIComponentProps<'div', State> {}
 }
 
 PopoverPositioner.propTypes /* remove-proptypes */ = {
@@ -153,7 +144,8 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -186,14 +178,7 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The element the popover positioner element is appended to.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.func,
-  ]),
-  /**
-   * Whether the popover remains mounted in the DOM while closed.
+   * Whether to keep the HTML element in the DOM when the popover is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,
@@ -203,14 +188,17 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * The side of the anchor element that the popover element should be placed at.
    * @default 'bottom'
    */
-  side: PropTypes.oneOf(['bottom', 'left', 'right', 'top']),
+  side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
    * The gap between the anchor element and the popover element.
    * @default 0

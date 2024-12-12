@@ -9,16 +9,14 @@ import { STYLE_HOOK_MAPPING } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * The field's control element. This is not necessary to use when using a native Base UI input
- * component (Checkbox, Switch, NumberField, Slider, Radio Group etc).
+ * The form control to label and validate.
+ * Renders an `<input>` element.
  *
- * Demos:
+ * You can omit this part and use any Base UI input component instead. For example,
+ * [Input](https://base-ui.com/react/components/input), [Checkbox](https://base-ui.com/react/components/checkbox),
+ * or [Select](https://base-ui.com/react/components/select), among others, will work with Field out of the box.
  *
- * - [Field](https://base-ui.com/components/react-field/)
- *
- * API:
- *
- * - [FieldControl API](https://base-ui.com/components/react-field/#api-reference-FieldControl)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldControl = React.forwardRef(function FieldControl(
   props: FieldControl.Props,
@@ -89,7 +87,8 @@ FieldControl.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -117,7 +116,10 @@ FieldControl.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

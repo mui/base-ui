@@ -9,15 +9,10 @@ import { usePopoverTitle } from './usePopoverTitle';
 const state = {};
 
 /**
- * Renders a title element that labels the popover.
+ * A heading that labels the popover.
+ * Renders an `<h2>` element.
  *
- * Demos:
- *
- * - [Popover](https://base-ui.com/components/react-popover/)
- *
- * API:
- *
- * - [PopoverTitle API](https://base-ui.com/components/react-popover/#api-reference-PopoverTitle)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverTitle = React.forwardRef(function PopoverTitle(
   props: PopoverTitle.Props,
@@ -61,7 +56,8 @@ PopoverTitle.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -69,7 +65,10 @@ PopoverTitle.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

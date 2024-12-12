@@ -10,15 +10,10 @@ import { useFormContext } from '../../form/FormContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * Displays error messages for the field's control.
+ * An error message displayed if the field control fails validation.
+ * Renders a `<div>` element.
  *
- * Demos:
- *
- * - [Field](https://base-ui.com/components/react-field/)
- *
- * API:
- *
- * - [FieldError API](https://base-ui.com/components/react-field/#api-reference-FieldError)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 const FieldError = React.forwardRef(function FieldError(
   props: FieldError.Props,
@@ -86,7 +81,8 @@ FieldError.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -115,7 +111,10 @@ FieldError.propTypes /* remove-proptypes */ = {
     'valueMissing',
   ]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
