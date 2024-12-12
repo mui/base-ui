@@ -45,6 +45,7 @@ export namespace useCollapsibleRoot {
   export interface Parameters {
     /**
      * Whether the collapsible panel is currently open.
+     *
      * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
      */
     open?: boolean;
@@ -75,6 +76,7 @@ export namespace useCollapsibleRoot {
     mounted: boolean;
     /**
      * Whether the collapsible panel is currently open.
+     *
      * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
      */
     open: boolean;

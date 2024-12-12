@@ -841,6 +841,7 @@ export namespace UseNumberFieldRoot {
     value?: number | null;
     /**
      * The uncontrolled value of the field when it’s initially rendered.
+     *
      * To render a controlled number field, use the `value` prop instead.
      */
     defaultValue?: number;

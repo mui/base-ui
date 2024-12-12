@@ -12,7 +12,7 @@
     },
     "defaultValue": {
       "type": "string[]",
-      "description": "Names of the checkboxes in the group that should be initially ticked.\nTo render a controlled checkbox group, use the `value` prop instead."
+      "description": "Names of the checkboxes in the group that should be initially ticked.\n\nTo render a controlled checkbox group, use the `value` prop instead."
     },
     "disabled": {
       "type": "boolean",
@@ -29,7 +29,7 @@
     },
     "value": {
       "type": "string[]",
-      "description": "Names of the checkboxes in the group that should be ticked.\nTo render an uncontrolled checkbox group, use the `defaultValue` prop instead."
+      "description": "Names of the checkboxes in the group that should be ticked.\n\nTo render an uncontrolled checkbox group, use the `defaultValue` prop instead."
     }
   },
   "dataAttributes": {

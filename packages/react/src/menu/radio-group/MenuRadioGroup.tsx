@@ -76,11 +76,13 @@ namespace MenuRadioGroup {
     children?: React.ReactNode;
     /**
      * The controlled value of the radio item that should be currently selected.
+     *
      * To render an uncontrolled radio group, use the `defaultValue` prop instead.
      */
     value?: any;
     /**
      * The uncontrolled value of the radio item that should be initially selected.
+     *
      * To render a controlled radio group, use the `value` prop instead.
      */
     defaultValue?: any;
@@ -111,6 +113,7 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The uncontrolled value of the radio item that should be initially selected.
+   *
    * To render a controlled radio group, use the `value` prop instead.
    */
   defaultValue: PropTypes.any,
@@ -129,6 +132,7 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * The controlled value of the radio item that should be currently selected.
+   *
    * To render an uncontrolled radio group, use the `defaultValue` prop instead.
    */
   value: PropTypes.any,

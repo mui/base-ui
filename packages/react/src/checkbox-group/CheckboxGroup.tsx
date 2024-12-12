@@ -84,11 +84,13 @@ namespace CheckboxGroup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Names of the checkboxes in the group that should be ticked.
+     *
      * To render an uncontrolled checkbox group, use the `defaultValue` prop instead.
      */
     value?: string[];
     /**
      * Names of the checkboxes in the group that should be initially ticked.
+     *
      * To render a controlled checkbox group, use the `value` prop instead.
      */
     defaultValue?: string[];
@@ -129,6 +131,7 @@ CheckboxGroup.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * Names of the checkboxes in the group that should be initially ticked.
+   *
    * To render a controlled checkbox group, use the `value` prop instead.
    */
   defaultValue: PropTypes.arrayOf(PropTypes.string),
@@ -151,6 +154,7 @@ CheckboxGroup.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * Names of the checkboxes in the group that should be ticked.
+   *
    * To render an uncontrolled checkbox group, use the `defaultValue` prop instead.
    */
   value: PropTypes.arrayOf(PropTypes.string),
