@@ -1,4 +1,6 @@
 import * as React from 'react';
+import clsx from 'clsx';
+import { ExternalLinkIcon } from 'docs/src/components/icons/ExternalLinkIcon';
 import { DemoLoader } from './components/demo/NewDemoLoader';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
@@ -17,7 +19,22 @@ interface MDXComponents {
 }
 
 export const mdxComponents: MDXComponents = {
-  a: (props) => <Link {...props} />,
+  a: (props) => {
+    if (props.href.startsWith('http')) {
+      return (
+        <Link
+          target="_blank"
+          rel="noopener"
+          {...props}
+          className={clsx(props.className, 'inline-flex items-center gap-1')}
+        >
+          {props.children}
+          <ExternalLinkIcon />
+        </Link>
+      );
+    }
+    return <Link {...props} />;
+  },
   code: (props) => <Code className="data-[inline]:mx-[0.1em]" {...props} />,
   h1: (props) => (
     <React.Fragment>
