@@ -58,11 +58,11 @@ const Slider = React.forwardRef(function Slider(
 });
 
 const SliderOutput = React.forwardRef(function SliderOutput(
-  props: BaseSlider.Output.Props,
+  props: BaseSlider.Value.Props,
   ref: React.ForwardedRef<HTMLOutputElement>,
 ) {
   return (
-    <BaseSlider.Output
+    <BaseSlider.Value
       {...props}
       ref={ref}
       className={(state) =>

@@ -1,5 +1,5 @@
 {
-  "name": "SliderOutput",
+  "name": "SliderValue",
   "description": "Displays the current value of the slider as text.\nRenders an `<output>` element.",
   "props": {
     "className": {
