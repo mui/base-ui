@@ -84,7 +84,7 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    */
   closeOnClick: PropTypes.bool,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -187,7 +187,7 @@ interface InnerMenuItemProps extends MenuItem.Props {
 namespace MenuItem {
   export type State = {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     highlighted: boolean;
@@ -200,7 +200,7 @@ namespace MenuItem {
      */
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -238,7 +238,7 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   closeOnClick: PropTypes.bool,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,

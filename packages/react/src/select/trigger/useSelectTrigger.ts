@@ -169,7 +169,7 @@ export function useSelectTrigger(
 export namespace useSelectTrigger {
   export interface Parameters {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;

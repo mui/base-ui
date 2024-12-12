@@ -9,7 +9,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions.\nTakes precedence over the `disabled` prop on the `<Field.Control>` component."
+      "description": "Whether the component should ignore user interaction.\nTakes precedence over the `disabled` prop on the `<Field.Control>` component."
     },
     "invalid": {
       "type": "boolean",
@@ -46,7 +46,7 @@
       "description": "Present when the field is disabled."
     },
     "data-touched": {
-      "description": "Present when the field has been thouched."
+      "description": "Present when the field has been touched."
     }
   }
 }

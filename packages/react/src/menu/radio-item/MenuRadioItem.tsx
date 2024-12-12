@@ -91,7 +91,7 @@ InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
    */
   closeOnClick: PropTypes.bool,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -222,7 +222,7 @@ interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
 namespace MenuRadioItem {
   export type State = {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     highlighted: boolean;
@@ -244,7 +244,7 @@ namespace MenuRadioItem {
      */
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -282,7 +282,7 @@ MenuRadioItem.propTypes /* remove-proptypes */ = {
    */
   closeOnClick: PropTypes.bool,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,

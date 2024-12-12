@@ -1,6 +1,6 @@
 {
   "name": "SelectPortal",
-  "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to the `<body>`.",
+  "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.",
   "props": {
     "container": {
       "type": "React.Ref | HTMLElement | null",

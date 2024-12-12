@@ -1,6 +1,6 @@
 {
   "name": "Portal",
-  "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to the `<body>`.",
+  "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.",
   "props": {
     "container": {
       "type": "React.Ref | HTMLElement | null",
@@ -9,7 +9,7 @@
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to keep the portal mounted in the DOM when the popup is hidden."
+      "description": "Whether to keep the portal mounted in the DOM while the popup is hidden."
     }
   }
 }

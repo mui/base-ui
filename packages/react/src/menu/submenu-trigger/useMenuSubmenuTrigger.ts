@@ -59,7 +59,7 @@ export namespace useSubmenuTrigger {
     id: string | undefined;
     highlighted: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**

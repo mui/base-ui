@@ -111,7 +111,7 @@ export namespace NumberFieldRoot {
      */
     required: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
@@ -159,7 +159,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.number,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,

@@ -19,7 +19,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
     },
     "indeterminate": {
       "type": "boolean",
@@ -79,7 +79,7 @@
       "description": "Present when the checkbox is required."
     },
     "data-touched": {
-      "description": "Present when the checkbox has been thouched (when wrapped in Field.Root)."
+      "description": "Present when the checkbox has been touched (when wrapped in Field.Root)."
     },
     "data-unchecked": {
       "description": "Present when the checkbox is not checked."

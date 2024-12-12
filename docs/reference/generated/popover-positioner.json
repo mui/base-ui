@@ -5,21 +5,21 @@
     "align": {
       "type": "'start' | 'center' | 'end'",
       "default": "'center'",
-      "description": "The align of the popover element to the anchor element along its cross axis."
+      "description": "How to align the popup relative to the specified side."
     },
     "alignOffset": {
       "type": "number",
       "default": "0",
-      "description": "The offset of the popover element along its align axis."
+      "description": "Additional offset along the alignment axis of the element."
     },
     "anchor": {
       "type": "React.Ref | Element | VirtualElement | (() => Element | VirtualElement | null) | null",
-      "description": "The element to which the popover element is anchored to."
+      "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
     },
     "arrowPadding": {
       "type": "number",
       "default": "5",
-      "description": "Determines the padding between the arrow and the popover edges. Useful when the popover\nelement has rounded corners via `border-radius`."
+      "description": "Minimum distance to maintain between the arrow and the edges of the popup.\n\nUse it to prevent the arrow element from hanging out of the rounded corners of a popup."
     },
     "className": {
       "type": "string | (state) => string",
@@ -28,22 +28,22 @@
     "collisionBoundary": {
       "type": "'clippingAncestors' | Element | Element[] | Rect",
       "default": "'clipping-ancestors'",
-      "description": "The boundary that the popover element should be constrained to."
+      "description": "An element or a rectangle that delimits the area that the popup is confined to."
     },
     "collisionPadding": {
       "type": "number | Rect",
       "default": "5",
-      "description": "The padding between the popover element and the edges of the collision boundary to add\nwhitespace between them to prevent them from touching."
+      "description": "Additional space to maintain from the edge of the collision boundary."
     },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to keep the HTML element in the DOM when the popover is hidden."
+      "description": "Whether to keep the HTML element in the DOM while the popover is hidden."
     },
     "positionMethod": {
       "type": "'absolute' | 'fixed'",
       "default": "'absolute'",
-      "description": "The CSS position strategy for positioning the popover element."
+      "description": "Determines which CSS `position` property to use."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
@@ -52,17 +52,17 @@
     "side": {
       "type": "'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
       "default": "'bottom'",
-      "description": "The side of the anchor element that the popover element should be placed at."
+      "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions."
     },
     "sideOffset": {
       "type": "number",
       "default": "0",
-      "description": "The gap between the anchor element and the popover element."
+      "description": "Distance between the anchor and the popup."
     },
     "sticky": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to allow the popover to remain stuck in view while the anchor element is scrolled out\nof view."
+      "description": "Whether to maintain the popup in the viewport after\nthe anchor element is scrolled out of view."
     }
   },
   "cssVariables": {

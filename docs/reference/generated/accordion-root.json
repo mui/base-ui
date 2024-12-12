@@ -13,7 +13,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
     },
     "hiddenUntilFound": {
       "type": "boolean",
@@ -50,7 +50,7 @@
     },
     "value": {
       "type": "array",
-      "description": "The controlled value of the item(s) that should be expanded.\nTo render an controlled accordion, use the `defaultValue` prop instead."
+      "description": "The controlled value of the item(s) that should be expanded.\nTo render a controlled accordion, use the `defaultValue` prop instead."
     }
   },
   "dataAttributes": {

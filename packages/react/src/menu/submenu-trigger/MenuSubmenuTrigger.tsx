@@ -79,7 +79,7 @@ namespace MenuSubmenuTrigger {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -93,7 +93,7 @@ namespace MenuSubmenuTrigger {
 
   export interface State {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     highlighted: boolean;
@@ -119,7 +119,7 @@ MenuSubmenuTrigger.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,

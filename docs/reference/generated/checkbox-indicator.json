@@ -42,7 +42,7 @@
       "description": "Present when the checkbox indicator is animating in."
     },
     "data-touched": {
-      "description": "Present when the checkbox has been thouched (when wrapped in Field.Root)."
+      "description": "Present when the checkbox has been touched (when wrapped in Field.Root)."
     },
     "data-unchecked": {
       "description": "Present when the checkbox is not checked."

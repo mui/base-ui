@@ -136,7 +136,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.any,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
