@@ -1,4 +1,5 @@
 .Switch {
+  position: relative;
   display: flex;
   appearance: none;
   border: 0;
@@ -48,6 +49,17 @@
       box-shadow: none;
     }
   }
+
+  &:focus-visible {
+    &::before {
+      content: '';
+      inset: 0;
+      position: absolute;
+      border-radius: inherit;
+      outline: 2px solid var(--color-blue);
+      outline-offset: 2px;
+    }
+  }
 }
 
 .Thumb {
@@ -56,10 +68,6 @@
   border-radius: 100%;
   background-color: white;
   transition: translate 150ms ease;
-
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
-  }
 
   &[data-checked] {
     translate: 1rem 0;
