@@ -1,6 +1,9 @@
 {
   "name": "SliderRoot",
   "props": {
+    "format": {
+      "type": "Intl.NumberFormatOptions"
+    },
     "onValueChange": {
       "type": "(value, event, activeThumbIndex) => void"
     },
