@@ -1,5 +1,9 @@
 export enum NumberFieldDecrementDataAttributes {
   /**
+   * Present while scrubbing.
+   */
+  scrubbing = 'data-scrubbing',
+  /**
    * Present when the number field is disabled.
    */
   disabled = 'data-disabled',
