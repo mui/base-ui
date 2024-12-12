@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
+import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
 import { useMenuRadioItem } from './useMenuRadioItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -11,6 +11,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/styleHookMapping';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 
 const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuRadioItemProps,
@@ -161,7 +162,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const { id: idProp, value, label, disabled = false, ...other } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
-  const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
+  const listItem = useCompositeListItem({ label });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
   const { getItemProps, activeIndex, clickAndDragEnabled, typingRef } = useMenuRootContext();

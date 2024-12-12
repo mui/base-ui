@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
+import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
 import { useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 
 const InnerMenuItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuItemProps,
@@ -148,7 +149,7 @@ const MenuItem = React.forwardRef(function MenuItem(
   const { id: idProp, label, ...other } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
-  const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
+  const listItem = useCompositeListItem({ label });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
   const { getItemProps, activeIndex, clickAndDragEnabled, typingRef } = useMenuRootContext();
