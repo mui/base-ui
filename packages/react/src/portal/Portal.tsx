@@ -32,7 +32,7 @@ namespace Portal {
      */
     container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
     /**
-     * Whether to keep the portal mounted in the DOM when the popup is closed.
+     * Whether to keep the portal mounted in the DOM when the popup is hidden.
      * @default false
      */
     keepMounted?: boolean;
@@ -55,7 +55,7 @@ Portal.propTypes /* remove-proptypes */ = {
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
   /**
-   * Whether to keep the portal mounted in the DOM when the popup is closed.
+   * Whether to keep the portal mounted in the DOM when the popup is hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,

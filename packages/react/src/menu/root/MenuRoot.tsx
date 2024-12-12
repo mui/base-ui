@@ -98,23 +98,24 @@ namespace MenuRoot {
   export interface Props {
     children: React.ReactNode;
     /**
-     * If `true`, the Menu is initially open.
+     * Whether the menu is initially open.
      *
+     * To render a controlled menu, use the `open` prop instead.
      * @default false
      */
     defaultOpen?: boolean;
     /**
-     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+     * Whether to loop keyboard focus back to the first item
+     * when the end of the list is reached while using the arrow keys.
      * @default true
      */
     loop?: boolean;
     /**
-     * Callback fired when the component requests to be opened or closed.
+     * Event handler called when the menu is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event) => void;
     /**
-     * Allows to control whether the dropdown is open.
-     * This is a controlled counterpart of `defaultOpen`.
+     * Whether the menu is currently open.
      */
     open?: boolean;
     /**
@@ -124,8 +125,7 @@ namespace MenuRoot {
      */
     orientation?: MenuOrientation;
     /**
-     * If `true`, the Menu is disabled.
-     *
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;
@@ -171,8 +171,9 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   closeParentOnEsc: PropTypes.bool,
   /**
-   * If `true`, the Menu is initially open.
+   * Whether the menu is initially open.
    *
+   * To render a controlled menu, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
@@ -183,23 +184,22 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
-   * If `true`, the Menu is disabled.
-   *
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+   * Whether to loop keyboard focus back to the first item
+   * when the end of the list is reached while using the arrow keys.
    * @default true
    */
   loop: PropTypes.bool,
   /**
-   * Callback fired when the component requests to be opened or closed.
+   * Event handler called when the menu is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
-   * Allows to control whether the dropdown is open.
-   * This is a controlled counterpart of `defaultOpen`.
+   * Whether the menu is currently open.
    */
   open: PropTypes.bool,
   /**

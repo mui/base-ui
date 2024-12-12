@@ -1,17 +1,20 @@
 import * as React from 'react';
+import { Field } from '@base-ui-components/react/field';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import styles from './index.module.css';
 
 export default function ExampleCheckbox() {
   return (
-    <label className={styles.Label}>
-      <Checkbox.Root defaultChecked className={styles.Checkbox}>
-        <Checkbox.Indicator className={styles.Indicator}>
-          <CheckIcon className={styles.Icon} />
-        </Checkbox.Indicator>
-      </Checkbox.Root>
-      Enable notifications
-    </label>
+    <Field.Root>
+      <label className={styles.Label}>
+        <Checkbox.Root defaultChecked className={styles.Checkbox}>
+          <Checkbox.Indicator className={styles.Indicator}>
+            <CheckIcon className={styles.Icon} />
+          </Checkbox.Indicator>
+        </Checkbox.Root>
+        Enable notifications
+      </label>
+    </Field.Root>
   );
 }
 

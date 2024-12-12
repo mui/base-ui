@@ -5,7 +5,7 @@ import styles from './index.module.css';
 export default function ExampleAccordion() {
   return (
     <Accordion.Root className={styles.Accordion}>
-      <Accordion.Item className={styles.Item}>
+      <Accordion.Item className={styles.Item} disabled>
         <Accordion.Header className={styles.Header}>
           <Accordion.Trigger className={styles.Trigger}>
             What is Base UI?

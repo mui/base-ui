@@ -55,18 +55,18 @@ AlertDialogRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Determines whether the dialog is initally open.
-   * This is an uncontrolled equivalent of the `open` prop.
+   * Whether the dialog is initially open.
    *
+   * To render a controlled dialog, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
   /**
-   * Callback invoked when the dialog is being opened or closed.
+   * Event handler called when the dialog is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
-   * Determines whether the dialog is open.
+   * Whether the dialog is currently open.
    */
   open: PropTypes.bool,
 } as any;
