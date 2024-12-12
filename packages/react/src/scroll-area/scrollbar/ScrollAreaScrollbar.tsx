@@ -76,7 +76,7 @@ namespace ScrollAreaScrollbar {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * The orientation of the scrollbar.
+     * Whether the scrollbar controls vertical or horizontal scroll.
      * @default 'vertical'
      */
     orientation?: 'vertical' | 'horizontal';
@@ -108,7 +108,7 @@ ScrollAreaScrollbar.propTypes /* remove-proptypes */ = {
    */
   keepMounted: PropTypes.bool,
   /**
-   * The orientation of the scrollbar.
+   * Whether the scrollbar controls vertical or horizontal scroll.
    * @default 'vertical'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
