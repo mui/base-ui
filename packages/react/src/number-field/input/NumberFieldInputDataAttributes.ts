@@ -1,4 +1,4 @@
-export enum NumberFieldRootDataAttributes {
+export enum NumberFieldInputDataAttributes {
   /**
    * Present while scrubbing.
    */
