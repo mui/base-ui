@@ -10,5 +10,20 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
+  },
+  "dataAttributes": {
+    "data-anchor-hidden": {
+      "description": "Present when the anchor is hidden."
+    },
+    "data-open": {
+      "description": "Present when the preview card is open."
+    },
+    "data-side": {
+      "description": "Indicates which side the preview card is positioned relative to the trigger.",
+      "type": "'none' | 'top' | 'right' | 'bottom' | 'left'"
+    },
+    "data-unchecked": {
+      "description": "Present when the preview card is closed."
+    }
   }
 }
