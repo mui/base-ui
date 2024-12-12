@@ -92,12 +92,12 @@ const Form = React.forwardRef(function Form(
 namespace Form {
   export interface Props extends BaseUIComponentProps<'form', State> {
     /**
-     * Object of error messages with each key mapping to the `name` prop of a Field control, usually
-     * from server-side validation.
+     * An object where the keys correspond to the `name` attribute of the form fields,
+     * and the values correspond to the erorr(s) related to that field.
      */
     errors?: FormContext['errors'];
     /**
-     * Callback fired when the external server-side `error` messages should be cleared.
+     * Event handler called when the `errors` object is cleared.
      */
     onClearErrors?: FormContext['onClearErrors'];
   }
@@ -119,12 +119,12 @@ Form.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Object of error messages with each key mapping to the `name` prop of a Field control, usually
-   * from server-side validation.
+   * An object where the keys correspond to the `name` attribute of the form fields,
+   * and the values correspond to the erorr(s) related to that field.
    */
   errors: PropTypes.object,
   /**
-   * Callback fired when the external server-side `error` messages should be cleared.
+   * Event handler called when the `errors` object is cleared.
    */
   onClearErrors: PropTypes.func,
   /**

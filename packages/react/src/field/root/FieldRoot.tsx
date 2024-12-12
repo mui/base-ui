@@ -176,18 +176,21 @@ namespace FieldRoot {
      */
     name?: string;
     /**
-     * Function to custom-validate the field's value. Return a string or array of strings with error
-     * messages if the value is invalid, or `null` if the value is valid. The function can also return
-     * a promise that resolves to a string, array of strings, or `null`.
+     * A function for custom validation. Return a string or an array of strings with
+     * the error message(s) if the value is invalid, or `null` if the value is valid.
      */
     validate?: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
     /**
-     * Determines when validation should be triggered.
+     * Determines when the field should be validated.
+     *
+     * - **onBlur** triggers validation when the control loses focus
+     * - **onChange** triggers validation on every change to the control value
      * @default 'onBlur'
      */
     validationMode?: 'onBlur' | 'onChange';
     /**
-     * The debounce time in milliseconds for the `validate` function in `onChange` phase.
+     * How long to wait between `validate` callbacks if
+     * `validationMode="onChange"` is used. Specified in milliseconds.
      * @default 0
      */
     validationDebounceTime?: number;
@@ -235,18 +238,21 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * Function to custom-validate the field's value. Return a string or array of strings with error
-   * messages if the value is invalid, or `null` if the value is valid. The function can also return
-   * a promise that resolves to a string, array of strings, or `null`.
+   * A function for custom validation. Return a string or an array of strings with
+   * the error message(s) if the value is invalid, or `null` if the value is valid.
    */
   validate: PropTypes.func,
   /**
-   * The debounce time in milliseconds for the `validate` function in `onChange` phase.
+   * How long to wait between `validate` callbacks if
+   * `validationMode="onChange"` is used. Specified in milliseconds.
    * @default 0
    */
   validationDebounceTime: PropTypes.number,
   /**
-   * Determines when validation should be triggered.
+   * Determines when the field should be validated.
+   *
+   * - **onBlur** triggers validation when the control loses focus
+   * - **onChange** triggers validation on every change to the control value
    * @default 'onBlur'
    */
   validationMode: PropTypes.oneOf(['onBlur', 'onChange']),
