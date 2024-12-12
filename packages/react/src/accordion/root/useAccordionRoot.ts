@@ -220,7 +220,7 @@ export namespace useAccordionRoot {
     openMultiple: boolean;
     /**
      * The visual orientation of the accordion.
-     * Controls whether the roving focus uses left/right or up/down arrow keys.
+     * Controls whether roving focus uses left/right or up/down arrow keys.
      * @default 'vertical'
      */
     orientation: AccordionOrientation;
