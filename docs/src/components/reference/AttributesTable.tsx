@@ -16,8 +16,10 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
     <Table.Root {...props}>
       <Table.Head>
         <Table.Row>
-          <Table.ColumnHeader className="w-full md:w-1/3">Attribute</Table.ColumnHeader>
-          <Table.ColumnHeader className="w-2/3 max-md:hidden">Type</Table.ColumnHeader>
+          <Table.ColumnHeader className="w-full xs:w-48 sm:w-56 md:w-1/3">
+            Attribute
+          </Table.ColumnHeader>
+          <Table.ColumnHeader className="max-xs:hidden xs:w-full md:w-2/3">Type</Table.ColumnHeader>
           <Table.ColumnHeader className="w-10" aria-label="Description" />
         </Table.Row>
       </Table.Head>
@@ -43,13 +45,13 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
               <Table.RowHeader>
                 <Code className="text-navy">{name}</Code>
               </Table.RowHeader>
-              <Table.Cell className="w-2/3 max-md:hidden">
+              <Table.Cell className="max-xs:hidden">
                 <AttributeType />
               </Table.Cell>
               <Table.Cell>
                 <ReferenceTablePopover>
                   <AttributeDescription />
-                  <div className="flex flex-col gap-2 text-xs md:hidden">
+                  <div className="flex flex-col gap-2 text-xs xs:hidden">
                     <div className="border-t border-gray-200 pt-2">
                       <div className="mb-1 font-bold">Type</div>
                       <AttributeType />

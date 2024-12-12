@@ -16,9 +16,9 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
     <Table.Root {...props}>
       <Table.Head>
         <Table.Row>
-          <Table.ColumnHeader className="w-full xs:w-5/8 md:w-1/3">Prop</Table.ColumnHeader>
-          <Table.ColumnHeader className="w-1/2 max-md:hidden">Type</Table.ColumnHeader>
-          <Table.ColumnHeader className="w-3/8 max-xs:hidden md:w-1/6">Default</Table.ColumnHeader>
+          <Table.ColumnHeader className="w-full xs:w-48 sm:w-56 md:w-1/3">Prop</Table.ColumnHeader>
+          <Table.ColumnHeader className="max-xs:hidden xs:w-full md:w-1/2">Type</Table.ColumnHeader>
+          <Table.ColumnHeader className="max-md:hidden md:w-1/6">Default</Table.ColumnHeader>
           <Table.ColumnHeader className="w-10" aria-label="Description" />
         </Table.Row>
       </Table.Head>
@@ -46,21 +46,21 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
               <Table.RowHeader>
                 <Code className="text-navy">{name}</Code>
               </Table.RowHeader>
-              <Table.Cell className="max-md:hidden">
+              <Table.Cell className="max-xs:hidden">
                 <PropType />
               </Table.Cell>
-              <Table.Cell className="max-xs:hidden">
+              <Table.Cell className="max-md:hidden">
                 <PropDefault />
               </Table.Cell>
               <Table.Cell>
                 <ReferenceTablePopover>
                   <PropDescription />
                   <div className="flex flex-col gap-2 text-xs md:hidden">
-                    <div className="border-t border-gray-200 pt-2">
+                    <div className="border-t border-gray-200 pt-2 xs:hidden">
                       <div className="mb-1 font-bold">Type</div>
                       <PropType />
                     </div>
-                    <div className="border-t border-gray-200 pt-2 xs:hidden">
+                    <div className="border-t border-gray-200 pt-2">
                       <div className="mb-1 font-bold">Default</div>
                       <PropDefault />
                     </div>
