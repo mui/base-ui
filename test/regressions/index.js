@@ -4,8 +4,7 @@ import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import webfontloader from 'webfontloader';
 import TestViewer from './TestViewer';
-import 'docs/src/demo-theme.css';
-import './tailwind.css';
+import 'docs/src/styles.css';
 
 // Get all the fixtures specifically written for preventing visual regressions.
 const importRegressionFixtures = require.context('./fixtures', true, /\.(js|ts|tsx)$/, 'lazy');
@@ -69,7 +68,12 @@ function excludeDemoFixture(suite, name, path) {
 }
 
 // Also use some of the demos to avoid code duplication.
-const importDemos = require.context('docs/data', true, /\.js$/, 'lazy');
+const importDemos = require.context(
+  'docs/src/app/(public)/(content)/react',
+  true,
+  /\.tsx$/,
+  'lazy',
+);
 const demoFixtures = [];
 
 importDemos
@@ -161,12 +165,9 @@ function App(props) {
   const [fontState, setFontState] = React.useState('pending');
   React.useEffect(() => {
     webfontloader.load({
-      google: {
-        families: ['Roboto:300,400,500,700', 'Inter:300,400,500,600,700,800,900', 'Material+Icons'],
-      },
       custom: {
-        families: ['Font Awesome 5 Free:n9'],
-        urls: ['https://use.fontawesome.com/releases/v5.1.0/css/all.css'],
+        families: ['Unica 77'],
+        urls: ['../../docs/src/styles.css'],
       },
       timeout: 20000,
       active: () => {

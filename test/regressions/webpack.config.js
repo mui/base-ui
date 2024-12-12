@@ -58,6 +58,8 @@ module.exports = {
               modules: {
                 auto: true,
                 namedExport: false,
+                exportLocalsConvention: 'as-is',
+                localIdentName: '[local]_[hash:base64:5]',
               },
             },
           },
@@ -73,6 +75,10 @@ module.exports = {
             },
           },
         ],
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource',
       },
     ],
   },
