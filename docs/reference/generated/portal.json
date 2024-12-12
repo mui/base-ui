@@ -9,7 +9,7 @@
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to keep the portal mounted in the DOM when the popup is closed."
+      "description": "Whether to keep the portal mounted in the DOM when the popup is hidden."
     }
   }
 }

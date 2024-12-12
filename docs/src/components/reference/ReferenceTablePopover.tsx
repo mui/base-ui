@@ -33,9 +33,7 @@ export function ReferenceTablePopover({ children }: React.PropsWithChildren) {
           collisionPadding={16}
         >
           <Popover.Popup render={<Popup className="px-4 py-3.5 text-sm" />}>
-            <div className="max-w-[300px]">
-              <Popover.Description>{children}</Popover.Description>
-            </div>
+            <div className="flex max-w-[300px] flex-col gap-3">{children}</div>
           </Popover.Popup>
         </Popover.Positioner>
       </Popover.Portal>

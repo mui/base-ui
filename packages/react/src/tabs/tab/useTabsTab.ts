@@ -141,7 +141,7 @@ namespace useTabsTab {
      */
     onClick?: React.MouseEventHandler;
     /**
-     * If `true`, the tab will be disabled.
+     * Whether the component should ignore user actions.
      */
     disabled?: boolean;
     highlightedTabIndex: number;

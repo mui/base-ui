@@ -74,6 +74,9 @@ export { Toggle };
 export namespace Toggle {
   export interface State {
     pressed: boolean;
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
   }
 
@@ -114,7 +117,8 @@ Toggle.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -123,7 +127,7 @@ Toggle.propTypes /* remove-proptypes */ = {
    */
   defaultPressed: PropTypes.bool,
   /**
-   * If `true`, the component is disabled.
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -135,7 +139,7 @@ Toggle.propTypes /* remove-proptypes */ = {
    * Callback fired when the pressed state is changed.
    *
    * @param {boolean} pressed The new pressed state.
-   * @param {Event} event The event source of the callback.
+   * @param {Event} event The corresponding event that initiated the change.
    */
   onPressedChange: PropTypes.func,
   /**
@@ -143,7 +147,10 @@ Toggle.propTypes /* remove-proptypes */ = {
    */
   pressed: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

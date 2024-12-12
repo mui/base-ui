@@ -81,8 +81,7 @@ export const mdxComponents: MDXComponents = {
 
 export const inlineMdxComponents: MDXComponents = {
   ...mdxComponents,
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  p: (props) => <React.Fragment {...props} />,
+  p: (props) => <p {...props} />,
 };
 
 export const tableMdxComponents: MDXComponents = {

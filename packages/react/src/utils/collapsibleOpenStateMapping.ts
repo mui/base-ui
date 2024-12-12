@@ -1,8 +1,15 @@
 import type { CustomStyleHookMapping } from './getStyleHookProps';
 
+const PANEL_OPEN_HOOK = {
+  'data-open': '',
+};
+
+const PANEL_CLOSED_HOOK = {
+  'data-closed': '',
+};
+
 export const triggerOpenStateMapping: CustomStyleHookMapping<{
   open: boolean;
-  hidden: boolean;
 }> = {
   open(value) {
     if (value) {
@@ -12,25 +19,15 @@ export const triggerOpenStateMapping: CustomStyleHookMapping<{
     }
     return null;
   },
-  hidden: () => null,
 };
 
-export const collapsibleOpenStateMapping: CustomStyleHookMapping<{
-  open: boolean;
-  hidden: boolean;
-}> = {
+export const collapsibleOpenStateMapping = {
   open(value) {
     if (value) {
-      return {
-        'data-open': '',
-      };
+      return PANEL_OPEN_HOOK;
     }
-    return null;
+    return PANEL_CLOSED_HOOK;
   },
-  hidden(value) {
-    if (value) {
-      return { 'data-closed': '' };
-    }
-    return null;
-  },
-};
+} satisfies CustomStyleHookMapping<{
+  open: boolean;
+}>;

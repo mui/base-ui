@@ -114,10 +114,25 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
 namespace CheckboxRoot {
   export interface State extends FieldRoot.State {
+    /**
+     * Whether the checkbox is currently ticked.
+     */
     checked: boolean;
+    /**
+     * Whether the component should ignore user actions.
+     */
     disabled: boolean;
+    /**
+     * Whether the user should be unable to tick or untick the checkbox.
+     */
     readOnly: boolean;
+    /**
+     * Whether the user must tick the checkbox before submitting a form.
+     */
     required: boolean;
+    /**
+     * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
+     */
     indeterminate: boolean;
   }
   export interface Props
@@ -131,8 +146,9 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the component is checked.
+   * Whether the checkbox is currently ticked.
    *
+   * To render an uncontrolled checkbox, use the `defaultChecked` prop instead.
    * @default undefined
    */
   checked: PropTypes.bool,
@@ -141,29 +157,29 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default checked state. Use when the component is not controlled.
+   * Whether the checkbox is initially ticked.
    *
+   * To render a controlled checkbox, use the `checked` prop instead.
    * @default false
    */
   defaultChecked: PropTypes.bool,
   /**
-   * If `true`, the component is disabled.
-   *
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * If `true`, the checkbox will be indeterminate.
-   *
+   * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
    * @default false
    */
   indeterminate: PropTypes.bool,
   /**
-   * The ref to the input element.
+   * A React ref to access the hidden `<input>` element.
    */
   inputRef: PropTypes.oneOfType([
     PropTypes.func,
@@ -172,16 +188,15 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * Name of the underlying input element.
-   *
+   * Identifies the field when a form is submitted.
    * @default undefined
    */
   name: PropTypes.string,
   /**
-   * Callback fired when the checked state is changed.
+   * Event handler called when the checkbox is ticked or unticked.
    *
    * @param {boolean} checked The new checked state.
-   * @param {Event} event The event source of the callback.
+   * @param {Event} event The corresponding event that initiated the change.
    */
   onCheckedChange: PropTypes.func,
   /**
@@ -190,18 +205,19 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   parent: PropTypes.bool,
   /**
-   * If `true`, the component is read only.
-   *
+   * Whether the user should be unable to tick or untick the checkbox.
    * @default false
    */
   readOnly: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * If `true`, the `input` element is required.
-   *
+   * Whether the user must tick the checkbox before submitting a form.
    * @default false
    */
   required: PropTypes.bool,

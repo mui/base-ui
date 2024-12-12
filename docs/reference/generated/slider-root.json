@@ -8,7 +8,7 @@
     },
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "defaultValue": {
       "type": "Array<number> | number",
@@ -17,7 +17,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the component is disabled."
+      "description": "Whether the component should ignore user actions."
     },
     "largeStep": {
       "type": "number",
@@ -41,7 +41,7 @@
     },
     "name": {
       "type": "string",
-      "description": "Name attribute of the hidden `input` element."
+      "description": "Identifies the field when a form is submitted."
     },
     "onValueChange": {
       "type": "(value, event, activeThumbIndex) => void",
@@ -58,7 +58,7 @@
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     },
     "step": {
       "type": "number",

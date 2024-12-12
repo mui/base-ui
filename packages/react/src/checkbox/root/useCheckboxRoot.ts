@@ -186,45 +186,43 @@ export namespace UseCheckboxRoot {
      */
     id?: string;
     /**
-     * Name of the underlying input element.
-     *
+     * Identifies the field when a form is submitted.
      * @default undefined
      */
     name?: string;
     /**
-     * If `true`, the component is checked.
+     * Whether the checkbox is currently ticked.
      *
+     * To render an uncontrolled checkbox, use the `defaultChecked` prop instead.
      * @default undefined
      */
     checked?: boolean;
     /**
-     * The default checked state. Use when the component is not controlled.
+     * Whether the checkbox is initially ticked.
      *
+     * To render a controlled checkbox, use the `checked` prop instead.
      * @default false
      */
     defaultChecked?: boolean;
     /**
-     * If `true`, the component is disabled.
-     *
+     * Whether the component should ignore user actions.
      * @default false
      */
     disabled?: boolean;
     /**
-     * Callback fired when the checked state is changed.
+     * Event handler called when the checkbox is ticked or unticked.
      *
      * @param {boolean} checked The new checked state.
-     * @param {Event} event The event source of the callback.
+     * @param {Event} event The corresponding event that initiated the change.
      */
     onCheckedChange?: (checked: boolean, event: Event) => void;
     /**
-     * If `true`, the component is read only.
-     *
+     * Whether the user should be unable to tick or untick the checkbox.
      * @default false
      */
     readOnly?: boolean;
     /**
-     * If `true`, the `input` element is required.
-     *
+     * Whether the user must tick the checkbox before submitting a form.
      * @default false
      */
     required?: boolean;
@@ -235,13 +233,12 @@ export namespace UseCheckboxRoot {
      */
     autoFocus?: boolean;
     /**
-     * If `true`, the checkbox will be indeterminate.
-     *
+     * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
      * @default false
      */
     indeterminate?: boolean;
     /**
-     * The ref to the input element.
+     * A React ref to access the hidden `<input>` element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**
@@ -253,7 +250,7 @@ export namespace UseCheckboxRoot {
 
   export interface ReturnValue {
     /**
-     * If `true`, the checkbox is checked.
+     * Whether the checkbox is currently ticked.
      */
     checked: boolean;
     /**

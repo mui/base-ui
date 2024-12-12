@@ -124,8 +124,9 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the Select is initially open.
+   * Whether the select menu is initially open.
    *
+   * To render a controlled select menu, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
@@ -135,17 +136,16 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.any,
   /**
-   * If `true`, the Select is disabled.
-   *
+   * Whether the component should ignore user actions.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * The name of the Select in the owning form.
+   * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
   /**
-   * Callback fired when the component requests to be opened or closed.
+   * Event handler called when the select menu is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
@@ -153,17 +153,16 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * Allows to control whether the dropdown is open.
-   * This is a controlled counterpart of `defaultOpen`.
+   * Whether the select menu is currently open.
    */
   open: PropTypes.bool,
   /**
-   * If `true`, the Select is read-only.
+   * Whether the user should be unable to choose a different option from the select menu.
    * @default false
    */
   readOnly: PropTypes.bool,
   /**
-   * If `true`, the Select is required.
+   * Whether the user must choose a value before submitting a form.
    * @default false
    */
   required: PropTypes.bool,

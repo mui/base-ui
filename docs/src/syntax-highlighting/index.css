@@ -24,4 +24,6 @@
   --syntax-entity: var(--color-blue);
   --syntax-parameter: var(--color-blue);
   --syntax-variable: var(--color-blue);
+  --syntax-keyword: var(--color-blue);
+  --syntax-string: var(--color-blue);
 }

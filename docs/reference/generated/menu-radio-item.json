@@ -15,7 +15,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the menu item will be disabled."
+      "description": "Whether the component should ignore user actions."
     },
     "id": {
       "type": "string",
@@ -28,6 +28,14 @@
     "onClick": {
       "type": "(event) => void",
       "description": "The click handler for the menu item."
+    }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the menu radio item is selected."
+    },
+    "data-unchecked": {
+      "description": "Present when the menu radio item is not selected."
     }
   }
 }
