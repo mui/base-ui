@@ -30,5 +30,34 @@
       "default": "false",
       "description": "Whether the user must choose a value before submitting a form."
     }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the radio is checked."
+    },
+    "data-dirty": {
+      "description": "Present when the radio's value has changed (when wrapped in Field.Root)."
+    },
+    "data-disabled": {
+      "description": "Present when the radio is disabled."
+    },
+    "data-invalid": {
+      "description": "Present when the radio is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-readonly": {
+      "description": "Present when the radio is readonly."
+    },
+    "data-required": {
+      "description": "Present when the radio is required."
+    },
+    "data-touched": {
+      "description": "Present when the radio has been thouched (when wrapped in Field.Root)."
+    },
+    "data-unchecked": {
+      "description": "Present when the radio is not checked."
+    },
+    "data-valid": {
+      "description": "Present when the radio is in valid state (when wrapped in Field.Root).."
+    }
   }
 }

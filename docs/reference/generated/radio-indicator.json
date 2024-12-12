@@ -15,5 +15,34 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the radio is checked."
+    },
+    "data-dirty": {
+      "description": "Present when the radio's value has changed (when wrapped in Field.Root)."
+    },
+    "data-disabled": {
+      "description": "Present when the radio is disabled."
+    },
+    "data-invalid": {
+      "description": "Present when the radio is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-readonly": {
+      "description": "Present when the radio is readonly."
+    },
+    "data-required": {
+      "description": "Present when the radio is required."
+    },
+    "data-touched": {
+      "description": "Present when the radio has been thouched (when wrapped in Field.Root)."
+    },
+    "data-unchecked": {
+      "description": "Present when the radio is not checked."
+    },
+    "data-valid": {
+      "description": "Present when the radio is in valid state (when wrapped in Field.Root)."
+    }
   }
 }
