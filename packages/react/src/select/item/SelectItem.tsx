@@ -151,7 +151,7 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
     current: PropTypes.number.isRequired,
   }).isRequired,
   /**
-   * Overrides the text label to use on the trigger when this item is selected,
+   * Overrides the text label to use on the trigger when this item is selected
    * and when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
@@ -305,7 +305,7 @@ namespace SelectItem {
      */
     disabled?: boolean;
     /**
-     * Overrides the text label to use on the trigger when this item is selected,
+     * Overrides the text label to use on the trigger when this item is selected
      * and when the item is matched during keyboard text navigation.
      */
     label?: string;
@@ -327,7 +327,7 @@ SelectItem.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * Overrides the text label to use on the trigger when this item is selected,
+   * Overrides the text label to use on the trigger when this item is selected
    * and when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,

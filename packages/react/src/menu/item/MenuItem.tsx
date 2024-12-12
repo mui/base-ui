@@ -97,8 +97,7 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
@@ -205,8 +204,7 @@ namespace MenuItem {
      */
     disabled?: boolean;
     /**
-     * A text representation of the menu item's content.
-     * Used for keyboard text navigation matching.
+     * Overrides the text label to use when the item is matched during keyboard text navigation.
      */
     label?: string;
     /**
@@ -247,8 +245,7 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**

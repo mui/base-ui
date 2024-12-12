@@ -9,7 +9,7 @@
     },
     "label": {
       "type": "string",
-      "description": "Overrides the text label to use on the trigger when this item is selected,\nand when the item is matched during keyboard text navigation."
+      "description": "Overrides the text label to use on the trigger when this item is selected\nand when the item is matched during keyboard text navigation."
     },
     "value": {
       "type": "any",

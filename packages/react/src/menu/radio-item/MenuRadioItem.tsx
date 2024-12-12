@@ -104,8 +104,7 @@ InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
@@ -249,8 +248,7 @@ namespace MenuRadioItem {
      */
     disabled?: boolean;
     /**
-     * A text representation of the menu item's content.
-     * Used for keyboard text navigation matching.
+     * Overrides the text label to use when the item is matched during keyboard text navigation.
      */
     label?: string;
     /**
@@ -291,8 +289,7 @@ MenuRadioItem.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**

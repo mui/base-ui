@@ -114,8 +114,7 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
@@ -249,8 +248,7 @@ namespace MenuCheckboxItem {
      */
     disabled?: boolean;
     /**
-     * A text representation of the menu item's content.
-     * Used for keyboard text navigation matching.
+     * Overrides the text label to use when the item is matched during keyboard text navigation.
      */
     label?: string;
     /**
@@ -304,8 +302,7 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
