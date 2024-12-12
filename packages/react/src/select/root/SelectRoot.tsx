@@ -68,10 +68,6 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
         </PortalContext.Provider>
         <input
           {...rootContext.fieldControlValidation.getInputValidationProps({
-            onFocus() {
-              // Move focus from the hidden <select> to the trigger element.
-              rootContext.triggerElement?.focus();
-            },
             // Handle browser autofill.
             onChange(event: React.ChangeEvent<HTMLSelectElement>) {
               // Workaround for https://github.com/facebook/react/issues/9023
@@ -92,7 +88,6 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
                 rootContext.setValue?.(exactValue, event.nativeEvent);
               }
             },
-            id: rootContext.id,
             name: rootContext.name,
             disabled: rootContext.disabled,
             required: rootContext.required,
