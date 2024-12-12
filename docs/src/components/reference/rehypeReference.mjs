@@ -99,12 +99,14 @@ export function rehypeReference() {
             }
           }
 
-          subtree.push(
-            createMdxElement({
-              name: PROPS_TABLE,
-              props: { data: def.props },
-            }),
-          );
+          if (Object.keys(def.props).length) {
+            subtree.push(
+              createMdxElement({
+                name: PROPS_TABLE,
+                props: { data: def.props },
+              }),
+            );
+          }
 
           if (def.dataAttributes) {
             subtree.push(
