@@ -278,29 +278,62 @@ describe('<Field.Root />', () => {
   });
 
   describe('prop: validationMode', () => {
-    it('should validate the field on change', async () => {
-      await render(
-        <Field.Root
-          validationMode="onChange"
-          validate={(value) => {
-            const str = value as string;
-            return str.length < 3 ? 'error' : null;
-          }}
-        >
-          <Field.Control />
-          <Field.Error />
-        </Field.Root>,
-      );
+    describe('onChange', () => {
+      it('should validate the field on change', async () => {
+        await render(
+          <Field.Root
+            validationMode="onChange"
+            validate={(value) => {
+              const str = value as string;
+              return str.length < 3 ? 'error' : null;
+            }}
+          >
+            <Field.Control />
+            <Field.Error />
+          </Field.Root>,
+        );
 
-      const control = screen.getByRole<HTMLInputElement>('textbox');
-      const message = screen.queryByText('error');
+        const control = screen.getByRole<HTMLInputElement>('textbox');
+        const message = screen.queryByText('error');
 
-      expect(message).to.equal(null);
+        expect(message).to.equal(null);
 
-      fireEvent.change(control, { target: { value: 't' } });
+        fireEvent.change(control, { target: { value: 't' } });
 
-      expect(control).to.have.attribute('data-invalid', '');
-      expect(control).to.have.attribute('aria-invalid', 'true');
+        expect(control).to.have.attribute('data-invalid', '');
+        expect(control).to.have.attribute('aria-invalid', 'true');
+      });
+    });
+
+    describe('onBlur', () => {
+      it('should validate the field on blur', async () => {
+        await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => {
+              const str = value as string;
+              return str.length < 3 ? 'error' : null;
+            }}
+          >
+            <Field.Control />
+            <Field.Error />
+          </Field.Root>,
+        );
+
+        const control = screen.getByRole<HTMLInputElement>('textbox');
+        const message = screen.queryByText('error');
+
+        expect(message).to.equal(null);
+
+        fireEvent.change(control, { target: { value: 't' } });
+
+        expect(control).not.to.have.attribute('data-invalid');
+
+        fireEvent.blur(control);
+
+        expect(control).to.have.attribute('data-invalid', '');
+        expect(control).to.have.attribute('aria-invalid', 'true');
+      });
     });
   });
 

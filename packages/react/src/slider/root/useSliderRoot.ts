@@ -17,6 +17,7 @@ import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
 import { asc } from '../utils/asc';
 import { setValueIndex } from '../utils/setValueIndex';
 import { getSliderValue } from '../utils/getSliderValue';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 function findClosest(values: number[], currentValue: number) {
   const { index: closestIndex } =
@@ -254,7 +255,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     [valueState],
   );
 
-  const changeValue = React.useCallback(
+  const changeValue = useEventCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
       const newValue = getSliderValue({
         valueInput,
@@ -285,22 +286,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         }
       }
     },
-    [
-      min,
-      max,
-      range,
-      step,
-      minStepsBetweenValues,
-      values,
-      setValueState,
-      setDirty,
-      validityData.initialValue,
-      handleValueChange,
-      areValuesEqual,
-      onValueCommitted,
-      setTouched,
-      commitValidation,
-    ],
   );
 
   const previousIndexRef = React.useRef<number | null>(null);

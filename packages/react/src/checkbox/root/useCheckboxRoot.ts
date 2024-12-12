@@ -39,7 +39,8 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     state: 'checked',
   });
 
-  const { labelId, setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
+  const { labelId, setControlId, setTouched, setDirty, validityData, validationMode } =
+    useFieldRootContext();
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
@@ -79,6 +80,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   const getButtonProps: UseCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(externalProps), {
+        id,
         ref: buttonRef,
         value: 'off',
         type: 'button',
@@ -92,8 +94,12 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
           if (!element) {
             return;
           }
+
           setTouched(true);
-          commitValidation(element.checked);
+
+          if (validationMode === 'onBlur') {
+            commitValidation(element.checked);
+          }
         },
         onClick(event) {
           if (event.defaultPrevented || readOnly) {
@@ -106,13 +112,15 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
         },
       }),
     [
+      id,
       getValidationProps,
+      disabled,
       indeterminate,
       checked,
-      disabled,
       readOnly,
       labelId,
       setTouched,
+      validationMode,
       commitValidation,
     ],
   );
@@ -120,7 +128,6 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   const getInputProps: UseCheckboxRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(getInputValidationProps(externalProps), {
-        id,
         checked,
         disabled,
         name,
@@ -143,6 +150,10 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
           setCheckedState(nextChecked);
           onCheckedChange?.(nextChecked, event.nativeEvent);
 
+          if (validationMode === 'onChange') {
+            commitValidation(nextChecked);
+          }
+
           if (name && groupValue && setGroupValue) {
             const nextGroupValue = nextChecked
               ? [...groupValue, name]
@@ -153,7 +164,6 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       }),
     [
       getInputValidationProps,
-      id,
       checked,
       disabled,
       name,
@@ -164,8 +174,10 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       validityData.initialValue,
       setCheckedState,
       onCheckedChange,
+      validationMode,
       groupValue,
       setGroupValue,
+      commitValidation,
     ],
   );
 

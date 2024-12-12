@@ -32,7 +32,7 @@ export function useSelectTrigger(
     readOnly,
   } = useSelectRootContext();
 
-  const { labelId, setTouched } = useFieldRootContext();
+  const { labelId, setTouched, validationMode } = useFieldRootContext();
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const timeoutRef = React.useRef(-1);
@@ -91,7 +91,10 @@ export function useSelectTrigger(
           },
           onBlur() {
             setTouched(true);
-            fieldControlValidation.commitValidation(value);
+
+            if (validationMode === 'onBlur') {
+              fieldControlValidation.commitValidation(value);
+            }
           },
           onPointerMove({ pointerType }) {
             setTouchModality(pointerType === 'touch');
@@ -154,6 +157,7 @@ export function useSelectTrigger(
       value,
       setTouchModality,
       positionerElement,
+      validationMode,
     ],
   );
 

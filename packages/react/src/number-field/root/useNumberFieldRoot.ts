@@ -564,7 +564,10 @@ export function useNumberFieldRoot(
           }
 
           setTouched(true);
-          commitValidation(valueRef.current);
+
+          if (validationMode === 'onBlur') {
+            commitValidation(valueRef.current);
+          }
 
           allowInputSyncRef.current = true;
 
@@ -729,6 +732,7 @@ export function useNumberFieldRoot(
       invalid,
       labelId,
       setTouched,
+      validationMode,
       formatOptionsRef,
       commitValidation,
       valueRef,
