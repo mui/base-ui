@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getFormatter } from './format';
+import { getFormatter } from './formatNumber';
 
 const getOptions = (): Intl.NumberFormatOptions => ({
   currency: 'USD',

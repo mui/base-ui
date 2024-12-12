@@ -2,8 +2,8 @@
 productId: base-ui
 title: React Slider components
 description: The Slider component provides users with an input for a one or more numerical values within a given range.
-components: SliderRoot, SliderOutput, SliderControl, SliderTrack, SliderThumb, SliderIndicator
-hooks: useSliderRoot, useSliderOutput, useSliderControl, useSliderThumb, useSliderIndicator
+components: SliderRoot, SliderValue, SliderControl, SliderTrack, SliderThumb, SliderIndicator
+hooks: useSliderRoot, useSliderValue, useSliderControl, useSliderThumb, useSliderIndicator
 githubLabel: 'component: slider'
 waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/slider-multithumb/
 packageName: '@base-ui-components/react'
@@ -26,7 +26,7 @@ packageName: '@base-ui-components/react'
 Sliders are implemented using a collection of related components:
 
 - `<Slider.Root />` is a top-level component that wraps the other components.
-- `<Slider.Output />` renders the value of the slider.
+- `<Slider.Value />` renders the value of the slider.
 - `<Slider.Control />` renders the click/touch area that contains the track and thumb.
 - `<Slider.Track />` renders the visible rail on the `Control` along which the thumb(s) can be moved.
 - `<Slider.Indicator />` renders the filled portion of the track which represents the value(s).
@@ -34,7 +34,7 @@ Sliders are implemented using a collection of related components:
 
 ```tsx
 <Slider.Root>
-  <Slider.Output />
+  <Slider.Value />
   <Slider.Control>
     <Slider.Track>
       <Slider.Indicator />
@@ -54,7 +54,7 @@ When Slider is uncontrolled, the `defaultValue` prop sets the initial value of t
 function App() {
   return (
     <Slider.Root defaultValue={50}>
-      <Slider.Output />
+      <Slider.Value />
       <Slider.Control>
         <Slider.Track>
           <Slider.Indicator />
@@ -78,7 +78,7 @@ function App() {
   const [value, setValue] = useState(50);
   return (
     <Slider.Root value={value} onValueChange={setValue}>
-      <Slider.Output />
+      <Slider.Value />
       <Slider.Control>
         <Slider.Track>
           <Slider.Indicator />
@@ -98,7 +98,7 @@ The `min` and `max` props can be used to restrict the value(s) within a range.
 
 ```tsx
 <Slider.Root min={1} max={9}>
-  <Slider.Output />
+  <Slider.Value />
   <Slider.Control>
     <Slider.Track>
       <Slider.Indicator />
@@ -114,7 +114,7 @@ The `step` prop snaps each value to multiples of the given number. In the below 
 
 ```tsx
 <Slider.Root step={4} defaultValue={3}>
-  <Slider.Output />
+  <Slider.Value />
   <Slider.Control>
     <Slider.Track>
       <Slider.Indicator />
@@ -132,7 +132,7 @@ To let users set the start and end of a range on a Slider, provide an array of v
 
 ```tsx
 <Slider.Root defaultValue={[45, 70]}>
-  <Slider.Output />
+  <Slider.Value />
   <Slider.Control>
     <Slider.Track>
       <Slider.Indicator />

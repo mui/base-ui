@@ -31,7 +31,7 @@ export default function VerticalSlider() {
             />
           </Slider.Track>
         </Slider.Control>
-        <Slider.Output className={classes.output} />
+        <Slider.Value className={classes.output} />
       </Slider.Root>
     </div>
   );

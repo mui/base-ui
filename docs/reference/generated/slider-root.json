@@ -19,6 +19,10 @@
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
+    "format": {
+      "type": "Intl.NumberFormatOptions",
+      "description": "Options to format the input value."
+    },
     "largeStep": {
       "type": "number",
       "default": "10",

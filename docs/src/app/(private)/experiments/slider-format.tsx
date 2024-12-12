@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useTheme } from '@mui/system';
 import { Slider } from '@base-ui-components/react/slider';
-import classes from '../../styles.module.css';
+import c from './slider.module.css';
 
 export default function UnstyledSliderIntroduction() {
   // Replace this with your app logic for determining dark mode
@@ -14,22 +13,30 @@ export default function UnstyledSliderIntroduction() {
       style={{ display: 'flex', flexDirection: 'column', gap: '4rem', width: 320 }}
     >
       <Slider.Root
-        className={classes.slider}
-        defaultValue={50}
-        aria-labelledby="VolumeSliderLabel"
+        className={c.slider}
+        defaultValue={[50, 75]}
+        aria-labelledby="BudgetSliderLabel"
+        format={{
+          style: 'currency',
+          currency: 'USD',
+          currencyDisplay: 'name',
+        }}
       >
         <Label
-          id="VolumeSliderLabel"
+          id="BudgetSliderLabel"
           htmlFor=":slider-thumb-input:"
-          className={classes.label}
+          className={c.label}
         >
-          Volume
+          Budget
         </Label>
-        <Slider.Value className={classes.output} />
-        <Slider.Control className={classes.control}>
-          <Slider.Track className={classes.track}>
-            <Slider.Indicator className={classes.indicator} />
-            <Slider.Thumb className={classes.thumb} inputId=":slider-thumb-input:" />
+        <Slider.Value className={c.output}>
+          {(_, values) => `$${values[0].toFixed(2)} - ${values[1].toFixed(2)} USD`}
+        </Slider.Value>
+        <Slider.Control className={c.control}>
+          <Slider.Track className={c.track}>
+            <Slider.Indicator className={c.indicator} />
+            <Slider.Thumb className={c.thumb} inputId="thumb1" />
+            <Slider.Thumb className={c.thumb} inputId="thumb2" />
           </Slider.Track>
         </Slider.Control>
       </Slider.Root>
@@ -37,16 +44,11 @@ export default function UnstyledSliderIntroduction() {
   );
 }
 
-function Label(props) {
+function Label(props: React.LabelHTMLAttributes<HTMLLabelElement>) {
   const { id, htmlFor, ...otherProps } = props;
 
   return <label id={id} htmlFor={htmlFor} {...otherProps} />;
 }
-
-Label.propTypes = {
-  htmlFor: PropTypes.string,
-  id: PropTypes.string,
-};
 
 function useIsDarkMode() {
   const theme = useTheme();
