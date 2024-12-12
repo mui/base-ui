@@ -172,7 +172,7 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The uncontrolled value of the item(s) that should be expanded.
+   * The uncontrolled value of the item(s) that should be initially expanded.
    * To render a controlled accordion, use the `value` prop instead.
    */
   defaultValue: PropTypes.array,
@@ -226,7 +226,7 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * The controlled value of the item(s) that should be expanded.
-   * To render a controlled accordion, use the `defaultValue` prop instead.
+   * To render an uncontrolled accordion, use the `defaultValue` prop instead.
    */
   value: PropTypes.array,
 } as any;

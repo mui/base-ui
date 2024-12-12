@@ -188,11 +188,11 @@ export namespace useAccordionRoot {
   export interface Parameters {
     /**
      * The controlled value of the item(s) that should be expanded.
-     * To render a controlled accordion, use the `defaultValue` prop instead.
+     * To render an uncontrolled accordion, use the `defaultValue` prop instead.
      */
     value?: AccordionValue;
     /**
-     * The uncontrolled value of the item(s) that should be expanded.
+     * The uncontrolled value of the item(s) that should be initially expanded.
      * To render a controlled accordion, use the `value` prop instead.
      */
     defaultValue?: AccordionValue;

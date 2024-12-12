@@ -83,20 +83,22 @@ namespace CheckboxGroup {
   }
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * The currently checked values of the checkbox group. Use when controlled.
+     * Names of the checkboxes in the group that should be ticked.
+     * To render an uncontrolled checkbox group, use the `defaultValue` prop instead.
      */
     value?: string[];
     /**
-     * The default checked values of the checkbox group. Use when uncontrolled.
+     * Names of the checkboxes in the group that should be initially ticked.
+     * To render a controlled checkbox group, use the `value` prop instead.
      */
     defaultValue?: string[];
     /**
-     * A callback function that is called when the value of the checkbox group changes.
-     * Use when controlled.
+     * Event handler called when a checkbox in the group is ticked or unticked.
+     * Provides the new value as an argument.
      */
     onValueChange?: (value: string[], event: Event) => void;
     /**
-     * All values of the checkboxes in the group.
+     * Names of all checkboxes in the group. Use this when creating a parent checkbox.
      */
     allValues?: string[];
     /**
@@ -113,7 +115,7 @@ CheckboxGroup.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * All values of the checkboxes in the group.
+   * Names of all checkboxes in the group. Use this when creating a parent checkbox.
    */
   allValues: PropTypes.arrayOf(PropTypes.string),
   /**
@@ -126,7 +128,8 @@ CheckboxGroup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default checked values of the checkbox group. Use when uncontrolled.
+   * Names of the checkboxes in the group that should be initially ticked.
+   * To render a controlled checkbox group, use the `value` prop instead.
    */
   defaultValue: PropTypes.arrayOf(PropTypes.string),
   /**
@@ -135,8 +138,8 @@ CheckboxGroup.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * A callback function that is called when the value of the checkbox group changes.
-   * Use when controlled.
+   * Event handler called when a checkbox in the group is ticked or unticked.
+   * Provides the new value as an argument.
    */
   onValueChange: PropTypes.func,
   /**
@@ -147,7 +150,8 @@ CheckboxGroup.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The currently checked values of the checkbox group. Use when controlled.
+   * Names of the checkboxes in the group that should be ticked.
+   * To render an uncontrolled checkbox group, use the `defaultValue` prop instead.
    */
   value: PropTypes.arrayOf(PropTypes.string),
 } as any;
