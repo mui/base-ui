@@ -42,6 +42,20 @@ describe('<Field.Root />', () => {
       expect(label).to.have.attribute('data-disabled', '');
       expect(message).to.have.attribute('data-disabled', '');
     });
+
+    it('supports NumberField', async () => {
+      await render(
+        <Field.Root disabled>
+          <NumberField.Root>
+            <NumberField.Input />
+          </NumberField.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      expect(input).to.have.attribute('data-disabled', '');
+    });
   });
 
   describe('prop: validate', () => {
