@@ -1,0 +1,47 @@
+# Quick Start
+
+<Subtitle>A quick guide to getting started with Base UI.</Subtitle>
+<Meta name="description" content="A quick guide to getting started with Base UI." />
+
+## Installation
+
+Install Base UI using a package manager. All components are included in this single package.
+
+```
+npm i @base-ui-components/react
+```
+
+## Assembling a component
+
+Import a component, assemble its parts, and apply styles. This example uses Tailwind, but you can use CSS Modules, CSS-in-JS, plain CSS, or any styling solution you prefer.
+
+```
+import * as React from 'react';
+import { Popover } from '@base-ui-components/react/popover';
+
+export default function MyPopover() {
+  return (
+    <Popover.Root>
+      <Popover.Trigger className="flex size-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
+        Notifications
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Positioner sideOffset={8}>
+          <Popover.Popup className="origin-[var(--transform-origin)] rounded-lg bg-[canvas] px-6 py-4 text-gray-900 shadow-lg shadow-gray-200 outline outline-gray-200 transition-[transform,scale,opacity] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300 [[data-starting-style],[data-ending-style]]:scale-90 [[data-starting-style],[data-ending-style]]:opacity-0">
+            <Popover.Title className="text-base font-medium">
+              Notifications
+            </Popover.Title>
+            <Popover.Description className="text-base text-gray-600">
+              You are all caught up. Good job!
+            </Popover.Description>
+          </Popover.Popup>
+        </Popover.Positioner>
+      </Popover.Portal>
+    </Popover.Root>
+  );
+}
+```
+
+## Next steps
+
+This walkthrough outlines the basics of putting together a Popover component with Base UI. Check out the Popover component documentation to learn how to configure it further. For example, you might want to add the `Popover.Arrow` part, or configure some props.
