@@ -5,7 +5,7 @@
     "closeOnClick": {
       "type": "boolean",
       "default": "true",
-      "description": "If `true`, the menu will close when the menu item is clicked."
+      "description": "Whether to close the menu when the item is clicked."
     },
     "disabled": {
       "type": "boolean",

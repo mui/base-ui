@@ -92,7 +92,7 @@ namespace useTabsPanel {
 
   export interface ReturnValue {
     /**
-     * If `true`, it indicates that the tab panel will be hidden.
+     * Whether the tab panel will be hidden.
      */
     hidden: boolean;
     /**

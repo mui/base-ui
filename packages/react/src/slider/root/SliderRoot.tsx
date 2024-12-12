@@ -131,7 +131,7 @@ export namespace SliderRoot {
      */
     disabled: boolean;
     /**
-     * If `true`, a thumb is being dragged by a pointer.
+     * Whether the thumb is currently being dragged.
      */
     dragging: boolean;
     max: number;

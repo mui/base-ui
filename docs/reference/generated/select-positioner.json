@@ -57,7 +57,7 @@
     "sticky": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, allow the Select to remain in stuck view while the anchor element is scrolled out\nof view."
+      "description": "Whether to maintain the select menu in the viewport after\nthe anchor element is scrolled out of view."
     },
     "trackAnchor": {
       "type": "boolean",
