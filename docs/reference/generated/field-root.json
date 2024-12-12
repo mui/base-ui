@@ -46,7 +46,7 @@
       "description": "Present when the field is disabled."
     },
     "data-touched": {
-      "description": "Present when the field has been thouched."
+      "description": "Present when the field has been touched."
     }
   }
 }
