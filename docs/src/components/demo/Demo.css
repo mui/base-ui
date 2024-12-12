@@ -152,9 +152,18 @@
       display: flex;
       cursor: text;
 
-      /* Closed state */
-      overflow: hidden;
-      max-height: calc(8.6lh + 0.5rem); /* Show 8.6 of code lines and account for top padding */
+      /* Scroll */
+      overflow: auto;
+      overscroll-behavior-x: contain;
+      scrollbar-width: thin;
+
+      /* Scroll containers may be focusable */
+      &:focus-visible {
+        position: relative;
+        outline: 2px solid var(--color-blue);
+        outline-offset: -1px;
+        z-index: 1;
+      }
 
       /* Add a border radius when there is no collapse button */
       &:not(.DemoCollapseButton + &) {
@@ -163,57 +172,35 @@
       }
     }
 
-    /* Scroll containers may be focusable */
-    & pre:focus-visible {
-      position: relative;
-      outline: 2px solid var(--color-blue);
-      outline-offset: -1px;
-      z-index: 1;
-    }
-
-    &::before {
-      content: '';
-      position: absolute;
-      pointer-events: none;
-      height: 7.5rem;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(to bottom, rgb(255 255 255 / 0), rgb(255 255 255 / 60%));
-    }
-    @media (prefers-color-scheme: dark) {
-      &::before {
-        background: linear-gradient(to bottom, rgb(0 0 0 / 0), rgb(0 0 0 / 60%));
-      }
-    }
-
-    &[data-open] {
-      & pre {
-        max-height: none;
-
-        /* Scroll */
-        overflow: auto;
-        overscroll-behavior-x: contain;
-        scrollbar-width: thin;
-
-        /* Scroll containers may be focusable */
-        &:focus-visible {
-          position: relative;
-          outline: 2px solid var(--color-blue);
-          outline-offset: -1px;
-          z-index: 1;
-        }
-      }
-      &::before {
-        content: none;
-      }
-    }
-
     & code {
       /* Different fonts may introduce vertical align issues */
       display: block;
       /* Make sure selection highlight spans full container width in Safari */
       flex-grow: 1;
+    }
+
+    &[data-closed] {
+      & pre {
+        overflow: hidden;
+        max-height: calc(8.6lh + 0.5rem); /* Show 8.6 of code lines and account for top padding */
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        pointer-events: none;
+        height: 7.5rem;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to bottom, rgb(255 255 255 / 0), rgb(255 255 255 / 60%));
+      }
+
+      @media (prefers-color-scheme: dark) {
+        &::before {
+          background: linear-gradient(to bottom, rgb(0 0 0 / 0), rgb(0 0 0 / 60%));
+        }
+      }
     }
   }
 
