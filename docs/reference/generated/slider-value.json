@@ -2,6 +2,10 @@
   "name": "SliderValue",
   "description": "Displays the current value of the slider as text.\nRenders an `<output>` element.",
   "props": {
+    "children": {
+      "type": "React.ReactNode | (formattedValue, value) => React.ReactNode",
+      "description": "Override children if you need to customize how the value is displayed.\nBy default, renders the current value as is.\n\nAccepts a `ReactNode` or a function that returns the node to render."
+    },
     "className": {
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

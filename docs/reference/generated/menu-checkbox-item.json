@@ -30,7 +30,7 @@
       "description": "A text representation of the menu item's content.\nUsed for keyboard text navigation matching."
     },
     "onCheckedChange": {
-      "type": "function",
+      "type": "(checked, event) => void",
       "description": "Event handler called when the checkbox item is ticked or unticked."
     },
     "onClick": {
