@@ -88,7 +88,10 @@ export function rehypeReference() {
             subtree.push(
               createMdxElement({
                 name: 'h3',
-                children: [{ type: 'text', value: name }],
+                children: [{ type: 'text', value: name.replace(/\s/g, '') }],
+                props: {
+                  id: name.toLowerCase().replace(/\s/g, '-'),
+                },
               }),
             );
 
