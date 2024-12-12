@@ -12,12 +12,6 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 
-/**
- *
- * API:
- *
- * - [useSelectPositioner API](https://mui.com/base-ui/api/use-select-positioner/)
- */
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
