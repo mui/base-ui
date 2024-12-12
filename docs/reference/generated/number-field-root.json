@@ -10,7 +10,7 @@
     "autoFocus": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the input element is focused on mount."
+      "description": "Whether to focus the element on page load."
     },
     "className": {
       "type": "string | (state) => string",

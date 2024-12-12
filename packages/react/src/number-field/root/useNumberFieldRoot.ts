@@ -822,7 +822,7 @@ export namespace UseNumberFieldRoot {
      */
     invalid?: boolean;
     /**
-     * If `true`, the input element is focused on mount.
+     * Whether to focus the element on page load.
      * @default false
      */
     autoFocus?: boolean;

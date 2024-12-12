@@ -141,7 +141,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   allowWheelScrub: PropTypes.bool,
   /**
-   * If `true`, the input element is focused on mount.
+   * Whether to focus the element on page load.
    * @default false
    */
   autoFocus: PropTypes.bool,
