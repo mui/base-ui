@@ -52,19 +52,19 @@ namespace NumberFieldScrubArea {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
-     * The direction that the scrub area should change the value.
+     * Cursor movement direction in the scrub area.
      * @default 'horizontal'
      */
     direction?: 'horizontal' | 'vertical';
     /**
-     * Determines the number of pixels the cursor must move before the value changes. A higher value
-     * will make the scrubbing less sensitive.
+     * Determines how many pixels the cursor must move before the value changes.
+     * A higher value will make scrubbing less sensitive.
      * @default 2
      */
     pixelSensitivity?: number;
     /**
-     * If specified, how much the cursor can move around the center of the scrub area element before
-     * it will loop back around.
+     * If specified, determines the distance that the cursor may move from the center
+     * of the scrub area before it will loop back around.
      */
     teleportDistance?: number | undefined;
   }
@@ -85,13 +85,13 @@ NumberFieldScrubArea.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The direction that the scrub area should change the value.
+   * Cursor movement direction in the scrub area.
    * @default 'horizontal'
    */
   direction: PropTypes.oneOf(['horizontal', 'vertical']),
   /**
-   * Determines the number of pixels the cursor must move before the value changes. A higher value
-   * will make the scrubbing less sensitive.
+   * Determines how many pixels the cursor must move before the value changes.
+   * A higher value will make scrubbing less sensitive.
    * @default 2
    */
   pixelSensitivity: PropTypes.number,
@@ -103,8 +103,8 @@ NumberFieldScrubArea.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * If specified, how much the cursor can move around the center of the scrub area element before
-   * it will loop back around.
+   * If specified, determines the distance that the cursor may move from the center
+   * of the scrub area before it will loop back around.
    */
   teleportDistance: PropTypes.number,
 } as any;

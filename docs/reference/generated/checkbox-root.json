@@ -42,7 +42,7 @@
     "parent": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the checkbox is a parent checkbox for a group of child checkboxes."
+      "description": "Whether the checkbox controls a group of child checkboxes.\n\nMust be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group)."
     },
     "readOnly": {
       "type": "boolean",

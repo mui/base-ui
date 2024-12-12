@@ -15,7 +15,7 @@
     "defaultValue": {
       "type": "any",
       "default": "null",
-      "description": "The default value of the select."
+      "description": "The uncontrolled value of the select when it’s initially rendered.\n\nTo render a controlled select, use the `value` prop instead."
     },
     "disabled": {
       "type": "boolean",

@@ -34,7 +34,7 @@ SelectPortal.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The container to render the portal element into.
+   * A parent element to render the portal into.
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
 } as any;

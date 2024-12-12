@@ -4,7 +4,7 @@
   "props": {
     "allValues": {
       "type": "string[]",
-      "description": "All values of the checkboxes in the group."
+      "description": "Names of all checkboxes in the group. Use this when creating a parent checkbox."
     },
     "className": {
       "type": "string | (state) => string",
@@ -12,7 +12,7 @@
     },
     "defaultValue": {
       "type": "string[]",
-      "description": "The default checked values of the checkbox group. Use when uncontrolled."
+      "description": "Names of the checkboxes in the group that should be initially ticked.\n\nTo render a controlled checkbox group, use the `value` prop instead."
     },
     "disabled": {
       "type": "boolean",
@@ -21,7 +21,7 @@
     },
     "onValueChange": {
       "type": "(value, event) => void",
-      "description": "A callback function that is called when the value of the checkbox group changes.\nUse when controlled."
+      "description": "Event handler called when a checkbox in the group is ticked or unticked.\nProvides the new value as an argument."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
@@ -29,7 +29,7 @@
     },
     "value": {
       "type": "string[]",
-      "description": "The currently checked values of the checkbox group. Use when controlled."
+      "description": "Names of the checkboxes in the group that should be ticked.\n\nTo render an uncontrolled checkbox group, use the `defaultValue` prop instead."
     }
   },
   "dataAttributes": {

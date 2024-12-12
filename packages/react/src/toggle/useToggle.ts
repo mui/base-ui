@@ -69,7 +69,7 @@ export namespace useToggle {
   export interface Parameters {
     buttonRef?: React.Ref<HTMLElement>;
     /**
-     * If `true`, the component is pressed.
+     * Whether the toggle button is currently active.
      */
     pressed?: boolean;
     /**
@@ -113,7 +113,7 @@ export namespace useToggle {
      */
     disabled: boolean;
     /**
-     * If `true`, the Toggle is pressed.
+     * Whether the toggle button is currently active.
      */
     pressed: boolean;
   }

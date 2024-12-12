@@ -28,7 +28,7 @@ namespace Portal {
   export interface Props {
     children?: React.ReactNode;
     /**
-     * The container to render the portal element into.
+     * A parent element to render the portal into.
      */
     container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
     /**
@@ -51,7 +51,7 @@ Portal.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The container to render the portal element into.
+   * A parent element to render the portal into.
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
   /**

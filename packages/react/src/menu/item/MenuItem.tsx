@@ -78,7 +78,7 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the menu will close when the menu item is clicked.
+   * Whether to close the menu when the item is clicked.
    *
    * @default true
    */
@@ -93,12 +93,11 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    */
   highlighted: PropTypes.bool.isRequired,
   /**
-   * The id of the menu item.
+   * @ignore
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
@@ -205,16 +204,15 @@ namespace MenuItem {
      */
     disabled?: boolean;
     /**
-     * A text representation of the menu item's content.
-     * Used for keyboard text navigation matching.
+     * Overrides the text label to use when the item is matched during keyboard text navigation.
      */
     label?: string;
     /**
-     * The id of the menu item.
+     * @ignore
      */
     id?: string;
     /**
-     * If `true`, the menu will close when the menu item is clicked.
+     * Whether to close the menu when the item is clicked.
      *
      * @default true
      */
@@ -232,7 +230,7 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the menu will close when the menu item is clicked.
+   * Whether to close the menu when the item is clicked.
    *
    * @default true
    */
@@ -243,12 +241,11 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * The id of the menu item.
+   * @ignore
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**

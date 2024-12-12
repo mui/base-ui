@@ -210,17 +210,22 @@ export namespace usePopoverRoot {
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
-     * Whether the popover popup opens when the trigger is hovered after the provided `delay`.
+     * Whether the popover should also open when the trigger is hovered.
      * @default false
      */
     openOnHover?: boolean;
     /**
-     * The delay in milliseconds until the popover popup is opened when `openOnHover` is `true`.
+     * How long to wait before the popover may be opened on hover. Specified in milliseconds.
+     *
+     * Requires the `openOnHover` prop.
      * @default 300
      */
     delay?: number;
     /**
-     * The delay in milliseconds until the popover popup is closed when `openOnHover` is `true`.
+     * How long to wait before closing the popover that was opened on hover.
+     * Specified in milliseconds.
+     *
+     * Requires the `openOnHover` prop.
      * @default 0
      */
     closeDelay?: number;

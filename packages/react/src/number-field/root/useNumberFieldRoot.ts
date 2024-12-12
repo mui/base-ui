@@ -822,7 +822,7 @@ export namespace UseNumberFieldRoot {
      */
     invalid?: boolean;
     /**
-     * If `true`, the input element is focused on mount.
+     * Whether to focus the element on page load.
      * @default false
      */
     autoFocus?: boolean;
@@ -836,11 +836,13 @@ export namespace UseNumberFieldRoot {
      */
     name?: string;
     /**
-     * The raw number value of the input element.
+     * The raw numeric value of the field.
      */
     value?: number | null;
     /**
-     * The default value of the input element. Use when the component is not controlled.
+     * The uncontrolled value of the field when it’s initially rendered.
+     *
+     * To render a controlled number field, use the `value` prop instead.
      */
     defaultValue?: number;
     /**

@@ -10,12 +10,12 @@
     "dismissible": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines whether the dialog should close when clicking outside of it."
+      "description": "Determines whether the dialog should close on outside clicks."
     },
     "modal": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines whether the dialog is modal."
+      "description": "Whether the dialog should prevent outside clicks and lock page scroll when open."
     },
     "onOpenChange": {
       "type": "(open, event) => void",

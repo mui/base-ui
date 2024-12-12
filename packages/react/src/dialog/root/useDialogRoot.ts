@@ -165,7 +165,7 @@ export interface CommonParameters {
    */
   defaultOpen?: boolean;
   /**
-   * Determines whether the dialog is modal.
+   * Whether the dialog should prevent outside clicks and lock page scroll when open.
    * @default true
    */
   modal?: boolean;
@@ -174,7 +174,7 @@ export interface CommonParameters {
    */
   onOpenChange?: (open: boolean, event?: Event) => void;
   /**
-   * Determines whether the dialog should close when clicking outside of it.
+   * Determines whether the dialog should close on outside clicks.
    * @default true
    */
   dismissible?: boolean;
@@ -198,7 +198,7 @@ export namespace useDialogRoot {
      */
     descriptionElementId: string | undefined;
     /**
-     * Determines if the dialog is modal.
+     * Whether the dialog should prevent outside clicks and lock page scroll when open.
      */
     modal: boolean;
     /**

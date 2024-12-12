@@ -176,7 +176,7 @@ namespace useTabsTab {
      */
     rootRef: React.RefCallback<Element> | null;
     /**
-     * If `true`, the tab is selected.
+     * Whether the tab is currently selected.
      */
     selected: boolean;
   }
