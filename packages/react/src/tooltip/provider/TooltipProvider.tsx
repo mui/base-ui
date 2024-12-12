@@ -22,16 +22,16 @@ namespace TooltipProvider {
   export interface Props {
     children?: React.ReactNode;
     /**
-     * The delay in milliseconds until tooltips within the group are open.
+     * How long to wait before opening a tooltip. Specified in milliseconds.
      */
     delay?: number;
     /**
-     * The delay in milliseconds until tooltips within the group are closed.
+     * How long to wait before closing a tooltip. Specified in milliseconds.
      */
     closeDelay?: number;
     /**
-     * The timeout in milliseconds until the grouping logic is no longer active after the last tooltip
-     * in the group has closed.
+     * Another tooltip will open instantly if the previous tooltip
+     * is closed within this timeout. Specified in milliseconds.
      * @default 400
      */
     timeout?: number;
@@ -48,16 +48,16 @@ TooltipProvider.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The delay in milliseconds until tooltips within the group are closed.
+   * How long to wait before closing a tooltip. Specified in milliseconds.
    */
   closeDelay: PropTypes.number,
   /**
-   * The delay in milliseconds until tooltips within the group are open.
+   * How long to wait before opening a tooltip. Specified in milliseconds.
    */
   delay: PropTypes.number,
   /**
-   * The timeout in milliseconds until the grouping logic is no longer active after the last tooltip
-   * in the group has closed.
+   * Another tooltip will open instantly if the previous tooltip
+   * is closed within this timeout. Specified in milliseconds.
    * @default 400
    */
   timeout: PropTypes.number,

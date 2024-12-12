@@ -498,7 +498,7 @@ export namespace useSliderRoot {
      */
     direction: TextDirection;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;

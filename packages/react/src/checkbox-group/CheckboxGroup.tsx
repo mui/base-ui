@@ -77,7 +77,7 @@ const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 namespace CheckboxGroup {
   export interface State extends FieldRoot.State {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
   }
@@ -100,7 +100,7 @@ namespace CheckboxGroup {
      */
     allValues?: string[];
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -130,7 +130,7 @@ CheckboxGroup.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.arrayOf(PropTypes.string),
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,

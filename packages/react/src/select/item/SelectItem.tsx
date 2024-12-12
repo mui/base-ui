@@ -132,7 +132,7 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -281,7 +281,7 @@ const SelectItem = React.forwardRef(function SelectItem(
 namespace SelectItem {
   export interface State {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     highlighted: boolean;
@@ -300,7 +300,7 @@ namespace SelectItem {
      */
     value?: any;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -322,7 +322,7 @@ SelectItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,

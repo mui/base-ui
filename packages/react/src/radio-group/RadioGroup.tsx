@@ -95,7 +95,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 namespace RadioGroup {
   export interface State {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean | undefined;
     /**
@@ -107,7 +107,7 @@ namespace RadioGroup {
   export interface Props
     extends Omit<BaseUIComponentProps<'div', State>, 'value' | 'defaultValue'> {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -159,7 +159,7 @@ RadioGroup.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.any,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,

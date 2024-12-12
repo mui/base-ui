@@ -90,7 +90,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 export namespace useMenuTrigger {
   export interface Parameters {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;

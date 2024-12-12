@@ -119,7 +119,7 @@ namespace CheckboxRoot {
      */
     checked: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
@@ -169,7 +169,7 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   defaultChecked: PropTypes.bool,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,

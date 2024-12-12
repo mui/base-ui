@@ -188,7 +188,7 @@ export namespace useAccordionRoot {
   export interface Parameters {
     /**
      * The controlled value of the item(s) that should be expanded.
-     * To render an controlled accordion, use the `defaultValue` prop instead.
+     * To render a controlled accordion, use the `defaultValue` prop instead.
      */
     value?: AccordionValue;
     /**
@@ -197,7 +197,7 @@ export namespace useAccordionRoot {
      */
     defaultValue?: AccordionValue;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled: boolean;
@@ -233,7 +233,7 @@ export namespace useAccordionRoot {
     accordionItemRefs: React.RefObject<(HTMLElement | null)[]>;
     direction: Direction;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     handleValueChange: (value: number | string, nextOpen: boolean) => void;

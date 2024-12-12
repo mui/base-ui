@@ -116,7 +116,7 @@ namespace PopoverPopup {
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
     /**
      * Determines the element to focus when the popover is closed.
-     * By default, focus returns to trigger.
+     * By default, focus returns to the trigger.
      */
     finalFocus?: React.RefObject<HTMLElement | null>;
   }
@@ -138,7 +138,7 @@ PopoverPopup.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * Determines the element to focus when the popover is closed.
-   * By default, focus returns to trigger.
+   * By default, focus returns to the trigger.
    */
   finalFocus: refType,
   /**

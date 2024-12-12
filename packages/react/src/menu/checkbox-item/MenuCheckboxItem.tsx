@@ -101,7 +101,7 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   defaultChecked: PropTypes.bool,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -210,7 +210,7 @@ interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
 namespace MenuCheckboxItem {
   export type State = {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     highlighted: boolean;
@@ -244,7 +244,7 @@ namespace MenuCheckboxItem {
      */
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -295,7 +295,7 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   defaultChecked: PropTypes.bool,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,

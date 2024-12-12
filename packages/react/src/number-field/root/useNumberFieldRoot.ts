@@ -812,7 +812,7 @@ export namespace UseNumberFieldRoot {
      */
     required?: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
