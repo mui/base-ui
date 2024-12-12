@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useFloatingTree, useListItem } from '@floating-ui/react';
+import { useFloatingTree } from '@floating-ui/react';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -9,6 +9,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useMenuSubmenuTrigger } from './useMenuSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 
 /**
  * A menu item that opens a submenu.
@@ -37,7 +38,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   }
 
   const { activeIndex, getItemProps } = parentContext;
-  const item = useListItem();
+  const item = useCompositeListItem();
 
   const highlighted = activeIndex === item.index;
 
