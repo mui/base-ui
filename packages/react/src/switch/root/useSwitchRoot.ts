@@ -67,7 +67,6 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
   const getButtonProps = React.useCallback(
     (otherProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(otherProps), {
-        id,
         ref: buttonRef,
         type: 'button',
         role: 'switch',
@@ -96,7 +95,6 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
         },
       }),
     [
-      id,
       getValidationProps,
       checked,
       disabled,
@@ -111,6 +109,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
   const getInputProps = React.useCallback(
     (otherProps = {}) =>
       mergeReactProps<'input'>(getInputValidationProps(otherProps), {
+        id,
         checked,
         disabled,
         name,
@@ -139,6 +138,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
       }),
     [
       getInputValidationProps,
+      id,
       checked,
       disabled,
       name,
