@@ -84,7 +84,7 @@
     },
     "value": {
       "type": "number",
-      "description": "The raw number value of the input element."
+      "description": "The raw numeric value of the field."
     }
   }
 }

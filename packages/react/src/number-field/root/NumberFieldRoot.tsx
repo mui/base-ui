@@ -249,7 +249,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   step: PropTypes.number,
   /**
-   * The raw number value of the input element.
+   * The raw numeric value of the field.
    */
   value: PropTypes.number,
 } as any;

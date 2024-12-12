@@ -836,7 +836,7 @@ export namespace UseNumberFieldRoot {
      */
     name?: string;
     /**
-     * The raw number value of the input element.
+     * The raw numeric value of the field.
      */
     value?: number | null;
     /**
