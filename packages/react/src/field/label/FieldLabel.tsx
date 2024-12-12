@@ -33,7 +33,7 @@ const FieldLabel = React.forwardRef(function FieldLabel(
     };
   }, [id, setLabelId]);
 
-  const { getLabelProps } = useFieldLabel({ customTag: render != null });
+  const { getLabelProps } = useFieldLabel();
 
   const { renderElement } = useComponentRenderer({
     propGetter: getLabelProps,
