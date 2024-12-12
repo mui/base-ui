@@ -64,7 +64,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     onFinished: () => setMounted(false),
   });
 
-  const handleFloatingUIOpenChange = React.useCallback(
+  const handleFloatingUIOpenChange = useEventCallback(
     (
       nextOpen: boolean,
       event: Event | undefined,
@@ -72,7 +72,6 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     ) => {
       setOpen(nextOpen, event, translateOpenChangeReason(reason));
     },
-    [setOpen],
   );
 
   const context = useFloatingRootContext({
