@@ -140,17 +140,18 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The align of the Menu element to the anchor element along its cross axis.
+   * How to align the popup relative to the specified side.
    * @default 'center'
    */
   align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the Menu element along its align axis.
+   * Additional offset along the alignment axis of the element.
    * @default 0
    */
   alignOffset: PropTypes.number,
   /**
-   * The anchor element to which the Menu popup will be placed at.
+   * An element to position the popup against.
+   * By default, the popup will be positioned against the trigger.
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
@@ -158,8 +159,9 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
     PropTypes.func,
   ]),
   /**
-   * Determines the padding between the arrow and the Menu popup's edges. Useful when the popover
-   * popup has rounded corners via `border-radius`.
+   * Minimum distance to maintain between the arrow and the edges of the popup.
+   *
+   * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
    * @default 5
    */
   arrowPadding: PropTypes.number,
@@ -173,7 +175,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The boundary that the Menu element should be constrained to.
+   * An element or a rectangle that delimits the area that the popup is confined to.
    * @default 'clipping-ancestors'
    */
   collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
@@ -188,7 +190,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The padding of the collision boundary.
+   * Additional space to maintain from the edge of the collision boundary.
    * @default 5
    */
   collisionPadding: PropTypes.oneOfType([
@@ -206,7 +208,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   keepMounted: PropTypes.bool,
   /**
-   * The CSS position strategy for positioning the Menu popup element.
+   * Determines which CSS `position` property to use.
    * @default 'absolute'
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
@@ -218,12 +220,13 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The side of the anchor element that the Menu element should align to.
+   * Which side of the anchor element to align the popup against.
+   * May automatically change to avoid collisions.
    * @default 'bottom'
    */
   side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
-   * The gap between the anchor element and the Menu element.
+   * Distance between the anchor and the popup.
    * @default 0
    */
   sideOffset: PropTypes.number,

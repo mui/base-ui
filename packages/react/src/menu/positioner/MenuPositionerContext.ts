@@ -9,7 +9,7 @@ export interface MenuPositionerContext {
    */
   side: Side;
   /**
-   * The align of the anchor element the popup is positioned relative to.
+   * How to align the popup relative to the specified side.
    */
   align: 'start' | 'end' | 'center';
   arrowRef: React.MutableRefObject<Element | null>;
