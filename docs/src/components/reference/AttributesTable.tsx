@@ -16,8 +16,8 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
     <Table.Root {...props}>
       <Table.Head>
         <Table.Row>
-          <Table.ColumnHeader className="w-1/2 xs:w-5/8 md:w-1/4">Attribute</Table.ColumnHeader>
-          <Table.ColumnHeader className="w-1/2 xs:w-3/8 md:w-3/4">Type</Table.ColumnHeader>
+          <Table.ColumnHeader className="w-1/2 xs:w-5/8 md:w-1/3">Attribute</Table.ColumnHeader>
+          <Table.ColumnHeader className="w-1/2 xs:w-3/8 md:w-2/3">Type</Table.ColumnHeader>
           <Table.ColumnHeader className="w-10" aria-label="Description" />
         </Table.Row>
       </Table.Head>
