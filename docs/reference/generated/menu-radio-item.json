@@ -2,11 +2,6 @@
   "name": "MenuRadioItem",
   "description": "A menu item that works like a radio button in a given group.\nRenders a `<div>` element.",
   "props": {
-    "value": {
-      "type": "any",
-      "required": true,
-      "description": "Value of the radio item.\nThis is the value that will be set in the MenuRadioGroup when the item is selected."
-    },
     "closeOnClick": {
       "type": "boolean",
       "default": "true",
@@ -28,6 +23,11 @@
     "onClick": {
       "type": "(event) => void",
       "description": "The click handler for the menu item."
+    },
+    "value": {
+      "type": "any",
+      "required": true,
+      "description": "Value of the radio item.\nThis is the value that will be set in the MenuRadioGroup when the item is selected."
     }
   },
   "dataAttributes": {
