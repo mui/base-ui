@@ -219,7 +219,8 @@ export namespace useMenuRoot {
      */
     delay: number;
     /**
-     * The orientation of the Menu (horizontal or vertical).
+     * The visual orientation of the menu.
+     * Controls whether roving focus uses up/down or left/right arrow keys.
      */
     orientation: MenuOrientation;
     /**
