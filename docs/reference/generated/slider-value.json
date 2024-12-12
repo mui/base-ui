@@ -1,6 +1,6 @@
 {
   "name": "SliderValue",
-  "description": "",
+  "description": "Displays the current value of the slider as text.\nRenders an `<output>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",
