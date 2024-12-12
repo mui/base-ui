@@ -93,7 +93,7 @@ export async function buildReference() {
     const json: ComponentDef = {
       name: componentData.name,
       description: descriptionData.componentDescription,
-      props,
+      props: Object.fromEntries(Object.entries(props).sort()),
       dataAttributes,
       cssVariables,
     };
