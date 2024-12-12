@@ -4,7 +4,6 @@ import { type DemoVariant } from 'docs/src/blocks/Demo';
 import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
 import * as Select from 'docs/src/components/Select';
 import { useDemoVariantSelectorContext } from './DemoVariantSelectorProvider';
-import { GhostButton } from '../GhostButton';
 
 const translations = {
   variants: {
