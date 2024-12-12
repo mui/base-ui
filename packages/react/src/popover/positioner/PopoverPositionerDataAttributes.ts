@@ -1,10 +1,10 @@
-export enum MenuPositionerDataAttributes {
+export enum PopoverPositionerDataAttributes {
   /**
-   * Present when the menu popup is open.
+   * Present when the popup is open.
    */
   open = 'data-open',
   /**
-   * Present when the menu popup is closed.
+   * Present when the popup is closed.
    */
   closed = 'data-unchecked',
   /**
@@ -12,7 +12,7 @@ export enum MenuPositionerDataAttributes {
    */
   anchorHidden = 'data-anchor-hidden',
   /**
-   * Indicates which side the menu is positioned relative to the trigger.
+   * Indicates which side the popup is positioned relative to the trigger.
    * @type {'none' | 'top' | 'right' | 'bottom' | 'left'}
    */
   side = 'data-side',

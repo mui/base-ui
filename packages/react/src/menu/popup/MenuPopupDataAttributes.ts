@@ -15,4 +15,9 @@ export enum MenuPopupDataAttributes {
    * Present when the menu is animating out.
    */
   endingStyle = 'data-ending-style',
+  /**
+   * Indicates which side the menu is positioned relative to the trigger.
+   * @type {'none' | 'top' | 'right' | 'bottom' | 'left'}
+   */
+  side = 'data-side',
 }
