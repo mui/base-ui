@@ -88,6 +88,9 @@ namespace MenuSubmenuTrigger {
      * Used for keyboard text navigation matching.
      */
     label?: string;
+    /**
+     * @ignore
+     */
     id?: string;
   }
 

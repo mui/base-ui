@@ -21,10 +21,6 @@
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
-    "id": {
-      "type": "string",
-      "description": "The id of the menu item."
-    },
     "label": {
       "type": "string",
       "description": "A text representation of the menu item's content.\nUsed for keyboard text navigation matching."
