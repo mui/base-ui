@@ -2,7 +2,6 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { visitParents } from 'unist-util-visit-parents';
 import kebabCase from 'lodash/kebabCase.js';
-import startCase from 'lodash/startCase.js';
 import { join } from 'path';
 import { createMdxElement } from 'docs/src/mdx/createMdxElement.mjs';
 import { createHast } from 'docs/src/mdx/createHast.mjs';
@@ -78,8 +77,8 @@ export function rehypeReference() {
           const subtree = [];
           const name =
             parts && def.name.startsWith(component)
-              ? startCase(def.name.substring(component.length))
-              : startCase(def.name);
+              ? def.name.substring(component.length)
+              : def.name;
 
           // Insert an <h3> with the part name and parse descriptions as markdown.
           // Single-part components headings and descriptions aren't displayed
@@ -88,9 +87,9 @@ export function rehypeReference() {
             subtree.push(
               createMdxElement({
                 name: 'h3',
-                children: [{ type: 'text', value: name.replace(/\s/g, '') }],
+                children: [{ type: 'text', value: name }],
                 props: {
-                  id: name.toLowerCase().replace(/\s/g, '-'),
+                  id: kebabCase(name),
                 },
               }),
             );
