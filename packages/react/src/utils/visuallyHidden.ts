@@ -7,7 +7,7 @@ export const visuallyHidden: React.CSSProperties = {
   margin: '-1px',
   overflow: 'hidden',
   padding: 0,
-  position: 'absolute',
+  position: 'fixed',
   top: 0,
   left: 0,
   whiteSpace: 'nowrap',
