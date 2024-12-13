@@ -27,8 +27,9 @@
     }
 
     /* Center the contents */
-    display: grid;
-    place-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .DemoToolbar {
