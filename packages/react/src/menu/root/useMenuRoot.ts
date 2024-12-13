@@ -100,7 +100,10 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     ignoreMouse: nested,
   });
 
-  const dismiss = useDismiss(floatingRootContext, { bubbles: closeParentOnEsc });
+  const dismiss = useDismiss(floatingRootContext, {
+    bubbles: closeParentOnEsc,
+    outsidePressEvent: 'mousedown',
+  });
 
   const role = useRole(floatingRootContext, {
     role: 'menu',
