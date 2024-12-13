@@ -8,12 +8,6 @@ import { useFieldRootContext } from '../field/root/FieldRootContext';
 import type { UseCheckboxGroupParent } from './useCheckboxGroupParent';
 import type { GenericHTMLProps } from '../utils/types';
 
-/**
- *
- * API:
- *
- * - [useCheckboxGroup API](https://mui.com/base-ui/api/use-checkbox-group-root/)
- */
 export function useCheckboxGroup(
   params: UseCheckboxGroup.Parameters,
 ): UseCheckboxGroup.ReturnValue {

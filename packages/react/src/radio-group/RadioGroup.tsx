@@ -126,11 +126,15 @@ namespace RadioGroup {
      */
     name?: string;
     /**
-     * The value of the selected radio button. Use when controlled.
+     * The controlled value of the radio item that should be currently selected.
+     *
+     * To render an uncontrolled radio group, use the `defaultValue` prop instead.
      */
     value?: unknown;
     /**
-     * The default value of the selected radio button. Use when uncontrolled.
+     * The uncontrolled value of the radio button that should be initially selected.
+     *
+     * To render a controlled radio group, use the `value` prop instead.
      */
     defaultValue?: unknown;
     /**
@@ -155,7 +159,9 @@ RadioGroup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default value of the selected radio button. Use when uncontrolled.
+   * The uncontrolled value of the radio button that should be initially selected.
+   *
+   * To render a controlled radio group, use the `value` prop instead.
    */
   defaultValue: PropTypes.any,
   /**
@@ -189,7 +195,9 @@ RadioGroup.propTypes /* remove-proptypes */ = {
    */
   required: PropTypes.bool,
   /**
-   * The value of the selected radio button. Use when controlled.
+   * The controlled value of the radio item that should be currently selected.
+   *
+   * To render an uncontrolled radio group, use the `defaultValue` prop instead.
    */
   value: PropTypes.any,
 } as any;

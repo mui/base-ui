@@ -4,7 +4,7 @@
   "props": {
     "container": {
       "type": "React.Ref | HTMLElement | null",
-      "description": "The container to render the portal element into."
+      "description": "A parent element to render the portal into."
     }
   }
 }

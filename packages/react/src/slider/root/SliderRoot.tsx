@@ -131,7 +131,7 @@ export namespace SliderRoot {
      */
     disabled: boolean;
     /**
-     * If `true`, a thumb is being dragged by a pointer.
+     * Whether the thumb is currently being dragged.
      */
     dragging: boolean;
     max: number;
@@ -174,7 +174,9 @@ export namespace SliderRoot {
       >,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue' | 'onChange' | 'values'> {
     /**
-     * The default value of the slider. Use when the component is not controlled.
+     * The uncontrolled value of the slider when it’s initially rendered.
+     *
+     * To render a controlled slider, use the `value` prop instead.
      */
     defaultValue?: number | ReadonlyArray<number>;
     /**
@@ -216,7 +218,9 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default value of the slider. Use when the component is not controlled.
+   * The uncontrolled value of the slider when it’s initially rendered.
+   *
+   * To render a controlled slider, use the `value` prop instead.
    */
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.number), PropTypes.number]),
   /**

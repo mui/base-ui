@@ -241,8 +241,8 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    */
   sideOffset: PropTypes.number,
   /**
-   * If `true`, allow the Select to remain in stuck view while the anchor element is scrolled out
-   * of view.
+   * Whether to maintain the select menu in the viewport after
+   * the anchor element is scrolled out of view.
    * @default false
    */
   sticky: PropTypes.bool,

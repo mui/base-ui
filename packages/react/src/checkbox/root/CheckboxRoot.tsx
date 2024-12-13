@@ -200,7 +200,9 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   onCheckedChange: PropTypes.func,
   /**
-   * If `true`, the checkbox is a parent checkbox for a group of child checkboxes.
+   * Whether the checkbox controls a group of child checkboxes.
+   *
+   * Must be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).
    * @default false
    */
   parent: PropTypes.bool,

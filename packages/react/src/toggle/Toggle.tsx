@@ -143,7 +143,7 @@ Toggle.propTypes /* remove-proptypes */ = {
    */
   onPressedChange: PropTypes.func,
   /**
-   * If `true`, the component is pressed.
+   * Whether the toggle button is currently active.
    */
   pressed: PropTypes.bool,
   /**

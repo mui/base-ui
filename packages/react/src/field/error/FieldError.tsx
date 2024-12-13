@@ -60,12 +60,12 @@ namespace FieldError {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * Determines whether the error message should be shown when it matches a given property of the
-     * field's `ValidityState`.
+     * Determines whether to show the error message according to the field’s
+     * [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).
      */
     match?: keyof ValidityState;
     /**
-     * Determines whether the error message should be shown regardless of the field's client validity.
+     * Whether the error message should be shown regardless of the field’s validity.
      */
     forceShow?: boolean;
   }
@@ -86,7 +86,7 @@ FieldError.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Determines whether the error message should be shown regardless of the field's client validity.
+   * Whether the error message should be shown regardless of the field’s validity.
    */
   forceShow: PropTypes.bool,
   /**
@@ -94,8 +94,8 @@ FieldError.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * Determines whether the error message should be shown when it matches a given property of the
-   * field's `ValidityState`.
+   * Determines whether to show the error message according to the field’s
+   * [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).
    */
   match: PropTypes.oneOf([
     'badInput',

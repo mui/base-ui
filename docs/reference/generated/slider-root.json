@@ -12,7 +12,7 @@
     },
     "defaultValue": {
       "type": "Array<number> | number",
-      "description": "The default value of the slider. Use when the component is not controlled."
+      "description": "The uncontrolled value of the slider when it’s initially rendered.\n\nTo render a controlled slider, use the `value` prop instead."
     },
     "disabled": {
       "type": "boolean",

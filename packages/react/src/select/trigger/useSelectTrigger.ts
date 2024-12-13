@@ -8,12 +8,6 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
-/**
- *
- * API:
- *
- * - [useSelectTrigger API](https://mui.com/base-ui/api/use-select-trigger/)
- */
 export function useSelectTrigger(
   parameters: useSelectTrigger.Parameters,
 ): useSelectTrigger.ReturnValue {

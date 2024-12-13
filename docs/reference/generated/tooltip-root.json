@@ -5,7 +5,7 @@
     "closeDelay": {
       "type": "number",
       "default": "0",
-      "description": "The delay in milliseconds until the tooltip popup is closed."
+      "description": "How long to wait before closing the tooltip. Specified in milliseconds."
     },
     "defaultOpen": {
       "type": "boolean",
@@ -15,7 +15,7 @@
     "delay": {
       "type": "number",
       "default": "600",
-      "description": "The delay in milliseconds until the tooltip popup is opened."
+      "description": "How long to wait before opening the tooltip. Specified in milliseconds."
     },
     "hoverable": {
       "type": "boolean",

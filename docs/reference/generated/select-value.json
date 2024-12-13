@@ -12,7 +12,7 @@
     },
     "placeholder": {
       "type": "string",
-      "description": "The placeholder value to display when the value is empty (such as during SSR)."
+      "description": "A placeholder value to display when no value is selected.\n\nYou can use this prop to pre-render the displayed text\nduring SSR in order to avoid the hydration flash."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",

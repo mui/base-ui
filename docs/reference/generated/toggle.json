@@ -30,7 +30,7 @@
     },
     "pressed": {
       "type": "boolean",
-      "description": "If `true`, the component is pressed."
+      "description": "Whether the toggle button is currently active."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",

@@ -148,7 +148,7 @@ export namespace useButton {
      */
     disabled?: boolean;
     /**
-     * If `true`, allows a disabled button to receive focus.
+     * Whether the button may receive focus even if it is disabled.
      * @default false
      */
     focusableWhenDisabled?: boolean;
