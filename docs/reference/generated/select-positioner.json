@@ -65,6 +65,21 @@
       "description": "Whether the select popup continuously tracks its anchor after the initial positioning upon mount."
     }
   },
+  "dataAttributes": {
+    "data-anchor-hidden": {
+      "description": "Present when the anchor is hidden."
+    },
+    "data-open": {
+      "description": "Present when the select popup is open."
+    },
+    "data-side": {
+      "description": "Indicates which side the select is positioned relative to the trigger.",
+      "type": "'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
+    },
+    "data-unchecked": {
+      "description": "Present when the select popup is closed."
+    }
+  },
   "cssVariables": {
     "--anchor-height": {
       "description": "The anchor's height.",

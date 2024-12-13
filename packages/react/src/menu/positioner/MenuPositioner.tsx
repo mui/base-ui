@@ -9,7 +9,7 @@ import {
 } from '@floating-ui/react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuPositioner } from './useMenuPositioner';
@@ -34,8 +34,8 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     className,
     render,
     keepMounted = false,
-    side = 'bottom',
-    align = 'center',
+    side,
+    align,
     sideOffset = 0,
     alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
@@ -61,15 +61,24 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   const nodeId = useFloatingNodeId();
   const parentNodeId = useFloatingParentNodeId();
 
+  let computedSide = side;
+  let computedAlign = align;
+  if (!side) {
+    computedSide = nested ? 'inline-end' : 'bottom';
+  }
+  if (!align) {
+    computedAlign = nested ? 'start' : 'center';
+  }
+
   const positioner = useMenuPositioner({
     anchor,
     floatingRootContext,
     positionMethod,
     open,
     mounted,
-    side,
+    side: computedSide,
     sideOffset,
-    align,
+    align: computedAlign,
     alignOffset,
     arrowPadding,
     collisionBoundary,
@@ -146,7 +155,7 @@ export namespace MenuPositioner {
      */
     open: boolean;
     side: Side;
-    align: 'start' | 'end' | 'center';
+    align: Align;
     anchorHidden: boolean;
     nested: boolean;
   }
@@ -163,7 +172,6 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
   // └─────────────────────────────────────────────────────────────────────┘
   /**
    * How to align the popup relative to the specified side.
-   * @default 'center'
    */
   align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
@@ -244,7 +252,6 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
   /**
    * Which side of the anchor element to align the popup against.
    * May automatically change to avoid collisions.
-   * @default 'bottom'
    */
   side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**

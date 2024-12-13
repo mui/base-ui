@@ -16,6 +16,16 @@
       "description": "Whether to render itself before React hydrates.\nThis minimizes the time that the indicator isn’t visible after server-side rendering."
     }
   },
+  "dataAttributes": {
+    "data-activation-direction": {
+      "description": "Indicates the direction of the activation (based on the previous selected tab).",
+      "type": "'left' | 'right' | 'up' | 'down' | 'none'"
+    },
+    "data-orientation": {
+      "description": "Indicates the orientation of the tabs.",
+      "type": "'horizontal' | 'vertical'"
+    }
+  },
   "cssVariables": {
     "--active-tab-bottom": {
       "description": "Indicates the distance on the bottom side from the parent's container if the tab is active.",

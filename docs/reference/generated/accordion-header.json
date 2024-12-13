@@ -18,6 +18,9 @@
     "data-index": {
       "description": "Indicates the index of the accordion item.",
       "type": "number"
+    },
+    "data-open": {
+      "description": "Present when the accordion item is open."
     }
   }
 }

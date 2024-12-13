@@ -4,7 +4,6 @@
   "props": {
     "align": {
       "type": "'start' | 'center' | 'end'",
-      "default": "'center'",
       "description": "How to align the popup relative to the specified side."
     },
     "alignOffset": {
@@ -51,7 +50,6 @@
     },
     "side": {
       "type": "'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
-      "default": "'bottom'",
       "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions."
     },
     "sideOffset": {
@@ -71,6 +69,10 @@
     },
     "data-open": {
       "description": "Present when the menu popup is open."
+    },
+    "data-side": {
+      "description": "Indicates which side the menu is positioned relative to the trigger.",
+      "type": "'none' | 'top' | 'right' | 'bottom' | 'left'"
     },
     "data-unchecked": {
       "description": "Present when the menu popup is closed."
