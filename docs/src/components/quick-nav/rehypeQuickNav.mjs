@@ -43,11 +43,11 @@ export function rehypeQuickNav() {
     const contentNodes = tree.children.filter(
       /** @param {Nodes} child */
       (child) => {
-        return (
-          // Filter out nodes that don't produce text
-          (('children' in child || 'value' in child) && toString(child).trim()) ||
-          ('name' in child && child.name === 'Demo')
-        );
+        // Filter out nodes that don't produce texts
+        const hasChildren = 'children' in child && child.children?.length;
+        const isText = child.type === 'text';
+        const isDemo = 'name' in child && child.name === 'Demo';
+        return ((hasChildren || isText) && toString(child).trim()) || isDemo;
       },
     );
 
