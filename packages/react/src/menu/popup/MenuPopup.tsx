@@ -51,8 +51,9 @@ const MenuPopup = React.forwardRef(function MenuPopup(
       side,
       align,
       open,
+      nested,
     }),
-    [transitionStatus, side, align, open],
+    [transitionStatus, side, align, open, nested],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -101,6 +102,7 @@ namespace MenuPopup {
      * Whether the menu is currently open.
      */
     open: boolean;
+    nested: boolean;
   };
 }
 

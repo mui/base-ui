@@ -39,8 +39,15 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     ...otherProps
   } = props;
 
-  const { open, floatingRootContext, setPositionerElement, itemDomElements, itemLabels, mounted } =
-    useMenuRootContext();
+  const {
+    open,
+    floatingRootContext,
+    setPositionerElement,
+    itemDomElements,
+    itemLabels,
+    mounted,
+    nested,
+  } = useMenuRootContext();
 
   const nodeId = useFloatingNodeId();
 
@@ -67,8 +74,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
       side: positioner.side,
       align: positioner.align,
       anchorHidden: positioner.anchorHidden,
+      nested,
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden],
+    [open, positioner.side, positioner.align, positioner.anchorHidden, nested],
   );
 
   const contextValue: MenuPositionerContext = React.useMemo(
@@ -127,6 +135,7 @@ export namespace MenuPositioner {
     side: Side;
     align: 'start' | 'end' | 'center';
     anchorHidden: boolean;
+    nested: boolean;
   }
 
   export interface Props

@@ -16,11 +16,11 @@ export default function NestedMenu() {
         <input type="text" placeholder="Previous element" />
         <MenuButton>Format</MenuButton>
         <Menu.Portal>
-          <MenuPositioner side="bottom" align="start">
+          <Menu.Positioner side="bottom" align="start" sideOffset={6}>
             <MenuPopup>
               <Menu.Root>
                 <SubmenuTrigger>Text color</SubmenuTrigger>
-                <MenuPositioner align="start" side="right">
+                <Menu.Positioner align="start" side="right" sideOffset={12}>
                   <MenuPopup>
                     <MenuItem onClick={createHandleMenuClick('Text color/Black')}>
                       Black
@@ -34,16 +34,16 @@ export default function NestedMenu() {
                       Accent
                     </MenuItem>
                   </MenuPopup>
-                </MenuPositioner>
+                </Menu.Positioner>
               </Menu.Root>
 
               <Menu.Root>
                 <SubmenuTrigger>Style</SubmenuTrigger>
-                <MenuPositioner align="start" side="right">
+                <Menu.Positioner align="start" side="right" sideOffset={12}>
                   <MenuPopup>
                     <Menu.Root>
                       <SubmenuTrigger>Heading</SubmenuTrigger>
-                      <MenuPositioner align="start" side="right">
+                      <Menu.Positioner align="start" side="right" sideOffset={12}>
                         <MenuPopup>
                           <MenuItem
                             onClick={createHandleMenuClick('Style/Heading/Level 1')}
@@ -61,14 +61,14 @@ export default function NestedMenu() {
                             Level 3
                           </MenuItem>
                         </MenuPopup>
-                      </MenuPositioner>
+                      </Menu.Positioner>
                     </Menu.Root>
                     <MenuItem onClick={createHandleMenuClick('Style/Paragraph')}>
                       Paragraph
                     </MenuItem>
                     <Menu.Root disabled>
                       <SubmenuTrigger disabled>List</SubmenuTrigger>
-                      <MenuPositioner align="start" side="right">
+                      <Menu.Positioner align="start" side="right" sideOffset={12}>
                         <MenuPopup>
                           <MenuItem
                             onClick={createHandleMenuClick('Style/List/Ordered')}
@@ -81,17 +81,17 @@ export default function NestedMenu() {
                             Unordered
                           </MenuItem>
                         </MenuPopup>
-                      </MenuPositioner>
+                      </Menu.Positioner>
                     </Menu.Root>
                   </MenuPopup>
-                </MenuPositioner>
+                </Menu.Positioner>
               </Menu.Root>
 
               <MenuItem onClick={createHandleMenuClick('Clear formatting')}>
                 Clear formatting
               </MenuItem>
             </MenuPopup>
-          </MenuPositioner>
+          </Menu.Positioner>
         </Menu.Portal>
         <input type="text" placeholder="Next element" />
       </Menu.Root>
@@ -131,7 +131,6 @@ const MenuPopup = styled(Menu.Popup)(
   font-size: 0.875rem;
   box-sizing: border-box;
   padding: 6px;
-  margin: 12px 0;
   min-width: 200px;
   border-radius: 12px;
   overflow: visible;
@@ -146,13 +145,17 @@ const MenuPopup = styled(Menu.Popup)(
   transform: scale(1, 1);
   transition: opacity 100ms ease-in, transform 100ms ease-in;
 
-  @starting-style {
+  &[data-nested] {
+    margin-top: -6px;
+  }
+
+  &[data-starting-style] {
     & {
       opacity: 0;
       transform: scale(0.8);
     }
   }
-      
+
   &[data-ending-style] {
     opacity: 0;
     transform: scale(0.8);
@@ -160,12 +163,6 @@ const MenuPopup = styled(Menu.Popup)(
   }
   `,
 );
-
-const MenuPositioner = styled(Menu.Positioner)`
-  &:focus-visible {
-    outline: 0;
-  }
-`;
 
 const MenuItem = styled(Menu.Item)(
   ({ theme }) => `
@@ -178,7 +175,7 @@ const MenuItem = styled(Menu.Item)(
   &:last-of-type {
     border-bottom: none;
   }
-    
+
   &:focus,
   &:hover {
     background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
@@ -267,7 +264,7 @@ const MenuButton = styled(Menu.Trigger)(
 
 const Container = styled('div')`
   display: flex;
-  min-height: 100vh;
+  min-height: 200vh;
   box-sizing: border-box;
   align-items: center;
   gap: 20px;
