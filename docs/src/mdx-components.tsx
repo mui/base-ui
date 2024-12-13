@@ -16,6 +16,7 @@ interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
 }
 
+// Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
   a: (props) => <Link {...props} />,
   code: (props) => <Code className="data-[inline]:mx-[0.1em]" {...props} />,
@@ -86,6 +87,7 @@ export const inlineMdxComponents: MDXComponents = {
 
 export const tableMdxComponents: MDXComponents = {
   ...mdxComponents,
+  // Unwrap paragraphs in tables
   // eslint-disable-next-line react/jsx-no-useless-fragment
   p: (props) => <React.Fragment {...props} />,
   code: TableCode,
