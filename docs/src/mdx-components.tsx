@@ -85,14 +85,6 @@ export const inlineMdxComponents: MDXComponents = {
   p: (props) => <p {...props} />,
 };
 
-export const tableMdxComponents: MDXComponents = {
-  ...mdxComponents,
-  // Unwrap paragraphs in tables
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  p: (props) => <React.Fragment {...props} />,
-  code: TableCode,
-};
-
 export function useMDXComponents(): MDXComponents {
   return mdxComponents;
 }

@@ -60,7 +60,7 @@
     }
 
     @media (pointer: coarse) {
-      @apply text-sm;
+      @apply text-md;
       height: 2.25rem;
       grid-template-columns: 0.5rem 0.75rem 0.5rem auto 1.5rem;
     }
