@@ -163,7 +163,7 @@ export namespace useSwitchRoot {
      */
     defaultChecked?: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;

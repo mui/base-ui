@@ -95,7 +95,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 namespace RadioGroup {
   export interface State {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean | undefined;
     /**
@@ -107,7 +107,7 @@ namespace RadioGroup {
   export interface Props
     extends Omit<BaseUIComponentProps<'div', State>, 'value' | 'defaultValue'> {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -126,11 +126,15 @@ namespace RadioGroup {
      */
     name?: string;
     /**
-     * The value of the selected radio button. Use when controlled.
+     * The controlled value of the radio item that should be currently selected.
+     *
+     * To render an uncontrolled radio group, use the `defaultValue` prop instead.
      */
     value?: unknown;
     /**
-     * The default value of the selected radio button. Use when uncontrolled.
+     * The uncontrolled value of the radio button that should be initially selected.
+     *
+     * To render a controlled radio group, use the `value` prop instead.
      */
     defaultValue?: unknown;
     /**
@@ -155,11 +159,13 @@ RadioGroup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default value of the selected radio button. Use when uncontrolled.
+   * The uncontrolled value of the radio button that should be initially selected.
+   *
+   * To render a controlled radio group, use the `value` prop instead.
    */
   defaultValue: PropTypes.any,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -189,7 +195,9 @@ RadioGroup.propTypes /* remove-proptypes */ = {
    */
   required: PropTypes.bool,
   /**
-   * The value of the selected radio button. Use when controlled.
+   * The controlled value of the radio item that should be currently selected.
+   *
+   * To render an uncontrolled radio group, use the `defaultValue` prop instead.
    */
   value: PropTypes.any,
 } as any;

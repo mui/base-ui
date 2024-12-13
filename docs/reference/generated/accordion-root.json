@@ -8,12 +8,12 @@
     },
     "defaultValue": {
       "type": "array",
-      "description": "The uncontrolled value of the item(s) that should be expanded.\nTo render a controlled accordion, use the `value` prop instead."
+      "description": "The uncontrolled value of the item(s) that should be initially expanded.\n\nTo render a controlled accordion, use the `value` prop instead."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
     },
     "hiddenUntilFound": {
       "type": "boolean",
@@ -42,7 +42,7 @@
     "orientation": {
       "type": "'horizontal' | 'vertical'",
       "default": "'vertical'",
-      "description": "The visual orientation of the accordion.\nControls whether the roving focus uses left/right or up/down arrow keys."
+      "description": "The visual orientation of the accordion.\nControls whether roving focus uses left/right or up/down arrow keys."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
@@ -50,7 +50,7 @@
     },
     "value": {
       "type": "array",
-      "description": "The controlled value of the item(s) that should be expanded.\nTo render an controlled accordion, use the `defaultValue` prop instead."
+      "description": "The controlled value of the item(s) that should be expanded.\n\nTo render an uncontrolled accordion, use the `defaultValue` prop instead."
     }
   },
   "dataAttributes": {

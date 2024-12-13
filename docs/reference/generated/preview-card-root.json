@@ -5,7 +5,7 @@
     "closeDelay": {
       "type": "number",
       "default": "300",
-      "description": "The delay in milliseconds until the preview card popup is closed when `openOnHover` is `true`."
+      "description": "How long to wait before closing the preview card. Specified in milliseconds."
     },
     "defaultOpen": {
       "type": "boolean",
@@ -15,7 +15,7 @@
     "delay": {
       "type": "number",
       "default": "600",
-      "description": "The delay in milliseconds until the preview card popup is opened when `openOnHover` is `true`."
+      "description": "How long to wait before the preview card opens. Specified in milliseconds."
     },
     "onOpenChange": {
       "type": "(open, event, reason) => void",

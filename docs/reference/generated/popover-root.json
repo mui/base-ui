@@ -5,7 +5,7 @@
     "closeDelay": {
       "type": "number",
       "default": "0",
-      "description": "The delay in milliseconds until the popover popup is closed when `openOnHover` is `true`."
+      "description": "How long to wait before closing the popover that was opened on hover.\nSpecified in milliseconds.\n\nRequires the `openOnHover` prop."
     },
     "defaultOpen": {
       "type": "boolean",
@@ -15,7 +15,7 @@
     "delay": {
       "type": "number",
       "default": "300",
-      "description": "The delay in milliseconds until the popover popup is opened when `openOnHover` is `true`."
+      "description": "How long to wait before the popover may be opened on hover. Specified in milliseconds.\n\nRequires the `openOnHover` prop."
     },
     "onOpenChange": {
       "type": "(open, event, reason) => void",
@@ -28,7 +28,7 @@
     "openOnHover": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the popover popup opens when the trigger is hovered after the provided `delay`."
+      "description": "Whether the popover should also open when the trigger is hovered."
     }
   }
 }

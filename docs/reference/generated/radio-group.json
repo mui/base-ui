@@ -8,12 +8,12 @@
     },
     "defaultValue": {
       "type": "any",
-      "description": "The default value of the selected radio button. Use when uncontrolled."
+      "description": "The uncontrolled value of the radio button that should be initially selected.\n\nTo render a controlled radio group, use the `value` prop instead."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
     },
     "name": {
       "type": "string",
@@ -39,7 +39,7 @@
     },
     "value": {
       "type": "any",
-      "description": "The value of the selected radio button. Use when controlled."
+      "description": "The controlled value of the radio item that should be currently selected.\n\nTo render an uncontrolled radio group, use the `defaultValue` prop instead."
     }
   },
   "dataAttributes": {

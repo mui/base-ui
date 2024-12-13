@@ -143,12 +143,12 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 export namespace useButton {
   export interface Parameters {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
     /**
-     * If `true`, allows a disabled button to receive focus.
+     * Whether the button may receive focus even if it is disabled.
      * @default false
      */
     focusableWhenDisabled?: boolean;

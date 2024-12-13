@@ -188,16 +188,18 @@ export namespace useAccordionRoot {
   export interface Parameters {
     /**
      * The controlled value of the item(s) that should be expanded.
-     * To render an controlled accordion, use the `defaultValue` prop instead.
+     *
+     * To render an uncontrolled accordion, use the `defaultValue` prop instead.
      */
     value?: AccordionValue;
     /**
-     * The uncontrolled value of the item(s) that should be expanded.
+     * The uncontrolled value of the item(s) that should be initially expanded.
+     *
      * To render a controlled accordion, use the `value` prop instead.
      */
     defaultValue?: AccordionValue;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled: boolean;
@@ -220,7 +222,7 @@ export namespace useAccordionRoot {
     openMultiple: boolean;
     /**
      * The visual orientation of the accordion.
-     * Controls whether the roving focus uses left/right or up/down arrow keys.
+     * Controls whether roving focus uses left/right or up/down arrow keys.
      * @default 'vertical'
      */
     orientation: AccordionOrientation;
@@ -233,7 +235,7 @@ export namespace useAccordionRoot {
     accordionItemRefs: React.RefObject<(HTMLElement | null)[]>;
     direction: Direction;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     handleValueChange: (value: number | string, nextOpen: boolean) => void;

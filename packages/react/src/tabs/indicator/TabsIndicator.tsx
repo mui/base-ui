@@ -93,9 +93,8 @@ namespace TabsIndicator {
 
   export interface Props extends BaseUIComponentProps<'span', TabsIndicator.State> {
     /**
-     * If `true`, the indicator will include code to render itself before React hydrates.
-     * This will minimize the time the indicator is not visible after the SSR-generated content is downloaded.
-     *
+     * Whether to render itself before React hydrates.
+     * This minimizes the time that the indicator isn’t visible after server-side rendering.
      * @default false
      */
     renderBeforeHydration?: boolean;
@@ -126,9 +125,8 @@ TabsIndicator.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * If `true`, the indicator will include code to render itself before React hydrates.
-   * This will minimize the time the indicator is not visible after the SSR-generated content is downloaded.
-   *
+   * Whether to render itself before React hydrates.
+   * This minimizes the time that the indicator isn’t visible after server-side rendering.
    * @default false
    */
   renderBeforeHydration: PropTypes.bool,

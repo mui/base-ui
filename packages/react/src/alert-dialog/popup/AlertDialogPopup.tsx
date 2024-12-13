@@ -123,7 +123,7 @@ namespace AlertDialogPopup {
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
     /**
      * Determines the element to focus when the dialog is closed.
-     * By default, focus returns to trigger.
+     * By default, focus returns to the trigger.
      */
     finalFocus?: React.RefObject<HTMLElement | null>;
   }
@@ -154,7 +154,7 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * Determines the element to focus when the dialog is closed.
-   * By default, focus returns to trigger.
+   * By default, focus returns to the trigger.
    */
   finalFocus: refType,
   /**

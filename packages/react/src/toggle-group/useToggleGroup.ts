@@ -76,7 +76,7 @@ export namespace UseToggleGroup {
      */
     onValueChange: (groupValue: any[], event: Event) => void;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled: boolean;
@@ -92,7 +92,7 @@ export namespace UseToggleGroup {
   export interface ReturnValue {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled: boolean;

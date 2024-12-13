@@ -6,25 +6,34 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
-import { useSliderOutput } from './useSliderOutput';
-
+import { useSliderValue } from './useSliderValue';
 /**
  * Displays the current value of the slider as text.
  * Renders an `<output>` element.
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderOutput = React.forwardRef(function SliderOutput(
-  props: SliderOutput.Props,
+const SliderValue = React.forwardRef(function SliderValue(
+  props: SliderValue.Props,
   forwardedRef: React.ForwardedRef<HTMLOutputElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, children, ...otherProps } = props;
 
-  const { inputIdMap, state, values } = useSliderRootContext();
+  const { inputIdMap, state, values, format } = useSliderRootContext();
 
-  const { getRootProps } = useSliderOutput({
+  const { getRootProps, formattedValues } = useSliderValue({
+    format,
     inputIdMap,
+    values,
   });
+
+  const defaultDisplayValue = React.useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < values.length; i += 1) {
+      arr.push(formattedValues[i] || values[i]);
+    }
+    return arr.join(' – ');
+  }, [values, formattedValues]);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
@@ -33,7 +42,8 @@ const SliderOutput = React.forwardRef(function SliderOutput(
     className,
     ref: forwardedRef,
     extraProps: {
-      children: values.join(' – '),
+      children:
+        typeof children === 'function' ? children(formattedValues, values) : defaultDisplayValue,
       ...otherProps,
     },
     customStyleHookMapping: sliderStyleHookMapping,
@@ -42,13 +52,18 @@ const SliderOutput = React.forwardRef(function SliderOutput(
   return renderElement();
 });
 
-export namespace SliderOutput {
-  export interface Props extends BaseUIComponentProps<'output', SliderRoot.State> {}
+export namespace SliderValue {
+  export interface Props
+    extends Omit<BaseUIComponentProps<'output', SliderRoot.State>, 'children'> {
+    children?:
+      | null
+      | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode);
+  }
 }
 
-export { SliderOutput };
+export { SliderValue };
 
-SliderOutput.propTypes /* remove-proptypes */ = {
+SliderValue.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -56,7 +71,7 @@ SliderOutput.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  children: PropTypes.node,
+  children: PropTypes.func,
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component’s state.

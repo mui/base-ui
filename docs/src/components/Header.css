@@ -2,6 +2,7 @@
   .Header {
     @apply text-sm;
     position: absolute;
+    left: 0;
     top: 0;
     height: var(--header-height);
     width: 100%;

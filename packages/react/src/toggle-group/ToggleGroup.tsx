@@ -102,7 +102,7 @@ export type ToggleGroupOrientation = 'horizontal' | 'vertical';
 export namespace ToggleGroup {
   export interface State {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     multiple: boolean;
@@ -112,7 +112,7 @@ export namespace ToggleGroup {
     extends Partial<UseToggleGroup.Parameters>,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -150,7 +150,7 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.array,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,

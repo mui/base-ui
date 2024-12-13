@@ -8,11 +8,11 @@
     },
     "errors": {
       "type": "Record<string, string | string[]>",
-      "description": "Object of error messages with each key mapping to the `name` prop of a Field control, usually\nfrom server-side validation."
+      "description": "An object where the keys correspond to the `name` attribute of the form fields,\nand the values correspond to the erorr(s) related to that field."
     },
     "onClearErrors": {
       "type": "(errors) => void",
-      "description": "Callback fired when the external server-side `error` messages should be cleared."
+      "description": "Event handler called when the `errors` object is cleared."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",

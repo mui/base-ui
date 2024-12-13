@@ -119,34 +119,33 @@ namespace MenuRoot {
      */
     open?: boolean;
     /**
-     * The orientation of the Menu (horizontal or vertical).
-     *
+     * The visual orientation of the menu.
+     * Controls whether roving focus uses up/down or left/right arrow keys.
      * @default 'vertical'
      */
     orientation?: MenuOrientation;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
     /**
-     * Determines if pressing the Esc key closes the parent menus.
-     * This is only applicable for nested menus.
-     *
-     * If set to `false` pressing Esc closes only the current menu.
-     *
+     * When in a submenu, determines whether pressing the Escape key
+     * closes the entire menu, or only the current child menu.
      * @default true
      */
     closeParentOnEsc?: boolean;
     /**
-     * The delay in milliseconds until the menu popup is opened when `openOnHover` is `true`.
+     * How long to wait before the menu may be opened on hover. Specified in milliseconds.
      *
+     * Requires the `openOnHover` prop.
      * @default 100
      */
     delay?: number;
     /**
-     * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
-     * By default, `openOnHover` is set to `true` for nested menus.
+     * Whether the menu should also open when the trigger is hovered.
+     *
+     * Defaults to `true` for nested menus.
      */
     openOnHover?: boolean;
   }
@@ -162,11 +161,8 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Determines if pressing the Esc key closes the parent menus.
-   * This is only applicable for nested menus.
-   *
-   * If set to `false` pressing Esc closes only the current menu.
-   *
+   * When in a submenu, determines whether pressing the Escape key
+   * closes the entire menu, or only the current child menu.
    * @default true
    */
   closeParentOnEsc: PropTypes.bool,
@@ -178,13 +174,14 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The delay in milliseconds until the menu popup is opened when `openOnHover` is `true`.
+   * How long to wait before the menu may be opened on hover. Specified in milliseconds.
    *
+   * Requires the `openOnHover` prop.
    * @default 100
    */
   delay: PropTypes.number,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -203,13 +200,14 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   open: PropTypes.bool,
   /**
-   * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
-   * By default, `openOnHover` is set to `true` for nested menus.
+   * Whether the menu should also open when the trigger is hovered.
+   *
+   * Defaults to `true` for nested menus.
    */
   openOnHover: PropTypes.bool,
   /**
-   * The orientation of the Menu (horizontal or vertical).
-   *
+   * The visual orientation of the menu.
+   * Controls whether roving focus uses up/down or left/right arrow keys.
    * @default 'vertical'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),

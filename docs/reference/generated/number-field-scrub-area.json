@@ -9,12 +9,12 @@
     "direction": {
       "type": "'horizontal' | 'vertical'",
       "default": "'horizontal'",
-      "description": "The direction that the scrub area should change the value."
+      "description": "Cursor movement direction in the scrub area."
     },
     "pixelSensitivity": {
       "type": "number",
       "default": "2",
-      "description": "Determines the number of pixels the cursor must move before the value changes. A higher value\nwill make the scrubbing less sensitive."
+      "description": "Determines how many pixels the cursor must move before the value changes.\nA higher value will make scrubbing less sensitive."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
@@ -22,7 +22,7 @@
     },
     "teleportDistance": {
       "type": "number",
-      "description": "If specified, how much the cursor can move around the center of the scrub area element before\nit will loop back around."
+      "description": "If specified, determines the distance that the cursor may move from the center\nof the scrub area before it will loop back around."
     }
   },
   "dataAttributes": {

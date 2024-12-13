@@ -14,7 +14,7 @@
     "orientation": {
       "type": "'horizontal' | 'vertical'",
       "default": "'vertical'",
-      "description": "The orientation of the scrollbar."
+      "description": "Whether the scrollbar controls vertical or horizontal scroll."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",

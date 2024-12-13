@@ -213,19 +213,22 @@ export namespace useMenuRoot {
      */
     loop: boolean;
     /**
-     * The delay in milliseconds until the menu popup is opened when `openOnHover` is `true`.
+     * How long to wait before the menu may be opened on hover. Specified in milliseconds.
+     *
+     * Requires the `openOnHover` prop.
      */
     delay: number;
     /**
-     * The orientation of the Menu (horizontal or vertical).
+     * The visual orientation of the menu.
+     * Controls whether roving focus uses up/down or left/right arrow keys.
      */
     orientation: MenuOrientation;
     /**
-     * The direction of the Menu (left-to-right or right-to-left).
+     * Text direction of the menu (left to right or right to left).
      */
     direction: TextDirection;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
@@ -233,14 +236,12 @@ export namespace useMenuRoot {
      */
     nested: boolean;
     /**
-     * Determines if pressing the Esc key closes the parent menus.
-     * This is only applicable for nested menus.
-     *
-     * If set to `false` pressing Esc closes only the current menu.
+     * When in a submenu, determines whether pressing the Escape key
+     * closes the entire menu, or only the current child menu.
      */
     closeParentOnEsc: boolean;
     /**
-     * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
+     * Whether the menu should also open when the trigger is hovered.
      */
     openOnHover: boolean;
     /**

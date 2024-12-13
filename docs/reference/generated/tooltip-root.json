@@ -5,7 +5,7 @@
     "closeDelay": {
       "type": "number",
       "default": "0",
-      "description": "The delay in milliseconds until the tooltip popup is closed."
+      "description": "How long to wait before closing the tooltip. Specified in milliseconds."
     },
     "defaultOpen": {
       "type": "boolean",
@@ -15,12 +15,12 @@
     "delay": {
       "type": "number",
       "default": "600",
-      "description": "The delay in milliseconds until the tooltip popup is opened."
+      "description": "How long to wait before opening the tooltip. Specified in milliseconds."
     },
     "hoverable": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether the user can move their cursor from the trigger element toward the tooltip popup element\nwithout it closing using a \"safe polygon\" technique."
+      "description": "Whether the tooltip contents can be hovered without closing the tooltip."
     },
     "onOpenChange": {
       "type": "(open, event, reason) => void",
