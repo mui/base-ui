@@ -628,7 +628,7 @@ describe('<Menu.Root />', () => {
       expect(window.getComputedStyle(outsideButton).pointerEvents).to.equal('none');
     });
 
-    it('does not make outside elements inert when a nonmodal menu is open', async function test(t = {}) {
+    it('does not make outside elements inaccessible to mouse when a nonmodal menu is open', async function test(t = {}) {
       if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -656,10 +656,8 @@ describe('<Menu.Root />', () => {
       const outsideInput = screen.getByTestId('outside-input');
       const outsideButton = screen.getByTestId('outside-button');
 
-      // eslint-disable-next-line testing-library/no-node-access
-      expect(outsideInput.closest('[inert]')).to.equal(null);
-      // eslint-disable-next-line testing-library/no-node-access
-      expect(outsideButton.closest('[inert]')).to.equal(null);
+      expect(window.getComputedStyle(outsideInput).pointerEvents).not.to.equal('none');
+      expect(window.getComputedStyle(outsideButton).pointerEvents).not.to.equal('none');
     });
   });
 
