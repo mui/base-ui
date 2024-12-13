@@ -22,19 +22,21 @@ export function TableCode({ children, printWidth = 40, ...props }: TableCodeProp
         return;
       }
 
-      if (getChildrenText(child).trim() === '|' && depth < 1) {
+      const str = getChildrenText(child);
+
+      if (str.trim() === '|' && depth < 1) {
         groupIndex += 1;
         unionGroups.push([]);
         return;
       }
 
-      if (getChildrenText(child).trim() === '(') {
+      str.split('(').forEach(() => {
         depth += 1;
-      }
+      });
 
-      if (getChildrenText(child).trim() === ')') {
+      str.split(')').forEach(() => {
         depth -= 1;
-      }
+      });
 
       unionGroups[groupIndex].push(child);
     });
