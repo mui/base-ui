@@ -18,5 +18,6 @@
     "data-pressed": {
       "description": "Present when the trigger is pressed."
     }
-  }
+  },
+  "cssVariables": {}
 }

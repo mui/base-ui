@@ -12,20 +12,21 @@
     }
   },
   "dataAttributes": {
-    "data-dirty": {
-      "description": "Present when the field's value has changed."
-    },
     "data-disabled": {
       "description": "Present when the field is disabled."
+    },
+    "data-valid": {
+      "description": "Present when the field is in valid state."
     },
     "data-invalid": {
       "description": "Present when the field is in invalid state."
     },
+    "data-dirty": {
+      "description": "Present when the field's value has changed."
+    },
     "data-touched": {
       "description": "Present when the field has been touched."
-    },
-    "data-valid": {
-      "description": "Present when the field is in valid state."
     }
-  }
+  },
+  "cssVariables": {}
 }

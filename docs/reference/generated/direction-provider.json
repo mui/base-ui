@@ -7,5 +7,7 @@
       "default": "'ltr'",
       "description": "The reading direction of the text"
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }

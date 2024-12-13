@@ -21,5 +21,6 @@
     "data-progressing": {
       "description": "Present while the progress is progressing."
     }
-  }
+  },
+  "cssVariables": {}
 }

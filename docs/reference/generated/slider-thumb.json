@@ -10,10 +10,6 @@
       "type": "string",
       "description": "A string value that provides a user-friendly name for the current value of the slider."
     },
-    "className": {
-      "type": "string | (state) => string",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
-    },
     "getAriaLabel": {
       "type": "function(index: number) => string",
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb"
@@ -22,27 +18,25 @@
       "type": "function(formattedValue: string, value: number, index: number) => string",
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.\nThis is important for screen reader users."
     },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
   "dataAttributes": {
-    "data-dirty": {
-      "description": "Present when the slider's value has changed (when wrapped in Field.Root)."
-    },
-    "data-disabled": {
-      "description": "Present when the slider is disabled."
-    },
     "data-dragging": {
       "description": "Present while the user is dragging."
-    },
-    "data-invalid": {
-      "description": "Present when the slider is in invalid state (when wrapped in Field.Root)."
     },
     "data-orientation": {
       "description": "Indicates the orientation of the slider.",
       "type": "'horizontal' | 'vertical'"
+    },
+    "data-disabled": {
+      "description": "Present when the slider is disabled."
     },
     "data-readonly": {
       "description": "Present when the slider is readonly."
@@ -50,11 +44,18 @@
     "data-required": {
       "description": "Present when the slider is required."
     },
-    "data-touched": {
-      "description": "Present when the slider has been thouched (when wrapped in Field.Root)."
-    },
     "data-valid": {
       "description": "Present when the slider is in valid state (when wrapped in Field.Root).."
+    },
+    "data-invalid": {
+      "description": "Present when the slider is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-dirty": {
+      "description": "Present when the slider's value has changed (when wrapped in Field.Root)."
+    },
+    "data-touched": {
+      "description": "Present when the slider has been thouched (when wrapped in Field.Root)."
     }
-  }
+  },
+  "cssVariables": {}
 }

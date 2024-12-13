@@ -2,6 +2,10 @@
   "name": "TabsPanel",
   "description": "A panel displayed when the corresponding tab is active.\nRenders a `<div>` element.",
   "props": {
+    "value": {
+      "type": "any",
+      "description": "The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.\nIf not provided, it will fall back to the index of the panel.\nIt is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server."
+    },
     "className": {
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
@@ -14,23 +18,20 @@
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
-    },
-    "value": {
-      "type": "any",
-      "description": "The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.\nIf not provided, it will fall back to the index of the panel.\nIt is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server."
     }
   },
   "dataAttributes": {
+    "data-orientation": {
+      "description": "Indicates the orientation of the tabs.",
+      "type": "'horizontal' | 'vertical'"
+    },
     "data-activation-direction": {
       "description": "Indicates the direction of the activation (based on the previous selected tab).",
       "type": "'left' | 'right' | 'up' | 'down' | 'none'"
     },
     "data-hidden": {
       "description": "Present when the panel is hidden."
-    },
-    "data-orientation": {
-      "description": "Indicates the orientation of the tabs.",
-      "type": "'horizontal' | 'vertical'"
     }
-  }
+  },
+  "cssVariables": {}
 }
