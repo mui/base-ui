@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { FloatingNode, useFloatingNodeId } from '@floating-ui/react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuPositioner } from './useMenuPositioner';
@@ -142,7 +142,7 @@ export namespace MenuPositioner {
      */
     open: boolean;
     side: Side;
-    align: 'start' | 'end' | 'center';
+    align: Align;
     anchorHidden: boolean;
   }
 
@@ -158,7 +158,6 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
   // └─────────────────────────────────────────────────────────────────────┘
   /**
    * How to align the popup relative to the specified side.
-   * @default 'center'
    */
   align: PropTypes.oneOf(['center', 'end', 'start']),
   /**

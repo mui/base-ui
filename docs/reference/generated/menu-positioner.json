@@ -4,7 +4,6 @@
   "props": {
     "align": {
       "type": "'start' | 'center' | 'end'",
-      "default": "'center'",
       "description": "How to align the popup relative to the specified side."
     },
     "alignOffset": {

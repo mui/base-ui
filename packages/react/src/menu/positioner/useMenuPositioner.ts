@@ -106,7 +106,6 @@ export namespace useMenuPositioner {
     sideOffset?: number;
     /**
      * How to align the popup relative to the specified side.
-     * @default 'center'
      */
     align?: 'start' | 'end' | 'center';
     /**
