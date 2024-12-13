@@ -624,9 +624,7 @@ describe('<Menu.Root />', () => {
       const outsideInput = screen.getByTestId('outside-input');
       const outsideButton = screen.getByTestId('outside-button');
 
-      // eslint-disable-next-line testing-library/no-node-access
       expect(window.getComputedStyle(outsideInput).pointerEvents).to.equal('none');
-      // eslint-disable-next-line testing-library/no-node-access
       expect(window.getComputedStyle(outsideButton).pointerEvents).to.equal('none');
     });
 
