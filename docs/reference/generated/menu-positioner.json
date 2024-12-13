@@ -51,7 +51,6 @@
     },
     "side": {
       "type": "'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
-      "default": "'bottom'",
       "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions."
     },
     "sideOffset": {

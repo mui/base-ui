@@ -29,7 +29,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     className,
     render,
     keepMounted = false,
-    side = 'bottom',
+    side,
     align = 'center',
     sideOffset = 0,
     alignOffset = 0,
@@ -40,10 +40,22 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     ...otherProps
   } = props;
 
-  const { open, floatingRootContext, setPositionerElement, itemDomElements, itemLabels, mounted } =
-    useMenuRootContext();
+  const {
+    open,
+    floatingRootContext,
+    setPositionerElement,
+    itemDomElements,
+    itemLabels,
+    mounted,
+    nested,
+  } = useMenuRootContext();
 
   const nodeId = useFloatingNodeId();
+
+  let computedSide = side ?? 'bottom';
+  if (nested) {
+    computedSide = side ?? 'inline-end';
+  }
 
   const positioner = useMenuPositioner({
     anchor,
@@ -51,7 +63,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     positionMethod,
     open,
     mounted,
-    side,
+    side: computedSide,
     sideOffset,
     align,
     alignOffset,
@@ -223,7 +235,6 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
   /**
    * Which side of the anchor element to align the popup against.
    * May automatically change to avoid collisions.
-   * @default 'bottom'
    */
   side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
