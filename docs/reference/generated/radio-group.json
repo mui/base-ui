@@ -41,5 +41,10 @@
       "type": "any",
       "description": "The controlled value of the radio item that should be currently selected.\n\nTo render an uncontrolled radio group, use the `defaultValue` prop instead."
     }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the radio group is disabled."
+    }
   }
 }

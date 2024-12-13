@@ -45,5 +45,16 @@
       "default": "null",
       "description": "The current value. The component is indeterminate when value is `null`."
     }
+  },
+  "dataAttributes": {
+    "data-complete": {
+      "description": "Present when the progress has completed."
+    },
+    "data-indeterminate": {
+      "description": "Present when the progress is in interminate state."
+    },
+    "data-progressing": {
+      "description": "Present while the progress is progressing."
+    }
   }
 }
