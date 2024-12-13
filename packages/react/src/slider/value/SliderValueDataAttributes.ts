@@ -1,4 +1,4 @@
-export enum SliderOutputDataAttributes {
+export enum SliderValueDataAttributes {
   /**
    * Present while the user is dragging.
    */
