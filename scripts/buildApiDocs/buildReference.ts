@@ -10,6 +10,7 @@ const TEMP_PROP_DEFS_GLOB = join(process.cwd(), 'docs/reference/temp/components/
 const TEMP_DESCRIPTIONS_GLOB = join(process.cwd(), 'docs/reference/temp/translations/**/*.json');
 const COMMON_OVERRIDES_JSON = join(process.cwd(), 'docs/reference/overrides/common.json');
 const OVERRIDES_GLOB = join(process.cwd(), 'docs/reference/overrides/*.json');
+const GENERATED_GLOB = join(process.cwd(), 'docs/reference/generated/*.json');
 const ORDER_JSON = join(process.cwd(), 'docs/reference/order.json');
 const FINAL_DIR = join(process.cwd(), 'docs/reference/generated');
 
@@ -18,12 +19,26 @@ interface CommonOverrides {
   types: Record<string, string>;
 }
 
-export async function buildReference() {
-  if (existsSync(FINAL_DIR)) {
-    rmSync(FINAL_DIR, { recursive: true });
-  }
+export async function buildReference(grep: RegExp | null = null) {
+  if (grep == null) {
+    if (existsSync(FINAL_DIR)) {
+      rmSync(FINAL_DIR, { recursive: true });
+    }
 
-  mkdirSync(FINAL_DIR);
+    mkdirSync(FINAL_DIR);
+  } else {
+    if (!existsSync(FINAL_DIR)) {
+      mkdirSync(FINAL_DIR);
+    }
+    // the targeted files are all lowercased
+    const caseInsensitiveGrep = new RegExp(grep, 'i');
+
+    for (const pathname of globSync(GENERATED_GLOB)) {
+      if (caseInsensitiveGrep.test(pathname)) {
+        rmSync(pathname);
+      }
+    }
+  }
 
   const order: Record<string, string[]> = JSON.parse(readFileSync(ORDER_JSON, 'utf-8'));
 
