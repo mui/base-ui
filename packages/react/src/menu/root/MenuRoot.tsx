@@ -59,6 +59,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     openOnHover,
     delay,
     onTypingChange,
+    modal,
   });
 
   const context: MenuRootContext = React.useMemo(

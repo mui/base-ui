@@ -20,6 +20,7 @@ import { useControlled } from '../../utils/useControlled';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
+import { useScrollLock } from '../../utils/useScrollLock';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -37,6 +38,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     delay,
     openOnHover,
     onTypingChange,
+    modal,
   } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -61,6 +63,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   }, []);
 
   const allowMouseUpTriggerRef = React.useRef(false);
+
+  useScrollLock(modal && open, triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -265,6 +269,7 @@ export namespace useMenuRoot {
      * Callback fired when the user begins or finishes typing (for typeahead search).
      */
     onTypingChange: (typing: boolean) => void;
+    modal: boolean;
   }
 
   export interface ReturnValue {
