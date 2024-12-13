@@ -1,5 +1,9 @@
 // @ts-check
+/**
+ * @import {Nodes} from 'hast'
+ */
 import { createMdxElement } from 'docs/src/mdx/createMdxElement.mjs';
+import { toString } from 'hast-util-to-string';
 
 const ROOT = 'QuickNav.Root';
 const TITLE = 'QuickNav.Title';
@@ -29,7 +33,7 @@ export function rehypeQuickNav() {
       children: toc.flatMap(getNodeFromEntry).filter(Boolean),
     });
 
-    if (!toc.length) {
+    if (!toc?.length) {
       return;
     }
 
@@ -37,13 +41,12 @@ export function rehypeQuickNav() {
 
     /** @type {{ tagName?: string; name?: string; attributes?: Record<string, string>[] }[]} */
     const contentNodes = tree.children.filter(
-      /** @param {{ type?: string; value?: string;  }} child */
+      /** @param {Nodes} child */
       (child) => {
         return (
-          // Filter out import statements
-          child.type !== 'mdxjsEsm' &&
-          // Filter out plain line breaks
-          child.value !== '\n'
+          // Filter out nodes that don't produce text
+          (('children' in child || 'value' in child) && toString(child).trim()) ||
+          ('name' in child && child.name === 'Demo')
         );
       },
     );
