@@ -221,8 +221,8 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    */
   sideOffset: PropTypes.number,
   /**
-   * If `true`, allow the preview card to remain in stuck view while the anchor element is scrolled
-   * out of view.
+   * Whether to maintain the popup in the viewport after
+   * the anchor element is scrolled out of view.
    * @default false
    */
   sticky: PropTypes.bool,

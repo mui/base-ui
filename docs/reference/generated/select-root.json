@@ -15,7 +15,7 @@
     "defaultValue": {
       "type": "any",
       "default": "null",
-      "description": "The default value of the select."
+      "description": "The uncontrolled value of the select when it’s initially rendered.\n\nTo render a controlled select, use the `value` prop instead."
     },
     "disabled": {
       "type": "boolean",
@@ -32,11 +32,11 @@
       "description": "Identifies the field when a form is submitted."
     },
     "onOpenChange": {
-      "type": "function",
+      "type": "(open, event) => void",
       "description": "Event handler called when the select menu is opened or closed."
     },
     "onValueChange": {
-      "type": "function",
+      "type": "(value, event) => void",
       "description": "Callback fired when the value of the select changes. Use when controlled."
     },
     "open": {

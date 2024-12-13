@@ -57,5 +57,9 @@ export function TableCode({ children, printWidth = 40, ...props }: TableCodeProp
     children = unionGroups.flat();
   }
 
-  return <Code {...props}>{children}</Code>;
+  return (
+    <Code data-table-code="" {...props}>
+      {children}
+    </Code>
+  );
 }

@@ -23,7 +23,13 @@ export function DemoSourceBrowser({
   const lineBreaks = selectedFile.content.match(/\n/g) ?? [];
 
   if (lineBreaks.length < collapsibleLinesThreshold) {
-    return <DemoCodeBlock data-open />;
+    return (
+      <BaseDemo.SourceBrowser
+        tabIndex={-1}
+        onKeyDown={handleSelectAll}
+        className="DemoCodeBlockContainer"
+      />
+    );
   }
 
   return (
@@ -36,31 +42,19 @@ export function DemoSourceBrowser({
       <Collapsible.Panel
         keepMounted
         hidden={false}
-        aria-hidden={!collapsibleOpen}
-        render={<DemoCodeBlock />}
-      />
+        tabIndex={-1}
+        onKeyDown={handleSelectAll}
+        className="DemoCodeBlockContainer"
+      >
+        <BaseDemo.SourceBrowser aria-hidden={!collapsibleOpen} />
+      </Collapsible.Panel>
     </div>
   );
 }
 
-function DemoCodeBlock(props: React.ComponentProps<typeof BaseDemo.SourceBrowser>) {
-  return (
-    <BaseDemo.SourceBrowser
-      {...props}
-      className="DemoCodeBlockContainer"
-      // Select code block contents on Ctrl/Cmd + A
-      tabIndex={-1}
-      onKeyDown={(event) => {
-        if (
-          event.key === 'a' &&
-          (event.metaKey || event.ctrlKey) &&
-          !event.shiftKey &&
-          !event.altKey
-        ) {
-          event.preventDefault();
-          window.getSelection()?.selectAllChildren(event.currentTarget);
-        }
-      }}
-    />
-  );
+function handleSelectAll(event: React.KeyboardEvent) {
+  if (event.key === 'a' && (event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey) {
+    event.preventDefault();
+    window.getSelection()?.selectAllChildren(event.currentTarget);
+  }
 }

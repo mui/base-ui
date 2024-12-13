@@ -13,7 +13,7 @@
     },
     "label": {
       "type": "string",
-      "description": "A text representation of the menu item's content.\nUsed for keyboard text navigation matching."
+      "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",

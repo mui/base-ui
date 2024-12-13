@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Link } from 'docs/src/components/Link';
 import { ArrowRightIcon } from 'docs/src/components/icons/ArrowRightIcon';
 import { Logo } from 'docs/src/components/Logo';
-import { ExternalLinkIcon } from 'docs/src/components/icons/ExternalLinkIcon';
 import RootLayout from './(public)/layout';
 import './not-found.css';
 
@@ -25,11 +24,8 @@ export default function NotFound() {
               Documentation <ArrowRightIcon />
             </Link>
 
-            <Link
-              className="-m-1 inline-flex items-center gap-1 p-1"
-              href="http://github.com/mui/base-ui"
-            >
-              GitHub <ExternalLinkIcon />
+            <Link className="-m-1 p-1" href="http://github.com/mui/base-ui">
+              GitHub
             </Link>
           </div>
         </div>

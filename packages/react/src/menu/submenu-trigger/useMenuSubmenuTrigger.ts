@@ -75,7 +75,7 @@ export namespace useSubmenuTrigger {
      */
     setTriggerElement: (element: HTMLElement | null) => void;
     /**
-     * If `true`, the menu item will listen for mouseup events and treat them as clicks.
+     * Whether to treat mouseup events as clicks.
      */
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     /**

@@ -27,6 +27,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     defaultValue,
     disabled: disabledProp = false,
     id,
+    format,
     largeStep,
     render,
     max,
@@ -97,9 +98,10 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   const contextValue = React.useMemo(
     () => ({
       ...slider,
+      format,
       state,
     }),
-    [slider, state],
+    [slider, format, state],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -129,7 +131,7 @@ export namespace SliderRoot {
      */
     disabled: boolean;
     /**
-     * If `true`, a thumb is being dragged by a pointer.
+     * Whether the thumb is currently being dragged.
      */
     dragging: boolean;
     max: number;
@@ -172,7 +174,9 @@ export namespace SliderRoot {
       >,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue' | 'onChange' | 'values'> {
     /**
-     * The default value of the slider. Use when the component is not controlled.
+     * The uncontrolled value of the slider when it’s initially rendered.
+     *
+     * To render a controlled slider, use the `value` prop instead.
      */
     defaultValue?: number | ReadonlyArray<number>;
     /**
@@ -180,6 +184,10 @@ export namespace SliderRoot {
      * @default false
      */
     disabled?: boolean;
+    /**
+     * Options to format the input value.
+     */
+    format?: Intl.NumberFormatOptions;
     /**
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
@@ -210,7 +218,9 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default value of the slider. Use when the component is not controlled.
+   * The uncontrolled value of the slider when it’s initially rendered.
+   *
+   * To render a controlled slider, use the `value` prop instead.
    */
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.number), PropTypes.number]),
   /**
@@ -218,6 +228,28 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * Options to format the input value.
+   */
+  format: PropTypes.shape({
+    compactDisplay: PropTypes.oneOf(['long', 'short']),
+    currency: PropTypes.string,
+    currencyDisplay: PropTypes.oneOf(['code', 'name', 'narrowSymbol', 'symbol']),
+    currencySign: PropTypes.oneOf(['accounting', 'standard']),
+    localeMatcher: PropTypes.oneOf(['best fit', 'lookup']),
+    maximumFractionDigits: PropTypes.number,
+    maximumSignificantDigits: PropTypes.number,
+    minimumFractionDigits: PropTypes.number,
+    minimumIntegerDigits: PropTypes.number,
+    minimumSignificantDigits: PropTypes.number,
+    notation: PropTypes.oneOf(['compact', 'engineering', 'scientific', 'standard']),
+    numberingSystem: PropTypes.string,
+    signDisplay: PropTypes.oneOf(['always', 'auto', 'exceptZero', 'never']),
+    style: PropTypes.oneOf(['currency', 'decimal', 'percent', 'unit']),
+    unit: PropTypes.string,
+    unitDisplay: PropTypes.oneOf(['long', 'narrow', 'short']),
+    useGrouping: PropTypes.bool,
+  }),
   /**
    * @ignore
    */

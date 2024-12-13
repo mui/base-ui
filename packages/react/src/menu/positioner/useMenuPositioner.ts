@@ -131,8 +131,8 @@ export namespace useMenuPositioner {
      */
     keepMounted?: boolean;
     /**
-     * If `true`, allow the Menu to remain in stuck view while the anchor element is scrolled out
-     * of view.
+     * Whether to maintain the menu in the viewport after
+     * the anchor element is scrolled out of view.
      * @default false
      */
     sticky?: boolean;

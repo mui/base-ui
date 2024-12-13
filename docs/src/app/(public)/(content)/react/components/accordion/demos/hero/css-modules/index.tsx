@@ -38,7 +38,7 @@ export default function ExampleAccordion() {
       <Accordion.Item className={styles.Item}>
         <Accordion.Header className={styles.Header}>
           <Accordion.Trigger className={styles.Trigger}>
-            Can I use it for my next project?
+            Can I use it for my project?
             <PlusIcon className={styles.TriggerIcon} />
           </Accordion.Trigger>
         </Accordion.Header>

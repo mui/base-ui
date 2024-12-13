@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useFloatingTree, useListItem } from '@floating-ui/react';
+import { useFloatingTree } from '@floating-ui/react';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -9,6 +9,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useMenuSubmenuTrigger } from './useMenuSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 
 /**
  * A menu item that opens a submenu.
@@ -37,7 +38,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   }
 
   const { activeIndex, getItemProps } = parentContext;
-  const item = useListItem();
+  const item = useCompositeListItem();
 
   const highlighted = activeIndex === item.index;
 
@@ -84,10 +85,12 @@ namespace MenuSubmenuTrigger {
      */
     disabled?: boolean;
     /**
-     * A text representation of the menu item's content.
-     * Used for keyboard text navigation matching.
+     * Overrides the text label to use when the item is matched during keyboard text navigation.
      */
     label?: string;
+    /**
+     * @ignore
+     */
     id?: string;
   }
 
@@ -128,8 +131,7 @@ MenuSubmenuTrigger.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**

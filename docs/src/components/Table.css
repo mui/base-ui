@@ -50,7 +50,7 @@
         pointer-events: none;
         top: 1px;
         bottom: 1px;
-        right: 0;
+        right: -1px; /* Browsers may miss half a pixel due to subpixel table cell widths */
         width: 1.25rem;
         background-image: linear-gradient(to right, transparent, var(--color-content));
         animation: table-cell-overscroll-overlay 500ms;

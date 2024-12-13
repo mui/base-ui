@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
+import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
 import { useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 
 const InnerMenuItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuItemProps,
@@ -84,7 +85,7 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the menu will close when the menu item is clicked.
+   * Whether to close the menu when the item is clicked.
    *
    * @default true
    */
@@ -99,12 +100,11 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    */
   highlighted: PropTypes.bool.isRequired,
   /**
-   * The id of the menu item.
+   * @ignore
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
@@ -151,7 +151,7 @@ const MenuItem = React.forwardRef(function MenuItem(
   const { id: idProp, label, ...other } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
-  const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
+  const listItem = useCompositeListItem({ label });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
   const { getItemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
@@ -207,16 +207,15 @@ namespace MenuItem {
      */
     disabled?: boolean;
     /**
-     * A text representation of the menu item's content.
-     * Used for keyboard text navigation matching.
+     * Overrides the text label to use when the item is matched during keyboard text navigation.
      */
     label?: string;
     /**
-     * The id of the menu item.
+     * @ignore
      */
     id?: string;
     /**
-     * If `true`, the menu will close when the menu item is clicked.
+     * Whether to close the menu when the item is clicked.
      *
      * @default true
      */
@@ -234,7 +233,7 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the menu will close when the menu item is clicked.
+   * Whether to close the menu when the item is clicked.
    *
    * @default true
    */
@@ -245,12 +244,11 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * The id of the menu item.
+   * @ignore
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**

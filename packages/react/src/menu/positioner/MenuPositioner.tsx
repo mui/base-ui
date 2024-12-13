@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingList, FloatingNode, useFloatingNodeId } from '@floating-ui/react';
+import { FloatingNode, useFloatingNodeId } from '@floating-ui/react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { Side } from '../../utils/useAnchorPositioning';
@@ -11,6 +11,7 @@ import { useMenuPositioner } from './useMenuPositioner';
 import { HTMLElementType } from '../../utils/proptypes';
 import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { CompositeList } from '../../composite/list/CompositeList';
 
 /**
  * Positions the menu popup against the trigger.
@@ -118,9 +119,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   return (
     <MenuPositionerContext.Provider value={contextValue}>
       <FloatingNode id={nodeId}>
-        <FloatingList elementsRef={itemDomElements} labelsRef={itemLabels}>
+        <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
           {renderElement()}
-        </FloatingList>
+        </CompositeList>
       </FloatingNode>
     </MenuPositionerContext.Provider>
   );
@@ -240,8 +241,8 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   sideOffset: PropTypes.number,
   /**
-   * If `true`, allow the Menu to remain in stuck view while the anchor element is scrolled out
-   * of view.
+   * Whether to maintain the menu in the viewport after
+   * the anchor element is scrolled out of view.
    * @default false
    */
   sticky: PropTypes.bool,

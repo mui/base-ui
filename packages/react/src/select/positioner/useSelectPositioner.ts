@@ -12,12 +12,6 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 
-/**
- *
- * API:
- *
- * - [useSelectPositioner API](https://mui.com/base-ui/api/use-select-positioner/)
- */
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
@@ -156,8 +150,8 @@ export namespace useSelectPositioner {
      */
     keepMounted?: boolean;
     /**
-     * If `true`, allow the Select to remain in stuck view while the anchor element is scrolled out
-     * of view.
+     * Whether to maintain the select menu in the viewport after
+     * the anchor element is scrolled out of view.
      * @default false
      */
     sticky?: boolean;
@@ -177,7 +171,7 @@ export namespace useSelectPositioner {
 
   export interface Parameters extends SharedParameters {
     /**
-     * If `true`, the Select is mounted.
+     * Whether the Select is mounted.
      */
     mounted: boolean;
     /**

@@ -89,7 +89,7 @@ namespace MenuPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
-     * The id of the popup element.
+     * @ignore
      */
     id?: string;
   }
@@ -121,7 +121,7 @@ MenuPopup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The id of the popup element.
+   * @ignore
    */
   id: PropTypes.string,
   /**

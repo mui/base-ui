@@ -3,12 +3,6 @@ import { useMenuItem } from '../item/useMenuItem';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
-/**
- *
- * API:
- *
- * - [useMenuRadioItem API](https://mui.com/base-ui/api/use-menu-radio-item/)
- */
 export function useMenuRadioItem(
   params: useMenuRadioItem.Parameters,
 ): useMenuRadioItem.ReturnValue {

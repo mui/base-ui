@@ -77,7 +77,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
 export namespace useMenuItem {
   export interface Parameters {
     /**
-     * If `true`, the menu will close when the menu item is clicked.
+     * Whether to close the menu when the item is clicked.
      */
     closeOnClick: boolean;
     /**
@@ -101,7 +101,7 @@ export namespace useMenuItem {
      */
     ref?: React.Ref<Element>;
     /**
-     * If `true`, the menu item will listen for mouseup events and treat them as clicks.
+     * Whether to treat mouseup events as clicks.
      */
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     /**

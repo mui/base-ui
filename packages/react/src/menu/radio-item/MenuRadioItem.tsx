@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
+import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
 import { useMenuRadioItem } from './useMenuRadioItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -11,6 +11,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/styleHookMapping';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 
 const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuRadioItemProps,
@@ -91,7 +92,7 @@ InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the menu will close when the menu item is clicked.
+   * Whether to close the menu when the item is clicked.
    *
    * @default true
    */
@@ -106,12 +107,11 @@ InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
    */
   highlighted: PropTypes.bool.isRequired,
   /**
-   * The id of the menu item.
+   * @ignore
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
@@ -164,7 +164,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const { id: idProp, value, label, disabled = false, ...other } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
-  const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
+  const listItem = useCompositeListItem({ label });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
   const { getItemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
@@ -251,16 +251,15 @@ namespace MenuRadioItem {
      */
     disabled?: boolean;
     /**
-     * A text representation of the menu item's content.
-     * Used for keyboard text navigation matching.
+     * Overrides the text label to use when the item is matched during keyboard text navigation.
      */
     label?: string;
     /**
-     * The id of the menu item.
+     * @ignore
      */
     id?: string;
     /**
-     * If `true`, the menu will close when the menu item is clicked.
+     * Whether to close the menu when the item is clicked.
      *
      * @default true
      */
@@ -278,7 +277,7 @@ MenuRadioItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the menu will close when the menu item is clicked.
+   * Whether to close the menu when the item is clicked.
    *
    * @default true
    */
@@ -289,12 +288,11 @@ MenuRadioItem.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * The id of the menu item.
+   * @ignore
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**

@@ -106,7 +106,7 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The delay in milliseconds until the tooltip popup is closed.
+   * How long to wait before closing the tooltip. Specified in milliseconds.
    * @default 0
    */
   closeDelay: PropTypes.number,
@@ -118,7 +118,7 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The delay in milliseconds until the tooltip popup is opened.
+   * How long to wait before opening the tooltip. Specified in milliseconds.
    * @default 600
    */
   delay: PropTypes.number,

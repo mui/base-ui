@@ -7,14 +7,14 @@ import { ThickCheckIcon } from './icons/ThickCheckIcon';
 export const Root = Select.Root;
 
 interface TriggerProps extends Select.Trigger.Props {
-  render: NonNullable<Select.Trigger.Props['render']>;
   ssrFallback?: string;
   placeholder?: Select.Value.Props['placeholder'];
 }
 
 export function Trigger({ className, ssrFallback, placeholder, ...props }: TriggerProps) {
   return (
-    <Select.Trigger {...props}>
+    // Implicitly relying on <GhostButton>, keep it in sync
+    <Select.Trigger data-layout="text" className="GhostButton" {...props}>
       <Select.Value placeholder={placeholder}>{(value) => value || ssrFallback}</Select.Value>
       <Select.Icon render={<ChevronDownIcon className="-ml-0.5" />} />
     </Select.Trigger>
