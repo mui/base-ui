@@ -18,15 +18,20 @@ export function TableCode({ children, printWidth = 40, ...props }: TableCodeProp
     let groupIndex = 0;
     parts.forEach((child, index) => {
       if (index === 0) {
-        unionGroups.push([child]);
-        return;
+        unionGroups.push([]);
       }
 
       const str = getChildrenText(child);
 
-      if (str.trim() === '|' && depth < 1) {
-        groupIndex += 1;
+      // Solo function return values shouldn't be broken up, e.g. in:
+      // `(value) => string | string[] | null | Promise`
+      if (str.includes('=>') && depth < 1) {
+        depth += 1;
+      }
+
+      if (str.trim() === '|' && depth < 1 && index !== 0) {
         unionGroups.push([]);
+        groupIndex += 1;
         return;
       }
 
