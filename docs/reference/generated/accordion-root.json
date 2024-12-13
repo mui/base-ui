@@ -2,60 +2,61 @@
   "name": "AccordionRoot",
   "description": "Groups all parts of the accordion.\nRenders a `<div>` element.",
   "props": {
-    "className": {
-      "type": "string | (state) => string",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
-    },
     "defaultValue": {
       "type": "array",
       "description": "The uncontrolled value of the item(s) that should be initially expanded.\n\nTo render a controlled accordion, use the `value` prop instead."
     },
-    "disabled": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the component should ignore user interaction."
+    "value": {
+      "type": "array",
+      "description": "The controlled value of the item(s) that should be expanded.\n\nTo render an uncontrolled accordion, use the `defaultValue` prop instead."
+    },
+    "onValueChange": {
+      "type": "(value) => void",
+      "description": "Event handler called when an accordion item is expanded or collapsed.\nProvides the new value as an argument."
     },
     "hiddenUntilFound": {
       "type": "boolean",
       "default": "false",
       "description": "Allows the browser’s built-in page search to find and expand the panel contents.\n\nOverrides the `keepMounted` prop and uses `hidden=\"until-found\"`\nto hide the element without removing it from the DOM."
     },
-    "keepMounted": {
+    "openMultiple": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether multiple items can be open at the same time."
+    },
+    "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to keep the element in the DOM while the panel is closed.\nThis prop is ignored when `hiddenUntilFound` is used."
+      "description": "Whether the component should ignore user interaction."
     },
     "loop": {
       "type": "boolean",
       "default": "true",
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
-    "onValueChange": {
-      "type": "(value) => void",
-      "description": "Event handler called when an accordion item is expanded or collapsed.\nProvides the new value as an argument."
-    },
-    "openMultiple": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Whether multiple items can be open at the same time."
-    },
     "orientation": {
       "type": "'horizontal' | 'vertical'",
       "default": "'vertical'",
       "description": "The visual orientation of the accordion.\nControls whether roving focus uses left/right or up/down arrow keys."
     },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to keep the element in the DOM while the panel is closed.\nThis prop is ignored when `hiddenUntilFound` is used."
+    },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
-    },
-    "value": {
-      "type": "array",
-      "description": "The controlled value of the item(s) that should be expanded.\n\nTo render an uncontrolled accordion, use the `defaultValue` prop instead."
     }
   },
   "dataAttributes": {
     "data-disabled": {
       "description": "Present when the accordion is disabled."
     }
-  }
+  },
+  "cssVariables": {}
 }

@@ -2,6 +2,14 @@
   "name": "MenuItem",
   "description": "An individual interactive item in the menu.\nRenders a `<div>` element.",
   "props": {
+    "label": {
+      "type": "string",
+      "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
+    },
+    "onClick": {
+      "type": "(event) => void",
+      "description": "The click handler for the menu item."
+    },
     "closeOnClick": {
       "type": "boolean",
       "default": "true",
@@ -11,14 +19,8 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
-    },
-    "label": {
-      "type": "string",
-      "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
-    },
-    "onClick": {
-      "type": "(event) => void",
-      "description": "The click handler for the menu item."
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }

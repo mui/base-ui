@@ -17,17 +17,18 @@
     }
   },
   "dataAttributes": {
-    "data-closed": {
-      "description": "Present when the select is closed."
-    },
-    "data-ending-style": {
-      "description": "Present when the select is animating out."
-    },
     "data-open": {
       "description": "Present when the select is open."
     },
+    "data-closed": {
+      "description": "Present when the select is closed."
+    },
     "data-starting-style": {
       "description": "Present when the select is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the select is animating out."
     }
-  }
+  },
+  "cssVariables": {}
 }

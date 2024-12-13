@@ -20,5 +20,6 @@
     "data-visible": {
       "description": "Present when the arrow is visible."
     }
-  }
+  },
+  "cssVariables": {}
 }

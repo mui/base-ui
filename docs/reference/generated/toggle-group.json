@@ -2,13 +2,22 @@
   "name": "ToggleGroup",
   "description": "Provides a shared state to a series of toggle buttons.",
   "props": {
-    "className": {
-      "type": "string | (state) => string",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
-    },
     "defaultValue": {
       "type": "array",
       "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s.\nThis is the uncontrolled counterpart of `value`."
+    },
+    "value": {
+      "type": "array",
+      "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s\nThis is the controlled counterpart of `defaultValue`."
+    },
+    "onValueChange": {
+      "type": "function(groupValue: Array<any>, event: Event) => void",
+      "description": "Callback fired when the pressed states of the ToggleGroup changes."
+    },
+    "toggleMultiple": {
+      "type": "boolean",
+      "default": "false",
+      "description": "When `false` only one item in the group can be pressed. If any item in\nthe group becomes pressed, the others will become unpressed.\nWhen `true` multiple items can be pressed."
     },
     "disabled": {
       "type": "boolean",
@@ -20,34 +29,26 @@
       "default": "true",
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
-    "onValueChange": {
-      "type": "function(groupValue: Array<any>, event: Event) => void",
-      "description": "Callback fired when the pressed states of the ToggleGroup changes."
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
-    },
-    "toggleMultiple": {
-      "type": "boolean",
-      "default": "false",
-      "description": "When `false` only one item in the group can be pressed. If any item in\nthe group becomes pressed, the others will become unpressed.\nWhen `true` multiple items can be pressed."
-    },
-    "value": {
-      "type": "array",
-      "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s\nThis is the controlled counterpart of `defaultValue`."
     }
   },
   "dataAttributes": {
+    "data-orientation": {
+      "description": "Indicates the orientation of the toggle group.",
+      "type": "'horizontal' | 'vertical'"
+    },
     "data-disabled": {
       "description": "Present when the toggle group is disabled."
     },
     "data-multiple": {
       "description": "Present when the toggle group allows multiple buttons to be in the pressed state at the same time."
-    },
-    "data-orientation": {
-      "description": "Indicates the orientation of the toggle group.",
-      "type": "'horizontal' | 'vertical'"
     }
-  }
+  },
+  "cssVariables": {}
 }
