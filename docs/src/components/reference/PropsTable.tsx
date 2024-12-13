@@ -17,8 +17,10 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
       <Table.Head>
         <Table.Row>
           <Table.ColumnHeader className="w-full xs:w-48 sm:w-56 md:w-1/3">Prop</Table.ColumnHeader>
-          <Table.ColumnHeader className="max-xs:hidden xs:w-full md:w-1/2">Type</Table.ColumnHeader>
-          <Table.ColumnHeader className="max-md:hidden md:w-1/6">Default</Table.ColumnHeader>
+          <Table.ColumnHeader className="max-xs:hidden xs:w-full md:w-7/15">
+            Type
+          </Table.ColumnHeader>
+          <Table.ColumnHeader className="max-md:hidden md:w-1/5">Default</Table.ColumnHeader>
           <Table.ColumnHeader className="w-10" aria-label="Description" />
         </Table.Row>
       </Table.Head>
