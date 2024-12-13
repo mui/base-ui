@@ -97,7 +97,6 @@ export namespace useMenuPositioner {
     /**
      * Which side of the anchor element to align the popup against.
      * May automatically change to avoid collisions.
-     * @default 'bottom'
      */
     side?: Side;
     /**
@@ -107,7 +106,6 @@ export namespace useMenuPositioner {
     sideOffset?: number;
     /**
      * How to align the popup relative to the specified side.
-     * @default 'center'
      */
     align?: 'start' | 'end' | 'center';
     /**
