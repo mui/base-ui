@@ -52,9 +52,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const nodeId = useFloatingNodeId();
 
-  let computedSide = side ?? 'bottom';
-  if (nested) {
-    computedSide = side ?? 'inline-end';
+  let computedSide = side;
+  if (!side) {
+    computedSide = nested ? 'inline-end' : 'bottom';
   }
 
   const positioner = useMenuPositioner({
