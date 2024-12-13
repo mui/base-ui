@@ -366,7 +366,7 @@ export namespace useSelectRoot {
      */
     transitionStatus?: TransitionStatus;
     /**
-     * Whether the select is modal.
+     * Whether the select should prevent outside clicks and lock page scroll when open.
      * @default true
      */
     modal?: boolean;

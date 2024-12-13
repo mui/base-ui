@@ -145,7 +145,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * Whether the select is modal.
+   * Whether the select should prevent outside clicks and lock page scroll when open.
    * @default true
    */
   modal: PropTypes.bool,

@@ -113,7 +113,7 @@ namespace MenuRoot {
      */
     loop?: boolean;
     /**
-     * Whether the menu is modal.
+     * Whether the menu should prevent outside clicks and lock page scroll when open.
      * @default true
      */
     modal?: boolean;
@@ -199,7 +199,7 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   loop: PropTypes.bool,
   /**
-   * Whether the menu is modal.
+   * Whether the menu should prevent outside clicks and lock page scroll when open.
    * @default true
    */
   modal: PropTypes.bool,
