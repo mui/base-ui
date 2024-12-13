@@ -9,7 +9,7 @@ import { PortalContext } from '../../portal/PortalContext';
 
 const inertStyle = `
   [data-floating-ui-inert] {
-    pointer-events: none;
+    pointer-events: none !important;
   }
 `;
 
