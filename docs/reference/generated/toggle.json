@@ -40,5 +40,10 @@
       "type": "string",
       "description": "A unique string that identifies the component when used\ninside a ToggleGroup."
     }
+  },
+  "dataAttributes": {
+    "data-pressed": {
+      "description": "Present when the toggle button is pressed."
+    }
   }
 }
