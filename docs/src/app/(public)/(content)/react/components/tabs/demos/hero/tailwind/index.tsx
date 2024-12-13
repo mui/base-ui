@@ -6,19 +6,19 @@ export default function ExampleScrollArea() {
     <Tabs.Root className="rounded-md border border-gray-200" defaultValue="overview">
       <Tabs.List className="relative z-0 flex gap-1 px-1 shadow-[inset_0_-1px] shadow-gray-200">
         <Tabs.Tab
-          className="flex h-8 items-center justify-center border-0 px-2 text-xs font-medium text-gray-600 outline-0 select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-gray-900 focus-visible:relative focus-visible:before:absolute focus-visible:before:outline-2 data-[selected]:text-gray-900"
+          className="flex h-8 items-center justify-center border-0 px-2 text-sm font-medium text-gray-600 outline-0 select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-gray-900 focus-visible:relative focus-visible:before:absolute focus-visible:before:outline-2 data-[selected]:text-gray-900"
           value="overview"
         >
           Overview
         </Tabs.Tab>
         <Tabs.Tab
-          className="flex h-8 items-center justify-center border-0 px-2 text-xs font-medium text-gray-600 outline-0 select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-gray-900 focus-visible:relative focus-visible:before:absolute focus-visible:before:outline-2 data-[selected]:text-gray-900"
+          className="flex h-8 items-center justify-center border-0 px-2 text-sm font-medium text-gray-600 outline-0 select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-gray-900 focus-visible:relative focus-visible:before:absolute focus-visible:before:outline-2 data-[selected]:text-gray-900"
           value="projects"
         >
           Projects
         </Tabs.Tab>
         <Tabs.Tab
-          className="flex h-8 items-center justify-center border-0 px-2 text-xs font-medium text-gray-600 outline-0 select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-gray-900 focus-visible:relative focus-visible:before:absolute focus-visible:before:outline-2 data-[selected]:text-gray-900"
+          className="flex h-8 items-center justify-center border-0 px-2 text-sm font-medium text-gray-600 outline-0 select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-gray-900 focus-visible:relative focus-visible:before:absolute focus-visible:before:outline-2 data-[selected]:text-gray-900"
           value="account"
         >
           Account
