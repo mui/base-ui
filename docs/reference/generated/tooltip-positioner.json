@@ -65,6 +65,21 @@
       "description": "Whether to allow the tooltip to remain stuck in view while the anchor element is scrolled out\nof view."
     }
   },
+  "dataAttributes": {
+    "data-anchor-hidden": {
+      "description": "Present when the anchor is hidden."
+    },
+    "data-open": {
+      "description": "Present when the tooltip is open."
+    },
+    "data-side": {
+      "description": "Indicates which side the tooltip is positioned relative to the trigger.",
+      "type": "'none' | 'top' | 'right' | 'bottom' | 'left'"
+    },
+    "data-unchecked": {
+      "description": "Present when the tooltip is closed."
+    }
+  },
   "cssVariables": {
     "--anchor-height": {
       "description": "The anchor's height.",
