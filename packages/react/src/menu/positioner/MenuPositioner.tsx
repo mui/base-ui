@@ -1,7 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingNode, useFloatingNodeId } from '@floating-ui/react';
+import {
+  FloatingNode,
+  useFloatingNodeId,
+  useFloatingParentNodeId,
+  useFloatingTree,
+} from '@floating-ui/react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { Side } from '../../utils/useAnchorPositioning';
@@ -48,9 +53,13 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     itemLabels,
     mounted,
     nested,
+    setOpen,
   } = useMenuRootContext();
 
+  const { events: menuEvents } = useFloatingTree()!;
+
   const nodeId = useFloatingNodeId();
+  const parentNodeId = useFloatingParentNodeId();
 
   const positioner = useMenuPositioner({
     anchor,
@@ -67,6 +76,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     collisionPadding,
     sticky,
     nodeId,
+    parentNodeId,
+    menuEvents,
+    setOpen,
   });
 
   const state: MenuPositioner.State = React.useMemo(
