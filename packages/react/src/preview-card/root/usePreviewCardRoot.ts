@@ -161,17 +161,12 @@ export namespace usePreviewCardRoot {
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
-     * Whether the preview card popup opens when the trigger is hovered after the provided `delay`.
-     * @default false
-     */
-    openOnHover?: boolean;
-    /**
-     * The delay in milliseconds until the preview card popup is opened when `openOnHover` is `true`.
+     * How long to wait before the preview card opens. Specified in milliseconds.
      * @default 600
      */
     delay?: number;
     /**
-     * The delay in milliseconds until the preview card popup is closed when `openOnHover` is `true`.
+     * How long to wait before closing the preview card. Specified in milliseconds.
      * @default 300
      */
     closeDelay?: number;

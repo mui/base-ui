@@ -10,7 +10,7 @@
     "autoFocus": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the input element is focused on mount."
+      "description": "Whether to focus the element on page load."
     },
     "className": {
       "type": "string | (state) => string",
@@ -18,12 +18,12 @@
     },
     "defaultValue": {
       "type": "number",
-      "description": "The default value of the input element. Use when the component is not controlled."
+      "description": "The uncontrolled value of the field when it’s initially rendered.\n\nTo render a controlled number field, use the `value` prop instead."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
     },
     "format": {
       "type": "Intl.NumberFormatOptions",
@@ -84,7 +84,7 @@
     },
     "value": {
       "type": "number",
-      "description": "The raw number value of the input element."
+      "description": "The raw numeric value of the field."
     }
   }
 }

@@ -63,7 +63,7 @@ const Slider = styled(BaseSlider.Root)`
   gap: 1rem;
 `;
 
-const SliderOutput = styled(BaseSlider.Output)`
+const SliderOutput = styled(BaseSlider.Value)`
   text-align: right;
 `;
 

@@ -2,11 +2,6 @@
   "name": "RadioRoot",
   "description": "Represents the radio button itself.\nRenders a `<button>` element and a hidden `<input>` beside.",
   "props": {
-    "value": {
-      "type": "any",
-      "required": true,
-      "description": "The unique identifying value of the radio in a group."
-    },
     "className": {
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
@@ -14,7 +9,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
     },
     "readOnly": {
       "type": "boolean",
@@ -29,6 +24,11 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the user must choose a value before submitting a form."
+    },
+    "value": {
+      "type": "any",
+      "required": true,
+      "description": "The unique identifying value of the radio in a group."
     }
   }
 }

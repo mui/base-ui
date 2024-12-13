@@ -8,7 +8,7 @@ export interface DialogRootContext extends useDialogRoot.ReturnValue {
    */
   hasParentDialog: boolean;
   /**
-   * Determines whether the dialog should close when clicking outside of it.
+   * Determines whether the dialog should close on outside clicks.
    * @default true
    */
   dismissible?: boolean;

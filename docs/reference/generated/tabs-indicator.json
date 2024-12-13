@@ -13,7 +13,7 @@
     "renderBeforeHydration": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the indicator will include code to render itself before React hydrates.\nThis will minimize the time the indicator is not visible after the SSR-generated content is downloaded."
+      "description": "Whether to render itself before React hydrates.\nThis minimizes the time that the indicator isn’t visible after server-side rendering."
     }
   },
   "cssVariables": {

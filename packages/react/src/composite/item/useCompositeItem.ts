@@ -8,12 +8,6 @@ export interface UseCompositeItemParameters<Metadata> {
   metadata?: Metadata;
 }
 
-/**
- *
- * API:
- *
- * - [useCompositeItem API](https://mui.com/base-ui/api/use-composite-item/)
- */
 export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Metadata> = {}) {
   const { highlightedIndex, onHighlightedIndexChange } = useCompositeRootContext();
   const { ref, index } = useCompositeListItem(params);

@@ -14,12 +14,7 @@ interface UseCompositeListItemReturnValue {
 }
 
 /**
- * Used to register a list item and its index (DOM position) in the
- * `CompositeList`.
- *
- * API:
- *
- * - [useCompositeListItem API](https://mui.com/base-ui/api/use-composite-list-item/)
+ * Used to register a list item and its index (DOM position) in the `CompositeList`.
  */
 export function useCompositeListItem<Metadata>(
   params: UseCompositeListItemParameters<Metadata> = {},

@@ -9,12 +9,6 @@ import { useBaseUiId } from '../utils/useBaseUiId';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { useField } from '../field/useField';
 
-/**
- *
- * API:
- *
- * - [useRadioGroup API](https://mui.com/base-ui/api/use-radio-group-root/)
- */
 export function useRadioGroup(params: useRadioGroup.Parameters) {
   const { disabled = false, name, defaultValue, readOnly, value: externalValue } = params;
 

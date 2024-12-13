@@ -75,7 +75,7 @@ export namespace Toggle {
   export interface State {
     pressed: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
   }
@@ -127,7 +127,7 @@ Toggle.propTypes /* remove-proptypes */ = {
    */
   defaultPressed: PropTypes.bool,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -143,7 +143,7 @@ Toggle.propTypes /* remove-proptypes */ = {
    */
   onPressedChange: PropTypes.func,
   /**
-   * If `true`, the component is pressed.
+   * Whether the toggle button is currently active.
    */
   pressed: PropTypes.bool,
   /**

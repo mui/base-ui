@@ -9,11 +9,12 @@ import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { valueToPercent } from '../../utils/valueToPercent';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { useField } from '../../field/useField';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
-import { percentToValue, roundValueToStep, valueToPercent } from '../utils';
+import { percentToValue, roundValueToStep } from '../utils';
 import { asc } from '../utils/asc';
 import { setValueIndex } from '../utils/setValueIndex';
 import { getSliderValue } from '../utils/getSliderValue';
@@ -497,7 +498,7 @@ export namespace useSliderRoot {
      */
     direction: TextDirection;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-const majorVersion = parseInt(React.version.split('.')[0], 10);
+const majorVersion = parseInt(React.version, 10);
 
 type SupportedVersions = 17 | 18 | 19;
 

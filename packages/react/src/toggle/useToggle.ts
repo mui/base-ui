@@ -69,7 +69,7 @@ export namespace useToggle {
   export interface Parameters {
     buttonRef?: React.Ref<HTMLElement>;
     /**
-     * If `true`, the component is pressed.
+     * Whether the toggle button is currently active.
      */
     pressed?: boolean;
     /**
@@ -78,7 +78,7 @@ export namespace useToggle {
      */
     defaultPressed?: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled: boolean;
@@ -109,11 +109,11 @@ export namespace useToggle {
      */
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
-     * If `true`, the Toggle is pressed.
+     * Whether the toggle button is currently active.
      */
     pressed: boolean;
   }

@@ -105,7 +105,7 @@ export function Item({ children, className, href, ...props }: ItemProps) {
             // We are scrolling into view, update upstream state
             setScrollingIntoView(true);
             // Sync flag removal with ScrollArea's own scrolling state timeout
-            setTimeout(() => setScrollingIntoView(false), SCROLL_TIMEOUT);
+            setTimeout(() => setScrollingIntoView(false), SCROLL_TIMEOUT + 50);
           }
           actions.forEach(({ top }) => {
             const dir = viewport.scrollTop > top ? -1 : 1;
