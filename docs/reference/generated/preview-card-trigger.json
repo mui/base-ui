@@ -15,5 +15,6 @@
     "data-popup-open": {
       "description": "Present when the corresponding preview card is open."
     }
-  }
+  },
+  "cssVariables": {}
 }

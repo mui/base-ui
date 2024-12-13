@@ -10,40 +10,41 @@
       "type": "string",
       "description": "An id or space-separated list of ids of elements that label the Toggle."
     },
-    "className": {
-      "type": "string | (state) => string",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    "value": {
+      "type": "string",
+      "description": "A unique string that identifies the component when used\ninside a ToggleGroup."
     },
     "defaultPressed": {
       "type": "boolean",
       "default": "false",
       "description": "The default pressed state. Use when the component is not controlled."
     },
-    "disabled": {
+    "pressed": {
       "type": "boolean",
-      "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the toggle button is currently active."
     },
     "onPressedChange": {
       "type": "function(pressed: boolean, event: Event) => void",
       "description": "Callback fired when the pressed state is changed."
     },
-    "pressed": {
+    "disabled": {
       "type": "boolean",
-      "description": "Whether the toggle button is currently active."
+      "default": "false",
+      "description": "Whether the component should ignore user interaction."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
-    },
-    "value": {
-      "type": "string",
-      "description": "A unique string that identifies the component when used\ninside a ToggleGroup."
     }
   },
   "dataAttributes": {
     "data-pressed": {
       "description": "Present when the toggle button is pressed."
     }
-  }
+  },
+  "cssVariables": {}
 }

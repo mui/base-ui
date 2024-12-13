@@ -18,5 +18,6 @@
     "data-panel-open": {
       "description": "Present when the accordion panel is open."
     }
-  }
+  },
+  "cssVariables": {}
 }

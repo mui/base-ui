@@ -2,6 +2,19 @@
   "name": "MenuRadioItem",
   "description": "A menu item that works like a radio button in a given group.\nRenders a `<div>` element.",
   "props": {
+    "label": {
+      "type": "string",
+      "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
+    },
+    "value": {
+      "type": "any",
+      "required": true,
+      "description": "Value of the radio item.\nThis is the value that will be set in the MenuRadioGroup when the item is selected."
+    },
+    "onClick": {
+      "type": "(event) => void",
+      "description": "The click handler for the menu item."
+    },
     "closeOnClick": {
       "type": "boolean",
       "default": "true",
@@ -11,19 +24,6 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
-    },
-    "label": {
-      "type": "string",
-      "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
-    },
-    "onClick": {
-      "type": "(event) => void",
-      "description": "The click handler for the menu item."
-    },
-    "value": {
-      "type": "any",
-      "required": true,
-      "description": "Value of the radio item.\nThis is the value that will be set in the MenuRadioGroup when the item is selected."
     }
   },
   "dataAttributes": {
@@ -33,5 +33,6 @@
     "data-unchecked": {
       "description": "Present when the menu radio item is not selected."
     }
-  }
+  },
+  "cssVariables": {}
 }

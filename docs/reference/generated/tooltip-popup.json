@@ -12,18 +12,15 @@
     }
   },
   "dataAttributes": {
+    "data-open": {
+      "description": "Present when the tooltip is open."
+    },
     "data-closed": {
       "description": "Present when the tooltip is closed."
-    },
-    "data-ending-style": {
-      "description": "Present when the tooltip is animating out."
     },
     "data-instant": {
       "description": "Indicates the instant type of the tooltip popup.",
       "type": "'delay' | 'dismiss' | 'focus'"
-    },
-    "data-open": {
-      "description": "Present when the tooltip is open."
     },
     "data-side": {
       "description": "Indicates which side the tooltip is positioned relative to the trigger.",
@@ -31,6 +28,10 @@
     },
     "data-starting-style": {
       "description": "Present when the tooltip is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the tooltip is animating out."
     }
-  }
+  },
+  "cssVariables": {}
 }

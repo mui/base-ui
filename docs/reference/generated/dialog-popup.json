@@ -2,17 +2,17 @@
   "name": "DialogPopup",
   "description": "A container for the dialog contents.\nRenders a `<div>` element.",
   "props": {
-    "className": {
-      "type": "string | (state) => string",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    "initialFocus": {
+      "type": "React.Ref | (interactionType => HTMLElement | null)",
+      "description": "Determines the element to focus when the dialog is opened.\nBy default, the first focusable element is focused."
     },
     "finalFocus": {
       "type": "React.Ref",
       "description": "Determines the element to focus when the dialog is closed.\nBy default, focus returns to the trigger."
     },
-    "initialFocus": {
-      "type": "React.Ref | (interactionType => HTMLElement | null)",
-      "description": "Determines the element to focus when the dialog is opened.\nBy default, the first focusable element is focused."
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
       "type": "boolean",
@@ -25,27 +25,22 @@
     }
   },
   "dataAttributes": {
+    "data-open": {
+      "description": "Present when the dialog is open."
+    },
     "data-closed": {
       "description": "Present when the dialog is closed."
-    },
-    "data-ending-style": {
-      "description": "Present when the dialog is animating out."
     },
     "data-nested-dialogs": {
       "description": "Indicates how many dialogs are nested within.",
       "type": "number"
     },
-    "data-open": {
-      "description": "Present when the dialog is open."
-    },
     "data-starting-style": {
       "description": "Present when the dialog is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the dialog is animating out."
     }
   },
-  "cssVariables": {
-    "--nested-dialogs": {
-      "description": "Indicates how many dialogs are nested within.",
-      "type": "number"
-    }
-  }
+  "cssVariables": {}
 }

@@ -17,17 +17,18 @@
     }
   },
   "dataAttributes": {
-    "data-closed": {
-      "description": "Present when the menu is closed."
-    },
-    "data-ending-style": {
-      "description": "Present when the menu is animating out."
-    },
     "data-open": {
       "description": "Present when the menu is open."
     },
+    "data-closed": {
+      "description": "Present when the menu is closed."
+    },
     "data-starting-style": {
       "description": "Present when the menu is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the menu is animating out."
     }
-  }
+  },
+  "cssVariables": {}
 }

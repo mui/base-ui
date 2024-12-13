@@ -6,7 +6,7 @@ export enum TooltipArrowDataAttributes {
   /**
    * Present when the tooltip is closed.
    */
-  closed = 'data-unchecked',
+  closed = 'data-closed',
   /**
    * Present when the anchor is hidden.
    */

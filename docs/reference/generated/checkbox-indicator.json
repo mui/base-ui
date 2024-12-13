@@ -20,17 +20,11 @@
     "data-checked": {
       "description": "Present when the checkbox is checked."
     },
-    "data-dirty": {
-      "description": "Present when the checkbox's value has changed (when wrapped in Field.Root)."
+    "data-unchecked": {
+      "description": "Present when the checkbox is not checked."
     },
     "data-disabled": {
       "description": "Present when the checkbox is disabled."
-    },
-    "data-ending-style": {
-      "description": "Present when the checkbox indicator is animating out."
-    },
-    "data-invalid": {
-      "description": "Present when the checkbox is in invalid state (when wrapped in Field.Root)."
     },
     "data-readonly": {
       "description": "Present when the checkbox is readonly."
@@ -38,17 +32,24 @@
     "data-required": {
       "description": "Present when the checkbox is required."
     },
-    "data-starting-style": {
-      "description": "Present when the checkbox indicator is animating in."
+    "data-valid": {
+      "description": "Present when the checkbox is in valid state (when wrapped in Field.Root)."
+    },
+    "data-invalid": {
+      "description": "Present when the checkbox is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-dirty": {
+      "description": "Present when the checkbox's value has changed (when wrapped in Field.Root)."
     },
     "data-touched": {
       "description": "Present when the checkbox has been touched (when wrapped in Field.Root)."
     },
-    "data-unchecked": {
-      "description": "Present when the checkbox is not checked."
+    "data-starting-style": {
+      "description": "Present when the checkbox indicator is animating in."
     },
-    "data-valid": {
-      "description": "Present when the checkbox is in valid state (when wrapped in Field.Root)."
+    "data-ending-style": {
+      "description": "Present when the checkbox indicator is animating out."
     }
-  }
+  },
+  "cssVariables": {}
 }

@@ -6,5 +6,7 @@
       "type": "(validity) => React.ReactNode",
       "required": true
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }
