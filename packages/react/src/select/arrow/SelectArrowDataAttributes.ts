@@ -16,4 +16,8 @@ export enum SelectArrowDataAttributes {
    * @type {'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
   side = 'data-side',
+  /**
+   * Present when the tooltip arrow is uncentered.
+   */
+  uncetered = 'data-uncentered',
 }

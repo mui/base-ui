@@ -22,6 +22,9 @@
       "description": "Indicates which side the preview card is positioned relative to the trigger.",
       "type": "'none' | 'top' | 'right' | 'bottom' | 'left'"
     },
+    "data-uncentered": {
+      "description": "Present when the tooltip arrow is uncentered."
+    },
     "data-unchecked": {
       "description": "Present when the preview card is closed."
     }

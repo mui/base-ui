@@ -16,4 +16,8 @@ export enum PopoverArrowDataAttributes {
    * @type {'none' | 'top' | 'right' | 'bottom' | 'left'}
    */
   side = 'data-side',
+  /**
+   * Present when the tooltip arrow is uncentered.
+   */
+  uncetered = 'data-uncentered',
 }

@@ -22,6 +22,9 @@
       "description": "Indicates which side the select is positioned relative to the trigger.",
       "type": "'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
     },
+    "data-uncentered": {
+      "description": "Present when the tooltip arrow is uncentered."
+    },
     "data-unchecked": {
       "description": "Present when the select popup is closed."
     }
