@@ -7,7 +7,6 @@ import { Code } from './components/Code';
 import { PropsTable } from './components/reference/PropsTable';
 import { AttributesTable } from './components/reference/AttributesTable';
 import { CssVariablesTable } from './components/reference/CssVariablesTable';
-import { TableCode } from './components/TableCode';
 import { getChildrenText } from './getChildrenText';
 import { Link } from './components/Link';
 import { Subtitle } from './components/subtitle/Subtitle';
