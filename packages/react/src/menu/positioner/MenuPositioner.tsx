@@ -30,7 +30,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     render,
     keepMounted = false,
     side,
-    align = 'center',
+    align,
     sideOffset = 0,
     alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
@@ -53,8 +53,12 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   const nodeId = useFloatingNodeId();
 
   let computedSide = side;
+  let computedAlign = align;
   if (!side) {
     computedSide = nested ? 'inline-end' : 'bottom';
+  }
+  if (!align) {
+    computedAlign = nested ? 'start' : 'center';
   }
 
   const positioner = useMenuPositioner({
@@ -65,7 +69,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     mounted,
     side: computedSide,
     sideOffset,
-    align,
+    align: computedAlign,
     alignOffset,
     arrowPadding,
     collisionBoundary,
