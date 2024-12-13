@@ -12,11 +12,11 @@
     }
   },
   "dataAttributes": {
-    "data-disabled": {
-      "description": "Present when the accordion item is disabled."
-    },
     "data-panel-open": {
       "description": "Present when the accordion panel is open."
+    },
+    "data-disabled": {
+      "description": "Present when the accordion item is disabled."
     }
   },
   "cssVariables": {}

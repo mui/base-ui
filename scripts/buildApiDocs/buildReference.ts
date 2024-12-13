@@ -75,7 +75,7 @@ export async function buildReference() {
     for (const prop in props) {
       props[prop].description ??= descriptionData.propDescriptions[prop]?.description;
 
-      if (!descriptionData.propDescriptions[prop]?.description) {
+      if (!props[prop].description) {
         console.warn(`Missing prop description: ${componentData.name} / ${prop}`);
       }
     }

@@ -20,7 +20,8 @@
     },
     "step": {
       "type": "number",
-      "description": "The step value of the input element when incrementing, decrementing, or scrubbing. It will snap\nto multiples of this value. When unspecified, decimal values are allowed, but the stepper\nbuttons will increment or decrement by `1`."
+      "default": "1;",
+      "description": "Amount to increment and decrement with the buttons and arrow keys,\nor to scrub with pointer movement in the scrub area."
     },
     "smallStep": {
       "type": "number",

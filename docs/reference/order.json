@@ -5,6 +5,7 @@
     "data-unchecked",
     "data-open",
     "data-closed",
+    "data-panel-open",
     "data-popup-open",
     "data-pressed",
     "data-selected",
@@ -49,6 +50,8 @@
     "closeOnClick",
     "errors",
     "onClearErrors",
+    "hidden",
+    "hiddenUntilFound",
     "__EVERYTHING_ELSE__",
     "step",
     "smallStep",
@@ -74,7 +77,6 @@
     "trackCursorAxis",
     "initialFocus",
     "finalFocus",
-    "hidden",
     "match",
     "forceShow",
     "disabled",
@@ -97,7 +99,6 @@
     "children",
     "className",
     "keepMounted",
-    "hiddenUntilFound",
     "render"
   ]
 }
