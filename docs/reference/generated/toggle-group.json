@@ -13,7 +13,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
     },
     "loop": {
       "type": "boolean",
@@ -36,6 +36,18 @@
     "value": {
       "type": "array",
       "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s\nThis is the controlled counterpart of `defaultValue`."
+    }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the toggle group is disabled."
+    },
+    "data-multiple": {
+      "description": "Present when the toggle group allows multiple buttons to be in the pressed state at the same time."
+    },
+    "data-orientation": {
+      "description": "Indicates the orientation of the toggle group.",
+      "type": "'horizontal' | 'vertical'"
     }
   }
 }

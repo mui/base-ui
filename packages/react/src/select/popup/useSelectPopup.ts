@@ -7,12 +7,6 @@ import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { clearPositionerStyles } from './utils';
 
-/**
- *
- * API:
- *
- * - [useSelectPopup API](https://mui.com/base-ui/api/use-select-popup/)
- */
 export function useSelectPopup(): useSelectPopup.ReturnValue {
   const {
     mounted,

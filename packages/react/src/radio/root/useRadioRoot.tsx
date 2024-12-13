@@ -5,12 +5,6 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
-/**
- *
- * API:
- *
- * - [useRadioRoot API](https://mui.com/base-ui/api/use-radio-root/)
- */
 export function useRadioRoot(params: useRadioRoot.Parameters) {
   const { disabled, readOnly, value, required } = params;
 
@@ -32,6 +26,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
         'aria-required': required || undefined,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
+        disabled,
         onKeyDown(event) {
           if (event.key === 'Enter') {
             event.preventDefault();

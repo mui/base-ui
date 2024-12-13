@@ -106,7 +106,7 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The delay in milliseconds until the tooltip popup is closed.
+   * How long to wait before closing the tooltip. Specified in milliseconds.
    * @default 0
    */
   closeDelay: PropTypes.number,
@@ -118,13 +118,12 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The delay in milliseconds until the tooltip popup is opened.
+   * How long to wait before opening the tooltip. Specified in milliseconds.
    * @default 600
    */
   delay: PropTypes.number,
   /**
-   * Whether the user can move their cursor from the trigger element toward the tooltip popup element
-   * without it closing using a "safe polygon" technique.
+   * Whether the tooltip contents can be hovered without closing the tooltip.
    * @default true
    */
   hoverable: PropTypes.bool,

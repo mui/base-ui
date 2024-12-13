@@ -80,7 +80,8 @@ export namespace useMenuPositioner {
      */
     open?: boolean;
     /**
-     * The anchor element to which the Menu popup will be placed at.
+     * An element to position the popup against.
+     * By default, the popup will be positioned against the trigger.
      */
     anchor?:
       | Element
@@ -89,37 +90,36 @@ export namespace useMenuPositioner {
       | React.MutableRefObject<Element | null>
       | (() => Element | VirtualElement | null);
     /**
-     * The CSS position strategy for positioning the Menu popup element.
+     * Determines which CSS `position` property to use.
      * @default 'absolute'
      */
     positionMethod?: 'absolute' | 'fixed';
     /**
-     * The side of the anchor element that the Menu element should align to.
-     * @default 'bottom'
+     * Which side of the anchor element to align the popup against.
+     * May automatically change to avoid collisions.
      */
     side?: Side;
     /**
-     * The gap between the anchor element and the Menu element.
+     * Distance between the anchor and the popup.
      * @default 0
      */
     sideOffset?: number;
     /**
-     * The align of the Menu element to the anchor element along its cross axis.
-     * @default 'center'
+     * How to align the popup relative to the specified side.
      */
     align?: 'start' | 'end' | 'center';
     /**
-     * The offset of the Menu element along its align axis.
+     * Additional offset along the alignment axis of the element.
      * @default 0
      */
     alignOffset?: number;
     /**
-     * The boundary that the Menu element should be constrained to.
+     * An element or a rectangle that delimits the area that the popup is confined to.
      * @default 'clipping-ancestors'
      */
     collisionBoundary?: Boundary;
     /**
-     * The padding of the collision boundary.
+     * Additional space to maintain from the edge of the collision boundary.
      * @default 5
      */
     collisionPadding?: Padding;
@@ -129,14 +129,15 @@ export namespace useMenuPositioner {
      */
     keepMounted?: boolean;
     /**
-     * If `true`, allow the Menu to remain in stuck view while the anchor element is scrolled out
-     * of view.
+     * Whether to maintain the menu in the viewport after
+     * the anchor element is scrolled out of view.
      * @default false
      */
     sticky?: boolean;
     /**
-     * Determines the padding between the arrow and the Menu popup's edges. Useful when the popover
-     * popup has rounded corners via `border-radius`.
+     * Minimum distance to maintain between the arrow and the edges of the popup.
+     *
+     * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
      * @default 5
      */
     arrowPadding?: number;

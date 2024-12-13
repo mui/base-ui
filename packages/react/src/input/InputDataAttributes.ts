@@ -12,7 +12,7 @@ export enum InputDataAttributes {
    */
   invalid = 'data-invalid',
   /**
-   * Present when the input has been thouched.
+   * Present when the input has been touched.
    */
   touched = 'data-touched',
   /**

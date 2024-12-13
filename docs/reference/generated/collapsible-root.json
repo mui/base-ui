@@ -14,7 +14,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
     },
     "onOpenChange": {
       "type": "(open) => void",
@@ -22,7 +22,7 @@
     },
     "open": {
       "type": "boolean",
-      "description": "Whether the collapsible panel is currently open.\nTo render an uncontrolled collapsible, use the `defaultOpen` prop instead."
+      "description": "Whether the collapsible panel is currently open.\n\nTo render an uncontrolled collapsible, use the `defaultOpen` prop instead."
     }
   }
 }

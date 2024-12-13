@@ -14,11 +14,23 @@
     "orientation": {
       "type": "'horizontal' | 'vertical'",
       "default": "'vertical'",
-      "description": "The orientation of the scrollbar."
+      "description": "Whether the scrollbar controls vertical or horizontal scroll."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-hovering": {
+      "description": "Present when the pointer is over the scroll area."
+    },
+    "data-orientation": {
+      "description": "Indicates the orientation of the scrollbar.",
+      "type": "'horizontal' | 'vertical'"
+    },
+    "data-scrolling": {
+      "description": "Present when the users scrolls inside the scroll area."
     }
   },
   "cssVariables": {

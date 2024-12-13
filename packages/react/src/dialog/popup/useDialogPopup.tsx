@@ -117,7 +117,7 @@ export namespace useDialogPopup {
      */
     ref: React.Ref<HTMLElement>;
     /**
-     * Determines if the dialog is modal.
+     * Whether the dialog should prevent outside clicks and lock page scroll when open.
      */
     modal: boolean;
     /**

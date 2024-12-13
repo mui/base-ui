@@ -22,7 +22,7 @@
       "description": "Present when the input is in invalid state."
     },
     "data-touched": {
-      "description": "Present when the input has been thouched."
+      "description": "Present when the input has been touched."
     },
     "data-valid": {
       "description": "Present when the input is in valid state."

@@ -18,7 +18,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
     },
     "inputRef": {
       "type": "React.Ref",
@@ -45,6 +45,35 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the user must activate the switch before submitting a form."
+    }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the switch is checked."
+    },
+    "data-dirty": {
+      "description": "Present when the switch's value has changed (when wrapped in Field.Root)."
+    },
+    "data-disabled": {
+      "description": "Present when the switch is disabled."
+    },
+    "data-invalid": {
+      "description": "Present when the switch is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-readonly": {
+      "description": "Present when the switch is readonly."
+    },
+    "data-required": {
+      "description": "Present when the switch is required."
+    },
+    "data-touched": {
+      "description": "Present when the switch has been thouched (when wrapped in Field.Root)."
+    },
+    "data-unchecked": {
+      "description": "Present when the switch is not checked."
+    },
+    "data-valid": {
+      "description": "Present when the switch is in valid state (when wrapped in Field.Root).."
     }
   }
 }

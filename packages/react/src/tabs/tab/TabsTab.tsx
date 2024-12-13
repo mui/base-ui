@@ -76,7 +76,7 @@ namespace TabsTab {
 
   export interface State {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     selected: boolean;

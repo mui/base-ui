@@ -112,7 +112,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -122,6 +122,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   onOpenChange: PropTypes.func,
   /**
    * Whether the collapsible panel is currently open.
+   *
    * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
    */
   open: PropTypes.bool,

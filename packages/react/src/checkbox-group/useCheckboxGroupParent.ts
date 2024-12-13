@@ -3,12 +3,6 @@ import * as React from 'react';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useEventCallback } from '../utils/useEventCallback';
 
-/**
- *
- * API:
- *
- * - [useCheckboxGroupParent API](https://mui.com/base-ui/api/use-checkbox-group-parent/)
- */
 export function useCheckboxGroupParent(
   params: UseCheckboxGroupParent.Parameters,
 ): UseCheckboxGroupParent.ReturnValue {

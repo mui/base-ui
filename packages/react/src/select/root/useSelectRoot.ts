@@ -319,7 +319,7 @@ export namespace useSelectRoot {
      */
     readOnly?: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -332,7 +332,9 @@ export namespace useSelectRoot {
      */
     onValueChange?: (value: Value, event?: Event) => void;
     /**
-     * The default value of the select.
+     * The uncontrolled value of the select when it’s initially rendered.
+     *
+     * To render a controlled select, use the `value` prop instead.
      * @default null
      */
     defaultValue?: Value | null;

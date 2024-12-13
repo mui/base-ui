@@ -8,7 +8,7 @@
     },
     "finalFocus": {
       "type": "React.Ref",
-      "description": "Determines the element to focus when the popover is closed.\nBy default, focus returns to trigger."
+      "description": "Determines the element to focus when the popover is closed.\nBy default, focus returns to the trigger."
     },
     "initialFocus": {
       "type": "React.Ref | (interactionType => HTMLElement | null)",
@@ -17,6 +17,24 @@
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-closed": {
+      "description": "Present when the popup is closed."
+    },
+    "data-ending-style": {
+      "description": "Present when the popup is animating out."
+    },
+    "data-open": {
+      "description": "Present when the popup is open."
+    },
+    "data-side": {
+      "description": "Indicates which side the popup is positioned relative to the trigger.",
+      "type": "'none' | 'top' | 'right' | 'bottom' | 'left'"
+    },
+    "data-starting-style": {
+      "description": "Present when the popup is animating in."
     }
   }
 }

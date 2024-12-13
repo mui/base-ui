@@ -118,7 +118,7 @@ export namespace AccordionRoot {
   export interface State {
     value: AccordionValue;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     orientation: AccordionOrientation;
@@ -172,12 +172,13 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The uncontrolled value of the item(s) that should be expanded.
+   * The uncontrolled value of the item(s) that should be initially expanded.
+   *
    * To render a controlled accordion, use the `value` prop instead.
    */
   defaultValue: PropTypes.array,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -213,7 +214,7 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   openMultiple: PropTypes.bool,
   /**
    * The visual orientation of the accordion.
-   * Controls whether the roving focus uses left/right or up/down arrow keys.
+   * Controls whether roving focus uses left/right or up/down arrow keys.
    * @default 'vertical'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
@@ -226,7 +227,8 @@ AccordionRoot.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * The controlled value of the item(s) that should be expanded.
-   * To render an controlled accordion, use the `defaultValue` prop instead.
+   *
+   * To render an uncontrolled accordion, use the `defaultValue` prop instead.
    */
   value: PropTypes.array,
 } as any;

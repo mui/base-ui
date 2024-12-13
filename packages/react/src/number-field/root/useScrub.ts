@@ -10,6 +10,7 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import { isWebKit } from '../../utils/detectBrowser';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { UseNumberFieldRoot } from './useNumberFieldRoot';
+import { NumberFieldRootDataAttributes } from './NumberFieldRootDataAttributes';
 
 /**
  * @ignore - internal hook.
@@ -113,7 +114,7 @@ export function useScrub(params: ScrubParams) {
     (externalProps = {}) =>
       mergeReactProps<'span'>(externalProps, {
         role: 'presentation',
-        ['data-scrubbing' as string]: isScrubbing || undefined,
+        [NumberFieldRootDataAttributes.scrubbing as string]: isScrubbing || undefined,
         style: {
           touchAction: 'none',
           WebkitUserSelect: 'none',

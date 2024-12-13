@@ -14,5 +14,24 @@
       "type": "any",
       "description": "The value of the Tab.\nWhen not specified, the value is the child position index."
     }
+  },
+  "dataAttributes": {
+    "data-activation-direction": {
+      "description": "Indicates the direction of the activation (based on the previous selected tab).",
+      "type": "'left' | 'right' | 'up' | 'down' | 'none'"
+    },
+    "data-disabled": {
+      "description": "Present when the tab is disabled."
+    },
+    "data-highlighted": {
+      "description": "Present when the tab is highlighted."
+    },
+    "data-orientation": {
+      "description": "Indicates the orientation of the tabs.",
+      "type": "'horizontal' | 'vertical'"
+    },
+    "data-selected": {
+      "description": "Present when the tab is selected."
+    }
   }
 }

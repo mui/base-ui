@@ -12,12 +12,16 @@
     },
     "defaultValue": {
       "type": "Array<number> | number",
-      "description": "The default value of the slider. Use when the component is not controlled."
+      "description": "The uncontrolled value of the slider when it’s initially rendered.\n\nTo render a controlled slider, use the `value` prop instead."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
+    },
+    "format": {
+      "type": "Intl.NumberFormatOptions",
+      "description": "Options to format the input value."
     },
     "largeStep": {
       "type": "number",
@@ -68,6 +72,36 @@
     "value": {
       "type": "Array<number> | number",
       "description": "The value of the slider.\nFor ranged sliders, provide an array with two values."
+    }
+  },
+  "dataAttributes": {
+    "data-dirty": {
+      "description": "Present when the slider's value has changed (when wrapped in Field.Root)."
+    },
+    "data-disabled": {
+      "description": "Present when the slider is disabled."
+    },
+    "data-dragging": {
+      "description": "Present while the user is dragging."
+    },
+    "data-invalid": {
+      "description": "Present when the slider is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-orientation": {
+      "description": "Indicates the orientation of the slider.",
+      "type": "'horizontal' | 'vertical'"
+    },
+    "data-readonly": {
+      "description": "Present when the slider is readonly."
+    },
+    "data-required": {
+      "description": "Present when the slider is required."
+    },
+    "data-touched": {
+      "description": "Present when the slider has been thouched (when wrapped in Field.Root)."
+    },
+    "data-valid": {
+      "description": "Present when the slider is in valid state (when wrapped in Field.Root).."
     }
   }
 }

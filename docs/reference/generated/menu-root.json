@@ -5,7 +5,7 @@
     "closeParentOnEsc": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines if pressing the Esc key closes the parent menus.\nThis is only applicable for nested menus.\n\nIf set to `false` pressing Esc closes only the current menu."
+      "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu."
     },
     "defaultOpen": {
       "type": "boolean",
@@ -15,12 +15,12 @@
     "delay": {
       "type": "number",
       "default": "100",
-      "description": "The delay in milliseconds until the menu popup is opened when `openOnHover` is `true`."
+      "description": "How long to wait before the menu may be opened on hover. Specified in milliseconds.\n\nRequires the `openOnHover` prop."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
     },
     "loop": {
       "type": "boolean",
@@ -37,12 +37,12 @@
     },
     "openOnHover": {
       "type": "boolean",
-      "description": "Whether the menu popup opens when the trigger is hovered after the provided `delay`.\nBy default, `openOnHover` is set to `true` for nested menus."
+      "description": "Whether the menu should also open when the trigger is hovered.\n\nDefaults to `true` for nested menus."
     },
     "orientation": {
       "type": "'horizontal' | 'vertical'",
       "default": "'vertical'",
-      "description": "The orientation of the Menu (horizontal or vertical)."
+      "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys."
     }
   }
 }

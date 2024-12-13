@@ -4,7 +4,6 @@ import { type DemoVariant } from 'docs/src/blocks/Demo';
 import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
 import * as Select from 'docs/src/components/Select';
 import { useDemoVariantSelectorContext } from './DemoVariantSelectorProvider';
-import { GhostButton } from '../GhostButton';
 
 const translations = {
   variants: {
@@ -127,7 +126,6 @@ export function DemoVariantSelector({
       {renderLanguageSelector && (
         <Select.Root value={selectedLocalVariant.language} onValueChange={handleLanguageChange}>
           <Select.Trigger
-            render={<GhostButton />}
             ssrFallback={
               currentVariantLanguages.find((item) => item.value === selectedLocalVariant.language)
                 ?.label
@@ -145,10 +143,7 @@ export function DemoVariantSelector({
 
       {renderVariantSelector && (
         <Select.Root value={selectedLocalVariant.name} onValueChange={handleVariantChange}>
-          <Select.Trigger
-            render={<GhostButton />}
-            ssrFallback={translations.variants[selectedLocalVariant.name]}
-          />
+          <Select.Trigger ssrFallback={translations.variants[selectedLocalVariant.name]} />
           <Select.Popup>
             {Object.keys(variantsMap).map((variantName) => (
               <Select.Item key={variantName} value={variantName}>

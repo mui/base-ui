@@ -9,7 +9,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
     },
     "label": {
       "type": "string",
@@ -18,6 +18,35 @@
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-dirty": {
+      "description": "Present when the select's value has changed (when wrapped in Field.Root)."
+    },
+    "data-disabled": {
+      "description": "Present when the select is disabled."
+    },
+    "data-invalid": {
+      "description": "Present when the select is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-popup-open": {
+      "description": "Present when the corresponding select is open."
+    },
+    "data-pressed": {
+      "description": "Present when the trigger is pressed."
+    },
+    "data-readonly": {
+      "description": "Present when the select is readonly."
+    },
+    "data-required": {
+      "description": "Present when the select is required."
+    },
+    "data-touched": {
+      "description": "Present when the select has been thouched (when wrapped in Field.Root)."
+    },
+    "data-valid": {
+      "description": "Present when the select is in valid state (when wrapped in Field.Root).."
     }
   }
 }

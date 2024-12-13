@@ -59,7 +59,7 @@ export namespace useSubmenuTrigger {
     id: string | undefined;
     highlighted: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
@@ -75,7 +75,7 @@ export namespace useSubmenuTrigger {
      */
     setTriggerElement: (element: HTMLElement | null) => void;
     /**
-     * If `true`, the menu item will listen for mouseup events and treat them as clicks.
+     * Whether to treat mouseup events as clicks.
      */
     treatMouseupAsClick: boolean;
     /**

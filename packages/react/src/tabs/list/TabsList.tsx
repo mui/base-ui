@@ -104,9 +104,8 @@ namespace TabsList {
 
   export interface Props extends BaseUIComponentProps<'div', TabsList.State> {
     /**
-     * If `true`, the tab will be activated whenever it is focused.
-     * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.
-     *
+     * Whether to automatically change the active tab on arrow key focus.
+     * Otherwise, tabs will be activated using Enter or Spacebar key press.
      * @default true
      */
     activateOnFocus?: boolean;
@@ -127,9 +126,8 @@ TabsList.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the tab will be activated whenever it is focused.
-   * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.
-   *
+   * Whether to automatically change the active tab on arrow key focus.
+   * Otherwise, tabs will be activated using Enter or Spacebar key press.
    * @default true
    */
   activateOnFocus: PropTypes.bool,

@@ -30,7 +30,7 @@ export function rehypeInlineCode() {
       node.children?.forEach((part) => {
         const text = part.children[0]?.value;
         if (text === 'undefined' || text === 'null' || text === '""' || text === "''") {
-          part.properties.style = 'color: var(--color-gray-500)';
+          part.properties.style = 'color: var(--syntax-nullish, inherit)';
         }
       });
 

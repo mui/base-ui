@@ -111,7 +111,7 @@ export namespace NumberFieldRoot {
      */
     required: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
@@ -141,7 +141,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   allowWheelScrub: PropTypes.bool,
   /**
-   * If `true`, the input element is focused on mount.
+   * Whether to focus the element on page load.
    * @default false
    */
   autoFocus: PropTypes.bool,
@@ -155,11 +155,13 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default value of the input element. Use when the component is not controlled.
+   * The uncontrolled value of the field when it’s initially rendered.
+   *
+   * To render a controlled number field, use the `value` prop instead.
    */
   defaultValue: PropTypes.number,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -248,7 +250,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   step: PropTypes.number,
   /**
-   * The raw number value of the input element.
+   * The raw numeric value of the field.
    */
   value: PropTypes.number,
 } as any;

@@ -7,12 +7,6 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectIndexContext } from '../root/SelectIndexContext';
 import { useForkRef } from '../../utils/useForkRef';
 
-/**
- *
- * API:
- *
- * - [useSelectItem API](https://mui.com/base-ui/api/use-select-item/)
- */
 export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
   const {
     open,
@@ -168,7 +162,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 export namespace useSelectItem {
   export interface Parameters {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**

@@ -5,7 +5,7 @@
     "activateOnFocus": {
       "type": "boolean",
       "default": "true",
-      "description": "If `true`, the tab will be activated whenever it is focused.\nOtherwise, it has to be activated by clicking or pressing the Enter or Space key."
+      "description": "Whether to automatically change the active tab on arrow key focus.\nOtherwise, tabs will be activated using Enter or Spacebar key press."
     },
     "className": {
       "type": "string | (state) => string",
@@ -19,6 +19,16 @@
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-activation-direction": {
+      "description": "Indicates the direction of the activation (based on the previous selected tab).",
+      "type": "'left' | 'right' | 'up' | 'down' | 'none'"
+    },
+    "data-orientation": {
+      "description": "Indicates the orientation of the tabs.",
+      "type": "'horizontal' | 'vertical'"
     }
   }
 }

@@ -205,7 +205,7 @@ export namespace UseCheckboxRoot {
      */
     defaultChecked?: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -227,8 +227,7 @@ export namespace UseCheckboxRoot {
      */
     required?: boolean;
     /**
-     * If `true`, the checkbox is focused on mount.
-     *
+     * Whether to focus the element on page load.
      * @default false
      */
     autoFocus?: boolean;
@@ -242,7 +241,9 @@ export namespace UseCheckboxRoot {
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**
-     * If `true`, the checkbox is a parent checkbox for a group of child checkboxes.
+     * Whether the checkbox controls a group of child checkboxes.
+     *
+     * Must be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).
      * @default false
      */
     parent?: boolean;

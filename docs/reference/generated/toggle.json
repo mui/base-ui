@@ -22,7 +22,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
     },
     "onPressedChange": {
       "type": "function(pressed: boolean, event: Event) => void",
@@ -30,7 +30,7 @@
     },
     "pressed": {
       "type": "boolean",
-      "description": "If `true`, the component is pressed."
+      "description": "Whether the toggle button is currently active."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
@@ -39,6 +39,11 @@
     "value": {
       "type": "string",
       "description": "A unique string that identifies the component when used\ninside a ToggleGroup."
+    }
+  },
+  "dataAttributes": {
+    "data-pressed": {
+      "description": "Present when the toggle button is pressed."
     }
   }
 }

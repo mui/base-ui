@@ -9,7 +9,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
     },
     "onOpenChange": {
       "type": "(open) => void",
@@ -27,6 +27,9 @@
     "data-index": {
       "description": "Indicates the index of the accordion item.",
       "type": "number"
+    },
+    "data-open": {
+      "description": "Present when the accordion item is open."
     }
   }
 }

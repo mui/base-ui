@@ -1,18 +1,19 @@
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { ProgressRoot } from './ProgressRoot';
+import { ProgressRootDataAttributes } from './ProgressRootDataAttributes';
 
 export const progressStyleHookMapping: CustomStyleHookMapping<ProgressRoot.State> = {
   max: () => null,
   min: () => null,
   status(value): Record<string, string> | null {
     if (value === 'progressing') {
-      return { 'data-progressing': '' };
+      return { [ProgressRootDataAttributes.progressing]: '' };
     }
     if (value === 'complete') {
-      return { 'data-complete': '' };
+      return { [ProgressRootDataAttributes.complete]: '' };
     }
     if (value === 'indeterminate') {
-      return { 'data-indeterminate': '' };
+      return { [ProgressRootDataAttributes.indeterminate]: '' };
     }
     return null;
   },
