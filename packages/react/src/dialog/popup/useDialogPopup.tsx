@@ -17,7 +17,6 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useEventCallback } from '../../utils/useEventCallback';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
@@ -37,11 +36,13 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     titleElementId,
   } = parameters;
 
-  const handleFloatingUIOpenChange = useEventCallback(
-    (isOpen: boolean, event: Event | undefined, reason: FloatingUIOpenChangeReason | undefined) => {
-      setOpen(isOpen, event, translateOpenChangeReason(reason));
-    },
-  );
+  const handleFloatingUIOpenChange = (
+    isOpen: boolean,
+    event: Event | undefined,
+    reason: FloatingUIOpenChangeReason | undefined,
+  ) => {
+    setOpen(isOpen, event, translateOpenChangeReason(reason));
+  };
 
   const { context, elements } = useFloating({
     open,

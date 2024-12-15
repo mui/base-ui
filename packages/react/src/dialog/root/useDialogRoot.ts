@@ -64,15 +64,13 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     onFinished: () => setMounted(false),
   });
 
-  const handleFloatingUIOpenChange = useEventCallback(
-    (
-      nextOpen: boolean,
-      event: Event | undefined,
-      reason: FloatingUIOpenChangeReason | undefined,
-    ) => {
-      setOpen(nextOpen, event, translateOpenChangeReason(reason));
-    },
-  );
+  const handleFloatingUIOpenChange = (
+    nextOpen: boolean,
+    event: Event | undefined,
+    reason: FloatingUIOpenChangeReason | undefined,
+  ) => {
+    setOpen(nextOpen, event, translateOpenChangeReason(reason));
+  };
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: popupElement },
