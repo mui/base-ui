@@ -18,14 +18,7 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
   props: SelectTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const {
-    render,
-    className,
-    id: idProp,
-    disabled: disabledProp = false,
-    label,
-    ...otherProps
-  } = props;
+  const { render, className, id: idProp, disabled: disabledProp = false, ...otherProps } = props;
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
 
@@ -66,10 +59,6 @@ namespace SelectTrigger {
      * @default false
      */
     disabled?: boolean;
-    /**
-     * Label of the button
-     */
-    label?: string;
   }
 
   export interface State {
@@ -103,10 +92,6 @@ SelectTrigger.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   id: PropTypes.string,
-  /**
-   * Label of the button
-   */
-  label: PropTypes.string,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

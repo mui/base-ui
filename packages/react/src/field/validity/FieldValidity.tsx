@@ -34,6 +34,17 @@ namespace FieldValidity {
   export interface State {}
 
   export interface Props {
+    /**
+     * A function that accepts the field validity state as an argument.
+     *
+     * ```jsx
+     * <Field.Validity>
+     *   {(validity) => {
+     *     return <div>...</div>
+     *   }}
+     * </Field.Validity>
+     * ```
+     */
     children: (state: FieldValidityState) => React.ReactNode;
   }
 }
@@ -44,7 +55,15 @@ FieldValidity.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * @ignore
+   * A function that accepts the field validity state as an argument.
+   *
+   * ```jsx
+   * <Field.Validity>
+   *   {(validity) => {
+   *     return <div>...</div>
+   *   }}
+   * </Field.Validity>
+   * ```
    */
   children: PropTypes.func.isRequired,
 } as any;

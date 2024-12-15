@@ -26,6 +26,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
         'aria-required': required || undefined,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
+        disabled,
         onKeyDown(event) {
           if (event.key === 'Enter') {
             event.preventDefault();

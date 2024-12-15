@@ -8,7 +8,7 @@ type CommandOptions = { grep?: string };
 async function run(argv: ArgumentsCamelCase<CommandOptions>) {
   const grep = argv.grep == null ? null : new RegExp(argv.grep);
   await buildApi([projectSettings], grep, true);
-  await buildReference();
+  await buildReference(grep);
 }
 
 yargs(process.argv.slice(2))

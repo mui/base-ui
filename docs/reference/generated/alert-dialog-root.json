@@ -7,13 +7,15 @@
       "default": "false",
       "description": "Whether the dialog is initially open.\n\nTo render a controlled dialog, use the `open` prop instead."
     },
-    "onOpenChange": {
-      "type": "(open, event) => void",
-      "description": "Event handler called when the dialog is opened or closed."
-    },
     "open": {
       "type": "boolean",
       "description": "Whether the dialog is currently open."
+    },
+    "onOpenChange": {
+      "type": "(open, event) => void",
+      "description": "Event handler called when the dialog is opened or closed."
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }

@@ -15,5 +15,6 @@
     "data-panel-open": {
       "description": "Present when the collapsible panel is open."
     }
-  }
+  },
+  "cssVariables": {}
 }

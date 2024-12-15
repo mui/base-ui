@@ -2,28 +2,30 @@
   "name": "PreviewCardRoot",
   "description": "Groups all parts of the preview card.\nDoesn’t render its own HTML element.",
   "props": {
-    "closeDelay": {
-      "type": "number",
-      "default": "300",
-      "description": "How long to wait before closing the preview card. Specified in milliseconds."
-    },
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
       "description": "Whether the preview card is initially open.\n\nTo render a controlled preview card, use the `open` prop instead."
+    },
+    "open": {
+      "type": "boolean",
+      "description": "Whether the preview card is currently open."
+    },
+    "onOpenChange": {
+      "type": "(open, event, reason) => void",
+      "description": "Event handler called when the preview card is opened or closed."
     },
     "delay": {
       "type": "number",
       "default": "600",
       "description": "How long to wait before the preview card opens. Specified in milliseconds."
     },
-    "onOpenChange": {
-      "type": "(open, event, reason) => void",
-      "description": "Event handler called when the preview card is opened or closed."
-    },
-    "open": {
-      "type": "boolean",
-      "description": "Whether the preview card is currently open."
+    "closeDelay": {
+      "type": "number",
+      "default": "300",
+      "description": "How long to wait before closing the preview card. Specified in milliseconds."
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }

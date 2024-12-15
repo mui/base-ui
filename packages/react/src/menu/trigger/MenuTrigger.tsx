@@ -17,7 +17,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
   props: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled = false, label, ...other } = props;
+  const { render, className, disabled = false, ...other } = props;
 
   const {
     getTriggerProps: getRootTriggerProps,
@@ -61,10 +61,6 @@ namespace MenuTrigger {
      * @default false
      */
     disabled?: boolean;
-    /**
-     * Label of the button
-     */
-    label?: string;
   }
 
   export type State = {
@@ -94,10 +90,6 @@ MenuTrigger.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
-  /**
-   * Label of the button
-   */
-  label: PropTypes.string,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

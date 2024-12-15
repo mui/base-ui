@@ -2,6 +2,19 @@
   "name": "MenuRadioGroup",
   "description": "Groups related radio items.\nRenders a `<div>` element.",
   "props": {
+    "defaultValue": {
+      "type": "any",
+      "description": "The uncontrolled value of the radio item that should be initially selected.\n\nTo render a controlled radio group, use the `value` prop instead."
+    },
+    "value": {
+      "type": "any",
+      "description": "The controlled value of the radio item that should be currently selected.\n\nTo render an uncontrolled radio group, use the `defaultValue` prop instead."
+    },
+    "onValueChange": {
+      "type": "(value, event) => void",
+      "default": "() => {}",
+      "description": "Function called when the selected value changes."
+    },
     "children": {
       "type": "React.ReactNode",
       "description": "The content of the component."
@@ -10,22 +23,11 @@
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
-    "defaultValue": {
-      "type": "any",
-      "description": "The uncontrolled value of the radio item that should be initially selected.\n\nTo render a controlled radio group, use the `value` prop instead."
-    },
-    "onValueChange": {
-      "type": "(value, event) => void",
-      "default": "() => {}",
-      "description": "Function called when the selected value changes."
-    },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
-    },
-    "value": {
-      "type": "any",
-      "description": "The controlled value of the radio item that should be currently selected.\n\nTo render an uncontrolled radio group, use the `defaultValue` prop instead."
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }

@@ -2,11 +2,6 @@
   "name": "SelectItem",
   "description": "An individual option in the select menu.\nRenders a `<div>` element.",
   "props": {
-    "disabled": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the component should ignore user interaction."
-    },
     "label": {
       "type": "string",
       "description": "Overrides the text label to use on the trigger when this item is selected\nand when the item is matched during keyboard text navigation."
@@ -15,6 +10,13 @@
       "type": "any",
       "default": "null",
       "description": "A unique value that identifies this select item."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction."
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }
