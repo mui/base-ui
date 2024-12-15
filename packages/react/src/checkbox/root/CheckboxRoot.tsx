@@ -33,6 +33,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     render,
     className,
     inputRef,
+    value,
     ...otherProps
   } = props;
 
@@ -137,7 +138,7 @@ namespace CheckboxRoot {
   }
   export interface Props
     extends UseCheckboxRoot.Parameters,
-      Omit<BaseUIComponentProps<'button', State>, 'onChange'> {}
+      Omit<BaseUIComponentProps<'button', State>, 'onChange' | 'value'> {}
 }
 
 CheckboxRoot.propTypes /* remove-proptypes */ = {
