@@ -2,10 +2,6 @@
   "name": "SelectTrigger",
   "description": "A button that opens the select menu.\nRenders a `<div>` element.",
   "props": {
-    "label": {
-      "type": "string",
-      "description": "Label of the button"
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
