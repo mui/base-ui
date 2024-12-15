@@ -197,7 +197,7 @@ export function useNumberFieldRoot(
 
   const incrementValue = useEventCallback(
     (amount: number, dir: 1 | -1, currentValue?: number | null, event?: Event) => {
-      const prevValue = currentValue == null ? value : currentValue;
+      const prevValue = currentValue == null ? valueRef.current : currentValue;
       const nextValue =
         typeof prevValue === 'number' ? prevValue + amount * dir : Math.max(0, min ?? 0);
       setValue(nextValue, event);
@@ -390,8 +390,22 @@ export function useNumberFieldRoot(
   );
 
   const getCommonButtonProps = React.useCallback(
-    (isIncrement: boolean, externalProps = {}) =>
-      mergeReactProps<'button'>(externalProps, {
+    (isIncrement: boolean, externalProps = {}) => {
+      function commitValue(nativeEvent: MouseEvent) {
+        allowInputSyncRef.current = true;
+
+        // The input may be dirty but not yet blurred, so the value won't have been committed.
+        const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
+
+        if (parsedValue !== null) {
+          // The increment value function needs to know the current input value to increment it
+          // correctly.
+          valueRef.current = parsedValue;
+          setValue(parsedValue, nativeEvent);
+        }
+      }
+
+      return mergeReactProps<'button'>(externalProps, {
         disabled: disabled || (isIncrement ? isMax : isMin),
         type: 'button',
         'aria-readonly': readOnly || undefined,
@@ -422,6 +436,8 @@ export function useNumberFieldRoot(
             return;
           }
 
+          commitValue(event.nativeEvent);
+
           const amount = getStepAmount() ?? DEFAULT_STEP;
 
           incrementValue(amount, isIncrement ? 1 : -1, undefined, event.nativeEvent);
@@ -435,6 +451,8 @@ export function useNumberFieldRoot(
 
           isPressedRef.current = true;
           incrementDownCoordsRef.current = { x: event.clientX, y: event.clientY };
+
+          commitValue(event.nativeEvent);
 
           // Note: "pen" is sometimes returned for mouse usage on Linux Chrome.
           if (event.pointerType !== 'touch') {
@@ -500,17 +518,22 @@ export function useNumberFieldRoot(
 
           stopAutoChange();
         },
-      }),
+      });
+    },
     [
       disabled,
-      readOnly,
       isMax,
       isMin,
+      readOnly,
       id,
+      getStepAmount,
       incrementValue,
+      inputValue,
+      formatOptionsRef,
+      valueRef,
+      setValue,
       startAutoChange,
       stopAutoChange,
-      getStepAmount,
     ],
   );
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { screen, fireEvent } from '@mui/internal-test-utils';
+import { screen, fireEvent, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
@@ -250,5 +250,41 @@ describe('<NumberField.Decrement />', () => {
     const button = screen.getByRole('button');
     fireEvent.click(button);
     expect(screen.getByRole('textbox')).to.have.value('');
+  });
+
+  it('should decrement when input is dirty but not blurred (click)', async () => {
+    await render(
+      <NumberField.Root defaultValue={0}>
+        <NumberField.Decrement />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+
+    await act(() => input.focus());
+
+    fireEvent.change(input, { target: { value: '100' } });
+    fireEvent.click(screen.getByRole('button'));
+
+    expect(input).to.have.value('99');
+  });
+
+  it('should decrement when input is dirty but not blurred (pointerdown)', async () => {
+    await render(
+      <NumberField.Root defaultValue={0}>
+        <NumberField.Decrement />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+
+    await act(() => input.focus());
+
+    fireEvent.change(input, { target: { value: '100' } });
+    fireEvent.pointerDown(screen.getByRole('button'));
+
+    expect(input).to.have.value('99');
   });
 });
