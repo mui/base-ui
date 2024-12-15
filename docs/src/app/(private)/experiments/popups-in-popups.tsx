@@ -522,8 +522,8 @@ const TooltipPopup = styled('div')`
   @media (prefers-color-scheme: light) {
     outline: 1px solid var(--color-gray-200);
     box-shadow:
-      0px 10px 15px -3px var(--color-gray-200),
-      0px 4px 6px -4px var(--color-gray-200);
+      0 10px 15px -3px var(--color-gray-200),
+      0 4px 6px -4px var(--color-gray-200);
   }
 
   @media (prefers-color-scheme: dark) {
