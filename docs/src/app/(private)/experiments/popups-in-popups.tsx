@@ -84,16 +84,117 @@ function SelectDemo({ modal }: Props) {
   );
 }
 
+const createHandleMenuClick = (menuItem: string) => {
+  return () => {
+    console.log(`Clicked on ${menuItem}`);
+  };
+};
+
 function MenuDemo({ modal }: Props) {
   return (
     <Menu.Root modal={modal}>
-      <Menu.Trigger render={<Trigger />}>Account</Menu.Trigger>
+      <Menu.Trigger render={<Trigger />}>Format</Menu.Trigger>
+      <Menu.Portal>
+        <Menu.Positioner
+          side="bottom"
+          align="start"
+          sideOffset={6}
+          render={<Positioner />}
+        >
+          <MenuPopup>
+            <Menu.Root closeParentOnEsc={false}>
+              <SubmenuTrigger>Text color</SubmenuTrigger>
+              <Menu.Positioner
+                align="start"
+                side="right"
+                sideOffset={12}
+                render={<Positioner />}
+              >
+                <MenuPopup>
+                  <MenuItem onClick={createHandleMenuClick('Text color/Black')}>
+                    Black
+                  </MenuItem>
+                  <MenuItem onClick={createHandleMenuClick('Text color/Dark grey')}>
+                    Dark grey
+                  </MenuItem>
+                  <MenuItem onClick={createHandleMenuClick('Text color/Accent')}>
+                    Accent
+                  </MenuItem>
+                </MenuPopup>
+              </Menu.Positioner>
+            </Menu.Root>
 
-      <Menu.Positioner align="start" sideOffset={8} render={<Positioner />}>
-        <MenuPopup>
-          <MenuItem onClick={() => console.log('Log out clicked')}>Log out</MenuItem>
-        </MenuPopup>
-      </Menu.Positioner>
+            <Menu.Root>
+              <SubmenuTrigger>Style</SubmenuTrigger>
+              <Menu.Positioner
+                align="start"
+                side="right"
+                sideOffset={12}
+                render={<Positioner />}
+              >
+                <MenuPopup>
+                  <Menu.Root>
+                    <SubmenuTrigger>Heading</SubmenuTrigger>
+                    <Menu.Positioner
+                      align="start"
+                      side="right"
+                      sideOffset={12}
+                      render={<Positioner />}
+                    >
+                      <MenuPopup>
+                        <MenuItem
+                          onClick={createHandleMenuClick('Style/Heading/Level 1')}
+                        >
+                          Level 1
+                        </MenuItem>
+                        <MenuItem
+                          onClick={createHandleMenuClick('Style/Heading/Level 2')}
+                        >
+                          Level 2
+                        </MenuItem>
+                        <MenuItem
+                          onClick={createHandleMenuClick('Style/Heading/Level 3')}
+                        >
+                          Level 3
+                        </MenuItem>
+                      </MenuPopup>
+                    </Menu.Positioner>
+                  </Menu.Root>
+                  <MenuItem onClick={createHandleMenuClick('Style/Paragraph')}>
+                    Paragraph
+                  </MenuItem>
+                  <Menu.Root disabled>
+                    <SubmenuTrigger disabled>List</SubmenuTrigger>
+                    <Menu.Positioner
+                      align="start"
+                      side="right"
+                      sideOffset={12}
+                      render={<Positioner />}
+                    >
+                      <MenuPopup>
+                        <MenuItem
+                          onClick={createHandleMenuClick('Style/List/Ordered')}
+                        >
+                          Ordered
+                        </MenuItem>
+                        <MenuItem
+                          onClick={createHandleMenuClick('Style/List/Unordered')}
+                        >
+                          Unordered
+                        </MenuItem>
+                      </MenuPopup>
+                    </Menu.Positioner>
+                  </Menu.Root>
+                </MenuPopup>
+              </Menu.Positioner>
+            </Menu.Root>
+
+            <MenuItem onClick={createHandleMenuClick('Clear formatting')}>
+              Clear formatting
+            </MenuItem>
+          </MenuPopup>
+        </Menu.Positioner>
+      </Menu.Portal>
     </Menu.Root>
   );
 }
@@ -182,7 +283,7 @@ const SelectDropdownArrow = styled(Select.Icon)`
 `;
 
 const Positioner = styled('div')`
-  z-index: 2001;
+  z-index: 2900;
 
   &:focus-visible {
     outline: 0;
@@ -303,6 +404,44 @@ const MenuItem = styled(Menu.Item)(
   }
 
   &.[data-disabled] {
+    color: ${theme.palette.mode === 'dark' ? grey[700] : grey[400]};
+  }
+  `,
+);
+
+const SubmenuTrigger = styled(Menu.SubmenuTrigger)(
+  ({ theme }) => `
+  list-style: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: default;
+  user-select: none;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+
+  &::after {
+    content: '›';
+    float: right;
+  }
+
+  &[data-popup-open] {
+    background-color: ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
+    color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
+  }
+
+  &:focus,
+  &:hover {
+    background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
+    color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &[data-disabled] {
     color: ${theme.palette.mode === 'dark' ? grey[700] : grey[400]};
   }
   `,
