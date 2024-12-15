@@ -57,6 +57,10 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the user must tick the checkbox before submitting a form."
+    },
+    "value": {
+      "type": "number | string",
+      "description": "The value of the selected checkbox."
     }
   },
   "dataAttributes": {

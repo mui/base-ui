@@ -249,6 +249,9 @@ export namespace UseCheckboxRoot {
      * @default false
      */
     parent?: boolean;
+    /**
+     * The value of the selected checkbox.
+     */
     value?: string | number;
   }
 

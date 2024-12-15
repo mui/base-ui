@@ -224,6 +224,10 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   required: PropTypes.bool,
+  /**
+   * The value of the selected checkbox.
+   */
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 } as any;
 
 export { CheckboxRoot };
