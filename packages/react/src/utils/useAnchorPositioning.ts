@@ -184,16 +184,16 @@ export function useAnchorPositioning(
         const arrowEl = arrowRef.current;
         const arrowX = middlewareData.arrow?.x ?? 0;
         const arrowY = middlewareData.arrow?.y ?? 0;
-        const arrowWidth = arrowEl?.clientWidth ?? sideOffset;
-        const arrowHeight = arrowEl?.clientHeight ?? sideOffset;
+        const arrowWidth = arrowEl?.clientWidth ?? 0;
+        const arrowHeight = arrowEl?.clientHeight ?? 0;
         const transformX = arrowX + arrowWidth / 2;
-        const transformY = arrowY + arrowHeight;
+        const transformY = arrowY + arrowHeight / 2;
 
         const transformOrigin = {
-          top: `${transformX}px calc(100% + ${arrowHeight}px)`,
-          bottom: `${transformX}px ${-arrowHeight}px`,
-          left: `calc(100% + ${arrowHeight}px) ${transformY}px`,
-          right: `${-arrowHeight}px ${transformY}px`,
+          top: `${transformX}px calc(100% + ${sideOffset}px)`,
+          bottom: `${transformX}px ${-sideOffset}px`,
+          left: `calc(100% + ${sideOffset}px) ${transformY}px`,
+          right: `${-sideOffset}px ${transformY}px`,
         }[currentRenderedSide];
 
         elements.floating.style.setProperty('--transform-origin', transformOrigin);
