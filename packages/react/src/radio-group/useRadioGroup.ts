@@ -4,7 +4,6 @@ import { contains } from '@floating-ui/react/utils';
 import { mergeReactProps } from '../utils/mergeReactProps';
 import { useControlled } from '../utils/useControlled';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
-import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { useField } from '../field/useField';
@@ -12,7 +11,7 @@ import { useField } from '../field/useField';
 export function useRadioGroup(params: useRadioGroup.Parameters) {
   const { disabled = false, name, defaultValue, readOnly, value: externalValue } = params;
 
-  const { labelId, setControlId, setTouched: setFieldTouched } = useFieldRootContext();
+  const { labelId, setTouched: setFieldTouched } = useFieldRootContext();
 
   const {
     getValidationProps,
@@ -22,13 +21,6 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
   } = useFieldControlValidation();
 
   const id = useBaseUiId();
-
-  useEnhancedEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
 
   const [checkedValue, setCheckedValue] = useControlled({
     controlled: externalValue,

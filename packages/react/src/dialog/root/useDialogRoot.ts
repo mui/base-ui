@@ -6,6 +6,7 @@ import {
   useDismiss,
   useFloatingRootContext,
   useInteractions,
+  type OpenChangeReason as FloatingUIOpenChangeReason,
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -15,6 +16,10 @@ import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import {
+  type OpenChangeReason,
+  translateOpenChangeReason,
+} from '../../utils/translateOpenChangeReason';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -23,7 +28,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     modal,
     onNestedDialogClose,
     onNestedDialogOpen,
-    onOpenChange,
+    onOpenChange: onOpenChangeParameter,
     open: openParam,
   } = parameters;
 
@@ -46,10 +51,12 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
-    onOpenChange?.(nextOpen, event);
-    setOpenUnwrapped(nextOpen);
-  });
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+      onOpenChangeParameter?.(nextOpen, event, reason);
+      setOpenUnwrapped(nextOpen);
+    },
+  );
 
   useAfterExitAnimation({
     open,
@@ -57,10 +64,18 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     onFinished: () => setMounted(false),
   });
 
+  const handleFloatingUIOpenChange = (
+    nextOpen: boolean,
+    event: Event | undefined,
+    reason: FloatingUIOpenChangeReason | undefined,
+  ) => {
+    setOpen(nextOpen, event, translateOpenChangeReason(reason));
+  };
+
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: popupElement },
     open,
-    onOpenChange: setOpen,
+    onOpenChange: handleFloatingUIOpenChange,
   });
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
@@ -107,7 +122,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   return React.useMemo(() => {
     return {
       modal,
-      onOpenChange: setOpen,
+      setOpen,
       open,
       titleElementId,
       setTitleElementId,
@@ -172,7 +187,11 @@ export interface CommonParameters {
   /**
    * Event handler called when the dialog is opened or closed.
    */
-  onOpenChange?: (open: boolean, event?: Event) => void;
+  onOpenChange?: (
+    open: boolean,
+    event: Event | undefined,
+    reason: OpenChangeReason | undefined,
+  ) => void;
   /**
    * Determines whether the dialog should close on outside clicks.
    * @default true
@@ -216,7 +235,11 @@ export namespace useDialogRoot {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    onOpenChange: (open: boolean, event?: Event) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     /**
      * Whether the dialog is currently open.
      */

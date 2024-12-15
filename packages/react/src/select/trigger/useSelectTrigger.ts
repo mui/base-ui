@@ -138,8 +138,8 @@ export function useSelectTrigger(
     [
       fieldControlValidation,
       labelId,
-      handleRef,
       readOnly,
+      handleRef,
       getButtonProps,
       open,
       alignItemToTrigger,

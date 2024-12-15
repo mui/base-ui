@@ -22,6 +22,7 @@ import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
+    id: idProp,
     disabled = false,
     readOnly = false,
     required = false,
@@ -29,10 +30,17 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     modal = false,
   } = params;
 
-  const id = useBaseUiId();
-
-  const { setDirty, validityData, validationMode } = useFieldRootContext();
+  const { setDirty, validityData, validationMode, setControlId } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
+
+  const id = useBaseUiId(idProp);
+
+  useEnhancedEffect(() => {
+    setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
+  }, [id, setControlId]);
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: params.value,
