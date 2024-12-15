@@ -12,7 +12,12 @@ import { useField } from '../field/useField';
 export function useRadioGroup(params: useRadioGroup.Parameters) {
   const { disabled = false, name, defaultValue, readOnly, value: externalValue } = params;
 
-  const { labelId, setControlId, setTouched: setFieldTouched } = useFieldRootContext();
+  const {
+    labelId,
+    setControlId,
+    setTouched: setFieldTouched,
+    validationMode,
+  } = useFieldRootContext();
 
   const {
     getValidationProps,
@@ -56,7 +61,10 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
         onBlur(event) {
           if (!contains(event.currentTarget, event.relatedTarget)) {
             setFieldTouched(true);
-            commitValidation(checkedValue);
+
+            if (validationMode === 'onBlur') {
+              commitValidation(checkedValue);
+            }
           }
         },
         onKeyDownCapture(event) {
@@ -74,6 +82,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
       labelId,
       readOnly,
       setFieldTouched,
+      validationMode,
     ],
   );
 

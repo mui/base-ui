@@ -71,7 +71,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     values: sliderValues,
   } = parameters;
 
-  const { setTouched } = useFieldRootContext();
+  const { setTouched, validationMode } = useFieldRootContext();
   const {
     getInputValidationProps,
     inputRef: inputValidationRef,
@@ -135,17 +135,21 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
           if (!thumbRef.current) {
             return;
           }
+
           setTouched(true);
-          commitValidation(
-            getSliderValue({
-              valueInput: thumbValue,
-              min,
-              max,
-              index,
-              range: sliderValues.length > 1,
-              values: sliderValues,
-            }),
-          );
+
+          if (validationMode === 'onBlur') {
+            commitValidation(
+              getSliderValue({
+                valueInput: thumbValue,
+                min,
+                max,
+                index,
+                range: sliderValues.length > 1,
+                values: sliderValues,
+              }),
+            );
+          }
         },
         onKeyDown(event: React.KeyboardEvent) {
           let newValue = null;
@@ -233,6 +237,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       tabIndex,
       thumbId,
       thumbValue,
+      validationMode,
     ],
   );
 

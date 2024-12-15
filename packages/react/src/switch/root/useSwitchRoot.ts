@@ -24,7 +24,8 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     inputRef: externalInputRef,
   } = params;
 
-  const { labelId, setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
+  const { labelId, setControlId, setTouched, setDirty, validityData, validationMode } =
+    useFieldRootContext();
 
   const {
     getValidationProps,
@@ -78,8 +79,12 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
           if (!element) {
             return;
           }
+
           setTouched(true);
-          commitValidation(element.checked);
+
+          if (validationMode === 'onBlur') {
+            commitValidation(element.checked);
+          }
         },
         onClick(event) {
           if (event.defaultPrevented || readOnly) {
@@ -89,7 +94,16 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
           inputRef.current?.click();
         },
       }),
-    [getValidationProps, checked, disabled, readOnly, labelId, setTouched, commitValidation],
+    [
+      getValidationProps,
+      checked,
+      disabled,
+      readOnly,
+      labelId,
+      setTouched,
+      commitValidation,
+      validationMode,
+    ],
   );
 
   const getInputProps = React.useCallback(
@@ -116,6 +130,10 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
           setDirty(nextChecked !== validityData.initialValue);
           setCheckedState(nextChecked);
           onCheckedChange?.(nextChecked, event.nativeEvent);
+
+          if (validationMode === 'onChange') {
+            commitValidation(nextChecked);
+          }
         },
       }),
     [
@@ -130,6 +148,8 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
       validityData.initialValue,
       setCheckedState,
       onCheckedChange,
+      validationMode,
+      commitValidation,
     ],
   );
 

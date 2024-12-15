@@ -90,6 +90,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
               if (exactValue != null) {
                 setDirty(exactValue !== validityData.initialValue);
                 rootContext.setValue?.(exactValue, event.nativeEvent);
+                selectRoot.rootContext.fieldControlValidation.commitValidation(exactValue);
               }
             },
             id: rootContext.id,
