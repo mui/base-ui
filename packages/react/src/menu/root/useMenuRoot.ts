@@ -105,7 +105,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const dismiss = useDismiss(floatingRootContext, {
-    bubbles: closeParentOnEsc,
+    bubbles: closeParentOnEsc && nested,
     outsidePressEvent: 'mousedown',
   });
 
