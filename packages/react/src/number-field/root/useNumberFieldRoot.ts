@@ -45,7 +45,7 @@ export function useNumberFieldRoot(
     step,
     largeStep = 10,
     required = false,
-    disabled = false,
+    disabled: disabledProp = false,
     invalid = false,
     readOnly = false,
     autoFocus = false,
@@ -64,6 +64,7 @@ export function useNumberFieldRoot(
     setDirty,
     validityData,
     setValidityData,
+    disabled: fieldDisabled,
   } = useFieldRootContext();
 
   const {
@@ -72,6 +73,8 @@ export function useNumberFieldRoot(
     inputRef: inputValidationRef,
     commitValidation,
   } = useFieldControlValidation();
+
+  const disabled = fieldDisabled || disabledProp;
 
   const minWithDefault = min ?? Number.MIN_SAFE_INTEGER;
   const maxWithDefault = max ?? Number.MAX_SAFE_INTEGER;
