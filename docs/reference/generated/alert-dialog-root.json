@@ -12,7 +12,7 @@
       "description": "Whether the dialog is currently open."
     },
     "onOpenChange": {
-      "type": "(open, event) => void",
+      "type": "(open, event, reason) => void",
       "description": "Event handler called when the dialog is opened or closed."
     }
   },
