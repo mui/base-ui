@@ -2,10 +2,6 @@
   "name": "NoSsr",
   "description": "NoSsr purposely removes components from the subject of Server Side Rendering (SSR).\n\nThis component can be useful in a variety of situations:\n\n* Escape hatch for broken dependencies not supporting SSR.\n* Improve the time-to-first paint on the client by only rendering above the fold.\n* Reduce the rendering time on the server.\n* Under too heavy server load, you can turn on service degradation.",
   "props": {
-    "children": {
-      "type": "React.ReactNode",
-      "description": "You can wrap a node."
-    },
     "defer": {
       "type": "boolean",
       "default": "false",
@@ -15,6 +11,12 @@
       "type": "React.ReactNode",
       "default": "null",
       "description": "The fallback content to display."
+    },
+    "children": {
+      "type": "React.ReactNode",
+      "description": "You can wrap a node."
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }

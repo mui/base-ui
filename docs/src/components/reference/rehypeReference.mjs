@@ -108,7 +108,7 @@ export function rehypeReference() {
             );
           }
 
-          if (def.dataAttributes) {
+          if (Object.keys(def.dataAttributes).length) {
             subtree.push(
               createMdxElement({
                 name: ATTRIBUTES_TABLE,
@@ -117,7 +117,7 @@ export function rehypeReference() {
             );
           }
 
-          if (def.cssVariables) {
+          if (Object.keys(def.cssVariables).length) {
             subtree.push(
               createMdxElement({
                 name: CSS_VARIABLES_TABLE,

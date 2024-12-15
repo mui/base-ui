@@ -23,5 +23,6 @@
     "data-unchecked": {
       "description": "Present when the menu checkbox item is not checked."
     }
-  }
+  },
+  "cssVariables": {}
 }

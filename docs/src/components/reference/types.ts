@@ -2,8 +2,8 @@ export interface ComponentDef {
   name: string;
   description?: string;
   props: Record<string, PropDef>;
-  dataAttributes?: Record<string, AttributeDef>;
-  cssVariables?: Record<string, CssVariableDef>;
+  dataAttributes: Record<string, AttributeDef>;
+  cssVariables: Record<string, CssVariableDef>;
 }
 
 export interface PropDef {

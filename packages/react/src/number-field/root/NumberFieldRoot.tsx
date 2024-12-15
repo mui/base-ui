@@ -244,9 +244,9 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   smallStep: PropTypes.number,
   /**
-   * The step value of the input element when incrementing, decrementing, or scrubbing. It will snap
-   * to multiples of this value. When unspecified, decimal values are allowed, but the stepper
-   * buttons will increment or decrement by `1`.
+   * Amount to increment and decrement with the buttons and arrow keys,
+   * or to scrub with pointer movement in the scrub area.
+   * @default 1;
    */
   step: PropTypes.number,
   /**

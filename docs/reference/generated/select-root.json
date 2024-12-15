@@ -2,41 +2,45 @@
   "name": "SelectRoot",
   "description": "Groups all parts of the select.\nDoesn’t render its own HTML element.",
   "props": {
-    "alignItemToTrigger": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Determines if the selected item inside the popup should align to the trigger element."
-    },
-    "defaultOpen": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the select menu is initially open.\n\nTo render a controlled select menu, use the `open` prop instead."
+    "name": {
+      "type": "string",
+      "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
       "type": "any",
       "default": "null",
       "description": "The uncontrolled value of the select when it’s initially rendered.\n\nTo render a controlled select, use the `value` prop instead."
     },
-    "disabled": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the component should ignore user interaction."
-    },
-    "name": {
-      "type": "string",
-      "description": "Identifies the field when a form is submitted."
-    },
-    "onOpenChange": {
-      "type": "(open, event) => void",
-      "description": "Event handler called when the select menu is opened or closed."
+    "value": {
+      "type": "any",
+      "description": "The value of the select."
     },
     "onValueChange": {
       "type": "(value, event) => void",
       "description": "Callback fired when the value of the select changes. Use when controlled."
     },
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the select menu is initially open.\n\nTo render a controlled select menu, use the `open` prop instead."
+    },
     "open": {
       "type": "boolean",
       "description": "Whether the select menu is currently open."
+    },
+    "onOpenChange": {
+      "type": "(open, event) => void",
+      "description": "Event handler called when the select menu is opened or closed."
+    },
+    "alignItemToTrigger": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Determines if the selected item inside the popup should align to the trigger element."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction."
     },
     "readOnly": {
       "type": "boolean",
@@ -47,10 +51,8 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the user must choose a value before submitting a form."
-    },
-    "value": {
-      "type": "any",
-      "description": "The value of the select."
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }

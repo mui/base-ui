@@ -12,14 +12,11 @@
     }
   },
   "dataAttributes": {
-    "data-closed": {
-      "description": "Present when the preview card is closed."
-    },
-    "data-ending-style": {
-      "description": "Present when the preview card is animating out."
-    },
     "data-open": {
       "description": "Present when the preview card is open."
+    },
+    "data-closed": {
+      "description": "Present when the preview card is closed."
     },
     "data-side": {
       "description": "Indicates which side the preview card is positioned relative to the trigger.",
@@ -27,6 +24,10 @@
     },
     "data-starting-style": {
       "description": "Present when the preview card is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the preview card is animating out."
     }
-  }
+  },
+  "cssVariables": {}
 }
