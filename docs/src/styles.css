@@ -210,6 +210,14 @@
 }
 
 @layer all {
+  html {
+    /* Smooth scroll for anchors */
+    scroll-behavior: smooth;
+
+    /* Stable scrollbar */
+    overflow-y: scroll;
+  }
+
   body {
     font-synthesis: none;
     -webkit-font-smoothing: antialiased;
