@@ -10,14 +10,14 @@
 
     /* Use line height instead of fixed item height in case text breaks into multiple lines */
     --quick-nav-item-height: 2rem;
-    --quick-nav-item-line-height: var(--text-sm--line-height);
+    --quick-nav-item-line-height: var(--text-md--line-height);
     --quick-nav-item-padding-y: calc(
       var(--quick-nav-item-height) / 2 - var(--quick-nav-item-line-height) / 2
     );
 
     /* The variable is used in JS positioning logic */
     --top: -1px;
-    @apply text-sm;
+    @apply text-md;
     z-index: 1;
     position: sticky;
     top: var(--top);

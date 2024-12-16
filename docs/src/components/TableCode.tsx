@@ -1,4 +1,5 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { Code } from './Code';
 import { getChildrenText } from '../getChildrenText';
 
@@ -7,7 +8,7 @@ interface TableCodeProps extends React.ComponentProps<'code'> {
 }
 
 /** An inline code component that breaks long union types into multiple lines */
-export function TableCode({ children, printWidth = 40, ...props }: TableCodeProps) {
+export function TableCode({ children, className, printWidth = 40, ...props }: TableCodeProps) {
   const text = getChildrenText(children);
 
   if (text.includes('|') && text.length > printWidth) {
@@ -65,7 +66,7 @@ export function TableCode({ children, printWidth = 40, ...props }: TableCodeProp
   }
 
   return (
-    <Code data-table-code="" {...props}>
+    <Code data-table-code="" className={clsx('text-xs', className)} {...props}>
       {children}
     </Code>
   );

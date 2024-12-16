@@ -7,7 +7,6 @@ import { Code } from './components/Code';
 import { PropsTable } from './components/reference/PropsTable';
 import { AttributesTable } from './components/reference/AttributesTable';
 import { CssVariablesTable } from './components/reference/CssVariablesTable';
-import { TableCode } from './components/TableCode';
 import { getChildrenText } from './getChildrenText';
 import { Link } from './components/Link';
 import { Subtitle } from './components/subtitle/Subtitle';
@@ -83,14 +82,6 @@ export const mdxComponents: MDXComponents = {
 export const inlineMdxComponents: MDXComponents = {
   ...mdxComponents,
   p: (props) => <p {...props} />,
-};
-
-export const tableMdxComponents: MDXComponents = {
-  ...mdxComponents,
-  // Unwrap paragraphs in tables
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  p: (props) => <React.Fragment {...props} />,
-  code: TableCode,
 };
 
 export function useMDXComponents(): MDXComponents {

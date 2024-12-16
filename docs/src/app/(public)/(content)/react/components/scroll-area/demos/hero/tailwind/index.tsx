@@ -5,8 +5,8 @@ export default function ExampleScrollArea() {
   return (
     <ScrollArea.Root className="h-[8.5rem] w-96 max-w-[calc(100vw-8rem)]">
       <ScrollArea.Viewport className="h-full overscroll-contain rounded-md outline -outline-offset-1 outline-gray-200 focus-visible:outline-2 focus-visible:outline-blue-800">
-        <div className="flex flex-col gap-4 px-5 py-3">
-          <p className="text-sm text-gray-900">
+        <div className="flex flex-col gap-4 py-3 pr-6 pl-4 text-sm leading-[1.375rem] text-gray-900">
+          <p>
             Vernacular architecture is building done outside any academic tradition,
             and without professional guidance. It is not a particular architectural
             movement or style, but rather a broad category, encompassing a wide range
@@ -17,7 +17,7 @@ export default function ExampleScrollArea() {
             the small percentage of new buildings every year designed by architects
             and built by engineers.
           </p>
-          <p className="text-sm text-gray-900">
+          <p>
             This type of architecture usually serves immediate, local needs, is
             constrained by the materials available in its particular region and
             reflects local traditions and cultural practices. The study of vernacular
