@@ -6,7 +6,7 @@ export enum PreviewCardArrowDataAttributes {
   /**
    * Present when the preview card is closed.
    */
-  closed = 'data-unchecked',
+  closed = 'data-closed',
   /**
    * Present when the anchor is hidden.
    */
