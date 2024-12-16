@@ -125,7 +125,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
         checked,
         disabled,
         name,
-        value,
+        ...(value !== undefined ? { value } : {}),
         required,
         autoFocus,
         ref: mergedInputRef,
