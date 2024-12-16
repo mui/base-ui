@@ -14,7 +14,7 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 export function useMenuPositioner(
   params: useMenuPositioner.Parameters,
 ): useMenuPositioner.ReturnValue {
-  const { keepMounted, mounted } = params;
+  const { mounted } = params;
 
   const { open } = useMenuRootContext();
 
@@ -33,7 +33,7 @@ export function useMenuPositioner(
     (externalProps = {}) => {
       const hiddenStyles: React.CSSProperties = {};
 
-      if (keepMounted && !open) {
+      if (!open) {
         hiddenStyles.pointerEvents = 'none';
       }
 
@@ -46,7 +46,7 @@ export function useMenuPositioner(
         },
       });
     },
-    [keepMounted, open, positionerStyles, mounted],
+    [open, positionerStyles, mounted],
   );
 
   return React.useMemo(
@@ -123,11 +123,6 @@ export namespace useMenuPositioner {
      * @default 5
      */
     collisionPadding?: Padding;
-    /**
-     * Whether to keep the HTML element in the DOM while the menu is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
     /**
      * Whether to maintain the menu in the viewport after
      * the anchor element is scrolled out of view.

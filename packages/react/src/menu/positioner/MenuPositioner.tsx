@@ -28,7 +28,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     positionMethod = 'absolute',
     className,
     render,
-    keepMounted = false,
     side,
     align,
     sideOffset = 0,
@@ -118,11 +117,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     ref: mergedRef,
     extraProps: otherProps,
   });
-
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
 
   return (
     <MenuPositionerContext.Provider value={contextValue}>
@@ -218,11 +212,6 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
       top: PropTypes.number,
     }),
   ]),
-  /**
-   * Whether to keep the HTML element in the DOM while the menu is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Determines which CSS `position` property to use.
    * @default 'absolute'

@@ -69,22 +69,24 @@ describe('<Menu.Item />', () => {
 
     const { getAllByRole } = await render(
       <Menu.Root open>
-        <Menu.Positioner>
-          <Menu.Popup>
-            <Menu.Item render={<LoggingRoot renderSpy={renderItem1Spy} />} id="item-1">
-              1
-            </Menu.Item>
-            <Menu.Item render={<LoggingRoot renderSpy={renderItem2Spy} />} id="item-2">
-              2
-            </Menu.Item>
-            <Menu.Item render={<LoggingRoot renderSpy={renderItem3Spy} />} id="item-3">
-              3
-            </Menu.Item>
-            <Menu.Item render={<LoggingRoot renderSpy={renderItem4Spy} />} id="item-4">
-              4
-            </Menu.Item>
-          </Menu.Popup>
-        </Menu.Positioner>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item render={<LoggingRoot renderSpy={renderItem1Spy} />} id="item-1">
+                1
+              </Menu.Item>
+              <Menu.Item render={<LoggingRoot renderSpy={renderItem2Spy} />} id="item-2">
+                2
+              </Menu.Item>
+              <Menu.Item render={<LoggingRoot renderSpy={renderItem3Spy} />} id="item-3">
+                3
+              </Menu.Item>
+              <Menu.Item render={<LoggingRoot renderSpy={renderItem4Spy} />} id="item-4">
+                4
+              </Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
       </Menu.Root>,
     );
 
@@ -128,11 +130,13 @@ describe('<Menu.Item />', () => {
       const { getByRole, queryByRole } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item>Item</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -149,11 +153,13 @@ describe('<Menu.Item />', () => {
       const { getByRole, queryByRole } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item closeOnClick={false}>Item</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item closeOnClick={false}>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 

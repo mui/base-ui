@@ -7,8 +7,8 @@ export default function RadioItems() {
   return (
     <Menu.Root>
       <MenuButton>Font</MenuButton>
-      <Menu.Portal>
-        <MenuPositioner align="start" keepMounted>
+      <Menu.Portal keepMounted>
+        <MenuPositioner align="start">
           <MenuPopup>
             <Menu.RadioGroup defaultValue={'jetbrains-mono'}>
               <RadioItem value="cascadia-code">

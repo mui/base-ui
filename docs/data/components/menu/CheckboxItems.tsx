@@ -14,8 +14,8 @@ export default function CheckboxItems() {
   return (
     <Menu.Root>
       <MenuButton>My account</MenuButton>
-      <Menu.Portal>
-        <MenuPositioner align="start" keepMounted>
+      <Menu.Portal keepMounted>
+        <MenuPositioner align="start">
           <MenuPopup>
             <MenuItem onClick={createHandleMenuClick('Profile')}>Profile</MenuItem>
             <MenuItem onClick={createHandleMenuClick('Language settings')}>

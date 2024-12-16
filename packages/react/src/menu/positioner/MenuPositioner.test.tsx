@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
-import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
@@ -58,18 +57,20 @@ describe('<Menu.Positioner />', () => {
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>
-              <Menu.Positioner
-                side="bottom"
-                align="start"
-                anchor={anchor}
-                arrowPadding={0}
-                data-testid="positioner"
-              >
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                  <Menu.Item>2</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={anchor}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
             </Menu.Root>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={anchor} />
           </div>
@@ -106,18 +107,20 @@ describe('<Menu.Positioner />', () => {
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>
-              <Menu.Positioner
-                side="bottom"
-                align="start"
-                anchor={anchor}
-                arrowPadding={0}
-                data-testid="positioner"
-              >
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                  <Menu.Item>2</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={anchor}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
             </Menu.Root>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={handleRef} />
           </div>
@@ -156,18 +159,20 @@ describe('<Menu.Positioner />', () => {
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>
-              <Menu.Positioner
-                side="bottom"
-                align="start"
-                anchor={getAnchor}
-                arrowPadding={0}
-                data-testid="positioner"
-              >
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                  <Menu.Item>2</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={getAnchor}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
             </Menu.Root>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={handleRef} />
           </div>
@@ -211,81 +216,25 @@ describe('<Menu.Positioner />', () => {
 
       const { getByTestId } = await render(
         <Menu.Root open>
-          <Menu.Positioner
-            side="bottom"
-            align="start"
-            anchor={virtualElement}
-            arrowPadding={0}
-            data-testid="positioner"
-          >
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Item>2</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="bottom"
+              align="start"
+              anchor={virtualElement}
+              arrowPadding={0}
+              data-testid="positioner"
+            >
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Item>2</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
       const positioner = getByTestId('positioner');
       expect(positioner.style.getPropertyValue('transform')).to.equal(`translate(200px, 100px)`);
-    });
-  });
-
-  describe('prop: keepMounted', () => {
-    const user = userEvent.setup();
-
-    it('when keepMounted=true, should keep the content mounted when closed', async () => {
-      const { getByRole, queryByRole } = await render(
-        <Menu.Root>
-          <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner keepMounted>
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Item>2</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Root>,
-      );
-
-      const trigger = getByRole('button', { name: 'Toggle' });
-
-      expect(queryByRole('menu', { hidden: true })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: true })).toBeInaccessible();
-
-      await user.click(trigger);
-      await flushMicrotasks();
-      expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: false })).not.toBeInaccessible();
-
-      await user.click(trigger);
-      expect(queryByRole('menu', { hidden: true })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: true })).toBeInaccessible();
-    });
-
-    it('when keepMounted=false, should unmount the content when closed', async () => {
-      const { getByRole, queryByRole } = await render(
-        <Menu.Root>
-          <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner keepMounted={false}>
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Item>2</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Root>,
-      );
-
-      const trigger = getByRole('button', { name: 'Toggle' });
-
-      expect(queryByRole('menu', { hidden: true })).to.equal(null);
-
-      await user.click(trigger);
-      await flushMicrotasks();
-      expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: false })).not.toBeInaccessible();
-
-      await user.click(trigger);
-      expect(queryByRole('menu', { hidden: true })).to.equal(null);
     });
   });
 });
