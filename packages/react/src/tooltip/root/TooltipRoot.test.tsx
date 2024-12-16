@@ -6,6 +6,8 @@ import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+
 function Root(props: Tooltip.Root.Props) {
   return <Tooltip.Root {...props} />;
 }
@@ -64,10 +66,11 @@ describe('<Tooltip.Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
 
-    it('should open when the trigger is focused', async () => {
-      if (!/jsdom/.test(window.navigator.userAgent)) {
-        // Ignore due to `:focus-visible` being required in the browser.
-        return;
+    it('should open when the trigger is focused', async function test(t = {}) {
+      if (isJSDOM) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
       }
 
       await render(
