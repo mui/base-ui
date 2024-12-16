@@ -10,6 +10,7 @@ import { CssVariablesTable } from './components/reference/CssVariablesTable';
 import { getChildrenText } from './getChildrenText';
 import { Link } from './components/Link';
 import { Subtitle } from './components/subtitle/Subtitle';
+import { Kbd } from './components/kbd/Kbd';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -42,6 +43,7 @@ export const mdxComponents: MDXComponents = {
   li: (props) => <li className="mb-0.5" {...props} />,
   ul: (props) => <ul className="mb-4 ml-4.5 list-disc" {...props} />,
   ol: (props) => <ol className="mb-4 ml-7 list-decimal" {...props} />,
+  kbd: Kbd,
   strong: (props) => <strong className="font-medium" {...props} />,
   figure: (props) => {
     if ('data-rehype-pretty-code-figure' in props) {
