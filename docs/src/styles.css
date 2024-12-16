@@ -166,6 +166,8 @@
     --color-gridline: oklch(24% 1% 264);
     --color-highlight: oklch(45% 40% 264);
     --color-selection: oklch(50% 50% 264 / 40%);
+    --color-line-highlight: oklch(50% 50% 264 / 20%);
+    --color-line-highlight-strong: oklch(50% 50% 264 / 35%);
 
     /* Text colors */
     --color-gray: var(--color-gray-600);
