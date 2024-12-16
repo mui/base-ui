@@ -48,7 +48,7 @@
       "description": "Present when the radio is required."
     },
     "data-valid": {
-      "description": "Present when the radio is in valid state (when wrapped in Field.Root).."
+      "description": "Present when the radio is in valid state (when wrapped in Field.Root)."
     },
     "data-invalid": {
       "description": "Present when the radio is in invalid state (when wrapped in Field.Root)."

@@ -28,7 +28,7 @@
       "description": "Present when the switch is required."
     },
     "data-valid": {
-      "description": "Present when the switch is in valid state (when wrapped in Field.Root).."
+      "description": "Present when the switch is in valid state (when wrapped in Field.Root)."
     },
     "data-invalid": {
       "description": "Present when the switch is in invalid state (when wrapped in Field.Root)."

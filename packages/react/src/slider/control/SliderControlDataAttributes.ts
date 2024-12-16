@@ -21,7 +21,7 @@ export enum SliderControlDataAttributes {
    */
   required = 'data-required',
   /**
-   * Present when the slider is in valid state (when wrapped in Field.Root)..
+   * Present when the slider is in valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',
   /**

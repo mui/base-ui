@@ -20,7 +20,7 @@ export enum RadioRootDataAttributes {
    */
   required = 'data-required',
   /**
-   * Present when the radio is in valid state (when wrapped in Field.Root)..
+   * Present when the radio is in valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',
   /**
