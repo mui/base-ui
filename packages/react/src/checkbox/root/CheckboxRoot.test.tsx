@@ -300,6 +300,45 @@ describe('<Checkbox.Root />', () => {
     expect(stringifiedFormData).to.equal('test-checkbox=on');
   });
 
+  it('should include the custom checkbox value in the form submission', async function test(t = {}) {
+    if (isJSDOM) {
+      // FormData is not available in JSDOM
+      // @ts-expect-error to support mocha and vitest
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      this?.skip?.() || t?.skip();
+    }
+
+    let stringifiedFormData = '';
+
+    const { getAllByRole, getByRole } = await render(
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+          stringifiedFormData = new URLSearchParams(formData as any).toString();
+        }}
+      >
+        <Checkbox.Root name="test-checkbox" value="test-value" />
+        <button type="submit">Submit</button>
+      </form>,
+    );
+
+    const [checkbox] = getAllByRole('checkbox');
+    const submitButton = getByRole('button')!;
+
+    submitButton.click();
+
+    expect(stringifiedFormData).to.equal('test-checkbox=off');
+
+    await act(async () => {
+      checkbox.click();
+    });
+
+    submitButton.click();
+
+    expect(stringifiedFormData).to.equal('test-checkbox=test-value');
+  });
+
   it('should change state when clicking the checkbox if it has a wrapping label', async () => {
     const { getAllByRole } = await render(
       <label data-testid="label">

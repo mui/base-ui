@@ -1,3 +1,9 @@
+.Container {
+  display: flex;
+  gap: 1rem;
+  text-wrap: nowrap;
+}
+
 .Separator {
   width: 1px;
   background-color: var(--color-gray-300);

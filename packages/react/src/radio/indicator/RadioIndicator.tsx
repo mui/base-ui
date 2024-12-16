@@ -5,6 +5,9 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useRadioRootContext } from '../root/RadioRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useForkRef } from '../../utils/useForkRef';
+import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
  * Indicates whether the radio button is selected.
@@ -18,18 +21,44 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
 ) {
   const { render, className, keepMounted = true, ...otherProps } = props;
 
-  const state = useRadioRootContext();
+  const rootState = useRadioRootContext();
+
+  const rendered = rootState.checked;
+
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
+
+  const state: RadioIndicator.State = React.useMemo(
+    () => ({
+      ...rootState,
+      transitionStatus,
+    }),
+    [rootState, transitionStatus],
+  );
+
+  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+  const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'span',
-    ref: forwardedRef,
+    ref: mergedRef,
     className,
     state,
-    extraProps: otherProps,
+    extraProps: {
+      hidden: !mounted,
+      ...otherProps,
+    },
     customStyleHookMapping,
   });
 
-  const shouldRender = keepMounted || state.checked;
+  useAfterExitAnimation({
+    open: rendered,
+    animatedElementRef: indicatorRef,
+    onFinished() {
+      setMounted(false);
+    },
+  });
+
+  const shouldRender = keepMounted || rendered;
   if (!shouldRender) {
     return null;
   }
@@ -51,6 +80,7 @@ namespace RadioIndicator {
      * Whether the radio button is currently selected.
      */
     checked: boolean;
+    transitionStatus: TransitionStatus;
   }
 }
 
