@@ -264,7 +264,7 @@ const MenuButton = styled(Menu.Trigger)(
 
 const Container = styled('div')`
   display: flex;
-  min-height: 200vh;
+  min-height: 110vh;
   box-sizing: border-box;
   align-items: center;
   gap: 20px;
