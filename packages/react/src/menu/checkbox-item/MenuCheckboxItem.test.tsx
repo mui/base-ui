@@ -210,7 +210,13 @@ describe('<Menu.CheckboxItem />', () => {
       expect(item).to.have.attribute('data-unchecked', '');
     });
 
-    it(`toggles the checked state and closes the menu when Enter is pressed`, async () => {
+    it(`toggles the checked state and closes the menu when Enter is pressed`, async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
       const { getByRole, queryByRole } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
