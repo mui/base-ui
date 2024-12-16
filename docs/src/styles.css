@@ -75,8 +75,10 @@
   --color-foreground: var(--color-gray-900);
   --color-popup: white;
   --color-gridline: oklch(91.6% 1% 264);
-  --color-highlight: var(--color-blue);
   --color-selection: oklch(80% 50% 264 / 25%);
+  --color-highlight: var(--color-blue);
+  --color-line-highlight: oklch(80% 50% 264 / 10%);
+  --color-line-highlight-strong: oklch(80% 50% 264 / 25%);
 
   /* Text colors for the docs */
   --color-gray: var(--color-gray-600);

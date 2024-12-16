@@ -31,16 +31,6 @@ import { Menu } from '@base-ui-components/react/menu';
           <Menu.RadioItem />
         </Menu.RadioGroup>
         <Menu.CheckboxItem />
-
-        {/* Submenu */}
-        <Menu.Root>
-          <Menu.SubmenuTrigger />
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>...</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
       </Menu.Popup>
     </Menu.Positioner>
   </Menu.Portal>
@@ -51,3 +41,53 @@ import { Menu } from '@base-ui-components/react/menu';
   component="Menu"
   parts="Root, Trigger, Portal, Positioner, Popup, Arrow, Item,  Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator, SubmenuTrigger, Separator"
 />
+
+## Examples
+
+### Open on hover
+
+To create a menu that opens on hover, add the `openOnHover` prop to the Root part. You can additionally configure how quickly the menu opens on hover using the `delay` prop.
+
+<Demo path="./demos/open-on-hover" />
+
+### Checkbox items
+
+Use the `<Menu.CheckboxItem>` part to create a menu item that can toggle a setting on or off.
+
+<Demo path="./demos/checkbox-items" />
+
+### Nested menu
+
+To create a submenu, nest another menu inside the parent menu. Use the `<Menu.SubmenuTrigger>` part for the menu item that would open the submenu.
+
+```jsx {11-21} {12}#strong title="Adding a submenu"
+<Menu.Root>
+  <Menu.Trigger />
+  <Menu.Portal>
+    <Menu.Backdrop />
+    <Menu.Positioner>
+      <Menu.Popup>
+        <Menu.Arrow />
+        <Menu.Item />
+
+        {/* Submenu */}
+        <Menu.Root>
+          <Menu.SubmenuTrigger />
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                {/* prettier-ignore */}
+                {/* Submenu items  */}
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.Popup>
+    </Menu.Positioner>
+  </Menu.Portal>
+</Menu.Root>
+```
+
+Refer to the demo below for the full example:
+
+<Demo path="./demos/submenu" />

@@ -1,5 +1,28 @@
 @layer components {
   .Code {
     letter-spacing: normal;
+
+    /* In a code block */
+    pre & {
+      white-space: normal;
+    }
+
+    & [data-line]:empty {
+      height: 1lh;
+    }
+
+    & [data-line] {
+      display: block;
+      white-space: pre;
+      padding-inline: 0.75rem;
+    }
+
+    & [data-highlighted-line] {
+      background-color: var(--color-line-highlight);
+    }
+
+    & [data-highlighted-line-id='strong'] {
+      background-color: var(--color-line-highlight-strong);
+    }
   }
 }
