@@ -69,7 +69,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
         <input
           {...rootContext.fieldControlValidation.getInputValidationProps({
             onFocus() {
-              // Move focus from the hidden <select> to the trigger element.
+              // Move focus to the trigger element when the hidden input is focused.
               rootContext.triggerElement?.focus();
             },
             // Handle browser autofill.

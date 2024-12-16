@@ -87,7 +87,9 @@ describe('<Toggle />', () => {
       const { getByRole } = await render(<Toggle disabled onPressedChange={handlePressed} />);
 
       const button = getByRole('button');
+
       expect(button).to.have.attribute('disabled');
+      expect(button).to.have.attribute('data-disabled');
       expect(button).to.have.attribute('aria-pressed', 'false');
 
       await act(async () => {

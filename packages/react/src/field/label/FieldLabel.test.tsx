@@ -34,31 +34,31 @@ describe('<Field.Label />', () => {
   describe('component integration', () => {
     describe('Checkbox', () => {
       it('supports Checkbox', () => {
-        const { container } = render(
+        render(
           <Field.Root>
             <Checkbox.Root data-testid="button" />
             <Field.Label data-testid="label" />
           </Field.Root>,
         );
 
-        const internalInput = container.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+        const button = screen.getByTestId('button');
 
-        expect(screen.getByTestId('label')).to.have.attribute('for', internalInput.id);
+        expect(screen.getByTestId('label')).to.have.attribute('for', button.id);
       });
     });
 
     describe('Switch', () => {
       it('supports Switch', () => {
-        const { container } = render(
+        render(
           <Field.Root>
             <Switch.Root data-testid="button" />
             <Field.Label data-testid="label" />
           </Field.Root>,
         );
 
-        const internalInput = container.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+        const button = screen.getByTestId('button');
 
-        expect(screen.getByTestId('label')).to.have.attribute('for', internalInput.id);
+        expect(screen.getByTestId('label')).to.have.attribute('for', button.id);
       });
     });
 

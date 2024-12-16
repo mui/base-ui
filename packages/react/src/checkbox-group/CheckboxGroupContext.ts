@@ -8,6 +8,7 @@ export interface CheckboxGroupContext {
   setValue: (value: string[], event: Event) => void;
   allValues: string[] | undefined;
   parent: UseCheckboxGroupParent.ReturnValue;
+  disabled: boolean;
 }
 
 export const CheckboxGroupContext = React.createContext<CheckboxGroupContext | undefined>(

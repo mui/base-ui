@@ -6,5 +6,7 @@
       "type": "React.Ref | HTMLElement | null",
       "description": "A parent element to render the portal into."
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }

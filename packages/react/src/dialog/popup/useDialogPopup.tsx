@@ -1,6 +1,11 @@
 'use client';
 import * as React from 'react';
-import { type FloatingRootContext, useFloating, type FloatingContext } from '@floating-ui/react';
+import {
+  type FloatingRootContext,
+  useFloating,
+  type FloatingContext,
+  type OpenChangeReason as FloatingUIOpenChangeReason,
+} from '@floating-ui/react';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
@@ -8,6 +13,10 @@ import { useScrollLock } from '../../utils/useScrollLock';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { GenericHTMLProps } from '../../utils/types';
+import {
+  translateOpenChangeReason,
+  type OpenChangeReason,
+} from '../../utils/translateOpenChangeReason';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
@@ -18,7 +27,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     initialFocus,
     modal,
     mounted,
-    onOpenChange,
+    setOpen,
     open,
     openMethod,
     ref,
@@ -27,9 +36,17 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     titleElementId,
   } = parameters;
 
+  const handleFloatingUIOpenChange = (
+    isOpen: boolean,
+    event: Event | undefined,
+    reason: FloatingUIOpenChangeReason | undefined,
+  ) => {
+    setOpen(isOpen, event, translateOpenChangeReason(reason));
+  };
+
   const { context, elements } = useFloating({
     open,
-    onOpenChange,
+    onOpenChange: handleFloatingUIOpenChange,
     rootContext: floatingRootContext,
   });
 
@@ -112,7 +129,11 @@ export namespace useDialogPopup {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    onOpenChange: (open: boolean, event?: Event) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     /**
      * The id of the title element associated with the dialog.
      */

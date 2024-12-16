@@ -2,10 +2,6 @@
   "name": "NumberFieldScrubArea",
   "description": "An interactive area where the user can click and drag to change the field value.\nRenders a `<div>` element.",
   "props": {
-    "className": {
-      "type": "string | (state) => string",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
-    },
     "direction": {
       "type": "'horizontal' | 'vertical'",
       "default": "'horizontal'",
@@ -16,13 +12,44 @@
       "default": "2",
       "description": "Determines how many pixels the cursor must move before the value changes.\nA higher value will make scrubbing less sensitive."
     },
-    "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
-    },
     "teleportDistance": {
       "type": "number",
       "description": "If specified, determines the distance that the cursor may move from the center\nof the scrub area before it will loop back around."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the number field is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the number field is readonly."
+    },
+    "data-required": {
+      "description": "Present when the number field is required."
+    },
+    "data-valid": {
+      "description": "Present when the number field is in valid state (when wrapped in Field.Root).."
+    },
+    "data-invalid": {
+      "description": "Present when the number field is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-dirty": {
+      "description": "Present when the number field's value has changed (when wrapped in Field.Root)."
+    },
+    "data-touched": {
+      "description": "Present when the number field has been thouched (when wrapped in Field.Root)."
+    },
+    "data-scrubbing": {
+      "description": "Present while scrubbing."
+    }
+  },
+  "cssVariables": {}
 }

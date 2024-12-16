@@ -12,43 +12,6 @@
       "default": "0",
       "description": "Additional offset along the alignment axis of the element."
     },
-    "anchor": {
-      "type": "React.Ref | Element | VirtualElement | (() => Element | VirtualElement | null) | null",
-      "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
-    },
-    "arrowPadding": {
-      "type": "number",
-      "default": "5",
-      "description": "Minimum distance to maintain between the arrow and the edges of the popup.\n\nUse it to prevent the arrow element from hanging out of the rounded corners of a popup."
-    },
-    "className": {
-      "type": "string | (state) => string",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
-    },
-    "collisionBoundary": {
-      "type": "'clippingAncestors' | Element | Element[] | Rect",
-      "default": "'clipping-ancestors'",
-      "description": "An element or a rectangle that delimits the area that the popup is confined to."
-    },
-    "collisionPadding": {
-      "type": "number | Rect",
-      "default": "5",
-      "description": "Additional space to maintain from the edge of the collision boundary."
-    },
-    "keepMounted": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether to keep the HTML element in the DOM while the popover is hidden."
-    },
-    "positionMethod": {
-      "type": "'absolute' | 'fixed'",
-      "default": "'absolute'",
-      "description": "Determines which CSS `position` property to use."
-    },
-    "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
-    },
     "side": {
       "type": "'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
       "default": "'bottom'",
@@ -59,32 +22,63 @@
       "default": "0",
       "description": "Distance between the anchor and the popup."
     },
+    "arrowPadding": {
+      "type": "number",
+      "default": "5",
+      "description": "Minimum distance to maintain between the arrow and the edges of the popup.\n\nUse it to prevent the arrow element from hanging out of the rounded corners of a popup."
+    },
+    "anchor": {
+      "type": "React.Ref | Element | VirtualElement | (() => Element | VirtualElement | null) | null",
+      "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
+    },
+    "collisionBoundary": {
+      "type": "'clipping-ancestors' | Element | Element[] | Rect",
+      "default": "'clipping-ancestors'",
+      "description": "An element or a rectangle that delimits the area that the popup is confined to."
+    },
+    "collisionPadding": {
+      "type": "number | Rect",
+      "default": "5",
+      "description": "Additional space to maintain from the edge of the collision boundary."
+    },
     "sticky": {
       "type": "boolean",
       "default": "false",
       "description": "Whether to maintain the popup in the viewport after\nthe anchor element is scrolled out of view."
+    },
+    "positionMethod": {
+      "type": "'absolute' | 'fixed'",
+      "default": "'absolute'",
+      "description": "Determines which CSS `position` property to use."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to keep the HTML element in the DOM while the popover is hidden."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
-  "cssVariables": {
-    "--anchor-height": {
-      "description": "The anchor's height.",
-      "type": "number"
+  "dataAttributes": {
+    "data-unchecked": {
+      "description": "Present when the popup is closed."
     },
-    "--anchor-width": {
-      "description": "The anchor's width.",
-      "type": "number"
+    "data-open": {
+      "description": "Present when the popup is open."
     },
-    "--available-height": {
-      "description": "The available height between the trigger and the edge of the viewport.",
-      "type": "number"
+    "data-anchor-hidden": {
+      "description": "Present when the anchor is hidden."
     },
-    "--available-width": {
-      "description": "The available width between the trigger and the edge of the viewport.",
-      "type": "number"
-    },
-    "--transform-origin": {
-      "description": "The coordinates that this element is anchored to. Used for animations and transitions.",
-      "type": "string"
+    "data-side": {
+      "description": "Indicates which side the popup is positioned relative to the trigger.",
+      "type": "'none' | 'top' | 'right' | 'bottom' | 'left'"
     }
-  }
+  },
+  "cssVariables": {}
 }

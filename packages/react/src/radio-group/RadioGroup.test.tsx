@@ -45,8 +45,15 @@ describe('<RadioGroup />', () => {
 
   describe('prop: disabled', () => {
     it('should have the `aria-disabled` attribute', () => {
-      render(<RadioGroup disabled />);
+      const { container } = render(
+        <RadioGroup disabled>
+          <Radio.Root value="a" />
+        </RadioGroup>,
+      );
       expect(screen.getByRole('radiogroup')).to.have.attribute('aria-disabled', 'true');
+      expect(screen.getByRole('radio')).to.have.attribute('disabled');
+      expect(screen.getByRole('radio')).to.have.attribute('data-disabled');
+      expect(container.querySelector('input')).to.have.attribute('disabled');
     });
 
     it('should not have the aria attribute when `disabled` is not set', () => {

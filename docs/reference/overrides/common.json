@@ -7,7 +7,7 @@
       "type": "string | (state) => string"
     },
     "collisionBoundary": {
-      "type": "'clippingAncestors' | Element | Element[] | Rect"
+      "type": "'clipping-ancestors' | Element | Element[] | Rect"
     },
     "collisionPadding": {
       "type": "number | Rect"

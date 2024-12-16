@@ -8,9 +8,6 @@ import { CompositeItem } from '../composite/item/CompositeItem';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
 import { useToggle } from './useToggle';
 
-const customStyleHookMapping = {
-  disabled: () => null,
-};
 /**
  * A two-state button that can be on or off.
  * Renders a `<button>` element.
@@ -62,7 +59,6 @@ const Toggle = React.forwardRef(function Toggle(
     ref: forwardedRef,
     state,
     className,
-    customStyleHookMapping,
     extraProps: otherProps,
   });
 
