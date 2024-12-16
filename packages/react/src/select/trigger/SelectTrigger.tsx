@@ -18,14 +18,7 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
   props: SelectTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const {
-    render,
-    className,
-    id: idProp,
-    disabled: disabledProp = false,
-    label,
-    ...otherProps
-  } = props;
+  const { render, className, id: idProp, disabled: disabledProp = false, ...otherProps } = props;
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
 
@@ -62,17 +55,16 @@ namespace SelectTrigger {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
-    /**
-     * Label of the button
-     */
-    label?: string;
   }
 
   export interface State {
+    /**
+     * Whether the select menu is currently open.
+     */
     open: boolean;
   }
 }
@@ -87,11 +79,12 @@ SelectTrigger.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the component is disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -100,11 +93,10 @@ SelectTrigger.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * Label of the button
-   */
-  label: PropTypes.string,
-  /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

@@ -40,10 +40,9 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
-      hidden: !collapsible.mounted,
       transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.open, collapsible.disabled, collapsible.mounted, collapsible.transitionStatus],
+    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
   );
 
   const contextValue: CollapsibleRootContext = React.useMemo(
@@ -82,9 +81,7 @@ export { CollapsibleRoot };
 
 export namespace CollapsibleRoot {
   export interface State
-    extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {
-    hidden: boolean;
-  }
+    extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
 
   export interface Props
     extends Partial<useCollapsibleRoot.Parameters>,
@@ -103,27 +100,30 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the Collapsible is initially open.
-   * This is the uncontrolled counterpart of `open`.
+   * Whether the collapsible panel is initially open.
+   *
+   * To render a controlled collapsible, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
   /**
-   * If `true`, the component is disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * Callback fired when the Collapsible is opened or closed.
+   * Event handler called when the panel is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
-   * If `true`, the Collapsible is initially open.
-   * This is the controlled counterpart of `defaultOpen`.
+   * Whether the collapsible panel is currently open.
+   *
+   * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
    */
   open: PropTypes.bool,
   /**

@@ -4,21 +4,31 @@
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
-    },
-    "container": {
-      "type": "React.Ref | HTMLElement | null",
-      "default": "false",
-      "description": "The container element to which the backdrop is appended to."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the backdrop remains mounted when the menu popup is closed."
+      "description": "Whether to keep the HTML element in the DOM while the menu is hidden."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-open": {
+      "description": "Present when the menu is open."
+    },
+    "data-closed": {
+      "description": "Present when the menu is closed."
+    },
+    "data-starting-style": {
+      "description": "Present when the menu is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the menu is animating out."
+    }
+  },
+  "cssVariables": {}
 }

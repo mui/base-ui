@@ -4,12 +4,6 @@ import { useControlled } from '../../utils/useControlled';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
-/**
- *
- * API:
- *
- * - [useMenuCheckboxItem API](https://mui.com/base-ui/api/use-menu-checkbox-item/)
- */
 export function useMenuCheckboxItem(
   params: useMenuCheckboxItem.Parameters,
 ): useMenuCheckboxItem.ReturnValue {

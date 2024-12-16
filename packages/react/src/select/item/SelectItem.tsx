@@ -127,11 +127,12 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the select item will be disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -150,8 +151,8 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
     current: PropTypes.number.isRequired,
   }).isRequired,
   /**
-   * A text representation of the select item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use on the trigger when this item is selected
+   * and when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
@@ -165,7 +166,10 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
     current: PropTypes.object,
   }).isRequired,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
@@ -276,27 +280,33 @@ const SelectItem = React.forwardRef(function SelectItem(
 
 namespace SelectItem {
   export interface State {
+    /**
+     * Whether the component should ignore user interaction.
+     */
     disabled: boolean;
     highlighted: boolean;
     selected: boolean;
+    /**
+     * Whether the select menu is currently open.
+     */
     open: boolean;
   }
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'id'> {
     children?: React.ReactNode;
     /**
-     * The value of the select item.
+     * A unique value that identifies this select item.
      * @default null
      */
     value?: any;
     /**
-     * If `true`, the select item will be disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
     /**
-     * A text representation of the select item's content.
-     * Used for keyboard text navigation matching.
+     * Overrides the text label to use on the trigger when this item is selected
+     * and when the item is matched during keyboard text navigation.
      */
     label?: string;
   }
@@ -312,17 +322,17 @@ SelectItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the select item will be disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * A text representation of the select item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use on the trigger when this item is selected
+   * and when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
-   * The value of the select item.
+   * A unique value that identifies this select item.
    * @default null
    */
   value: PropTypes.any,

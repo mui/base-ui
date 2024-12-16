@@ -111,8 +111,8 @@
 
 .Summary {
   margin: 0;
-  font-size: 0.9375rem;
-  line-height: 1.375rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   color: var(--color-gray-900);
   text-wrap: pretty;
 }

@@ -93,9 +93,13 @@
   --text-xs--line-height: 1.25rem;
   --text-xs--letter-spacing: 0.001em;
 
-  --text-sm: 0.9375rem;
-  --text-sm--line-height: 1.375rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
   --text-sm--letter-spacing: 0em;
+
+  --text-md: 0.9375rem;
+  --text-md--line-height: 1.375rem;
+  --text-md--letter-spacing: 0em;
 
   --text-base: 1rem;
   --text-base--line-height: 1.5rem;
@@ -173,6 +177,10 @@
 /* Disable docs-specific variables in the demos. Keep this in sync with the "@theme" block above */
 @layer theme {
   [data-demo] {
+    --text-md: initial;
+    --text-md--line-height: initial;
+    --text-md--letter-spacing: initial;
+
     --color-gray: initial;
     --color-navy: initial;
     --color-green: initial;
@@ -210,6 +218,11 @@
 }
 
 @layer all {
+  html {
+    /* Stable scrollbar */
+    overflow-y: scroll;
+  }
+
   body {
     font-synthesis: none;
     -webkit-font-smoothing: antialiased;

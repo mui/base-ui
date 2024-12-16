@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useFloatingTree } from '@floating-ui/react';
+import { FloatingFocusManager, useFloatingTree } from '@floating-ui/react';
 import { useMenuPopup } from './useMenuPopup';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -31,8 +31,11 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { render, className, ...other } = props;
-  const { open, setOpen, popupRef, transitionStatus } = useMenuRootContext();
-  const { side, align } = useMenuPositionerContext();
+
+  const { open, setOpen, popupRef, transitionStatus, nested, mounted, getPopupProps, modal } =
+    useMenuRootContext();
+  const { side, align, floatingContext } = useMenuPositionerContext();
+
   const { events: menuEvents } = useFloatingTree()!;
 
   useMenuPopup({
@@ -48,11 +51,13 @@ const MenuPopup = React.forwardRef(function MenuPopup(
       side,
       align,
       open,
+      nested,
     }),
-    [transitionStatus, side, align, open],
+    [transitionStatus, side, align, open, nested],
   );
 
   const { renderElement } = useComponentRenderer({
+    propGetter: getPopupProps,
     render: render || 'div',
     className,
     state,
@@ -66,14 +71,26 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     ref: mergedRef,
   });
 
-  return renderElement();
+  return (
+    <FloatingFocusManager
+      context={floatingContext}
+      modal={false}
+      initialFocus={nested ? -1 : popupRef}
+      returnFocus
+      disabled={!mounted}
+      visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
+      order={!nested ? ['content', 'reference'] : undefined}
+    >
+      {renderElement()}
+    </FloatingFocusManager>
+  );
 });
 
 namespace MenuPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
-     * The id of the popup element.
+     * @ignore
      */
     id?: string;
   }
@@ -82,7 +99,11 @@ namespace MenuPopup {
     transitionStatus: TransitionStatus;
     side: Side;
     align: 'start' | 'end' | 'center';
+    /**
+     * Whether the menu is currently open.
+     */
     open: boolean;
+    nested: boolean;
   };
 }
 
@@ -96,15 +117,19 @@ MenuPopup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The id of the popup element.
+   * @ignore
    */
   id: PropTypes.string,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

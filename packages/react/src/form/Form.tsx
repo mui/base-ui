@@ -92,12 +92,12 @@ const Form = React.forwardRef(function Form(
 namespace Form {
   export interface Props extends BaseUIComponentProps<'form', State> {
     /**
-     * Object of error messages with each key mapping to the `name` prop of a Field control, usually
-     * from server-side validation.
+     * An object where the keys correspond to the `name` attribute of the form fields,
+     * and the values correspond to the erorr(s) related to that field.
      */
     errors?: FormContext['errors'];
     /**
-     * Callback fired when the external server-side `error` messages should be cleared.
+     * Event handler called when the `errors` object is cleared.
      */
     onClearErrors?: FormContext['onClearErrors'];
   }
@@ -114,16 +114,17 @@ Form.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Object of error messages with each key mapping to the `name` prop of a Field control, usually
-   * from server-side validation.
+   * An object where the keys correspond to the `name` attribute of the form fields,
+   * and the values correspond to the erorr(s) related to that field.
    */
   errors: PropTypes.object,
   /**
-   * Callback fired when the external server-side `error` messages should be cleared.
+   * Event handler called when the `errors` object is cleared.
    */
   onClearErrors: PropTypes.func,
   /**
@@ -131,7 +132,10 @@ Form.propTypes /* remove-proptypes */ = {
    */
   onSubmit: PropTypes.func,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

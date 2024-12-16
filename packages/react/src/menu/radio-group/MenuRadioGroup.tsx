@@ -75,12 +75,15 @@ namespace MenuRadioGroup {
      */
     children?: React.ReactNode;
     /**
-     * The value of the selected radio button.
+     * The controlled value of the radio item that should be currently selected.
+     *
+     * To render an uncontrolled radio group, use the `defaultValue` prop instead.
      */
     value?: any;
     /**
-     * The default value of the selected radio button.
-     * This is the uncontrolled equivalent of `value`.
+     * The uncontrolled value of the radio item that should be initially selected.
+     *
+     * To render a controlled radio group, use the `value` prop instead.
      */
     defaultValue?: any;
     /**
@@ -104,12 +107,14 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default value of the selected radio button.
-   * This is the uncontrolled equivalent of `value`.
+   * The uncontrolled value of the radio item that should be initially selected.
+   *
+   * To render a controlled radio group, use the `value` prop instead.
    */
   defaultValue: PropTypes.any,
   /**
@@ -119,11 +124,16 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The value of the selected radio button.
+   * The controlled value of the radio item that should be currently selected.
+   *
+   * To render an uncontrolled radio group, use the `defaultValue` prop instead.
    */
   value: PropTypes.any,
 } as any;

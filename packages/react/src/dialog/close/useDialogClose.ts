@@ -1,14 +1,17 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 export function useDialogClose(params: useDialogClose.Parameters): useDialogClose.ReturnValue {
-  const { open, onOpenChange } = params;
-  const handleClick = React.useCallback(() => {
+  const { open, setOpen } = params;
+
+  const handleClick = useEventCallback((event: React.MouseEvent) => {
     if (open) {
-      onOpenChange?.(false);
+      setOpen(false, event.nativeEvent, 'click');
     }
-  }, [open, onOpenChange]);
+  });
 
   const getRootProps = (externalProps: React.HTMLAttributes<any>) =>
     mergeReactProps(externalProps, { onClick: handleClick });
@@ -21,13 +24,17 @@ export function useDialogClose(params: useDialogClose.Parameters): useDialogClos
 export namespace useDialogClose {
   export interface Parameters {
     /**
-     * Determines whether the dialog is open.
+     * Whether the dialog is currently open.
      */
     open: boolean;
     /**
-     * Callback invoked when the dialog is being opened or closed.
+     * Event handler called when the dialog is opened or closed.
      */
-    onOpenChange: (open: boolean) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
   }
 
   export interface ReturnValue {

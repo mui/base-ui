@@ -7,28 +7,58 @@
       "required": true,
       "description": "The unique identifying value of the radio in a group."
     },
-    "className": {
-      "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Determines if the radio is disabled."
+      "description": "Whether the component should ignore user interaction."
     },
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "Determines if the radio is readonly."
-    },
-    "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Whether the user should be unable to select the radio button."
     },
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "Determines if the radio is required."
+      "description": "Whether the user must choose a value before submitting a form."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the radio is checked."
+    },
+    "data-unchecked": {
+      "description": "Present when the radio is not checked."
+    },
+    "data-disabled": {
+      "description": "Present when the radio is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the radio is readonly."
+    },
+    "data-required": {
+      "description": "Present when the radio is required."
+    },
+    "data-valid": {
+      "description": "Present when the radio is in valid state (when wrapped in Field.Root)."
+    },
+    "data-invalid": {
+      "description": "Present when the radio is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-dirty": {
+      "description": "Present when the radio's value has changed (when wrapped in Field.Root)."
+    },
+    "data-touched": {
+      "description": "Present when the radio has been touched (when wrapped in Field.Root)."
+    }
+  },
+  "cssVariables": {}
 }

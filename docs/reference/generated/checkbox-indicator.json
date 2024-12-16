@@ -4,16 +4,52 @@
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Determines if the indicator stays mounted when unchecked."
+      "description": "Whether to keep the element in the DOM when the checkbox is not checked."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the checkbox is checked."
+    },
+    "data-unchecked": {
+      "description": "Present when the checkbox is not checked."
+    },
+    "data-disabled": {
+      "description": "Present when the checkbox is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the checkbox is readonly."
+    },
+    "data-required": {
+      "description": "Present when the checkbox is required."
+    },
+    "data-valid": {
+      "description": "Present when the checkbox is in valid state (when wrapped in Field.Root)."
+    },
+    "data-invalid": {
+      "description": "Present when the checkbox is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-dirty": {
+      "description": "Present when the checkbox's value has changed (when wrapped in Field.Root)."
+    },
+    "data-touched": {
+      "description": "Present when the checkbox has been touched (when wrapped in Field.Root)."
+    },
+    "data-starting-style": {
+      "description": "Present when the checkbox indicator is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the checkbox indicator is animating out."
+    }
+  },
+  "cssVariables": {}
 }

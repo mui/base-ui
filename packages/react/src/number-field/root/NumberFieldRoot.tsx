@@ -99,31 +99,31 @@ export namespace NumberFieldRoot {
 
   export interface State extends FieldRoot.State {
     /**
-     * The raw number value of the input element.
+     * The raw numeric value of the field.
      */
     value: number | null;
     /**
-     * The string value of the input element.
+     * The formatted string value presented in the input element.
      */
     inputValue: string;
     /**
-     * If `true`, the input element is required.
+     * Whether the user must enter a value before submitting a form.
      */
     required: boolean;
     /**
-     * If `true`, the input element is disabled.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
-     * If `true`, the input element is invalid.
+     * Whether the field is currently invalid.
      */
     invalid: boolean;
     /**
-     * If `true`, the input element is read only.
+     * Whether the user should be unable to change the field value.
      */
     readOnly: boolean;
     /**
-     * If `true`, the value is being scrubbed.
+     * Whether the user is currently scrubbing the field.
      */
     scrubbing: boolean;
   }
@@ -141,7 +141,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   allowWheelScrub: PropTypes.bool,
   /**
-   * If `true`, the input element is focused on mount.
+   * Whether to focus the element on page load.
    * @default false
    */
   autoFocus: PropTypes.bool,
@@ -150,15 +150,18 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default value of the input element. Use when the component is not controlled.
+   * The uncontrolled value of the field when it’s initially rendered.
+   *
+   * To render a controlled number field, use the `value` prop instead.
    */
   defaultValue: PropTypes.number,
   /**
-   * If `true`, the input element is disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -189,7 +192,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * If `true`, the input element is invalid.
+   * Whether the field is forcefully marked as invalid.
    * @default false
    */
   invalid: PropTypes.bool,
@@ -208,7 +211,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   min: PropTypes.number,
   /**
-   * The name of the input element.
+   * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
   /**
@@ -218,16 +221,19 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * If `true`, the input element is read only.
+   * Whether the user should be unable to change the field value.
    * @default false
    */
   readOnly: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * If `true`, the input element is required.
+   * Whether the user must enter a value before submitting a form.
    * @default false
    */
   required: PropTypes.bool,
@@ -238,13 +244,13 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    */
   smallStep: PropTypes.number,
   /**
-   * The step value of the input element when incrementing, decrementing, or scrubbing. It will snap
-   * to multiples of this value. When unspecified, decimal values are allowed, but the stepper
-   * buttons will increment or decrement by `1`.
+   * Amount to increment and decrement with the buttons and arrow keys,
+   * or to scrub with pointer movement in the scrub area.
+   * @default 1;
    */
   step: PropTypes.number,
   /**
-   * The raw number value of the input element.
+   * The raw numeric value of the field.
    */
   value: PropTypes.number,
 } as any;

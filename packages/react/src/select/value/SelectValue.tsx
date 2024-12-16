@@ -49,7 +49,10 @@ namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
     children?: null | ((value: string) => React.ReactNode);
     /**
-     * The placeholder value to display when the value is empty (such as during SSR).
+     * A placeholder value to display when no value is selected.
+     *
+     * You can use this prop to pre-render the displayed text
+     * during SSR in order to avoid the hydration flash.
      */
     placeholder?: string;
   }
@@ -67,15 +70,22 @@ SelectValue.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.func,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The placeholder value to display when the value is empty (such as during SSR).
+   * A placeholder value to display when no value is selected.
+   *
+   * You can use this prop to pre-render the displayed text
+   * during SSR in order to avoid the hydration flash.
    */
   placeholder: PropTypes.string,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

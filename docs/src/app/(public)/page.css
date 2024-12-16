@@ -5,7 +5,7 @@
     flex-grow: 1;
     padding-top: 3rem;
     padding-bottom: calc(3rem + 5vh);
-    padding-inline: 3rem;
+    padding-inline: 2rem;
     align-items: center;
     justify-content: center;
   }

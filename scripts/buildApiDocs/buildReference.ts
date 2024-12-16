@@ -10,6 +10,8 @@ const TEMP_PROP_DEFS_GLOB = join(process.cwd(), 'docs/reference/temp/components/
 const TEMP_DESCRIPTIONS_GLOB = join(process.cwd(), 'docs/reference/temp/translations/**/*.json');
 const COMMON_OVERRIDES_JSON = join(process.cwd(), 'docs/reference/overrides/common.json');
 const OVERRIDES_GLOB = join(process.cwd(), 'docs/reference/overrides/*.json');
+const GENERATED_GLOB = join(process.cwd(), 'docs/reference/generated/*.json');
+const ORDER_JSON = join(process.cwd(), 'docs/reference/order.json');
 const FINAL_DIR = join(process.cwd(), 'docs/reference/generated');
 
 interface CommonOverrides {
@@ -17,12 +19,28 @@ interface CommonOverrides {
   types: Record<string, string>;
 }
 
-export async function buildReference() {
-  if (existsSync(FINAL_DIR)) {
-    rmSync(FINAL_DIR, { recursive: true });
+export async function buildReference(grep: RegExp | null = null) {
+  if (grep == null) {
+    if (existsSync(FINAL_DIR)) {
+      rmSync(FINAL_DIR, { recursive: true });
+    }
+
+    mkdirSync(FINAL_DIR);
+  } else {
+    if (!existsSync(FINAL_DIR)) {
+      mkdirSync(FINAL_DIR);
+    }
+    // the targeted files are all lowercased
+    const caseInsensitiveGrep = new RegExp(grep, 'i');
+
+    for (const pathname of globSync(GENERATED_GLOB)) {
+      if (caseInsensitiveGrep.test(pathname)) {
+        rmSync(pathname);
+      }
+    }
   }
 
-  mkdirSync(FINAL_DIR);
+  const order: Record<string, string[]> = JSON.parse(readFileSync(ORDER_JSON, 'utf-8'));
 
   const commonOverrides: CommonOverrides = JSON.parse(readFileSync(COMMON_OVERRIDES_JSON, 'utf-8'));
   const overrides: ComponentDef[] = globSync(OVERRIDES_GLOB).map((pathname) =>
@@ -70,9 +88,9 @@ export async function buildReference() {
     const descriptionData: PropsTranslations = JSON.parse(descriptionJsonContents);
 
     for (const prop in props) {
-      props[prop].description = descriptionData.propDescriptions[prop]?.description;
+      props[prop].description ??= descriptionData.propDescriptions[prop]?.description;
 
-      if (!descriptionData.propDescriptions[prop]?.description) {
+      if (!props[prop].description) {
         console.warn(`Missing prop description: ${componentData.name} / ${prop}`);
       }
     }
@@ -81,18 +99,22 @@ export async function buildReference() {
       console.warn(`Missing component description: ${componentData.name}`);
     }
 
-    const attributes = componentOverrides?.attributes;
-    const cssVariables =
-      !!componentData?.cssVariables || componentOverrides?.cssVariables
-        ? { ...componentData?.cssVariables, ...componentOverrides?.cssVariables }
-        : undefined;
+    const dataAttributes = {
+      ...componentData?.dataAttributes,
+      ...componentOverrides?.dataAttributes,
+    };
+
+    const cssVariables = {
+      ...componentData?.cssVariables,
+      ...componentOverrides?.cssVariables,
+    };
 
     const json: ComponentDef = {
       name: componentData.name,
       description: descriptionData.componentDescription,
-      props,
-      attributes,
-      cssVariables,
+      props: sortObjectByKeys(props, order.props),
+      dataAttributes: sortObjectByKeys(dataAttributes, order.dataAttributes),
+      cssVariables: sortObjectByKeys(cssVariables, order.cssVariables),
     };
 
     const newPathname = join(FINAL_DIR, fileName);
@@ -101,4 +123,33 @@ export async function buildReference() {
   }
 
   rmSync(TEMP_DIR, { recursive: true });
+}
+
+function sortObjectByKeys<T>(obj: Record<string, T>, order: string[]): Record<string, T> {
+  const sortedObj: Record<string, T> = {};
+  const everythingElse: Record<string, T> = {};
+
+  // Gather keys that are not in the order array
+  Object.keys(obj).forEach((key) => {
+    if (!order.includes(key)) {
+      everythingElse[key] = obj[key];
+    }
+  });
+
+  // Sort the keys of everythingElse
+  const sortedEverythingElseKeys = Object.keys(everythingElse).sort();
+
+  // Populate the sorted object according to the order array
+  order.forEach((key) => {
+    if (key === '__EVERYTHING_ELSE__') {
+      // Insert all "everything else" keys at this position, sorted
+      sortedEverythingElseKeys.forEach((sortedKey) => {
+        sortedObj[sortedKey] = everythingElse[sortedKey];
+      });
+    } else if (obj.hasOwnProperty(key)) {
+      sortedObj[key] = obj[key];
+    }
+  });
+
+  return sortedObj;
 }

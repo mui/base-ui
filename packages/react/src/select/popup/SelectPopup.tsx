@@ -32,7 +32,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { id, open, popupRef, transitionStatus, alignItemToTrigger, mounted } =
+  const { id, open, popupRef, transitionStatus, alignItemToTrigger, mounted, modal } =
     useSelectRootContext();
 
   const positioner = useSelectPositionerContext();
@@ -87,6 +87,8 @@ const SelectPopup = React.forwardRef(function SelectPopup(
         context={positioner.positionerContext}
         modal={false}
         disabled={!mounted}
+        visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
+        order={['content', 'reference']}
       >
         {renderElement()}
       </FloatingFocusManager>
@@ -98,7 +100,7 @@ namespace SelectPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
-     * The id of the popup element.
+     * @ignore
      */
     id?: string;
   }
@@ -121,15 +123,19 @@ SelectPopup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The id of the popup element.
+   * @ignore
    */
   id: PropTypes.string,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useFloatingTree, useListItem } from '@floating-ui/react';
+import { useFloatingTree } from '@floating-ui/react';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -9,6 +9,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useMenuSubmenuTrigger } from './useMenuSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 
 /**
  * A menu item that opens a submenu.
@@ -27,7 +28,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     getTriggerProps,
     parentContext,
     setTriggerElement,
-    clickAndDragEnabled,
+    allowMouseUpTriggerRef,
     open,
     typingRef,
   } = useMenuRootContext();
@@ -37,7 +38,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   }
 
   const { activeIndex, getItemProps } = parentContext;
-  const item = useListItem();
+  const item = useCompositeListItem();
 
   const highlighted = activeIndex === item.index;
 
@@ -52,7 +53,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     disabled,
     menuEvents,
     setTriggerElement,
-    treatMouseupAsClick: clickAndDragEnabled,
+    allowMouseUpTriggerRef,
     typingRef,
   });
 
@@ -79,21 +80,29 @@ namespace MenuSubmenuTrigger {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
-     * If `true`, the menu item will be disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
     /**
-     * A text representation of the menu item's content.
-     * Used for keyboard text navigation matching.
+     * Overrides the text label to use when the item is matched during keyboard text navigation.
      */
     label?: string;
+    /**
+     * @ignore
+     */
     id?: string;
   }
 
   export interface State {
+    /**
+     * Whether the component should ignore user interaction.
+     */
     disabled: boolean;
     highlighted: boolean;
+    /**
+     * Whether the menu is currently open.
+     */
     open: boolean;
   }
 }
@@ -108,11 +117,12 @@ MenuSubmenuTrigger.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the menu item will be disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -121,8 +131,7 @@ MenuSubmenuTrigger.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
@@ -130,7 +139,10 @@ MenuSubmenuTrigger.propTypes /* remove-proptypes */ = {
    */
   onClick: PropTypes.func,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

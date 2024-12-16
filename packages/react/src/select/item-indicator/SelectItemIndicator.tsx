@@ -5,6 +5,9 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSelectItemContext } from '../item/SelectItemContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useForkRef } from '../../utils/useForkRef';
+import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 /**
  * Indicates whether the select item is selected.
@@ -20,6 +23,11 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
 
   const { selected } = useSelectItemContext();
 
+  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+  const mergedRef = useForkRef(forwardedRef, indicatorRef);
+
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(selected);
+
   const getItemProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
@@ -32,20 +40,32 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
   const state: SelectItemIndicator.State = React.useMemo(
     () => ({
       selected,
+      transitionStatus,
     }),
-    [selected],
+    [selected, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getItemProps,
     render: render ?? 'span',
-    ref: forwardedRef,
+    ref: mergedRef,
     className,
     state,
-    extraProps: otherProps,
+    extraProps: {
+      hidden: !mounted,
+      ...otherProps,
+    },
   });
 
-  const shouldRender = selected || keepMounted;
+  useAfterExitAnimation({
+    open: selected,
+    animatedElementRef: indicatorRef,
+    onFinished() {
+      setMounted(false);
+    },
+  });
+
+  const shouldRender = keepMounted || selected;
   if (!shouldRender) {
     return null;
   }
@@ -57,8 +77,7 @@ namespace SelectItemIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
     children?: React.ReactNode;
     /**
-     * If `true`, the item indicator remains mounted when the item is not
-     * selected.
+     * Whether to keep the HTML element in the DOM when the item is not selected.
      * @default false
      */
     keepMounted?: boolean;
@@ -66,6 +85,7 @@ namespace SelectItemIndicator {
 
   export interface State {
     selected: boolean;
+    transitionStatus: TransitionStatus;
   }
 }
 
@@ -79,17 +99,20 @@ SelectItemIndicator.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the item indicator remains mounted when the item is not
-   * selected.
+   * Whether to keep the HTML element in the DOM when the item is not selected.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

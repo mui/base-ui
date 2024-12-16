@@ -5,20 +5,31 @@
     "activateOnFocus": {
       "type": "boolean",
       "default": "true",
-      "description": "If `true`, the tab will be activated whenever it is focused.\nOtherwise, it has to be activated by clicking or pressing the Enter or Space key."
-    },
-    "className": {
-      "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "Whether to automatically change the active tab on arrow key focus.\nOtherwise, tabs will be activated using Enter or Spacebar key press."
     },
     "loop": {
       "type": "boolean",
       "default": "true",
-      "description": "If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached."
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-orientation": {
+      "description": "Indicates the orientation of the tabs.",
+      "type": "'horizontal' | 'vertical'"
+    },
+    "data-activation-direction": {
+      "description": "Indicates the direction of the activation (based on the previous selected tab).",
+      "type": "'left' | 'right' | 'up' | 'down' | 'none'"
+    }
+  },
+  "cssVariables": {}
 }

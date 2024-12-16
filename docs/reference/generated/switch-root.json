@@ -2,49 +2,79 @@
   "name": "SwitchRoot",
   "description": "Represents the switch itself.\nRenders a `<button>` element and a hidden `<input>` beside.",
   "props": {
-    "checked": {
-      "type": "boolean",
-      "description": "If `true`, the switch is checked."
-    },
-    "className": {
-      "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    "name": {
+      "type": "string",
+      "description": "Identifies the field when a form is submitted."
     },
     "defaultChecked": {
       "type": "boolean",
       "default": "false",
-      "description": "The default checked state. Use when the component is uncontrolled."
+      "description": "Whether the switch is initially active.\n\nTo render a controlled switch, use the `checked` prop instead."
+    },
+    "checked": {
+      "type": "boolean",
+      "description": "Whether the switch is currently active.\n\nTo render an uncontrolled switch, use the `defaultChecked` prop instead."
+    },
+    "onCheckedChange": {
+      "type": "(checked, event) => void",
+      "description": "Event handler called when the switch is activated or deactivated."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the component is disabled and can't be interacted with."
-    },
-    "inputRef": {
-      "type": "React.Ref",
-      "description": "Ref to the underlying input element."
-    },
-    "name": {
-      "type": "string",
-      "description": "Name of the underlying input element."
-    },
-    "onCheckedChange": {
-      "type": "(checked, event) => void",
-      "description": "Callback fired when the checked state is changed."
+      "description": "Whether the component should ignore user interaction."
     },
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the component is read-only.\nFunctionally, this is equivalent to being disabled, but the assistive technologies will announce this differently."
-    },
-    "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Whether the user should be unable to activate or deactivate the switch."
     },
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the switch must be checked for the browser validation to pass."
+      "description": "Whether the user must activate the switch before submitting a form."
+    },
+    "inputRef": {
+      "type": "React.Ref",
+      "description": "A React ref to access the hidden `<input>` element."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the switch is checked."
+    },
+    "data-unchecked": {
+      "description": "Present when the switch is not checked."
+    },
+    "data-disabled": {
+      "description": "Present when the switch is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the switch is readonly."
+    },
+    "data-required": {
+      "description": "Present when the switch is required."
+    },
+    "data-valid": {
+      "description": "Present when the switch is in valid state (when wrapped in Field.Root)."
+    },
+    "data-invalid": {
+      "description": "Present when the switch is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-dirty": {
+      "description": "Present when the switch's value has changed (when wrapped in Field.Root)."
+    },
+    "data-touched": {
+      "description": "Present when the switch has been touched (when wrapped in Field.Root)."
+    }
+  },
+  "cssVariables": {}
 }

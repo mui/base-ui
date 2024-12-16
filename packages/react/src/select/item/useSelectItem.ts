@@ -7,12 +7,6 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectIndexContext } from '../root/SelectIndexContext';
 import { useForkRef } from '../../utils/useForkRef';
 
-/**
- *
- * API:
- *
- * - [useSelectItem API](https://mui.com/base-ui/api/use-select-item/)
- */
 export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
   const {
     open,
@@ -32,17 +26,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const ref = React.useRef<HTMLDivElement | null>(null);
 
   const mergedRef = useForkRef(externalRef, ref);
-
-  // Manually set the tabindex.
-  // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
-  // option upon close when tabbing out: https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
-  React.useEffect(() => {
-    if (!ref.current) {
-      return;
-    }
-
-    ref.current.setAttribute('tabindex', highlighted || !open ? '0' : '-1');
-  }, [open, highlighted]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -66,6 +49,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
       return getButtonProps(
         mergeReactProps<'div'>(externalProps, {
           'aria-disabled': disabled || undefined,
+          tabIndex: highlighted ? 0 : -1,
           style: {
             pointerEvents: disabled ? 'none' : undefined,
           },
@@ -82,7 +66,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           },
           onMouseLeave() {
             const popup = popupRef.current;
-            if (!popup) {
+            if (!popup || !open) {
               return;
             }
 
@@ -157,6 +141,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
       getButtonProps,
       highlighted,
       indexRef,
+      open,
       popupRef,
       selected,
       selectionRef,
@@ -177,7 +162,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 export namespace useSelectItem {
   export interface Parameters {
     /**
-     * If `true`, the select item will be disabled.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
@@ -193,7 +178,7 @@ export namespace useSelectItem {
      */
     ref?: React.Ref<Element>;
     /**
-     * The open state of the select.
+     * Whether the select menu is currently open.
      */
     open: boolean;
     /**

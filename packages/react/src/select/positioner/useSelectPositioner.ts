@@ -12,18 +12,12 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 
-/**
- *
- * API:
- *
- * - [useSelectPositioner API](https://mui.com/base-ui/api/use-select-positioner/)
- */
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
-  const { open, alignItemToTrigger, mounted, triggerElement } = useSelectRootContext();
+  const { open, alignItemToTrigger, mounted, triggerElement, modal } = useSelectRootContext();
 
-  useScrollLock(alignItemToTrigger && mounted, triggerElement);
+  useScrollLock((alignItemToTrigger || modal) && open, triggerElement);
 
   const {
     positionerStyles: enabledPositionerStyles,
@@ -105,7 +99,8 @@ export function useSelectPositioner(
 export namespace useSelectPositioner {
   export interface SharedParameters {
     /**
-     * The anchor element to which the Select popup will be placed at.
+     * An element to position the popup against.
+     * By default, the popup will be positioned against the trigger.
      */
     anchor?:
       | Element
@@ -119,53 +114,51 @@ export namespace useSelectPositioner {
      */
     positionMethod?: 'absolute' | 'fixed';
     /**
-     * The container element to which the Select popup will be appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-    /**
-     * The side of the anchor element that the Select element should align to.
+     * Which side of the anchor element to align the popup against.
+     * May automatically change to avoid collisions.
      * @default 'bottom'
      */
     side?: Side;
     /**
-     * The gap between the anchor element and the Select element.
+     * Distance between the anchor and the popup.
      * @default 0
      */
     sideOffset?: number;
     /**
-     * The align of the Select element to the anchor element along its cross axis.
+     * How to align the popup relative to the specified side.
      * @default 'start'
      */
     align?: 'start' | 'end' | 'center';
     /**
-     * The offset of the Select element along its align axis.
+     * Additional offset along the alignment axis of the element.
      * @default 0
      */
     alignOffset?: number;
     /**
-     * The boundary that the Select element should be constrained to.
+     * An element or a rectangle that delimits the area that the popup is confined to.
      * @default 'clipping-ancestors'
      */
     collisionBoundary?: Boundary;
     /**
-     * The padding of the collision boundary.
+     * Additional space to maintain from the edge of the collision boundary.
      * @default 5
      */
     collisionPadding?: Padding;
     /**
-     * Whether the select popup remains mounted in the DOM while closed.
+     * Whether to keep the HTML element in the DOM while the select menu is hidden.
      * @default true
      */
     keepMounted?: boolean;
     /**
-     * If `true`, allow the Select to remain in stuck view while the anchor element is scrolled out
-     * of view.
+     * Whether to maintain the select menu in the viewport after
+     * the anchor element is scrolled out of view.
      * @default false
      */
     sticky?: boolean;
     /**
-     * Determines the padding between the arrow and the Select popup's edges. Useful when the popover
-     * popup has rounded corners via `border-radius`.
+     * Minimum distance to maintain between the arrow and the edges of the popup.
+     *
+     * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
      * @default 5
      */
     arrowPadding?: number;
@@ -178,11 +171,11 @@ export namespace useSelectPositioner {
 
   export interface Parameters extends SharedParameters {
     /**
-     * If `true`, the Select is mounted.
+     * Whether the Select is mounted.
      */
     mounted: boolean;
     /**
-     * If `true`, the Select is open.
+     * Whether the select menu is currently open.
      */
     open?: boolean;
     /**

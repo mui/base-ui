@@ -1,6 +1,11 @@
 'use client';
 import * as React from 'react';
-import { type FloatingRootContext, useFloating, type FloatingContext } from '@floating-ui/react';
+import {
+  type FloatingRootContext,
+  useFloating,
+  type FloatingContext,
+  type OpenChangeReason as FloatingUIOpenChangeReason,
+} from '@floating-ui/react';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
@@ -8,6 +13,10 @@ import { useScrollLock } from '../../utils/useScrollLock';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { GenericHTMLProps } from '../../utils/types';
+import {
+  translateOpenChangeReason,
+  type OpenChangeReason,
+} from '../../utils/translateOpenChangeReason';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
@@ -18,7 +27,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     initialFocus,
     modal,
     mounted,
-    onOpenChange,
+    setOpen,
     open,
     openMethod,
     ref,
@@ -27,9 +36,17 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     titleElementId,
   } = parameters;
 
+  const handleFloatingUIOpenChange = (
+    isOpen: boolean,
+    event: Event | undefined,
+    reason: FloatingUIOpenChangeReason | undefined,
+  ) => {
+    setOpen(isOpen, event, translateOpenChangeReason(reason));
+  };
+
   const { context, elements } = useFloating({
     open,
-    onOpenChange,
+    onOpenChange: handleFloatingUIOpenChange,
     rootContext: floatingRootContext,
   });
 
@@ -38,7 +55,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
   const id = useBaseUiId(idParam);
   const handleRef = useForkRef(ref, popupRef, setPopupElement);
 
-  useScrollLock(modal && mounted, elements.floating);
+  useScrollLock(modal && open, elements.floating);
 
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
@@ -101,18 +118,22 @@ export namespace useDialogPopup {
      */
     ref: React.Ref<HTMLElement>;
     /**
-     * Determines if the dialog is modal.
+     * Whether the dialog should prevent outside clicks and lock page scroll when open.
      */
     modal: boolean;
     /**
-     * Determines if the dialog is open.
+     * Whether the dialog is currently open.
      */
     open: boolean;
     openMethod: InteractionType | null;
     /**
-     * Callback fired when the dialog is requested to be opened or closed.
+     * Event handler called when the dialog is opened or closed.
      */
-    onOpenChange: (open: boolean, event?: Event) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     /**
      * The id of the title element associated with the dialog.
      */
@@ -126,9 +147,8 @@ export namespace useDialogPopup {
      */
     setPopupElementId: (id: string | undefined) => void;
     /**
-     * Determines an element to focus when the dialog is opened.
-     * It can be either a ref to the element or a function that returns such a ref.
-     * If not provided, the first focusable element is focused.
+     * Determines the element to focus when the dialog is opened.
+     * By default, the first focusable element is focused.
      */
     initialFocus?:
       | React.RefObject<HTMLElement | null>

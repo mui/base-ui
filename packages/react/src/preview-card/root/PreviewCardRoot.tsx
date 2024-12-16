@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { usePreviewCardRoot } from './usePreviewCardRoot';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
+import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the preview card.
@@ -78,7 +79,7 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
 
   return (
     <PreviewCardRootContext.Provider value={contextValue}>
-      {props.children}
+      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
     </PreviewCardRootContext.Provider>
   );
 };
@@ -101,28 +102,28 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The delay in milliseconds until the preview card popup is closed when `openOnHover` is `true`.
+   * How long to wait before closing the preview card. Specified in milliseconds.
    * @default 300
    */
   closeDelay: PropTypes.number,
   /**
-   * Whether the preview card popup is open by default. Use when uncontrolled.
+   * Whether the preview card is initially open.
+   *
+   * To render a controlled preview card, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The delay in milliseconds until the preview card popup is opened when `openOnHover` is `true`.
+   * How long to wait before the preview card opens. Specified in milliseconds.
    * @default 600
    */
   delay: PropTypes.number,
   /**
-   * Callback fired when the preview card popup is requested to be opened or closed. Use when
-   * controlled.
+   * Event handler called when the preview card is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
-   * Whether the preview card popup is open. Use when controlled.
-   * @default false
+   * Whether the preview card is currently open.
    */
   open: PropTypes.bool,
 } as any;

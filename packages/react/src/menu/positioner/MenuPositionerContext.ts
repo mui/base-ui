@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import type { FloatingContext } from '@floating-ui/react';
 import type { Side } from '../../utils/useAnchorPositioning';
 
 export interface MenuPositionerContext {
@@ -8,12 +9,13 @@ export interface MenuPositionerContext {
    */
   side: Side;
   /**
-   * The align of the anchor element the popup is positioned relative to.
+   * How to align the popup relative to the specified side.
    */
   align: 'start' | 'end' | 'center';
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
+  floatingContext: FloatingContext;
 }
 
 export const MenuPositionerContext = React.createContext<MenuPositionerContext | undefined>(

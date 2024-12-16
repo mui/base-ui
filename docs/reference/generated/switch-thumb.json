@@ -4,11 +4,41 @@
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the switch is checked."
+    },
+    "data-unchecked": {
+      "description": "Present when the switch is not checked."
+    },
+    "data-disabled": {
+      "description": "Present when the switch is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the switch is readonly."
+    },
+    "data-required": {
+      "description": "Present when the switch is required."
+    },
+    "data-valid": {
+      "description": "Present when the switch is in valid state (when wrapped in Field.Root)."
+    },
+    "data-invalid": {
+      "description": "Present when the switch is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-dirty": {
+      "description": "Present when the switch's value has changed (when wrapped in Field.Root)."
+    },
+    "data-touched": {
+      "description": "Present when the switch has been touched (when wrapped in Field.Root)."
+    }
+  },
+  "cssVariables": {}
 }

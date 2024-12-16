@@ -2,7 +2,6 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { visitParents } from 'unist-util-visit-parents';
 import kebabCase from 'lodash/kebabCase.js';
-import startCase from 'lodash/startCase.js';
 import { join } from 'path';
 import { createMdxElement } from 'docs/src/mdx/createMdxElement.mjs';
 import { createHast } from 'docs/src/mdx/createHast.mjs';
@@ -78,8 +77,8 @@ export function rehypeReference() {
           const subtree = [];
           const name =
             parts && def.name.startsWith(component)
-              ? startCase(def.name.substring(component.length))
-              : startCase(def.name);
+              ? def.name.substring(component.length)
+              : def.name;
 
           // Insert an <h3> with the part name and parse descriptions as markdown.
           // Single-part components headings and descriptions aren't displayed
@@ -89,6 +88,9 @@ export function rehypeReference() {
               createMdxElement({
                 name: 'h3',
                 children: [{ type: 'text', value: name }],
+                props: {
+                  id: kebabCase(name),
+                },
               }),
             );
 
@@ -97,23 +99,25 @@ export function rehypeReference() {
             }
           }
 
-          subtree.push(
-            createMdxElement({
-              name: PROPS_TABLE,
-              props: { data: def.props },
-            }),
-          );
-
-          if (def.attributes) {
+          if (Object.keys(def.props).length) {
             subtree.push(
               createMdxElement({
-                name: ATTRIBUTES_TABLE,
-                props: { data: def.attributes },
+                name: PROPS_TABLE,
+                props: { data: def.props },
               }),
             );
           }
 
-          if (def.cssVariables) {
+          if (Object.keys(def.dataAttributes).length) {
+            subtree.push(
+              createMdxElement({
+                name: ATTRIBUTES_TABLE,
+                props: { data: def.dataAttributes },
+              }),
+            );
+          }
+
+          if (Object.keys(def.cssVariables).length) {
             subtree.push(
               createMdxElement({
                 name: CSS_VARIABLES_TABLE,

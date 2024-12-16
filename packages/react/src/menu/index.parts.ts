@@ -6,6 +6,7 @@ export { MenuGroup as Group } from './group/MenuGroup';
 export { MenuGroupLabel as GroupLabel } from './group-label/MenuGroupLabel';
 export { MenuItem as Item } from './item/MenuItem';
 export { MenuPopup as Popup } from './popup/MenuPopup';
+export { Portal } from '../portal/Portal';
 export { MenuPositioner as Positioner } from './positioner/MenuPositioner';
 export { MenuRadioGroup as RadioGroup } from './radio-group/MenuRadioGroup';
 export { MenuRadioItem as RadioItem } from './radio-item/MenuRadioItem';

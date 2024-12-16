@@ -2,40 +2,45 @@
   "name": "MenuCheckboxItem",
   "description": "A menu item that toggles a setting on or off.\nRenders a `<div>` element.",
   "props": {
-    "checked": {
-      "type": "boolean",
-      "description": "If `true`, the checkbox is checked."
-    },
-    "closeOnClick": {
-      "type": "boolean",
-      "default": "true",
-      "description": "If `true`, the menu will close when the menu item is clicked."
+    "label": {
+      "type": "string",
+      "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
     },
     "defaultChecked": {
       "type": "boolean",
       "default": "false",
-      "description": "The default checked state. Use when the component is uncontrolled."
+      "description": "Whether the checkbox item is initially ticked.\n\nTo render a controlled checkbox item, use the `checked` prop instead."
     },
-    "disabled": {
+    "checked": {
       "type": "boolean",
-      "default": "false",
-      "description": "If `true`, the menu item will be disabled."
-    },
-    "id": {
-      "type": "string",
-      "description": "The id of the menu item."
-    },
-    "label": {
-      "type": "string",
-      "description": "A text representation of the menu item's content.\nUsed for keyboard text navigation matching."
+      "description": "Whether the checkbox item is currently ticked.\n\nTo render an uncontrolled checkbox item, use the `defaultChecked` prop instead."
     },
     "onCheckedChange": {
-      "type": "function",
-      "description": "Callback fired when the checked state is changed."
+      "type": "(checked, event) => void",
+      "description": "Event handler called when the checkbox item is ticked or unticked."
     },
     "onClick": {
       "type": "(event) => void",
       "description": "The click handler for the menu item."
+    },
+    "closeOnClick": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to close the menu when the item is clicked."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the menu checkbox item is checked."
+    },
+    "data-unchecked": {
+      "description": "Present when the menu checkbox item is not checked."
+    }
+  },
+  "cssVariables": {}
 }

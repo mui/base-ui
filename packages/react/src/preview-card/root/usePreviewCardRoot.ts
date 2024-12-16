@@ -146,32 +146,27 @@ export function usePreviewCardRoot(
 export namespace usePreviewCardRoot {
   export interface Parameters {
     /**
-     * Whether the preview card popup is open by default. Use when uncontrolled.
+     * Whether the preview card is initially open.
+     *
+     * To render a controlled preview card, use the `open` prop instead.
      * @default false
      */
     defaultOpen?: boolean;
     /**
-     * Whether the preview card popup is open. Use when controlled.
-     * @default false
+     * Whether the preview card is currently open.
      */
     open?: boolean;
     /**
-     * Callback fired when the preview card popup is requested to be opened or closed. Use when
-     * controlled.
+     * Event handler called when the preview card is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
-     * Whether the preview card popup opens when the trigger is hovered after the provided `delay`.
-     * @default false
-     */
-    openOnHover?: boolean;
-    /**
-     * The delay in milliseconds until the preview card popup is opened when `openOnHover` is `true`.
+     * How long to wait before the preview card opens. Specified in milliseconds.
      * @default 600
      */
     delay?: number;
     /**
-     * The delay in milliseconds until the preview card popup is closed when `openOnHover` is `true`.
+     * How long to wait before closing the preview card. Specified in milliseconds.
      * @default 300
      */
     closeDelay?: number;

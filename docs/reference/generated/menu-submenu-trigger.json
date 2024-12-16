@@ -2,22 +2,28 @@
   "name": "MenuSubmenuTrigger",
   "description": "A menu item that opens a submenu.\nRenders a `<div>` element.",
   "props": {
-    "className": {
-      "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    "label": {
+      "type": "string",
+      "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the menu item will be disabled."
+      "description": "Whether the component should ignore user interaction."
     },
-    "label": {
-      "type": "string",
-      "description": "A text representation of the menu item's content.\nUsed for keyboard text navigation matching."
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-popup-open": {
+      "description": "Present when the corresponding submenu is open."
+    }
+  },
+  "cssVariables": {}
 }

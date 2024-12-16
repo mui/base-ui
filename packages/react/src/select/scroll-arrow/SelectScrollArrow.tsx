@@ -7,6 +7,9 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { Side } from '../../utils/useAnchorPositioning';
+import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useForkRef } from '../../utils/useForkRef';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 /**
  * @ignore - internal component.
@@ -30,14 +33,27 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const visible = direction === 'up' ? scrollUpArrowVisible : scrollDownArrowVisible;
 
   const frameRef = React.useRef(-1);
+  const scrollArrowRef = React.useRef<HTMLDivElement | null>(null);
+  const mergedRef = useForkRef(forwardedRef, scrollArrowRef);
+
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
+
+  useAfterExitAnimation({
+    open: visible,
+    animatedElementRef: scrollArrowRef,
+    onFinished() {
+      setMounted(false);
+    },
+  });
 
   const state: SelectScrollArrow.State = React.useMemo(
     () => ({
       direction,
       visible,
       side,
+      transitionStatus,
     }),
-    [direction, visible, side],
+    [direction, visible, side, transitionStatus],
   );
 
   const getScrollArrowProps = React.useCallback(
@@ -111,11 +127,14 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   const { renderElement } = useComponentRenderer({
     propGetter: getScrollArrowProps,
-    ref: forwardedRef,
+    ref: mergedRef,
     render: render ?? 'div',
     className,
     state,
-    extraProps: otherProps,
+    extraProps: {
+      hidden: !mounted,
+      ...otherProps,
+    },
   });
 
   const shouldRender = visible || keepMounted;
@@ -131,12 +150,13 @@ namespace SelectScrollArrow {
     direction: 'up' | 'down';
     visible: boolean;
     side: Side | 'none';
+    transitionStatus: TransitionStatus;
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     direction: 'up' | 'down';
     /**
-     * Whether the component should be kept mounted when it is not rendered.
+     * Whether to keep the HTML element in the DOM while the select menu is not scrollable.
      * @default false
      */
     keepMounted?: boolean;
@@ -153,7 +173,8 @@ SelectScrollArrow.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -161,12 +182,15 @@ SelectScrollArrow.propTypes /* remove-proptypes */ = {
    */
   direction: PropTypes.oneOf(['down', 'up']).isRequired,
   /**
-   * Whether the component should be kept mounted when it is not rendered.
+   * Whether to keep the HTML element in the DOM while the select menu is not scrollable.
    * @default false
    */
   keepMounted: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

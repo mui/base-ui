@@ -154,6 +154,9 @@ export interface FieldValidityData {
 
 namespace FieldRoot {
   export interface State {
+    /**
+     * Whether the component should ignore user interaction.
+     */
     disabled: boolean;
     touched: boolean;
     dirty: boolean;
@@ -162,33 +165,37 @@ namespace FieldRoot {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * Whether the field is disabled. Takes precedence over the `disabled` prop of the `Field.Control`
-     * component.
+     * Whether the component should ignore user interaction.
+     * Takes precedence over the `disabled` prop on the `<Field.Control>` component.
      * @default false
      */
     disabled?: boolean;
     /**
-     * The field's name. Takes precedence over the `name` prop of the `Field.Control` component.
+     * Identifies the field when a form is submitted.
+     * Takes precedence over the `name` prop on the `<Field.Control>` component.
      */
     name?: string;
     /**
-     * Function to custom-validate the field's value. Return a string or array of strings with error
-     * messages if the value is invalid, or `null` if the value is valid. The function can also return
-     * a promise that resolves to a string, array of strings, or `null`.
+     * A function for custom validation. Return a string or an array of strings with
+     * the error message(s) if the value is invalid, or `null` if the value is valid.
      */
     validate?: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
     /**
-     * Determines when validation should be triggered.
+     * Determines when the field should be validated.
+     *
+     * - **onBlur** triggers validation when the control loses focus
+     * - **onChange** triggers validation on every change to the control value
      * @default 'onBlur'
      */
     validationMode?: 'onBlur' | 'onChange';
     /**
-     * The debounce time in milliseconds for the `validate` function in `onChange` phase.
+     * How long to wait between `validate` callbacks if
+     * `validationMode="onChange"` is used. Specified in milliseconds.
      * @default 0
      */
     validationDebounceTime?: number;
     /**
-     * Determines if the field is forcefully marked as invalid.
+     * Whether the field is forcefully marked as invalid.
      */
     invalid?: boolean;
   }
@@ -204,40 +211,48 @@ FieldRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Whether the field is disabled. Takes precedence over the `disabled` prop of the `Field.Control`
-   * component.
+   * Whether the component should ignore user interaction.
+   * Takes precedence over the `disabled` prop on the `<Field.Control>` component.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * Determines if the field is forcefully marked as invalid.
+   * Whether the field is forcefully marked as invalid.
    */
   invalid: PropTypes.bool,
   /**
-   * The field's name. Takes precedence over the `name` prop of the `Field.Control` component.
+   * Identifies the field when a form is submitted.
+   * Takes precedence over the `name` prop on the `<Field.Control>` component.
    */
   name: PropTypes.string,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * Function to custom-validate the field's value. Return a string or array of strings with error
-   * messages if the value is invalid, or `null` if the value is valid. The function can also return
-   * a promise that resolves to a string, array of strings, or `null`.
+   * A function for custom validation. Return a string or an array of strings with
+   * the error message(s) if the value is invalid, or `null` if the value is valid.
    */
   validate: PropTypes.func,
   /**
-   * The debounce time in milliseconds for the `validate` function in `onChange` phase.
+   * How long to wait between `validate` callbacks if
+   * `validationMode="onChange"` is used. Specified in milliseconds.
    * @default 0
    */
   validationDebounceTime: PropTypes.number,
   /**
-   * Determines when validation should be triggered.
+   * Determines when the field should be validated.
+   *
+   * - **onBlur** triggers validation when the control loses focus
+   * - **onChange** triggers validation on every change to the control value
    * @default 'onBlur'
    */
   validationMode: PropTypes.oneOf(['onBlur', 'onChange']),

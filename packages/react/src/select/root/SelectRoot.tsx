@@ -6,6 +6,13 @@ import { SelectRootContext } from './SelectRootContext';
 import { SelectIndexContext } from './SelectIndexContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
+import { PortalContext } from '../../portal/PortalContext';
+
+const inertStyle = `
+  [data-floating-ui-inert] {
+    pointer-events: none !important;
+  }
+`;
 
 /**
  * Groups all parts of the select.
@@ -28,6 +35,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     disabled = false,
     readOnly = false,
     required = false,
+    modal = true,
   } = props;
 
   const selectRoot = useSelectRoot<Value>({
@@ -42,6 +50,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     disabled,
     readOnly,
     required,
+    modal,
   });
 
   const { setDirty, validityData } = useFieldRootContext();
@@ -62,11 +71,17 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
   return (
     <SelectRootContext.Provider value={selectRoot.rootContext}>
       <SelectIndexContext.Provider value={selectRoot.indexContext}>
-        {props.children}
+        {selectRoot.rootContext.open && modal && (
+          /* eslint-disable-next-line react/no-danger */
+          <style dangerouslySetInnerHTML={{ __html: inertStyle }} />
+        )}
+        <PortalContext.Provider value={rootContext.mounted}>
+          {props.children}
+        </PortalContext.Provider>
         <input
           {...rootContext.fieldControlValidation.getInputValidationProps({
             onFocus() {
-              // Move focus from the hidden <select> to the trigger element.
+              // Move focus to the trigger element when the hidden input is focused.
               rootContext.triggerElement?.focus();
             },
             // Handle browser autofill.
@@ -121,28 +136,35 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the Select is initially open.
+   * Whether the select menu is initially open.
    *
+   * To render a controlled select menu, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The default value of the select.
+   * The uncontrolled value of the select when it’s initially rendered.
+   *
+   * To render a controlled select, use the `value` prop instead.
    * @default null
    */
   defaultValue: PropTypes.any,
   /**
-   * If `true`, the Select is disabled.
-   *
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * The name of the Select in the owning form.
+   * Whether the select should prevent outside clicks and lock page scroll when open.
+   * @default true
+   */
+  modal: PropTypes.bool,
+  /**
+   * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
   /**
-   * Callback fired when the component requests to be opened or closed.
+   * Event handler called when the select menu is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
@@ -150,17 +172,16 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   onValueChange: PropTypes.func,
   /**
-   * Allows to control whether the dropdown is open.
-   * This is a controlled counterpart of `defaultOpen`.
+   * Whether the select menu is currently open.
    */
   open: PropTypes.bool,
   /**
-   * If `true`, the Select is read-only.
+   * Whether the user should be unable to choose a different option from the select menu.
    * @default false
    */
   readOnly: PropTypes.bool,
   /**
-   * If `true`, the Select is required.
+   * Whether the user must choose a value before submitting a form.
    * @default false
    */
   required: PropTypes.bool,

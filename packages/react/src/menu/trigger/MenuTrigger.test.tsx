@@ -9,7 +9,7 @@ import { MenuRootContext } from '../root/MenuRootContext';
 
 const testRootContext: MenuRootContext = {
   floatingRootContext: {} as FloatingRootContext,
-  getPositionerProps: (p) => ({ ...p }),
+  getPopupProps: (p) => ({ ...p }),
   getTriggerProps: (p) => ({ ...p }),
   getItemProps: (p) => ({ ...p }),
   parentContext: undefined,
@@ -22,12 +22,13 @@ const testRootContext: MenuRootContext = {
   itemLabels: { current: [] },
   open: true,
   setOpen: () => {},
-  clickAndDragEnabled: false,
-  setClickAndDragEnabled: () => {},
   popupRef: { current: null },
   mounted: true,
   transitionStatus: undefined,
   typingRef: { current: false },
+  modal: false,
+  positionerRef: { current: null },
+  allowMouseUpTriggerRef: { current: false },
 };
 
 describe('<Menu.Trigger />', () => {

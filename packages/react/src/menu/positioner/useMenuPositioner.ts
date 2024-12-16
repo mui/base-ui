@@ -5,6 +5,7 @@ import type {
   VirtualElement,
   FloatingContext,
   FloatingRootContext,
+  FloatingEvents,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
@@ -14,7 +15,7 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 export function useMenuPositioner(
   params: useMenuPositioner.Parameters,
 ): useMenuPositioner.ReturnValue {
-  const { keepMounted, mounted } = params;
+  const { keepMounted, mounted, menuEvents, nodeId, parentNodeId, setOpen } = params;
 
   const { open } = useMenuRootContext();
 
@@ -49,6 +50,26 @@ export function useMenuPositioner(
     [keepMounted, open, positionerStyles, mounted],
   );
 
+  React.useEffect(() => {
+    function onMenuOpened(event: { nodeId: string; parentNodeId: string }) {
+      if (event.nodeId !== nodeId && event.parentNodeId === parentNodeId) {
+        setOpen(false);
+      }
+    }
+
+    menuEvents.on('opened', onMenuOpened);
+
+    return () => {
+      menuEvents.off('opened', onMenuOpened);
+    };
+  }, [menuEvents, nodeId, parentNodeId, setOpen]);
+
+  React.useEffect(() => {
+    if (open) {
+      menuEvents.emit('opened', { nodeId, parentNodeId });
+    }
+  }, [menuEvents, open, nodeId, parentNodeId]);
+
   return React.useMemo(
     () => ({
       getPositionerProps,
@@ -76,11 +97,12 @@ export function useMenuPositioner(
 export namespace useMenuPositioner {
   export interface SharedParameters {
     /**
-     * If `true`, the Menu is open.
+     * Whether the menu is currently open.
      */
     open?: boolean;
     /**
-     * The anchor element to which the Menu popup will be placed at.
+     * An element to position the popup against.
+     * By default, the popup will be positioned against the trigger.
      */
     anchor?:
       | Element
@@ -89,58 +111,54 @@ export namespace useMenuPositioner {
       | React.MutableRefObject<Element | null>
       | (() => Element | VirtualElement | null);
     /**
-     * The CSS position strategy for positioning the Menu popup element.
+     * Determines which CSS `position` property to use.
      * @default 'absolute'
      */
     positionMethod?: 'absolute' | 'fixed';
     /**
-     * The container element to which the Menu popup will be appended to.
-     */
-    container?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
-    /**
-     * The side of the anchor element that the Menu element should align to.
-     * @default 'bottom'
+     * Which side of the anchor element to align the popup against.
+     * May automatically change to avoid collisions.
      */
     side?: Side;
     /**
-     * The gap between the anchor element and the Menu element.
+     * Distance between the anchor and the popup.
      * @default 0
      */
     sideOffset?: number;
     /**
-     * The align of the Menu element to the anchor element along its cross axis.
-     * @default 'center'
+     * How to align the popup relative to the specified side.
      */
     align?: 'start' | 'end' | 'center';
     /**
-     * The offset of the Menu element along its align axis.
+     * Additional offset along the alignment axis of the element.
      * @default 0
      */
     alignOffset?: number;
     /**
-     * The boundary that the Menu element should be constrained to.
+     * An element or a rectangle that delimits the area that the popup is confined to.
      * @default 'clipping-ancestors'
      */
     collisionBoundary?: Boundary;
     /**
-     * The padding of the collision boundary.
+     * Additional space to maintain from the edge of the collision boundary.
      * @default 5
      */
     collisionPadding?: Padding;
     /**
-     * Whether the menu popup remains mounted in the DOM while closed.
+     * Whether to keep the HTML element in the DOM while the menu is hidden.
      * @default false
      */
     keepMounted?: boolean;
     /**
-     * If `true`, allow the Menu to remain in stuck view while the anchor element is scrolled out
-     * of view.
+     * Whether to maintain the menu in the viewport after
+     * the anchor element is scrolled out of view.
      * @default false
      */
     sticky?: boolean;
     /**
-     * Determines the padding between the arrow and the Menu popup's edges. Useful when the popover
-     * popup has rounded corners via `border-radius`.
+     * Minimum distance to maintain between the arrow and the edges of the popup.
+     *
+     * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
      * @default 5
      */
     arrowPadding?: number;
@@ -159,6 +177,12 @@ export namespace useMenuPositioner {
      * Floating node id.
      */
     nodeId?: string;
+    /**
+     * The parent floating node id.
+     */
+    parentNodeId: string | null;
+    menuEvents: FloatingEvents;
+    setOpen: (open: boolean, event?: Event) => void;
   }
 
   export interface ReturnValue {

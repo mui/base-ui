@@ -8,12 +8,6 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
-/**
- *
- * API:
- *
- * - [useSelectTrigger API](https://mui.com/base-ui/api/use-select-trigger/)
- */
 export function useSelectTrigger(
   parameters: useSelectTrigger.Parameters,
 ): useSelectTrigger.ReturnValue {
@@ -144,8 +138,8 @@ export function useSelectTrigger(
     [
       fieldControlValidation,
       labelId,
-      handleRef,
       readOnly,
+      handleRef,
       getButtonProps,
       open,
       alignItemToTrigger,
@@ -169,7 +163,7 @@ export function useSelectTrigger(
 export namespace useSelectTrigger {
   export interface Parameters {
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;

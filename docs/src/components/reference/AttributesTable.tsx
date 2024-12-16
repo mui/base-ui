@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
-import { inlineMdxComponents, tableMdxComponents } from 'docs/src/mdx-components';
+import { inlineMdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
+import { ReferenceTablePopover } from './ReferenceTablePopover';
 import type { AttributeDef } from './types';
 import * as Table from '../Table';
-import { ReferenceTablePopover } from './ReferenceTablePopover';
-import { Code } from '../Code';
+import { TableCode } from '../TableCode';
 
 interface AttributesTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, AttributeDef>;
@@ -16,22 +16,19 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
     <Table.Root {...props}>
       <Table.Head>
         <Table.Row>
-          <Table.ColumnHeader className="w-1/2 xs:w-5/8 md:w-1/4">Attribute</Table.ColumnHeader>
-          <Table.ColumnHeader className="w-1/2 xs:w-3/8 md:w-3/4">Type</Table.ColumnHeader>
-          <Table.ColumnHeader className="w-10" aria-label="Description" />
+          <Table.ColumnHeader className="w-full xs:w-48 sm:w-56 md:w-1/3">
+            Attribute
+          </Table.ColumnHeader>
+          <Table.ColumnHeader className="w-10 xs:w-2/3">
+            <div className="sr-only xs:not-sr-only xs:contents">Description</div>
+          </Table.ColumnHeader>
+          {/* A cell to maintain a layout consistent with the props table */}
+          <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden role="presentation" />
         </Table.Row>
       </Table.Head>
       <Table.Body>
         {Object.keys(data).map(async (name) => {
           const attribute = data[name];
-
-          let AttributeType: (props: any) => React.JSX.Element = EmptyAttribute;
-          if (attribute.type) {
-            AttributeType = await createMdxComponent(`\`${attribute.type}\``, {
-              rehypePlugins: rehypeSyntaxHighlighting,
-              useMDXComponents: () => tableMdxComponents,
-            });
-          }
 
           const AttributeDescription = await createMdxComponent(attribute.description, {
             rehypePlugins: rehypeSyntaxHighlighting,
@@ -41,15 +38,17 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
           return (
             <Table.Row key={name}>
               <Table.RowHeader>
-                <Code className="text-navy">{name}</Code>
+                <TableCode className="text-navy">{name}</TableCode>
               </Table.RowHeader>
-              <Table.Cell>
-                <AttributeType />
-              </Table.Cell>
-              <Table.Cell>
-                <ReferenceTablePopover>
+              <Table.Cell colSpan={2}>
+                <div className="hidden xs:contents">
                   <AttributeDescription />
-                </ReferenceTablePopover>
+                </div>
+                <div className="contents xs:hidden">
+                  <ReferenceTablePopover>
+                    <AttributeDescription />
+                  </ReferenceTablePopover>
+                </div>
               </Table.Cell>
             </Table.Row>
           );
@@ -57,8 +56,4 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
       </Table.Body>
     </Table.Root>
   );
-}
-
-function EmptyAttribute() {
-  return <span className="text-gray-500">Empty attribute</span>;
 }

@@ -101,6 +101,9 @@ export type ToggleGroupOrientation = 'horizontal' | 'vertical';
 
 export namespace ToggleGroup {
   export interface State {
+    /**
+     * Whether the component should ignore user interaction.
+     */
     disabled: boolean;
     multiple: boolean;
   }
@@ -109,6 +112,7 @@ export namespace ToggleGroup {
     extends Partial<UseToggleGroup.Parameters>,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -117,6 +121,8 @@ export namespace ToggleGroup {
      */
     orientation?: ToggleGroupOrientation;
     /**
+     * Whether to loop keyboard focus back to the first item
+     * when the end of the list is reached while using the arrow keys.
      * @default true
      */
     loop?: boolean;
@@ -133,7 +139,8 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -143,10 +150,13 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    */
   defaultValue: PropTypes.array,
   /**
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
+   * Whether to loop keyboard focus back to the first item
+   * when the end of the list is reached while using the arrow keys.
    * @default true
    */
   loop: PropTypes.bool,
@@ -154,7 +164,7 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    * Callback fired when the pressed states of the ToggleGroup changes.
    *
    * @param {any[]} groupValue An array of the `value`s of all the pressed items.
-   * @param {Event} event The event source of the callback.
+   * @param {Event} event The corresponding event that initiated the change.
    */
   onValueChange: PropTypes.func,
   /**
@@ -162,7 +172,10 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

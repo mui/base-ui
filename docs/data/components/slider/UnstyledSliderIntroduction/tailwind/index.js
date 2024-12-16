@@ -57,14 +57,15 @@ const Slider = React.forwardRef(function Slider(props, ref) {
 
 Slider.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };
 
 const SliderOutput = React.forwardRef(function SliderOutput(props, ref) {
   return (
-    <BaseSlider.Output
+    <BaseSlider.Value
       {...props}
       ref={ref}
       className={(state) =>
@@ -81,7 +82,8 @@ const SliderOutput = React.forwardRef(function SliderOutput(props, ref) {
 
 SliderOutput.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };
@@ -106,7 +108,8 @@ const SliderControl = React.forwardRef(function SliderControl(props, ref) {
 
 SliderControl.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };
@@ -130,7 +133,8 @@ const SliderTrack = React.forwardRef(function SliderTrack(props, ref) {
 
 SliderTrack.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };
@@ -156,7 +160,8 @@ const SliderThumb = React.forwardRef(function SliderThumb(props, ref) {
 
 SliderThumb.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };
@@ -180,7 +185,8 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(props, ref) {
 
 SliderIndicator.propTypes = {
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
 };

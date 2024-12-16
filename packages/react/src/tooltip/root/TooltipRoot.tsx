@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useTooltipRoot } from './useTooltipRoot';
 import { OPEN_DELAY } from '../utils/constants';
+import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the tooltip.
@@ -81,7 +82,9 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
   );
 
   return (
-    <TooltipRootContext.Provider value={contextValue}>{props.children}</TooltipRootContext.Provider>
+    <TooltipRootContext.Provider value={contextValue}>
+      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
+    </TooltipRootContext.Provider>
   );
 };
 
@@ -103,33 +106,33 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The delay in milliseconds until the tooltip popup is closed.
+   * How long to wait before closing the tooltip. Specified in milliseconds.
    * @default 0
    */
   closeDelay: PropTypes.number,
   /**
-   * Whether the tooltip popup is open by default. Use when uncontrolled.
+   * Whether the tooltip is initially open.
+   *
+   * To render a controlled tooltip, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The delay in milliseconds until the tooltip popup is opened.
+   * How long to wait before opening the tooltip. Specified in milliseconds.
    * @default 600
    */
   delay: PropTypes.number,
   /**
-   * Whether the user can move their cursor from the trigger element toward the tooltip popup element
-   * without it closing using a "safe polygon" technique.
+   * Whether the tooltip contents can be hovered without closing the tooltip.
    * @default true
    */
   hoverable: PropTypes.bool,
   /**
-   * Callback fired when the tooltip popup is requested to be opened or closed. Use when controlled.
+   * Event handler called when the tooltip is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
-   * Whether the tooltip popup is open. Use when controlled.
-   * @default false
+   * Whether the tooltip is currently open.
    */
   open: PropTypes.bool,
   /**

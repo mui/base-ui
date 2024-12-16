@@ -60,12 +60,12 @@ namespace FieldError {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * Determines whether the error message should be shown when it matches a given property of the
-     * field's `ValidityState`.
+     * Determines whether to show the error message according to the field’s
+     * [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).
      */
     match?: keyof ValidityState;
     /**
-     * Determines whether the error message should be shown regardless of the field's client validity.
+     * Whether the error message should be shown regardless of the field’s validity.
      */
     forceShow?: boolean;
   }
@@ -81,11 +81,12 @@ FieldError.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Determines whether the error message should be shown regardless of the field's client validity.
+   * Whether the error message should be shown regardless of the field’s validity.
    */
   forceShow: PropTypes.bool,
   /**
@@ -93,8 +94,8 @@ FieldError.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
-   * Determines whether the error message should be shown when it matches a given property of the
-   * field's `ValidityState`.
+   * Determines whether to show the error message according to the field’s
+   * [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).
    */
   match: PropTypes.oneOf([
     'badInput',
@@ -110,7 +111,10 @@ FieldError.propTypes /* remove-proptypes */ = {
     'valueMissing',
   ]),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

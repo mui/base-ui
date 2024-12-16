@@ -14,8 +14,8 @@ export default function ExampleAccordion() {
         </Accordion.Header>
         <Accordion.Panel className={styles.Panel}>
           <div className={styles.Content}>
-            Base UI is a library of high-quality, accessible, unstyled React
-            components for design systems and web apps.
+            Base UI is a library of high-quality unstyled React components for design
+            systems and web apps.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
@@ -30,7 +30,7 @@ export default function ExampleAccordion() {
         <Accordion.Panel className={styles.Panel}>
           <div className={styles.Content}>
             Head to the “Quick start” guide in the docs. If you’ve used unstyled
-            libraries before, you’ll feel right at home.
+            libraries before, you’ll feel at home.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
@@ -38,7 +38,7 @@ export default function ExampleAccordion() {
       <Accordion.Item className={styles.Item}>
         <Accordion.Header className={styles.Header}>
           <Accordion.Trigger className={styles.Trigger}>
-            Can I use it for my next project?
+            Can I use it for my project?
             <PlusIcon className={styles.TriggerIcon} />
           </Accordion.Trigger>
         </Accordion.Header>

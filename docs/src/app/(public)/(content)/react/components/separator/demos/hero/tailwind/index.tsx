@@ -3,7 +3,7 @@ import { Separator } from '@base-ui-components/react/separator';
 
 export default function ExampleSeparator() {
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-4 text-nowrap">
       <a
         href="#"
         className="text-sm text-gray-900 decoration-gray-400 decoration-1 underline-offset-2 outline-0 hover:underline focus-visible:rounded-sm focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-blue-800"

@@ -44,22 +44,24 @@ export function useCollapsibleRoot(
 export namespace useCollapsibleRoot {
   export interface Parameters {
     /**
-     * If `true`, the Collapsible is initially open.
-     * This is the controlled counterpart of `defaultOpen`.
+     * Whether the collapsible panel is currently open.
+     *
+     * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
      */
     open?: boolean;
     /**
-     * If `true`, the Collapsible is initially open.
-     * This is the uncontrolled counterpart of `open`.
+     * Whether the collapsible panel is initially open.
+     *
+     * To render a controlled collapsible, use the `open` prop instead.
      * @default false
      */
     defaultOpen?: boolean;
     /**
-     * Callback fired when the Collapsible is opened or closed.
+     * Event handler called when the panel is opened or closed.
      */
     onOpenChange: (open: boolean) => void;
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled: boolean;
@@ -68,12 +70,14 @@ export namespace useCollapsibleRoot {
   export interface ReturnValue {
     panelId: React.HTMLAttributes<Element>['id'];
     /**
-     * The disabled state of the Collapsible
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     mounted: boolean;
     /**
-     * The open state of the Collapsible
+     * Whether the collapsible panel is currently open.
+     *
+     * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
      */
     open: boolean;
     setPanelId: (id: string | undefined) => void;

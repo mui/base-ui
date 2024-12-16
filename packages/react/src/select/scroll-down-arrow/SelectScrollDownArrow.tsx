@@ -21,7 +21,7 @@ namespace SelectScrollDownArrow {
   export interface State {}
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * Whether the component should be kept mounted when it is not rendered.
+     * Whether to keep the HTML element in the DOM while the select menu is not scrollable.
      * @default false
      */
     keepMounted?: boolean;
@@ -38,7 +38,7 @@ SelectScrollDownArrow.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Whether the component should be kept mounted when it is not rendered.
+   * Whether to keep the HTML element in the DOM while the select menu is not scrollable.
    * @default false
    */
   keepMounted: PropTypes.bool,

@@ -187,39 +187,42 @@ export type AccordionOrientation = 'horizontal' | 'vertical';
 export namespace useAccordionRoot {
   export interface Parameters {
     /**
-     * The value of the currently open `Accordion.Item`
-     * This is the controlled counterpart of `defaultValue`.
+     * The controlled value of the item(s) that should be expanded.
+     *
+     * To render an uncontrolled accordion, use the `defaultValue` prop instead.
      */
     value?: AccordionValue;
     /**
-     * The default value representing the currently open `Accordion.Item`
-     * This is the uncontrolled counterpart of `value`.
+     * The uncontrolled value of the item(s) that should be initially expanded.
+     *
+     * To render a controlled accordion, use the `value` prop instead.
      */
     defaultValue?: AccordionValue;
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled: boolean;
     direction: Direction;
     /**
-     * If `true`, focus will loop when moving focus between `Trigger`s using
-     * the arrow keys.
+     * Whether to loop keyboard focus back to the first item
+     * when the end of the list is reached while using the arrow keys.
      * @default true
      */
     loop: boolean;
     /**
-     * Callback fired when an Accordion section is opened or closed.
-     * The value representing the involved section is provided as an argument.
+     * Event handler called when an accordion item is expanded or collapsed.
+     * Provides the new value as an argument.
      */
     onValueChange: (value: AccordionValue) => void;
     /**
-     * Whether multiple Accordion sections can be opened at the same time.
+     * Whether multiple items can be open at the same time.
      * @default true
      */
     openMultiple: boolean;
     /**
-     * The orientation of the accordion.
+     * The visual orientation of the accordion.
+     * Controls whether roving focus uses left/right or up/down arrow keys.
      * @default 'vertical'
      */
     orientation: AccordionOrientation;
@@ -232,7 +235,7 @@ export namespace useAccordionRoot {
     accordionItemRefs: React.RefObject<(HTMLElement | null)[]>;
     direction: Direction;
     /**
-     * The disabled state of the Accordion
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     handleValueChange: (value: number | string, nextOpen: boolean) => void;

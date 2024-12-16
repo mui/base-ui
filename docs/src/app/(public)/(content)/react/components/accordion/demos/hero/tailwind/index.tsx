@@ -6,42 +6,42 @@ export default function ExampleAccordion() {
     <Accordion.Root className="flex w-96 max-w-[calc(100vw-8rem)] flex-col justify-center text-gray-900">
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full cursor-pointer items-baseline justify-between py-2 font-medium focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group flex w-full cursor-pointer items-baseline justify-between gap-4 py-2 text-left font-medium focus-visible:outline-2 focus-visible:outline-blue-800">
             What is Base UI?
             <PlusIcon className="mr-2 size-3 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
-        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm text-gray-600 transition-[height] ease-out [[data-starting-style],[data-ending-style]]:h-0">
+        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-base text-gray-600 transition-[height] ease-out [[data-starting-style],[data-ending-style]]:h-0">
           <div className="pb-3">
-            Base UI is a library of high-quality, accessible, unstyled React
-            components for design systems and web apps.
+            Base UI is a library of high-quality unstyled React components for design
+            systems and web apps.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
 
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full cursor-pointer items-baseline justify-between py-2 font-medium focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group flex w-full cursor-pointer items-baseline justify-between gap-4 py-2 text-left font-medium focus-visible:outline-2 focus-visible:outline-blue-800">
             How do I get started?
             <PlusIcon className="mr-2 size-3 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
-        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm text-gray-600 transition-[height] ease-out [[data-starting-style],[data-ending-style]]:h-0">
+        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-base text-gray-600 transition-[height] ease-out [[data-starting-style],[data-ending-style]]:h-0">
           <div className="pb-3">
             Head to the “Quick start” guide in the docs. If you’ve used unstyled
-            libraries before, you’ll feel right at home.
+            libraries before, you’ll feel at home.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
 
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full cursor-pointer items-baseline justify-between py-2 font-medium focus-visible:outline-2 focus-visible:outline-blue-800">
-            Can I use it for my next project?
+          <Accordion.Trigger className="group flex w-full cursor-pointer items-baseline justify-between gap-4 py-2 text-left font-medium focus-visible:outline-2 focus-visible:outline-blue-800">
+            Can I use it for my project?
             <PlusIcon className="mr-2 size-3 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
-        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm text-gray-600 transition-[height] ease-out [[data-starting-style],[data-ending-style]]:h-0">
+        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-base text-gray-600 transition-[height] ease-out [[data-starting-style],[data-ending-style]]:h-0">
           <div className="pb-3">Of course! Base UI is free and open source.</div>
         </Accordion.Panel>
       </Accordion.Item>

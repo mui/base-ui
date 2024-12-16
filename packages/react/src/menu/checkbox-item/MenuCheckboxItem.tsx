@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
+import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
 import { useMenuCheckboxItem } from './useMenuCheckboxItem';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -10,6 +10,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { itemMapping } from '../utils/styleHookMapping';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 
 const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuCheckboxItemProps,
@@ -27,7 +28,7 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
     menuEvents,
     propGetter,
     render,
-    treatMouseupAsClick,
+    allowMouseUpTriggerRef,
     typingRef,
     ...other
   } = props;
@@ -39,7 +40,7 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
     id,
     menuEvents,
     ref: forwardedRef,
-    treatMouseupAsClick,
+    allowMouseUpTriggerRef,
     checked: checkedProp,
     defaultChecked,
     onCheckedChange,
@@ -73,7 +74,15 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the checkbox is checked.
+   * @ignore
+   */
+  allowMouseUpTriggerRef: PropTypes.shape({
+    current: PropTypes.bool.isRequired,
+  }).isRequired,
+  /**
+   * Whether the checkbox item is currently ticked.
+   *
+   * To render an uncontrolled checkbox item, use the `defaultChecked` prop instead.
    */
   checked: PropTypes.bool,
   /**
@@ -81,23 +90,25 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the menu will close when the menu item is clicked.
+   * Whether to close the menu when the item is clicked.
    *
    * @default true
    */
   closeOnClick: PropTypes.bool,
   /**
-   * The default checked state. Use when the component is uncontrolled.
+   * Whether the checkbox item is initially ticked.
    *
+   * To render a controlled checkbox item, use the `checked` prop instead.
    * @default false
    */
   defaultChecked: PropTypes.bool,
   /**
-   * If `true`, the menu item will be disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -106,12 +117,11 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   highlighted: PropTypes.bool.isRequired,
   /**
-   * The id of the menu item.
+   * @ignore
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
@@ -123,7 +133,7 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
     on: PropTypes.func.isRequired,
   }).isRequired,
   /**
-   * Callback fired when the checked state is changed.
+   * Event handler called when the checkbox item is ticked or unticked.
    */
   onCheckedChange: PropTypes.func,
   /**
@@ -135,13 +145,12 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   propGetter: PropTypes.func.isRequired,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  treatMouseupAsClick: PropTypes.bool.isRequired,
   /**
    * @ignore
    */
@@ -165,10 +174,10 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   const { id: idProp, label, ...other } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
-  const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
+  const listItem = useCompositeListItem({ label });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex, clickAndDragEnabled, typingRef } = useMenuRootContext();
+  const { getItemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
   const id = useBaseUiId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -186,7 +195,7 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
       highlighted={highlighted}
       menuEvents={menuEvents}
       propGetter={getItemProps}
-      treatMouseupAsClick={clickAndDragEnabled}
+      allowMouseUpTriggerRef={allowMouseUpTriggerRef}
       typingRef={typingRef}
     />
   );
@@ -196,30 +205,39 @@ interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   highlighted: boolean;
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   menuEvents: FloatingEvents;
-  treatMouseupAsClick: boolean;
+  allowMouseUpTriggerRef: React.RefObject<boolean>;
   typingRef: React.RefObject<boolean>;
 }
 
 namespace MenuCheckboxItem {
   export type State = {
+    /**
+     * Whether the component should ignore user interaction.
+     */
     disabled: boolean;
     highlighted: boolean;
+    /**
+     * Whether the checkbox item is currently ticked.
+     */
     checked: boolean;
   };
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * If `true`, the checkbox is checked.
+     * Whether the checkbox item is currently ticked.
+     *
+     * To render an uncontrolled checkbox item, use the `defaultChecked` prop instead.
      */
     checked?: boolean;
     /**
-     * The default checked state. Use when the component is uncontrolled.
+     * Whether the checkbox item is initially ticked.
      *
+     * To render a controlled checkbox item, use the `checked` prop instead.
      * @default false
      */
     defaultChecked?: boolean;
     /**
-     * Callback fired when the checked state is changed.
+     * Event handler called when the checkbox item is ticked or unticked.
      */
     onCheckedChange?: (checked: boolean, event: Event) => void;
     children?: React.ReactNode;
@@ -228,21 +246,20 @@ namespace MenuCheckboxItem {
      */
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
-     * If `true`, the menu item will be disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
     /**
-     * A text representation of the menu item's content.
-     * Used for keyboard text navigation matching.
+     * Overrides the text label to use when the item is matched during keyboard text navigation.
      */
     label?: string;
     /**
-     * The id of the menu item.
+     * @ignore
      */
     id?: string;
     /**
-     * If `true`, the menu will close when the menu item is clicked.
+     * Whether to close the menu when the item is clicked.
      *
      * @default true
      */
@@ -256,7 +273,9 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the checkbox is checked.
+   * Whether the checkbox item is currently ticked.
+   *
+   * To render an uncontrolled checkbox item, use the `defaultChecked` prop instead.
    */
   checked: PropTypes.bool,
   /**
@@ -264,33 +283,33 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the menu will close when the menu item is clicked.
+   * Whether to close the menu when the item is clicked.
    *
    * @default true
    */
   closeOnClick: PropTypes.bool,
   /**
-   * The default checked state. Use when the component is uncontrolled.
+   * Whether the checkbox item is initially ticked.
    *
+   * To render a controlled checkbox item, use the `checked` prop instead.
    * @default false
    */
   defaultChecked: PropTypes.bool,
   /**
-   * If `true`, the menu item will be disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * The id of the menu item.
+   * @ignore
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
-   * Callback fired when the checked state is changed.
+   * Event handler called when the checkbox item is ticked or unticked.
    */
   onCheckedChange: PropTypes.func,
   /**

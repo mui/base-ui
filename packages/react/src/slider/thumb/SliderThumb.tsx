@@ -43,6 +43,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaLabel,
     getAriaValueText,
     id,
+    inputId,
     ...otherProps
   } = props;
 
@@ -54,6 +55,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     changeValue,
     direction,
     disabled: contextDisabled,
+    format,
     largeStep,
     max,
     min,
@@ -83,9 +85,11 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     changeValue,
     direction,
     disabled: disabledProp || contextDisabled,
+    format,
     getAriaLabel,
     getAriaValueText,
     id,
+    inputId,
     largeStep,
     max,
     min,
@@ -150,7 +154,10 @@ export namespace SliderThumb {
     onFocus?: React.FocusEventHandler;
     onKeyDown?: React.KeyboardEventHandler;
     /**
-     * A function to customize rendering of the component.
+     * Allows you to replace the component’s HTML element
+     * with a different tag, or compose it with another component.
+     *
+     * Accepts a `ReactElement` or a function that returns the element to render.
      */
     render?:
       | ((
@@ -182,7 +189,8 @@ SliderThumb.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
@@ -198,8 +206,9 @@ SliderThumb.propTypes /* remove-proptypes */ = {
   /**
    * Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.
    * This is important for screen reader users.
-   * @param {number} value The thumb label's value to format.
-   * @param {number} index The thumb label's index to format.
+   * @param {string} formattedValue The thumb's formatted value.
+   * @param {number} value The thumb's numerical value.
+   * @param {number} index The thumb's index.
    * @returns {string}
    */
   getAriaValueText: PropTypes.func,
@@ -207,6 +216,10 @@ SliderThumb.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   id: PropTypes.string,
+  /**
+   * @ignore
+   */
+  inputId: PropTypes.string,
   /**
    * @ignore
    */
@@ -228,7 +241,10 @@ SliderThumb.propTypes /* remove-proptypes */ = {
    */
   onPointerOver: PropTypes.func,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     PropTypes.func,

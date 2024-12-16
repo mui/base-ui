@@ -27,6 +27,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     defaultValue,
     disabled: disabledProp = false,
     id,
+    format,
     largeStep,
     render,
     max,
@@ -97,9 +98,10 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   const contextValue = React.useMemo(
     () => ({
       ...slider,
+      format,
       state,
     }),
-    [slider, state],
+    [slider, format, state],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -125,11 +127,11 @@ export namespace SliderRoot {
      */
     activeThumbIndex: number;
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
-     * If `true`, a thumb is being dragged by a pointer.
+     * Whether the thumb is currently being dragged.
      */
     dragging: boolean;
     max: number;
@@ -172,14 +174,20 @@ export namespace SliderRoot {
       >,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue' | 'onChange' | 'values'> {
     /**
-     * The default value of the slider. Use when the component is not controlled.
+     * The uncontrolled value of the slider when it’s initially rendered.
+     *
+     * To render a controlled slider, use the `value` prop instead.
      */
     defaultValue?: number | ReadonlyArray<number>;
     /**
-     * If `true`, the component is disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
+    /**
+     * Options to format the input value.
+     */
+    format?: Intl.NumberFormatOptions;
     /**
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
@@ -205,18 +213,43 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default value of the slider. Use when the component is not controlled.
+   * The uncontrolled value of the slider when it’s initially rendered.
+   *
+   * To render a controlled slider, use the `value` prop instead.
    */
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.number), PropTypes.number]),
   /**
-   * If `true`, the component is disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * Options to format the input value.
+   */
+  format: PropTypes.shape({
+    compactDisplay: PropTypes.oneOf(['long', 'short']),
+    currency: PropTypes.string,
+    currencyDisplay: PropTypes.oneOf(['code', 'name', 'narrowSymbol', 'symbol']),
+    currencySign: PropTypes.oneOf(['accounting', 'standard']),
+    localeMatcher: PropTypes.oneOf(['best fit', 'lookup']),
+    maximumFractionDigits: PropTypes.number,
+    maximumSignificantDigits: PropTypes.number,
+    minimumFractionDigits: PropTypes.number,
+    minimumIntegerDigits: PropTypes.number,
+    minimumSignificantDigits: PropTypes.number,
+    notation: PropTypes.oneOf(['compact', 'engineering', 'scientific', 'standard']),
+    numberingSystem: PropTypes.string,
+    signDisplay: PropTypes.oneOf(['always', 'auto', 'exceptZero', 'never']),
+    style: PropTypes.oneOf(['currency', 'decimal', 'percent', 'unit']),
+    unit: PropTypes.string,
+    unitDisplay: PropTypes.oneOf(['long', 'narrow', 'short']),
+    useGrouping: PropTypes.bool,
+  }),
   /**
    * @ignore
    */
@@ -244,14 +277,14 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   minStepsBetweenValues: PropTypes.number,
   /**
-   * Name attribute of the hidden `input` element.
+   * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
   /**
    * Callback function that is fired when the slider's value changed.
    *
    * @param {number | number[]} value The new value.
-   * @param {Event} event The event source of the callback.
+   * @param {Event} event The corresponding event that initiated the change.
    * You can pull out the new value by accessing `event.target.value` (any).
    * @param {number} activeThumbIndex Index of the currently moved thumb.
    */
@@ -260,7 +293,7 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    * Callback function that is fired when the `pointerup` is triggered.
    *
    * @param {number | number[]} value The new value.
-   * @param {Event} event The event source of the callback.
+   * @param {Event} event The corresponding event that initiated the change.
    * **Warning**: This is a generic event not a change event.
    */
   onValueCommitted: PropTypes.func,
@@ -270,7 +303,10 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**

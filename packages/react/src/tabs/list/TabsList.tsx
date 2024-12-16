@@ -104,15 +104,14 @@ namespace TabsList {
 
   export interface Props extends BaseUIComponentProps<'div', TabsList.State> {
     /**
-     * If `true`, the tab will be activated whenever it is focused.
-     * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.
-     *
+     * Whether to automatically change the active tab on arrow key focus.
+     * Otherwise, tabs will be activated using Enter or Spacebar key press.
      * @default true
      */
     activateOnFocus?: boolean;
     /**
-     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
-     *
+     * Whether to loop keyboard focus back to the first item
+     * when the end of the list is reached while using the arrow keys.
      * @default true
      */
     loop?: boolean;
@@ -127,9 +126,8 @@ TabsList.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * If `true`, the tab will be activated whenever it is focused.
-   * Otherwise, it has to be activated by clicking or pressing the Enter or Space key.
-   *
+   * Whether to automatically change the active tab on arrow key focus.
+   * Otherwise, tabs will be activated using Enter or Spacebar key press.
    * @default true
    */
   activateOnFocus: PropTypes.bool,
@@ -138,17 +136,21 @@ TabsList.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
-   *
+   * Whether to loop keyboard focus back to the first item
+   * when the end of the list is reached while using the arrow keys.
    * @default true
    */
   loop: PropTypes.bool,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;

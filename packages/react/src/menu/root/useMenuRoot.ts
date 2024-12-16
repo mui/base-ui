@@ -20,6 +20,7 @@ import { useControlled } from '../../utils/useControlled';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
+import { useScrollLock } from '../../utils/useScrollLock';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -37,11 +38,15 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     delay,
     openOnHover,
     onTypingChange,
+    modal,
   } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
+  const [positionerElement, setPositionerElementUnwrapped] = React.useState<HTMLElement | null>(
+    null,
+  );
   const popupRef = React.useRef<HTMLElement>(null);
+  const positionerRef = React.useRef<HTMLElement | null>(null);
   const [hoverEnabled, setHoverEnabled] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
 
@@ -51,6 +56,15 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     name: 'useMenuRoot',
     state: 'open',
   });
+
+  const setPositionerElement = React.useCallback((value: HTMLElement | null) => {
+    positionerRef.current = value;
+    setPositionerElementUnwrapped(value);
+  }, []);
+
+  const allowMouseUpTriggerRef = React.useRef(false);
+
+  useScrollLock(modal && open, triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -90,7 +104,10 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     ignoreMouse: nested,
   });
 
-  const dismiss = useDismiss(floatingRootContext, { bubbles: closeParentOnEsc });
+  const dismiss = useDismiss(floatingRootContext, {
+    bubbles: closeParentOnEsc && nested,
+    outsidePressEvent: 'mousedown',
+  });
 
   const role = useRole(floatingRootContext, {
     role: 'menu',
@@ -144,7 +161,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     [getReferenceProps],
   );
 
-  const getPositionerProps = React.useCallback(
+  const getPopupProps = React.useCallback(
     (externalProps?: GenericHTMLProps) =>
       getFloatingProps(
         mergeReactProps(externalProps, {
@@ -159,32 +176,36 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   return React.useMemo(
     () => ({
       activeIndex,
+      allowMouseUpTriggerRef,
       floatingRootContext,
-      setTriggerElement,
-      getTriggerProps,
-      setPositionerElement,
-      getPositionerProps,
       getItemProps,
+      getPopupProps,
+      getTriggerProps,
       itemDomElements,
       itemLabels,
       mounted,
-      transitionStatus,
-      popupRef,
       open,
+      popupRef,
+      positionerRef,
       setOpen,
+      setPositionerElement,
+      setTriggerElement,
+      transitionStatus,
     }),
     [
       activeIndex,
       floatingRootContext,
-      getTriggerProps,
-      getPositionerProps,
       getItemProps,
+      getPopupProps,
+      getTriggerProps,
       itemDomElements,
       itemLabels,
       mounted,
-      transitionStatus,
       open,
+      positionerRef,
       setOpen,
+      transitionStatus,
+      setPositionerElement,
     ],
   );
 }
@@ -194,36 +215,41 @@ export type MenuOrientation = 'horizontal' | 'vertical';
 export namespace useMenuRoot {
   export interface Parameters {
     /**
-     * Allows to control whether the Menu is open.
-     * This is a controlled counterpart of `defaultOpen`.
+     * Whether the menu is currently open.
      */
     open: boolean | undefined;
     /**
-     * Callback fired when the component requests to be opened or closed.
+     * Event handler called when the menu is opened or closed.
      */
     onOpenChange: ((open: boolean, event?: Event) => void) | undefined;
     /**
-     * If `true`, the Menu is initially open.
+     * Whether the menu is initially open.
+     *
+     * To render a controlled menu, use the `open` prop instead.
      */
     defaultOpen: boolean;
     /**
-     * If `true`, using keyboard navigation will wrap focus to the other end of the list once the end is reached.
+     * Whether to loop keyboard focus back to the first item
+     * when the end of the list is reached while using the arrow keys.
      */
     loop: boolean;
     /**
-     * The delay in milliseconds until the menu popup is opened when `openOnHover` is `true`.
+     * How long to wait before the menu may be opened on hover. Specified in milliseconds.
+     *
+     * Requires the `openOnHover` prop.
      */
     delay: number;
     /**
-     * The orientation of the Menu (horizontal or vertical).
+     * The visual orientation of the menu.
+     * Controls whether roving focus uses up/down or left/right arrow keys.
      */
     orientation: MenuOrientation;
     /**
-     * The direction of the Menu (left-to-right or right-to-left).
+     * Text direction of the menu (left to right or right to left).
      */
     direction: TextDirection;
     /**
-     * If `true`, the Menu is disabled.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
@@ -231,27 +257,26 @@ export namespace useMenuRoot {
      */
     nested: boolean;
     /**
-     * Determines if pressing the Esc key closes the parent menus.
-     * This is only applicable for nested menus.
-     *
-     * If set to `false` pressing Esc closes only the current menu.
+     * When in a submenu, determines whether pressing the Escape key
+     * closes the entire menu, or only the current child menu.
      */
     closeParentOnEsc: boolean;
     /**
-     * Whether the menu popup opens when the trigger is hovered after the provided `delay`.
+     * Whether the menu should also open when the trigger is hovered.
      */
     openOnHover: boolean;
     /**
      * Callback fired when the user begins or finishes typing (for typeahead search).
      */
     onTypingChange: (typing: boolean) => void;
+    modal: boolean;
   }
 
   export interface ReturnValue {
     activeIndex: number | null;
     floatingRootContext: FloatingRootContext;
     getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
     itemLabels: React.MutableRefObject<(string | null)[]>;
@@ -259,8 +284,10 @@ export namespace useMenuRoot {
     open: boolean;
     popupRef: React.RefObject<HTMLElement | null>;
     setOpen: (open: boolean, event: Event | undefined) => void;
+    positionerRef: React.RefObject<HTMLElement | null>;
     setPositionerElement: (element: HTMLElement | null) => void;
     setTriggerElement: (element: HTMLElement | null) => void;
     transitionStatus: TransitionStatus;
+    allowMouseUpTriggerRef: React.RefObject<boolean>;
   }
 }

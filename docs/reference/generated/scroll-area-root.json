@@ -4,26 +4,13 @@
   "props": {
     "className": {
       "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
-    },
-    "gutter": {
-      "type": "number | string",
-      "default": "0",
-      "description": "Determines the space to account for inset scrollbars."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
-  "cssVariables": {
-    "--scroll-area-corner-height": {
-      "description": "The scroll area's corner height.",
-      "type": "number"
-    },
-    "--scroll-area-corner-width": {
-      "description": "The scroll area's corner width.",
-      "type": "number"
-    }
-  }
+  "dataAttributes": {},
+  "cssVariables": {}
 }

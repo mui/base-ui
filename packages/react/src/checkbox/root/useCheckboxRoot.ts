@@ -19,6 +19,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     inputRef: externalInputRef,
     onCheckedChange: onCheckedChangeProp = () => {},
     name,
+    value,
     defaultChecked = false,
     readOnly = false,
     required = false,
@@ -79,8 +80,8 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   const getButtonProps: UseCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(externalProps), {
+        id,
         ref: buttonRef,
-        value: 'off',
         type: 'button',
         role: 'checkbox',
         disabled,
@@ -106,6 +107,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
         },
       }),
     [
+      id,
       getValidationProps,
       indeterminate,
       checked,
@@ -120,10 +122,12 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   const getInputProps: UseCheckboxRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(getInputValidationProps(externalProps), {
-        id,
         checked,
         disabled,
         name,
+        // React <19 sets an empty value if `undefined` is passed explicitly
+        // To avoid this, we only set the value if it's defined
+        ...(value !== undefined ? { value } : {}),
         required,
         autoFocus,
         ref: mergedInputRef,
@@ -153,10 +157,10 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       }),
     [
       getInputValidationProps,
-      id,
       checked,
       disabled,
       name,
+      value,
       required,
       autoFocus,
       mergedInputRef,
@@ -186,74 +190,76 @@ export namespace UseCheckboxRoot {
      */
     id?: string;
     /**
-     * Name of the underlying input element.
-     *
+     * Identifies the field when a form is submitted.
      * @default undefined
      */
     name?: string;
     /**
-     * If `true`, the component is checked.
+     * Whether the checkbox is currently ticked.
      *
+     * To render an uncontrolled checkbox, use the `defaultChecked` prop instead.
      * @default undefined
      */
     checked?: boolean;
     /**
-     * The default checked state. Use when the component is not controlled.
+     * Whether the checkbox is initially ticked.
      *
+     * To render a controlled checkbox, use the `checked` prop instead.
      * @default false
      */
     defaultChecked?: boolean;
     /**
-     * If `true`, the component is disabled.
-     *
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
     /**
-     * Callback fired when the checked state is changed.
+     * Event handler called when the checkbox is ticked or unticked.
      *
      * @param {boolean} checked The new checked state.
-     * @param {Event} event The event source of the callback.
+     * @param {Event} event The corresponding event that initiated the change.
      */
     onCheckedChange?: (checked: boolean, event: Event) => void;
     /**
-     * If `true`, the component is read only.
-     *
+     * Whether the user should be unable to tick or untick the checkbox.
      * @default false
      */
     readOnly?: boolean;
     /**
-     * If `true`, the `input` element is required.
-     *
+     * Whether the user must tick the checkbox before submitting a form.
      * @default false
      */
     required?: boolean;
     /**
-     * If `true`, the checkbox is focused on mount.
-     *
+     * Whether to focus the element on page load.
      * @default false
      */
     autoFocus?: boolean;
     /**
-     * If `true`, the checkbox will be indeterminate.
-     *
+     * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
      * @default false
      */
     indeterminate?: boolean;
     /**
-     * The ref to the input element.
+     * A React ref to access the hidden `<input>` element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**
-     * If `true`, the checkbox is a parent checkbox for a group of child checkboxes.
+     * Whether the checkbox controls a group of child checkboxes.
+     *
+     * Must be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).
      * @default false
      */
     parent?: boolean;
+    /**
+     * The value of the selected checkbox.
+     */
+    value?: string | number;
   }
 
   export interface ReturnValue {
     /**
-     * If `true`, the checkbox is checked.
+     * Whether the checkbox is currently ticked.
      */
     checked: boolean;
     /**

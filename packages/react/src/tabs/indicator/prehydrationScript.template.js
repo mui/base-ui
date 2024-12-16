@@ -9,7 +9,7 @@
     return;
   }
 
-  const activeTab = list.querySelector('[data-selected="true"]');
+  const activeTab = list.querySelector('[data-selected]');
   if (!activeTab) {
     return;
   }
@@ -51,4 +51,8 @@
   setProp('bottom', bottom);
   setProp('width', width);
   setProp('height', height);
+
+  if (width > 0 && height > 0) {
+    indicator.removeAttribute('hidden');
+  }
 })();

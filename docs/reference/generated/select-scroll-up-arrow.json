@@ -5,7 +5,21 @@
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should be kept mounted when it is not rendered."
+      "description": "Whether to keep the HTML element in the DOM while the select menu is not scrollable."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-direction": {
+      "description": "Indicates the direction of the arrow.",
+      "type": "'up'"
+    },
+    "data-side": {
+      "description": "Indicates which side the arrow is positioned relative to the select.",
+      "type": "'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
+    },
+    "data-visible": {
+      "description": "Present when the arrow is visible."
+    }
+  },
+  "cssVariables": {}
 }

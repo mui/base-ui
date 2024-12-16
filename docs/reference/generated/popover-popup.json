@@ -2,21 +2,40 @@
   "name": "PopoverPopup",
   "description": "A container for the popover contents.\nRenders a `<div>` element.",
   "props": {
-    "className": {
-      "type": "string | (state) => string",
-      "description": "Class names applied to the element or a function that returns them based on the component's state."
+    "initialFocus": {
+      "type": "React.Ref | (interactionType => HTMLElement | null)",
+      "description": "Determines the element to focus when the popover is opened.\nBy default, the first focusable element is focused."
     },
     "finalFocus": {
       "type": "React.Ref",
-      "description": "Determines an element to focus after the popover is closed.\nIf not provided, the focus returns to the trigger."
+      "description": "Determines the element to focus when the popover is closed.\nBy default, focus returns to the trigger."
     },
-    "initialFocus": {
-      "type": "React.Ref | (interactionType => HTMLElement | null)",
-      "description": "Determines an element to focus when the popover is opened.\nIt can be either a ref to the element or a function that returns such a ref.\nIf not provided, the first focusable element is focused."
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "A function to customize rendering of the component."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-open": {
+      "description": "Present when the popup is open."
+    },
+    "data-closed": {
+      "description": "Present when the popup is closed."
+    },
+    "data-side": {
+      "description": "Indicates which side the popup is positioned relative to the trigger.",
+      "type": "'none' | 'top' | 'right' | 'bottom' | 'left'"
+    },
+    "data-starting-style": {
+      "description": "Present when the popup is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the popup is animating out."
+    }
+  },
+  "cssVariables": {}
 }

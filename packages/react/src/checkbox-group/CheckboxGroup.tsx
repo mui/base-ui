@@ -63,8 +63,9 @@ const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       defaultValue,
       setValue,
       parent,
+      disabled,
     }),
-    [allValues, value, defaultValue, setValue, parent],
+    [allValues, value, defaultValue, setValue, parent, disabled],
   );
 
   return (
@@ -76,28 +77,35 @@ const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
 namespace CheckboxGroup {
   export interface State extends FieldRoot.State {
+    /**
+     * Whether the component should ignore user interaction.
+     */
     disabled: boolean;
   }
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * The currently checked values of the checkbox group. Use when controlled.
+     * Names of the checkboxes in the group that should be ticked.
+     *
+     * To render an uncontrolled checkbox group, use the `defaultValue` prop instead.
      */
     value?: string[];
     /**
-     * The default checked values of the checkbox group. Use when uncontrolled.
+     * Names of the checkboxes in the group that should be initially ticked.
+     *
+     * To render a controlled checkbox group, use the `value` prop instead.
      */
     defaultValue?: string[];
     /**
-     * A callback function that is called when the value of the checkbox group changes.
-     * Use when controlled.
+     * Event handler called when a checkbox in the group is ticked or unticked.
+     * Provides the new value as an argument.
      */
     onValueChange?: (value: string[], event: Event) => void;
     /**
-     * All values of the checkboxes in the group.
+     * Names of all checkboxes in the group. Use this when creating a parent checkbox.
      */
     allValues?: string[];
     /**
-     * Whether the checkbox group is disabled.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -110,7 +118,7 @@ CheckboxGroup.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * All values of the checkboxes in the group.
+   * Names of all checkboxes in the group. Use this when creating a parent checkbox.
    */
   allValues: PropTypes.arrayOf(PropTypes.string),
   /**
@@ -118,29 +126,37 @@ CheckboxGroup.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default checked values of the checkbox group. Use when uncontrolled.
+   * Names of the checkboxes in the group that should be initially ticked.
+   *
+   * To render a controlled checkbox group, use the `value` prop instead.
    */
   defaultValue: PropTypes.arrayOf(PropTypes.string),
   /**
-   * Whether the checkbox group is disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * A callback function that is called when the value of the checkbox group changes.
-   * Use when controlled.
+   * Event handler called when a checkbox in the group is ticked or unticked.
+   * Provides the new value as an argument.
    */
   onValueChange: PropTypes.func,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The currently checked values of the checkbox group. Use when controlled.
+   * Names of the checkboxes in the group that should be ticked.
+   *
+   * To render an uncontrolled checkbox group, use the `defaultValue` prop instead.
    */
   value: PropTypes.arrayOf(PropTypes.string),
 } as any;

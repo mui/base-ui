@@ -7,7 +7,6 @@ import { Code } from './components/Code';
 import { PropsTable } from './components/reference/PropsTable';
 import { AttributesTable } from './components/reference/AttributesTable';
 import { CssVariablesTable } from './components/reference/CssVariablesTable';
-import { TableCode } from './components/TableCode';
 import { getChildrenText } from './getChildrenText';
 import { Link } from './components/Link';
 import { Subtitle } from './components/subtitle/Subtitle';
@@ -16,6 +15,7 @@ interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
 }
 
+// Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
   a: (props) => <Link {...props} />,
   code: (props) => <Code className="data-[inline]:mx-[0.1em]" {...props} />,
@@ -41,7 +41,7 @@ export const mdxComponents: MDXComponents = {
   p: (props) => <p className="mb-4" {...props} />,
   figure: (props) => {
     if ('data-rehype-pretty-code-figure' in props) {
-      return <CodeBlock.Root className="mt-5 mb-8" {...props} />;
+      return <CodeBlock.Root className="mt-5 mb-6" {...props} />;
     }
 
     return <figure {...props} />;
@@ -81,15 +81,7 @@ export const mdxComponents: MDXComponents = {
 
 export const inlineMdxComponents: MDXComponents = {
   ...mdxComponents,
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  p: (props) => <React.Fragment {...props} />,
-};
-
-export const tableMdxComponents: MDXComponents = {
-  ...mdxComponents,
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  p: (props) => <React.Fragment {...props} />,
-  code: TableCode,
+  p: (props) => <p {...props} />,
 };
 
 export function useMDXComponents(): MDXComponents {

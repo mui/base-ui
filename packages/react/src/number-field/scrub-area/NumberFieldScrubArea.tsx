@@ -52,19 +52,19 @@ namespace NumberFieldScrubArea {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
-     * The direction that the scrub area should change the value.
+     * Cursor movement direction in the scrub area.
      * @default 'horizontal'
      */
     direction?: 'horizontal' | 'vertical';
     /**
-     * Determines the number of pixels the cursor must move before the value changes. A higher value
-     * will make the scrubbing less sensitive.
+     * Determines how many pixels the cursor must move before the value changes.
+     * A higher value will make scrubbing less sensitive.
      * @default 2
      */
     pixelSensitivity?: number;
     /**
-     * If specified, how much the cursor can move around the center of the scrub area element before
-     * it will loop back around.
+     * If specified, determines the distance that the cursor may move from the center
+     * of the scrub area before it will loop back around.
      */
     teleportDistance?: number | undefined;
   }
@@ -80,27 +80,31 @@ NumberFieldScrubArea.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * Class names applied to the element or a function that returns them based on the component's state.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The direction that the scrub area should change the value.
+   * Cursor movement direction in the scrub area.
    * @default 'horizontal'
    */
   direction: PropTypes.oneOf(['horizontal', 'vertical']),
   /**
-   * Determines the number of pixels the cursor must move before the value changes. A higher value
-   * will make the scrubbing less sensitive.
+   * Determines how many pixels the cursor must move before the value changes.
+   * A higher value will make scrubbing less sensitive.
    * @default 2
    */
   pixelSensitivity: PropTypes.number,
   /**
-   * A function to customize rendering of the component.
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * If specified, how much the cursor can move around the center of the scrub area element before
-   * it will loop back around.
+   * If specified, determines the distance that the cursor may move from the center
+   * of the scrub area before it will loop back around.
    */
   teleportDistance: PropTypes.number,
 } as any;

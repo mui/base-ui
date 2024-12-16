@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { PopoverRootContext } from './PopoverRootContext';
 import { usePopoverRoot } from './usePopoverRoot';
 import { OPEN_DELAY } from '../utils/constants';
+import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the popover.
@@ -97,7 +98,9 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
   );
 
   return (
-    <PopoverRootContext.Provider value={contextValue}>{props.children}</PopoverRootContext.Provider>
+    <PopoverRootContext.Provider value={contextValue}>
+      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
+    </PopoverRootContext.Provider>
   );
 };
 
@@ -119,32 +122,37 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The delay in milliseconds until the popover popup is closed when `openOnHover` is `true`.
+   * How long to wait before closing the popover that was opened on hover.
+   * Specified in milliseconds.
+   *
+   * Requires the `openOnHover` prop.
    * @default 0
    */
   closeDelay: PropTypes.number,
   /**
-   * Whether the popover popup is open by default. Use when uncontrolled.
+   * Whether the popover is initially open.
+   *
+   * To render a controlled popover, use the `open` prop instead.
    * @default false
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The delay in milliseconds until the popover popup is opened when `openOnHover` is `true`.
+   * How long to wait before the popover may be opened on hover. Specified in milliseconds.
+   *
+   * Requires the `openOnHover` prop.
    * @default 300
    */
   delay: PropTypes.number,
   /**
-   * Callback fired when the popover popup is requested to be opened or closed. Use when
-   * controlled.
+   * Event handler called when the popover is opened or closed.
    */
   onOpenChange: PropTypes.func,
   /**
-   * Whether the popover popup is open. Use when controlled.
-   * @default false
+   * Whether the popover is currently open.
    */
   open: PropTypes.bool,
   /**
-   * Whether the popover popup opens when the trigger is hovered after the provided `delay`.
+   * Whether the popover should also open when the trigger is hovered.
    * @default false
    */
   openOnHover: PropTypes.bool,
