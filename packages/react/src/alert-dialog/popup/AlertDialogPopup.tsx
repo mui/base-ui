@@ -96,7 +96,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   return (
     <FloatingFocusManager
       context={floatingContext}
-      modal
+      modal={open}
       disabled={!mounted}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
