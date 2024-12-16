@@ -16,7 +16,7 @@ export function Link({ href, className, ...props }: React.ComponentProps<typeof 
         target="_blank"
         rel="noopener"
         {...props}
-        className={clsx('Link mr-0.5 inline-flex items-center gap-1', className)}
+        className={clsx('Link mr-[0.125em] inline-flex items-center gap-[0.25em]', className)}
       >
         {props.children}
         <ExternalLinkIcon />
