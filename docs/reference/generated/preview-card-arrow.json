@@ -19,7 +19,7 @@
       "description": "Present when the preview card is open."
     },
     "data-uncentered": {
-      "description": "Present when the tooltip arrow is uncentered."
+      "description": "Present when the preview card arrow is uncentered."
     },
     "data-anchor-hidden": {
       "description": "Present when the anchor is hidden."

@@ -17,7 +17,7 @@ export enum MenuArrowDataAttributes {
    */
   side = 'data-side',
   /**
-   * Present when the tooltip arrow is uncentered.
+   * Present when the menu arrow is uncentered.
    */
   uncetered = 'data-uncentered',
 }
