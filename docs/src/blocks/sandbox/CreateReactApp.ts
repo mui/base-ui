@@ -25,11 +25,11 @@ export function getRootIndex(useTypescript: boolean) {
 
   return `import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
-import Demo from './Demo';
+import App from './App';
 
 ReactDOM.createRoot(document.querySelector("#root")${type}).render(
   <React.StrictMode>
-    <Demo />
+    <App />
   </React.StrictMode>
 );`;
 }

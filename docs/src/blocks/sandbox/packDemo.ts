@@ -34,8 +34,8 @@ export function packDemo(demoFiles: DemoFile[]) {
       newContent = flattenRelativeImports(file.content, [...relativeImports]);
     }
 
-    // the entry point is renamed to Demo.{ext}
-    const newFileName = index === 0 ? `Demo.${fileExtension}` : file.name;
+    // the entry point is renamed to App.{ext}
+    const newFileName = index === 0 ? `App.${fileExtension}` : file.name;
     processedFiles[newFileName] = newContent;
   });
 
