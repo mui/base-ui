@@ -6,7 +6,7 @@
     flex-shrink: 0;
     margin-inline: 1px;
     font-family: var(--default-font-family);
-    letter-spacing: 0.025em;
+    letter-spacing: 0.015em;
     font-weight: normal;
     vertical-align: text-top;
     white-space: nowrap;
@@ -44,7 +44,7 @@
         inset 0 -0.05em 0.75em var(--color-gray-100),
         inset 0 0.05em var(--color-gray-600),
         inset 0 0.25em 0.5em var(--color-gray-100),
-        0 0 0 0.075em var(--color-gray-400);
+        0 0 0 0.1em var(--color-gray-400);
     }
   }
 }
