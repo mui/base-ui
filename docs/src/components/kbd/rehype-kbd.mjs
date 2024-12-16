@@ -1,4 +1,4 @@
-import { visit } from 'unist-util-visit-parents';
+import { visit } from 'unist-util-visit';
 
 /** Treat <kbd> as normal tags */
 export function rehypeKbd() {
