@@ -12,11 +12,11 @@
     }
   },
   "dataAttributes": {
-    "data-unchecked": {
-      "description": "Present when the preview card is closed."
-    },
     "data-open": {
       "description": "Present when the preview card is open."
+    },
+    "data-closed": {
+      "description": "Present when the preview card is closed."
     },
     "data-uncentered": {
       "description": "Present when the preview card arrow is uncentered."

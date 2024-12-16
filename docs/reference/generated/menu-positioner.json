@@ -64,11 +64,11 @@
     }
   },
   "dataAttributes": {
-    "data-unchecked": {
-      "description": "Present when the menu popup is closed."
-    },
     "data-open": {
       "description": "Present when the menu popup is open."
+    },
+    "data-closed": {
+      "description": "Present when the menu popup is closed."
     },
     "data-anchor-hidden": {
       "description": "Present when the anchor is hidden."

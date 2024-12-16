@@ -66,11 +66,11 @@
     }
   },
   "dataAttributes": {
-    "data-unchecked": {
-      "description": "Present when the preview card is closed."
-    },
     "data-open": {
       "description": "Present when the preview card is open."
+    },
+    "data-closed": {
+      "description": "Present when the preview card is closed."
     },
     "data-anchor-hidden": {
       "description": "Present when the anchor is hidden."

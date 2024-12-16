@@ -6,7 +6,7 @@ export enum MenuPositionerDataAttributes {
   /**
    * Present when the menu popup is closed.
    */
-  closed = 'data-unchecked',
+  closed = 'data-closed',
   /**
    * Present when the anchor is hidden.
    */
