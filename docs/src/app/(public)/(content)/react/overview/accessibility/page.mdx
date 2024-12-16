@@ -6,7 +6,7 @@
   content="Learn how to make the most of Base UI's accessibility features and guidelines."
 />
 
-Accessibility is a top priority for Base UI. Base UI components handle many complex accessibility details including aria attributes, role attributes, pointer interactions, keyboard navigation, and focus management. The goal is to provide an accessible user experience out of the box, with intuitive APIs for configuration.
+Accessibility is a top priority for Base UI. Base UI components handle many complex accessibility details including ARIA attributes, role attributes, pointer interactions, keyboard navigation, and focus management. The goal is to provide an accessible user experience out of the box, with intuitive APIs for configuration.
 
 This page highlights some of the key accessibility features of Base UI, as well as some ways you will need to augment the library, in order to ensure that your application is accessible to everyone.
 
@@ -18,7 +18,7 @@ Many components provide keyboard support for arrow keys, alphanumeric keys, <kbd
 
 ## Focus management
 
-Base UI components manage focus automatically following a user interaction. Additionally, some components provide APIs like `initialFocus` and `finalFocus`, so you can configure focus management.
+Base UI components manage focus automatically following a user interaction. Additionally, some components provide props like `initialFocus` and `finalFocus`, to configure focus management.
 
 While Base UI components manage focus, it's the developer's responsibility to visually indicate focus. This is typically handled by styling the `:focus` or `:focus-visible` CSS pseudo-classes. WCAG provides [guidelines on focus appearance](https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance).
 

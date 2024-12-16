@@ -7,23 +7,29 @@
 
 Install Base UI using a package manager. All components are included in this single package.
 
-```jsx title="npm"
+```jsx title="Terminal"
 npm i @base-ui-components/react
 ```
 
-```jsx title="yarn"
-yarn add @base-ui-components/react
+> All components are included in a single package. Base UI is tree-shakeable, so your app bundle will contain only the components that you actually use.
+
+## Set up portals
+
+Base UI uses portals for components that render popups, such as Dialog and Popover. To make portalled components always appear on top of the entire page, add the following style to your application layout root:
+
+```tsx title="layout.tsx"
+<body>
+  <div className="Root">{children}</div>
+</body>
 ```
 
-## Enable portals
-
-In order for portals to layer automatically, you will want to add `isolation: isolate` to the root element in your application.
-
-```css title="reset.css"
-html {
+```css title="styles.css"
+.Root {
   isolation: isolate;
 }
 ```
+
+This style creates a separate stacking context for your application's `.Root` element. This way, popups will always appear above the page contents, and any `z-index` property in your styles won't interfere with them.
 
 ## Assemble a component
 
@@ -33,4 +39,4 @@ This demo shows you how to import a component, assemble its parts, and apply sty
 
 ## Next steps
 
-This walkthrough outlines the basics of putting together a Popover component with Base UI. Check out the [Popover component documentation](/react/components/popover) to learn how to configure it further, or browse the rest of the components to check similar demos of the other components available in the library.
+This walkthrough outlines the basics of putting together a Base UI component. Browse the rest of the documentation to see what components are available in the library and how to use them.
