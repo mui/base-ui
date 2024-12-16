@@ -208,7 +208,7 @@ describe('<Select.Root />', () => {
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <Select.Root open={open}>
+            <Select.Root open={open} modal={false}>
               <Select.Positioner>
                 <Select.Popup />
               </Select.Positioner>
@@ -265,7 +265,7 @@ describe('<Select.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
-            <Select.Root open={open}>
+            <Select.Root open={open} modal={false}>
               <Select.Positioner>
                 <Select.Popup
                   className="animation-test-popup"
