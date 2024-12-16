@@ -2,7 +2,7 @@
   .SideNavRoot {
     /* Match quick nav spacing so side nav and quick nav are visually aligned */
     --side-nav-item-height: 2rem;
-    --side-nav-item-line-height: var(--text-sm--line-height);
+    --side-nav-item-line-height: var(--text-md--line-height);
     --side-nav-item-padding-y: calc(
       var(--side-nav-item-height) / 2 - var(--side-nav-item-line-height) / 2
     );
@@ -16,7 +16,7 @@
         var(--side-nav-scrollbar-thumb-width) / 2
     );
 
-    @apply text-sm;
+    @apply text-md;
     position: sticky;
     top: 0;
 

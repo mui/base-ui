@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
-import { inlineMdxComponents, tableMdxComponents } from 'docs/src/mdx-components';
+import { inlineMdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import { ReferenceTablePopover } from './ReferenceTablePopover';
 import * as Table from '../Table';
 import type { PropDef } from './types';
-import { Code } from '../Code';
+import { TableCode } from '../TableCode';
 
 interface PropsTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, PropDef>;
@@ -30,12 +30,12 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
 
           const PropType = await createMdxComponent(`\`${prop.type}\``, {
             rehypePlugins: rehypeSyntaxHighlighting,
-            useMDXComponents: () => tableMdxComponents,
+            useMDXComponents: () => ({ code: TableCode }),
           });
 
           const PropDefault = await createMdxComponent(`\`${prop.default}\``, {
             rehypePlugins: rehypeSyntaxHighlighting,
-            useMDXComponents: () => tableMdxComponents,
+            useMDXComponents: () => ({ code: TableCode }),
           });
 
           const PropDescription = await createMdxComponent(prop.description, {
@@ -46,7 +46,7 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
           return (
             <Table.Row key={name}>
               <Table.RowHeader>
-                <Code className="text-navy">{name}</Code>
+                <TableCode className="text-navy">{name}</TableCode>
               </Table.RowHeader>
               <Table.Cell className="max-xs:hidden">
                 <PropType />
@@ -57,7 +57,7 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
               <Table.Cell>
                 <ReferenceTablePopover>
                   <PropDescription />
-                  <div className="flex flex-col gap-2 text-xs md:hidden">
+                  <div className="flex flex-col gap-2 text-md md:hidden">
                     <div className="border-t border-gray-200 pt-2 xs:hidden">
                       <div className="mb-1 font-bold">Type</div>
                       <PropType />
