@@ -11,9 +11,27 @@ Install Base UI using a package manager. All components are included in this sin
 npm i @base-ui-components/react
 ```
 
+## Enabling portals
+
+In order for portals to layer automatically, you will want to add `isolation: isolate` to the root element in your application.
+
+```
+// Tailwind
+<html className="isolate">
+  ...
+</html>
+```
+
+```
+// CSS
+html {
+  isolation: isolate;
+}
+```
+
 ## Assembling a component
 
-Import a component, assemble its parts, and apply styles. This example uses Tailwind, but you can use CSS Modules, CSS-in-JS, plain CSS, or any styling solution you prefer.
+Import a component, assemble its parts, and apply styles. This example uses Tailwind, but since Base UI components are unstyled, you can use CSS Modules, CSS-in-JS, or any styling solution you prefer.
 
 ```
 import * as React from 'react';
@@ -44,4 +62,4 @@ export default function MyPopover() {
 
 ## Next steps
 
-This walkthrough outlines the basics of putting together a Popover component with Base UI. Check out the Popover component documentation to learn how to configure it further. For example, you might want to add the `Popover.Arrow` part, or configure some props.
+This walkthrough outlines the basics of putting together a Popover component with Base UI. Check out the [Popover component documentation](/react/components/popover) to learn how to configure it further.
