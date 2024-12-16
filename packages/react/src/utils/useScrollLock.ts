@@ -37,7 +37,7 @@ function preventScrollIOS(referenceElement?: Element | null) {
 
   return () => {
     Object.assign(bodyStyle, originalBodyStyles);
-    window.scrollTo(scrollX, scrollY);
+    window.scrollTo({ left: scrollX, top: scrollY, behavior: 'instant' });
   };
 }
 
@@ -113,7 +113,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
     Object.assign(bodyStyle, originalBodyStyles);
 
     if (window.scrollTo.toString().includes('[native code]')) {
-      window.scrollTo(scrollX, scrollY);
+      window.scrollTo({ left: scrollX, top: scrollY, behavior: 'instant' });
     }
   }
 
