@@ -15,7 +15,7 @@ describe('packDemo', () => {
     ];
 
     const result = packDemo(files);
-    expect(result.processedFiles['Demo.js']).to.equal(files[0].content);
+    expect(result.processedFiles['App.js']).to.equal(files[0].content);
 
     expect(result.externalImports.length).to.equal(1);
     expect(result.externalImports[0]).to.equal('react');
@@ -38,7 +38,7 @@ describe('packDemo', () => {
     ];
 
     const result = packDemo(files);
-    expect(result.processedFiles['Demo.js']).to.equal("import file2 from './file2';");
+    expect(result.processedFiles['App.js']).to.equal("import file2 from './file2';");
     expect(result.processedFiles['file2.js']).to.equal(files[1].content);
     expect(result.externalImports.length).to.equal(0);
   });
@@ -60,7 +60,7 @@ describe('packDemo', () => {
     ];
 
     const result = packDemo(files);
-    expect(result.processedFiles['Demo.js']).to.equal("import file2 from './file2';");
+    expect(result.processedFiles['App.js']).to.equal("import file2 from './file2';");
     expect(result.processedFiles['file2.js']).to.equal(files[1].content);
     expect(result.externalImports.length).to.equal(0);
   });

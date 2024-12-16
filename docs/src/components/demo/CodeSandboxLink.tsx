@@ -59,6 +59,15 @@ export function CodeSandboxLink({ title, description, ...props }: CodeSandboxLin
       additionalHtmlHeadContent,
       onAddingFile: (fileName, content) => {
         if (fileName === 'theme.css') {
+          content = content.replace(
+            ':root {',
+            `:root {\n  color-scheme: light dark;\n  font-family: system-ui;\n`,
+          );
+
+          if (!content.includes(':root {')) {
+            throw new Error('Expected to find a ":root" selector in the demo theme file');
+          }
+
           return ['public/theme.css', content];
         }
 
