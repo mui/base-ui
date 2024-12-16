@@ -7,7 +7,7 @@ export function rehypeKbd() {
       if (node.name === 'kbd') {
         node.tagName = 'kbd';
         node.type = 'element';
-        delete node.data
+        delete node.data;
       }
     });
   };
