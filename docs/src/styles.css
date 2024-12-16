@@ -5,8 +5,8 @@
  *   - Use component name as the prefix to avoid conflicts, e.g. ".SelectTriggerIcon"
  *   - Prefix CSS variables with component name too, e.g. "--root-layout-padding-x"
  * - Use Tailwind for layout utils
- * - There is two reset layers:
- *   - "@layer all" is a truly global reset
+ * - There are two reset layers:
+ *   - "@layer all" is a truly global reset (includes all demos)
  *   - "@layer base" is Tailwind’s reset that is reverted in non-Tailwind demos
  *   - We rely on both to build the docs docs
  * - Docs and demos are built using the same theme
@@ -32,6 +32,7 @@
 @import './components/demo/Demo.css';
 @import './components/GhostButton.css';
 @import './components/Header.css';
+@import './components/kbd/Kbd.css';
 @import './components/Link.css';
 @import './components/MobileNav.css';
 @import './components/Popup.css';

@@ -8,11 +8,12 @@ import nextMdx from '@next/mdx';
 import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
 import remarkGfm from 'remark-gfm';
 import { rehypeQuickNav } from 'docs/src/components/quick-nav/rehypeQuickNav.mjs';
-import { rehypeReference } from './src/components/reference/rehypeReference.mjs';
-import { rehypeDemos } from './src/components/demo/rehypeDemos.mjs';
-import { rehypeSyntaxHighlighting } from './src/syntax-highlighting/index.mjs';
-import { rehypeSlug } from './src/components/quick-nav/rehypeSlug.mjs';
-import { rehypeSubtitle } from './src/components/subtitle/rehypeSubtitle.mjs';
+import { rehypeKbd } from 'docs/src/components/kbd/rehype-kbd.mjs';
+import { rehypeReference } from 'docs/src/components/reference/rehypeReference.mjs';
+import { rehypeDemos } from 'docs/src/components/demo/rehypeDemos.mjs';
+import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting/index.mjs';
+import { rehypeSlug } from 'docs/src/components/quick-nav/rehypeSlug.mjs';
+import { rehypeSubtitle } from 'docs/src/components/subtitle/rehypeSubtitle.mjs';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const workspaceRoot = path.resolve(currentDirectory, '../');
@@ -28,6 +29,7 @@ const withMdx = nextMdx({
       rehypeExtractToc,
       rehypeQuickNav,
       rehypeSubtitle,
+      rehypeKbd,
     ],
   },
 });
