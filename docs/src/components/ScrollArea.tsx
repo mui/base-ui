@@ -1,0 +1,17 @@
+import * as React from 'react';
+import { ScrollArea } from '@base-ui-components/react/scroll-area';
+import clsx from 'clsx';
+
+export const Root = ScrollArea.Root;
+
+export function Viewport({ className, ...props }: ScrollArea.Viewport.Props) {
+  return <ScrollArea.Viewport className={clsx('ScrollAreaViewport', className)} {...props} />;
+}
+
+export function Scrollbar({ className, ...props }: ScrollArea.Scrollbar.Props) {
+  return (
+    <ScrollArea.Scrollbar className={clsx('ScrollAreaScrollbar', className)} {...props}>
+      <ScrollArea.Thumb className="ScrollAreaThumb" />
+    </ScrollArea.Scrollbar>
+  );
+}

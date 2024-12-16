@@ -11,7 +11,7 @@ export function ReferenceTablePopover({ children }: React.PropsWithChildren) {
     <Popover.Root openOnHover delay={100}>
       <Popover.Trigger
         render={
-          <GhostButton layout="icon">
+          <GhostButton aria-label="Info" layout="icon">
             <svg
               width="14"
               height="14"

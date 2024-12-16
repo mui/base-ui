@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as BaseDemo from 'docs/src/blocks/Demo';
 import { Collapsible } from '@base-ui-components/react/collapsible';
+import * as ScrollArea from '../ScrollArea';
 
 interface DemoSourceBrowserProps {
   collapsibleOpen: boolean;
@@ -24,11 +25,15 @@ export function DemoSourceBrowser({
 
   if (lineBreaks.length < collapsibleLinesThreshold) {
     return (
-      <BaseDemo.SourceBrowser
-        tabIndex={-1}
-        onKeyDown={handleSelectAll}
-        className="DemoCodeBlockContainer"
-      />
+      <DemoCodeBlockContainer>
+        <ScrollArea.Viewport
+          style={{ overflow: undefined }}
+          render={({ children, ...props }) => {
+            return <BaseDemo.SourceBrowser {...props} />;
+          }}
+        />
+        <ScrollArea.Scrollbar orientation="horizontal" />
+      </DemoCodeBlockContainer>
     );
   }
 
@@ -39,16 +44,27 @@ export function DemoSourceBrowser({
       <Collapsible.Trigger className="DemoCollapseButton">
         {collapsibleOpen ? 'Hide' : 'Show'} code
       </Collapsible.Trigger>
-      <Collapsible.Panel
-        keepMounted
-        hidden={false}
-        tabIndex={-1}
-        onKeyDown={handleSelectAll}
-        className="DemoCodeBlockContainer"
-      >
-        <BaseDemo.SourceBrowser aria-hidden={!collapsibleOpen} />
+      <Collapsible.Panel keepMounted hidden={false} render={<DemoCodeBlockContainer />}>
+        <ScrollArea.Viewport
+          style={{ overflow: undefined }}
+          render={({ children, ...props }) => {
+            return <BaseDemo.SourceBrowser aria-hidden={!collapsibleOpen} {...props} />;
+          }}
+        />
+        <ScrollArea.Scrollbar orientation="horizontal" />
       </Collapsible.Panel>
     </div>
+  );
+}
+
+function DemoCodeBlockContainer(props: React.ComponentProps<typeof ScrollArea.Root>) {
+  return (
+    <ScrollArea.Root
+      {...props}
+      className="DemoCodeBlockContainer"
+      tabIndex={-1}
+      onKeyDown={handleSelectAll}
+    />
   );
 }
 

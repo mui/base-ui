@@ -36,6 +36,7 @@
 @import './components/MobileNav.css';
 @import './components/Popup.css';
 @import './components/quick-nav/QuickNav.css';
+@import './components/ScrollArea.css';
 @import './components/Select.css';
 @import './components/SideNav.css';
 @import './components/subtitle/Subtitle.css';

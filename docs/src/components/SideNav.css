@@ -82,7 +82,7 @@
       /* Visible thumb width */
       width: var(--side-nav-scrollbar-thumb-width);
       border-radius: var(--radius-sm);
-      background-color: var(--color-gray-300);
+      background-color: var(--color-gray-400);
     }
   }
 

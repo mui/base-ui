@@ -62,20 +62,12 @@
     /* Scroll */
     display: flex;
     overflow: auto;
+    /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
     overscroll-behavior-x: contain;
-    scrollbar-width: thin;
 
     /* iOS Safari appears to flicker the scroll containers during tasking animations */
     [data-mobile-nav-open] & {
       overflow: hidden;
-    }
-
-    /* Scroll containers may be focusable */
-    &:focus-visible {
-      position: relative;
-      outline: 2px solid var(--color-blue);
-      outline-offset: -1px;
-      z-index: 1;
     }
 
     & code {

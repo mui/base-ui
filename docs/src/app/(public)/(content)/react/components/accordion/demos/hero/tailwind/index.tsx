@@ -8,7 +8,7 @@ export default function ExampleAccordion() {
         <Accordion.Header>
           <Accordion.Trigger className="group flex w-full cursor-pointer items-baseline justify-between gap-4 py-2 text-left font-medium focus-visible:outline-2 focus-visible:outline-blue-800">
             What is Base UI?
-            <PlusIcon className="mr-2 size-3 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
+            <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-base text-gray-600 transition-[height] ease-out [[data-starting-style],[data-ending-style]]:h-0">
@@ -23,7 +23,7 @@ export default function ExampleAccordion() {
         <Accordion.Header>
           <Accordion.Trigger className="group flex w-full cursor-pointer items-baseline justify-between gap-4 py-2 text-left font-medium focus-visible:outline-2 focus-visible:outline-blue-800">
             How do I get started?
-            <PlusIcon className="mr-2 size-3 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
+            <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-base text-gray-600 transition-[height] ease-out [[data-starting-style],[data-ending-style]]:h-0">
@@ -38,7 +38,7 @@ export default function ExampleAccordion() {
         <Accordion.Header>
           <Accordion.Trigger className="group flex w-full cursor-pointer items-baseline justify-between gap-4 py-2 text-left font-medium focus-visible:outline-2 focus-visible:outline-blue-800">
             Can I use it for my project?
-            <PlusIcon className="mr-2 size-3 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
+            <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-base text-gray-600 transition-[height] ease-out [[data-starting-style],[data-ending-style]]:h-0">
