@@ -5,6 +5,9 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSelectItemContext } from '../item/SelectItemContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useForkRef } from '../../utils/useForkRef';
+import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
 /**
  * Indicates whether the select item is selected.
@@ -20,6 +23,11 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
 
   const { selected } = useSelectItemContext();
 
+  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+  const mergedRef = useForkRef(forwardedRef, indicatorRef);
+
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(selected);
+
   const getItemProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
@@ -32,20 +40,32 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
   const state: SelectItemIndicator.State = React.useMemo(
     () => ({
       selected,
+      transitionStatus,
     }),
-    [selected],
+    [selected, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getItemProps,
     render: render ?? 'span',
-    ref: forwardedRef,
+    ref: mergedRef,
     className,
     state,
-    extraProps: otherProps,
+    extraProps: {
+      hidden: !mounted,
+      ...otherProps,
+    },
   });
 
-  const shouldRender = selected || keepMounted;
+  useAfterExitAnimation({
+    open: selected,
+    animatedElementRef: indicatorRef,
+    onFinished() {
+      setMounted(false);
+    },
+  });
+
+  const shouldRender = keepMounted || selected;
   if (!shouldRender) {
     return null;
   }
@@ -65,6 +85,7 @@ namespace SelectItemIndicator {
 
   export interface State {
     selected: boolean;
+    transitionStatus: TransitionStatus;
   }
 }
 
