@@ -2,6 +2,10 @@
   "name": "TabsTab",
   "description": "An individual interactive tab button that toggles the corresponding panel.\nRenders a `<button>` element.",
   "props": {
+    "value": {
+      "type": "any",
+      "description": "The value of the Tab.\nWhen not specified, the value is the child position index."
+    },
     "className": {
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
@@ -9,10 +13,26 @@
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
-    },
-    "value": {
-      "type": "any",
-      "description": "The value of the Tab.\nWhen not specified, the value is the child position index."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-selected": {
+      "description": "Present when the tab is selected."
+    },
+    "data-highlighted": {
+      "description": "Present when the tab is highlighted."
+    },
+    "data-orientation": {
+      "description": "Indicates the orientation of the tabs.",
+      "type": "'horizontal' | 'vertical'"
+    },
+    "data-disabled": {
+      "description": "Present when the tab is disabled."
+    },
+    "data-activation-direction": {
+      "description": "Indicates the direction of the activation (based on the previous selected tab).",
+      "type": "'left' | 'right' | 'up' | 'down' | 'none'"
+    }
+  },
+  "cssVariables": {}
 }

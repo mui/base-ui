@@ -5,6 +5,7 @@ import type {
   VirtualElement,
   FloatingContext,
   FloatingRootContext,
+  FloatingEvents,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
@@ -14,7 +15,7 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 export function useMenuPositioner(
   params: useMenuPositioner.Parameters,
 ): useMenuPositioner.ReturnValue {
-  const { keepMounted, mounted } = params;
+  const { keepMounted, mounted, menuEvents, nodeId, parentNodeId, setOpen } = params;
 
   const { open } = useMenuRootContext();
 
@@ -48,6 +49,26 @@ export function useMenuPositioner(
     },
     [keepMounted, open, positionerStyles, mounted],
   );
+
+  React.useEffect(() => {
+    function onMenuOpened(event: { nodeId: string; parentNodeId: string }) {
+      if (event.nodeId !== nodeId && event.parentNodeId === parentNodeId) {
+        setOpen(false);
+      }
+    }
+
+    menuEvents.on('opened', onMenuOpened);
+
+    return () => {
+      menuEvents.off('opened', onMenuOpened);
+    };
+  }, [menuEvents, nodeId, parentNodeId, setOpen]);
+
+  React.useEffect(() => {
+    if (open) {
+      menuEvents.emit('opened', { nodeId, parentNodeId });
+    }
+  }, [menuEvents, open, nodeId, parentNodeId]);
 
   return React.useMemo(
     () => ({
@@ -156,6 +177,12 @@ export namespace useMenuPositioner {
      * Floating node id.
      */
     nodeId?: string;
+    /**
+     * The parent floating node id.
+     */
+    parentNodeId: string | null;
+    menuEvents: FloatingEvents;
+    setOpen: (open: boolean, event?: Event) => void;
   }
 
   export interface ReturnValue {

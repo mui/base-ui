@@ -22,12 +22,13 @@ const testRootContext: MenuRootContext = {
   itemLabels: { current: [] },
   open: true,
   setOpen: () => {},
-  clickAndDragEnabled: false,
-  setClickAndDragEnabled: () => {},
   popupRef: { current: null },
   mounted: true,
   transitionStatus: undefined,
   typingRef: { current: false },
+  modal: false,
+  positionerRef: { current: null },
+  allowMouseUpTriggerRef: { current: false },
 };
 
 describe('<Menu.Positioner />', () => {
@@ -236,7 +237,7 @@ describe('<Menu.Positioner />', () => {
 
     it('when keepMounted=true, should keep the content mounted when closed', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root>
+        <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Positioner keepMounted>
             <Menu.Popup>
@@ -264,7 +265,7 @@ describe('<Menu.Positioner />', () => {
 
     it('when keepMounted=false, should unmount the content when closed', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root>
+        <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Positioner keepMounted={false}>
             <Menu.Popup>

@@ -8,4 +8,8 @@ export enum AccordionItemDataAttributes {
    * Present when the accordion item is disabled.
    */
   disabled = 'data-disabled',
+  /**
+   * Present when the accordion item is open.
+   */
+  open = 'data-open',
 }

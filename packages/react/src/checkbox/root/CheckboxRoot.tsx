@@ -57,8 +57,13 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ...otherGroupProps
   } = groupProps;
 
+  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
+
+  const disabled = fieldDisabled || groupContext?.disabled || disabledProp;
+
   const { checked, getInputProps, getButtonProps } = useCheckboxRoot({
     ...props,
+    disabled,
     inputRef,
     checked: groupChecked,
     indeterminate: groupIndeterminate,
@@ -67,9 +72,6 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const computedChecked = isGrouped ? Boolean(groupChecked) : checked;
   const computedIndeterminate = isGrouped ? groupIndeterminate : indeterminate;
-
-  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
-  const disabled = fieldDisabled || disabledProp;
 
   React.useEffect(() => {
     if (parentContext && name) {

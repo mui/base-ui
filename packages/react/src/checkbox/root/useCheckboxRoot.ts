@@ -80,6 +80,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   const getButtonProps: UseCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(externalProps), {
+        id,
         ref: buttonRef,
         type: 'button',
         role: 'checkbox',
@@ -106,6 +107,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
         },
       }),
     [
+      id,
       getValidationProps,
       indeterminate,
       checked,
@@ -120,7 +122,6 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   const getInputProps: UseCheckboxRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(getInputValidationProps(externalProps), {
-        id,
         checked,
         disabled,
         name,
@@ -154,7 +155,6 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       }),
     [
       getInputValidationProps,
-      id,
       checked,
       disabled,
       name,

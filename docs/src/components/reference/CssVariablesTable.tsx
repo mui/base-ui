@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
-import { inlineMdxComponents, tableMdxComponents } from 'docs/src/mdx-components';
+import { inlineMdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import { ReferenceTablePopover } from './ReferenceTablePopover';
 import * as Table from '../Table';
 import type { CssVariableDef } from './types';
-import { Code } from '../Code';
+import { TableCode } from '../TableCode';
 
 interface CssVariablesTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, CssVariableDef>;
@@ -19,18 +19,16 @@ export async function CssVariablesTable({ data, ...props }: CssVariablesTablePro
           <Table.ColumnHeader className="w-full xs:w-48 sm:w-56 md:w-1/3">
             CSS Variable
           </Table.ColumnHeader>
-          <Table.ColumnHeader className="max-xs:hidden xs:w-full md:w-2/3">Type</Table.ColumnHeader>
-          <Table.ColumnHeader className="w-10" aria-label="Description" />
+          <Table.ColumnHeader className="w-10 xs:w-2/3">
+            <div className="sr-only xs:not-sr-only xs:contents">Description</div>
+          </Table.ColumnHeader>
+          {/* A cell to maintain a layout consistent with the props table */}
+          <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden role="presentation" />
         </Table.Row>
       </Table.Head>
       <Table.Body>
         {Object.keys(data).map(async (name) => {
           const cssVariable = data[name];
-
-          const CssVaribleType = await createMdxComponent(`\`${cssVariable.type}\``, {
-            rehypePlugins: rehypeSyntaxHighlighting,
-            useMDXComponents: () => tableMdxComponents,
-          });
 
           const CssVaribleDescription = await createMdxComponent(cssVariable.description, {
             rehypePlugins: rehypeSyntaxHighlighting,
@@ -40,21 +38,17 @@ export async function CssVariablesTable({ data, ...props }: CssVariablesTablePro
           return (
             <Table.Row key={name}>
               <Table.RowHeader>
-                <Code className="text-navy">{name}</Code>
+                <TableCode className="text-navy">{name}</TableCode>
               </Table.RowHeader>
-              <Table.Cell className="max-xs:hidden">
-                <CssVaribleType />
-              </Table.Cell>
-              <Table.Cell>
-                <ReferenceTablePopover>
+              <Table.Cell colSpan={2}>
+                <div className="hidden xs:contents">
                   <CssVaribleDescription />
-                  <div className="flex flex-col gap-2 text-xs xs:hidden">
-                    <div className="border-t border-gray-200 pt-2">
-                      <div className="mb-1 font-bold">Type</div>
-                      <CssVaribleType />
-                    </div>
-                  </div>
-                </ReferenceTablePopover>
+                </div>
+                <div className="contents xs:hidden">
+                  <ReferenceTablePopover>
+                    <CssVaribleDescription />
+                  </ReferenceTablePopover>
+                </div>
               </Table.Cell>
             </Table.Row>
           );

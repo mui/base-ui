@@ -51,8 +51,8 @@
 
 .Popup {
   box-sizing: border-box;
-  font-size: 0.9375rem;
-  line-height: 1.375rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   display: flex;
   flex-direction: column;
   padding: 0.25rem 0.5rem;

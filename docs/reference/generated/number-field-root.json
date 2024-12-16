@@ -2,89 +2,117 @@
   "name": "NumberFieldRoot",
   "description": "Groups all parts of the number field and manages its state.\nRenders a `<div>` element.",
   "props": {
-    "allowWheelScrub": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether to allow the user to scrub the input value with the mouse wheel while focused and\nhovering over the input."
-    },
-    "autoFocus": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether to focus the element on page load."
-    },
-    "className": {
-      "type": "string | (state) => string",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    "name": {
+      "type": "string",
+      "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
       "type": "number",
       "description": "The uncontrolled value of the field when it’s initially rendered.\n\nTo render a controlled number field, use the `value` prop instead."
     },
-    "disabled": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the component should ignore user interaction."
-    },
-    "format": {
-      "type": "Intl.NumberFormatOptions",
-      "description": "Options to format the input value."
-    },
-    "id": {
-      "type": "string",
-      "description": "The id of the input element."
-    },
-    "invalid": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the field is forcefully marked as invalid."
-    },
-    "largeStep": {
+    "value": {
       "type": "number",
-      "default": "10",
-      "description": "The large step value of the input element when incrementing while the shift key is held. Snaps\nto multiples of this value."
-    },
-    "max": {
-      "type": "number",
-      "description": "The maximum value of the input element."
-    },
-    "min": {
-      "type": "number",
-      "description": "The minimum value of the input element."
-    },
-    "name": {
-      "type": "string",
-      "description": "Identifies the field when a form is submitted."
+      "description": "The raw numeric value of the field."
     },
     "onValueChange": {
       "type": "(value, event) => void",
       "description": "Callback fired when the number value changes."
     },
-    "readOnly": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the user should be unable to change the field value."
-    },
-    "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
-    },
-    "required": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the user must enter a value before submitting a form."
+    "step": {
+      "type": "number",
+      "default": "1;",
+      "description": "Amount to increment and decrement with the buttons and arrow keys,\nor to scrub with pointer movement in the scrub area."
     },
     "smallStep": {
       "type": "number",
       "default": "0.1",
       "description": "The small step value of the input element when incrementing while the meta key is held. Snaps\nto multiples of this value."
     },
-    "step": {
+    "largeStep": {
       "type": "number",
-      "description": "The step value of the input element when incrementing, decrementing, or scrubbing. It will snap\nto multiples of this value. When unspecified, decimal values are allowed, but the stepper\nbuttons will increment or decrement by `1`."
+      "default": "10",
+      "description": "The large step value of the input element when incrementing while the shift key is held. Snaps\nto multiples of this value."
     },
-    "value": {
+    "min": {
       "type": "number",
-      "description": "The raw numeric value of the field."
+      "description": "The minimum value of the input element."
+    },
+    "max": {
+      "type": "number",
+      "description": "The maximum value of the input element."
+    },
+    "allowWheelScrub": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to allow the user to scrub the input value with the mouse wheel while focused and\nhovering over the input."
+    },
+    "format": {
+      "type": "Intl.NumberFormatOptions",
+      "description": "Options to format the input value."
+    },
+    "autoFocus": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to focus the element on page load."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction."
+    },
+    "readOnly": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user should be unable to change the field value."
+    },
+    "required": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user must enter a value before submitting a form."
+    },
+    "invalid": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the field is forcefully marked as invalid."
+    },
+    "id": {
+      "type": "string",
+      "description": "The id of the input element."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the number field is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the number field is readonly."
+    },
+    "data-required": {
+      "description": "Present when the number field is required."
+    },
+    "data-valid": {
+      "description": "Present when the number field is in valid state (when wrapped in Field.Root)."
+    },
+    "data-invalid": {
+      "description": "Present when the number field is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-dirty": {
+      "description": "Present when the number field's value has changed (when wrapped in Field.Root)."
+    },
+    "data-touched": {
+      "description": "Present when the number field has been touched (when wrapped in Field.Root)."
+    },
+    "data-scrubbing": {
+      "description": "Present while scrubbing."
+    }
+  },
+  "cssVariables": {}
 }

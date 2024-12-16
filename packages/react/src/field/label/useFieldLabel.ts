@@ -3,16 +3,14 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useFieldRootContext } from '../root/FieldRootContext';
 
-export function useFieldLabel(params: useFieldLabel.Parameters) {
-  const { customTag } = params;
-
+export function useFieldLabel() {
   const { controlId, labelId } = useFieldRootContext();
 
   const getLabelProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'label'>(externalProps, {
         id: labelId,
-        ...(!customTag && { htmlFor: controlId }),
+        htmlFor: controlId,
         onMouseDown(event) {
           const selection = window.getSelection();
 
@@ -25,7 +23,7 @@ export function useFieldLabel(params: useFieldLabel.Parameters) {
           event.preventDefault();
         },
       }),
-    [controlId, customTag, labelId],
+    [controlId, labelId],
   );
 
   return React.useMemo(
@@ -34,10 +32,4 @@ export function useFieldLabel(params: useFieldLabel.Parameters) {
     }),
     [getLabelProps],
   );
-}
-
-export namespace useFieldLabel {
-  export interface Parameters {
-    customTag: boolean;
-  }
 }

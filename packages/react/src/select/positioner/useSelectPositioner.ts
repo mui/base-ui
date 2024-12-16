@@ -15,9 +15,9 @@ import { useScrollLock } from '../../utils/useScrollLock';
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
-  const { open, alignItemToTrigger, mounted, triggerElement } = useSelectRootContext();
+  const { open, alignItemToTrigger, mounted, triggerElement, modal } = useSelectRootContext();
 
-  useScrollLock(alignItemToTrigger && mounted, triggerElement);
+  useScrollLock((alignItemToTrigger || modal) && open, triggerElement);
 
   const {
     positionerStyles: enabledPositionerStyles,

@@ -28,7 +28,7 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
     menuEvents,
     propGetter,
     render,
-    treatMouseupAsClick,
+    allowMouseUpTriggerRef,
     typingRef,
     ...other
   } = props;
@@ -40,7 +40,7 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
     id,
     menuEvents,
     ref: forwardedRef,
-    treatMouseupAsClick,
+    allowMouseUpTriggerRef,
     checked: checkedProp,
     defaultChecked,
     onCheckedChange,
@@ -73,6 +73,12 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  allowMouseUpTriggerRef: PropTypes.shape({
+    current: PropTypes.bool.isRequired,
+  }).isRequired,
   /**
    * Whether the checkbox item is currently ticked.
    *
@@ -148,10 +154,6 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  treatMouseupAsClick: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
   typingRef: PropTypes.shape({
     current: PropTypes.bool.isRequired,
   }).isRequired,
@@ -175,7 +177,7 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   const listItem = useCompositeListItem({ label });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex, clickAndDragEnabled, typingRef } = useMenuRootContext();
+  const { getItemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
   const id = useBaseUiId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -193,7 +195,7 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
       highlighted={highlighted}
       menuEvents={menuEvents}
       propGetter={getItemProps}
-      treatMouseupAsClick={clickAndDragEnabled}
+      allowMouseUpTriggerRef={allowMouseUpTriggerRef}
       typingRef={typingRef}
     />
   );
@@ -203,7 +205,7 @@ interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   highlighted: boolean;
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   menuEvents: FloatingEvents;
-  treatMouseupAsClick: boolean;
+  allowMouseUpTriggerRef: React.RefObject<boolean>;
   typingRef: React.RefObject<boolean>;
 }
 

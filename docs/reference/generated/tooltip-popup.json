@@ -10,5 +10,28 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-open": {
+      "description": "Present when the tooltip is open."
+    },
+    "data-closed": {
+      "description": "Present when the tooltip is closed."
+    },
+    "data-instant": {
+      "description": "Indicates the instant type of the tooltip popup.",
+      "type": "'delay' | 'dismiss' | 'focus'"
+    },
+    "data-side": {
+      "description": "Indicates which side the tooltip is positioned relative to the trigger.",
+      "type": "'none' | 'top' | 'right' | 'bottom' | 'left'"
+    },
+    "data-starting-style": {
+      "description": "Present when the tooltip is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the tooltip is animating out."
+    }
+  },
+  "cssVariables": {}
 }

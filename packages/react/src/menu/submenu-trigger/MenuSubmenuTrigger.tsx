@@ -28,7 +28,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     getTriggerProps,
     parentContext,
     setTriggerElement,
-    clickAndDragEnabled,
+    allowMouseUpTriggerRef,
     open,
     typingRef,
   } = useMenuRootContext();
@@ -53,7 +53,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     disabled,
     menuEvents,
     setTriggerElement,
-    treatMouseupAsClick: clickAndDragEnabled,
+    allowMouseUpTriggerRef,
     typingRef,
   });
 

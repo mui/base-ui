@@ -10,5 +10,36 @@
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-dragging": {
+      "description": "Present while the user is dragging."
+    },
+    "data-orientation": {
+      "description": "Indicates the orientation of the slider.",
+      "type": "'horizontal' | 'vertical'"
+    },
+    "data-disabled": {
+      "description": "Present when the slider is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the slider is readonly."
+    },
+    "data-required": {
+      "description": "Present when the slider is required."
+    },
+    "data-valid": {
+      "description": "Present when the slider is in valid state (when wrapped in Field.Root)."
+    },
+    "data-invalid": {
+      "description": "Present when the slider is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-dirty": {
+      "description": "Present when the slider's value has changed (when wrapped in Field.Root)."
+    },
+    "data-touched": {
+      "description": "Present when the slider has been touched (when wrapped in Field.Root)."
+    }
+  },
+  "cssVariables": {}
 }

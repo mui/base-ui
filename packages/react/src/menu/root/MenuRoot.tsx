@@ -7,6 +7,12 @@ import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot } from './useMenuRoot';
 import { PortalContext } from '../../portal/PortalContext';
 
+const inertStyle = `
+  [data-floating-ui-inert] {
+    pointer-events: none !important;
+  }
+`;
+
 /**
  * Groups all parts of the menu.
  * Doesn’t render its own HTML element.
@@ -20,6 +26,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     disabled = false,
     closeParentOnEsc = true,
     loop = true,
+    modal = true,
     onOpenChange,
     open,
     orientation = 'vertical',
@@ -52,16 +59,8 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     openOnHover,
     delay,
     onTypingChange,
+    modal,
   });
-
-  const [localClickAndDragEnabled, setLocalClickAndDragEnabled] = React.useState(false);
-  let clickAndDragEnabled = localClickAndDragEnabled;
-  let setClickAndDragEnabled = setLocalClickAndDragEnabled;
-
-  if (parentContext != null) {
-    clickAndDragEnabled = parentContext.clickAndDragEnabled;
-    setClickAndDragEnabled = parentContext.setClickAndDragEnabled;
-  }
 
   const context: MenuRootContext = React.useMemo(
     () => ({
@@ -69,17 +68,20 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       nested,
       parentContext,
       disabled,
-      clickAndDragEnabled,
-      setClickAndDragEnabled,
+      allowMouseUpTriggerRef:
+        parentContext?.allowMouseUpTriggerRef ?? menuRoot.allowMouseUpTriggerRef,
       typingRef,
+      modal,
     }),
-    [menuRoot, nested, parentContext, disabled, clickAndDragEnabled, setClickAndDragEnabled],
+    [menuRoot, nested, parentContext, disabled, modal],
   );
 
   if (!nested) {
     // set up a FloatingTree to provide the context to nested menus
     return (
       <FloatingTree>
+        {/* eslint-disable-next-line react/no-danger */}
+        {menuRoot.open && modal && <style dangerouslySetInnerHTML={{ __html: inertStyle }} />}
         <MenuRootContext.Provider value={context}>
           <PortalContext.Provider value={context.mounted}>{children}</PortalContext.Provider>
         </MenuRootContext.Provider>
@@ -110,6 +112,11 @@ namespace MenuRoot {
      * @default true
      */
     loop?: boolean;
+    /**
+     * Whether the menu should prevent outside clicks and lock page scroll when open.
+     * @default true
+     */
+    modal?: boolean;
     /**
      * Event handler called when the menu is opened or closed.
      */
@@ -191,6 +198,11 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    * @default true
    */
   loop: PropTypes.bool,
+  /**
+   * Whether the menu should prevent outside clicks and lock page scroll when open.
+   * @default true
+   */
+  modal: PropTypes.bool,
   /**
    * Event handler called when the menu is opened or closed.
    */

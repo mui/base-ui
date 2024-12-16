@@ -102,7 +102,7 @@ const MenuPopup = styled(Menu.Popup)(
   transform: scale(0.8);
   transition: opacity 100ms ease-in, transform 100ms ease-in;
 
-  &[data-menu='open'] {
+  &[data-open] {
     opacity: 1;
     transform: scale(1);
   }
@@ -189,7 +189,7 @@ const MenuPositioner = styled(Menu.Positioner)`
     outline: 0;
   }
 
-  &[data-menu='closed'] {
+  &[data-closed] {
     pointer-events: none;
   }
 `;

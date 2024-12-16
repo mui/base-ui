@@ -121,7 +121,7 @@
   padding-left: 1rem;
   padding-right: 2rem;
   display: flex;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   line-height: 1rem;
 
   &[data-highlighted] {
