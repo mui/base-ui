@@ -19,7 +19,10 @@ Base UI uses portals for components that render popups, such as Dialog and Popov
 
 ```tsx title="layout.tsx"
 <body>
-  <div className="Root">{children}</div>
+  <div className="Root">
+    {/* prettier-ignore */}
+    {children}
+  </div>
 </body>
 ```
 
