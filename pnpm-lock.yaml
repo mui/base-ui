@@ -509,6 +509,9 @@ importers:
       remark-rehype:
         specifier: ^11.1.1
         version: 11.1.1
+      remark-typography:
+        specifier: 0.6.21
+        version: 0.6.21
       scroll-into-view-if-needed:
         specifier: 3.1.0
         version: 3.1.0
@@ -7962,6 +7965,7 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qjobs@1.2.0:
@@ -8233,6 +8237,10 @@ packages:
 
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
+
+  remark-typography@0.6.21:
+    resolution: {integrity: sha512-QDgiY49aJKlm83dICsXuT7npc5UDHUHEHGTHBLQ6npSEZpNGZCSEsqqSoNfBaQIryF42u0hJtgQGyP2kbicNQw==}
+    engines: {node: '>=14.18.0'}
 
   remark@15.0.1:
     resolution: {integrity: sha512-Eht5w30ruCXgFmxVUSlNWQ9iiimq07URKeFS3hNc8cUWy1llX4KDWfyEDZRycMc+znsN9Ux5/tJ/BFdgdOwA3A==}
@@ -18661,6 +18669,8 @@ snapshots:
       '@types/mdast': 4.0.4
       mdast-util-to-markdown: 2.1.0
       unified: 11.0.5
+
+  remark-typography@0.6.21: {}
 
   remark@15.0.1:
     dependencies:

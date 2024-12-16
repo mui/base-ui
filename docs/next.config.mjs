@@ -7,6 +7,7 @@ import withDocsInfra from '@mui/monorepo/docs/nextConfigDocsInfra.js';
 import nextMdx from '@next/mdx';
 import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
 import remarkGfm from 'remark-gfm';
+import remarkTypography from "remark-typography";
 import { rehypeQuickNav } from 'docs/src/components/quick-nav/rehypeQuickNav.mjs';
 import { rehypeKbd } from 'docs/src/components/kbd/rehype-kbd.mjs';
 import { rehypeReference } from 'docs/src/components/reference/rehypeReference.mjs';
@@ -20,7 +21,7 @@ const workspaceRoot = path.resolve(currentDirectory, '../');
 
 const withMdx = nextMdx({
   options: {
-    remarkPlugins: [remarkGfm],
+    remarkPlugins: [remarkGfm, remarkTypography],
     rehypePlugins: [
       rehypeDemos,
       rehypeReference,
