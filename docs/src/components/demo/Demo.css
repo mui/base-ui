@@ -39,8 +39,9 @@
     min-width: fit-content;
 
     /* Center the contents vertically */
-    align-content: center;
-    justify-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     @media (--xs) {
       padding: 3rem 1.5rem;
