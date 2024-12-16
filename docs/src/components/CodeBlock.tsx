@@ -2,6 +2,7 @@
 import * as React from 'react';
 import copy from 'clipboard-copy';
 import clsx from 'clsx';
+import * as ScrollArea from './ScrollArea';
 import { CopyIcon } from './icons/CopyIcon';
 import { CheckIcon } from './icons/CheckIcon';
 import { GhostButton } from './GhostButton';
@@ -62,7 +63,7 @@ export function Pre({ className, ...props }: React.ComponentProps<'pre'>) {
   const { codeId } = React.useContext(CodeBlockContext);
   return (
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-    <div
+    <ScrollArea.Root
       // Select code block contents on Ctrl/Cmd + A
       tabIndex={-1}
       className="CodeBlockPreContainer"
@@ -78,7 +79,10 @@ export function Pre({ className, ...props }: React.ComponentProps<'pre'>) {
         }
       }}
     >
-      <pre {...props} id={codeId} className={clsx('CodeBlockPre', className)} />
-    </div>
+      <ScrollArea.Viewport
+        render={<pre {...props} id={codeId} className={clsx('CodeBlockPre', className)} />}
+      />
+      <ScrollArea.Scrollbar orientation="horizontal" />
+    </ScrollArea.Root>
   );
 }

@@ -6,6 +6,8 @@
   }
 
   .DemoPlayground {
+    display: flex;
+    flex-direction: column;
     background-color: var(--color-content);
     border-top-left-radius: var(--radius-md);
     border-top-right-radius: var(--radius-md);
@@ -16,6 +18,11 @@
     overscroll-behavior-x: contain;
     scrollbar-width: thin;
 
+    /* iOS Safari appears to flicker the scroll containers during tasking animations */
+    [data-mobile-nav-open] & {
+      overflow: hidden;
+    }
+
     /* Scroll containers may be focusable */
     &:focus-visible {
       position: relative;
@@ -23,12 +30,9 @@
       outline-offset: -1px;
       z-index: 1;
     }
-
-    display: flex;
-    flex-direction: column;
   }
 
-  /* A separate element for padding to work when there is horizontal scroll */
+  /* A separate element for the padding to work when there is horizontal scroll */
   .DemoPlaygroundInner {
     padding: 2rem 1.5rem;
     min-height: 8rem;
@@ -71,6 +75,11 @@
     scrollbar-width: none;
     &::-webkit-scrollbar {
       display: none;
+    }
+
+    /* iOS Safari appears to flicker the scroll containers during tasking animations */
+    [data-mobile-nav-open] & {
+      overflow: hidden;
     }
 
     /* Scroll containers may be focusable */
@@ -167,13 +176,18 @@
     & pre {
       @apply text-xs;
       padding: 0.5rem 0.75rem;
-      display: flex;
       cursor: text;
 
       /* Scroll */
+      display: flex;
       overflow: auto;
+      /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
       overscroll-behavior-x: contain;
-      scrollbar-width: thin;
+
+      /* iOS Safari appears to flicker the scroll containers during tasking animations */
+      [data-mobile-nav-open] & {
+        overflow: hidden;
+      }
 
       /* Scroll containers may be focusable */
       &:focus-visible {
