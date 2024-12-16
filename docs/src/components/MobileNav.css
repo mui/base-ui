@@ -29,13 +29,10 @@
   }
 
   .MobileNavPopup {
-    /* TODO Vlad remove when the backdrop order bug is fixed */
-    z-index: 1;
-    outline: 0;
-
     position: fixed;
-    inset: 0;
     height: 100dvh;
+    inset: 0;
+    outline: 0;
 
     /* Half the transition duration for blur so the element sort of comes into the focus when it's halfway in */
     transition-duration: 600ms, 300ms;

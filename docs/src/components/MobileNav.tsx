@@ -3,6 +3,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { Dialog } from '@base-ui-components/react/dialog';
+import * as ReactDOM from 'react-dom';
 import { HEADER_HEIGHT } from './Header';
 
 const MobileNavStateCallback = React.createContext<(open: boolean) => void>(() => undefined);
@@ -174,10 +175,42 @@ export function Item({ active, children, className, href, rel, ...props }: ItemP
         className="MobileNavLink"
         href={href}
         rel={rel}
-        onClick={() => setOpen(false)}
+        // We handle scroll manually
+        scroll={false}
+        onClick={() => {
+          if (href === window.location.pathname) {
+            // If the URL is the same, close, wait a little, and scroll to top smoothly
+            setOpen(false);
+            setTimeout(() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 500);
+          } else {
+            // Otherwise, wait for the URL change before closing and scroll up instantly
+            onUrlChange(() => {
+              ReactDOM.flushSync(() => setOpen(false));
+              window.scrollTo({ top: 0, behavior: 'instant' });
+            });
+          }
+        }}
       >
         {children}
       </NextLink>
     </li>
   );
+}
+
+function onUrlChange(callback: () => void) {
+  const initialUrl = window.location.href;
+
+  function rafRecursively() {
+    requestAnimationFrame(() => {
+      if (initialUrl === window.location.href) {
+        rafRecursively();
+      } else {
+        callback();
+      }
+    });
+  }
+
+  rafRecursively();
 }
