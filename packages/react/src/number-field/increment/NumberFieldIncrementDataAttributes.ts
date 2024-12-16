@@ -24,7 +24,7 @@ export enum NumberFieldIncrementDataAttributes {
    */
   invalid = 'data-invalid',
   /**
-   * Present when the number field has been thouched (when wrapped in Field.Root).
+   * Present when the number field has been touched (when wrapped in Field.Root).
    */
   touched = 'data-touched',
   /**

@@ -54,7 +54,7 @@
       "description": "Present when the slider's value has changed (when wrapped in Field.Root)."
     },
     "data-touched": {
-      "description": "Present when the slider has been thouched (when wrapped in Field.Root)."
+      "description": "Present when the slider has been touched (when wrapped in Field.Root)."
     }
   },
   "cssVariables": {}

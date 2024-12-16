@@ -29,7 +29,7 @@ export enum SliderControlDataAttributes {
    */
   invalid = 'data-invalid',
   /**
-   * Present when the slider has been thouched (when wrapped in Field.Root).
+   * Present when the slider has been touched (when wrapped in Field.Root).
    */
   touched = 'data-touched',
   /**

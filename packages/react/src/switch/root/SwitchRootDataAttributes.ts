@@ -28,7 +28,7 @@ export enum SwitchRootDataAttributes {
    */
   invalid = 'data-invalid',
   /**
-   * Present when the switch has been thouched (when wrapped in Field.Root).
+   * Present when the switch has been touched (when wrapped in Field.Root).
    */
   touched = 'data-touched',
   /**

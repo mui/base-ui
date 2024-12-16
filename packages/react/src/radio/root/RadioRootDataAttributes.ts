@@ -28,7 +28,7 @@ export enum RadioRootDataAttributes {
    */
   invalid = 'data-invalid',
   /**
-   * Present when the radio has been thouched (when wrapped in Field.Root).
+   * Present when the radio has been touched (when wrapped in Field.Root).
    */
   touched = 'data-touched',
   /**

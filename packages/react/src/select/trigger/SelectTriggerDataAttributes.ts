@@ -28,7 +28,7 @@ export enum SelectTriggerDataAttributes {
    */
   invalid = 'data-invalid',
   /**
-   * Present when the select has been thouched (when wrapped in Field.Root).
+   * Present when the select has been touched (when wrapped in Field.Root).
    */
   touched = 'data-touched',
   /**
