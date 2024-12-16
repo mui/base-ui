@@ -57,8 +57,8 @@
   height: var(--accordion-panel-height);
   overflow: hidden;
   color: var(--color-gray-600);
-  font-size: 0.9375rem;
-  line-height: 1.375rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
   transition: height 150ms ease-out;
 
   &[data-starting-style],
@@ -68,5 +68,5 @@
 }
 
 .Content {
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.75rem;
 }

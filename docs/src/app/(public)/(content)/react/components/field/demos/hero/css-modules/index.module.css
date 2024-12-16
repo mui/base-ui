@@ -6,8 +6,8 @@
 }
 
 .Label {
-  font-size: 0.9375rem;
-  line-height: 1.375rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 500;
   color: var(--color-gray-900);
 }
@@ -32,14 +32,14 @@
 }
 
 .Error {
-  font-size: 0.9375rem;
-  line-height: 1.375rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   color: var(--color-red-800);
 }
 
 .Description {
   margin: 0;
-  font-size: 0.9375rem;
-  line-height: 1.375rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   color: var(--color-gray-600);
 }

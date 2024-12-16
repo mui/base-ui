@@ -1,6 +1,6 @@
 @layer components {
   .Header {
-    @apply text-sm;
+    @apply text-md;
     position: absolute;
     left: 0;
     top: 0;

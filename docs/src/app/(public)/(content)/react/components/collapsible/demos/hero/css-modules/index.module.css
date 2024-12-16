@@ -19,8 +19,8 @@
   background-color: var(--color-gray-100);
   color: var(--color-gray-900);
   font-family: inherit;
-  font-size: 0.9375rem;
-  line-height: 1.375rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 500;
 
   @media (hover: hover) {
@@ -54,8 +54,8 @@
   flex-direction: column;
   justify-content: flex-end;
   overflow: hidden;
-  font-size: 0.9375rem;
-  line-height: 1.375rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   transition: all 150ms ease-out;
 
   &[data-starting-style],

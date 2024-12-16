@@ -2,10 +2,10 @@ import * as React from 'react';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
+import { ReferenceTablePopover } from './ReferenceTablePopover';
 import type { AttributeDef } from './types';
 import * as Table from '../Table';
-import { ReferenceTablePopover } from './ReferenceTablePopover';
-import { Code } from '../Code';
+import { TableCode } from '../TableCode';
 
 interface AttributesTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, AttributeDef>;
@@ -38,7 +38,7 @@ export async function AttributesTable({ data, ...props }: AttributesTableProps) 
           return (
             <Table.Row key={name}>
               <Table.RowHeader>
-                <Code className="text-navy">{name}</Code>
+                <TableCode className="text-navy">{name}</TableCode>
               </Table.RowHeader>
               <Table.Cell colSpan={2}>
                 <div className="hidden xs:contents">

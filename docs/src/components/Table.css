@@ -1,6 +1,6 @@
 @layer components {
   .TableRoot {
-    @apply text-xs;
+    @apply text-sm;
     color: var(--color-gray);
     border: 1px solid var(--color-gray-200);
     border-collapse: separate;
