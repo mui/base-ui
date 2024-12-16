@@ -75,7 +75,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     <FloatingFocusManager
       context={floatingContext}
       modal={false}
-      initialFocus={nested ? -1 : 0}
+      initialFocus={nested ? -1 : popupRef}
       returnFocus
       disabled={!mounted}
       visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
