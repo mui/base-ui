@@ -7,8 +7,6 @@
 
   .DemoPlayground {
     background-color: var(--color-content);
-    min-height: 11.25rem; /* Match .DemoCodeBlockContainer pre min-height */
-    padding: 3rem 1.5rem;
     border-top-left-radius: var(--radius-md);
     border-top-right-radius: var(--radius-md);
 
@@ -26,10 +24,29 @@
       z-index: 1;
     }
 
-    /* Center the contents */
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* A separate element for padding to work when there is horizontal scroll */
+  .DemoPlaygroundInner {
+    padding: 2rem 1.5rem;
+    min-height: 8rem;
+
+    /* Make sure contents aren't squashed smaller than their natural width */
+    min-width: fit-content;
+
+    /* Center itself horizontally */
+    margin: auto;
+
+    /* Center the contents vertically */
     display: flex;
     align-items: center;
-    justify-content: center;
+
+    @media (--xs) {
+      padding: 3rem 1.5rem;
+      min-height: 11.25rem; /* Match .DemoCodeBlockContainer pre min-height */
+    }
   }
 
   .DemoToolbar {

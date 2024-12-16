@@ -9,11 +9,13 @@ export function DemoPlayground() {
 
   return (
     <ErrorBoundary FallbackComponent={DemoErrorFallback}>
-      <BaseDemo.Playground
-        aria-label="Component demo"
-        data-demo={selectedVariant.name}
-        className="DemoPlayground"
-      />
+      <div className="DemoPlayground">
+        <BaseDemo.Playground
+          aria-label="Component demo"
+          data-demo={selectedVariant.name}
+          className="DemoPlaygroundInner"
+        />
+      </div>
     </ErrorBoundary>
   );
 }

@@ -4,7 +4,7 @@ import styles from './index.module.css';
 
 export default function ExampleSeparator() {
   return (
-    <div className="flex gap-4">
+    <div className={styles.Container}>
       <a href="#" className={styles.Link}>
         Home
       </a>
