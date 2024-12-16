@@ -62,7 +62,6 @@ export function Panel({ className, children, ...props }: React.ComponentPropsWit
 export function Pre({ className, ...props }: React.ComponentProps<'pre'>) {
   const { codeId } = React.useContext(CodeBlockContext);
   return (
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <ScrollArea.Root
       // Select code block contents on Ctrl/Cmd + A
       tabIndex={-1}
