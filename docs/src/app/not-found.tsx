@@ -24,7 +24,7 @@ export default function NotFound() {
               Documentation <ArrowRightIcon />
             </Link>
 
-            <Link className="-m-1 p-1" href="http://github.com/mui/base-ui">
+            <Link className="-m-1 p-1" href="https://github.com/mui/base-ui">
               GitHub
             </Link>
           </div>

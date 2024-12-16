@@ -18,7 +18,7 @@ export default function Homepage() {
         </p>
         <Link
           className="-m-1 inline-flex items-center gap-1 p-1"
-          href="/react/components/accordion"
+          href="/react/overview/quick-start"
         >
           Documentation <ArrowRightIcon />
         </Link>
