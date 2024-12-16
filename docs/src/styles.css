@@ -223,6 +223,7 @@
   html {
     /* Stable scrollbar */
     overflow-y: scroll;
+    word-break: break-word;
   }
 
   body {
