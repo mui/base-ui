@@ -6,7 +6,7 @@ export enum PreviewCardArrowDataAttributes {
   /**
    * Present when the preview card is closed.
    */
-  closed = 'data-unchecked',
+  closed = 'data-closed',
   /**
    * Present when the anchor is hidden.
    */
@@ -17,7 +17,7 @@ export enum PreviewCardArrowDataAttributes {
    */
   side = 'data-side',
   /**
-   * Present when the tooltip arrow is uncentered.
+   * Present when the preview card arrow is uncentered.
    */
   uncetered = 'data-uncentered',
 }

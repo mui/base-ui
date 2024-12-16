@@ -55,7 +55,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
   const id = useBaseUiId(idParam);
   const handleRef = useForkRef(ref, popupRef, setPopupElement);
 
-  useScrollLock(modal && mounted, elements.floating);
+  useScrollLock(modal && open, elements.floating);
 
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening

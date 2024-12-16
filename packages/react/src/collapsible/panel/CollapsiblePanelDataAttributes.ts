@@ -1,4 +1,4 @@
-export enum CollapsibleTriggerDataAttributes {
+export enum CollapsiblePanelDataAttributes {
   /**
    * Present when the collapsible panel is open.
    */

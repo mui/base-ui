@@ -37,6 +37,11 @@
       "default": "true",
       "description": "Determines if the selected item inside the popup should align to the trigger element."
     },
+    "modal": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the select should prevent outside clicks and lock page scroll when open."
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

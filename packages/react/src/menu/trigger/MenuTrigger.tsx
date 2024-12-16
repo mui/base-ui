@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useFloatingTree } from '@floating-ui/react';
 import { useMenuTrigger } from './useMenuTrigger';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -21,24 +20,23 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
   const { render, className, disabled = false, ...other } = props;
 
   const {
-    getTriggerProps,
+    getTriggerProps: getRootTriggerProps,
     disabled: menuDisabled,
     setTriggerElement,
     open,
     setOpen,
-    setClickAndDragEnabled,
+    allowMouseUpTriggerRef,
+    positionerRef,
   } = useMenuRootContext();
 
-  const { events: menuEvents } = useFloatingTree()!;
-
-  const { getRootProps } = useMenuTrigger({
+  const { getTriggerProps } = useMenuTrigger({
     disabled: disabled || menuDisabled,
     rootRef: forwardedRef,
-    menuEvents,
     setTriggerElement,
     open,
     setOpen,
-    setClickAndDragEnabled,
+    allowMouseUpTriggerRef,
+    positionerRef,
   });
 
   const state: MenuTrigger.State = React.useMemo(() => ({ open }), [open]);
@@ -47,7 +45,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     render: render || 'button',
     className,
     state,
-    propGetter: (externalProps) => getTriggerProps(getRootProps(externalProps)),
+    propGetter: (externalProps) => getRootTriggerProps(getTriggerProps(externalProps)),
     customStyleHookMapping: pressableTriggerOpenStateMapping,
     extraProps: other,
   });

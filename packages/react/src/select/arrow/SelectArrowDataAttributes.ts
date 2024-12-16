@@ -6,7 +6,7 @@ export enum SelectArrowDataAttributes {
   /**
    * Present when the select popup is closed.
    */
-  closed = 'data-unchecked',
+  closed = 'data-closed',
   /**
    * Present when the anchor is hidden.
    */
@@ -17,7 +17,7 @@ export enum SelectArrowDataAttributes {
    */
   side = 'data-side',
   /**
-   * Present when the tooltip arrow is uncentered.
+   * Present when the select arrow is uncentered.
    */
   uncetered = 'data-uncentered',
 }

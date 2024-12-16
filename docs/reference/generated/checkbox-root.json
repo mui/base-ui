@@ -26,6 +26,10 @@
       "default": "false",
       "description": "Whether the checkbox is in a mixed state: neither ticked, nor unticked."
     },
+    "value": {
+      "type": "number | string",
+      "description": "The value of the selected checkbox."
+    },
     "parent": {
       "type": "boolean",
       "default": "false",
@@ -76,7 +80,7 @@
       "description": "Present when the checkbox is required."
     },
     "data-valid": {
-      "description": "Present when the checkbox is in valid state (when wrapped in Field.Root).."
+      "description": "Present when the checkbox is in valid state (when wrapped in Field.Root)."
     },
     "data-invalid": {
       "description": "Present when the checkbox is in invalid state (when wrapped in Field.Root)."

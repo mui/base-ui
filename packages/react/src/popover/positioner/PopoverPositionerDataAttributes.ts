@@ -6,7 +6,7 @@ export enum PopoverPositionerDataAttributes {
   /**
    * Present when the popup is closed.
    */
-  closed = 'data-unchecked',
+  closed = 'data-closed',
   /**
    * Present when the anchor is hidden.
    */

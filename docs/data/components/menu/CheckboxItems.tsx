@@ -84,7 +84,7 @@ const MenuPopup = styled(Menu.Popup)(
   transform: scale(0.8);
   transition: opacity 100ms ease-in, transform 100ms ease-in;
 
-  &[data-menu='open'] {
+  &[data-open] {
     opacity: 1;
     transform: scale(1);
   }
@@ -109,7 +109,7 @@ const MenuItem = styled(Menu.Item)(
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   }
 
-  &.[data-disabled] {
+  &[data-disabled] {
     color: ${theme.palette.mode === 'dark' ? grey[700] : grey[400]};
   }
   `,
@@ -196,7 +196,7 @@ const MenuPositioner = styled(Menu.Positioner)`
     outline: 0;
   }
 
-  &[data-menu='closed'] {
+  &[data-closed] {
     pointer-events: none;
   }
 `;

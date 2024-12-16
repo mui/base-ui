@@ -6,7 +6,7 @@ export enum PopoverArrowDataAttributes {
   /**
    * Present when the popup is closed.
    */
-  closed = 'data-unchecked',
+  closed = 'data-closed',
   /**
    * Present when the anchor is hidden.
    */
@@ -17,7 +17,7 @@ export enum PopoverArrowDataAttributes {
    */
   side = 'data-side',
   /**
-   * Present when the tooltip arrow is uncentered.
+   * Present when the popover arrow is uncentered.
    */
   uncetered = 'data-uncentered',
 }

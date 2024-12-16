@@ -6,7 +6,7 @@ export enum MenuArrowDataAttributes {
   /**
    * Present when the menu popup is closed.
    */
-  closed = 'data-unchecked',
+  closed = 'data-closed',
   /**
    * Present when the anchor is hidden.
    */
@@ -17,7 +17,7 @@ export enum MenuArrowDataAttributes {
    */
   side = 'data-side',
   /**
-   * Present when the tooltip arrow is uncentered.
+   * Present when the menu arrow is uncentered.
    */
   uncetered = 'data-uncentered',
 }

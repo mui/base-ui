@@ -1,4 +1,5 @@
 import * as React from 'react';
+import type { Metadata } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { DocsProviders } from 'docs/src/components/DocsProviders';
 import 'docs/src/styles.css';
@@ -16,3 +17,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
     </DocsProviders>
   );
 }
+
+export const metadata: Metadata = {
+  metadataBase: new URL('https://base-ui.com'),
+};

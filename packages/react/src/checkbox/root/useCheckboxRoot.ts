@@ -19,6 +19,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     inputRef: externalInputRef,
     onCheckedChange: onCheckedChangeProp = () => {},
     name,
+    value,
     defaultChecked = false,
     readOnly = false,
     required = false,
@@ -81,7 +82,6 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       mergeReactProps<'button'>(getValidationProps(externalProps), {
         id,
         ref: buttonRef,
-        value: 'off',
         type: 'button',
         role: 'checkbox',
         disabled,
@@ -125,6 +125,9 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
         checked,
         disabled,
         name,
+        // React <19 sets an empty value if `undefined` is passed explicitly
+        // To avoid this, we only set the value if it's defined
+        ...(value !== undefined ? { value } : {}),
         required,
         autoFocus,
         ref: mergedInputRef,
@@ -157,6 +160,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       checked,
       disabled,
       name,
+      value,
       required,
       autoFocus,
       mergedInputRef,
@@ -247,6 +251,10 @@ export namespace UseCheckboxRoot {
      * @default false
      */
     parent?: boolean;
+    /**
+     * The value of the selected checkbox.
+     */
+    value?: string | number;
   }
 
   export interface ReturnValue {
