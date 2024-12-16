@@ -20,6 +20,11 @@
       "default": "true",
       "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu."
     },
+    "modal": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the menu should prevent outside clicks and lock page scroll when open."
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

@@ -23,12 +23,13 @@ const testRootContext: MenuRootContext = {
   itemLabels: { current: [] },
   open: true,
   setOpen: () => {},
-  clickAndDragEnabled: false,
-  setClickAndDragEnabled: () => {},
   popupRef: { current: null },
   mounted: true,
   transitionStatus: undefined,
   typingRef: { current: false },
+  modal: false,
+  positionerRef: { current: null },
+  allowMouseUpTriggerRef: { current: false },
 };
 
 describe('<Menu.CheckboxItem />', () => {
@@ -209,7 +210,13 @@ describe('<Menu.CheckboxItem />', () => {
       expect(item).to.have.attribute('data-unchecked', '');
     });
 
-    it(`toggles the checked state and closes the menu when Enter is pressed`, async () => {
+    it(`toggles the checked state and closes the menu when Enter is pressed`, async function test(t = {}) {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        // @ts-expect-error to support mocha and vitest
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this?.skip?.() || t?.skip();
+      }
+
       const { getByRole, queryByRole } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
@@ -270,7 +277,7 @@ describe('<Menu.CheckboxItem />', () => {
 
     it('keeps the state when closed and reopened', async () => {
       const { getByRole } = await render(
-        <Menu.Root>
+        <Menu.Root modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner keepMounted>
             <Menu.Popup>

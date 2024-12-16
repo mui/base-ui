@@ -27,6 +27,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     readOnly = false,
     required = false,
     alignItemToTrigger: alignItemToTriggerParam = true,
+    modal = false,
   } = params;
 
   const { setDirty, validityData, validationMode, setControlId } = useFieldRootContext();
@@ -168,7 +169,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     event: 'mousedown',
   });
 
-  const dismiss = useDismiss(floatingRootContext);
+  const dismiss = useDismiss(floatingRootContext, {
+    bubbles: false,
+  });
 
   const role = useRole(floatingRootContext, {
     role: 'select',
@@ -258,6 +261,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
+      modal,
     }),
     [
       id,
@@ -284,6 +288,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
+      modal,
     ],
   );
 
@@ -370,6 +375,11 @@ export namespace useSelectRoot {
      * The transition status of the Select.
      */
     transitionStatus?: TransitionStatus;
+    /**
+     * Whether the select should prevent outside clicks and lock page scroll when open.
+     * @default true
+     */
+    modal?: boolean;
   }
 
   export interface ReturnValue {
