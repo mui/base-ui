@@ -6,7 +6,7 @@ import { nav } from '../nav';
 import { NpmIcon } from './icons/Npm';
 import { Logo } from './Logo';
 
-const VERSION = 'v1.0.0-alpha-1';
+const VERSION = process.env.LIB_VERSION;
 export const HEADER_HEIGHT = 48;
 
 export function Header() {
