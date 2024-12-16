@@ -6,8 +6,6 @@
   }
 
   .DemoPlayground {
-    display: flex;
-    flex-direction: column;
     background-color: var(--color-content);
     border-top-left-radius: var(--radius-md);
     border-top-right-radius: var(--radius-md);
@@ -40,12 +38,9 @@
     /* Make sure contents aren't squashed smaller than their natural width */
     min-width: fit-content;
 
-    /* Center itself horizontally */
-    margin: auto;
-
     /* Center the contents vertically */
-    display: flex;
-    align-items: center;
+    align-content: center;
+    justify-items: center;
 
     @media (--xs) {
       padding: 3rem 1.5rem;
