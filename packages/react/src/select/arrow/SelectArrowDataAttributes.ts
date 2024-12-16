@@ -17,7 +17,7 @@ export enum SelectArrowDataAttributes {
    */
   side = 'data-side',
   /**
-   * Present when the tooltip arrow is uncentered.
+   * Present when the select arrow is uncentered.
    */
   uncetered = 'data-uncentered',
 }
