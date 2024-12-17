@@ -1,5 +1,5 @@
 import { isIOS, isWebKit } from './detectBrowser';
-import { ownerDocument } from './owner';
+import { ownerDocument, ownerWindow } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
 let originalHtmlStyles = {};
@@ -96,7 +96,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
 
     // Safari needs visual viewport offsets added to account for pinch-zoom
     const webkit = isWebKit();
-    const vV = doc.defaultView?.visualViewport;
+    const vV = ownerWindow(doc).visualViewport;
     const visualOffsetTop = webkit ? vV?.offsetTop || 0 : 0;
     const visualOffsetLeft = webkit ? vV?.offsetLeft || 0 : 0;
 
