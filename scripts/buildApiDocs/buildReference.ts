@@ -125,7 +125,19 @@ export async function buildReference(grep: RegExp | null = null) {
   rmSync(TEMP_DIR, { recursive: true });
 }
 
+function isObjectEmpty(object: Record<any, any>) {
+  // eslint-disable-next-line
+  for (const _ in object) {
+    return false;
+  }
+  return true;
+}
+
 function sortObjectByKeys<T>(obj: Record<string, T>, order: string[]): Record<string, T> {
+  if (isObjectEmpty(obj) || order.length === 0) {
+    return obj;
+  }
+
   const sortedObj: Record<string, T> = {};
   const everythingElse: Record<string, T> = {};
 
