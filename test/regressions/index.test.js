@@ -29,8 +29,12 @@ async function main() {
   // Wait for all requests to finish.
   // This should load shared resources such as fonts.
   await page.goto(`${baseUrl}#no-dev`, { waitUntil: 'networkidle0' });
-  // If we still get flaky fonts after awaiting this try `document.fonts.ready`
-  await page.waitForSelector('[data-webfontloader="active"]', { state: 'attached' });
+
+  const fontActive = page.locator('[data-webfontloader="active"]');
+  await fontActive.waitFor({
+    state: 'hidden',
+    timeout: 5000,
+  });
 
   // Simulate portrait mode for date pickers.
   // See `useIsLandscape`.
@@ -58,9 +62,8 @@ async function main() {
     // Move cursor offscreen to not trigger unwanted hover effects.
     page.mouse.move(0, 0);
 
-    const testcase = await page.waitForSelector('[data-testid="testcase"]:not([aria-busy="true"])');
-
-    return testcase;
+    const testcase = page.locator('[data-testid="testcase"]:not([aria-busy="true"])');
+    await testcase.waitFor();
   }
 
   async function takeScreenshot({ testcase, route }) {
