@@ -2,14 +2,11 @@ import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 
 export default function ExampleMenu() {
-  const [showMinimap, setShowMinimap] = React.useState(true);
-  const [showSearch, setShowSearch] = React.useState(true);
-  const [showSidebar, setShowSidebar] = React.useState(false);
-
+  const [value, setValue] = React.useState('date');
   return (
     <Menu.Root>
       <Menu.Trigger className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
-        Workspace <ChevronDownIcon className="-mr-1" />
+        Sort <ChevronDownIcon className="-mr-1" />
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner className="outline-0" sideOffset={8}>
@@ -17,36 +14,35 @@ export default function ExampleMenu() {
             <Menu.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
               <ArrowSvg />
             </Menu.Arrow>
-            <Menu.CheckboxItem
-              checked={showMinimap}
-              onCheckedChange={setShowMinimap}
-              className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-2.5 text-sm leading-4 outline-0 select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:-z-1 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
-            >
-              <Menu.CheckboxItemIndicator className="col-start-1">
-                <CheckIcon className="size-3" />
-              </Menu.CheckboxItemIndicator>
-              <span className="col-start-2">Minimap</span>
-            </Menu.CheckboxItem>
-            <Menu.CheckboxItem
-              checked={showSearch}
-              onCheckedChange={setShowSearch}
-              className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-2.5 text-sm leading-4 outline-0 select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:-z-1 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
-            >
-              <Menu.CheckboxItemIndicator className="col-start-1">
-                <CheckIcon className="size-3" />
-              </Menu.CheckboxItemIndicator>
-              <span className="col-start-2">Search</span>
-            </Menu.CheckboxItem>
-            <Menu.CheckboxItem
-              checked={showSidebar}
-              onCheckedChange={setShowSidebar}
-              className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-2.5 text-sm leading-4 outline-0 select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:-z-1 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
-            >
-              <Menu.CheckboxItemIndicator className="col-start-1">
-                <CheckIcon className="size-3" />
-              </Menu.CheckboxItemIndicator>
-              <span className="col-start-2">Sidebar</span>
-            </Menu.CheckboxItem>
+            <Menu.RadioGroup value={value} onValueChange={setValue}>
+              <Menu.RadioItem
+                value="date"
+                className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-2.5 text-sm leading-4 outline-0 select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:-z-1 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
+              >
+                <Menu.RadioItemIndicator className="col-start-1">
+                  <CheckIcon className="size-3" />
+                </Menu.RadioItemIndicator>
+                <span className="col-start-2">Date</span>
+              </Menu.RadioItem>
+              <Menu.RadioItem
+                value="name"
+                className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-2.5 text-sm leading-4 outline-0 select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:-z-1 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
+              >
+                <Menu.RadioItemIndicator className="col-start-1">
+                  <CheckIcon className="size-3" />
+                </Menu.RadioItemIndicator>
+                <span className="col-start-2">Name</span>
+              </Menu.RadioItem>
+              <Menu.RadioItem
+                value="type"
+                className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-2.5 text-sm leading-4 outline-0 select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:-z-1 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
+              >
+                <Menu.RadioItemIndicator className="col-start-1">
+                  <CheckIcon className="size-3" />
+                </Menu.RadioItemIndicator>
+                <span className="col-start-2">Type</span>
+              </Menu.RadioItem>
+            </Menu.RadioGroup>
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>

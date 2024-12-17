@@ -21,7 +21,8 @@
 }
 
 /* Collapse most colors to blue for inline code */
-[data-inline] {
+[data-inline],
+[data-highlighted-chars] {
   --syntax-default: var(--color-blue);
   --syntax-entity: var(--color-blue);
   --syntax-parameter: var(--color-blue);

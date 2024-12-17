@@ -3,14 +3,11 @@ import { Menu } from '@base-ui-components/react/menu';
 import styles from './index.module.css';
 
 export default function ExampleMenu() {
-  const [showMinimap, setShowMinimap] = React.useState(true);
-  const [showSearch, setShowSearch] = React.useState(true);
-  const [showSidebar, setShowSidebar] = React.useState(false);
-
+  const [value, setValue] = React.useState('date');
   return (
     <Menu.Root>
       <Menu.Trigger className={styles.Button}>
-        Workspace <ChevronDownIcon className={styles.ButtonIcon} />
+        Sort <ChevronDownIcon className={styles.ButtonIcon} />
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner className={styles.Positioner} sideOffset={8}>
@@ -18,36 +15,26 @@ export default function ExampleMenu() {
             <Menu.Arrow className={styles.Arrow}>
               <ArrowSvg />
             </Menu.Arrow>
-            <Menu.CheckboxItem
-              checked={showMinimap}
-              onCheckedChange={setShowMinimap}
-              className={styles.CheckboxItem}
-            >
-              <Menu.CheckboxItemIndicator className={styles.CheckboxItemIndicator}>
-                <CheckIcon className={styles.CheckboxItemIndicatorIcon} />
-              </Menu.CheckboxItemIndicator>
-              <span className={styles.CheckboxItemText}>Minimap</span>
-            </Menu.CheckboxItem>
-            <Menu.CheckboxItem
-              checked={showSearch}
-              onCheckedChange={setShowSearch}
-              className={styles.CheckboxItem}
-            >
-              <Menu.CheckboxItemIndicator className={styles.CheckboxItemIndicator}>
-                <CheckIcon className={styles.CheckboxItemIndicatorIcon} />
-              </Menu.CheckboxItemIndicator>
-              <span className={styles.CheckboxItemText}>Search</span>
-            </Menu.CheckboxItem>
-            <Menu.CheckboxItem
-              checked={showSidebar}
-              onCheckedChange={setShowSidebar}
-              className={styles.CheckboxItem}
-            >
-              <Menu.CheckboxItemIndicator className={styles.CheckboxItemIndicator}>
-                <CheckIcon className={styles.CheckboxItemIndicatorIcon} />
-              </Menu.CheckboxItemIndicator>
-              <span className={styles.CheckboxItemText}>Sidebar</span>
-            </Menu.CheckboxItem>
+            <Menu.RadioGroup value={value} onValueChange={setValue}>
+              <Menu.RadioItem className={styles.RadioItem} value="date">
+                <Menu.RadioItemIndicator className={styles.RadioItemIndicator}>
+                  <CheckIcon className={styles.RadioItemIndicatorIcon} />
+                </Menu.RadioItemIndicator>
+                <span className={styles.RadioItemText}>Date</span>
+              </Menu.RadioItem>
+              <Menu.RadioItem className={styles.RadioItem} value="name">
+                <Menu.RadioItemIndicator className={styles.RadioItemIndicator}>
+                  <CheckIcon className={styles.RadioItemIndicatorIcon} />
+                </Menu.RadioItemIndicator>
+                <span className={styles.RadioItemText}>Name</span>
+              </Menu.RadioItem>
+              <Menu.RadioItem className={styles.RadioItem} value="type">
+                <Menu.RadioItemIndicator className={styles.RadioItemIndicator}>
+                  <CheckIcon className={styles.RadioItemIndicatorIcon} />
+                </Menu.RadioItemIndicator>
+                <span className={styles.RadioItemText}>Type</span>
+              </Menu.RadioItem>
+            </Menu.RadioGroup>
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>

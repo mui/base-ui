@@ -56,9 +56,33 @@ Use the `<Menu.CheckboxItem>` part to create a menu item that can toggle a setti
 
 <Demo compact path="./demos/checkbox-items" />
 
+### Radio items
+
+Use the `<Menu.RadioGroup>` and `<Menu.RadioItem>` parts to create menu items that work like radio buttons.
+
+<Demo compact path="./demos/radio-items" />
+
+### Close or don’t close on click
+
+Use the `closeOnClick` prop to change whether the menu closes when an item is clicked.
+
+```jsx title="Control whether the menu closes on click"
+// Close the menu when a checkbox item is clicked
+<Menu.CheckboxItem closeOnClick />
+
+// Keep the menu open when an item is clicked
+<Menu.Item closeOnClick={false} />
+```
+
+### Group labels
+
+Use the `<Menu.GroupLabel>` part to add a label to a `<Menu.Group>`
+
+<Demo compact path="./demos/group-labels" />
+
 ### Nested menu
 
-To create a submenu, nest another menu inside the parent menu. Use the `<Menu.SubmenuTrigger>` part for the menu item that would open the submenu.
+To create a submenu, nest another menu inside the parent menu. Use the `<Menu.SubmenuTrigger>` part for the menu item that opens the nested menu.
 
 ```jsx {11-21} {12}#strong title="Adding a submenu"
 <Menu.Root>
@@ -88,6 +112,12 @@ To create a submenu, nest another menu inside the parent menu. Use the `<Menu.Su
 </Menu.Root>
 ```
 
-Refer to the demo below for the full example:
-
 <Demo compact path="./demos/submenu" />
+
+### Navigate to another page
+
+Use the `render` prop to compose a menu item with an anchor element.
+
+```jsx title="A menu item that opens a link"
+<Menu.Item render={<a href="/projects">Go to Projects</a>} />
+```

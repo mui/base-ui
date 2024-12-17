@@ -79,6 +79,7 @@
   --color-highlight: var(--color-blue);
   --color-line-highlight: oklch(80% 50% 264 / 10%);
   --color-line-highlight-strong: oklch(80% 50% 264 / 25%);
+  --color-inline-highlight: oklch(80% 50% 264 / 15%);
 
   /* Text colors for the docs */
   --color-gray: var(--color-gray-600);
@@ -168,6 +169,7 @@
     --color-selection: oklch(50% 50% 264 / 40%);
     --color-line-highlight: oklch(50% 50% 264 / 20%);
     --color-line-highlight-strong: oklch(50% 50% 264 / 35%);
+    --color-inline-highlight: oklch(50% 50% 264 / 35%);
 
     /* Text colors */
     --color-gray: var(--color-gray-600);

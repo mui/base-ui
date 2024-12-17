@@ -46,8 +46,8 @@
 
   .CodeBlockPanelTitle {
     @apply text-sm;
-    color: var(--color-foreground);
-    font-weight: 500;
+    color: var(--color-gray-700);
+    font-weight: 400;
   }
 
   .CodeBlockPre {
