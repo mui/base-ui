@@ -1,29 +1,34 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import * as DomTestingLibrary from '@testing-library/dom';
 import TestViewer from './TestViewer';
+import 'docs/src/styles.css';
 
-const fixtures = [];
+interface Fixture {
+  Component: React.LazyExoticComponent<React.ComponentType<any>>;
+  name: string;
+  path: string;
+  suite: string;
+}
 
-const importFixtures = require.context('./fixtures', true, /\.(js|ts|tsx)$/, 'lazy');
-importFixtures.keys().forEach((path) => {
-  // require.context contains paths for module alias imports and relative imports
-  if (!path.startsWith('.')) {
-    return;
-  }
+const globbedFixtures = import.meta.glob<{ default: React.ComponentType<unknown> }>(
+  './fixtures/**/*.{js,jsx,ts,tsx}',
+);
+const fixtures: Fixture[] = [];
+
+for (const path in globbedFixtures) {
   const [suite, name] = path
     .replace('./', '')
     .replace(/\.\w+$/, '')
     .split('/');
   fixtures.push({
     path,
-    suite: `e2e/${suite}`,
+    suite: `e2e-${suite}`,
     name,
-    Component: React.lazy(() => importFixtures(path)),
+    Component: React.lazy(() => globbedFixtures[path]()),
   });
-});
+}
 
 function App() {
   function computeIsDev() {
@@ -47,7 +52,7 @@ function App() {
     };
   }, []);
 
-  function computePath(fixture) {
+  function computePath(fixture: Fixture) {
     return `/${fixture.suite}/${fixture.name}`;
   }
 
@@ -65,7 +70,6 @@ function App() {
           return (
             <Route
               key={path}
-              exact
               path={path}
               element={
                 <TestViewer>
@@ -104,12 +108,10 @@ function App() {
 
 const container = document.getElementById('react-root');
 const children = <App />;
-if (typeof ReactDOM.unstable_createRoot === 'function') {
-  const root = ReactDOM.unstable_createRoot(container);
-  root.render(children);
-} else {
-  const root = ReactDOMClient.createRoot(container);
-  root.render(children);
+
+if (container != null) {
+  const reactRoot = ReactDOMClient.createRoot(container);
+  reactRoot.render(children);
 }
 
 window.DomTestingLibrary = DomTestingLibrary;
@@ -118,7 +120,7 @@ window.elementToString = function elementToString(element) {
     element != null &&
     (element.nodeType === element.ELEMENT_NODE || element.nodeType === element.DOCUMENT_NODE)
   ) {
-    return window.DomTestingLibrary.prettyDOM(element, undefined, {
+    return window.DomTestingLibrary.prettyDOM(element as Element, undefined, {
       highlight: true,
       maxDepth: 1,
     });

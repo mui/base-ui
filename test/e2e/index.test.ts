@@ -1,4 +1,6 @@
+import { expect } from 'chai';
 import * as playwright from 'playwright';
+import { describe, it } from 'vitest';
 import type {
   ByRoleMatcher,
   ByRoleOptions,
@@ -66,7 +68,6 @@ describe('e2e', () => {
   const baseUrl = 'http://localhost:5001';
   let browser: playwright.Browser;
   let page: playwright.Page;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const screen: PlaywrightScreen = {
     getByLabelText: (...inputArgs) => {
       return page.evaluateHandle(
@@ -94,14 +95,13 @@ describe('e2e', () => {
     },
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function renderFixture(fixturePath: string) {
-    await page.goto(`${baseUrl}/e2e/${fixturePath}#no-dev`);
+    await page.goto(`${baseUrl}/e2e-fixtures/${fixturePath}#no-dev`);
     await page.waitForSelector('[data-testid="testcase"]:not([aria-busy="true"])');
   }
 
   before(async function beforeHook() {
-    this.timeout(20000);
+    this?.timeout(20000);
 
     browser = await playwright.chromium.launch({
       headless: true,
@@ -117,5 +117,23 @@ describe('e2e', () => {
 
   after(async () => {
     await browser.close();
+  });
+
+  describe('<Radio />', () => {
+    it('loops focus by default', async () => {
+      await renderFixture('Radio');
+
+      await page.keyboard.press('Tab');
+      await expect(screen.getByTestId('one')).toHaveFocus();
+
+      await page.keyboard.press('ArrowRight');
+      await expect(screen.getByTestId('two')).toHaveFocus();
+
+      await page.keyboard.press('ArrowLeft');
+      await expect(screen.getByTestId('one')).toHaveFocus();
+
+      await page.keyboard.press('ArrowLeft');
+      await expect(screen.getByTestId('three')).toHaveFocus();
+    });
   });
 });
