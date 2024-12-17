@@ -18,6 +18,9 @@ import { DialogPopupCssVars } from './DialogPopupCssVars';
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
+  hasNestedDialogs(value) {
+    return value ? { 'data-has-nested-dialogs': '' } : null;
+  },
 };
 
 /**
@@ -74,6 +77,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     open,
     nested,
     transitionStatus,
+    hasNestedDialogs: nestedOpenDialogCount > 0,
   };
 
   const { renderElement } = useComponentRenderer({
@@ -138,6 +142,10 @@ namespace DialogPopup {
      * Whether the dialog is nested within a parent dialog.
      */
     nested: boolean;
+    /**
+     * Whether the dialog has nested dialogs open.
+     */
+    hasNestedDialogs: boolean;
   }
 }
 
