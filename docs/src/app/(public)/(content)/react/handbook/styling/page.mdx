@@ -10,27 +10,29 @@ Base UI components are unstyled, don't bundle CSS, and are compatible with Tailw
 
 ## Style hooks
 
-### CSS Classes
+### CSS classes
 
-Every component accepts a `className` prop which you can use to pass Tailwind classes or custom CSS classes to its DOM element. The `className` prop, in addition to accepting a string, can be defined as a function that takes a component state as an argument:
+Every component accepts a `className` prop which you can use to pass CSS classes to its DOM element. The `className` prop, in addition to accepting a string, can be defined as a function that takes a component state as an argument:
 
 ```tsx title="switch.tsx"
 <Switch.Thumb className={(state) => (state.checked ? 'checked' : 'unchecked')} />
 ```
 
+### CSS variables
+
+Some components expose CSS custom properties to aid with styling, such as `--accordion-panel-height`, `--transform-origin`, or `--active-tab-width`.
+
 ### Data attributes
 
-Data attributes are provided as style hooks. Component states can be styled with data attributes such as `[data-open]`. Certain props can be targeted with data attributes such as `[data-side]`. Some components provide `[data-starting-style]` and `[data-ending-style]` attributes for styling CSS transitions. Check out each component's API reference for a complete list of available data attributes.
+Base UI components provide data attributes designed for styling their states. For example, a [Switch](/react/components/switch) may be styled using its `[data-checked]` and `[data-unchecked]` attributes, among others.
 
-### CSS custom properties
-
-Some components expose CSS custom properties to aid with styling, such as `--accordion-panel-height`, `--transform-origin`, and `--active-tab-width`.
+Check out each component's API reference for a complete list of available data attributes.
 
 ## Tailwind
 
 Apply Tailwind classes to each part via the `className` prop.
 
-```tsx title="index.tsx"
+```tsx title="menu.tsx"
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 
@@ -61,7 +63,7 @@ export default function ExampleMenu() {
 
 Apply custom CSS classes to each part via the `className` prop. Then style those classes in a CSS Modules file.
 
-```tsx title="index.tsx"
+```tsx title="menu.tsx"
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import styles from './index.module.css';
