@@ -13,10 +13,14 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
+  hasNestedDialogs(value) {
+    return value ? { [AlertDialogPopupDataAttributes.hasNestedDialogs]: '' } : null;
+  },
 };
 
 /**
@@ -67,13 +71,16 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     titleElementId,
   });
 
+  const hasNestedDialogs = nestedOpenDialogCount > 0;
+
   const state: AlertDialogPopup.State = React.useMemo(
     () => ({
       open,
       nested,
       transitionStatus,
+      hasNestedDialogs,
     }),
-    [open, nested, transitionStatus],
+    [open, nested, transitionStatus, hasNestedDialogs],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -138,6 +145,10 @@ namespace AlertDialogPopup {
      * Whether the dialog is nested within a parent dialog.
      */
     nested: boolean;
+    /**
+     * Whether the dialog has nested dialogs open.
+     */
+    hasNestedDialogs: boolean;
   }
 }
 
