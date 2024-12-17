@@ -140,8 +140,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       offsetY = textCenterFromTriggerTop - valueCenterFromPositionerTop;
     }
 
-    const visualOffsets = isWebKit() ? getVisualOffsets(doc) : { x: 0, y: 0 };
-
     const idealHeight = availableSpaceBeneathTrigger + offsetY + marginBottom + borderBottom;
     let height = Math.min(viewportHeight, idealHeight);
     const maxHeight = viewportHeight - marginTop - marginBottom;
@@ -151,7 +149,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     const maxRight = viewportWidth - paddingRight;
     const rightOverflow = Math.max(0, left + positionerRect.width - maxRight);
 
-    positionerElement.style.left = `${left - rightOverflow + visualOffsets.x}px`;
+    positionerElement.style.left = `${left - rightOverflow}px`;
     positionerElement.style.height = `${height}px`;
     positionerElement.style.maxHeight = 'auto';
     positionerElement.style.marginTop = `${marginTop}px`;
@@ -171,7 +169,10 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       triggerRect.bottom > viewportHeight - triggerCollisionThreshold ||
       height < Math.min(scrollHeight, minHeight);
 
-    if (fallbackToAlignPopupToTrigger) {
+    // Safari doesn't position the popup correctly when pinch-zoomed
+    const visualOffsets = isWebKit() ? getVisualOffsets(doc) : { x: 0, y: 0 };
+
+    if (fallbackToAlignPopupToTrigger || visualOffsets.y > 0 || visualOffsets.x > 0) {
       initialPlacedRef.current = true;
       clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
       setcontrolledAlignItemToTrigger(false);
