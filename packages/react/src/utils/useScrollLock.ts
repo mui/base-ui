@@ -86,6 +86,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
       const scrollbarWidth = win.innerWidth - doc.documentElement.clientWidth;
 
       bodyStyle.overflow = 'hidden';
+      htmlStyle.overflow = 'visible';
 
       if (scrollbarWidth) {
         bodyStyle[paddingProp] = `${scrollbarWidth}px`;
@@ -160,6 +161,9 @@ function preventScrollStandard(referenceElement?: Element | null) {
       Object.assign(bodyStyle, {
         overflow: '',
         [paddingProp]: '',
+      });
+      Object.assign(htmlStyle, {
+        overflow: '',
       });
       return;
     }
