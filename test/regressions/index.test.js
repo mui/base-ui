@@ -30,7 +30,7 @@ await page.route(/./, async (route, request) => {
 // This should load shared resources such as fonts.
 await page.goto(`${baseUrl}#no-dev`, { waitUntil: 'networkidle0' });
 
-const fontActive = page.locator('[data-webfontloader="active"]');
+const fontActive = page.locator('[data-font-state="active"]');
 await fontActive.waitFor({
   state: 'hidden',
   timeout: 5000,

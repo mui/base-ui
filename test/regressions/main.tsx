@@ -212,7 +212,7 @@ function App(props: { fixtures: Fixture[] }) {
       </Routes>
 
       <div hidden={!isDev}>
-        <div data-webfontloader={fontState}>webfontloader: {fontState}</div>
+        <div data-font-state={fontState}>font-state: {fontState}</div>
         <p>
           Devtools can be enabled by appending <code>#dev</code> in the addressbar or disabled by
           appending <code>#no-dev</code>.
