@@ -17,7 +17,6 @@ import { transitionStatusMapping } from '../../utils/styleHookMapping';
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
-  nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
 };
 
 /**
@@ -37,6 +36,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     floatingRootContext,
     getPopupProps,
     mounted,
+    nested,
     nestedOpenDialogCount,
     setOpen,
     open,
@@ -70,10 +70,10 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   const state: AlertDialogPopup.State = React.useMemo(
     () => ({
       open,
-      nestedOpenDialogCount,
+      nested,
       transitionStatus,
     }),
-    [open, nestedOpenDialogCount, transitionStatus],
+    [open, nested, transitionStatus],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -133,8 +133,11 @@ namespace AlertDialogPopup {
      * Whether the dialog is currently open.
      */
     open: boolean;
-    nestedOpenDialogCount: number;
     transitionStatus: TransitionStatus;
+    /**
+     * Whether the dialog is nested within a parent dialog.
+     */
+    nested: boolean;
   }
 }
 
