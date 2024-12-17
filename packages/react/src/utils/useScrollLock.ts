@@ -15,8 +15,10 @@ function preventScrollIOS(referenceElement?: Element | null) {
   const bodyStyle = body.style;
 
   // iOS 12 does not support `visualViewport`.
-  const offsetLeft = window.visualViewport?.offsetLeft || 0;
-  const offsetTop = window.visualViewport?.offsetTop || 0;
+  const win = ownerWindow(doc);
+  const vV = win.visualViewport;
+  const offsetLeft = vV?.offsetLeft || 0;
+  const offsetTop = vV?.offsetTop || 0;
   const scrollX = bodyStyle.left ? parseFloat(bodyStyle.left) : window.scrollX;
   const scrollY = bodyStyle.top ? parseFloat(bodyStyle.top) : window.scrollY;
 
