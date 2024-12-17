@@ -49,7 +49,7 @@
     "test:regressions": "cross-env NODE_ENV=production pnpm test:regressions:build && concurrently --success first --kill-others \"pnpm test:regressions:run\" \"pnpm test:regressions:server\"",
     "test:regressions:build": "pnpm release:build && vite build --config test/regressions/vite.config.js",
     "test:regressions:dev": "vite --config test/regressions/vite.config.js -l info",
-    "test:regressions:run": "VITEST_ENV=chromium vitest --project @mui-internal/tests",
+    "test:regressions:run": "VITEST_ENV=chromium vitest --project regressions",
     "test:regressions:server": "serve test/regressions -p 5001",
     "test:unit": "cross-env NODE_ENV=test mocha 'packages/**/*.test.{js,ts,tsx}' 'docs/**/*.test.{js,ts,tsx}'",
     "test:jsdom": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
