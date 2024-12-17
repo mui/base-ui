@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import webfontloader from 'webfontloader';
 import TestViewer from './TestViewer';
 import 'docs/src/styles.css';
 
@@ -53,7 +52,6 @@ function excludeDemoFixture(suite: string, name: string, path: string) {
       return false;
     }
 
-    // assume regex
     if (pattern.test(suite)) {
       unusedBlacklistPatterns.delete(pattern);
       return true;
@@ -163,24 +161,6 @@ function App(props: { fixtures: Fixture[] }) {
     };
   }, []);
 
-  // Using <link rel="stylesheet" /> does not apply the google Roboto font in chromium headless/headfull.
-  const [fontState, setFontState] = React.useState('pending');
-  React.useEffect(() => {
-    webfontloader.load({
-      custom: {
-        families: ['Unica 77'],
-        urls: ['../../docs/src/styles.css'],
-      },
-      timeout: 20000,
-      active: () => {
-        setFontState('active');
-      },
-      inactive: () => {
-        setFontState('inactive');
-      },
-    });
-  }, []);
-
   const fixturePrepared = true; // fontState !== 'pending';
 
   function computePath(fixture: Fixture) {
@@ -216,7 +196,6 @@ function App(props: { fixtures: Fixture[] }) {
       </Routes>
 
       <div hidden={!isDev}>
-        <div data-webfontloader={fontState}>webfontloader: {fontState}</div>
         <p>
           Devtools can be enabled by appending <code>#dev</code> in the addressbar or disabled by
           appending <code>#no-dev</code>.
