@@ -171,6 +171,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const dismiss = useDismiss(floatingRootContext, {
     bubbles: false,
+    outsidePressEvent: 'mousedown',
   });
 
   const role = useRole(floatingRootContext, {

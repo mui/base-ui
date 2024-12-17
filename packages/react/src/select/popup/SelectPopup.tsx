@@ -88,7 +88,6 @@ const SelectPopup = React.forwardRef(function SelectPopup(
         modal={false}
         disabled={!mounted}
         visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
-        order={['content', 'reference']}
       >
         {renderElement()}
       </FloatingFocusManager>

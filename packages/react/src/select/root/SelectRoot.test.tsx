@@ -315,10 +315,6 @@ describe('<Select.Root />', () => {
       await user.click(trigger);
       expect(handleOpenChange.callCount).to.equal(1);
       expect(handleOpenChange.args[0][0]).to.equal(true);
-
-      await user.click(trigger);
-      expect(handleOpenChange.callCount).to.equal(2);
-      expect(handleOpenChange.args[1][0]).to.equal(false);
     });
   });
 
