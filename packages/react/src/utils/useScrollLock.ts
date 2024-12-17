@@ -95,8 +95,8 @@ function preventScrollStandard(referenceElement?: Element | null) {
     const hasScrollbarGutterStable = htmlComputedStyles.scrollbarGutter?.includes('stable');
 
     // Safari needs visual viewport offsets added to account for pinch-zoom
-    const visualOffsetTop = isWebKit() ? window.visualViewport?.offsetTop || 0 : 0;
-    const visualOffsetLeft = isWebKit() ? window.visualViewport?.offsetLeft || 0 : 0;
+    const visualOffsetTop = isWebKit() ? doc.defaultView?.visualViewport?.offsetTop || 0 : 0;
+    const visualOffsetLeft = isWebKit() ? doc.defaultView?.visualViewport?.offsetLeft || 0 : 0;
 
     if (!hasScrollbarGutterStable) {
       Object.assign(htmlStyle, {
