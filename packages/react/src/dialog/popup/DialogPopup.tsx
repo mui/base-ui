@@ -14,10 +14,14 @@ import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { DialogPopupCssVars } from './DialogPopupCssVars';
+import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
+  hasNestedDialogs(value) {
+    return value ? { [DialogPopupDataAttributes.hasNestedDialogs]: '' } : null;
+  },
 };
 
 /**
@@ -74,6 +78,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     open,
     nested,
     transitionStatus,
+    hasNestedDialogs: nestedOpenDialogCount > 0,
   };
 
   const { renderElement } = useComponentRenderer({
@@ -138,6 +143,10 @@ namespace DialogPopup {
      * Whether the dialog is nested within a parent dialog.
      */
     nested: boolean;
+    /**
+     * Whether the dialog has nested dialogs open.
+     */
+    hasNestedDialogs: boolean;
   }
 }
 
