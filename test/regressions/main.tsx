@@ -161,7 +161,24 @@ function App(props: { fixtures: Fixture[] }) {
     };
   }, []);
 
-  const fixturePrepared = true; // fontState !== 'pending';
+  const [fontState, setFontState] = React.useState<'active' | 'pending' | 'error'>('pending');
+
+  React.useEffect(function registerFontListeners() {
+    function handleLoadingDone() {
+      setFontState('active');
+    }
+
+    function handleLoadingError() {
+      setFontState('error');
+    }
+
+    document.fonts.addEventListener('loadingdone', handleLoadingDone);
+    document.fonts.addEventListener('loadingerror', handleLoadingError);
+    return () => {
+      document.fonts.removeEventListener('loadingdone', handleLoadingDone);
+      document.fonts.removeEventListener('loadingerror', handleLoadingError);
+    };
+  }, []);
 
   function computePath(fixture: Fixture) {
     return `/${fixture.suite}/${fixture.name}`;
@@ -189,13 +206,14 @@ function App(props: { fixtures: Fixture[] }) {
             <Route
               key={path}
               path={path}
-              element={fixturePrepared ? <FixtureRenderer component={FixtureComponent} /> : null}
+              element={<FixtureRenderer component={FixtureComponent} />}
             />
           );
         })}
       </Routes>
 
       <div hidden={!isDev}>
+        <div data-webfontloader={fontState}>webfontloader: {fontState}</div>
         <p>
           Devtools can be enabled by appending <code>#dev</code> in the addressbar or disabled by
           appending <code>#no-dev</code>.
