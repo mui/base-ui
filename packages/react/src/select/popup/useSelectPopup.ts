@@ -180,7 +180,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     }
 
     if (isTopPositioned) {
-      const topOffset = Math.max(0, viewportHeight - idealHeight + visualOffsets.y);
+      const topOffset = Math.max(0, viewportHeight - idealHeight);
       positionerElement.style.top = positionerRect.height >= maxHeight ? '0' : `${topOffset}px`;
       positionerElement.style.height = `${height}px`;
       popupRef.current.scrollTop = popupRef.current.scrollHeight - popupRef.current.clientHeight;
