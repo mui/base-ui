@@ -31,9 +31,11 @@
     "data-closed": {
       "description": "Present when the dialog is closed."
     },
-    "data-nested-dialogs": {
-      "description": "Indicates how many dialogs are nested within.",
-      "type": "number"
+    "data-has-nested-dialogs": {
+      "description": "Present when the dialog has other open dialogs nested within it."
+    },
+    "data-nested": {
+      "description": "Present when the dialog is nested within another dialog."
     },
     "data-starting-style": {
       "description": "Present when the dialog is animating in."

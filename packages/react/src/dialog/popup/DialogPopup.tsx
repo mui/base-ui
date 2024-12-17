@@ -14,12 +14,13 @@ import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { DialogPopupCssVars } from './DialogPopupCssVars';
+import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
   hasNestedDialogs(value) {
-    return value ? { 'data-has-nested-dialogs': '' } : null;
+    return value ? { [DialogPopupDataAttributes.hasNestedDialogs]: '' } : null;
   },
 };
 
