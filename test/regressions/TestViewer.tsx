@@ -9,7 +9,7 @@ function TestViewer(props: { children: React.ReactNode }) {
   // React doesn't have any such guarantee outside of `act()` so we're approximating it.
   const [ready, setReady] = React.useState(false);
   React.useEffect(() => {
-    function handleFontsEvent(event) {
+    function handleFontsEvent(event: Event) {
       if (event.type === 'loading') {
         setReady(false);
       } else if (event.type === 'loadingdone') {
