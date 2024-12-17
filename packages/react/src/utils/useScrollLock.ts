@@ -7,6 +7,15 @@ let originalBodyStyles = {};
 let preventScrollCount = 0;
 let restore: () => void = () => {};
 
+function getVisualOffsets(doc: Document) {
+  const win = ownerWindow(doc);
+  const vV = win.visualViewport;
+  return {
+    offsetLeft: vV?.offsetLeft || 0,
+    offsetTop: vV?.offsetTop || 0,
+  };
+}
+
 function preventScrollIOS(referenceElement?: Element | null) {
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
@@ -15,10 +24,7 @@ function preventScrollIOS(referenceElement?: Element | null) {
   const bodyStyle = body.style;
 
   // iOS 12 does not support `visualViewport`.
-  const win = ownerWindow(doc);
-  const vV = win.visualViewport;
-  const offsetLeft = vV?.offsetLeft || 0;
-  const offsetTop = vV?.offsetTop || 0;
+  const { offsetLeft, offsetTop } = getVisualOffsets(doc);
   const scrollX = bodyStyle.left ? parseFloat(bodyStyle.left) : window.scrollX;
   const scrollY = bodyStyle.top ? parseFloat(bodyStyle.top) : window.scrollY;
 
@@ -98,9 +104,9 @@ function preventScrollStandard(referenceElement?: Element | null) {
 
     // Safari needs visual viewport offsets added to account for pinch-zoom
     const webkit = isWebKit();
-    const vV = ownerWindow(doc).visualViewport;
-    const visualOffsetTop = webkit ? vV?.offsetTop || 0 : 0;
-    const visualOffsetLeft = webkit ? vV?.offsetLeft || 0 : 0;
+    const { offsetLeft, offsetTop } = getVisualOffsets(doc);
+    const visualOffsetLeft = webkit ? offsetLeft || 0 : 0;
+    const visualOffsetTop = webkit ? offsetTop || 0 : 0;
 
     if (!hasScrollbarGutterStable) {
       Object.assign(htmlStyle, {
