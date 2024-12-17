@@ -14,6 +14,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useSelectIndexContext } from '../root/SelectIndexContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -34,6 +35,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 
   const { id, open, popupRef, transitionStatus, alignItemToTrigger, mounted, modal } =
     useSelectRootContext();
+  const { selectedIndex } = useSelectIndexContext();
 
   const positioner = useSelectPositionerContext();
 
@@ -88,6 +90,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
         modal={false}
         disabled={!mounted}
         visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
+        initialFocus={selectedIndex === null ? popupRef : undefined}
         order={['content', 'reference']}
       >
         {renderElement()}
