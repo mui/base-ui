@@ -42,5 +42,10 @@
       "description": "Present when the dialog is animating out."
     }
   },
-  "cssVariables": {}
+  "cssVariables": {
+    "--nested-dialogs": {
+      "description": "Indicates how many dialogs are nested within.",
+      "type": "number"
+    }
+  }
 }

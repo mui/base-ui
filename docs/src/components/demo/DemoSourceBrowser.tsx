@@ -5,12 +5,14 @@ import * as ScrollArea from '../ScrollArea';
 
 interface DemoSourceBrowserProps {
   collapsibleOpen: boolean;
-
   /** How many lines should the code block have to get collapsed instead of rendering fully */
   collapsibleLinesThreshold?: number;
+  /** When compact, we don't show a preview of the collapse code */
+  compact: boolean;
 }
 
 export function DemoSourceBrowser({
+  compact,
   collapsibleOpen,
   collapsibleLinesThreshold = 12,
 }: DemoSourceBrowserProps) {
@@ -44,7 +46,11 @@ export function DemoSourceBrowser({
       <Collapsible.Trigger className="DemoCollapseButton">
         {collapsibleOpen ? 'Hide' : 'Show'} code
       </Collapsible.Trigger>
-      <Collapsible.Panel keepMounted hidden={false} render={<DemoCodeBlockContainer />}>
+      <Collapsible.Panel
+        keepMounted={compact ? undefined : true}
+        hidden={compact ? undefined : false}
+        render={<DemoCodeBlockContainer />}
+      >
         <ScrollArea.Viewport
           style={{ overflow: undefined }}
           render={({ children, ...props }) => {

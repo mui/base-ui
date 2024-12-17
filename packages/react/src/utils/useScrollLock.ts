@@ -1,5 +1,5 @@
-import { isIOS } from './detectBrowser';
-import { ownerDocument } from './owner';
+import { isIOS, isWebKit } from './detectBrowser';
+import { ownerDocument, ownerWindow } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
 let originalHtmlStyles = {};
@@ -7,16 +7,31 @@ let originalBodyStyles = {};
 let preventScrollCount = 0;
 let restore: () => void = () => {};
 
+function getVisualOffsets(doc: Document) {
+  const win = ownerWindow(doc);
+  const vV = win.visualViewport;
+  return {
+    x: Math.floor(vV?.offsetLeft || 0),
+    y: Math.floor(vV?.offsetTop || 0),
+  };
+}
+
 function preventScrollIOS(referenceElement?: Element | null) {
   const doc = ownerDocument(referenceElement);
+  const html = doc.documentElement;
   const body = doc.body;
+  const htmlStyle = html.style;
   const bodyStyle = body.style;
 
   // iOS 12 does not support `visualViewport`.
-  const offsetLeft = window.visualViewport?.offsetLeft || 0;
-  const offsetTop = window.visualViewport?.offsetTop || 0;
+  const { x, y } = getVisualOffsets(doc);
   const scrollX = bodyStyle.left ? parseFloat(bodyStyle.left) : window.scrollX;
   const scrollY = bodyStyle.top ? parseFloat(bodyStyle.top) : window.scrollY;
+
+  originalHtmlStyles = {
+    overflowX: htmlStyle.overflowX,
+    overflowY: htmlStyle.overflowY,
+  };
 
   originalBodyStyles = {
     position: bodyStyle.position,
@@ -27,15 +42,20 @@ function preventScrollIOS(referenceElement?: Element | null) {
     overflowY: bodyStyle.overflowY,
   };
 
+  Object.assign(htmlStyle, {
+    overflow: 'visible',
+  });
+
   Object.assign(bodyStyle, {
     position: 'fixed',
-    top: `${-(scrollY - Math.floor(offsetTop))}px`,
-    left: `${-(scrollX - Math.floor(offsetLeft))}px`,
+    top: `${-(scrollY - y)}px`,
+    left: `${-(scrollX - x)}px`,
     right: '0',
     overflow: 'hidden',
   });
 
   return () => {
+    Object.assign(htmlStyle, originalHtmlStyles);
     Object.assign(bodyStyle, originalBodyStyles);
     window.scrollTo({ left: scrollX, top: scrollY, behavior: 'instant' });
   };
@@ -82,11 +102,17 @@ function preventScrollStandard(referenceElement?: Element | null) {
     // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
     const hasScrollbarGutterStable = htmlComputedStyles.scrollbarGutter?.includes('stable');
 
+    // Safari needs visual viewport offsets added to account for pinch-zoom
+    const webkit = isWebKit();
+    const { x, y } = getVisualOffsets(doc);
+    const visualX = webkit ? x : 0;
+    const visualY = webkit ? y : 0;
+
     if (!hasScrollbarGutterStable) {
       Object.assign(htmlStyle, {
         position: 'fixed',
-        top: `${-scrollY}px`,
-        left: `${-scrollX}px`,
+        top: `${-scrollY + visualY}px`,
+        left: `${-scrollX + visualX}px`,
         right: '0',
       });
     }

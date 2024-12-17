@@ -8,7 +8,7 @@
     },
     "keepMounted": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "Whether to keep the HTML element in the DOM when the radio item is inactive."
     },
     "render": {
@@ -16,6 +16,22 @@
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the menu radio item is selected."
+    },
+    "data-unchecked": {
+      "description": "Present when the menu radio item is not selected."
+    },
+    "data-disabled": {
+      "description": "Present when the menu radio item is disabled."
+    },
+    "data-starting-style": {
+      "description": "Present when the radio indicator is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the radio indicator is animating out."
+    }
+  },
   "cssVariables": {}
 }

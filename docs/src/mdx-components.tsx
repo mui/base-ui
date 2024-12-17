@@ -71,7 +71,7 @@ export const mdxComponents: MDXComponents = {
   td: Table.Cell,
 
   // Custom components
-  Demo: (props) => <DemoLoader className="mt-5 mb-8" {...props} />,
+  Demo: (props) => <DemoLoader className="mt-5 mb-6" {...props} />,
   QuickNav,
   AttributesTable: (props) => <AttributesTable className="mt-5 mb-6" {...props} />,
   CssVariablesTable: (props) => <CssVariablesTable className="mt-5 mb-6" {...props} />,

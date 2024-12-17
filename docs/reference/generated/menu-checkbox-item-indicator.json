@@ -8,7 +8,7 @@
     },
     "keepMounted": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "Whether to keep the HTML element in the DOM when the checkbox item is not checked."
     },
     "render": {
@@ -22,6 +22,15 @@
     },
     "data-unchecked": {
       "description": "Present when the menu checkbox item is not checked."
+    },
+    "data-disabled": {
+      "description": "Present when the menu checkbox item is disabled."
+    },
+    "data-starting-style": {
+      "description": "Present when the indicator is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the indicator is animating out."
     }
   },
   "cssVariables": {}
