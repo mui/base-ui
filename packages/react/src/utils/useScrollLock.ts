@@ -1,3 +1,4 @@
+import { getUserAgent } from '@floating-ui/react/utils';
 import { isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
@@ -62,6 +63,7 @@ function preventScrollIOS(referenceElement?: Element | null) {
 }
 
 function preventScrollStandard(referenceElement?: Element | null) {
+  const isFirefox = /firefox/i.test(getUserAgent());
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
   const body = doc.body;
@@ -71,8 +73,26 @@ function preventScrollStandard(referenceElement?: Element | null) {
   let resizeRaf: number;
   let scrollX: number;
   let scrollY: number;
+  let paddingProp: 'paddingLeft' | 'paddingRight';
 
   function lockScroll() {
+    if (isFirefox) {
+      // RTL <body> scrollbar
+      const scrollbarX =
+        Math.round(document.documentElement.getBoundingClientRect().left) +
+        document.documentElement.scrollLeft;
+      paddingProp = scrollbarX ? 'paddingLeft' : 'paddingRight';
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+      bodyStyle.overflow = 'hidden';
+
+      if (scrollbarWidth) {
+        bodyStyle[paddingProp] = `${scrollbarWidth}px`;
+      }
+
+      return;
+    }
+
     const htmlComputedStyles = getComputedStyle(html);
     const bodyComputedStyles = getComputedStyle(body);
     const hasConstantOverflowY =
@@ -135,6 +155,14 @@ function preventScrollStandard(referenceElement?: Element | null) {
   }
 
   function cleanup() {
+    if (isFirefox) {
+      Object.assign(bodyStyle, {
+        overflow: '',
+        [paddingProp]: '',
+      });
+      return;
+    }
+
     Object.assign(htmlStyle, originalHtmlStyles);
     Object.assign(bodyStyle, originalBodyStyles);
 
