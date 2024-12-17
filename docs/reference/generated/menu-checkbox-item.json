@@ -25,7 +25,7 @@
     },
     "closeOnClick": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "Whether to close the menu when the item is clicked."
     },
     "disabled": {
