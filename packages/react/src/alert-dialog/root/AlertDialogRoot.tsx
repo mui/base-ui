@@ -27,11 +27,11 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
     onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,
   });
 
-  const hasParentDialog = Boolean(parentDialogRootContext);
+  const nested = Boolean(parentDialogRootContext);
 
-  const contextValue = React.useMemo(
-    () => ({ ...dialogRoot, hasParentDialog }),
-    [dialogRoot, hasParentDialog],
+  const contextValue: AlertDialogRootContext = React.useMemo(
+    () => ({ ...dialogRoot, nested }),
+    [dialogRoot, nested],
   );
 
   return (

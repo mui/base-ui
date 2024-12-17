@@ -33,11 +33,11 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,
   });
 
-  const hasParentDialog = Boolean(parentDialogRootContext);
+  const nested = Boolean(parentDialogRootContext);
 
   const contextValue = React.useMemo(
-    () => ({ ...dialogRoot, hasParentDialog, dismissible }),
-    [dialogRoot, hasParentDialog, dismissible],
+    () => ({ ...dialogRoot, nested, dismissible }),
+    [dialogRoot, nested, dismissible],
   );
 
   return (

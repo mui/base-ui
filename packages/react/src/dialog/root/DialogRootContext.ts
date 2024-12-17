@@ -6,12 +6,11 @@ export interface DialogRootContext extends useDialogRoot.ReturnValue {
   /**
    * Determines if the dialog is nested within a parent dialog.
    */
-  hasParentDialog: boolean;
+  nested: boolean;
   /**
    * Determines whether the dialog should close on outside clicks.
-   * @default true
    */
-  dismissible?: boolean;
+  dismissible: boolean;
 }
 
 export const DialogRootContext = React.createContext<DialogRootContext | undefined>(undefined);

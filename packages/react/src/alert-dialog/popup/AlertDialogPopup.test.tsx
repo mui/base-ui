@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, waitFor } from '@mui/internal-test-utils';
+import { act, waitFor, screen } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -191,6 +191,29 @@ describe('<AlertDialog.Popup />', () => {
       await waitFor(() => {
         expect(inputToFocus).toHaveFocus();
       });
+    });
+  });
+
+  describe('style hooks', () => {
+    it('adds the `nested` style hook if a dialog has a parent dialog', async () => {
+      await render(
+        <AlertDialog.Root open>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup data-testid="parent-dialog" />
+            <AlertDialog.Root open>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="nested-dialog" />
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>,
+      );
+
+      const parentDialog = screen.getByTestId('parent-dialog');
+      const nestedDialog = screen.getByTestId('nested-dialog');
+
+      expect(parentDialog).not.to.have.attribute('data-nested');
+      expect(nestedDialog).to.have.attribute('data-nested');
     });
   });
 });

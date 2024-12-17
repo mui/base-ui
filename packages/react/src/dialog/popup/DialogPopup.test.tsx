@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { Dialog } from '@base-ui-components/react/dialog';
-import { act, waitFor } from '@mui/internal-test-utils';
+import { act, waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer } from '#test-utils';
 
 describe('<Dialog.Popup />', () => {
@@ -199,6 +199,29 @@ describe('<Dialog.Popup />', () => {
       await waitFor(() => {
         expect(inputToFocus).toHaveFocus();
       });
+    });
+  });
+
+  describe('style hooks', () => {
+    it('adds the `nested` style hook if a dialog has a parent dialog', async () => {
+      await render(
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="parent-dialog" />
+            <Dialog.Root open>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="nested-dialog" />
+              </Dialog.Portal>
+            </Dialog.Root>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const parentDialog = screen.getByTestId('parent-dialog');
+      const nestedDialog = screen.getByTestId('nested-dialog');
+
+      expect(parentDialog).not.to.have.attribute('data-nested');
+      expect(nestedDialog).to.have.attribute('data-nested');
     });
   });
 });
