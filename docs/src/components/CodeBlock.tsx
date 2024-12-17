@@ -35,6 +35,7 @@ export function Panel({ className, children, ...props }: React.ComponentPropsWit
         {children}
       </div>
       <GhostButton
+        className="ml-auto"
         aria-label="Copy code"
         onClick={async () => {
           const code = document.getElementById(codeId)?.textContent;
