@@ -1,4 +1,4 @@
-import { isIOS } from './detectBrowser';
+import { isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
@@ -94,11 +94,15 @@ function preventScrollStandard(referenceElement?: Element | null) {
     // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
     const hasScrollbarGutterStable = htmlComputedStyles.scrollbarGutter?.includes('stable');
 
+    // Safari needs visual viewports added to account for pinch-zoom
+    const visualOffsetTop = isWebKit() ? window.visualViewport?.offsetTop || 0 : 0;
+    const visualOffsetLeft = isWebKit() ? window.visualViewport?.offsetLeft || 0 : 0;
+
     if (!hasScrollbarGutterStable) {
       Object.assign(htmlStyle, {
         position: 'fixed',
-        top: `${-scrollY}px`,
-        left: `${-scrollX}px`,
+        top: `${-scrollY + visualOffsetTop}px`,
+        left: `${-scrollX + visualOffsetLeft}px`,
         right: '0',
       });
     }
