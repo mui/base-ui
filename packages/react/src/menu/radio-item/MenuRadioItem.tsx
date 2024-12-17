@@ -21,7 +21,7 @@ const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
     checked,
     setChecked,
     className,
-    closeOnClick = false,
+    closeOnClick,
     disabled = false,
     highlighted,
     id,
@@ -93,10 +93,8 @@ InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * Whether to close the menu when the item is clicked.
-   *
-   * @default true
    */
-  closeOnClick: PropTypes.bool,
+  closeOnClick: PropTypes.bool.isRequired,
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -161,7 +159,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   props: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, value, label, disabled = false, ...other } = props;
+  const { id: idProp, value, label, disabled = false, closeOnClick = false, ...other } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
@@ -206,6 +204,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
         checked={selectedValue === value}
         setChecked={setChecked}
         typingRef={typingRef}
+        closeOnClick={closeOnClick}
       />
     </MenuRadioItemContext.Provider>
   );
@@ -219,6 +218,7 @@ interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
   checked: boolean;
   setChecked: (event: Event) => void;
   typingRef: React.RefObject<boolean>;
+  closeOnClick: boolean;
 }
 
 namespace MenuRadioItem {
@@ -260,8 +260,7 @@ namespace MenuRadioItem {
     id?: string;
     /**
      * Whether to close the menu when the item is clicked.
-     *
-     * @default true
+     * @default false
      */
     closeOnClick?: boolean;
   }
@@ -278,8 +277,7 @@ MenuRadioItem.propTypes /* remove-proptypes */ = {
   children: PropTypes.node,
   /**
    * Whether to close the menu when the item is clicked.
-   *
-   * @default true
+   * @default false
    */
   closeOnClick: PropTypes.bool,
   /**
