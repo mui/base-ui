@@ -25,7 +25,7 @@ export default function ExampleDialog() {
                       Customize notifications
                     </Dialog.Title>
                     <Dialog.Description className={styles.Description}>
-                      You can customize your notifications here.
+                      Review your settings here.
                     </Dialog.Description>
                     <div className={styles.Actions}>
                       <Dialog.Close className={styles.Button}>Close</Dialog.Close>
