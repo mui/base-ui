@@ -1,0 +1,122 @@
+# Styling
+
+<Subtitle>A guide to styling Base UI components with your preferred styling engine.</Subtitle>
+<Meta
+  name="description"
+  content="Learn how to make the most of Base UI's accessibility features and guidelines."
+/>
+
+Base UI components are unstyled, don't bundle CSS, and are compatible with Tailwind, CSS Modules, CSS-in-JS, or any other styling solution you prefer. You retain total control of your styling layer.
+
+## Styling concepts
+
+### CSS Classes
+
+Every component accepts a `className` prop which you can use to pass Tailwind classes or custom CSS classes to its DOM element.
+
+### Data attributes
+
+Data attributes are provided as style hooks. Component states can be styled with data attributes such as `data-disabled` and `data-open`. Certain props can be targeted with data attributes such as `data-side` and `data-uncentered`. Some components provide `data-starting-style` and `data-ending-style` attributes for styling CSS transitions. Check out each component's API reference for a complete list of available data attributes.
+
+### CSS custom properties
+
+Some components expose CSS custom properties to aid with styling, such as `--accordion-panel-height`, `transform-origin`, and `--active-tab-width`.
+
+## Tailwind
+
+ewfew
+
+```tsx title="index.tsx"
+import * as React from 'react';
+import { Menu } from '@base-ui-components/react/menu';
+
+export default function ExampleMenu() {
+  return (
+    <Menu.Root>
+      <Menu.Trigger className="flex h-10 select-none items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
+        Song
+      </Menu.Trigger>
+      <Menu.Portal>
+        <Menu.Positioner className="outline-0" sideOffset={8}>
+          <Menu.Popup className="[[data-starting-style],[data-ending-style]]:scale-90 [[data-starting-style],[data-ending-style]]:opacity-0 origin-[var(--transform-origin)] rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline outline-gray-200 transition-[transform,scale,opacity] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+            <Menu.Item className="data-[highlighted]:before:-z-1 flex cursor-default select-none py-2 pl-4 pr-8 text-sm leading-4 outline-0 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
+              Add to Library
+            </Menu.Item>
+            <Menu.Item className="data-[highlighted]:before:-z-1 flex cursor-default select-none py-2 pl-4 pr-8 text-sm leading-4 outline-0 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
+              Add to Playlist
+            </Menu.Item>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
+  );
+}
+```
+
+## CSS Modules
+
+ewfew
+
+```tsx title="index.tsx"
+import * as React from 'react';
+import { Menu } from '@base-ui-components/react/menu';
+import styles from './index.module.css';
+
+export default function ExampleMenu() {
+  return (
+    <Menu.Root>
+      <Menu.Trigger className={styles.Button}>Song</Menu.Trigger>
+      <Menu.Portal>
+        <Menu.Positioner className={styles.Positioner} sideOffset={8}>
+          <Menu.Popup className={styles.Popup}>
+            <Menu.Item className={styles.Item}>Add to Library</Menu.Item>
+            <Menu.Item className={styles.Item}>Add to Playlist</Menu.Item>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
+  );
+}
+```
+
+## CSS-in-JS
+
+ewfew
+
+```tsx title="index.tsx"
+import * as React from 'react';
+import { Menu } from '@base-ui-components/react/menu';
+import styled from '@emotion/styled';
+
+const StyledMenuTrigger = styled(Menu.Trigger)`
+  // Button styles
+`;
+
+const StyledMenuPositioner = styled(Menu.Positioner)`
+  // Positioner styles
+`;
+
+const StyledMenuPopup = styled(Menu.Popup)`
+  // Popup styles
+`;
+
+const StyledMenuItem = styled(Menu.Item)`
+  // Menu item styles
+`;
+
+const MenuExample = () => (
+  <Menu.Root>
+    <StyledMenuTrigger>Song</StyledMenuTrigger>
+    <Menu.Portal>
+      <StyledMenuPositioner>
+        <StyledMenuPopup>
+          <StyledMenuItem>Add to Library</StyledMenuItem>
+          <StyledMenuItem>Add to Playlist</StyledMenuItem>
+        </Menu.Portal>
+      </StyledMenuPositioner>
+    </StyledMenuPopup>
+  </Menu.Root>
+);
+
+export default MenuExample;
+```
