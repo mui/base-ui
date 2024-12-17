@@ -52,7 +52,7 @@
   display: flex;
   height: var(--collapsible-panel-height);
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: end;
   overflow: hidden;
   font-size: 0.875rem;
   line-height: 1.25rem;
