@@ -1,1 +1,45 @@
 # Composition
+
+<Subtitle>A guide to composing Base UI components with your own React components.</Subtitle>
+<Meta
+  name="description"
+  content="A guide to composing Base UI components with your own React components."
+/>
+
+## Shared props
+
+Base UI components are self-supporting and fully functional in isolation.
+
+Each component has its own unique API, but most of the components accept the following shared props:
+
+### render
+
+The `render` prop lets you override the rendered element of the component.
+
+For example, the Base UI Switch component renders a `<button>` by default.
+The code snippet below shows how to use a custom component instead.
+
+```jsx
+<Switch.Root render={<MyFancyButton />} />
+```
+
+The custom component must forward a ref to its underlying DOM node and it must spread all the received props.
+
+The `render` prop comes in two variants: the element one (as shown above) and the function one.
+Using a function gives you complete control over spreading props and allows you to render different content based on the component's state.
+
+```jsx
+<Switch.Thumb
+  render={(props, internalState) => (
+    <span {...props}>{internalState.checked ? <CheckedIcon /> : <UncheckedIcon />}</span>
+  )}
+/>
+```
+
+### className
+
+The `className` prop, in addition to accepting a string, can be defined as a function that takes a component state as an argument:
+
+```jsx
+<Switch.Thumb className={(state) => (state.checked ? 'checked' : 'unchecked')} />
+```
