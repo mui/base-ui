@@ -3,6 +3,8 @@ import * as React from 'react';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { Dialog } from '@base-ui-components/react/dialog';
+import * as ReactDOM from 'react-dom';
+import { useScrollLock } from '@base-ui-components/react/utils';
 import { HEADER_HEIGHT } from './Header';
 
 const MobileNavStateCallback = React.createContext<(open: boolean) => void>(() => undefined);
@@ -26,17 +28,43 @@ export function Backdrop({ className, ...props }: Dialog.Backdrop.Props) {
 
 export const Portal = Dialog.Portal;
 
-export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
+export function Popup({ className, children, ...props }: Dialog.Popup.Props) {
+  return (
+    <Dialog.Popup className={clsx('MobileNavPopup', className)} {...props}>
+      <PopupImpl>{children}</PopupImpl>
+    </Dialog.Popup>
+  );
+}
+
+function PopupImpl({ children }: React.PropsWithChildren) {
+  const [forceScrollLock, setForceScrollLock] = React.useState(false);
   const setOpen = React.useContext(MobileNavStateCallback);
   const rem = React.useRef(16);
+  useScrollLock(forceScrollLock);
 
   React.useEffect(() => {
     rem.current = parseFloat(getComputedStyle(document.documentElement).fontSize);
   }, []);
 
+  // iOS Safari appears to flicker the scroll containers during tasking animations
+  // As a workaround, we set an attribute on body to know when the nav is mounted
+  // and disable scroll on the problematic scroll containers in the meantime
+  const timeout = React.useRef(0);
+  React.useLayoutEffect(() => {
+    window.clearTimeout(timeout.current);
+    document.body.setAttribute('data-mobile-nav-open', '');
+    return () => {
+      window.clearTimeout(timeout.current);
+      timeout.current = window.setTimeout(() => {
+        document.body.removeAttribute('data-mobile-nav-open');
+        // Safari seems to need some arbitrary time to be done with whatever causes the flicker
+        // Using setTimeout 0, RAFs, or even double RAFs doesn't work reliably
+      }, 100);
+    };
+  }, []);
+
   return (
-    <Dialog.Popup className={clsx('MobileNavPopup', className)} {...props}>
-      <MountEffect />
+    <React.Fragment>
       <div className="MobileNavBottomOverscroll" />
       <div
         className="MobileNavViewport"
@@ -59,6 +87,10 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
                 // If touch ended and we are overscrolling past a threshold...
                 if (viewport.scrollTop < -32) {
                   const y = viewport.scrollTop;
+                  // Scroll lock is forced during the flick down gesture to maintain
+                  // a continous blend between the native scroll inertia and our own animation
+                  setForceScrollLock(true);
+
                   viewport.addEventListener(
                     'scroll',
                     function handleNextScroll() {
@@ -75,6 +107,8 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
                         // If so, give it another chance, call ourselves recursively
                       } else if (viewport.scrollTop === y) {
                         viewport.addEventListener('scroll', handleNextScroll, { once: true });
+                      } else {
+                        setForceScrollLock(false);
                       }
                     },
                     { once: true },
@@ -117,30 +151,8 @@ export function Popup({ children, className, ...props }: Dialog.Popup.Props) {
           </nav>
         </div>
       </div>
-    </Dialog.Popup>
+    </React.Fragment>
   );
-}
-
-// iOS Safari appears to flicker the scroll containers during tasking animations
-// As a workaround, we set an attribute on body to know when the nav is mounted
-function MountEffect() {
-  const timeout = React.useRef(0);
-
-  React.useLayoutEffect(() => {
-    window.clearTimeout(timeout.current);
-    document.body.setAttribute('data-mobile-nav-open', '');
-
-    return () => {
-      window.clearTimeout(timeout.current);
-      timeout.current = window.setTimeout(() => {
-        document.body.removeAttribute('data-mobile-nav-open');
-        // Safari seems to need some arbitrary time to be done with whatever causes the flicker
-        // Using setTimeout 0, RAFs, or even double RAFs doesn't work reliably
-      }, 100);
-    };
-  }, []);
-
-  return null;
 }
 
 export function Section({ className, ...props }: React.ComponentProps<'div'>) {
@@ -174,10 +186,42 @@ export function Item({ active, children, className, href, rel, ...props }: ItemP
         className="MobileNavLink"
         href={href}
         rel={rel}
-        onClick={() => setOpen(false)}
+        // We handle scroll manually
+        scroll={false}
+        onClick={() => {
+          if (href === window.location.pathname) {
+            // If the URL is the same, close, wait a little, and scroll to top smoothly
+            setOpen(false);
+            setTimeout(() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 500);
+          } else {
+            // Otherwise, wait for the URL change before closing and scroll up instantly
+            onUrlChange(() => {
+              ReactDOM.flushSync(() => setOpen(false));
+              window.scrollTo({ top: 0, behavior: 'instant' });
+            });
+          }
+        }}
       >
         {children}
       </NextLink>
     </li>
   );
+}
+
+function onUrlChange(callback: () => void) {
+  const initialUrl = window.location.href;
+
+  function rafRecursively() {
+    requestAnimationFrame(() => {
+      if (initialUrl === window.location.href) {
+        rafRecursively();
+      } else {
+        callback();
+      }
+    });
+  }
+
+  rafRecursively();
 }
