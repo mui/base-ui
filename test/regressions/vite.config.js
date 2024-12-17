@@ -10,12 +10,10 @@ export default defineConfig({
 
   resolve: {
     alias: {
+      './fonts': path.resolve(__dirname, '../../docs/src/fonts'),
       docs: path.resolve(__dirname, '../../docs'),
-      fs: null,
       stream: null,
       zlib: null,
     },
   },
-
-  assetsInclude: [/\.(woff|woff2|eot|ttf|otf)$/i],
 });

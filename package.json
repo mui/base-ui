@@ -50,7 +50,7 @@
     "test:regressions:build:webpack": "pnpm release:build && webpack --config test/regressions/webpack.config.js",
     "test:regressions:build": "vite build --config test/regressions/vite.config.js",
     "test:regressions:dev:webpack": "concurrently \"pnpm test:regressions:build --watch\" \"pnpm test:regressions:server:webpack\"",
-    "test:regressions:dev": "vite --config test/regressions/vite.config.js",
+    "test:regressions:dev": "vite --config test/regressions/vite.config.js -l info",
     "test:regressions:run": "mocha --config test/regressions/.mocharc.js --delay 'test/regressions/**/*.test.js'",
     "test:regressions:server:webpack": "serve test/regressions -p 5001",
     "test:regressions:server": "vite --config test/regressions/vite.config.js --port 5001",

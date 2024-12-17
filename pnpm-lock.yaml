@@ -740,9 +740,6 @@ importers:
       '@types/sinon':
         specifier: ^17.0.3
         version: 17.0.3
-      '@types/webfontloader':
-        specifier: ^1.6.28
-        version: 1.6.38
       chai:
         specifier: ^4.5.0
         version: 4.5.0
@@ -3472,9 +3469,6 @@ packages:
 
   '@types/use-sync-external-store@0.0.6':
     resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
-
-  '@types/webfontloader@1.6.38':
-    resolution: {integrity: sha512-kUaF72Fv202suFx6yBrwXqeVRMx7hGtJTesyESZgn9sEPCUeDXm2p0SiyS1MTqW74nQP4p7JyrOCwZ7pNFns4w==}
 
   '@types/ws@8.5.13':
     resolution: {integrity: sha512-osM/gWBTPKgHV8XkTunnegTRIsvF6owmf5w+JtAfOw472dptdm0dlGv4xCt6GwQRcC2XVOvvRE/0bAoQcL2QkA==}
@@ -12969,8 +12963,6 @@ snapshots:
   '@types/url-join@4.0.3': {}
 
   '@types/use-sync-external-store@0.0.6': {}
-
-  '@types/webfontloader@1.6.38': {}
 
   '@types/ws@8.5.13':
     dependencies:
