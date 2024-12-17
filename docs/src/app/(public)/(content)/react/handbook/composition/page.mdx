@@ -13,7 +13,9 @@ Use the `render` prop to compose a Base UI part with your own React components.
 For example, most triggers render a `<button>` by default. The code snippet below shows how to use a custom button instead.
 
 ```tsx title="index.tsx"
-<Menu.Trigger render={<MyButton size="md">Open menu</MyButton>} />
+<Menu.Trigger render={<MyButton size="md">}>
+  Open menu
+</Menu.Trigger>
 ```
 
 The custom component must forward the `ref`, and spread all the received props on its underlying DOM node.
@@ -30,7 +32,9 @@ In situations where you need to compose multiple Base UI components with custom 
       render={
         <Dialog.Trigger
           render={
-            <MyButton size="md">Open dialog</MyButton>
+            <Menu.Trigger render={<MyButton size="md">}>
+              Open menu
+            </Menu.Trigger>
           }
         />
       }
