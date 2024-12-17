@@ -18,7 +18,6 @@ import { DialogPopupCssVars } from './DialogPopupCssVars';
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
-  nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
 };
 
 /**
@@ -40,6 +39,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     getPopupProps,
     modal,
     mounted,
+    nested,
     nestedOpenDialogCount,
     setOpen,
     open,
@@ -72,7 +72,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 
   const state: DialogPopup.State = {
     open,
-    nestedOpenDialogCount,
+    nested,
     transitionStatus,
   };
 
@@ -133,8 +133,11 @@ namespace DialogPopup {
      * Whether the dialog is currently open.
      */
     open: boolean;
-    nestedOpenDialogCount: number;
     transitionStatus: TransitionStatus;
+    /**
+     * Whether the dialog is nested within a parent dialog.
+     */
+    nested: boolean;
   }
 }
 

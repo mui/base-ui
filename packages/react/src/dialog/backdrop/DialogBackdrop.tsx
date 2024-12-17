@@ -25,7 +25,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, keepMounted = false, ...other } = props;
-  const { open, hasParentDialog, mounted, transitionStatus } = useDialogRootContext();
+  const { open, nested, mounted, transitionStatus } = useDialogRootContext();
 
   const state: DialogBackdrop.State = React.useMemo(
     () => ({
@@ -45,7 +45,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   });
 
   // no need to render nested backdrops
-  const shouldRender = (keepMounted || mounted) && !hasParentDialog;
+  const shouldRender = (keepMounted || mounted) && !nested;
   if (!shouldRender) {
     return null;
   }

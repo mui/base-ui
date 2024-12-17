@@ -6,7 +6,7 @@ export interface AlertDialogRootContext extends useDialogRoot.ReturnValue {
   /**
    * Determines if the dialog is nested within a parent dialog.
    */
-  hasParentDialog: boolean;
+  nested: boolean;
 }
 
 export const AlertDialogRootContext = React.createContext<AlertDialogRootContext | undefined>(
