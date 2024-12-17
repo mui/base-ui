@@ -1,3 +1,7 @@
 import { defineWorkspace } from 'vitest/config';
 
-export default defineWorkspace(['packages/*/vitest.config.mts', 'docs/vitest.config.mts']);
+export default defineWorkspace([
+  'packages/*/vitest.config.mts',
+  'docs/vitest.config.mts',
+  'test/vitest.config.mts',
+]);
