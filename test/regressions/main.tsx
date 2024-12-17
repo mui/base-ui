@@ -4,7 +4,7 @@ import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import webfontloader from 'webfontloader';
 import TestViewer from './TestViewer';
-// import 'docs/src/styles.css';
+import '../../docs/src/styles.css';
 
 interface Fixture {
   Component: React.LazyExoticComponent<React.ComponentType<any>>;

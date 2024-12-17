@@ -90,8 +90,9 @@ module.exports = {
     {
       files: ['test/regressions/**/*{.ts,.tsx}'],
       rules: {
-        'react/prop-types': 'off',
         '@typescript-eslint/no-use-before-define': 'off',
+        'import/no-relative-packages': 'off',
+        'react/prop-types': 'off',
       },
     },
   ],
