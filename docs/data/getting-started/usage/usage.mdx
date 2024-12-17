@@ -31,8 +31,8 @@ Using a function gives you complete control over spreading props and allows you 
 
 ```jsx
 <Switch.Thumb
-  render={(props, internalState) => (
-    <span {...props}>{internalState.checked ? <CheckedIcon /> : <UncheckedIcon />}</span>
+  render={(props, state) => (
+    <span {...props}>{state.checked ? <CheckedIcon /> : <UncheckedIcon />}</span>
   )}
 />
 ```
