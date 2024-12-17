@@ -67,6 +67,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
   const body = doc.body;
+  const win = ownerWindow(doc);
   const htmlStyle = html.style;
   const bodyStyle = body.style;
 
@@ -79,10 +80,10 @@ function preventScrollStandard(referenceElement?: Element | null) {
     if (isFirefox) {
       // RTL <body> scrollbar
       const scrollbarX =
-        Math.round(document.documentElement.getBoundingClientRect().left) +
-        document.documentElement.scrollLeft;
+        Math.round(doc.documentElement.getBoundingClientRect().left) +
+        doc.documentElement.scrollLeft;
       paddingProp = scrollbarX ? 'paddingLeft' : 'paddingRight';
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      const scrollbarWidth = win.innerWidth - doc.documentElement.clientWidth;
 
       bodyStyle.overflow = 'hidden';
 
