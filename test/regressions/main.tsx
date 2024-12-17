@@ -1,35 +1,42 @@
+/* eslint-disable guard-for-in */
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import webfontloader from 'webfontloader';
-import OldTestViewer from './OldTestViewer';
-import 'docs/src/styles.css';
+import TestViewer from './TestViewer';
+// import 'docs/src/styles.css';
+
+interface Fixture {
+  Component: React.LazyExoticComponent<React.ComponentType<any>>;
+  name: string;
+  path: string;
+  suite: string;
+}
 
 // Get all the fixtures specifically written for preventing visual regressions.
-const importRegressionFixtures = require.context('./fixtures', true, /\.(js|ts|tsx)$/, 'lazy');
-const regressionFixtures = [];
-importRegressionFixtures
-  .keys()
-  .filter((path) => path.startsWith('./'))
-  .forEach((path) => {
-    const [suite, name] = path
-      .replace('./', '')
-      .replace(/\.\w+$/, '')
-      .split('/');
-    regressionFixtures.push({
-      path,
-      suite: `regression-${suite}`,
-      name,
-      Component: React.lazy(() => importRegressionFixtures(path)),
-    });
-  }, []);
+const globbedRegressionFixtures = import.meta.glob<{ default: React.ComponentType<unknown> }>(
+  './fixtures/**/*.tsx',
+);
+const regressionFixtures: Fixture[] = [];
 
-const blacklist = [];
+for (const path in globbedRegressionFixtures) {
+  const [suite, name] = path
+    .replace('./', '')
+    .replace(/\.\w+$/, '')
+    .split('/');
+  regressionFixtures.push({
+    path,
+    suite: `regression-${suite}`,
+    name,
+    Component: React.lazy(() => globbedRegressionFixtures[path]()),
+  });
+}
+
+const blacklist: (string | RegExp)[] = [];
 
 const unusedBlacklistPatterns = new Set(blacklist);
 
-function excludeDemoFixture(suite, name, path) {
+function excludeDemoFixture(suite: string, name: string, path: string) {
   const blacklisted = blacklist.some((pattern) => {
     if (typeof pattern === 'string') {
       if (pattern === suite) {
@@ -67,31 +74,30 @@ function excludeDemoFixture(suite, name, path) {
   return false;
 }
 
-// Also use some of the demos to avoid code duplication.
-const importDemos = require.context(
-  'docs/src/app/(public)/(content)/react',
-  true,
-  /\.tsx$/,
-  'lazy',
+// Also use all public demos to avoid code duplication.
+
+const globbedDemos = import.meta.glob<{ default: React.ComponentType<unknown> }>(
+  '../../docs/src/app/\\(public\\)/\\(content\\)/react/**/*.tsx',
 );
-const demoFixtures = [];
 
-importDemos
-  .keys()
-  .filter((path) => path.startsWith('./'))
-  .forEach((path) => {
-    const [name, ...suiteArray] = path.replace('./', '').replace('.js', '').split('/').reverse();
-    const suite = `docs-${suiteArray.reverse().join('-')}`;
+const demoFixtures: Fixture[] = [];
 
-    if (!excludeDemoFixture(suite, name, path)) {
-      demoFixtures.push({
-        path,
-        suite,
-        name,
-        Component: React.lazy(() => importDemos(path)),
-      });
-    }
-  }, []);
+for (const path in globbedDemos) {
+  const [name, ...suiteArray] = path.split('react')[1].split('/').reverse();
+  const suite = `docs-${suiteArray
+    .filter((v) => v)
+    .reverse()
+    .join('-')}`;
+
+  if (!excludeDemoFixture(suite, name, path)) {
+    demoFixtures.push({
+      path,
+      suite,
+      name,
+      Component: React.lazy(() => globbedDemos[path]()),
+    });
+  }
+}
 
 if (unusedBlacklistPatterns.size > 0) {
   console.warn(
@@ -103,28 +109,28 @@ if (unusedBlacklistPatterns.size > 0) {
 
 const viewerRoot = document.getElementById('test-viewer');
 
-function FixtureRenderer({ component: FixtureComponent }) {
-  const viewerReactRoot = React.useRef(null);
+function FixtureRenderer({ component: FixtureComponent }: { component: React.ElementType }) {
+  const viewerReactRoot = React.useRef<ReactDOMClient.Root | null>(null);
 
   React.useLayoutEffect(() => {
     const renderTimeout = setTimeout(() => {
       const children = (
-        <OldTestViewer>
+        <TestViewer>
           <FixtureComponent />
-        </OldTestViewer>
+        </TestViewer>
       );
 
-      if (viewerReactRoot.current === null) {
+      if (viewerReactRoot.current == null && viewerRoot != null) {
         viewerReactRoot.current = ReactDOMClient.createRoot(viewerRoot);
       }
 
-      viewerReactRoot.current.render(children);
+      viewerReactRoot.current?.render(children);
     });
 
     return () => {
       clearTimeout(renderTimeout);
       setTimeout(() => {
-        viewerReactRoot.current.unmount();
+        viewerReactRoot.current?.unmount();
         viewerReactRoot.current = null;
       });
     };
@@ -133,12 +139,9 @@ function FixtureRenderer({ component: FixtureComponent }) {
   return null;
 }
 
-FixtureRenderer.propTypes = {
-  component: PropTypes.elementType,
-};
-
-function App(props) {
+function App(props: { fixtures: Fixture[] }) {
   const { fixtures } = props;
+  console.log(fixtures);
 
   function computeIsDev() {
     if (window.location.hash === '#dev') {
@@ -179,9 +182,9 @@ function App(props) {
     });
   }, []);
 
-  const fixturePrepared = fontState !== 'pending';
+  const fixturePrepared = true; // fontState !== 'pending';
 
-  function computePath(fixture) {
+  function computePath(fixture: Fixture) {
     return `/${fixture.suite}/${fixture.name}`;
   }
 
@@ -199,7 +202,6 @@ function App(props) {
           return (
             <Route
               key={path}
-              exact
               path={path}
               element={fixturePrepared ? <FixtureRenderer component={FixtureComponent} /> : null}
             />
@@ -234,11 +236,10 @@ function App(props) {
   );
 }
 
-App.propTypes = {
-  fixtures: PropTypes.array,
-};
-
 const container = document.getElementById('react-root');
 const children = <App fixtures={regressionFixtures.concat(demoFixtures)} />;
-const reactRoot = ReactDOMClient.createRoot(container);
-reactRoot.render(children);
+
+if (container != null) {
+  const reactRoot = ReactDOMClient.createRoot(container);
+  reactRoot.render(children);
+}
