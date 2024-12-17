@@ -764,9 +764,6 @@ importers:
       playwright:
         specifier: ^1.49.1
         version: 1.49.1
-      prop-types:
-        specifier: ^15.8.1
-        version: 15.8.1
       react:
         specifier: 19.0.0-rc-fb9a90fa48-20240614
         version: 19.0.0-rc-fb9a90fa48-20240614
