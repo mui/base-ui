@@ -21,10 +21,10 @@ The custom component must forward a `ref`, and spread all the received props, to
 In situations where you need to compose multiple Base UI components with custom React components, `render` props can be nested as deeply as necessary. Working with Tooltip is a common example.
 
 ```tsx title="index.tsx"
-// prettier-ignore
 <Dialog.Root>
   <Tooltip.Root>
     <Tooltip.Trigger
+    {/* prettier-ignore */}
       render={
         <Dialog.Trigger
           render={
