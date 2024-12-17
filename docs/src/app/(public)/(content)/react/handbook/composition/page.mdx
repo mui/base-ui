@@ -6,29 +6,69 @@
   content="A guide to composing Base UI components with your own React components."
 />
 
-## Shared props
+### Composing custom React components
 
-Base UI components are self-supporting and fully functional in isolation.
+The `render` prop lets you override a component's rendered element with your own React component. For example, `Menu.Trigger` renders a `<button>` by default. The code snippet below shows how to use a custom component instead.
 
-Each component has its own unique API, but most of the components accept the following shared props:
-
-### render
-
-The `render` prop lets you override the rendered element of the component.
-
-For example, the Base UI Switch component renders a `<button>` by default.
-The code snippet below shows how to use a custom component instead.
-
-```jsx
-<Switch.Root render={<MyFancyButton />} />
+```tsx title="index.tsx"
+<Menu.Trigger render={<MyFancyButton size="md" />} />
 ```
 
-The custom component must forward a ref to its underlying DOM node and it must spread all the received props.
+The custom component must forward a `ref`, and spread all the received props, to its underlying DOM node.
 
-The `render` prop comes in two variants: the element one (as shown above) and the function one.
-Using a function gives you complete control over spreading props and allows you to render different content based on the component's state.
+### Composing multiple components
 
-```jsx
+In situations where you need to compose multiple Base UI components with custom React components, `render` props can be nested as deeply as necessary. Working with Tooltip is a common example.
+
+```tsx title="index.tsx"
+// prettier-ignore
+<Dialog.Root>
+  <Tooltip.Root>
+    <Tooltip.Trigger
+      render={
+        <Dialog.Trigger
+          render={
+            <MyFancyButton size="md" />
+          }
+        />
+      }
+    />
+    <Tooltip.Portal>...</Tooltip.Portal>
+  </Tooltip.Root>
+  <Dialog.Portal>...</Dialog.Portal>
+</Dialog.Root>
+```
+
+### Changing the default rendered element
+
+You can also use the `render` prop to override the rendered element of the component. For example, `Menu.Item` renders a `<div>` by default.
+The code snippet below shows how to render an `<a>` instead.
+
+```tsx title="index.tsx"
+import * as React from 'react';
+import { Menu } from '@base-ui-components/react/menu';
+
+export default () => (
+  <Menu.Root>
+    <Menu.Trigger>Song</Menu.Trigger>
+    <Menu.Portal>
+      <Menu.Positioner>
+        <Menu.Popup>
+          <Menu.Item render={<a href="base-ui.com" />}>Add to Library</Menu.Item>
+        </Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
+  </Menu.Root>
+);
+```
+
+Changing the default rendered element can break important accessibility features like focus management, screen reader announcements, and keyboard events. Each Base UI component renders the most appropriate element by default, and in most cases, rendering a different element is not recommended.
+
+### Function render prop
+
+If you are working in an extremely performance-sensitive application, you might want to use the function `render` prop instead of the element `render` prop.
+
+```tsx title="switch.tsx"
 <Switch.Thumb
   render={(props, internalState) => (
     <span {...props}>{internalState.checked ? <CheckedIcon /> : <UncheckedIcon />}</span>
@@ -36,10 +76,12 @@ Using a function gives you complete control over spreading props and allows you 
 />
 ```
 
-### className
+Using a function gives you complete control over spreading props and also allows you to render different content based on the component's state.
+
+### Component state as an argument
 
 The `className` prop, in addition to accepting a string, can be defined as a function that takes a component state as an argument:
 
-```jsx
+```tsx title="switch.tsx"
 <Switch.Thumb className={(state) => (state.checked ? 'checked' : 'unchecked')} />
 ```
