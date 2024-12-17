@@ -19,7 +19,6 @@
     "docs": "workspace:^",
     "fast-glob": "^3.3.2",
     "fs-extra": "^11.2.0",
-    "html-webpack-plugin": "^5.6.3",
     "is-wsl": "^3.1.0",
     "lodash": "^4.17.21",
     "playwright": "^1.49.1",
