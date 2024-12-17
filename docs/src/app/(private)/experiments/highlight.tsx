@@ -18,7 +18,7 @@ const RootContext = React.createContext<any>(null);
 
 const items = Array.from({ length: 6 });
 
-function Root() {
+function RawMenu() {
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(
     null,
   );
@@ -140,7 +140,7 @@ function Item(props: { children: React.ReactNode }) {
   );
 }
 
-function ExampleMenu() {
+function BaseUIMenu() {
   return (
     <Menu.Root>
       <Menu.Trigger className={styles.Button}>
@@ -197,8 +197,8 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 export default function Page() {
   return (
     <div style={{ display: 'flex', gap: 10 }}>
-      <Root />
-      <ExampleMenu />
+      <RawMenu />
+      <BaseUIMenu />
     </div>
   );
 }
