@@ -19,6 +19,7 @@
 !/docs/src/app/(private)/playground/\[slug\]
 /docs/public/feed/
 /docs/reference/temp/*
+/test/regressions/dist
 /test/regressions/screenshots
 # created by netlify dev (to perform local debug)
 .netlify
