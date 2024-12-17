@@ -9,7 +9,9 @@ let restore: () => void = () => {};
 
 function preventScrollIOS(referenceElement?: Element | null) {
   const doc = ownerDocument(referenceElement);
+  const html = doc.documentElement;
   const body = doc.body;
+  const htmlStyle = html.style;
   const bodyStyle = body.style;
 
   // iOS 12 does not support `visualViewport`.
@@ -17,6 +19,11 @@ function preventScrollIOS(referenceElement?: Element | null) {
   const offsetTop = window.visualViewport?.offsetTop || 0;
   const scrollX = bodyStyle.left ? parseFloat(bodyStyle.left) : window.scrollX;
   const scrollY = bodyStyle.top ? parseFloat(bodyStyle.top) : window.scrollY;
+
+  originalHtmlStyles = {
+    overflowX: htmlStyle.overflowX,
+    overflowY: htmlStyle.overflowY,
+  };
 
   originalBodyStyles = {
     position: bodyStyle.position,
@@ -27,6 +34,10 @@ function preventScrollIOS(referenceElement?: Element | null) {
     overflowY: bodyStyle.overflowY,
   };
 
+  Object.assign(htmlStyle, {
+    overflow: 'visible',
+  });
+
   Object.assign(bodyStyle, {
     position: 'fixed',
     top: `${-(scrollY - Math.floor(offsetTop))}px`,
@@ -36,6 +47,7 @@ function preventScrollIOS(referenceElement?: Element | null) {
   });
 
   return () => {
+    Object.assign(htmlStyle, originalHtmlStyles);
     Object.assign(bodyStyle, originalBodyStyles);
     window.scrollTo({ left: scrollX, top: scrollY, behavior: 'instant' });
   };
