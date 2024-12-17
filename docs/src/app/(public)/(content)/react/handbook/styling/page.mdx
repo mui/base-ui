@@ -8,7 +8,7 @@
 
 Base UI components are unstyled, don't bundle CSS, and are compatible with Tailwind, CSS Modules, CSS-in-JS, or any other styling solution you prefer. You retain total control of your styling layer.
 
-## Styling concepts
+## Style hooks
 
 ### CSS Classes
 
@@ -24,7 +24,7 @@ Some components expose CSS custom properties to aid with styling, such as `--acc
 
 ## Tailwind
 
-ewfew
+Apply Tailwind classes to each part via the `className` prop.
 
 ```tsx title="index.tsx"
 import * as React from 'react';
@@ -55,7 +55,7 @@ export default function ExampleMenu() {
 
 ## CSS Modules
 
-ewfew
+Apply custom CSS classes to each part via the `className` prop. Then style those classes in a CSS Modules file.
 
 ```tsx title="index.tsx"
 import * as React from 'react';
@@ -81,7 +81,7 @@ export default function ExampleMenu() {
 
 ## CSS-in-JS
 
-ewfew
+Wrap each component part and apply styles, then assemble your styled components.
 
 ```tsx title="index.tsx"
 import * as React from 'react';
