@@ -12,7 +12,11 @@ Base UI components are unstyled, don't bundle CSS, and are compatible with Tailw
 
 ### CSS Classes
 
-Every component accepts a `className` prop which you can use to pass Tailwind classes or custom CSS classes to its DOM element.
+Every component accepts a `className` prop which you can use to pass Tailwind classes or custom CSS classes to its DOM element. The `className` prop, in addition to accepting a string, can be defined as a function that takes a component state as an argument:
+
+```tsx title="switch.tsx"
+<Switch.Thumb className={(state) => (state.checked ? 'checked' : 'unchecked')} />
+```
 
 ### Data attributes
 

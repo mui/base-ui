@@ -77,11 +77,3 @@ If you are working in an extremely performance-sensitive application, you might 
 ```
 
 Using a function gives you complete control over spreading props and also allows you to render different content based on the component's state.
-
-### Component state as an argument
-
-The `className` prop, in addition to accepting a string, can be defined as a function that takes a component state as an argument:
-
-```tsx title="switch.tsx"
-<Switch.Thumb className={(state) => (state.checked ? 'checked' : 'unchecked')} />
-```
