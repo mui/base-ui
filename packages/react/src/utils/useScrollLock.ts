@@ -94,7 +94,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
     // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
     const hasScrollbarGutterStable = htmlComputedStyles.scrollbarGutter?.includes('stable');
 
-    // Safari needs visual viewports added to account for pinch-zoom
+    // Safari needs visual viewport offsets added to account for pinch-zoom
     const visualOffsetTop = isWebKit() ? window.visualViewport?.offsetTop || 0 : 0;
     const visualOffsetLeft = isWebKit() ? window.visualViewport?.offsetLeft || 0 : 0;
 
