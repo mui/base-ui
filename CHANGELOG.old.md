@@ -218,5 +218,3 @@ It features the Checkbox, Number Field, and Switch as the first components to be
 - [Switch] Implement the component-per-node API (#135) @michaldudak
 - [core] Rename package to @base_ui/react (#287) @michaldudak
 - [core] Exclude legacy components from the package (#288) @michaldudak
-
-
