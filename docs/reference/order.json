@@ -1,5 +1,7 @@
 {
-  "cssVariables": [],
+  "cssVariables": [
+    "__EVERYTHING_ELSE__"
+  ],
   "dataAttributes": [
     "data-checked",
     "data-unchecked",

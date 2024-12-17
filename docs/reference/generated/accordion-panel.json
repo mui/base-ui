@@ -39,5 +39,14 @@
       "description": "Present when the panel is animating out."
     }
   },
-  "cssVariables": {}
+  "cssVariables": {
+    "--accordion-panel-height": {
+      "description": "The accordion panel's height.",
+      "type": "number"
+    },
+    "--accordion-panel-width": {
+      "description": "The accordion panel's width.",
+      "type": "number"
+    }
+  }
 }
