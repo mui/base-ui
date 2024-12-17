@@ -105,8 +105,8 @@ function preventScrollStandard(referenceElement?: Element | null) {
     if (!hasScrollbarGutterStable) {
       Object.assign(htmlStyle, {
         position: 'fixed',
-        top: `${-scrollY + visualOffsetTop}px`,
-        left: `${-scrollX + visualOffsetLeft}px`,
+        top: `${-scrollY + Math.floor(visualOffsetTop)}px`,
+        left: `${-scrollX + Math.floor(visualOffsetLeft)}px`,
         right: '0',
       });
     }
