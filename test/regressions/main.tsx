@@ -1,4 +1,3 @@
-/* eslint-disable guard-for-in */
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
