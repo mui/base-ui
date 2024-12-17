@@ -37,7 +37,6 @@
     left: var(--quick-nav-margin-x);
     padding-top: 0.75rem;
     padding-bottom: 1.5rem;
-    pointer-events: auto;
     width: calc(var(--sidebar-width) - var(--quick-nav-margin-x) * 2);
   }
 

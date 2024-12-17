@@ -52,6 +52,7 @@ By default, Dialog is an uncontrolled component that manages its own state.
 ```
 
 Use `open` and `onOpenChange` props if you need to access or control the state of the dialog.
+For example, you can control the dialog state in order to open it imperatively from another place in your app.
 
 ```tsx title="Controlled dialog"
 const [open, setOpen] = React.useState(false);
@@ -90,3 +91,11 @@ It’s also common to use `onOpenChange` if your app needs to do something when 
   }}
 >
 ```
+
+### Nested dialogs
+
+You can nest dialogs within one another normally.
+
+Use the `[data-has-nested-dialogs]` selector and the `var(--nested-dialogs)` CSS variable to customize the styling of the parent dialog. Backdrops of the child dialogs won't be rendered so that you can present the parent dialog in a clean way behind the one on top of it.
+
+<Demo path="./demos/nested" />
