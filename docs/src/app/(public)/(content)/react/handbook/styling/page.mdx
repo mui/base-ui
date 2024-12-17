@@ -1,0 +1,128 @@
+# Styling
+
+<Subtitle>A guide to styling Base UI components with your preferred styling engine.</Subtitle>
+<Meta
+  name="description"
+  content="Learn how to make the most of Base UI's accessibility features and guidelines."
+/>
+
+Base UI components are unstyled, don't bundle CSS, and are compatible with Tailwind, CSS Modules, CSS-in-JS, or any other styling solution you prefer. You retain total control of your styling layer.
+
+## Style hooks
+
+### CSS classes
+
+Every component accepts a `className` prop which you can use to pass CSS classes to its DOM element. The `className` prop, in addition to accepting a string, can be defined as a function that takes a component state as an argument:
+
+```tsx title="switch.tsx"
+<Switch.Thumb className={(state) => (state.checked ? 'checked' : 'unchecked')} />
+```
+
+### CSS variables
+
+Some components expose CSS custom properties to aid with styling, such as `--accordion-panel-height`, `--transform-origin`, or `--active-tab-width`.
+
+### Data attributes
+
+Base UI components provide data attributes designed for styling their states. For example, a [Switch](/react/components/switch) may be styled using its `[data-checked]` and `[data-unchecked]` attributes, among others.
+
+Check out each component's API reference for a complete list of available data attributes.
+
+## Tailwind
+
+Apply Tailwind classes to each part via the `className` prop.
+
+```tsx title="menu.tsx"
+import * as React from 'react';
+import { Menu } from '@base-ui-components/react/menu';
+
+export default function ExampleMenu() {
+  return (
+    <Menu.Root>
+      <Menu.Trigger className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
+        Song
+      </Menu.Trigger>
+      <Menu.Portal>
+        <Menu.Positioner className="outline-0" sideOffset={8}>
+          <Menu.Popup className="origin-[var(--transform-origin)] rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline outline-gray-200 transition-[transform,scale,opacity] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300 [[data-starting-style],[data-ending-style]]:scale-90 [[data-starting-style],[data-ending-style]]:opacity-0">
+            <Menu.Item className="flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-0 select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:-z-1 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
+              Add to Library
+            </Menu.Item>
+            <Menu.Item className="flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-0 select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:-z-1 data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
+              Add to Playlist
+            </Menu.Item>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
+  );
+}
+```
+
+## CSS Modules
+
+Apply custom CSS classes to each part via the `className` prop. Then style those classes in a CSS Modules file.
+
+```tsx title="menu.tsx"
+import * as React from 'react';
+import { Menu } from '@base-ui-components/react/menu';
+import styles from './index.module.css';
+
+export default function ExampleMenu() {
+  return (
+    <Menu.Root>
+      <Menu.Trigger className={styles.Button}>Song</Menu.Trigger>
+      <Menu.Portal>
+        <Menu.Positioner className={styles.Positioner} sideOffset={8}>
+          <Menu.Popup className={styles.Popup}>
+            <Menu.Item className={styles.Item}>Add to Library</Menu.Item>
+            <Menu.Item className={styles.Item}>Add to Playlist</Menu.Item>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
+  );
+}
+```
+
+## CSS-in-JS
+
+Wrap each component part and apply styles, then assemble your styled components.
+
+```tsx title="index.tsx"
+import * as React from 'react';
+import { Menu } from '@base-ui-components/react/menu';
+import styled from '@emotion/styled';
+
+const StyledMenuTrigger = styled(Menu.Trigger)`
+  // Button styles
+`;
+
+const StyledMenuPositioner = styled(Menu.Positioner)`
+  // Positioner styles
+`;
+
+const StyledMenuPopup = styled(Menu.Popup)`
+  // Popup styles
+`;
+
+const StyledMenuItem = styled(Menu.Item)`
+  // Menu item styles
+`;
+
+const MenuExample = () => (
+  <Menu.Root>
+    <StyledMenuTrigger>Song</StyledMenuTrigger>
+    <Menu.Portal>
+      <StyledMenuPositioner>
+        <StyledMenuPopup>
+          <StyledMenuItem>Add to Library</StyledMenuItem>
+          <StyledMenuItem>Add to Playlist</StyledMenuItem>
+        </Menu.Portal>
+      </StyledMenuPositioner>
+    </StyledMenuPopup>
+  </Menu.Root>
+);
+
+export default MenuExample;
+```
