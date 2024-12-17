@@ -6,6 +6,8 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { clearPositionerStyles } from './utils';
+import { getVisualOffsets } from '../../utils/getVisualOffsets';
+import { isWebKit } from '../../utils/detectBrowser';
 
 export function useSelectPopup(): useSelectPopup.ReturnValue {
   const {
@@ -138,6 +140,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       offsetY = textCenterFromTriggerTop - valueCenterFromPositionerTop;
     }
 
+    const visualOffsets = isWebKit() ? getVisualOffsets(doc) : { x: 0, y: 0 };
+
     const idealHeight = availableSpaceBeneathTrigger + offsetY + marginBottom + borderBottom;
     let height = Math.min(viewportHeight, idealHeight);
     const maxHeight = viewportHeight - marginTop - marginBottom;
@@ -147,7 +151,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     const maxRight = viewportWidth - paddingRight;
     const rightOverflow = Math.max(0, left + positionerRect.width - maxRight);
 
-    positionerElement.style.left = `${left - rightOverflow}px`;
+    positionerElement.style.left = `${left - rightOverflow + visualOffsets.x}px`;
     positionerElement.style.height = `${height}px`;
     positionerElement.style.maxHeight = 'auto';
     positionerElement.style.marginTop = `${marginTop}px`;
@@ -175,7 +179,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     }
 
     if (isTopPositioned) {
-      const topOffset = Math.max(0, viewportHeight - idealHeight);
+      const topOffset = Math.max(0, viewportHeight - idealHeight + visualOffsets.y);
       positionerElement.style.top = positionerRect.height >= maxHeight ? '0' : `${topOffset}px`;
       positionerElement.style.height = `${height}px`;
       popupRef.current.scrollTop = popupRef.current.scrollHeight - popupRef.current.clientHeight;
