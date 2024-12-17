@@ -8,13 +8,15 @@
 
 ### Composing custom React components
 
-The `render` prop lets you override a component's rendered element with your own React component. For example, `Menu.Trigger` renders a `<button>` by default. The code snippet below shows how to use a custom component instead.
+Use the `render` prop to compose a Base UI part with your own React components.
+
+For example, most triggers render a `<button>` by default. The code snippet below shows how to use a custom button instead.
 
 ```tsx title="index.tsx"
-<Menu.Trigger render={<MyFancyButton size="md" />} />
+<Menu.Trigger render={<MyButton size="md">Open menu</MyButton>} />
 ```
 
-The custom component must forward a `ref`, and spread all the received props, to its underlying DOM node.
+The custom component must forward the `ref`, and spread all the received props on its underlying DOM node.
 
 ### Composing multiple components
 
@@ -28,7 +30,7 @@ In situations where you need to compose multiple Base UI components with custom 
       render={
         <Dialog.Trigger
           render={
-            <MyFancyButton size="md" />
+            <MyButton size="md">Open dialog</MyButton>
           }
         />
       }
@@ -41,8 +43,9 @@ In situations where you need to compose multiple Base UI components with custom 
 
 ### Changing the default rendered element
 
-You can also use the `render` prop to override the rendered element of the component. For example, `Menu.Item` renders a `<div>` by default.
-The code snippet below shows how to render an `<a>` instead.
+You can also use the `render` prop to override the rendered element of the component.
+
+For example, `Menu.Item` renders a `<div>` by default. The code snippet below shows how to render it as an `<a>` element so that it works like a link.
 
 ```tsx title="index.tsx"
 import * as React from 'react';
@@ -62,15 +65,15 @@ export default () => (
 );
 ```
 
-Changing the default rendered element can break important accessibility features like focus management, screen reader announcements, and keyboard events. Each Base UI component renders the most appropriate element by default, and in most cases, rendering a different element is not recommended.
+Each Base UI component renders the most appropriate element by default, and in most cases, rendering a different element is recommended only on a case-by-case basis.
 
-### Function render prop
+### Render function
 
 If you are working in an extremely performance-sensitive application, you might want to use the function `render` prop instead of the element `render` prop.
 
 ```tsx title="switch.tsx"
 <Switch.Thumb
-  render={(props, internalState) => (
+  render={(props, state) => (
     <span {...props}>{internalState.checked ? <CheckedIcon /> : <UncheckedIcon />}</span>
   )}
 />
