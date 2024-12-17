@@ -4,7 +4,7 @@ import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import webfontloader from 'webfontloader';
 import TestViewer from './TestViewer';
-import '../../docs/src/styles.css';
+import 'docs/src/styles.css';
 
 interface Fixture {
   Component: React.LazyExoticComponent<React.ComponentType<any>>;
@@ -77,7 +77,7 @@ function excludeDemoFixture(suite: string, name: string, path: string) {
 // Also use all public demos to avoid code duplication.
 
 const globbedDemos = import.meta.glob<{ default: React.ComponentType<unknown> }>(
-  '../../docs/src/app/\\(public\\)/\\(content\\)/react/**/*.tsx',
+  'docs/src/app/\\(public\\)/\\(content\\)/react/**/*.tsx',
 );
 
 const demoFixtures: Fixture[] = [];
@@ -141,7 +141,6 @@ function FixtureRenderer({ component: FixtureComponent }: { component: React.Ele
 
 function App(props: { fixtures: Fixture[] }) {
   const { fixtures } = props;
-  console.log(fixtures);
 
   function computeIsDev() {
     if (window.location.hash === '#dev') {
@@ -189,7 +188,14 @@ function App(props: { fixtures: Fixture[] }) {
   }
 
   return (
-    <Router>
+    <Router
+      future={{
+        // we don't use or need these features but this removes console warnings
+        // https://github.com/remix-run/react-router/issues/12250
+        v7_relativeSplatPath: true,
+        v7_startTransition: true,
+      }}
+    >
       <Routes>
         {fixtures.map((fixture) => {
           const path = computePath(fixture);
