@@ -12,5 +12,14 @@
     }
   },
   "dataAttributes": {},
-  "cssVariables": {}
+  "cssVariables": {
+    "--scroll-area-corner-height": {
+      "description": "The scroll area's corner height.",
+      "type": "number"
+    },
+    "--scroll-area-corner-width": {
+      "description": "The scroll area's corner width.",
+      "type": "number"
+    }
+  }
 }

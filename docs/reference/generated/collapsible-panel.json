@@ -35,5 +35,14 @@
       "description": "Present when the panel is animating out."
     }
   },
-  "cssVariables": {}
+  "cssVariables": {
+    "--collapsible-panel-height": {
+      "description": "The collapsible panel's height.",
+      "type": "number"
+    },
+    "--collapsible-panel-width": {
+      "description": "The collapsible panel's width.",
+      "type": "number"
+    }
+  }
 }

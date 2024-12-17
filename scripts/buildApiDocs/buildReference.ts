@@ -126,6 +126,10 @@ export async function buildReference(grep: RegExp | null = null) {
 }
 
 function sortObjectByKeys<T>(obj: Record<string, T>, order: string[]): Record<string, T> {
+  if (order.length === 0) {
+    return obj;
+  }
+
   const sortedObj: Record<string, T> = {};
   const everythingElse: Record<string, T> = {};
 
