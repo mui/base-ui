@@ -13,7 +13,8 @@ Use the `render` prop to compose a Base UI part with your own React components.
 For example, most triggers render a `<button>` by default. The code snippet below shows how to use a custom button instead.
 
 ```tsx title="index.tsx"
-<Menu.Trigger render={<MyButton size="md">}>
+// prettier-ignore
+<Menu.Trigger render={<MyButton size="md" />}>
   Open menu
 </Menu.Trigger>
 ```
@@ -28,11 +29,11 @@ In situations where you need to compose multiple Base UI components with custom 
 <Dialog.Root>
   <Tooltip.Root>
     <Tooltip.Trigger
-    {/* prettier-ignore */}
       render={
         <Dialog.Trigger
+          // prettier-ignore
           render={
-            <Menu.Trigger render={<MyButton size="md">}>
+            <Menu.Trigger render={<MyButton size="md" />}>
               Open menu
             </Menu.Trigger>
           }
@@ -61,7 +62,10 @@ export default () => (
     <Menu.Portal>
       <Menu.Positioner>
         <Menu.Popup>
-          <Menu.Item render={<a href="base-ui.com" />}>Add to Library</Menu.Item>
+          {/* prettier-ignore */}
+          <Menu.Item render={<a href="base-ui.com" />}>
+            Add to Library
+          </Menu.Item>
         </Menu.Popup>
       </Menu.Positioner>
     </Menu.Portal>
@@ -77,9 +81,12 @@ If you are working in an extremely performance-sensitive application, you might 
 
 ```tsx title="switch.tsx"
 <Switch.Thumb
-  render={(props, state) => (
-    <span {...props}>{state.checked ? <CheckedIcon /> : <UncheckedIcon />}</span>
-  )}
+  render={(props, state) =>
+    // prettier-ignore
+    <span {...props}>
+      {state.checked ? <CheckedIcon /> : <UncheckedIcon />}
+    </span>
+  }
 />
 ```
 
