@@ -17,7 +17,7 @@ export function Header() {
           <Logo aria-label="Base UI" />
         </NextLink>
 
-        <div className="max-show-side-nav:hidden flex gap-6">
+        <div className="flex gap-6 max-show-side-nav:hidden">
           <a
             className="HeaderLink"
             href="https://www.npmjs.com/package/@base-ui-components/react"
@@ -32,7 +32,7 @@ export function Header() {
           </a>
         </div>
 
-        <div className="show-side-nav:hidden flex">
+        <div className="flex show-side-nav:hidden">
           <MobileNav.Root>
             <MobileNav.Trigger className="HeaderButton">
               <div className="flex w-4 flex-col items-center gap-1">
@@ -65,7 +65,7 @@ export function Header() {
                       rel="noopener"
                     >
                       <NpmIcon />
-                      <span className="flex-grow-1 flex items-baseline justify-between">
+                      <span className="flex flex-grow-1 items-baseline justify-between">
                         npm package
                         <span className="text-md text-gray-600">{VERSION}</span>
                       </span>
