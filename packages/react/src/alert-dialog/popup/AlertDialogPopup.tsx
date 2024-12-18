@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager } from '@floating-ui/react';
+import { FloatingFocusManager, FloatingOverlay } from '@floating-ui/react';
 import { useDialogPopup } from '../../dialog/popup/useDialogPopup';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -50,6 +50,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     setPopupElementId,
     titleElementId,
     transitionStatus,
+    modal,
   } = useAlertDialogRootContext();
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
@@ -101,16 +102,19 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   }
 
   return (
-    <FloatingFocusManager
-      context={floatingContext}
-      modal={open}
-      disabled={!mounted}
-      initialFocus={resolvedInitialFocus}
-      returnFocus={finalFocus}
-      outsideElementsInert
-    >
-      {renderElement()}
-    </FloatingFocusManager>
+    <React.Fragment>
+      {mounted && modal && <FloatingOverlay />}
+      <FloatingFocusManager
+        context={floatingContext}
+        modal={open}
+        disabled={!mounted}
+        initialFocus={resolvedInitialFocus}
+        returnFocus={finalFocus}
+        outsideElementsInert
+      >
+        {renderElement()}
+      </FloatingFocusManager>
+    </React.Fragment>
   );
 });
 

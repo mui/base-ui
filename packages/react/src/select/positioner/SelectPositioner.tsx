@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { FloatingOverlay } from '@floating-ui/react';
 import PropTypes from 'prop-types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -38,7 +39,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     ...otherProps
   } = props;
 
-  const { open, mounted, setPositionerElement, listRef, labelsRef, floatingRootContext } =
+  const { open, mounted, setPositionerElement, listRef, labelsRef, floatingRootContext, modal } =
     useSelectRootContext();
 
   const { getPositionerProps, positioner } = useSelectPositioner({
@@ -83,6 +84,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
       <SelectPositionerContext.Provider value={positioner}>
+        {mounted && modal && <FloatingOverlay />}
         {renderElement()}
       </SelectPositionerContext.Provider>
     </CompositeList>

@@ -17,6 +17,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     ref: externalRef,
     allowMouseUpTriggerRef,
     typingRef,
+    submenu = false,
   } = params;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
@@ -45,7 +46,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
             }
           },
           onMouseUp: (event: React.MouseEvent) => {
-            if (itemRef.current && allowMouseUpTriggerRef.current) {
+            if (itemRef.current && allowMouseUpTriggerRef.current && !submenu) {
               // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
               // We trigger the click and override the `closeOnClick` preference to always close the menu.
               itemRef.current.click();
@@ -55,7 +56,16 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
         }),
       );
     },
-    [closeOnClick, getButtonProps, highlighted, id, menuEvents, allowMouseUpTriggerRef, typingRef],
+    [
+      getButtonProps,
+      id,
+      highlighted,
+      typingRef,
+      closeOnClick,
+      menuEvents,
+      allowMouseUpTriggerRef,
+      submenu,
+    ],
   );
 
   return React.useMemo(
@@ -101,6 +111,10 @@ export namespace useMenuItem {
      * A ref that is set to `true` when the user is using the typeahead feature.
      */
     typingRef: React.RefObject<boolean>;
+    /**
+     * Determines if the menu item is a submenu.
+     */
+    submenu: boolean;
   }
 
   export interface ReturnValue {

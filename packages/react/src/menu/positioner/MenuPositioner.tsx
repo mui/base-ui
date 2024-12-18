@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
   FloatingNode,
+  FloatingOverlay,
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFloatingTree,
@@ -54,6 +55,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     mounted,
     nested,
     setOpen,
+    modal,
   } = useMenuRootContext();
 
   const { events: menuEvents } = useFloatingTree()!;
@@ -139,6 +141,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   return (
     <MenuPositionerContext.Provider value={contextValue}>
+      {mounted && modal && parentNodeId === null && <FloatingOverlay />}
       <FloatingNode id={nodeId}>
         <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
           {renderElement()}

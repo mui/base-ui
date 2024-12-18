@@ -21,6 +21,7 @@ export function useMenuSubmenuTrigger(
 
   const { getRootProps: getMenuItemProps, rootRef: menuItemRef } = useMenuItem({
     closeOnClick: false,
+    submenu: true,
     disabled,
     highlighted,
     id,
