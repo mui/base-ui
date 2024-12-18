@@ -37,6 +37,7 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
     ref: forwardedRef,
     allowMouseUpTriggerRef,
     typingRef,
+    trigger: false,
   });
 
   const state: MenuItem.State = React.useMemo(

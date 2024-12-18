@@ -44,6 +44,7 @@ const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
     ref: forwardedRef,
     allowMouseUpTriggerRef,
     typingRef,
+    trigger: false,
   });
 
   const state: MenuRadioItem.State = { disabled, highlighted, checked };
