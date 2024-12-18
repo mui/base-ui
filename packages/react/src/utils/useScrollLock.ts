@@ -32,7 +32,8 @@ function preventScrollStandard(referenceElement?: Element | null) {
   const body = doc.body;
   const win = ownerWindow(html);
 
-  let scrollTop: number = 0;
+  let scrollTop = 0;
+  let scrollLeft = 0;
   let resizeRaf = -1;
 
   function lockScroll() {
@@ -40,6 +41,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
     const bodyStyles = win.getComputedStyle(body);
 
     scrollTop = html.scrollTop;
+    scrollLeft = html.scrollLeft;
 
     originalHtmlStyles = {
       overflowY: html.style.overflowY,
@@ -64,6 +66,9 @@ function preventScrollStandard(referenceElement?: Element | null) {
     const hasConstantOverflowX =
       htmlStyles.overflowX === 'scroll' || bodyStyles.overflowX === 'scroll';
 
+    const scrollbarWidth = win.innerWidth - html.clientWidth;
+    const scrollbarHeight = win.innerHeight - html.clientHeight;
+
     Object.assign(html.style, {
       overflowY:
         !hasScrollbarGutterStable && (isScrollableY || hasConstantOverflowY) ? 'scroll' : 'hidden',
@@ -73,17 +78,20 @@ function preventScrollStandard(referenceElement?: Element | null) {
 
     // Avoid shift due to the default <body> margin. This does cause elements to be clipped
     // with whitespace. Warn if <body> has margins?
-    const bodyVerticalMargins =
-      parseFloat(bodyStyles.marginTop) + parseFloat(bodyStyles.marginBottom);
+    const marginY = parseFloat(bodyStyles.marginTop) + parseFloat(bodyStyles.marginBottom);
+    const marginX = parseFloat(bodyStyles.marginLeft) + parseFloat(bodyStyles.marginRight);
 
     Object.assign(body.style, {
       position: 'relative',
-      height: bodyVerticalMargins ? `calc(100dvh - ${bodyVerticalMargins}px)` : '100dvh',
+      height:
+        marginY || scrollbarHeight ? `calc(100dvh - ${marginY + scrollbarHeight}px)` : '100dvh',
+      width: marginX || scrollbarWidth ? `calc(100vw - ${marginX + scrollbarWidth}px)` : '100vw',
       boxSizing: 'border-box',
       overflow: 'hidden',
     });
 
     body.scrollTop = scrollTop;
+    body.scrollLeft = scrollLeft;
     html.setAttribute('data-base-ui-scroll-locked', '');
   }
 
@@ -91,6 +99,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
     Object.assign(html.style, originalHtmlStyles);
     Object.assign(body.style, originalBodyStyles);
     html.scrollTop = scrollTop;
+    html.scrollLeft = scrollLeft;
     html.removeAttribute('data-base-ui-scroll-locked');
   }
 
