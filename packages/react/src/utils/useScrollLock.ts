@@ -1,21 +1,13 @@
 import { getUserAgent } from '@floating-ui/react/utils';
 import { isIOS, isWebKit } from './detectBrowser';
-import { ownerDocument, ownerWindow } from './owner';
+import { getVisualOffsets } from './getVisualOffsets';
+import { ownerDocument } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
 let originalHtmlStyles = {};
 let originalBodyStyles = {};
 let preventScrollCount = 0;
 let restore: () => void = () => {};
-
-function getVisualOffsets(doc: Document) {
-  const win = ownerWindow(doc);
-  const vV = win.visualViewport;
-  return {
-    x: Math.floor(vV?.offsetLeft || 0),
-    y: Math.floor(vV?.offsetTop || 0),
-  };
-}
 
 function preventScrollIOS(referenceElement?: Element | null) {
   const doc = ownerDocument(referenceElement);
