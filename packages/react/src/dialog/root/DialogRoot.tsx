@@ -36,14 +36,13 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
 
   const nested = Boolean(parentDialogRootContext);
 
-  const contextValue = React.useMemo(
-    () => ({ ...dialogRoot, nested, dismissible }),
-    [dialogRoot, nested, dismissible],
-  );
+  const dialogContextValue = React.useMemo(() => ({ ...dialogRoot, nested }), [dialogRoot, nested]);
+
+  const dialogRootContextValue = React.useMemo(() => ({ dismissible }), [dismissible]);
 
   return (
-    <DialogContext.Provider value={contextValue}>
-      <DialogRootContext.Provider value={contextValue}>
+    <DialogContext.Provider value={dialogContextValue}>
+      <DialogRootContext.Provider value={dialogRootContextValue}>
         <PortalContext.Provider value={dialogRoot.mounted}>{children}</PortalContext.Provider>
       </DialogRootContext.Provider>
     </DialogContext.Provider>

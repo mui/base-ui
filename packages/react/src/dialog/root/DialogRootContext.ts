@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { DialogContext } from '../utils/DialogContext';
 
-export interface DialogRootContext extends DialogContext {
+export interface DialogRootContext {
   /**
    * Determines whether the dialog should close on outside clicks.
    */
@@ -18,6 +18,10 @@ if (process.env.NODE_ENV !== 'production') {
 export function useOptionalDialogRootContext() {
   const dialogRootContext = React.useContext(DialogRootContext);
   const dialogContext = React.useContext(DialogContext);
+
+  if (dialogContext === undefined && dialogRootContext === undefined) {
+    return undefined;
+  }
 
   return {
     ...dialogRootContext,

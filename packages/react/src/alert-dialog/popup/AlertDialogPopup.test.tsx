@@ -245,13 +245,13 @@ describe('<AlertDialog.Popup />', () => {
           </Dialog.Portal>
         </Dialog.Root>,
       );
-  
+
       const parentDialog = screen.getByTestId('parent-dialog');
       const nestedDialog = screen.getByTestId('nested-dialog');
-  
+
       expect(parentDialog).not.to.have.attribute('data-nested');
       expect(nestedDialog).to.have.attribute('data-nested');
-  
+
       expect(parentDialog).to.have.attribute('data-has-nested-dialogs');
       expect(nestedDialog).not.to.have.attribute('data-has-nested-dialogs');
     });
