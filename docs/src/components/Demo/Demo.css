@@ -16,11 +16,6 @@
     overscroll-behavior-x: contain;
     scrollbar-width: thin;
 
-    /* iOS Safari appears to flicker the scroll containers during tasking animations */
-    [data-mobile-nav-open] & {
-      overflow: hidden;
-    }
-
     /* Scroll containers may be focusable */
     &:focus-visible {
       position: relative;
@@ -71,11 +66,6 @@
     scrollbar-width: none;
     &::-webkit-scrollbar {
       display: none;
-    }
-
-    /* iOS Safari appears to flicker the scroll containers during tasking animations */
-    [data-mobile-nav-open] & {
-      overflow: hidden;
     }
 
     /* Scroll containers may be focusable */
@@ -179,11 +169,6 @@
       overflow: auto;
       /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
       overscroll-behavior-x: contain;
-
-      /* iOS Safari appears to flicker the scroll containers during tasking animations */
-      [data-mobile-nav-open] & {
-        overflow: hidden;
-      }
 
       /* Scroll containers may be focusable */
       &:focus-visible {

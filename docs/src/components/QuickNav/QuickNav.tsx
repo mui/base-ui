@@ -26,7 +26,7 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
 
   let top: number;
   let bottom: number;
-  let prevScrollY = getScrollY();
+  let prevScrollY = window.scrollY;
   let resizeObserver: ResizeObserver | undefined;
   let state: 'Scrollable' | 'StickyTop' | 'StickyBottom' = 'StickyTop';
   let raf = 0;
@@ -68,9 +68,9 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
     // if it was `position: static` and `position: absolute`
     // relative to the start of the document
     ref.current.style.position = 'static';
-    const staticTop = getScrollY() + ref.current.getBoundingClientRect().y;
+    const staticTop = window.scrollY + ref.current.getBoundingClientRect().y;
     ref.current.style.position = 'absolute';
-    const absoluteTop = getScrollY() + ref.current.getBoundingClientRect().y;
+    const absoluteTop = window.scrollY + ref.current.getBoundingClientRect().y;
 
     // Get the nav bottom Y coordinate when it's at its maximum possible bottom position
     // relative to the start of the document
@@ -78,7 +78,7 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
     ref.current.style.top = 'auto';
     ref.current.style.bottom = '0';
     const rect = ref.current.getBoundingClientRect();
-    const absoluteBottom = getScrollY() + rect.bottom;
+    const absoluteBottom = window.scrollY + rect.bottom;
 
     ref.current.style.position = '';
     ref.current.style.top = initialStyles.top;
@@ -128,8 +128,8 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
     if (ref.current) {
       state = 'Scrollable';
       const { absoluteTop, absoluteBottom, staticTop } = getCachedPositions();
-      const marginTop = Math.max(staticTop - absoluteTop, getScrollY() + newTop - absoluteTop);
-      const marginBottom = Math.max(0, absoluteBottom - getScrollY() - newBottom);
+      const marginTop = Math.max(staticTop - absoluteTop, window.scrollY + newTop - absoluteTop);
+      const marginBottom = Math.max(0, absoluteBottom - window.scrollY - newBottom);
 
       // Choose the smaller margin because at document edges,
       // the larger one may push the nav out of the container edges
@@ -150,12 +150,14 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
   function handleUpdate() {
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(() => {
-      if (!ref.current) {
+      const isScrollLocked = document.documentElement.hasAttribute('data-base-ui-scroll-locked');
+
+      if (!ref.current || isScrollLocked) {
         return;
       }
 
-      const delta = getScrollY() - prevScrollY;
-      prevScrollY = getScrollY();
+      const delta = window.scrollY - prevScrollY;
+      prevScrollY = window.scrollY;
 
       // We may get into <0.1px rounding issues in Safari and Firefox
       const rect = ref.current.getBoundingClientRect();
@@ -228,7 +230,7 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
           unstick(Math.min(cssTop, top), Math.max(window.innerHeight, bottom));
         }
 
-        prevScrollY = getScrollY();
+        prevScrollY = window.scrollY;
         window.addEventListener('scroll', handleUpdate);
       });
     }
@@ -248,11 +250,6 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
     window.removeEventListener('resize', handleResize);
     window.removeEventListener('popstate', handlePopState);
   };
-}
-
-/** Get window.scrollY accounting for a potential scroll lock offset top style */
-function getScrollY() {
-  return window.scrollY - parseFloat(document.documentElement.style.top || '0');
 }
 
 export function Title({ className, ...props }: React.ComponentProps<'h2'>) {
