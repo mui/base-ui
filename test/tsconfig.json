@@ -8,6 +8,6 @@
     "moduleResolution": "bundler",
     "types": ["mocha", "vite/client"]
   },
-  "include": ["e2e/**/*", "integration/**/*", "regressions/**/*"],
-  "exclude": ["node_modules", "regressions/build/**/*"]
+  "include": ["e2e/**/*", "regressions/**/*"],
+  "exclude": ["node_modules", "e2e/dist/**/*", "regressions/dist/**/*"]
 }
