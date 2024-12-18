@@ -17,17 +17,8 @@
       padding-inline: 0.75rem;
     }
 
-    & [data-highlighted-line] {
-      background-color: var(--color-line-highlight);
-    }
-
-    & [data-highlighted-line-id='strong'] {
-      background-color: var(--color-line-highlight-strong);
-    }
-
     & mark {
-      color: var(--syntax-default);
-      background-color: var(--color-inline-highlight);
+      display: inline-block;
     }
   }
 }
