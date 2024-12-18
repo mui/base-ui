@@ -88,7 +88,7 @@ module.exports = {
       },
     },
     {
-      files: ['test/regressions/**/*{.ts,.tsx}'],
+      files: ['test/**/*{.ts,.tsx}'],
       rules: {
         '@typescript-eslint/no-use-before-define': 'off',
         'import/no-relative-packages': 'off',
