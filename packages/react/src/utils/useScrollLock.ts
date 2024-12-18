@@ -1,5 +1,4 @@
-import { getUserAgent } from '@floating-ui/react/utils';
-import { isIOS, isWebKit } from './detectBrowser';
+import { isIOS } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
@@ -63,117 +62,70 @@ function preventScrollIOS(referenceElement?: Element | null) {
 }
 
 function preventScrollStandard(referenceElement?: Element | null) {
-  const isFirefox = /firefox/i.test(getUserAgent());
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
   const body = doc.body;
   const win = ownerWindow(doc);
-  const htmlStyle = html.style;
-  const bodyStyle = body.style;
 
-  let resizeRaf: number;
-  let scrollX: number;
-  let scrollY: number;
-  let paddingProp: 'paddingLeft' | 'paddingRight';
+  let scrollTop: number = 0;
+  let resizeRaf = -1;
 
   function lockScroll() {
-    if (isFirefox) {
-      // RTL <body> scrollbar
-      const scrollbarX =
-        Math.round(doc.documentElement.getBoundingClientRect().left) +
-        doc.documentElement.scrollLeft;
-      paddingProp = scrollbarX ? 'paddingLeft' : 'paddingRight';
-      const scrollbarWidth = win.innerWidth - doc.documentElement.clientWidth;
+    const htmlStyles = win.getComputedStyle(html);
+    const bodyStyles = win.getComputedStyle(body);
 
-      bodyStyle.overflow = 'hidden';
-      htmlStyle.overflow = 'visible';
-
-      if (scrollbarWidth) {
-        bodyStyle[paddingProp] = `${scrollbarWidth}px`;
-      }
-
-      return;
-    }
-
-    const htmlComputedStyles = getComputedStyle(html);
-    const bodyComputedStyles = getComputedStyle(body);
-    const hasConstantOverflowY =
-      htmlComputedStyles.overflowY === 'scroll' || bodyComputedStyles.overflowY === 'scroll';
-    const hasConstantOverflowX =
-      htmlComputedStyles.overflowX === 'scroll' || bodyComputedStyles.overflowX === 'scroll';
-
-    scrollX = htmlStyle.left ? parseFloat(htmlStyle.left) : window.scrollX;
-    scrollY = htmlStyle.top ? parseFloat(htmlStyle.top) : window.scrollY;
+    scrollTop = html.scrollTop;
 
     originalHtmlStyles = {
-      position: htmlStyle.position,
-      top: htmlStyle.top,
-      left: htmlStyle.left,
-      right: htmlStyle.right,
-      overflowX: htmlStyle.overflowX,
-      overflowY: htmlStyle.overflowY,
+      overflowY: html.style.overflowY,
     };
+
     originalBodyStyles = {
-      overflowX: bodyStyle.overflowX,
-      overflowY: bodyStyle.overflowY,
+      position: body.style.position,
+      height: body.style.height,
+      boxSizing: body.style.boxSizing,
+      overflowY: body.style.overflowY,
+      overflowX: body.style.overflowX,
     };
+
+    // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
+    const hasScrollbarGutterStable = htmlStyles.scrollbarGutter?.includes('stable');
 
     const isScrollableY = html.scrollHeight > html.clientHeight;
     const isScrollableX = html.scrollWidth > html.clientWidth;
+    const hasConstantOverflowY =
+      htmlStyles.overflowY === 'scroll' || bodyStyles.overflowY === 'scroll';
+    const hasConstantOverflowX =
+      htmlStyles.overflowX === 'scroll' || bodyStyles.overflowX === 'scroll';
 
-    // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
-    const hasScrollbarGutterStable = htmlComputedStyles.scrollbarGutter?.includes('stable');
-
-    // Safari needs visual viewport offsets added to account for pinch-zoom
-    const webkit = isWebKit();
-    const { x, y } = getVisualOffsets(doc);
-    const visualX = webkit ? x : 0;
-    const visualY = webkit ? y : 0;
-
-    if (!hasScrollbarGutterStable) {
-      Object.assign(htmlStyle, {
-        position: 'fixed',
-        top: `${-scrollY + visualY}px`,
-        left: `${-scrollX + visualX}px`,
-        right: '0',
-      });
-    }
-
-    Object.assign(htmlStyle, {
+    Object.assign(html.style, {
       overflowY:
         !hasScrollbarGutterStable && (isScrollableY || hasConstantOverflowY) ? 'scroll' : 'hidden',
       overflowX:
         !hasScrollbarGutterStable && (isScrollableX || hasConstantOverflowX) ? 'scroll' : 'hidden',
     });
 
-    // Ensure two scrollbars can't appear since `<html>` now has a forced scrollbar, but the
-    // `<body>` may have one too.
-    if (isScrollableY || hasConstantOverflowY) {
-      bodyStyle.overflowY = 'visible';
-    }
-    if (isScrollableX || hasConstantOverflowX) {
-      bodyStyle.overflowX = 'visible';
-    }
+    // Avoid shift due to the default <body> margin. This does cause elements to be clipped
+    // with whitespace. Warn if <body> has margins?
+    const bodyVerticalMargins =
+      parseFloat(bodyStyles.marginTop) + parseFloat(bodyStyles.marginBottom);
+
+    const heightProperty = CSS.supports('height', '1dvh') ? 'dvh' : 'vh';
+
+    Object.assign(body.style, {
+      position: 'relative',
+      height: `calc(100${heightProperty} - ${bodyVerticalMargins}px)`,
+      boxSizing: 'border-box',
+      overflow: 'hidden',
+    });
+
+    body.scrollTop = scrollTop;
   }
 
   function cleanup() {
-    if (isFirefox) {
-      Object.assign(bodyStyle, {
-        overflow: '',
-        [paddingProp]: '',
-      });
-      Object.assign(htmlStyle, {
-        overflow: '',
-      });
-      return;
-    }
-
-    Object.assign(htmlStyle, originalHtmlStyles);
-    Object.assign(bodyStyle, originalBodyStyles);
-
-    if (window.scrollTo.toString().includes('[native code]')) {
-      window.scrollTo({ left: scrollX, top: scrollY, behavior: 'instant' });
-    }
+    Object.assign(html.style, originalHtmlStyles);
+    Object.assign(body.style, originalBodyStyles);
+    html.scrollTop = scrollTop;
   }
 
   function handleResize() {
@@ -183,12 +135,12 @@ function preventScrollStandard(referenceElement?: Element | null) {
   }
 
   lockScroll();
-  window.addEventListener('resize', handleResize);
+  win.addEventListener('resize', handleResize);
 
   return () => {
     cancelAnimationFrame(resizeRaf);
     cleanup();
-    window.removeEventListener('resize', handleResize);
+    win.removeEventListener('resize', handleResize);
   };
 }
 
