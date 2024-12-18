@@ -1,10 +1,8 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "esModuleInterop": true,
-    "moduleResolution": "bundler",
     "types": ["mocha", "vite/client"]
   },
   "include": ["e2e/**/*", "regressions/**/*"],
-  "exclude": ["node_modules", "e2e/dist/**/*", "regressions/dist/**/*"]
+  "exclude": ["node_modules", "dist"]
 }
