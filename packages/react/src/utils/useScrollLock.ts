@@ -1,6 +1,7 @@
 import { isIOS } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
+import { usePreventScroll } from '@react-aria/overlays';
 
 let originalHtmlStyles = {};
 let originalBodyStyles = {};
@@ -150,16 +151,18 @@ function preventScrollStandard(referenceElement?: Element | null) {
  * @param enabled - Whether to enable the scroll lock.
  */
 export function useScrollLock(enabled: boolean = true, referenceElement?: Element | null) {
+  usePreventScroll({
+    isDisabled: !isIOS() || !enabled,
+  });
+
   useEnhancedEffect(() => {
-    if (!enabled) {
+    if (!enabled || isIOS()) {
       return undefined;
     }
 
     preventScrollCount += 1;
     if (preventScrollCount === 1) {
-      restore = isIOS()
-        ? preventScrollIOS(referenceElement)
-        : preventScrollStandard(referenceElement);
+      restore = preventScrollStandard(referenceElement);
     }
 
     return () => {
