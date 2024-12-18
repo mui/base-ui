@@ -20,7 +20,6 @@ const LINK = 'QuickNav.Link';
  */
 export function rehypeQuickNav() {
   return (tree, file) => {
-
     /** @type {TocEntry[]} */
     const toc = file.data.toc;
     const root = createMdxElement({
