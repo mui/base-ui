@@ -30,12 +30,6 @@ await page.route(/./, async (route, request) => {
 // This should load shared resources such as fonts.
 await page.goto(`${baseUrl}#no-dev`, { waitUntil: 'networkidle' });
 
-const fontActive = page.locator('[data-font-state="active"]');
-await fontActive.waitFor({
-  state: 'hidden',
-  timeout: 5000,
-});
-
 // Simulate portrait mode for date pickers.
 // See `useIsLandscape`.
 await page.evaluate(() => {
