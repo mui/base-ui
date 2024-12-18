@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { act, waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer } from '#test-utils';
@@ -232,5 +233,35 @@ describe('<Dialog.Popup />', () => {
       expect(parentDialog).to.have.attribute('data-has-nested-dialogs');
       expect(nestedDialog).not.to.have.attribute('data-has-nested-dialogs');
     });
+  });
+
+  it('adds the `nested` and `has-nested-dialogs` style hooks if an alert dialog has a parent dialog', async () => {
+    await render(
+      <Dialog.Root open>
+        <Dialog.Portal>
+          <Dialog.Popup data-testid="parent-dialog" />
+          <AlertDialog.Root open>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup data-testid="nested-dialog">
+                <AlertDialog.Root>
+                  <AlertDialog.Portal>
+                    <AlertDialog.Popup />
+                  </AlertDialog.Portal>
+                </AlertDialog.Root>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        </Dialog.Portal>
+      </Dialog.Root>,
+    );
+
+    const parentDialog = screen.getByTestId('parent-dialog');
+    const nestedDialog = screen.getByTestId('nested-dialog');
+
+    expect(parentDialog).not.to.have.attribute('data-nested');
+    expect(nestedDialog).to.have.attribute('data-nested');
+
+    expect(parentDialog).to.have.attribute('data-has-nested-dialogs');
+    expect(nestedDialog).not.to.have.attribute('data-has-nested-dialogs');
   });
 });

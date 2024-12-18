@@ -2,6 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
+import { DialogRootContext } from '../../dialog/root/DialogRootContext';
 import { AlertDialogRootContext } from './AlertDialogRootContext';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
 import { PortalContext } from '../../portal/PortalContext';
@@ -15,7 +16,10 @@ import { PortalContext } from '../../portal/PortalContext';
 const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
   const { children, defaultOpen = false, onOpenChange, open } = props;
 
-  const parentDialogRootContext = React.useContext(AlertDialogRootContext);
+  const parentAlertDialogRootContext = React.useContext(AlertDialogRootContext);
+  const parentDialogRootContext = React.useContext(DialogRootContext);
+
+  const parentContext = parentAlertDialogRootContext ?? parentDialogRootContext ?? undefined;
 
   const dialogRoot = useDialogRoot({
     open,
@@ -23,11 +27,11 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
     onOpenChange,
     modal: true,
     dismissible: false,
-    onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
-    onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,
+    onNestedDialogClose: parentContext?.onNestedDialogClose,
+    onNestedDialogOpen: parentContext?.onNestedDialogOpen,
   });
 
-  const nested = Boolean(parentDialogRootContext);
+  const nested = Boolean(parentContext);
 
   const contextValue: AlertDialogRootContext = React.useMemo(
     () => ({ ...dialogRoot, nested }),
