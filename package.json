@@ -48,7 +48,7 @@
     "test:karma:profile": "cross-env NODE_ENV=test karma start test/karma.conf.profile.js",
     "test:regressions": "cross-env NODE_ENV=production pnpm test:regressions:build && concurrently --success first --kill-others \"pnpm test:regressions:run\" \"pnpm test:regressions:server\"",
     "test:regressions:build": "pnpm release:build && vite build --config test/regressions/vite.config.js",
-    "test:regressions:dev": "vite --config test/regressions/vite.config.js -l info",
+    "test:regressions:dev": "vite --config test/regressions/vite.config.js",
     "test:regressions:run": "VITEST_ENV=chromium vitest --project regressions",
     "test:regressions:server": "serve test/regressions -p 5001",
     "test:unit": "cross-env NODE_ENV=test mocha 'packages/**/*.test.{js,ts,tsx}' 'docs/**/*.test.{js,ts,tsx}'",
