@@ -1,5 +1,6 @@
-import { getUserAgent } from '@floating-ui/react/utils';
-import { isIOS, isWebKit } from './detectBrowser';
+import * as React from 'react';
+import { usePreventScroll } from '@react-aria/overlays';
+import { isFirefox, isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
@@ -8,172 +9,105 @@ let originalBodyStyles = {};
 let preventScrollCount = 0;
 let restore: () => void = () => {};
 
-function getVisualOffsets(doc: Document) {
-  const win = ownerWindow(doc);
-  const vV = win.visualViewport;
-  return {
-    x: Math.floor(vV?.offsetLeft || 0),
-    y: Math.floor(vV?.offsetTop || 0),
-  };
+function supportsDvh() {
+  return (
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('height', '1dvh')
+  );
 }
 
-function preventScrollIOS(referenceElement?: Element | null) {
+function hasInsetScrollbars(referenceElement?: Element | null) {
+  if (typeof document === 'undefined') {
+    return false;
+  }
   const doc = ownerDocument(referenceElement);
-  const html = doc.documentElement;
-  const body = doc.body;
-  const htmlStyle = html.style;
-  const bodyStyle = body.style;
-
-  // iOS 12 does not support `visualViewport`.
-  const { x, y } = getVisualOffsets(doc);
-  const scrollX = bodyStyle.left ? parseFloat(bodyStyle.left) : window.scrollX;
-  const scrollY = bodyStyle.top ? parseFloat(bodyStyle.top) : window.scrollY;
-
-  originalHtmlStyles = {
-    overflowX: htmlStyle.overflowX,
-    overflowY: htmlStyle.overflowY,
-  };
-
-  originalBodyStyles = {
-    position: bodyStyle.position,
-    top: bodyStyle.top,
-    left: bodyStyle.left,
-    right: bodyStyle.right,
-    overflowX: bodyStyle.overflowX,
-    overflowY: bodyStyle.overflowY,
-  };
-
-  Object.assign(htmlStyle, {
-    overflow: 'visible',
-  });
-
-  Object.assign(bodyStyle, {
-    position: 'fixed',
-    top: `${-(scrollY - y)}px`,
-    left: `${-(scrollX - x)}px`,
-    right: '0',
-    overflow: 'hidden',
-  });
-
-  return () => {
-    Object.assign(htmlStyle, originalHtmlStyles);
-    Object.assign(bodyStyle, originalBodyStyles);
-    window.scrollTo({ left: scrollX, top: scrollY, behavior: 'instant' });
-  };
+  const win = ownerWindow(doc);
+  return win.innerWidth - doc.documentElement.clientWidth > 0;
 }
 
 function preventScrollStandard(referenceElement?: Element | null) {
-  const isFirefox = /firefox/i.test(getUserAgent());
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
   const body = doc.body;
-  const win = ownerWindow(doc);
-  const htmlStyle = html.style;
-  const bodyStyle = body.style;
+  const win = ownerWindow(html);
 
-  let resizeRaf: number;
-  let scrollX: number;
-  let scrollY: number;
-  let paddingProp: 'paddingLeft' | 'paddingRight';
+  let scrollTop = 0;
+  let scrollLeft = 0;
+  let resizeRaf = -1;
+
+  // Pinch-zoom in Safari causes a shift. Just don't lock scroll if there's any pinch-zoom.
+  if (isWebKit() && (win.visualViewport?.scale ?? 1) !== 1) {
+    return () => {};
+  }
 
   function lockScroll() {
-    if (isFirefox) {
-      // RTL <body> scrollbar
-      const scrollbarX =
-        Math.round(doc.documentElement.getBoundingClientRect().left) +
-        doc.documentElement.scrollLeft;
-      paddingProp = scrollbarX ? 'paddingLeft' : 'paddingRight';
-      const scrollbarWidth = win.innerWidth - doc.documentElement.clientWidth;
+    const htmlStyles = win.getComputedStyle(html);
+    const bodyStyles = win.getComputedStyle(body);
 
-      bodyStyle.overflow = 'hidden';
-      htmlStyle.overflow = 'visible';
-
-      if (scrollbarWidth) {
-        bodyStyle[paddingProp] = `${scrollbarWidth}px`;
-      }
-
-      return;
-    }
-
-    const htmlComputedStyles = getComputedStyle(html);
-    const bodyComputedStyles = getComputedStyle(body);
-    const hasConstantOverflowY =
-      htmlComputedStyles.overflowY === 'scroll' || bodyComputedStyles.overflowY === 'scroll';
-    const hasConstantOverflowX =
-      htmlComputedStyles.overflowX === 'scroll' || bodyComputedStyles.overflowX === 'scroll';
-
-    scrollX = htmlStyle.left ? parseFloat(htmlStyle.left) : window.scrollX;
-    scrollY = htmlStyle.top ? parseFloat(htmlStyle.top) : window.scrollY;
+    scrollTop = html.scrollTop;
+    scrollLeft = html.scrollLeft;
 
     originalHtmlStyles = {
-      position: htmlStyle.position,
-      top: htmlStyle.top,
-      left: htmlStyle.left,
-      right: htmlStyle.right,
-      overflowX: htmlStyle.overflowX,
-      overflowY: htmlStyle.overflowY,
+      overflowY: html.style.overflowY,
+      overflowX: html.style.overflowX,
     };
+
     originalBodyStyles = {
-      overflowX: bodyStyle.overflowX,
-      overflowY: bodyStyle.overflowY,
+      position: body.style.position,
+      height: body.style.height,
+      width: body.style.width,
+      boxSizing: body.style.boxSizing,
+      overflowY: body.style.overflowY,
+      overflowX: body.style.overflowX,
     };
+
+    // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
+    const hasScrollbarGutterStable = htmlStyles.scrollbarGutter?.includes('stable');
 
     const isScrollableY = html.scrollHeight > html.clientHeight;
     const isScrollableX = html.scrollWidth > html.clientWidth;
+    const hasConstantOverflowY =
+      htmlStyles.overflowY === 'scroll' || bodyStyles.overflowY === 'scroll';
+    const hasConstantOverflowX =
+      htmlStyles.overflowX === 'scroll' || bodyStyles.overflowX === 'scroll';
 
-    // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
-    const hasScrollbarGutterStable = htmlComputedStyles.scrollbarGutter?.includes('stable');
+    // Values can be negative in Firefox
+    const scrollbarWidth = Math.max(0, win.innerWidth - html.clientWidth);
+    const scrollbarHeight = Math.max(0, win.innerHeight - html.clientHeight);
 
-    // Safari needs visual viewport offsets added to account for pinch-zoom
-    const webkit = isWebKit();
-    const { x, y } = getVisualOffsets(doc);
-    const visualX = webkit ? x : 0;
-    const visualY = webkit ? y : 0;
-
-    if (!hasScrollbarGutterStable) {
-      Object.assign(htmlStyle, {
-        position: 'fixed',
-        top: `${-scrollY + visualY}px`,
-        left: `${-scrollX + visualX}px`,
-        right: '0',
-      });
-    }
-
-    Object.assign(htmlStyle, {
+    Object.assign(html.style, {
       overflowY:
         !hasScrollbarGutterStable && (isScrollableY || hasConstantOverflowY) ? 'scroll' : 'hidden',
       overflowX:
         !hasScrollbarGutterStable && (isScrollableX || hasConstantOverflowX) ? 'scroll' : 'hidden',
     });
 
-    // Ensure two scrollbars can't appear since `<html>` now has a forced scrollbar, but the
-    // `<body>` may have one too.
-    if (isScrollableY || hasConstantOverflowY) {
-      bodyStyle.overflowY = 'visible';
-    }
-    if (isScrollableX || hasConstantOverflowX) {
-      bodyStyle.overflowX = 'visible';
-    }
+    // Avoid shift due to the default <body> margin. This does cause elements to be clipped
+    // with whitespace. Warn if <body> has margins?
+    const marginY = parseFloat(bodyStyles.marginTop) + parseFloat(bodyStyles.marginBottom);
+    const marginX = parseFloat(bodyStyles.marginLeft) + parseFloat(bodyStyles.marginRight);
+
+    Object.assign(body.style, {
+      position: 'relative',
+      height:
+        marginY || scrollbarHeight ? `calc(100dvh - ${marginY + scrollbarHeight}px)` : '100dvh',
+      width: marginX || scrollbarWidth ? `calc(100vw - ${marginX + scrollbarWidth}px)` : '100vw',
+      boxSizing: 'border-box',
+      overflow: 'hidden',
+    });
+
+    body.scrollTop = scrollTop;
+    body.scrollLeft = scrollLeft;
+    html.setAttribute('data-base-ui-scroll-locked', '');
   }
 
   function cleanup() {
-    if (isFirefox) {
-      Object.assign(bodyStyle, {
-        overflow: '',
-        [paddingProp]: '',
-      });
-      Object.assign(htmlStyle, {
-        overflow: '',
-      });
-      return;
-    }
-
-    Object.assign(htmlStyle, originalHtmlStyles);
-    Object.assign(bodyStyle, originalBodyStyles);
-
-    if (window.scrollTo.toString().includes('[native code]')) {
-      window.scrollTo({ left: scrollX, top: scrollY, behavior: 'instant' });
-    }
+    Object.assign(html.style, originalHtmlStyles);
+    Object.assign(body.style, originalBodyStyles);
+    html.scrollTop = scrollTop;
+    html.scrollLeft = scrollLeft;
+    html.removeAttribute('data-base-ui-scroll-locked');
   }
 
   function handleResize() {
@@ -183,12 +117,12 @@ function preventScrollStandard(referenceElement?: Element | null) {
   }
 
   lockScroll();
-  window.addEventListener('resize', handleResize);
+  win.addEventListener('resize', handleResize);
 
   return () => {
     cancelAnimationFrame(resizeRaf);
     cleanup();
-    window.removeEventListener('resize', handleResize);
+    win.removeEventListener('resize', handleResize);
   };
 }
 
@@ -198,16 +132,31 @@ function preventScrollStandard(referenceElement?: Element | null) {
  * @param enabled - Whether to enable the scroll lock.
  */
 export function useScrollLock(enabled: boolean = true, referenceElement?: Element | null) {
+  const isReactAriaHook = React.useMemo(
+    () =>
+      enabled &&
+      (isIOS() ||
+        !supportsDvh() ||
+        // macOS Firefox "pops" scroll containers' scrollbars with our standard scroll lock
+        (isFirefox() && !hasInsetScrollbars())),
+    [enabled],
+  );
+
+  usePreventScroll({
+    // react-aria will remove the scrollbar offset immediately upon close, since we use `open`,
+    // not `mounted`, to disable/enable the scroll lock. However since there are no inset
+    // scrollbars, no layouting issues occur.
+    isDisabled: !isReactAriaHook,
+  });
+
   useEnhancedEffect(() => {
-    if (!enabled) {
+    if (!enabled || isReactAriaHook) {
       return undefined;
     }
 
     preventScrollCount += 1;
     if (preventScrollCount === 1) {
-      restore = isIOS()
-        ? preventScrollIOS(referenceElement)
-        : preventScrollStandard(referenceElement);
+      restore = preventScrollStandard(referenceElement);
     }
 
     return () => {
@@ -216,5 +165,5 @@ export function useScrollLock(enabled: boolean = true, referenceElement?: Elemen
         restore();
       }
     };
-  }, [enabled, referenceElement]);
+  }, [enabled, isReactAriaHook, referenceElement]);
 }
