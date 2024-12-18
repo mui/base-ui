@@ -72,7 +72,6 @@ function excludeDemoFixture(suite: string, name: string, path: string) {
 }
 
 // Also use all public demos to avoid code duplication.
-
 const globbedDemos = import.meta.glob<{ default: React.ComponentType<unknown> }>(
   'docs/src/app/\\(public\\)/\\(content\\)/react/**/*.tsx',
 );
