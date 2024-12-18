@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
+import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
 import { DialogContext } from '../utils/DialogContext';
 import { type CommonParameters, useDialogRoot } from './useDialogRoot';
 import { PortalContext } from '../../portal/PortalContext';
@@ -22,7 +22,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     open,
   } = props;
 
-  const parentDialogRootContext = useDialogRootContext();
+  const parentDialogRootContext = useOptionalDialogRootContext();
 
   const dialogRoot = useDialogRoot({
     open,
