@@ -5,54 +5,49 @@ import styles from './index.module.css';
 export default function ExampleDialog() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [confirmationOpen, setConfirmationOpen] = React.useState(false);
-  const [inputValue, setInputValue] = React.useState('');
-  const [teamName, setTeamName] = React.useState('');
-
-  // Show the close confirmation if the team name is empty or if the new name wasn't saved
-  const shouldConfirmChanges = !teamName || inputValue !== teamName;
+  const [textareaValue, setTextareaValue] = React.useState('');
 
   return (
     <Dialog.Root
       open={dialogOpen}
       onOpenChange={(open) => {
-        if (!open && shouldConfirmChanges) {
+        // Show the close confirmation if there’s text in the textarea
+        if (!open && textareaValue) {
           setConfirmationOpen(true);
         } else {
+          // Reset the text area value
+          setTextareaValue('');
+          // Open or close the dialog normally
           setDialogOpen(open);
-
-          // Reset the input value when the dialog opens
-          setInputValue(teamName);
         }
       }}
     >
-      <Dialog.Trigger className={styles.Button}>Set team name</Dialog.Trigger>
+      <Dialog.Trigger className={styles.Button}>Tweet</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Popup className={styles.Popup}>
-          <Dialog.Title className={styles.Title}>Team name</Dialog.Title>
-          <Dialog.Description className={styles.Description}>
-            Visible on your profile.
-          </Dialog.Description>
-
+          <Dialog.Title className={styles.Title}>New tweet</Dialog.Title>
           <form
-            className={styles.InputContainer}
+            className={styles.TextareaContainer}
             onSubmit={(event) => {
               event.preventDefault();
-
-              // Close the main dialog when submitting
+              // Close the dialog when submitting
               setDialogOpen(false);
-              setTeamName(inputValue);
             }}
           >
-            <input
-              className={styles.Input}
-              placeholder="Enter your team name"
-              value={inputValue}
-              onChange={(event) => setInputValue(event.target.value)}
+            <textarea
+              required
+              className={styles.Textarea}
+              placeholder="What’s on your mind?"
+              value={textareaValue}
+              onChange={(event) => setTextareaValue(event.target.value)}
             />
-            <button type="submit" disabled={!inputValue} className={styles.Button}>
-              Save
-            </button>
+            <div className={styles.Actions}>
+              <Dialog.Close className={styles.Button}>Cancel</Dialog.Close>
+              <button type="submit" className={styles.Button}>
+                Tweet
+              </button>
+            </div>
           </form>
         </Dialog.Popup>
       </Dialog.Portal>
@@ -61,13 +56,9 @@ export default function ExampleDialog() {
       <Dialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
         <Dialog.Portal>
           <Dialog.Popup className={styles.Popup}>
-            <Dialog.Title className={styles.Title}>
-              {teamName ? 'Discard changes?' : 'Continue without a team name?'}
-            </Dialog.Title>
+            <Dialog.Title className={styles.Title}>Discard tweet?</Dialog.Title>
             <Dialog.Description className={styles.Description}>
-              {teamName
-                ? 'Your team name won’t be changed.'
-                : 'You’ll have to add the team name later.'}
+              Your tweet will be lost.
             </Dialog.Description>
             <div className={styles.Actions}>
               <Dialog.Close className={styles.Button}>Go back</Dialog.Close>
@@ -79,7 +70,7 @@ export default function ExampleDialog() {
                   setDialogOpen(false);
                 }}
               >
-                Confirm
+                Discard
               </button>
             </div>
           </Dialog.Popup>

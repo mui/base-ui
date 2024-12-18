@@ -110,7 +110,7 @@
   transition: all 150ms;
 
   transform: translate(-50%, -50%) scale(calc(1 - 0.1 * var(--nested-dialogs)));
-  translate: 0 calc(0px - 1rem * var(--nested-dialogs));
+  translate: 0 calc(0px + 1.25rem * var(--nested-dialogs));
 
   @media (prefers-color-scheme: dark) {
     outline: 1px solid var(--color-gray-300);
