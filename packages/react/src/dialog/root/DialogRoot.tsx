@@ -2,6 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { DialogRootContext } from './DialogRootContext';
+import { DialogContext } from '../utils/DialogContext';
 import { type CommonParameters, useDialogRoot } from './useDialogRoot';
 import { PortalContext } from '../../portal/PortalContext';
 
@@ -41,9 +42,11 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
   );
 
   return (
-    <DialogRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={dialogRoot.mounted}>{children}</PortalContext.Provider>
-    </DialogRootContext.Provider>
+    <DialogContext.Provider value={contextValue}>
+      <DialogRootContext.Provider value={contextValue}>
+        <PortalContext.Provider value={dialogRoot.mounted}>{children}</PortalContext.Provider>
+      </DialogRootContext.Provider>
+    </DialogContext.Provider>
   );
 };
 
