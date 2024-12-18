@@ -42,7 +42,7 @@ export function DemoSourceBrowser({
   return (
     // The trigger has to appear before the panel in the DOM in order
     // for the screen reader cursor navigation to make sense.
-    <div className="flex flex-col-reverse">
+    <div className="DemoPanelContainer">
       <Collapsible.Trigger className="DemoCollapseButton">
         {collapsibleOpen ? 'Hide' : 'Show'} code
       </Collapsible.Trigger>
