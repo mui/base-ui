@@ -20,11 +20,25 @@ export default function ScrollLock() {
       <div
         style={{
           position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          background: 'lightgray',
+          textAlign: 'right',
+          padding: 5,
+        }}
+      >
+        Fixed content should not shift
+      </div>
+      <div
+        style={{
+          position: 'fixed',
           top: 15,
           display: 'flex',
           gap: 10,
-          background: 'white',
-          padding: 20,
+          background: 'rgba(0,0,0,0.1)',
+          backdropFilter: 'blur(20px)',
+          padding: 10,
         }}
       >
         <div>
