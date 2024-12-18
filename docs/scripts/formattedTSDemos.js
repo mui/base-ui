@@ -141,6 +141,7 @@ async function main(argv) {
     console.log(`Only considering demos matching ${filePattern}`);
   }
 
+  // TODO update the path
   const tsxFiles = (await getFiles(path.join(workspaceRoot, 'docs/data'))).filter((fileName) =>
     filePattern.test(fileName),
   );

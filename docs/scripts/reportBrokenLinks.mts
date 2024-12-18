@@ -82,21 +82,6 @@ async function processMarkdownPage(filePath: string) {
 }
 
 function pagePathToUrl(pagePath: string, trailingSlash = false): string | null {
-  if (pagePath.startsWith('data')) {
-    // data/($1)/($2)/*.mdx
-    const parts = /^data\/([^/]*)\/([^/]*)\/[^/]*.mdx?$/.exec(pagePath);
-
-    if (parts == null) {
-      return null;
-    }
-
-    if (parts[1] === 'components') {
-      return `/components/react-${parts[2]}${trailingSlash ? '/' : ''}`;
-    }
-
-    return `/${parts[1]}/${parts[2]}${trailingSlash ? '/' : ''}`;
-  }
-
   const parts = pagePath
     .replace(/^(src\/)?app\//, '')
     .split('/')

@@ -87,17 +87,5 @@ module.exports = {
         '@typescript-eslint/no-use-before-define': 'off',
       },
     },
-    {
-      files: ['docs/data/**/*{.tsx,.js}'],
-      excludedFiles: [
-        'docs/data/**/css/*{.tsx,.js}',
-        'docs/data/**/css-modules/*{.tsx,.js}',
-        'docs/data/**/system/*{.tsx,.js}',
-        'docs/data/**/tailwind/*{.tsx,.js}',
-      ],
-      rules: {
-        'filenames/match-exported': ['error'],
-      },
-    },
   ],
 };

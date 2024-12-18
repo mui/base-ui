@@ -14,7 +14,7 @@ The rendered UI is either:
 
    Here is an [example](https://github.com/mui/material-ui/blob/814fb60bbd8e500517b2307b6a297a638838ca89/test/regressions/tests/Menu/SimpleMenuList.js#L6-L16) with the `Menu` component.
 
-2. a demo from `docs/data`
+2. a demo from `docs/app/src`
 
    By default all demos are included.
    We exclude demos if they are redundant or flaky etc.
