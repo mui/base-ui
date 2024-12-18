@@ -72,8 +72,9 @@ function preventScrollStandard(referenceElement?: Element | null) {
     const hasConstantOverflowX =
       htmlStyles.overflowX === 'scroll' || bodyStyles.overflowX === 'scroll';
 
-    const scrollbarWidth = win.innerWidth - html.clientWidth;
-    const scrollbarHeight = win.innerHeight - html.clientHeight;
+    // Values can be negative in Firefox
+    const scrollbarWidth = Math.max(0, win.innerWidth - html.clientWidth);
+    const scrollbarHeight = Math.max(0, win.innerHeight - html.clientHeight);
 
     Object.assign(html.style, {
       overflowY:
