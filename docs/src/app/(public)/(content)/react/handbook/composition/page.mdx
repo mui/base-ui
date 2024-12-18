@@ -78,7 +78,7 @@ If you are working in an extremely performance-sensitive application, you might 
 ```tsx title="switch.tsx"
 <Switch.Thumb
   render={(props, state) => (
-    <span {...props}>{internalState.checked ? <CheckedIcon /> : <UncheckedIcon />}</span>
+    <span {...props}>{state.checked ? <CheckedIcon /> : <UncheckedIcon />}</span>
   )}
 />
 ```
