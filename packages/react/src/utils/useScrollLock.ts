@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { usePreventScroll } from '@react-aria/overlays';
-import { isIOS } from './detectBrowser';
+import { isFirefox, isIOS } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
@@ -15,6 +15,15 @@ function supportsDvh() {
     typeof CSS.supports === 'function' &&
     CSS.supports('height', '1dvh')
   );
+}
+
+function hasInsetScrollbars(referenceElement?: Element | null) {
+  if (typeof document === 'undefined') {
+    return false;
+  }
+  const doc = ownerDocument(referenceElement);
+  const win = ownerWindow(doc);
+  return win.innerWidth - doc.documentElement.clientWidth > 0;
 }
 
 function preventScrollStandard(referenceElement?: Element | null) {
@@ -107,13 +116,21 @@ function preventScrollStandard(referenceElement?: Element | null) {
  * @param enabled - Whether to enable the scroll lock.
  */
 export function useScrollLock(enabled: boolean = true, referenceElement?: Element | null) {
-  const isReactAriaHook = React.useMemo(() => isIOS() || !supportsDvh(), []);
+  const isReactAriaHook = React.useMemo(
+    () =>
+      enabled &&
+      (isIOS() ||
+        !supportsDvh() ||
+        // macOS Firefox "pops" scroll containers' scrollbars with our standard scroll lock
+        (isFirefox() && !hasInsetScrollbars())),
+    [enabled],
+  );
 
   usePreventScroll({
     // react-aria will remove the scrollbar offset immediately upon close, since we use `open`,
     // not `mounted`, to disable/enable the scroll lock. However since there are no inset
     // scrollbars, no layouting issues occur.
-    isDisabled: !enabled || !isReactAriaHook,
+    isDisabled: !isReactAriaHook,
   });
 
   useEnhancedEffect(() => {

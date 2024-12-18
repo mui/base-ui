@@ -1,3 +1,5 @@
+import { getUserAgent } from '@floating-ui/react/utils';
+
 interface NavigatorUAData {
   brands: Array<{ brand: string; version: string }>;
   mobile: boolean;
@@ -28,4 +30,8 @@ export function isWebKit() {
 
 export function isIOS() {
   return /iP(hone|ad|od)|iOS/.test(getPlatform());
+}
+
+export function isFirefox() {
+  return /firefox/i.test(getUserAgent());
 }
