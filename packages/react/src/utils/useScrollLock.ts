@@ -1,7 +1,7 @@
+import { usePreventScroll } from '@react-aria/overlays';
 import { isIOS } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
-import { usePreventScroll } from '@react-aria/overlays';
 
 let originalHtmlStyles = {};
 let originalBodyStyles = {};
@@ -152,6 +152,9 @@ function preventScrollStandard(referenceElement?: Element | null) {
  */
 export function useScrollLock(enabled: boolean = true, referenceElement?: Element | null) {
   usePreventScroll({
+    // react-aria will remove the scrollbar offset immediately upon close, since we use `open`,
+    // not `mounted`, to disable/enable the scroll lock. However since iOS has no fixed
+    // scrollbars, no layouting issues occur.
     isDisabled: !isIOS() || !enabled,
   });
 
