@@ -85,12 +85,14 @@ function preventScrollStandard(referenceElement?: Element | null) {
     });
 
     body.scrollTop = scrollTop;
+    html.setAttribute('data-base-ui-scroll-locked', '');
   }
 
   function cleanup() {
     Object.assign(html.style, originalHtmlStyles);
     Object.assign(body.style, originalBodyStyles);
     html.scrollTop = scrollTop;
+    html.removeAttribute('data-base-ui-scroll-locked');
   }
 
   function handleResize() {
