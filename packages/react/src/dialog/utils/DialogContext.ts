@@ -19,6 +19,5 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export function useDialogContext() {
-  const context = React.useContext(DialogContext);
-  return context;
+  return React.useContext(DialogContext);
 }

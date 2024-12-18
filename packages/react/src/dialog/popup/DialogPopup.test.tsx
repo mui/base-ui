@@ -234,7 +234,7 @@ describe('<Dialog.Popup />', () => {
       expect(nestedDialog).not.to.have.attribute('data-has-nested-dialogs');
     });
 
-    it.only('adds the `nested` and `has-nested-dialogs` style hooks if a dialog has a parent alert dialog', async () => {
+    it('adds the `nested` and `has-nested-dialogs` style hooks if a dialog has a parent alert dialog', async () => {
       await render(
         <AlertDialog.Root open>
           <AlertDialog.Portal>
