@@ -30,7 +30,7 @@ export function DemoSourceBrowser({
       <DemoCodeBlockContainer>
         <ScrollArea.Viewport
           style={{ overflow: undefined }}
-          render={({ children, ...props }) => {
+          render={({ children, tabIndex, ...props }) => {
             return <BaseDemo.SourceBrowser {...props} />;
           }}
         />
@@ -53,7 +53,7 @@ export function DemoSourceBrowser({
       >
         <ScrollArea.Viewport
           style={{ overflow: undefined }}
-          render={({ children, ...props }) => {
+          render={({ children, tabIndex, ...props }) => {
             return <BaseDemo.SourceBrowser aria-hidden={!collapsibleOpen} {...props} />;
           }}
         />

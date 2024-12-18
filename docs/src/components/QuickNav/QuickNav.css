@@ -17,10 +17,12 @@
 
     /* The variable is used in JS positioning logic */
     --top: -1px;
+    --margin-top: 5.75rem; /* Match hero code block top */
     @apply text-md;
     z-index: 1;
     position: sticky;
     top: var(--top);
+    margin-top: var(--margin-top);
     width: 0;
     float: right;
     contain: layout;
