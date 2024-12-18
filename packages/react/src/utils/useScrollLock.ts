@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { usePreventScroll } from '@react-aria/overlays';
-import { isFirefox, isIOS } from './detectBrowser';
+import { isFirefox, isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
@@ -36,6 +36,11 @@ function preventScrollStandard(referenceElement?: Element | null) {
   let scrollLeft = 0;
   let resizeRaf = -1;
 
+  // Pinch-zoom in Safari causes a shift. Just don't lock scroll if there's any pinch-zoom.
+  if (isWebKit() && (win.visualViewport?.scale ?? 1) !== 1) {
+    return () => {};
+  }
+
   function lockScroll() {
     const htmlStyles = win.getComputedStyle(html);
     const bodyStyles = win.getComputedStyle(body);
@@ -51,6 +56,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
     originalBodyStyles = {
       position: body.style.position,
       height: body.style.height,
+      width: body.style.width,
       boxSizing: body.style.boxSizing,
       overflowY: body.style.overflowY,
       overflowX: body.style.overflowX,
