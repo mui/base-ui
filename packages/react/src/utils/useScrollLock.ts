@@ -78,7 +78,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
 
     Object.assign(body.style, {
       position: 'relative',
-      height: `calc(100dvh - ${bodyVerticalMargins}px)`,
+      height: bodyVerticalMargins ? `calc(100dvh - ${bodyVerticalMargins}px)` : '100dvh',
       boxSizing: 'border-box',
       overflow: 'hidden',
     });
