@@ -2,9 +2,7 @@
 import * as React from 'react';
 import { DialogContext } from '../../dialog/utils/DialogContext';
 
-export const AlertDialogRootContext = DialogContext;
-
-export interface AlertDialogRootContext extends DialogContext {}
+export { DialogContext as AlertDialogRootContext };
 
 export function useAlertDialogRootContext() {
   const context = React.useContext(DialogContext);

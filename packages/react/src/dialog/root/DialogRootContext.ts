@@ -18,7 +18,7 @@ if (process.env.NODE_ENV !== 'production') {
 export function useDialogRootContext() {
   const dialogRootContext = React.useContext(DialogRootContext);
   const dialogContext = React.useContext(DialogContext);
-  if (dialogRootContext === undefined || dialogContext === undefined) {
+  if (dialogContext === undefined) {
     throw new Error(
       'Base UI: DialogRootContext is missing. Dialog parts must be placed within <Dialog.Root>.',
     );
