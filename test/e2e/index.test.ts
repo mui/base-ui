@@ -11,6 +11,8 @@ import type {
 import '@mui/internal-test-utils/initMatchers';
 import '@mui/internal-test-utils/initPlaywrightMatchers';
 
+const BASE_URL = 'http://localhost:5001';
+
 function sleep(duration: number): Promise<void> {
   return new Promise<void>((resolve) => {
     setTimeout(() => {
@@ -65,7 +67,6 @@ async function attemptGoto(page: playwright.Page, url: string): Promise<boolean>
 }
 
 describe('e2e', () => {
-  const baseUrl = 'http://localhost:5001';
   let browser: playwright.Browser;
   let page: playwright.Page;
   const screen: PlaywrightScreen = {
@@ -96,7 +97,7 @@ describe('e2e', () => {
   };
 
   async function renderFixture(fixturePath: string) {
-    await page.goto(`${baseUrl}/e2e-fixtures/${fixturePath}#no-dev`);
+    await page.goto(`${BASE_URL}/e2e-fixtures/${fixturePath}#no-dev`);
     await page.waitForSelector('[data-testid="testcase"]:not([aria-busy="true"])');
   }
 
@@ -107,10 +108,10 @@ describe('e2e', () => {
       headless: true,
     });
     page = await browser.newPage();
-    const isServerRunning = await attemptGoto(page, `${baseUrl}#no-dev`);
+    const isServerRunning = await attemptGoto(page, `${BASE_URL}#no-dev`);
     if (!isServerRunning) {
       throw new Error(
-        `Unable to navigate to ${baseUrl} after multiple attempts. Did you forget to run \`pnpm test:e2e:server\` and \`pnpm test:e2e:build\`?`,
+        `Unable to navigate to ${BASE_URL} after multiple attempts. Did you forget to run \`pnpm test:e2e:server\` and \`pnpm test:e2e:build\`?`,
       );
     }
   });

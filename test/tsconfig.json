@@ -1,6 +1,8 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
+    "module": "es2022",
+    "moduleResolution": "Node",
     "types": ["mocha", "vite/client"]
   },
   "include": ["e2e/**/*", "regressions/**/*"],

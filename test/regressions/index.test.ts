@@ -28,7 +28,7 @@ await page.route(/./, async (route, request) => {
 
 // Wait for all requests to finish.
 // This should load shared resources such as fonts.
-await page.goto(`${baseUrl}#no-dev`, { waitUntil: 'networkidle0' });
+await page.goto(`${baseUrl}#no-dev`, { waitUntil: 'networkidle' });
 
 const fontActive = page.locator('[data-font-state="active"]');
 await fontActive.waitFor({
@@ -46,17 +46,17 @@ await page.evaluate(() => {
   });
 });
 
-let routes = await page.$$eval('#tests a', (links) => {
+let routes = await page.$$eval('#tests a', (links: HTMLAnchorElement[]) => {
   return links.map((link) => link.href);
 });
-routes = routes.map((route) => route.replace(baseUrl, ''));
+routes = routes.map((route: string) => route.replace(baseUrl, ''));
 
-async function renderFixture(index) {
+async function renderFixture(index: number) {
   // Use client-side routing which is much faster than full page navigation via page.goto().
   // Could become an issue with test isolation.
   // If tests are flaky due to global pollution switch to page.goto(route);
   // puppeteers built-in click() times out
-  await page.$eval(`#tests li:nth-of-type(${index + 1}) a`, (link) => {
+  await page.$eval(`#tests li:nth-of-type(${index + 1}) a`, (link: HTMLAnchorElement) => {
     link.click();
   });
   // Move cursor offscreen to not trigger unwanted hover effects.
@@ -67,7 +67,13 @@ async function renderFixture(index) {
   return testcase;
 }
 
-async function takeScreenshot({ testcase, route }) {
+async function takeScreenshot({
+  testcase,
+  route,
+}: {
+  testcase: playwright.Locator;
+  route: string;
+}) {
   const screenshotPath = path.resolve(screenshotDir, `.${route}.png`);
   await fse.ensureDir(path.dirname(screenshotPath));
 
@@ -91,7 +97,7 @@ describe('visual regressions', () => {
     await browser.close();
   });
 
-  routes.forEach((route, index) => {
+  routes.forEach((route: string, index: number) => {
     it(`creates screenshots of ${route}`, async function test() {
       // With the playwright inspector we might want to call `page.pause` which would lead to a timeout.
       if (process.env.PWDEBUG) {
