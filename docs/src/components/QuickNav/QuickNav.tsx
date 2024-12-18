@@ -24,6 +24,10 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
     return undefined;
   }
 
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  /** How much of the nav should be cut off at the bottom to stop using the default sticky top position */
+  const stickyTopThreshold = 2.25 * rem;
+
   let top: number;
   let bottom: number;
   let prevScrollY = window.scrollY;
@@ -179,10 +183,13 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
 
       if (state === 'StickyTop') {
         const clippedAtBottom = bottom - window.innerHeight;
-        if (delta >= clippedAtBottom) {
-          stickToBottom();
-        } else {
-          unstick(top - delta, bottom - delta);
+
+        if (clippedAtBottom - top >= stickyTopThreshold) {
+          if (delta >= clippedAtBottom) {
+            stickToBottom();
+          } else {
+            unstick(top - delta, bottom - delta);
+          }
         }
         return;
       }

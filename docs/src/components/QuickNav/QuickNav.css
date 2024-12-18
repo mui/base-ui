@@ -36,7 +36,7 @@
     position: relative;
     left: var(--quick-nav-margin-x);
     padding-top: 0.75rem;
-    padding-bottom: 1.5rem;
+    padding-bottom: 2.5rem;
     width: calc(var(--sidebar-width) - var(--quick-nav-margin-x) * 2);
   }
 
