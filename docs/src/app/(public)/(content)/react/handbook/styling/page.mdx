@@ -6,13 +6,15 @@
   content="Learn how to make the most of Base UI's accessibility features and guidelines."
 />
 
-Base UI components are unstyled, don't bundle CSS, and are compatible with Tailwind, CSS Modules, CSS-in-JS, or any other styling solution you prefer. You retain total control of your styling layer.
+Base UI components are unstyled, don't bundle CSS, and are compatible with Tailwind, CSS Modules, CSS-in-JS, or any other styling solution you prefer.
+You retain total control of your styling layer.
 
 ## Style hooks
 
 ### CSS classes
 
-Every component accepts a `className` prop which you can use to pass CSS classes to its DOM element. The `className` prop, in addition to accepting a string, can be defined as a function that takes a component state as an argument:
+Every component accepts a `className` prop which you can use to pass CSS classes to its DOM element.
+The `className` prop, in addition to accepting a string, can be defined as a function that takes a component state as an argument:
 
 ```tsx title="switch.tsx"
 <Switch.Thumb className={(state) => (state.checked ? 'checked' : 'unchecked')} />
@@ -24,7 +26,8 @@ Some components expose CSS custom properties to aid with styling, such as `--acc
 
 ### Data attributes
 
-Base UI components provide data attributes designed for styling their states. For example, a [Switch](/react/components/switch) may be styled using its `[data-checked]` and `[data-unchecked]` attributes, among others.
+Base UI components provide data attributes designed for styling their states.
+For example, a [Switch](/react/components/switch) may be styled using its `[data-checked]` and `[data-unchecked]` attributes, among others.
 
 Check out each component's API reference for a complete list of available data attributes.
 
@@ -59,9 +62,10 @@ export default function ExampleMenu() {
 }
 ```
 
-## CSS Modules
+## CSS Modules
 
-Apply custom CSS classes to each part via the `className` prop. Then style those classes in a CSS Modules file.
+Apply custom CSS classes to each part via the `className` prop.
+Then style those classes in a CSS Modules file.
 
 ```tsx title="menu.tsx"
 import * as React from 'react';
