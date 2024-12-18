@@ -111,7 +111,14 @@ function preventScrollStandard(referenceElement?: Element | null) {
     const bodyVerticalMargins =
       parseFloat(bodyStyles.marginTop) + parseFloat(bodyStyles.marginBottom);
 
-    const heightProperty = CSS.supports('height', '1dvh') ? 'dvh' : 'vh';
+    let heightProperty = 'vh';
+    if (
+      typeof CSS !== 'undefined' &&
+      typeof CSS.supports === 'function' &&
+      CSS.supports('height', '1dvh')
+    ) {
+      heightProperty = 'dvh';
+    }
 
     Object.assign(body.style, {
       position: 'relative',
