@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { Dialog } from '@base-ui-components/react/dialog';
 import styles from './index.module.css';
 
@@ -53,15 +54,19 @@ export default function ExampleDialog() {
       </Dialog.Portal>
 
       {/* Confirmation dialog */}
-      <Dialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
-        <Dialog.Portal>
-          <Dialog.Popup className={styles.Popup}>
-            <Dialog.Title className={styles.Title}>Discard tweet?</Dialog.Title>
-            <Dialog.Description className={styles.Description}>
+      <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
+        <AlertDialog.Portal>
+          <AlertDialog.Popup className={styles.Popup}>
+            <AlertDialog.Title className={styles.Title}>
+              Discard tweet?
+            </AlertDialog.Title>
+            <AlertDialog.Description className={styles.Description}>
               Your tweet will be lost.
-            </Dialog.Description>
+            </AlertDialog.Description>
             <div className={styles.Actions}>
-              <Dialog.Close className={styles.Button}>Go back</Dialog.Close>
+              <AlertDialog.Close className={styles.Button}>
+                Go back
+              </AlertDialog.Close>
               <button
                 type="button"
                 className={styles.Button}
@@ -73,9 +78,9 @@ export default function ExampleDialog() {
                 Discard
               </button>
             </div>
-          </Dialog.Popup>
-        </Dialog.Portal>
-      </Dialog.Root>
+          </AlertDialog.Popup>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </Dialog.Root>
   );
 }
