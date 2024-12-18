@@ -6,7 +6,6 @@ const TITLE = 'QuickNav.Title';
 const LIST = 'QuickNav.List';
 const ITEM = 'QuickNav.Item';
 const LINK = 'QuickNav.Link';
-const DOC_SUBTITLE = 'Subtitle';
 
 /**
  * @typedef {Object} TocEntry
@@ -21,10 +20,6 @@ const DOC_SUBTITLE = 'Subtitle';
  */
 export function rehypeQuickNav() {
   return (tree, file) => {
-    const h1 = tree.children.find(
-      /** @param {{ tagName: string; }} node */
-      (node) => node.tagName === 'h1',
-    );
 
     /** @type {TocEntry[]} */
     const toc = file.data.toc;
@@ -37,11 +32,7 @@ export function rehypeQuickNav() {
       return;
     }
 
-    // Place quick nav after the `<Subtitle>` that immediately follows the first `<h1>`,
-    // or after the first `<h1>` if a matching `<Subtitle>` wasn't found.
-    let index = tree.children.indexOf(h1) + 2; // Adding "2" because there's also a line break below h1
-    index = tree.children[index]?.name === DOC_SUBTITLE ? index + 1 : index;
-    tree.children.splice(index, 0, root);
+    tree.children.unshift(root);
   };
 }
 

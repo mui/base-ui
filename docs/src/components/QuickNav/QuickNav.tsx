@@ -61,7 +61,7 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
 
     ref.current.style.top = '0px';
     ref.current.style.bottom = '';
-    ref.current.style.marginTop = '';
+    ref.current.style.marginTop = '0px';
     ref.current.style.marginBottom = '';
 
     // Get the nav top Y coordinate from the start of the document
@@ -252,8 +252,8 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
   };
 }
 
-export function Title({ className, ...props }: React.ComponentProps<'h2'>) {
-  return <div aria-hidden className={clsx('QuickNavTitle', className)} {...props} />;
+export function Title({ className, ...props }: React.ComponentProps<'header'>) {
+  return <header className={clsx('QuickNavTitle', className)} {...props} />;
 }
 
 export function List({ className, ...props }: React.ComponentProps<'ul'>) {
