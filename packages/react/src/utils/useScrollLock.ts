@@ -35,6 +35,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
 
     originalHtmlStyles = {
       overflowY: html.style.overflowY,
+      overflowX: html.style.overflowX,
     };
 
     originalBodyStyles = {
