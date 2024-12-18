@@ -1,10 +1,7 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "allowJs": true,
-    "skipLibCheck": true,
     "esModuleInterop": true,
-    "module": "ESNext",
     "moduleResolution": "bundler",
     "types": ["mocha", "vite/client"]
   },
