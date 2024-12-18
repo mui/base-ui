@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { usePreventScroll } from '@react-aria/overlays';
 import { isIOS } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
@@ -8,58 +9,13 @@ let originalBodyStyles = {};
 let preventScrollCount = 0;
 let restore: () => void = () => {};
 
-function getVisualOffsets(doc: Document) {
-  const win = ownerWindow(doc);
-  const vV = win.visualViewport;
-  return {
-    x: Math.floor(vV?.offsetLeft || 0),
-    y: Math.floor(vV?.offsetTop || 0),
-  };
-}
-
-function preventScrollIOS(referenceElement?: Element | null) {
+function hasInsetScrollbars(referenceElement?: Element | null) {
+  if (typeof document === 'undefined') {
+    return false;
+  }
   const doc = ownerDocument(referenceElement);
-  const html = doc.documentElement;
-  const body = doc.body;
-  const htmlStyle = html.style;
-  const bodyStyle = body.style;
-
-  // iOS 12 does not support `visualViewport`.
-  const { x, y } = getVisualOffsets(doc);
-  const scrollX = bodyStyle.left ? parseFloat(bodyStyle.left) : window.scrollX;
-  const scrollY = bodyStyle.top ? parseFloat(bodyStyle.top) : window.scrollY;
-
-  originalHtmlStyles = {
-    overflowX: htmlStyle.overflowX,
-    overflowY: htmlStyle.overflowY,
-  };
-
-  originalBodyStyles = {
-    position: bodyStyle.position,
-    top: bodyStyle.top,
-    left: bodyStyle.left,
-    right: bodyStyle.right,
-    overflowX: bodyStyle.overflowX,
-    overflowY: bodyStyle.overflowY,
-  };
-
-  Object.assign(htmlStyle, {
-    overflow: 'visible',
-  });
-
-  Object.assign(bodyStyle, {
-    position: 'fixed',
-    top: `${-(scrollY - y)}px`,
-    left: `${-(scrollX - x)}px`,
-    right: '0',
-    overflow: 'hidden',
-  });
-
-  return () => {
-    Object.assign(htmlStyle, originalHtmlStyles);
-    Object.assign(bodyStyle, originalBodyStyles);
-    window.scrollTo({ left: scrollX, top: scrollY, behavior: 'instant' });
-  };
+  const win = ownerWindow(doc);
+  return win.innerWidth - doc.documentElement.clientWidth > 0;
 }
 
 function preventScrollStandard(referenceElement?: Element | null) {
@@ -158,15 +114,20 @@ function preventScrollStandard(referenceElement?: Element | null) {
  * @param enabled - Whether to enable the scroll lock.
  */
 export function useScrollLock(enabled: boolean = true, referenceElement?: Element | null) {
+  const isReactAriaHook = React.useMemo(
+    () => isIOS() || !hasInsetScrollbars(referenceElement),
+    [referenceElement],
+  );
+
   usePreventScroll({
     // react-aria will remove the scrollbar offset immediately upon close, since we use `open`,
-    // not `mounted`, to disable/enable the scroll lock. However since iOS has no fixed
+    // not `mounted`, to disable/enable the scroll lock. However since there are no inset
     // scrollbars, no layouting issues occur.
-    isDisabled: !isIOS() || !enabled,
+    isDisabled: !enabled || !isReactAriaHook,
   });
 
   useEnhancedEffect(() => {
-    if (!enabled || isIOS()) {
+    if (!enabled || isReactAriaHook) {
       return undefined;
     }
 
@@ -181,5 +142,5 @@ export function useScrollLock(enabled: boolean = true, referenceElement?: Elemen
         restore();
       }
     };
-  }, [enabled, referenceElement]);
+  }, [enabled, isReactAriaHook, referenceElement]);
 }
