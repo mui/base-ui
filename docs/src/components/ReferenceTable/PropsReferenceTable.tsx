@@ -7,16 +7,16 @@ import * as Table from '../Table';
 import type { PropDef } from './types';
 import { TableCode } from '../TableCode';
 
-interface PropsTableProps extends React.ComponentProps<typeof Table.Root> {
+interface PropsReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, PropDef>;
 }
 
-export async function PropsTable({ data, ...props }: PropsTableProps) {
+export async function PropsReferenceTable({ data, ...props }: PropsReferenceTableProps) {
   return (
     <Table.Root {...props}>
       <Table.Head>
         <Table.Row>
-          <Table.ColumnHeader className="w-full xs:w-48 sm:w-56 md:w-1/3">Prop</Table.ColumnHeader>
+          <Table.ColumnHeader className="xs:w-48 w-full sm:w-56 md:w-1/3">Prop</Table.ColumnHeader>
           <Table.ColumnHeader className="max-xs:hidden xs:w-full md:w-7/15">
             Type
           </Table.ColumnHeader>
@@ -57,8 +57,8 @@ export async function PropsTable({ data, ...props }: PropsTableProps) {
               <Table.Cell>
                 <ReferenceTablePopover>
                   <PropDescription />
-                  <div className="flex flex-col gap-2 text-md md:hidden">
-                    <div className="border-t border-gray-200 pt-2 xs:hidden">
+                  <div className="text-md flex flex-col gap-2 md:hidden">
+                    <div className="xs:hidden border-t border-gray-200 pt-2">
                       <div className="mb-1 font-bold">Type</div>
                       <PropType />
                     </div>

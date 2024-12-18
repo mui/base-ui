@@ -1,9 +1,9 @@
 import * as React from 'react';
 import NextLink from 'next/link';
-import { GitHubIcon } from 'docs/src/components/icons/GitHubIcon';
+import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
 import * as MobileNav from './MobileNav';
 import { nav } from '../nav';
-import { NpmIcon } from './icons/NpmIcon';
+import { NpmIcon } from '../icons/NpmIcon';
 import { Logo } from './Logo';
 
 const VERSION = process.env.LIB_VERSION;
@@ -17,7 +17,7 @@ export function Header() {
           <Logo aria-label="Base UI" />
         </NextLink>
 
-        <div className="flex gap-6 max-show-side-nav:hidden">
+        <div className="max-show-side-nav:hidden flex gap-6">
           <a
             className="HeaderLink"
             href="https://www.npmjs.com/package/@base-ui-components/react"
@@ -32,7 +32,7 @@ export function Header() {
           </a>
         </div>
 
-        <div className="flex show-side-nav:hidden">
+        <div className="show-side-nav:hidden flex">
           <MobileNav.Root>
             <MobileNav.Trigger className="HeaderButton">
               <div className="flex w-4 flex-col items-center gap-1">
@@ -65,7 +65,7 @@ export function Header() {
                       rel="noopener"
                     >
                       <NpmIcon />
-                      <span className="flex flex-grow-1 items-baseline justify-between">
+                      <span className="flex-grow-1 flex items-baseline justify-between">
                         npm package
                         <span className="text-md text-gray-600">{VERSION}</span>
                       </span>

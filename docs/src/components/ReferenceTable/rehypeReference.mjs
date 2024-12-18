@@ -10,9 +10,9 @@ import { createHast } from 'docs/src/mdx/createHast.mjs';
 const REFERENCE = 'Reference';
 
 // The corresponding components exposed in "mdx-components.tsx"
-const ATTRIBUTES_TABLE = 'AttributesTable';
-const CSS_VARIABLES_TABLE = 'CssVariablesTable';
-const PROPS_TABLE = 'PropsTable';
+const ATTRIBUTES_TABLE = 'AttributesReferenceTable';
+const CSS_VARIABLES_TABLE = 'CssVariablesReferenceTable';
+const PROPS_TABLE = 'PropsReferenceTable';
 
 /**
  * Finds `<Reference />` in the MDX and transforms it into

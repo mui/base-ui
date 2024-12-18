@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { Metadata, Viewport } from 'next';
 import { Link } from 'docs/src/components/Link';
-import { ArrowRightIcon } from 'docs/src/components/icons/ArrowRightIcon';
+import { ArrowRightIcon } from 'docs/src/icons/ArrowRightIcon';
 import { Logo } from 'docs/src/components/Logo';
 import './page.css';
 
