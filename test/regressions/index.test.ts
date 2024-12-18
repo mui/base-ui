@@ -64,6 +64,7 @@ async function renderFixture(index) {
 
   const testcase = page.locator('[data-testid="testcase"]:not([aria-busy="true"])');
   await testcase.waitFor();
+  return testcase;
 }
 
 async function takeScreenshot({ testcase, route }) {
@@ -98,6 +99,7 @@ describe('visual regressions', () => {
       }
 
       const testcase = await renderFixture(index);
+
       await takeScreenshot({ testcase, route });
     });
   });
