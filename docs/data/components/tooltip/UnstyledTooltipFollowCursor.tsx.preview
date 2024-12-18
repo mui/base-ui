@@ -1,6 +1,0 @@
-<Tooltip.Root trackCursorAxis="both">
-  <AnchorButton>Anchor</AnchorButton>
-  <Tooltip.Positioner sideOffset={5}>
-    <TooltipPopup>Tooltip</TooltipPopup>
-  </Tooltip.Positioner>
-</Tooltip.Root>

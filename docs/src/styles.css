@@ -29,18 +29,18 @@
 @import './syntax-highlighting/index.css';
 @import './components/Code.css';
 @import './components/CodeBlock.css';
-@import './components/demo/Demo.css';
+@import './components/Demo/Demo.css';
 @import './components/GhostButton.css';
 @import './components/Header.css';
-@import './components/kbd/Kbd.css';
+@import './components/Kbd/Kbd.css';
 @import './components/Link.css';
 @import './components/MobileNav.css';
 @import './components/Popup.css';
-@import './components/quick-nav/QuickNav.css';
+@import './components/QuickNav/QuickNav.css';
 @import './components/ScrollArea.css';
 @import './components/Select.css';
 @import './components/SideNav.css';
-@import './components/subtitle/Subtitle.css';
+@import './components/Subtitle/Subtitle.css';
 @import './components/Table.css';
 
 /* Handy link to the default Tailwind theme:

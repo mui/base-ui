@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
-import { useDemoVariantSelectorContext } from './demo/DemoVariantSelectorProvider';
+import { useDemoVariantSelectorContext } from './Demo/DemoVariantSelectorProvider';
 import { usePackageManagerSnippetContext } from '../blocks/PackageManagerSnippet/PackageManagerSnippetProvider';
 import { GoogleAnalytics as BaseGoogleAnalytics } from '../blocks/GoogleAnalytics';
 import { GoogleTagManager } from '../blocks/GoogleTagManager';

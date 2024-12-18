@@ -1,9 +1,9 @@
 import * as React from 'react';
 import NextLink from 'next/link';
-import { GitHubIcon } from 'docs/src/components/icons/GitHub';
+import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
 import * as MobileNav from './MobileNav';
 import { nav } from '../nav';
-import { NpmIcon } from './icons/Npm';
+import { NpmIcon } from '../icons/NpmIcon';
 import { Logo } from './Logo';
 
 const VERSION = process.env.LIB_VERSION;
