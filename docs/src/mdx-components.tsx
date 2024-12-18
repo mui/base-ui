@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DemoLoader } from './components/demo/NewDemoLoader';
+import { DemoLoader } from './components/demo/DemoLoader';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/quick-nav/QuickNav';
