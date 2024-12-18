@@ -9,20 +9,19 @@ let originalBodyStyles = {};
 let preventScrollCount = 0;
 let restore: () => void = () => {};
 
-function hasInsetScrollbars(referenceElement?: Element | null) {
-  if (typeof document === 'undefined') {
-    return false;
-  }
-  const doc = ownerDocument(referenceElement);
-  const win = ownerWindow(doc);
-  return win.innerWidth - doc.documentElement.clientWidth > 0;
+function supportsDvh() {
+  return (
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('height', '1dvh')
+  );
 }
 
 function preventScrollStandard(referenceElement?: Element | null) {
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
   const body = doc.body;
-  const win = ownerWindow(doc);
+  const win = ownerWindow(html);
 
   let scrollTop: number = 0;
   let resizeRaf = -1;
@@ -68,18 +67,9 @@ function preventScrollStandard(referenceElement?: Element | null) {
     const bodyVerticalMargins =
       parseFloat(bodyStyles.marginTop) + parseFloat(bodyStyles.marginBottom);
 
-    let heightProperty = 'vh';
-    if (
-      typeof CSS !== 'undefined' &&
-      typeof CSS.supports === 'function' &&
-      CSS.supports('height', '1dvh')
-    ) {
-      heightProperty = 'dvh';
-    }
-
     Object.assign(body.style, {
       position: 'relative',
-      height: `calc(100${heightProperty} - ${bodyVerticalMargins}px)`,
+      height: `calc(100dvh - ${bodyVerticalMargins}px)`,
       boxSizing: 'border-box',
       overflow: 'hidden',
     });
@@ -117,10 +107,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
  * @param enabled - Whether to enable the scroll lock.
  */
 export function useScrollLock(enabled: boolean = true, referenceElement?: Element | null) {
-  const isReactAriaHook = React.useMemo(
-    () => isIOS() || !hasInsetScrollbars(referenceElement),
-    [referenceElement],
-  );
+  const isReactAriaHook = React.useMemo(() => isIOS() || !supportsDvh(), []);
 
   usePreventScroll({
     // react-aria will remove the scrollbar offset immediately upon close, since we use `open`,
