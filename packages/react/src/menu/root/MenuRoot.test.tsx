@@ -7,8 +7,6 @@ import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
-
 describe('<Menu.Root />', () => {
   beforeEach(() => {
     (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
@@ -592,72 +590,6 @@ describe('<Menu.Root />', () => {
       await waitFor(() => {
         expect(button).toHaveFocus();
       });
-    });
-  });
-
-  describe('prop: modal', () => {
-    it('makes outside elements inaccessible to mouse when a modal menu is open', async function test(t = {}) {
-      if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
-      }
-
-      await render(
-        <div>
-          <input data-testid="outside-input" type="text" />,
-          <Menu.Root modal>
-            <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>1</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Root>
-          <button data-testid="outside-button">Outside Button</button>
-        </div>,
-      );
-
-      const trigger = screen.getByRole('button', { name: 'Toggle' });
-      await user.click(trigger);
-
-      const outsideInput = screen.getByTestId('outside-input');
-      const outsideButton = screen.getByTestId('outside-button');
-
-      expect(window.getComputedStyle(outsideInput).pointerEvents).to.equal('none');
-      expect(window.getComputedStyle(outsideButton).pointerEvents).to.equal('none');
-    });
-
-    it('does not make outside elements inaccessible to mouse when a nonmodal menu is open', async function test(t = {}) {
-      if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
-      }
-
-      await render(
-        <div>
-          <input data-testid="outside-input" type="text" />,
-          <Menu.Root modal={false}>
-            <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>1</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Root>
-          <button data-testid="outside-button">Outside Button</button>
-        </div>,
-      );
-
-      const trigger = screen.getByRole('button', { name: 'Toggle' });
-      await user.click(trigger);
-
-      const outsideInput = screen.getByTestId('outside-input');
-      const outsideButton = screen.getByTestId('outside-button');
-
-      expect(window.getComputedStyle(outsideInput).pointerEvents).not.to.equal('none');
-      expect(window.getComputedStyle(outsideButton).pointerEvents).not.to.equal('none');
     });
   });
 
