@@ -265,7 +265,6 @@ describe('<Dialog.Popup />', () => {
     });
   });
 
-
   it('adds the `nested` and `has-nested-dialogs` style hooks on an alert dialog if has a parent dialog', async () => {
     await render(
       <Dialog.Root open>

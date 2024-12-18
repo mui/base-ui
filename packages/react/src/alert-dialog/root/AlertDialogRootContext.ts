@@ -16,4 +16,3 @@ export function useAlertDialogRootContext() {
 
   return context;
 }
-

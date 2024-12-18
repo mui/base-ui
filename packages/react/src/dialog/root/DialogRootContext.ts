@@ -26,6 +26,6 @@ export function useDialogRootContext() {
 
   return {
     ...dialogRootContext,
-    ...dialogContext
+    ...dialogContext,
   };
 }
