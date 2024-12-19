@@ -55,7 +55,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
         }),
       );
     },
-    [closeOnClick, getButtonProps, highlighted, id, menuEvents, allowMouseUpTriggerRef, typingRef],
+    [getButtonProps, id, highlighted, typingRef, closeOnClick, menuEvents, allowMouseUpTriggerRef],
   );
 
   return React.useMemo(

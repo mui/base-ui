@@ -20,7 +20,6 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(externalRef, triggerRef);
-  const eventHandlerTimeoutRef = React.useRef(-1);
   const allowMouseUpTriggerTimeoutRef = React.useRef(-1);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -39,15 +38,10 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
       return () => {
         clearTimeout(allowMouseUpTriggerTimeoutRef.current);
-        allowMouseUpTriggerTimeoutRef.current = -1;
       };
     }
 
     allowMouseUpTriggerRef.current = false;
-    if (eventHandlerTimeoutRef.current !== -1) {
-      clearTimeout(eventHandlerTimeoutRef.current);
-      eventHandlerTimeoutRef.current = -1;
-    }
 
     return undefined;
   }, [allowMouseUpTriggerRef, open]);
@@ -72,6 +66,9 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
                 return;
               }
 
+              clearTimeout(allowMouseUpTriggerTimeoutRef.current);
+              allowMouseUpTriggerRef.current = false;
+
               const mouseUpTarget = mouseEvent.target as Element | null;
 
               const triggerRect = triggerRef.current.getBoundingClientRect();
@@ -93,17 +90,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
               setOpen(false, mouseEvent);
             }
 
-            // Firefox can fire this upon mousedown
-            eventHandlerTimeoutRef.current = window.setTimeout(() => {
-              doc.addEventListener('mouseup', handleMouseUp, { once: true });
-            });
-          },
-          onClick: () => {
-            allowMouseUpTriggerRef.current = false;
-            if (allowMouseUpTriggerTimeoutRef.current !== -1) {
-              clearTimeout(allowMouseUpTriggerTimeoutRef.current);
-              allowMouseUpTriggerTimeoutRef.current = -1;
-            }
+            doc.addEventListener('mouseup', handleMouseUp, { once: true });
           },
         },
         getButtonProps(),
