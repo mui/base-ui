@@ -16,7 +16,7 @@ export default function ExampleCheckboxGroup() {
       <label className="flex items-center gap-2">
         <Checkbox.Root
           name="fuji-apple"
-          className="flex size-5 items-center justify-center rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
+          className="flex size-5 items-center justify-center rounded-sm outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
         >
           <Checkbox.Indicator className="flex text-gray-50 data-[unchecked]:hidden">
             <CheckIcon className="size-3" />
@@ -28,7 +28,7 @@ export default function ExampleCheckboxGroup() {
       <label className="flex items-center gap-2">
         <Checkbox.Root
           name="gala-apple"
-          className="flex size-5 items-center justify-center rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
+          className="flex size-5 items-center justify-center rounded-sm outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
         >
           <Checkbox.Indicator className="flex text-gray-50 data-[unchecked]:hidden">
             <CheckIcon className="size-3" />
@@ -40,7 +40,7 @@ export default function ExampleCheckboxGroup() {
       <label className="flex items-center gap-2">
         <Checkbox.Root
           name="granny-smith-apple"
-          className="flex size-5 items-center justify-center rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
+          className="flex size-5 items-center justify-center rounded-sm outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
         >
           <Checkbox.Indicator className="flex text-gray-50 data-[unchecked]:hidden">
             <CheckIcon className="size-3" />
