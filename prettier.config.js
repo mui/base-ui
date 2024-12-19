@@ -2,8 +2,7 @@ const baseline = require('@mui/monorepo/prettier.config');
 
 module.exports = {
   ...baseline,
-  // TODO move to baseline config
-  plugins: ['prettier-plugin-tailwindcss'],
+  plugins: ['prettier-plugin-tailwindcss'], // TODO move to baseline config
   tailwindStylesheet: './docs/src/styles.css',
   overrides: [
     {
