@@ -8,6 +8,21 @@ import { GhostButton } from '../GhostButton';
 const COMMIT_REF = process.env.PULL_REQUEST_ID ? process.env.COMMIT_REF : undefined;
 const SOURCE_CODE_REPO = process.env.SOURCE_CODE_REPO;
 
+const centeringStyles = `
+    <style>
+      body {
+        margin: 0;
+      }
+      #root {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 3rem;
+        min-height: 100vh;
+      }
+    </style>
+`;
+
 const tailwindSetup = `
     <!-- Check out the Tailwind CSS' installation guide for setting it up: https://tailwindcss.com/docs/installation -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,12 +48,21 @@ export function CodeSandboxLink({ title, description, ...props }: CodeSandboxLin
   } = useDemoContext();
 
   const handleClick = React.useCallback(() => {
-    let additionalHtmlHeadContent: string | undefined;
+    let additionalHtmlHeadContent = centeringStyles;
 
     if (name === 'tailwind') {
-      additionalHtmlHeadContent = tailwindSetup;
+      additionalHtmlHeadContent += tailwindSetup;
+
+      files.forEach((file) => {
+        const cssClasses = file.content.matchAll(/className="(.+?)"/gs);
+        for (const match of cssClasses) {
+          // Inject css classes used on the page so that initial animations aren't broken
+          // Otherwise, TW running in the browser won't see all the classes before the components mount
+          additionalHtmlHeadContent += `\n    <meta name="custom" class="${match[1]}" />`;
+        }
+      });
     } else if (name === 'css-modules') {
-      additionalHtmlHeadContent = cssThemeSetup;
+      additionalHtmlHeadContent += cssThemeSetup;
     }
 
     createCodeSandbox({
