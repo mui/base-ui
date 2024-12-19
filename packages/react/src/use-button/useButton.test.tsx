@@ -96,10 +96,9 @@ describe('useButton', () => {
       const handleClick = spy();
 
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-        const { onClick, onKeyDown, ...otherProps } = props;
-        const { getButtonProps } = useButton({ onClick, onKeyDown });
+        const { getButtonProps } = useButton();
 
-        return <span {...getButtonProps(otherProps)} />;
+        return <span {...getButtonProps(props)} />;
       }
 
       const { getByRole } = await render(
