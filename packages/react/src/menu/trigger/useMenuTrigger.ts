@@ -20,7 +20,6 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(externalRef, triggerRef);
-  const eventHandlerTimeoutRef = React.useRef(-1);
   const allowMouseUpTriggerTimeoutRef = React.useRef(-1);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -39,11 +38,9 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
       return () => {
         clearTimeout(allowMouseUpTriggerTimeoutRef.current);
-        allowMouseUpTriggerTimeoutRef.current = -1;
       };
     }
 
-    clearTimeout(eventHandlerTimeoutRef.current);
     allowMouseUpTriggerRef.current = false;
 
     return undefined;
@@ -93,10 +90,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
               setOpen(false, mouseEvent);
             }
 
-            // Firefox can fire this upon mousedown
-            eventHandlerTimeoutRef.current = window.setTimeout(() => {
-              doc.addEventListener('mouseup', handleMouseUp, { once: true });
-            });
+            doc.addEventListener('mouseup', handleMouseUp, { once: true });
           },
         },
         getButtonProps(),
