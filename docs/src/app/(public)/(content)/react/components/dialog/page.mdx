@@ -92,6 +92,52 @@ It’s also common to use `onOpenChange` if your app needs to do something when 
 >
 ```
 
+### Open from a menu
+
+In order to open a dialog using a menu, control the dialog state and open it imperatively using the `onClick` handler on the menu item.
+
+Make sure to also use the dialog’s `finalFocus` prop to return focus back to the menu trigger.
+
+```tsx {12-13,17-18,24-25,28-29} title="Connecting a dialog to a menu"
+import * as React from 'react';
+import { Dialog } from '@base-ui/components/dialog';
+import { Menu } from '@base-ui/components/menu';
+
+function ExampleMenu() {
+  const menuTriggerRef = React.useRef<HTMLButtonElement>(null);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+
+  return (
+    <React.Fragment>
+      <Menu.Root>
+        {/* Set the trigger ref */}
+        <Menu.Trigger ref={menuTriggerRef}>Open menu</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              {/* Open the dialog when the menu item is clicked */}
+              <Menu.Item onClick={() => setDialogOpen(true)}>Open dialog</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+
+      {/* Control the dialog state */}
+      <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog.Portal>
+          <Dialog.Backdrop />
+          {/* Return focus to the menu trigger when the dialog is closed */}
+          <Dialog.Popup finalFocus={menuTriggerRef}>
+            {/* prettier-ignore */}
+            {/* Rest of the dialog */}
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </React.Fragment>
+  );
+}
+```
+
 ### Nested dialogs
 
 You can nest dialogs within one another normally.
