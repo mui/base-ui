@@ -1,7 +1,6 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 
-function TestViewer(props) {
+function TestViewer(props: { children: React.ReactNode }) {
   const { children } = props;
 
   // We're simulating `act(() => ReactDOM.render(children))`
@@ -20,9 +19,5 @@ function TestViewer(props) {
     </React.Suspense>
   );
 }
-
-TestViewer.propTypes = {
-  children: PropTypes.node.isRequired,
-};
 
 export default TestViewer;
