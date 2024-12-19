@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import userEvent from '@testing-library/user-event';
 import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base-ui-components/react/menu';
@@ -39,8 +38,13 @@ const testRadioGroupContext = {
 };
 
 describe('<Menu.RadioItem />', () => {
-  const { render } = createRenderer();
-  const user = userEvent.setup();
+  const { render, clock } = createRenderer({
+    clockOptions: {
+      shouldAdvanceTime: true,
+    },
+  });
+
+  clock.withFakeTimers();
 
   describeConformance(<Menu.RadioItem value="0" />, () => ({
     render: (node) => {
@@ -155,7 +159,7 @@ describe('<Menu.RadioItem />', () => {
 
   describe('state management', () => {
     it('adds the state and ARIA attributes when selected', async () => {
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
@@ -180,7 +184,7 @@ describe('<Menu.RadioItem />', () => {
 
     ['Space', 'Enter'].forEach((key) => {
       it(`selects the item when ${key} is pressed`, async () => {
-        const { getByRole } = await render(
+        const { getByRole, user } = await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
             <Menu.Positioner>
@@ -209,7 +213,7 @@ describe('<Menu.RadioItem />', () => {
 
     it('calls `onValueChange` when the item is clicked', async () => {
       const onValueChange = spy();
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
@@ -233,7 +237,7 @@ describe('<Menu.RadioItem />', () => {
     });
 
     it('keeps the state when closed and reopened', async () => {
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner keepMounted>
@@ -264,7 +268,7 @@ describe('<Menu.RadioItem />', () => {
 
   describe('prop: closeOnClick', () => {
     it('when `closeOnClick=true`, closes the menu when the item is clicked', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
@@ -289,7 +293,7 @@ describe('<Menu.RadioItem />', () => {
     });
 
     it('does not close the menu when the item is clicked by default', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>

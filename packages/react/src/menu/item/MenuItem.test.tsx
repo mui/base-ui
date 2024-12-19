@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import userEvent from '@testing-library/user-event';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base-ui-components/react/menu';
@@ -33,8 +32,13 @@ const testRootContext: MenuRootContext = {
 };
 
 describe('<Menu.Item />', () => {
-  const { render } = createRenderer();
-  const user = userEvent.setup();
+  const { render, clock } = createRenderer({
+    clockOptions: {
+      shouldAdvanceTime: true,
+    },
+  });
+
+  clock.withFakeTimers();
 
   describeConformance(<Menu.Item />, () => ({
     render: (node) => {
@@ -49,7 +53,7 @@ describe('<Menu.Item />', () => {
 
   it('calls the onClick handler when clicked', async () => {
     const onClick = spy();
-    await render(
+    const { user } = await render(
       <Menu.Root open>
         <Menu.Positioner>
           <Menu.Popup>
@@ -63,6 +67,8 @@ describe('<Menu.Item />', () => {
 
     const item = screen.getByRole('menuitem');
     await user.click(item);
+
+    clock.tick(100);
 
     expect(onClick.callCount).to.equal(1);
   });
@@ -88,7 +94,7 @@ describe('<Menu.Item />', () => {
       return <li {...other} ref={ref} />;
     });
 
-    const { getAllByRole } = await render(
+    const { getAllByRole, user } = await render(
       <Menu.Root open>
         <Menu.Positioner>
           <Menu.Popup>
@@ -146,7 +152,7 @@ describe('<Menu.Item />', () => {
 
   describe('prop: closeOnClick', () => {
     it('closes the menu when the item is clicked by default', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
@@ -167,7 +173,7 @@ describe('<Menu.Item />', () => {
     });
 
     it('when `closeOnClick=false` does not close the menu when the item is clicked', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
