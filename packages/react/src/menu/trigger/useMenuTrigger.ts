@@ -72,6 +72,12 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
                 return;
               }
 
+              allowMouseUpTriggerRef.current = false;
+              if (allowMouseUpTriggerTimeoutRef.current !== -1) {
+                clearTimeout(allowMouseUpTriggerTimeoutRef.current);
+                allowMouseUpTriggerTimeoutRef.current = -1;
+              }
+
               const mouseUpTarget = mouseEvent.target as Element | null;
 
               const triggerRect = triggerRef.current.getBoundingClientRect();
@@ -97,13 +103,6 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
             eventHandlerTimeoutRef.current = window.setTimeout(() => {
               doc.addEventListener('mouseup', handleMouseUp, { once: true });
             });
-          },
-          onClick: () => {
-            allowMouseUpTriggerRef.current = false;
-            if (allowMouseUpTriggerTimeoutRef.current !== -1) {
-              clearTimeout(allowMouseUpTriggerTimeoutRef.current);
-              allowMouseUpTriggerTimeoutRef.current = -1;
-            }
           },
         },
         getButtonProps(),

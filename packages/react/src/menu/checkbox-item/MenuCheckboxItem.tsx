@@ -45,7 +45,6 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
     defaultChecked,
     onCheckedChange,
     typingRef,
-    trigger: false,
   });
 
   const state: MenuCheckboxItem.State = React.useMemo(
