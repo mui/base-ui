@@ -3,7 +3,6 @@ import * as React from 'react';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { visuallyHidden } from '../../utils/visuallyHidden';
@@ -12,6 +11,10 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
 import type { useSliderRoot } from '../root/useSliderRoot';
+
+export interface ThumbMetadata {
+  inputId: string | undefined;
+}
 
 function getNewValue(
   thumbValue: number,
@@ -64,7 +67,6 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     name,
     orientation,
     percentageValues,
-    registerInputId,
     rootRef: externalRef,
     step,
     tabIndex,
@@ -79,24 +81,25 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
   } = useFieldControlValidation();
 
   const thumbId = useBaseUiId(idParam);
+
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-
   const mergedInputRef = useForkRef(inputRef, inputValidationRef);
-
-  const { ref: listItemRef, index } = useCompositeListItem();
-
-  const mergedThumbRef = useForkRef(externalRef, listItemRef, thumbRef);
 
   const inputId = useBaseUiId(inputIdParam);
 
-  useEnhancedEffect(() => {
-    const { deregister } = registerInputId(index, inputId);
+  const thumbMetadata = React.useMemo(
+    () => ({
+      inputId,
+    }),
+    [inputId],
+  );
 
-    return () => {
-      deregister(index);
-    };
-  }, [index, inputId, registerInputId]);
+  const { ref: listItemRef, index } = useCompositeListItem<ThumbMetadata>({
+    metadata: thumbMetadata,
+  });
+
+  const mergedThumbRef = useForkRef(externalRef, listItemRef, thumbRef);
 
   const thumbValue = sliderValues[index];
 
@@ -328,7 +331,6 @@ export namespace useSliderThumb {
       | 'name'
       | 'orientation'
       | 'percentageValues'
-      | 'registerInputId'
       | 'step'
       | 'tabIndex'
       | 'values'

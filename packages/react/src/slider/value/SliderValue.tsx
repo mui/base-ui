@@ -19,11 +19,11 @@ const SliderValue = React.forwardRef(function SliderValue(
 ) {
   const { render, className, children, ...otherProps } = props;
 
-  const { inputIdMap, state, values, format } = useSliderRootContext();
+  const { thumbMap, state, values, format } = useSliderRootContext();
 
   const { getRootProps, formattedValues } = useSliderValue({
     format,
-    inputIdMap,
+    thumbMap,
     values,
   });
 
