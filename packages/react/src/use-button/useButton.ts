@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useForkRef } from '../utils/useForkRef';
-import { extractEventHandlers } from '../utils/extractEventHandlers';
 import { mergeReactProps } from '../utils/mergeReactProps';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRootElementName } from '../utils/useRootElementName';
@@ -9,9 +8,9 @@ import { GenericHTMLProps } from '../utils/types';
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
   const {
+    buttonRef: externalRef,
     disabled = false,
     focusableWhenDisabled,
-    buttonRef: externalRef,
     tabIndex,
     type,
     elementName: elementNameProp,
@@ -34,15 +33,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   const mergedRef = useForkRef(updateRootElementName, externalRef, buttonRef);
 
-  interface AdditionalButtonProps {
-    type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
-    disabled?: boolean;
-    role?: React.AriaRole;
-    'aria-disabled'?: React.AriaAttributes['aria-disabled'];
-    tabIndex?: number;
-  }
-
-  const buttonProps: AdditionalButtonProps = React.useMemo(() => {
+  const buttonProps = React.useMemo(() => {
     const additionalProps: AdditionalButtonProps = {};
 
     if (tabIndex !== undefined) {
@@ -68,9 +59,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   }, [disabled, elementName, focusableWhenDisabled, tabIndex]);
 
   const getButtonProps = React.useCallback(
-    (externalProps: GenericHTMLProps): GenericHTMLProps => {
-      const externalEventHandlers = extractEventHandlers(externalProps);
-
+    (externalProps: GenericButtonProps): GenericButtonProps => {
       return mergeReactProps(externalProps, {
         type,
         ...buttonProps,
@@ -86,7 +75,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             event.key === 'Enter' &&
             !disabled
           ) {
-            externalEventHandlers?.onClick?.(event);
+            externalProps?.onClick?.(event);
             event.preventDefault();
           }
         },
@@ -100,7 +89,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             !disabled &&
             event.key === ' '
           ) {
-            externalEventHandlers.onClick?.(event);
+            externalProps.onClick?.(event);
           }
         },
         ref: mergedRef,
@@ -114,6 +103,18 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     buttonRef: mergedRef,
   };
 }
+
+interface GenericButtonProps extends Omit<GenericHTMLProps, 'onClick'>, AdditionalButtonProps {
+  onClick?: (event: React.SyntheticEvent) => void;
+}
+
+interface AdditionalButtonProps
+  extends Partial<{
+    'aria-disabled': React.AriaAttributes['aria-disabled'];
+    disabled: boolean;
+    role: React.AriaRole;
+    tabIndex: number;
+  }> {}
 
 export namespace useButton {
   export interface Parameters {
