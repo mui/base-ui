@@ -8,7 +8,7 @@ export default function ExampleCollapsible() {
         <ChevronIcon className="size-3 transition-all ease-out group-data-[panel-open]:rotate-90" />
         Recovery keys
       </Collapsible.Trigger>
-      <Collapsible.Panel className="flex h-[var(--collapsible-panel-height)] flex-col justify-end overflow-hidden text-sm transition-all ease-out [[data-starting-style],[data-ending-style]]:h-0">
+      <Collapsible.Panel className="flex h-[var(--collapsible-panel-height)] flex-col justify-end overflow-hidden text-sm transition-all ease-out data-[ending-style]:h-0 data-[starting-style]:h-0">
         <div className="mt-1 flex cursor-text flex-col gap-2 rounded-sm bg-gray-100 py-2 pl-7">
           <div>alien-bean-pasta</div>
           <div>wild-irish-burrito</div>
