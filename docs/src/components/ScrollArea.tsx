@@ -15,3 +15,7 @@ export function Scrollbar({ className, ...props }: ScrollArea.Scrollbar.Props) {
     </ScrollArea.Scrollbar>
   );
 }
+
+export function Corner({ className, ...props }: ScrollArea.Corner.Props) {
+  return <ScrollArea.Corner className={clsx('ScrollAreaCorner', className)} {...props} />;
+}
