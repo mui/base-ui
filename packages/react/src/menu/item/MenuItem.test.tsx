@@ -68,8 +68,6 @@ describe('<Menu.Item />', () => {
     const item = screen.getByRole('menuitem');
     await user.click(item);
 
-    clock.tick(100);
-
     expect(onClick.callCount).to.equal(1);
   });
 
