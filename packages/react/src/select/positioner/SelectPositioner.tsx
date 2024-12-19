@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { FloatingOverlay } from '@floating-ui/react';
 import PropTypes from 'prop-types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -11,6 +10,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useSelectPositioner } from './useSelectPositioner';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
 
 /**
  * Positions the select menu popup against the trigger.
@@ -84,7 +84,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
       <SelectPositionerContext.Provider value={positioner}>
-        {mounted && modal && <FloatingOverlay />}
+        {mounted && modal && <InternalBackdrop />}
         {renderElement()}
       </SelectPositionerContext.Provider>
     </CompositeList>

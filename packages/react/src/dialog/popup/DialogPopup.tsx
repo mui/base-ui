@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingFocusManager, FloatingOverlay } from '@floating-ui/react';
+import { FloatingFocusManager } from '@floating-ui/react';
 import { useDialogPopup } from './useDialogPopup';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -15,6 +15,7 @@ import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { DialogPopupCssVars } from './DialogPopupCssVars';
 import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
   ...baseMapping,
@@ -99,7 +100,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 
   return (
     <React.Fragment>
-      {mounted && modal && <FloatingOverlay />}
+      {mounted && modal && <InternalBackdrop />}
       <FloatingFocusManager
         context={floatingContext}
         modal={open}

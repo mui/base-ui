@@ -43,11 +43,8 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
       };
     }
 
+    clearTimeout(eventHandlerTimeoutRef.current);
     allowMouseUpTriggerRef.current = false;
-    if (eventHandlerTimeoutRef.current !== -1) {
-      clearTimeout(eventHandlerTimeoutRef.current);
-      eventHandlerTimeoutRef.current = -1;
-    }
 
     return undefined;
   }, [allowMouseUpTriggerRef, open]);
@@ -72,11 +69,8 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
                 return;
               }
 
+              clearTimeout(allowMouseUpTriggerTimeoutRef.current);
               allowMouseUpTriggerRef.current = false;
-              if (allowMouseUpTriggerTimeoutRef.current !== -1) {
-                clearTimeout(allowMouseUpTriggerTimeoutRef.current);
-                allowMouseUpTriggerTimeoutRef.current = -1;
-              }
 
               const mouseUpTarget = mouseEvent.target as Element | null;
 

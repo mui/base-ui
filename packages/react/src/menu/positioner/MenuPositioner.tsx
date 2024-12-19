@@ -3,7 +3,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
   FloatingNode,
-  FloatingOverlay,
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFloatingTree,
@@ -18,6 +17,7 @@ import { HTMLElementType } from '../../utils/proptypes';
 import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { CompositeList } from '../../composite/list/CompositeList';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
 
 /**
  * Positions the menu popup against the trigger.
@@ -141,7 +141,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   return (
     <MenuPositionerContext.Provider value={contextValue}>
-      {mounted && modal && parentNodeId === null && <FloatingOverlay />}
+      {mounted && modal && parentNodeId === null && <InternalBackdrop />}
       <FloatingNode id={nodeId}>
         <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
           {renderElement()}
