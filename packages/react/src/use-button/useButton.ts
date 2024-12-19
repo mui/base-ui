@@ -60,9 +60,8 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   const getButtonProps = React.useCallback(
     (externalProps: GenericButtonProps): GenericButtonProps => {
-      return mergeReactProps(externalProps, {
+      return mergeReactProps(externalProps, buttonProps, {
         type,
-        ...buttonProps,
         onKeyDown(event: React.KeyboardEvent) {
           if (event.target === event.currentTarget && !isNativeButton() && event.key === ' ') {
             event.preventDefault();
