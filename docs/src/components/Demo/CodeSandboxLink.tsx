@@ -18,8 +18,9 @@ const globalCss = `
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 3rem;
         min-height: 100vh;
+        padding: 3rem;
+        isolation: isolate;
       }
     </style>
 `;
