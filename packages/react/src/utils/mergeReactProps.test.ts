@@ -136,7 +136,33 @@ describe('mergeReactProps', () => {
     expect(ran).to.equal(false);
   });
 
-  it('merges internal event handlers so that the ones defined first override the ones defined later', () => {
+  it('prevents handlers merged after event.preventBaseUIHandler() is called', () => {
+    const val = [];
+
+    const mergedProps = mergeReactProps<'button'>(
+      {
+        onClick() {
+          val.push(0);
+        },
+      },
+      {
+        onClick(event) {
+          event.preventBaseUIHandler();
+        },
+      },
+      {
+        onClick() {
+          val.push(2);
+        },
+      },
+    );
+
+    mergedProps.onClick?.({} as any);
+
+    expect(val).to.deep.equal([0]);
+  });
+
+  it('merges internal props so that the ones defined first override the ones defined later', () => {
     const mergedProps = mergeReactProps<'button'>(
       {},
       {
