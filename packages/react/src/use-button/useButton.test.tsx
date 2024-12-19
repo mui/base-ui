@@ -96,10 +96,9 @@ describe('useButton', () => {
       const handleClick = spy();
 
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-        const { onClick, onKeyDown, ...otherProps } = props;
-        const { getButtonProps } = useButton({ onClick, onKeyDown });
+        const { getButtonProps } = useButton();
 
-        return <span {...getButtonProps(otherProps)} />;
+        return <span {...getButtonProps(props)} />;
       }
 
       const { getByRole } = await render(
@@ -111,6 +110,7 @@ describe('useButton', () => {
       act(() => button.focus());
       expect(button).toHaveFocus();
 
+      expect(handleKeyDown.callCount).to.equal(0);
       fireEvent.keyDown(button, { key: 'Enter' });
       expect(handleKeyDown.callCount).to.equal(1);
       expect(handleClick.callCount).to.equal(1);

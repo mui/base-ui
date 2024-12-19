@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { mergeReactProps } from './mergeReactProps';
+import type { BaseUIEvent } from './types';
 
 describe('mergeReactProps', () => {
   it('merges event handlers', () => {
@@ -137,29 +138,30 @@ describe('mergeReactProps', () => {
   });
 
   it('prevents handlers merged after event.preventBaseUIHandler() is called', () => {
-    const val = [];
+    const log: string[] = [];
 
-    const mergedProps = mergeReactProps<'button'>(
+    const mergedProps = mergeReactProps(
       {
         onClick() {
-          val.push(0);
+          log.push('0');
         },
       },
       {
-        onClick(event) {
+        onClick(event: BaseUIEvent<React.MouseEvent>) {
           event.preventBaseUIHandler();
+          log.push('1');
         },
       },
       {
         onClick() {
-          val.push(2);
+          log.push('2');
         },
       },
     );
 
     mergedProps.onClick?.({} as any);
 
-    expect(val).to.deep.equal([0]);
+    expect(log).to.deep.equal(['0', '1']);
   });
 
   it('merges internal props so that the ones defined first override the ones defined later', () => {
