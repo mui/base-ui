@@ -1,7 +1,8 @@
+const baseline = require('@mui/monorepo/prettier.config');
+
 module.exports = {
-  printWidth: 100,
-  singleQuote: true,
-  trailingComma: 'all',
+  ...baseline,
+  // TODO move to baseline config
   plugins: ['prettier-plugin-tailwindcss'],
   tailwindStylesheet: './docs/src/styles.css',
   overrides: [
