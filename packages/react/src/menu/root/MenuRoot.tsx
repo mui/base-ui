@@ -5,6 +5,7 @@ import { FloatingTree } from '@floating-ui/react';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot } from './useMenuRoot';
+import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 /**
  * Groups all parts of the menu.
@@ -107,7 +108,7 @@ namespace MenuRoot {
     /**
      * Event handler called when the menu is opened or closed.
      */
-    onOpenChange?: (open: boolean, event?: Event) => void;
+    onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
      * Event handler called after any exit animations finish when the menu is closed.
      */

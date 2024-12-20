@@ -13,7 +13,7 @@ import {
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { PATIENT_CLICK_THRESHOLD, OPEN_DELAY } from '../utils/constants';
+import { OPEN_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
@@ -24,6 +24,7 @@ import {
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -45,10 +46,10 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
-  const [clickEnabled, setClickEnabled] = React.useState(true);
+  const [stickIfOpen, setStickIfOpen] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
-  const clickEnabledTimeoutRef = React.useRef(-1);
+  const stickIfOpenTimeoutRef = React.useRef(-1);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -57,8 +58,8 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     state: 'open',
   });
 
-  if (!open && !clickEnabled) {
-    setClickEnabled(true);
+  if (!open && !stickIfOpen) {
+    setStickIfOpen(true);
   }
 
   const onOpenChange = useEventCallback(onOpenChangeProp);
@@ -79,7 +80,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   useAfterExitAnimation({
     open,
     animatedElementRef: popupRef,
-    onFinished: () => {
+    onFinished() {
       setMounted(false);
       setOpenReason(null);
       onCloseComplete?.();
@@ -88,7 +89,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   React.useEffect(() => {
     return () => {
-      clearTimeout(clickEnabledTimeoutRef.current);
+      clearTimeout(stickIfOpenTimeoutRef.current);
     };
   }, []);
 
@@ -105,11 +106,11 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       }
 
       if (isHover) {
-        // Prevent impatient clicks from unexpectedly closing the popover.
-        setClickEnabled(false);
-        clearTimeout(clickEnabledTimeoutRef.current);
-        clickEnabledTimeoutRef.current = window.setTimeout(() => {
-          setClickEnabled(true);
+        // Only allow "patient" clicks to close the popover if it's open.
+        // If they clicked within 500ms of the popover opening, keep it open.
+        clearTimeout(stickIfOpenTimeoutRef.current);
+        stickIfOpenTimeoutRef.current = window.setTimeout(() => {
+          setStickIfOpen(false);
         }, PATIENT_CLICK_THRESHOLD);
 
         ReactDOM.flushSync(changeState);
@@ -139,8 +140,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   });
 
   const click = useClick(context, {
-    enabled: clickEnabled,
-    stickIfOpen: false,
+    stickIfOpen,
   });
 
   const dismiss = useDismiss(context);
