@@ -40,7 +40,7 @@
 
     @media (--xs) {
       padding: 3rem 1.5rem;
-      min-height: 11.25rem; /* Match .DemoCodeBlockContainer pre min-height */
+      min-height: 11.25rem; /* Match .DemoCodeBlockRoot pre min-height */
     }
   }
 
@@ -153,51 +153,13 @@
     }
   }
 
-  .DemoCodeBlockContainer {
+  .DemoCodeBlockRoot {
     display: flex;
     flex-direction: column;
     position: relative;
     outline: 0;
 
-    & pre {
-      @apply text-xs;
-      padding: 0.5rem 0.75rem;
-      cursor: text;
-
-      /* Scroll */
-      display: flex;
-      overflow: auto;
-      /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
-      overscroll-behavior-x: contain;
-
-      /* Scroll containers may be focusable */
-      &:focus-visible {
-        position: relative;
-        outline: 2px solid var(--color-blue);
-        outline-offset: -1px;
-        z-index: 1;
-      }
-
-      /* Add a border radius when there is no collapse button */
-      &:not(.DemoCollapseButton + &) {
-        border-bottom-left-radius: var(--radius-md);
-        border-bottom-right-radius: var(--radius-md);
-      }
-    }
-
-    & code {
-      /* Different fonts may introduce vertical align issues */
-      display: block;
-      /* Make sure selection highlight spans full container width in Safari */
-      flex-grow: 1;
-    }
-
     &[data-closed] {
-      & pre {
-        overflow: hidden;
-        max-height: calc(8.6lh + 0.5rem); /* Show 8.6 of code lines and account for top padding */
-      }
-
       &::before {
         content: '';
         position: absolute;
@@ -214,6 +176,32 @@
           background: linear-gradient(to bottom, rgb(0 0 0 / 0), rgb(0 0 0 / 60%));
         }
       }
+    }
+  }
+
+  .DemoCodeBlockViewport {
+    /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
+    overscroll-behavior-x: contain;
+
+    /* Max height for code blocks, if we ever want to recover this (https://github.com/mui/base-ui/pull/1187) */
+    /* max-height: clamp(8.75lh + 0.5rem, 80vh, 23.75lh + 0.5rem); */
+
+    &[data-closed] {
+      overflow: hidden;
+      max-height: calc(8.75lh + 0.5rem); /* Show almost 9 code lines plus top padding */
+    }
+  }
+
+  .DemoSourceBrowser {
+    @apply text-xs;
+    padding: 0.5rem 0.75rem;
+    cursor: text;
+
+    & code {
+      /* Different fonts may introduce vertical align issues */
+      display: block;
+      /* Make sure selection highlight spans full container width in Safari */
+      flex-grow: 1;
     }
   }
 
