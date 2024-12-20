@@ -17,7 +17,7 @@ export enum PreviewCardPopupDataAttributes {
   endingStyle = 'data-ending-style',
   /**
    * Indicates which side the preview card is positioned relative to the trigger.
-   * @type {'none' | 'top' | 'right' | 'bottom' | 'left'}
+   * @type {'top' | 'right' | 'bottom' | 'left'}
    */
   side = 'data-side',
 }

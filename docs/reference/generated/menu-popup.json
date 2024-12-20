@@ -20,7 +20,7 @@
     },
     "data-side": {
       "description": "Indicates which side the menu is positioned relative to the trigger.",
-      "type": "'none' | 'top' | 'right' | 'bottom' | 'left'"
+      "type": "'top' | 'right' | 'bottom' | 'left'"
     },
     "data-starting-style": {
       "description": "Present when the menu is animating in."
