@@ -9,6 +9,7 @@ import { AttributesReferenceTable } from './components/ReferenceTable/Attributes
 import { CssVariablesReferenceTable } from './components/ReferenceTable/CssVariablesReferenceTable';
 import { getChildrenText } from './utils/getChildrenText';
 import { Link } from './components/Link';
+import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
 import { Kbd } from './components/Kbd/Kbd';
 
@@ -26,16 +27,32 @@ export const mdxComponents: MDXComponents = {
       <title>{`${getChildrenText(props.children)} · Base UI`}</title>
     </React.Fragment>
   ),
-  h2: (props) => (
-    // Do not wrap heading tags in divs, that confuses Safari Reader
-    <React.Fragment>
-      <h2 className="mt-10 mb-4 scroll-mt-6 text-xl font-medium text-balance" {...props} />
-      <div className="mb-5 border-t border-gray-200" />
-    </React.Fragment>
-  ),
-  h3: (props) => (
-    <h3 className="mt-8 mb-1.5 scroll-mt-6 text-lg font-medium text-balance" {...props} />
-  ),
+  h2: ({ children, id, ...otherProps }) => {
+    return (
+      // Do not wrap heading tags in divs, that confuses Safari Reader
+      <React.Fragment>
+        <h2
+          className="mt-10 mb-4 scroll-mt-6 text-xl font-medium text-balance"
+          id={id}
+          {...otherProps}
+        >
+          <HeadingLink id={id}>{children}</HeadingLink>
+        </h2>
+        <div className="mb-5 border-t border-gray-200" />
+      </React.Fragment>
+    );
+  },
+  h3: ({ children, id, ...otherProps }) => {
+    return (
+      <h3
+        className="mt-8 mb-1.5 scroll-mt-6 text-lg font-medium text-balance"
+        id={id}
+        {...otherProps}
+      >
+        <HeadingLink id={id}>{children}</HeadingLink>
+      </h3>
+    );
+  },
   h4: (props) => <h4 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
   h5: (props) => <h5 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
   h6: (props) => <h6 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,

@@ -21,7 +21,7 @@ export default function NotFound() {
               className="-m-1 inline-flex items-center gap-1 p-1"
               href="/react/overview/quick-start"
             >
-              Documentation <ArrowRightIcon />
+              Documentation <ArrowRightIcon aria-hidden />
             </Link>
 
             <Link className="-m-1 p-1" href="https://github.com/mui/base-ui">
