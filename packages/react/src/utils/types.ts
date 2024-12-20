@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-export type EventHandlers = Record<string, React.EventHandler<any>>;
-
 export type GenericHTMLProps = React.HTMLAttributes<any> & { ref?: React.Ref<any> | undefined };
 
 export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
