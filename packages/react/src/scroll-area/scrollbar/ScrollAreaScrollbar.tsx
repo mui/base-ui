@@ -20,7 +20,7 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
 ) {
   const { render, className, orientation = 'vertical', keepMounted = false, ...otherProps } = props;
 
-  const { hovering, scrolling, hiddenState, scrollbarYRef, scrollbarXRef } =
+  const { hovering, scrollingX, scrollingY, hiddenState, scrollbarYRef, scrollbarXRef } =
     useScrollAreaRootContext();
 
   const mergedRef = useForkRef(
@@ -31,10 +31,13 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
   const state: ScrollAreaScrollbar.State = React.useMemo(
     () => ({
       hovering,
-      scrolling,
+      scrolling: {
+        horizontal: scrollingX,
+        vertical: scrollingY,
+      }[orientation],
       orientation,
     }),
-    [hovering, scrolling, orientation],
+    [hovering, scrollingX, scrollingY, orientation],
   );
 
   const { getScrollbarProps } = useScrollAreaScrollbar({
