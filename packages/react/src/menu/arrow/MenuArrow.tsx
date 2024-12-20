@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useMenuArrow } from './useMenuArrow';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -9,6 +8,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
  * Displays an element positioned against the menu anchor.
@@ -25,9 +25,15 @@ const MenuArrow = React.forwardRef(function MenuArrow(
   const { open } = useMenuRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
 
-  const { getArrowProps } = useMenuArrow({
-    arrowStyles,
-  });
+  const getArrowProps = React.useCallback(
+    (externalProps = {}) => {
+      return mergeReactProps<'div'>(externalProps, {
+        style: arrowStyles,
+        'aria-hidden': true,
+      });
+    },
+    [arrowStyles],
+  );
 
   const state: MenuArrow.State = React.useMemo(
     () => ({
