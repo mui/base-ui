@@ -17,7 +17,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     thumbYRef,
     thumbXRef,
     cornerRef,
-    dir,
+    direction,
     setCornerSize,
     setThumbSize,
     rootId,
@@ -102,7 +102,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       // In Safari, don't allow it to go negative or too far as `scrollLeft` considers the rubber
       // band effect.
       const thumbOffsetX =
-        dir === 'rtl'
+        direction === 'rtl'
           ? clamp(scrollRatioX * maxThumbOffsetX, -maxThumbOffsetX, 0)
           : clamp(scrollRatioX * maxThumbOffsetX, 0, maxThumbOffsetX);
 
@@ -146,7 +146,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
   useEnhancedEffect(() => {
     computeThumb();
-  }, [computeThumb, hiddenState, dir]);
+  }, [computeThumb, hiddenState, direction]);
 
   useEnhancedEffect(() => {
     // `onMouseEnter` doesn't fire upon load, so we need to check if the viewport is already
