@@ -18,7 +18,7 @@ describe('<ScrollArea.Scrollbar />', () => {
     },
   }));
 
-  it('adds [data-scrolling] attribute when viewport is scrolled', async () => {
+  it('adds [data-scrolling] attribute when viewport is scrolled in the correct direction', async () => {
     await render(
       <ScrollArea.Root style={{ width: 200, height: 200 }}>
         <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
@@ -32,19 +32,40 @@ describe('<ScrollArea.Scrollbar />', () => {
 
     const verticalScrollbar = screen.getByTestId('vertical');
     const horizontalScrollbar = screen.getByTestId('horizontal');
+    const viewport = screen.getByTestId('viewport');
 
     expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
     expect(horizontalScrollbar).not.to.have.attribute('data-scrolling');
 
-    fireEvent.scroll(screen.getByTestId('viewport'));
+    fireEvent.scroll(viewport, {
+      target: {
+        scrollTop: 1,
+      },
+    });
 
     expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
-    expect(horizontalScrollbar).to.have.attribute('data-scrolling', '');
+    expect(horizontalScrollbar).not.to.have.attribute('data-scrolling', '');
 
     clock.tick(SCROLL_TIMEOUT - 1);
 
     expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
-    expect(horizontalScrollbar).to.have.attribute('data-scrolling', '');
+    expect(horizontalScrollbar).not.to.have.attribute('data-scrolling', '');
+
+    fireEvent.scroll(viewport, {
+      target: {
+        scrollLeft: 1,
+      },
+    });
+
+    clock.tick(1); // vertical just finished
+
+    expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
+    expect(horizontalScrollbar).to.have.attribute('data-scrolling');
+
+    clock.tick(SCROLL_TIMEOUT - 2); // already ticked 1ms above
+
+    expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
+    expect(horizontalScrollbar).to.have.attribute('data-scrolling');
 
     clock.tick(1);
 

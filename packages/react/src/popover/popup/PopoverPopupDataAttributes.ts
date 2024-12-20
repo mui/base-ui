@@ -17,7 +17,7 @@ export enum PopoverPopupDataAttributes {
   endingStyle = 'data-ending-style',
   /**
    * Indicates which side the popup is positioned relative to the trigger.
-   * @type {'none' | 'top' | 'right' | 'bottom' | 'left'}
+   * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
   side = 'data-side',
 }
