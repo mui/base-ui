@@ -19,7 +19,7 @@
       "description": "Present when the menu is closed."
     },
     "data-instant": {
-      "description": "Indicates the instant type of the popover popup.",
+      "description": "Indicates the instant type of the menu popup.",
       "type": "'click' | 'dismiss'"
     },
     "data-side": {
