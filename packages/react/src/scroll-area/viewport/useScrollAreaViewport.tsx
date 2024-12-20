@@ -213,6 +213,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       children,
       computeThumb,
       handleScroll,
+      viewportRef,
     ],
   );
 
