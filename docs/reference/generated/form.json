@@ -4,7 +4,7 @@
   "props": {
     "errors": {
       "type": "Record<string, string | string[]>",
-      "description": "An object where the keys correspond to the `name` attribute of the form fields,\nand the values correspond to the erorr(s) related to that field."
+      "description": "An object where the keys correspond to the `name` attribute of the form fields,\nand the values correspond to the error(s) related to that field."
     },
     "onClearErrors": {
       "type": "(errors) => void",
