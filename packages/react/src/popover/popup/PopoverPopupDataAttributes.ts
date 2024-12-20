@@ -20,4 +20,9 @@ export enum PopoverPopupDataAttributes {
    * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
   side = 'data-side',
+  /**
+   * Indicates the instant type of the popover popup.
+   * @type {'click' | 'dismiss'}
+   */
+  instant = 'data-instant',
 }
