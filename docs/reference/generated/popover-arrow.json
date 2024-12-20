@@ -26,7 +26,7 @@
     },
     "data-side": {
       "description": "Indicates which side the popup is positioned relative to the trigger.",
-      "type": "'top' | 'right' | 'bottom' | 'left'"
+      "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
     }
   },
   "cssVariables": {}

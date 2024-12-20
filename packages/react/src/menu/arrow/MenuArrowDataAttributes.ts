@@ -13,7 +13,7 @@ export enum MenuArrowDataAttributes {
   anchorHidden = 'data-anchor-hidden',
   /**
    * Indicates which side the menu is positioned relative to the trigger.
-   * @type {'top' | 'right' | 'bottom' | 'left'}
+   * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
   side = 'data-side',
   /**
