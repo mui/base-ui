@@ -63,7 +63,7 @@ namespace PopoverTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<any, State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {}
 }
 
 PopoverTrigger.propTypes /* remove-proptypes */ = {
