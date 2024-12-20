@@ -182,7 +182,7 @@
   .DemoCodeBlockViewport {
     /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
     overscroll-behavior-x: contain;
-    max-height: calc(23.75lh + 0.5rem);
+    max-height: clamp(8.75lh + 0.5rem, 80vh, 23.75lh + 0.5rem);
 
     &[data-closed] {
       overflow: hidden;
