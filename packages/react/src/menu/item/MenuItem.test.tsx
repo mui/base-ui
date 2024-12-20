@@ -3,34 +3,8 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { MemoryRouter, Route, Routes, Link, useLocation } from 'react-router-dom';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
-import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
-import { MenuRootContext } from '../root/MenuRootContext';
-
-const testRootContext: MenuRootContext = {
-  floatingRootContext: {} as FloatingRootContext,
-  getPopupProps: (p) => ({ ...p }),
-  getTriggerProps: (p) => ({ ...p }),
-  getItemProps: (p) => ({ ...p }),
-  parentContext: undefined,
-  nested: false,
-  setTriggerElement: () => {},
-  setPositionerElement: () => {},
-  activeIndex: null,
-  disabled: false,
-  itemDomElements: { current: [] },
-  itemLabels: { current: [] },
-  open: true,
-  setOpen: () => {},
-  popupRef: { current: null },
-  mounted: true,
-  transitionStatus: undefined,
-  typingRef: { current: false },
-  modal: false,
-  positionerRef: { current: null },
-  allowMouseUpTriggerRef: { current: false },
-};
 
 describe('<Menu.Item />', () => {
   const { render, clock } = createRenderer({
@@ -43,11 +17,7 @@ describe('<Menu.Item />', () => {
 
   describeConformance(<Menu.Item />, () => ({
     render: (node) => {
-      return render(
-        <FloatingTree>
-          <MenuRootContext.Provider value={testRootContext}>{node}</MenuRootContext.Provider>
-        </FloatingTree>,
-      );
+      return render(<Menu.Root open>{node}</Menu.Root>);
     },
     refInstanceof: window.HTMLDivElement,
   }));
