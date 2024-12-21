@@ -7,12 +7,6 @@ import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot } from './useMenuRoot';
 import { PortalContext } from '../../portal/PortalContext';
 
-const inertStyle = `
-  [data-floating-ui-inert] {
-    pointer-events: none !important;
-  }
-`;
-
 /**
  * Groups all parts of the menu.
  * Doesn’t render its own HTML element.
@@ -80,8 +74,6 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     // set up a FloatingTree to provide the context to nested menus
     return (
       <FloatingTree>
-        {/* eslint-disable-next-line react/no-danger */}
-        {menuRoot.open && modal && <style dangerouslySetInnerHTML={{ __html: inertStyle }} />}
         <MenuRootContext.Provider value={context}>
           <PortalContext.Provider value={context.mounted}>{children}</PortalContext.Provider>
         </MenuRootContext.Provider>

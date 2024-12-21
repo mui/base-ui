@@ -31,15 +31,17 @@ export default function PopupsInPopups() {
 
           {withBackdrop && <Dialog.Backdrop render={<Backdrop />} />}
 
-          <DialogPopup>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <SelectDemo modal={modal} />
-              <MenuDemo modal={modal} />
-            </div>
-            <DialogControls>
-              <DialogCloseButton>Cancel</DialogCloseButton>
-            </DialogControls>
-          </DialogPopup>
+          <Dialog.Portal>
+            <DialogPopup>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <SelectDemo modal={modal} />
+                <MenuDemo modal={modal} />
+              </div>
+              <DialogControls>
+                <DialogCloseButton>Cancel</DialogCloseButton>
+              </DialogControls>
+            </DialogPopup>
+          </Dialog.Portal>
         </Dialog.Root>
       </div>
     </div>
@@ -48,7 +50,7 @@ export default function PopupsInPopups() {
 
 function SelectDemo({ modal }: Props) {
   return (
-    <Select.Root defaultValue="system" modal={modal} alignItemToTrigger={false}>
+    <Select.Root modal={modal} defaultValue="system" alignItemToTrigger={false}>
       <Tooltip.Root>
         <Select.Trigger
           aria-label="Select font"
@@ -64,22 +66,24 @@ function SelectDemo({ modal }: Props) {
         </Select.Trigger>
       </Tooltip.Root>
 
-      <Select.Positioner sideOffset={5} render={<Positioner />}>
-        <SelectPopup>
-          <SelectItem value="system">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>System font</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="arial">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Arial</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="roboto">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Roboto</Select.ItemText>
-          </SelectItem>
-        </SelectPopup>
-      </Select.Positioner>
+      <Select.Portal>
+        <Select.Positioner sideOffset={5} render={<Positioner />}>
+          <SelectPopup>
+            <SelectItem value="system">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>System font</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="arial">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Arial</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="roboto">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Roboto</Select.ItemText>
+            </SelectItem>
+          </SelectPopup>
+        </Select.Positioner>
+      </Select.Portal>
     </Select.Root>
   );
 }
@@ -283,8 +287,6 @@ const SelectDropdownArrow = styled(Select.Icon)`
 `;
 
 const Positioner = styled('div')`
-  z-index: 2900;
-
   &:focus-visible {
     outline: 0;
   }
@@ -364,7 +366,6 @@ const MenuPopup = styled(Menu.Popup)(
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
   color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   box-shadow: 0px 4px 30px ${theme.palette.mode === 'dark' ? grey[900] : grey[200]};
-  z-index: 1;
   transform-origin: var(--transform-origin);
   opacity: 1;
   transform: scale(1, 1);
@@ -460,7 +461,6 @@ const DialogPopup = styled(Dialog.Popup)(
   font-family: "IBM Plex Sans", sans-serif;
   transform: translate(-50%, -50%);
   padding: 16px;
-  z-index: 2100;
 `,
 );
 
@@ -491,9 +491,7 @@ const DialogCloseButton = styled(Dialog.Close)(
 `,
 );
 
-const TooltipPositioner = styled('div')`
-  z-index: 3000;
-`;
+const TooltipPositioner = styled('div')``;
 
 const TooltipPopup = styled('div')`
   box-sizing: border-box;
@@ -537,5 +535,4 @@ const Backdrop = styled('div')`
   position: fixed;
   inset: 0;
   backdrop-filter: blur(4px);
-  z-index: 2000;
 `;
