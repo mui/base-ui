@@ -66,7 +66,7 @@
     "build": "pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files && pnpm build:manifest",
     "build:node": "node ../../scripts/build.mjs node",
     "build:stable": "node ../../scripts/build.mjs stable",
-    "build:copy-files": "node ../../scripts/copyFiles.mjs",
+    "build:copy-files": "node ../../scripts/copyFiles.mjs ./.npmignore:./.npmignore",
     "build:types": "tsx ../../scripts/buildTypes.mjs --project tsconfig.build.json --copy build/cjs",
     "build:manifest": "tsx ./scripts/createPackageManifest.mts",
     "test:package": "publint ./build && attw --pack ./build",
