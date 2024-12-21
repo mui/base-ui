@@ -151,7 +151,7 @@ jobs:
           react-version: << parameters.react-version >>
       - run:
           name: Run tests on JSDOM
-          command: pnpm test:jsdom --coverage
+          command: pnpm test:jsdom --coverage --project @base-ui-components/react --project docs
       - run:
           name: Check if coverage report is generated
           command: |
@@ -290,7 +290,7 @@ jobs:
           browsers: true
       - run:
           name: Run tests on headless Chromium
-          command: pnpm test:chromium --coverage
+          command: pnpm test:chromium --coverage --project @base-ui-components/react --project docs
       - run:
           name: Check if coverage report is generated
           command: |
