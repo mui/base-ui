@@ -537,6 +537,9 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.0)
+      '@floating-ui/react':
+        specifier: ^0.27.2
+        version: 0.27.2(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)
       '@mui/internal-docs-utils':
         specifier: ^1.0.16
         version: 1.0.16
