@@ -6,6 +6,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { clearPositionerStyles } from './utils';
+import { isWebKit } from '../../utils/detectBrowser';
 
 export function useSelectPopup(): useSelectPopup.ReturnValue {
   const {
@@ -102,6 +103,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     const popupStyles = getComputedStyle(popupRef.current);
 
     const doc = ownerDocument(triggerElement);
+    const win = ownerWindow(positionerElement);
     const triggerRect = triggerElement.getBoundingClientRect();
     const positionerRect = positionerElement.getBoundingClientRect();
     const triggerX = triggerRect.left;
@@ -167,7 +169,10 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       triggerRect.bottom > viewportHeight - triggerCollisionThreshold ||
       height < Math.min(scrollHeight, minHeight);
 
-    if (fallbackToAlignPopupToTrigger) {
+    // Safari doesn't position the popup correctly when pinch-zoomed.
+    const isPinchZoomed = (win.visualViewport?.scale ?? 1) !== 1 && isWebKit();
+
+    if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
       initialPlacedRef.current = true;
       clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
       setcontrolledAlignItemToTrigger(false);
