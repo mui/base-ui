@@ -425,7 +425,7 @@ describe('<Dialog.Root />', () => {
     it('should not render an internal backdrop when `false`', async () => {
       const { user } = await render(
         <div>
-          <Dialog.Root>
+          <Dialog.Root modal={false}>
             <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
             <Dialog.Portal>
               <Dialog.Popup />
@@ -446,10 +446,7 @@ describe('<Dialog.Root />', () => {
       const popup = screen.getByRole('dialog');
 
       // focus guard -> internal backdrop
-      expect(popup.previousElementSibling?.previousElementSibling).to.have.attribute(
-        'role',
-        'presentation',
-      );
+      expect(popup.previousElementSibling?.previousElementSibling).to.equal(null);
     });
   });
 
