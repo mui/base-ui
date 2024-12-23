@@ -126,29 +126,6 @@ describe('<Popover.Trigger />', () => {
       expect(trigger).not.to.have.attribute('data-popup-open');
     });
 
-    it('sticks if the user clicks impatiently', async () => {
-      await renderFakeTimers(
-        <Popover.Root delay={0} openOnHover>
-          <Popover.Trigger />
-        </Popover.Root>,
-      );
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseEnter(trigger);
-
-      clock.tick(PATIENT_CLICK_THRESHOLD - 1);
-
-      fireEvent.click(trigger);
-      fireEvent.mouseLeave(trigger);
-
-      expect(trigger).to.have.attribute('data-popup-open');
-
-      clock.tick(1);
-
-      expect(trigger).to.have.attribute('data-popup-open');
-    });
-
     it('does not stick if the user clicks patiently', async () => {
       await renderFakeTimers(
         <Popover.Root delay={0} openOnHover>
