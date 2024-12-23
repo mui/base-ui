@@ -52,7 +52,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
   const {
     active: activeIndex,
     'aria-labelledby': ariaLabelledby,
-    changeValue,
+    handleInputChange,
     direction,
     disabled: contextDisabled,
     format,
@@ -81,7 +81,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    changeValue,
+    handleInputChange,
     direction,
     disabled: disabledProp || contextDisabled,
     format,

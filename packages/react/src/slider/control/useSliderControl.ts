@@ -22,7 +22,7 @@ export function useSliderControl(
     disabled,
     dragging,
     getFingerState,
-    handleValueChange,
+    setValue,
     onValueCommitted,
     minStepsBetweenValues,
     percentageValues,
@@ -80,7 +80,7 @@ export function useSliderControl(
         setDragging(true);
       }
 
-      handleValueChange(finger.value, finger.closestThumbIndex, nativeEvent);
+      setValue(finger.value, finger.closestThumbIndex, nativeEvent);
     }
   });
 
@@ -132,7 +132,7 @@ export function useSliderControl(
 
       focusThumb(finger.closestThumbIndex, controlRef, setActive);
 
-      handleValueChange(finger.value, finger.closestThumbIndex, nativeEvent);
+      setValue(finger.value, finger.closestThumbIndex, nativeEvent);
     }
 
     moveCountRef.current = 0;
@@ -216,7 +216,7 @@ export function useSliderControl(
 
               offsetRef.current = offset;
             } else {
-              handleValueChange(finger.value, finger.closestThumbIndex, event.nativeEvent);
+              setValue(finger.value, finger.closestThumbIndex, event.nativeEvent);
             }
           }
 
@@ -234,7 +234,7 @@ export function useSliderControl(
       handleRootRef,
       handleTouchMove,
       handleTouchEnd,
-      handleValueChange,
+      setValue,
       percentageValues,
       setActive,
       thumbRefs,
@@ -256,7 +256,7 @@ export namespace useSliderControl {
       | 'disabled'
       | 'dragging'
       | 'getFingerState'
-      | 'handleValueChange'
+      | 'setValue'
       | 'minStepsBetweenValues'
       | 'onValueCommitted'
       | 'percentageValues'

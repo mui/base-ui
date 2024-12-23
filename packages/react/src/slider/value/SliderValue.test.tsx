@@ -8,7 +8,7 @@ import { NOOP } from '../../utils/noop';
 
 const testRootContext: SliderRootContext = {
   active: -1,
-  changeValue: NOOP,
+  handleInputChange: NOOP,
   direction: 'ltr',
   dragging: false,
   disabled: false,
@@ -17,7 +17,7 @@ const testRootContext: SliderRootContext = {
     closestThumbIndex: 0,
     percentageValue: 0,
   }),
-  handleValueChange: NOOP,
+  setValue: NOOP,
   largeStep: 10,
   thumbMap: new Map(),
   max: 100,

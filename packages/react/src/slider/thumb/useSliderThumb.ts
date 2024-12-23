@@ -52,7 +52,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    changeValue,
+    handleInputChange,
     direction,
     disabled,
     format,
@@ -207,7 +207,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
           }
 
           if (newValue !== null) {
-            changeValue(newValue, index, event);
+            handleInputChange(newValue, index, event);
             event.preventDefault();
           }
         },
@@ -219,7 +219,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       });
     },
     [
-      changeValue,
+      handleInputChange,
       commitValidation,
       disabled,
       getThumbStyle,
@@ -262,9 +262,8 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
         max,
         min,
         name,
-        onChange(event: React.ChangeEvent) {
-          // @ts-ignore
-          changeValue(event.target.valueAsNumber, index, event);
+        onChange(event: React.ChangeEvent<HTMLInputElement>) {
+          handleInputChange(event.target.valueAsNumber, index, event);
         },
         ref: mergedInputRef,
         step,
@@ -285,7 +284,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       ariaLabel,
       ariaLabelledby,
       ariaValuetext,
-      changeValue,
+      handleInputChange,
       disabled,
       format,
       getAriaLabel,
@@ -322,7 +321,7 @@ export namespace useSliderThumb {
       useSliderRoot.ReturnValue,
       | 'active'
       | 'aria-labelledby'
-      | 'changeValue'
+      | 'handleInputChange'
       | 'direction'
       | 'largeStep'
       | 'max'
