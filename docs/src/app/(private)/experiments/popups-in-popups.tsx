@@ -58,12 +58,12 @@ function SelectDemo({ modal }: Props) {
         >
           <Select.Value placeholder="System font" />
           <SelectDropdownArrow />
-          <Tooltip.Portal>
-            <Tooltip.Positioner sideOffset={10} render={<TooltipPositioner />}>
-              <Tooltip.Popup render={<TooltipPopup />}>Choose a font</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
         </Select.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner sideOffset={10} render={<TooltipPositioner />}>
+            <Tooltip.Popup render={<TooltipPopup />}>Choose a font</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
       </Tooltip.Root>
 
       <Select.Portal>
