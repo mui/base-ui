@@ -8,7 +8,6 @@ import { NOOP } from '../../utils/noop';
 
 const testRootContext: SliderRootContext = {
   active: -1,
-  areValuesEqual: () => true,
   changeValue: NOOP,
   direction: 'ltr',
   dragging: false,

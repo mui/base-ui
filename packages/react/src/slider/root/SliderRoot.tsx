@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { NOOP } from '../../utils/noop';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -34,8 +35,8 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     min,
     minStepsBetweenValues,
     name,
-    onValueChange,
-    onValueCommitted,
+    onValueChange: onValueChangeProp,
+    onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
     step,
     tabIndex,
@@ -59,8 +60,8 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     min,
     minStepsBetweenValues,
     name,
-    onValueChange,
-    onValueCommitted,
+    onValueChange: onValueChangeProp ?? NOOP,
+    onValueCommitted: onValueCommittedProp ?? NOOP,
     orientation,
     rootRef: forwardedRef,
     step,
@@ -158,19 +159,20 @@ export namespace SliderRoot {
   }
 
   export interface Props
-    extends Pick<
-        useSliderRoot.Parameters,
-        | 'disabled'
-        | 'max'
-        | 'min'
-        | 'minStepsBetweenValues'
-        | 'name'
-        | 'onValueChange'
-        | 'onValueCommitted'
-        | 'orientation'
-        | 'largeStep'
-        | 'step'
-        | 'value'
+    extends Partial<
+        Pick<
+          useSliderRoot.Parameters,
+          | 'disabled'
+          | 'max'
+          | 'min'
+          | 'minStepsBetweenValues'
+          | 'name'
+          | 'onValueChange'
+          | 'onValueCommitted'
+          | 'orientation'
+          | 'largeStep'
+          | 'step'
+        >
       >,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue' | 'onChange' | 'values'> {
     /**

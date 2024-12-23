@@ -5,10 +5,11 @@ import { areArraysEqual } from '../../utils/areArraysEqual';
 import { clamp } from '../../utils/clamp';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import { valueToPercent } from '../../utils/valueToPercent';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
@@ -20,6 +21,19 @@ import { asc } from '../utils/asc';
 import { setValueIndex } from '../utils/setValueIndex';
 import { getSliderValue } from '../utils/getSliderValue';
 import { ThumbMetadata } from '../thumb/useSliderThumb';
+
+function areValuesEqual(
+  newValue: number | readonly number[],
+  oldValue: number | readonly number[],
+) {
+  if (typeof newValue === 'number' && typeof oldValue === 'number') {
+    return newValue === oldValue;
+  }
+  if (Array.isArray(newValue) && Array.isArray(oldValue)) {
+    return areArraysEqual(newValue, oldValue);
+  }
+  return false;
+}
 
 function findClosest(values: number[], currentValue: number) {
   const { index: closestIndex } =
@@ -143,6 +157,8 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     commitValidation,
   } = useFieldControlValidation();
 
+  // The internal valueState is potentially unsorted, e.g. to support frozen arrays
+  // https://github.com/mui/material-ui/pull/28472
   const [valueState, setValueState] = useControlled({
     controlled: valueProp,
     default: defaultValue ?? min,
@@ -190,9 +206,9 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     [inputValidationRef],
   );
 
-  const handleValueChange = React.useCallback(
-    (value: number | number[], thumbIndex: number, event: Event | React.SyntheticEvent) => {
-      if (!onValueChange) {
+  const handleValueChange = useEventCallback(
+    (newValue: number | readonly number[], thumbIndex: number, event: Event) => {
+      if (areValuesEqual(newValue, valueState)) {
         return;
       }
 
@@ -200,18 +216,16 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       // This allows seamless integration with the most popular form libraries.
       // https://github.com/mui/material-ui/issues/13485#issuecomment-676048492
       // Clone the event to not override `target` of the original event.
-      const nativeEvent = (event as React.SyntheticEvent).nativeEvent || event;
       // @ts-ignore The nativeEvent is function, not object
-      const clonedEvent = new nativeEvent.constructor(nativeEvent.type, nativeEvent);
+      const clonedEvent = new event.constructor(event.type, event);
 
       Object.defineProperty(clonedEvent, 'target', {
         writable: true,
-        value: { value, name },
+        value: { value: newValue, name },
       });
 
-      onValueChange(value, clonedEvent, thumbIndex);
+      onValueChange(newValue, clonedEvent, thumbIndex);
     },
-    [name, onValueChange],
   );
 
   const range = Array.isArray(valueState);
@@ -224,20 +238,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const handleRootRef = useForkRef(rootRef, sliderRef);
 
-  const areValuesEqual = React.useCallback(
-    (newValue: number | ReadonlyArray<number>): boolean => {
-      if (typeof newValue === 'number' && typeof valueState === 'number') {
-        return newValue === valueState;
-      }
-      if (typeof newValue === 'object' && typeof valueState === 'object') {
-        return areArraysEqual(newValue, valueState);
-      }
-      return false;
-    },
-    [valueState],
-  );
-
-  const changeValue = React.useCallback(
+  const changeValue = useEventCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
       const newValue = getSliderValue({
         valueInput,
@@ -256,39 +257,19 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         setValueState(newValue);
         setDirty(newValue !== validityData.initialValue);
 
-        if (handleValueChange && !areValuesEqual(newValue) && event) {
-          handleValueChange(newValue, index, event);
-        }
+        handleValueChange(newValue, index, event.nativeEvent);
 
         setTouched(true);
         commitValidation(newValue);
 
-        if (onValueCommitted && event) {
-          onValueCommitted(newValue, event.nativeEvent);
-        }
+        onValueCommitted(newValue, event.nativeEvent);
       }
     },
-    [
-      min,
-      max,
-      range,
-      step,
-      minStepsBetweenValues,
-      values,
-      setValueState,
-      setDirty,
-      validityData.initialValue,
-      handleValueChange,
-      areValuesEqual,
-      onValueCommitted,
-      setTouched,
-      commitValidation,
-    ],
   );
 
   const previousIndexRef = React.useRef<number | null>(null);
 
-  const getFingerNewValue = React.useCallback(
+  const getFingerNewValue = useEventCallback(
     ({
       finger,
       move = false,
@@ -364,7 +345,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
       return { newValue, activeIndex, newPercentageValue: percent };
     },
-    [direction, max, min, minStepsBetweenValues, orientation, range, step, values],
   );
 
   useEnhancedEffect(() => {
@@ -397,7 +377,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     () => ({
       getRootProps,
       active,
-      areValuesEqual,
       'aria-labelledby': ariaLabelledby,
       changeValue,
       direction,
@@ -428,7 +407,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     [
       getRootProps,
       active,
-      areValuesEqual,
       ariaLabelledby,
       changeValue,
       direction,
@@ -513,7 +491,11 @@ export namespace useSliderRoot {
      * You can pull out the new value by accessing `event.target.value` (any).
      * @param {number} activeThumbIndex Index of the currently moved thumb.
      */
-    onValueChange?: (value: number | number[], event: Event, activeThumbIndex: number) => void;
+    onValueChange: (
+      value: number | readonly number[],
+      event: Event,
+      activeThumbIndex: number,
+    ) => void;
     /**
      * Callback function that is fired when the `pointerup` is triggered.
      *
@@ -521,7 +503,7 @@ export namespace useSliderRoot {
      * @param {Event} event The corresponding event that initiated the change.
      * **Warning**: This is a generic event not a change event.
      */
-    onValueCommitted?: (value: number | number[], event: Event) => void;
+    onValueCommitted: (value: number | number[], event: Event) => void;
     /**
      * The component orientation.
      * @default 'horizontal'
@@ -562,11 +544,6 @@ export namespace useSliderRoot {
      * The index of the active thumb.
      */
     active: number;
-    /**
-     * A function that compares a new value with the internal value of the slider.
-     * The internal value is potentially unsorted, e.g. to support frozen arrays: https://github.com/mui/material-ui/pull/28472
-     */
-    areValuesEqual: (newValue: number | ReadonlyArray<number>) => boolean;
     'aria-labelledby'?: string;
     changeValue: (
       valueInput: number,
@@ -582,10 +559,13 @@ export namespace useSliderRoot {
       offset?: number;
       activeIndex?: number;
     }) => { newValue: number | number[]; activeIndex: number; newPercentageValue: number } | null;
+    /**
+     * Callback to invoke change handlers after internal value state is updated.
+     */
     handleValueChange: (
-      value: number | number[],
+      newValue: number | readonly number[],
       activeThumb: number,
-      event: React.SyntheticEvent | Event,
+      event: Event,
     ) => void;
     /**
      * The large step value of the slider when incrementing or decrementing while the shift key is held,
@@ -606,7 +586,7 @@ export namespace useSliderRoot {
      */
     minStepsBetweenValues: number;
     name?: string;
-    onValueCommitted?: (value: number | number[], event: Event) => void;
+    onValueCommitted: (value: number | number[], event: Event) => void;
     /**
      * The component orientation.
      * @default 'horizontal'
