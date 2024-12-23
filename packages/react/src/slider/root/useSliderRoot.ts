@@ -102,7 +102,7 @@ export function validateMinimumDistance(
 export function trackFinger(
   event: TouchEvent | PointerEvent | React.PointerEvent,
   touchIdRef: React.RefObject<any>,
-) {
+): FingerPosition | null {
   // The event is TouchEvent
   if (touchIdRef.current !== undefined && (event as TouchEvent).changedTouches) {
     const touchEvent = event as TouchEvent;
@@ -116,7 +116,7 @@ export function trackFinger(
       }
     }
 
-    return false;
+    return null;
   }
 
   // The event is PointerEvent
@@ -258,10 +258,8 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
         handleValueChange(newValue, index, event.nativeEvent);
         setDirty(newValue !== validityData.initialValue);
-
         setTouched(true);
         commitValidation(newValue);
-
         onValueCommitted(newValue, event.nativeEvent);
       }
     },
@@ -269,17 +267,17 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const previousIndexRef = React.useRef<number | null>(null);
 
-  const getFingerNewValue = useEventCallback(
-    ({
-      finger,
-      move = false,
-      offset = 0,
-    }: {
-      finger: { x: number; y: number };
+  const getValueAtFinger = useEventCallback(
+    (
+      fingerPosition: FingerPosition | null,
       // `move` is used to distinguish between when this is called by touchstart vs touchmove/end
-      move?: boolean;
-      offset?: number;
-    }) => {
+      move: boolean = false,
+      offset: number = 0,
+    ) => {
+      if (fingerPosition == null) {
+        return null;
+      }
+
       const { current: sliderControl } = controlRef;
 
       if (!sliderControl) {
@@ -293,9 +291,9 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       let percent;
 
       if (isVertical) {
-        percent = (bottom - finger.y) / height + offset;
+        percent = (bottom - fingerPosition.y) / height + offset;
       } else {
-        percent = (finger.x - left) / width + offset * (isRtl ? -1 : 1);
+        percent = (fingerPosition.x - left) / width + offset * (isRtl ? -1 : 1);
       }
 
       percent = Math.min(percent, 1);
@@ -311,39 +309,39 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       }
 
       newValue = clamp(newValue, min, max);
-      let activeIndex = 0;
+      let closestThumbIndex = 0;
 
       if (!range) {
-        return { newValue, activeIndex, newPercentageValue: percent };
+        return { newValue, closestThumbIndex, newPercentageValue: percent };
       }
 
       if (!move) {
-        activeIndex = findClosest(values, newValue)!;
+        closestThumbIndex = findClosest(values, newValue)!;
       } else {
-        activeIndex = previousIndexRef.current!;
+        closestThumbIndex = previousIndexRef.current!;
       }
 
       // Bound the new value to the thumb's neighbours.
       newValue = clamp(
         newValue,
-        values[activeIndex - 1] + minStepsBetweenValues || -Infinity,
-        values[activeIndex + 1] - minStepsBetweenValues || Infinity,
+        values[closestThumbIndex - 1] + minStepsBetweenValues || -Infinity,
+        values[closestThumbIndex + 1] - minStepsBetweenValues || Infinity,
       );
 
       const previousValue = newValue;
       newValue = setValueIndex({
         values,
         newValue,
-        index: activeIndex,
+        index: closestThumbIndex,
       });
 
       // Potentially swap the index if needed.
       if (!move) {
-        activeIndex = newValue.indexOf(previousValue);
-        previousIndexRef.current = activeIndex;
+        closestThumbIndex = newValue.indexOf(previousValue);
+        previousIndexRef.current = closestThumbIndex;
       }
 
-      return { newValue, activeIndex, newPercentageValue: percent };
+      return { newValue, closestThumbIndex, newPercentageValue: percent };
     },
   );
 
@@ -382,7 +380,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       direction,
       disabled,
       dragging,
-      getFingerNewValue,
+      getValueAtFinger,
       handleValueChange,
       largeStep,
       max,
@@ -411,7 +409,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       direction,
       disabled,
       dragging,
-      getFingerNewValue,
+      getValueAtFinger,
       handleValueChange,
       largeStep,
       max,
@@ -433,6 +431,11 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     ],
   );
 }
+
+export type FingerPosition = {
+  x: number;
+  y: number;
+};
 
 export namespace useSliderRoot {
   export type Orientation = 'horizontal' | 'vertical';
@@ -551,12 +554,15 @@ export namespace useSliderRoot {
     dragging: boolean;
     direction: TextDirection;
     disabled: boolean;
-    getFingerNewValue: (args: {
-      finger: { x: number; y: number };
-      move?: boolean;
-      offset?: number;
-      activeIndex?: number;
-    }) => { newValue: number | number[]; activeIndex: number; newPercentageValue: number } | null;
+    getValueAtFinger: (
+      fingerPosition: FingerPosition | null,
+      move?: boolean,
+      offset?: number,
+    ) => {
+      newValue: number | number[];
+      closestThumbIndex: number;
+      newPercentageValue: number;
+    } | null;
     /**
      * Callback to invoke change handlers after internal value state is updated.
      */

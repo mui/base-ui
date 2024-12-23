@@ -23,7 +23,7 @@ const SliderControl = React.forwardRef(function SliderControl(
   const {
     disabled,
     dragging,
-    getFingerNewValue,
+    getValueAtFinger,
     handleValueChange,
     minStepsBetweenValues,
     onValueCommitted,
@@ -39,7 +39,7 @@ const SliderControl = React.forwardRef(function SliderControl(
   const { getRootProps } = useSliderControl({
     disabled,
     dragging,
-    getFingerNewValue,
+    getValueAtFinger,
     handleValueChange,
     minStepsBetweenValues,
     onValueCommitted,
