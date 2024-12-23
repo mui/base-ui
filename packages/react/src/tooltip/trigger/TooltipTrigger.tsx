@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
@@ -46,7 +46,7 @@ namespace TooltipTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<any, State> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 TooltipTrigger.propTypes /* remove-proptypes */ = {

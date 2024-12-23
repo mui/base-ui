@@ -39,7 +39,7 @@ export type ComponentRenderFn<Props, State> = (
 export type BaseUIComponentProps<
   ElementType extends React.ElementType,
   State,
-  RenderFunctionProps = React.HTMLAttributes<any>,
+  RenderFunctionProps = GenericHTMLProps,
 > = Omit<WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>, 'className'> & {
   /**
    * CSS class applied to the element, or a function that
