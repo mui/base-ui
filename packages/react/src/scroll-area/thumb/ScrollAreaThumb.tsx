@@ -27,7 +27,8 @@ const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
-    setScrolling,
+    setScrollingX,
+    setScrollingY,
   } = useScrollAreaRootContext();
 
   const { orientation } = useScrollAreaScrollbarContext();
@@ -45,7 +46,12 @@ const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
       onPointerDown: handlePointerDown,
       onPointerMove: handlePointerMove,
       onPointerUp(event) {
-        setScrolling(false);
+        if (orientation === 'vertical') {
+          setScrollingY(false);
+        }
+        if (orientation === 'horizontal') {
+          setScrollingX(false);
+        }
         handlePointerUp(event);
       },
       style: {

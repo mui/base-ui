@@ -29,6 +29,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
         style: arrowStyles,
+        'aria-hidden': true,
       }),
     [arrowStyles],
   );

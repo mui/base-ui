@@ -1,18 +1,24 @@
 'use client';
 import * as React from 'react';
+import { useEnhancedEffect } from './useEnhancedEffect';
+import { warn } from './warn';
 
-type UseRootElementNameParameters = {
+interface UseRootElementNameParameters {
   /**
    * The HTML element expected to be rendered, for example 'div', 'button' etc
    * @default ''
    */
   rootElementName?: keyof HTMLElementTagNameMap;
+}
+
+interface UseRootElementNameReturnValue {
   /**
-   * The name of the component using useRootElementName.
-   * For debugging purposes.
+   * The HTML element expected to be rendered, for example 'div', 'button' etc
+   * @default ''
    */
-  componentName?: string;
-};
+  rootElementName: string;
+  updateRootElementName: (element: HTMLElement | null) => void;
+}
 
 /**
  * @ignore - do not document.
@@ -21,8 +27,8 @@ type UseRootElementNameParameters = {
  */
 export function useRootElementName(
   parameters: UseRootElementNameParameters,
-): [string, (instance: HTMLElement | null) => void] {
-  const { rootElementName: rootElementNameProp = '', componentName } = parameters;
+): UseRootElementNameReturnValue {
+  const { rootElementName: rootElementNameProp = '' } = parameters;
 
   const [rootElementName, setRootElementName] = React.useState<string>(
     rootElementNameProp.toUpperCase(),
@@ -30,21 +36,19 @@ export function useRootElementName(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    React.useEffect(() => {
+    useEnhancedEffect(() => {
       if (rootElementNameProp && rootElementName !== rootElementNameProp.toUpperCase()) {
-        console.error(
-          `useRootElementName: the \`rootElementName\` prop of ${
-            componentName ? `the ${componentName} component` : 'a component'
-          } expected the '${rootElementNameProp}' element, but a '${rootElementName.toLowerCase()}' was rendered instead`,
+        warn(
+          `useRootElementName expected the '${rootElementNameProp}' element, but a '${rootElementName.toLowerCase()}' was rendered instead`,
           'This may cause hydration issues in an SSR context, for example in a Next.js app',
         );
       }
-    }, [rootElementNameProp, rootElementName, componentName]);
+    }, [rootElementNameProp, rootElementName]);
   }
 
-  const updateRootElementName = React.useCallback((instance: HTMLElement | null) => {
-    setRootElementName(instance?.tagName ?? '');
+  const updateRootElementName = React.useCallback((element: HTMLElement | null) => {
+    setRootElementName(element?.tagName ?? '');
   }, []);
 
-  return [rootElementName, updateRootElementName];
+  return { rootElementName, updateRootElementName };
 }

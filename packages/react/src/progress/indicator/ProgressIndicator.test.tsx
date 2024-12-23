@@ -44,8 +44,25 @@ describe('<Progress.Indicator />', () => {
       const indicator = getByTestId('indicator');
 
       expect(indicator).toHaveComputedStyle({
-        left: '0px',
+        insetInlineStart: '0px',
         width: '33%',
+      });
+    });
+
+    it('sets zero width when value is 0', async () => {
+      const { getByTestId } = await render(
+        <Progress.Root value={0}>
+          <Progress.Track>
+            <Progress.Indicator data-testid="indicator" />
+          </Progress.Track>
+        </Progress.Root>,
+      );
+
+      const indicator = getByTestId('indicator');
+
+      expect(indicator).toHaveComputedStyle({
+        insetInlineStart: '0px',
+        width: '0%',
       });
     });
 

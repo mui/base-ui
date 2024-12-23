@@ -184,8 +184,16 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
           overflow: 'scroll',
         },
         onScroll() {
+          if (!viewportRef.current) {
+            return;
+          }
+
           computeThumb();
-          handleScroll();
+
+          handleScroll({
+            x: viewportRef.current.scrollLeft,
+            y: viewportRef.current.scrollTop,
+          });
         },
         children: (
           <div
@@ -205,6 +213,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       children,
       computeThumb,
       handleScroll,
+      viewportRef,
     ],
   );
 

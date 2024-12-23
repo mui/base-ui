@@ -93,7 +93,7 @@ namespace Form {
   export interface Props extends BaseUIComponentProps<'form', State> {
     /**
      * An object where the keys correspond to the `name` attribute of the form fields,
-     * and the values correspond to the erorr(s) related to that field.
+     * and the values correspond to the error(s) related to that field.
      */
     errors?: FormContext['errors'];
     /**
@@ -120,7 +120,7 @@ Form.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * An object where the keys correspond to the `name` attribute of the form fields,
-   * and the values correspond to the erorr(s) related to that field.
+   * and the values correspond to the error(s) related to that field.
    */
   errors: PropTypes.object,
   /**

@@ -124,8 +124,15 @@ export function Item({ children, className, href, ...props }: ItemProps) {
         data-active={active || undefined}
         className="SideNavLink"
         href={href}
+        scroll={!active}
+        onClick={() => {
+          // Scroll to top smoothly when clicking on the currently active item
+          if (active) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }}
       >
-        {children}
+        <span className="SideNavLinkInner">{children}</span>
       </NextLink>
     </li>
   );

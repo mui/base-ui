@@ -16,7 +16,8 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   const { dir: dirParam } = params;
 
   const [hovering, setHovering] = React.useState(false);
-  const [scrolling, setScrolling] = React.useState(false);
+  const [scrollingX, setScrollingX] = React.useState(false);
+  const [scrollingY, setScrollingY] = React.useState(false);
   const [cornerSize, setCornerSize] = React.useState<Size>({ width: 0, height: 0 });
   const [thumbSize, setThumbSize] = React.useState<Size>({ width: 0, height: 0 });
   const [touchModality, setTouchModality] = React.useState(false);
@@ -36,7 +37,9 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   const startScrollTopRef = React.useRef(0);
   const startScrollLeftRef = React.useRef(0);
   const currentOrientationRef = React.useRef<'vertical' | 'horizontal'>('vertical');
-  const timeoutRef = React.useRef(-1);
+  const scrollYTimeoutRef = React.useRef(-1);
+  const scrollXTimeoutRef = React.useRef(-1);
+  const scrollPositionRef = React.useRef({ x: 0, y: 0 });
 
   const [hiddenState, setHiddenState] = React.useState({
     scrollbarYHidden: false,
@@ -55,17 +58,33 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
 
   React.useEffect(() => {
     return () => {
-      window.clearTimeout(timeoutRef.current);
+      window.clearTimeout(scrollYTimeoutRef.current);
+      window.clearTimeout(scrollXTimeoutRef.current);
     };
   }, []);
 
-  const handleScroll = useEventCallback(() => {
-    setScrolling(true);
+  const handleScroll = useEventCallback((scrollPosition: { x: number; y: number }) => {
+    const offsetX = scrollPosition.x - scrollPositionRef.current.x;
+    const offsetY = scrollPosition.y - scrollPositionRef.current.y;
+    scrollPositionRef.current = scrollPosition;
 
-    window.clearTimeout(timeoutRef.current);
-    timeoutRef.current = window.setTimeout(() => {
-      setScrolling(false);
-    }, SCROLL_TIMEOUT);
+    if (offsetY !== 0) {
+      setScrollingY(true);
+
+      window.clearTimeout(scrollYTimeoutRef.current);
+      scrollYTimeoutRef.current = window.setTimeout(() => {
+        setScrollingY(false);
+      }, SCROLL_TIMEOUT);
+    }
+
+    if (offsetX !== 0) {
+      setScrollingX(true);
+
+      window.clearTimeout(scrollXTimeoutRef.current);
+      scrollXTimeoutRef.current = window.setTimeout(() => {
+        setScrollingX(false);
+      }, SCROLL_TIMEOUT);
+    }
   });
 
   const handlePointerDown = useEventCallback((event: React.PointerEvent) => {
@@ -116,10 +135,12 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
         viewportRef.current.scrollTop =
           startScrollTopRef.current + scrollRatioY * (scrollableContentHeight - viewportHeight);
         event.preventDefault();
-        setScrolling(true);
-        window.clearTimeout(timeoutRef.current);
-        timeoutRef.current = window.setTimeout(() => {
-          setScrolling(false);
+
+        setScrollingY(true);
+
+        window.clearTimeout(scrollYTimeoutRef.current);
+        scrollYTimeoutRef.current = window.setTimeout(() => {
+          setScrollingY(false);
         }, SCROLL_TIMEOUT);
       }
 
@@ -137,10 +158,12 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
         viewportRef.current.scrollLeft =
           startScrollLeftRef.current + scrollRatioX * (scrollableContentWidth - viewportWidth);
         event.preventDefault();
-        setScrolling(true);
-        window.clearTimeout(timeoutRef.current);
-        timeoutRef.current = window.setTimeout(() => {
-          setScrolling(false);
+
+        setScrollingX(true);
+
+        window.clearTimeout(scrollXTimeoutRef.current);
+        scrollXTimeoutRef.current = window.setTimeout(() => {
+          setScrollingX(false);
         }, SCROLL_TIMEOUT);
       }
     }
@@ -201,8 +224,10 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       setThumbSize,
       touchModality,
       cornerRef,
-      scrolling,
-      setScrolling,
+      scrollingX,
+      setScrollingX,
+      scrollingY,
+      setScrollingY,
       hovering,
       setHovering,
       viewportRef,
@@ -224,7 +249,10 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       thumbSize,
       touchModality,
       cornerRef,
-      scrolling,
+      scrollingX,
+      setScrollingX,
+      scrollingY,
+      setScrollingY,
       hovering,
       setHovering,
       viewportRef,
