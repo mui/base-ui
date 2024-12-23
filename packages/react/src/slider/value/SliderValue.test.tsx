@@ -43,7 +43,6 @@ const testRootContext: SliderRootContext = {
   setActive: NOOP,
   setDragging: NOOP,
   setThumbMap: NOOP,
-  setValueState: NOOP,
   step: 1,
   thumbRefs: { current: [] },
   values: [0],
