@@ -377,7 +377,6 @@ describe('<Select.Root />', () => {
 
       const positioner = screen.getByTestId('positioner');
 
-      // eslint-disable-next-line testing-library/no-node-access
       expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
     });
 
@@ -408,7 +407,6 @@ describe('<Select.Root />', () => {
 
       const positioner = screen.getByTestId('positioner');
 
-      // eslint-disable-next-line testing-library/no-node-access
       expect(positioner.previousElementSibling).to.equal(null);
     });
   });

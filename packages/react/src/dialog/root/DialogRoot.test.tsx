@@ -416,7 +416,6 @@ describe('<Dialog.Root />', () => {
       const popup = screen.getByRole('dialog');
 
       // focus guard -> internal backdrop
-      // eslint-disable-next-line testing-library/no-node-access
       expect(popup.previousElementSibling?.previousElementSibling).to.have.attribute(
         'role',
         'presentation',
@@ -447,7 +446,6 @@ describe('<Dialog.Root />', () => {
       const popup = screen.getByRole('dialog');
 
       // focus guard -> internal backdrop
-      // eslint-disable-next-line testing-library/no-node-access
       expect(popup.previousElementSibling?.previousElementSibling).to.have.attribute(
         'role',
         'presentation',
