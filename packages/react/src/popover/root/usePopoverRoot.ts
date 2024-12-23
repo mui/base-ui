@@ -46,10 +46,10 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
-  const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const [clickEnabled, setClickEnabled] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
-  const stickIfOpenTimeoutRef = React.useRef(-1);
+  const clickEnabledTimeoutRef = React.useRef(-1);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -58,8 +58,8 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     state: 'open',
   });
 
-  if (!open && !stickIfOpen) {
-    setStickIfOpen(true);
+  if (!open && !clickEnabled) {
+    setClickEnabled(true);
   }
 
   const onOpenChange = useEventCallback(onOpenChangeProp);
@@ -89,7 +89,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   React.useEffect(() => {
     return () => {
-      clearTimeout(stickIfOpenTimeoutRef.current);
+      clearTimeout(clickEnabledTimeoutRef.current);
     };
   }, []);
 
@@ -106,11 +106,11 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       }
 
       if (isHover) {
-        // Only allow "patient" clicks to close the popover if it's open.
-        // If they clicked within 500ms of the popover opening, keep it open.
-        clearTimeout(stickIfOpenTimeoutRef.current);
-        stickIfOpenTimeoutRef.current = window.setTimeout(() => {
-          setStickIfOpen(false);
+        // Prevent impatient clicks from unexpectedly closing the popover.
+        setClickEnabled(false);
+        clearTimeout(clickEnabledTimeoutRef.current);
+        clickEnabledTimeoutRef.current = window.setTimeout(() => {
+          setClickEnabled(true);
         }, PATIENT_CLICK_THRESHOLD);
 
         ReactDOM.flushSync(changeState);
@@ -140,7 +140,8 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   });
 
   const click = useClick(context, {
-    stickIfOpen,
+    enabled: clickEnabled,
+    stickIfOpen: false,
   });
 
   const dismiss = useDismiss(context);
