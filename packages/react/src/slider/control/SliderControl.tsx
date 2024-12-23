@@ -21,7 +21,6 @@ const SliderControl = React.forwardRef(function SliderControl(
   const { render: renderProp, className, ...otherProps } = props;
 
   const {
-    areValuesEqual,
     disabled,
     dragging,
     getFingerNewValue,
@@ -39,7 +38,6 @@ const SliderControl = React.forwardRef(function SliderControl(
   } = useSliderRootContext();
 
   const { getRootProps } = useSliderControl({
-    areValuesEqual,
     disabled,
     dragging,
     getFingerNewValue,
