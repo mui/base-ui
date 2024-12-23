@@ -233,7 +233,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       getFloatingProps(
         mergeReactProps(externalProps, {
           onMouseEnter() {
-            if (!openOnHover) {
+            if (!openOnHover || nested) {
               setHoverEnabled(false);
             }
           },
@@ -244,7 +244,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
           },
         }),
       ),
-    [getFloatingProps, openOnHover],
+    [getFloatingProps, openOnHover, nested],
   );
 
   return React.useMemo(
