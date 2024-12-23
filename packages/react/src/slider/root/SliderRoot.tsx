@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { NOOP } from '../../utils/noop';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -27,45 +28,45 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     className,
     defaultValue,
     disabled: disabledProp = false,
-    id,
+    id: idProp,
     format,
-    largeStep,
+    largeStep = 10,
     render,
-    max,
-    min,
-    minStepsBetweenValues,
-    name,
+    max = 100,
+    min = 0,
+    minStepsBetweenValues = 0,
+    name: nameProp,
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
-    step,
-    tabIndex,
+    step = 1,
+    tabIndex: externalTabIndex,
     value,
     ...otherProps
   } = props;
 
+  const id = useBaseUiId(idProp);
   const direction = useDirection();
 
   const { labelId, state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
 
   const { getRootProps, ...slider } = useSliderRoot({
-    'aria-labelledby': ariaLabelledby ?? labelId,
+    'aria-labelledby': ariaLabelledby ?? labelId ?? '',
     defaultValue,
     direction,
     disabled,
-    id,
+    id: id ?? '',
     largeStep,
     max,
     min,
     minStepsBetweenValues,
-    name,
+    name: nameProp ?? '',
     onValueChange: onValueChangeProp ?? NOOP,
     onValueCommitted: onValueCommittedProp ?? NOOP,
     orientation,
     rootRef: forwardedRef,
     step,
-    tabIndex,
     value,
   });
 
@@ -101,8 +102,9 @@ const SliderRoot = React.forwardRef(function SliderRoot(
       ...slider,
       format,
       state,
+      tabIndex: externalTabIndex ?? null,
     }),
-    [slider, format, state],
+    [slider, format, state, externalTabIndex],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -190,6 +192,10 @@ export namespace SliderRoot {
      * Options to format the input value.
      */
     format?: Intl.NumberFormatOptions;
+    /**
+     * Optional tab index attribute for the thumb components.
+     */
+    tabIndex?: number;
     /**
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
@@ -319,7 +325,7 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   step: PropTypes.number,
   /**
-   * @ignore
+   * Optional tab index attribute for the thumb components.
    */
   tabIndex: PropTypes.number,
   /**

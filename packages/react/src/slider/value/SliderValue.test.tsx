@@ -23,6 +23,7 @@ const testRootContext: SliderRootContext = {
   max: 100,
   min: 0,
   minStepsBetweenValues: 0,
+  name: '',
   onValueCommitted: NOOP,
   orientation: 'horizontal',
   state: {
@@ -45,6 +46,7 @@ const testRootContext: SliderRootContext = {
   setDragging: NOOP,
   setThumbMap: NOOP,
   step: 1,
+  tabIndex: null,
   thumbRefs: { current: [] },
   values: [0],
 };

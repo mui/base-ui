@@ -5,7 +5,6 @@ import { areArraysEqual } from '../../utils/areArraysEqual';
 import { clamp } from '../../utils/clamp';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -139,7 +138,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     defaultValue,
     direction = 'ltr',
     disabled = false,
-    id: idProp,
+    id,
     largeStep = 10,
     max = 100,
     min = 0,
@@ -150,7 +149,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     orientation = 'horizontal',
     rootRef,
     step = 1,
-    tabIndex,
     value: valueProp,
   } = parameters;
 
@@ -173,8 +171,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef: React.RefObject<HTMLElement | null> = React.useRef(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
-
-  const id = useBaseUiId(idProp);
 
   const [thumbMap, setThumbMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
@@ -379,14 +375,13 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   return React.useMemo(
     () => ({
       getRootProps,
-      active,
       'aria-labelledby': ariaLabelledby,
-      handleInputChange,
+      active,
       direction,
       disabled,
       dragging,
       getFingerState,
-      setValue,
+      handleInputChange,
       largeStep,
       max,
       min,
@@ -400,8 +395,8 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       setActive,
       setDragging,
       setThumbMap,
+      setValue,
       step,
-      tabIndex,
       thumbMap,
       thumbRefs,
       values,
@@ -410,12 +405,11 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       getRootProps,
       active,
       ariaLabelledby,
-      handleInputChange,
       direction,
       disabled,
       dragging,
       getFingerState,
-      setValue,
+      handleInputChange,
       largeStep,
       max,
       min,
@@ -428,8 +422,8 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       setActive,
       setDragging,
       setThumbMap,
+      setValue,
       step,
-      tabIndex,
       thumbMap,
       thumbRefs,
       values,
@@ -449,11 +443,11 @@ export namespace useSliderRoot {
     /**
      * The id of the slider element.
      */
-    id?: string;
+    id: string;
     /**
      * The id of the element containing a label for the slider.
      */
-    'aria-labelledby'?: string;
+    'aria-labelledby': string;
     /**
      * The default value. Use when the component is not controlled.
      */
@@ -467,28 +461,28 @@ export namespace useSliderRoot {
      * Whether the component should ignore user interaction.
      * @default false
      */
-    disabled?: boolean;
+    disabled: boolean;
     /**
      * The maximum allowed value of the slider.
      * Should not be equal to min.
      * @default 100
      */
-    max?: number;
+    max: number;
     /**
      * The minimum allowed value of the slider.
      * Should not be equal to max.
      * @default 0
      */
-    min?: number;
+    min: number;
     /**
      * The minimum steps between values in a range slider.
      * @default 0
      */
-    minStepsBetweenValues?: number;
+    minStepsBetweenValues: number;
     /**
      * Identifies the field when a form is submitted.
      */
-    name?: string;
+    name: string;
     /**
      * Callback function that is fired when the slider's value changed.
      *
@@ -514,27 +508,23 @@ export namespace useSliderRoot {
      * The component orientation.
      * @default 'horizontal'
      */
-    orientation?: Orientation;
+    orientation: Orientation;
     /**
      * The ref attached to the root of the Slider.
      */
-    rootRef?: React.Ref<Element>;
+    rootRef: React.Ref<HTMLElement>;
     /**
      * The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.
      * @default 10
      */
-    largeStep?: number;
+    largeStep: number;
     /**
      * The granularity with which the slider can step through values. (A "discrete" slider.)
      * The `min` prop serves as the origin for the valid values.
      * We recommend (max - min) to be evenly divisible by the step.
      * @default 1
      */
-    step?: number;
-    /**
-     * Tab index attribute of the Thumb component's `input` element.
-     */
-    tabIndex?: number;
+    step: number;
     /**
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
@@ -590,7 +580,7 @@ export namespace useSliderRoot {
      * The minimum steps between values in a range slider.
      */
     minStepsBetweenValues: number;
-    name?: string;
+    name: string;
     onValueCommitted: (value: number | number[], event: Event) => void;
     /**
      * The component orientation.
@@ -613,7 +603,6 @@ export namespace useSliderRoot {
     step: number;
     thumbMap: Map<Node, CompositeMetadata<ThumbMetadata> | null>;
     thumbRefs: React.MutableRefObject<(HTMLElement | null)[]>;
-    tabIndex?: number;
     /**
      * The value(s) of the slider
      */
