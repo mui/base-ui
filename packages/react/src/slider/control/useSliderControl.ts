@@ -21,7 +21,7 @@ export function useSliderControl(
   const {
     disabled,
     dragging,
-    getValueAtFinger,
+    getFingerState,
     handleValueChange,
     onValueCommitted,
     minStepsBetweenValues,
@@ -67,22 +67,20 @@ export function useSliderControl(
       return;
     }
 
-    const newFingerValue = getValueAtFinger(fingerPosition, false, offsetRef.current);
+    const finger = getFingerState(fingerPosition, false, offsetRef.current);
 
-    if (!newFingerValue) {
+    if (finger == null) {
       return;
     }
 
-    const { newValue, closestThumbIndex } = newFingerValue;
+    focusThumb(finger.closestThumbIndex, controlRef, setActive);
 
-    focusThumb({ sliderRef: controlRef, activeIndex: closestThumbIndex, setActive });
-
-    if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
+    if (validateMinimumDistance(finger.value, step, minStepsBetweenValues)) {
       if (!dragging && moveCountRef.current > INTENTIONAL_DRAG_COUNT_THRESHOLD) {
         setDragging(true);
       }
 
-      handleValueChange(newValue, closestThumbIndex, nativeEvent);
+      handleValueChange(finger.value, finger.closestThumbIndex, nativeEvent);
     }
   });
 
@@ -94,17 +92,17 @@ export function useSliderControl(
       return;
     }
 
-    const newFingerValue = getValueAtFinger(fingerPosition, true);
+    const finger = getFingerState(fingerPosition, true);
 
-    if (!newFingerValue) {
+    if (finger == null) {
       return;
     }
 
     setActive(-1);
 
-    commitValidation(newFingerValue.newValue);
+    commitValidation(finger.value);
 
-    onValueCommitted(newFingerValue.newValue, nativeEvent);
+    onValueCommitted(finger.value, nativeEvent);
 
     touchIdRef.current = null;
 
@@ -126,16 +124,15 @@ export function useSliderControl(
     const fingerPosition = trackFinger(nativeEvent, touchIdRef);
 
     if (fingerPosition != null) {
-      const newFingerValue = getValueAtFinger(fingerPosition);
+      const finger = getFingerState(fingerPosition);
 
-      if (!newFingerValue) {
+      if (finger == null) {
         return;
       }
-      const { newValue, closestThumbIndex } = newFingerValue;
 
-      focusThumb({ sliderRef: controlRef, activeIndex: closestThumbIndex, setActive });
+      focusThumb(finger.closestThumbIndex, controlRef, setActive);
 
-      handleValueChange(newValue, closestThumbIndex, nativeEvent);
+      handleValueChange(finger.value, finger.closestThumbIndex, nativeEvent);
     }
 
     moveCountRef.current = 0;
@@ -200,15 +197,13 @@ export function useSliderControl(
           const fingerPosition = trackFinger(event, touchIdRef);
 
           if (fingerPosition != null) {
-            const newFingerValue = getValueAtFinger(fingerPosition);
+            const finger = getFingerState(fingerPosition);
 
-            if (newFingerValue == null) {
+            if (finger == null) {
               return;
             }
 
-            const { newValue, closestThumbIndex, newPercentageValue } = newFingerValue;
-
-            focusThumb({ sliderRef: controlRef, activeIndex: closestThumbIndex, setActive });
+            focusThumb(finger.closestThumbIndex, controlRef, setActive);
 
             // if the event lands on a thumb, don't change the value, just get the
             // percentageValue difference represented by the distance between the click origin
@@ -216,11 +211,12 @@ export function useSliderControl(
             if (thumbRefs.current.includes(event.target as HTMLElement)) {
               const targetThumbIndex = (event.target as HTMLElement).getAttribute('data-index');
 
-              const offset = percentageValues[Number(targetThumbIndex)] / 100 - newPercentageValue;
+              const offset =
+                percentageValues[Number(targetThumbIndex)] / 100 - finger.percentageValue;
 
               offsetRef.current = offset;
             } else {
-              handleValueChange(newValue, closestThumbIndex, event.nativeEvent);
+              handleValueChange(finger.value, finger.closestThumbIndex, event.nativeEvent);
             }
           }
 
@@ -234,7 +230,7 @@ export function useSliderControl(
     },
     [
       disabled,
-      getValueAtFinger,
+      getFingerState,
       handleRootRef,
       handleTouchMove,
       handleTouchEnd,
@@ -259,7 +255,7 @@ export namespace useSliderControl {
       useSliderRoot.ReturnValue,
       | 'disabled'
       | 'dragging'
-      | 'getValueAtFinger'
+      | 'getFingerState'
       | 'handleValueChange'
       | 'minStepsBetweenValues'
       | 'onValueCommitted'
