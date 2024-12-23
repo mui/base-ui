@@ -348,4 +348,68 @@ describe('<Select.Root />', () => {
       '',
     );
   });
+
+  describe('prop: modal', () => {
+    it('should render an internal backdrop when `true`', async () => {
+      const { user } = await render(
+        <div>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner data-testid="positioner">
+                <Select.Popup>
+                  <Select.Item>1</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <button>Outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      const positioner = screen.getByTestId('positioner');
+
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
+    });
+
+    it('should not render an internal backdrop when `false`', async () => {
+      const { user } = await render(
+        <div>
+          <Select.Root modal={false}>
+            <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner data-testid="positioner">
+                <Select.Popup>
+                  <Select.Item>1</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <button>Outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      const positioner = screen.getByTestId('positioner');
+
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(positioner.previousElementSibling).to.equal(null);
+    });
+  });
 });

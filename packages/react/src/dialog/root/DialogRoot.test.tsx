@@ -4,6 +4,8 @@ import { spy } from 'sinon';
 import { act, fireEvent, screen, waitFor, describeSkipIf } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { createRenderer } from '#test-utils';
+import { Menu } from '@base-ui-components/react/menu';
+import { Select } from '@base-ui-components/react/select';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
@@ -387,5 +389,189 @@ describe('<Dialog.Root />', () => {
     });
 
     expect(notifyTransitionEnd.callCount).to.equal(1);
+  });
+
+  describe('prop: modal', () => {
+    it('should render an internal backdrop when `true`', async () => {
+      const { user } = await render(
+        <div>
+          <Dialog.Root>
+            <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup />
+            </Dialog.Portal>
+          </Dialog.Root>
+          <button>Outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      const popup = screen.getByRole('dialog');
+
+      // focus guard -> internal backdrop
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(popup.previousElementSibling?.previousElementSibling).to.have.attribute(
+        'role',
+        'presentation',
+      );
+    });
+
+    it('should not render an internal backdrop when `false`', async () => {
+      const { user } = await render(
+        <div>
+          <Dialog.Root>
+            <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup />
+            </Dialog.Portal>
+          </Dialog.Root>
+          <button>Outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      const popup = screen.getByRole('dialog');
+
+      // focus guard -> internal backdrop
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(popup.previousElementSibling?.previousElementSibling).to.have.attribute(
+        'role',
+        'presentation',
+      );
+    });
+  });
+
+  describeSkipIf(isJSDOM)('nested popups', () => {
+    it('should not dismiss the dialog when dismissing outside a nested modal menu', async () => {
+      const { user } = await render(
+        <Dialog.Root>
+          <Dialog.Trigger>Open dialog</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="dialog-popup">
+              <Menu.Root>
+                <Menu.Trigger>Open menu</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner data-testid="menu-positioner">
+                    <Menu.Popup>
+                      <Menu.Item>Item</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const dialogTrigger = screen.getByRole('button', { name: 'Open dialog' });
+      await user.click(dialogTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      const menuTrigger = screen.getByRole('button', { name: 'Open menu' });
+
+      await user.click(menuTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      const menuPositioner = screen.getByTestId('menu-positioner');
+      const menuInternalBackdrop = menuPositioner.previousElementSibling as HTMLElement;
+
+      await user.click(menuInternalBackdrop);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).to.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      const dialogPopup = screen.getByTestId('dialog-popup');
+      const dialogInternalBackdrop = dialogPopup.previousElementSibling
+        ?.previousElementSibling as HTMLElement;
+
+      await user.click(dialogInternalBackdrop);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+    });
+
+    it('should not dismiss the dialog when dismissing outside a nested select menu', async () => {
+      const { user } = await render(
+        <Dialog.Root>
+          <Dialog.Trigger>Open dialog</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="dialog-popup">
+              <Select.Root>
+                <Select.Trigger data-testid="select-trigger">Open select</Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner data-testid="select-positioner">
+                    <Select.Popup>
+                      <Select.Item>Item</Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const dialogTrigger = screen.getByRole('button', { name: 'Open dialog' });
+      await user.click(dialogTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      const selectTrigger = screen.getByTestId('select-trigger');
+
+      await user.click(selectTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      const selectPositioner = screen.getByTestId('select-positioner');
+      const selectInternalBackdrop = selectPositioner.previousElementSibling as HTMLElement;
+
+      await user.click(selectInternalBackdrop);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      const dialogPopup = screen.getByTestId('dialog-popup');
+      const dialogInternalBackdrop = dialogPopup.previousElementSibling
+        ?.previousElementSibling as HTMLElement;
+
+      await user.click(dialogInternalBackdrop);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+    });
   });
 });

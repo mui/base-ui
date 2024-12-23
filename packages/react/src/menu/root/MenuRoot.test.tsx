@@ -788,4 +788,68 @@ describe('<Menu.Root />', () => {
       expect(animationFinished).to.equal(true);
     });
   });
+
+  describe('prop: modal', () => {
+    it('should render an internal backdrop when `true`', async () => {
+      await render(
+        <div>
+          <Menu.Root>
+            <Menu.Trigger>Open</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="positioner">
+                <Menu.Popup>
+                  <Menu.Item>1</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <button>Outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      const positioner = screen.getByTestId('positioner');
+
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
+    });
+
+    it('should not render an internal backdrop when `false`', async () => {
+      await render(
+        <div>
+          <Menu.Root modal={false}>
+            <Menu.Trigger>Open</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="positioner">
+                <Menu.Popup>
+                  <Menu.Item>1</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <button>Outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      const positioner = screen.getByTestId('positioner');
+
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(positioner.previousElementSibling).to.equal(null);
+    });
+  });
 });
