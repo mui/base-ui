@@ -162,9 +162,9 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     commitValidation,
   } = useFieldControlValidation();
 
-  // The internal valueState is potentially unsorted, e.g. to support frozen arrays
+  // The internal value is potentially unsorted, e.g. to support frozen arrays
   // https://github.com/mui/material-ui/pull/28472
-  const [valueState, setValueState] = useControlled({
+  const [valueUnwrapped, setValueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue ?? min,
     name: 'Slider',
@@ -190,7 +190,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   useField({
     id,
     commitValidation,
-    value: valueState,
+    value: valueUnwrapped,
     controlRef,
   });
 
@@ -211,13 +211,13 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     [inputValidationRef],
   );
 
-  const handleValueChange = useEventCallback(
+  const setValue = useEventCallback(
     (newValue: number | readonly number[], thumbIndex: number, event: Event) => {
-      if (areValuesEqual(newValue, valueState)) {
+      if (areValuesEqual(newValue, valueUnwrapped)) {
         return;
       }
 
-      setValueState(newValue);
+      setValueUnwrapped(newValue);
 
       // Redefine target to allow name and value to be read.
       // This allows seamless integration with the most popular form libraries.
@@ -235,17 +235,17 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     },
   );
 
-  const range = Array.isArray(valueState);
+  const range = Array.isArray(valueUnwrapped);
 
   const values = React.useMemo(() => {
-    return (range ? valueState.slice().sort(asc) : [valueState]).map((val) =>
+    return (range ? valueUnwrapped.slice().sort(asc) : [valueUnwrapped]).map((val) =>
       val == null ? min : clamp(val, min, max),
     );
-  }, [max, min, range, valueState]);
+  }, [max, min, range, valueUnwrapped]);
 
   const handleRootRef = useForkRef(rootRef, sliderRef);
 
-  const changeValue = useEventCallback(
+  const handleInputChange = useEventCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
       const newValue = getSliderValue({
         valueInput,
@@ -261,7 +261,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       }
 
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
-        handleValueChange(newValue, index, event.nativeEvent);
+        setValue(newValue, index, event.nativeEvent);
         setDirty(newValue !== validityData.initialValue);
         setTouched(true);
         commitValidation(newValue);
@@ -381,12 +381,12 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       getRootProps,
       active,
       'aria-labelledby': ariaLabelledby,
-      changeValue,
+      handleInputChange,
       direction,
       disabled,
       dragging,
       getFingerState,
-      handleValueChange,
+      setValue,
       largeStep,
       max,
       min,
@@ -410,12 +410,12 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       getRootProps,
       active,
       ariaLabelledby,
-      changeValue,
+      handleInputChange,
       direction,
       disabled,
       dragging,
       getFingerState,
-      handleValueChange,
+      setValue,
       largeStep,
       max,
       min,
@@ -551,7 +551,7 @@ export namespace useSliderRoot {
      */
     active: number;
     'aria-labelledby'?: string;
-    changeValue: (
+    handleInputChange: (
       valueInput: number,
       index: number,
       event: React.KeyboardEvent | React.ChangeEvent,
@@ -571,11 +571,7 @@ export namespace useSliderRoot {
     /**
      * Callback to invoke change handlers after internal value state is updated.
      */
-    handleValueChange: (
-      newValue: number | readonly number[],
-      activeThumb: number,
-      event: Event,
-    ) => void;
+    setValue: (newValue: number | readonly number[], activeThumb: number, event: Event) => void;
     /**
      * The large step value of the slider when incrementing or decrementing while the shift key is held,
      * or when using Page-Up or Page-Down keys. Snaps to multiples of this value.
