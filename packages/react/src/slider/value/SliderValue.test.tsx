@@ -12,9 +12,9 @@ const testRootContext: SliderRootContext = {
   direction: 'ltr',
   dragging: false,
   disabled: false,
-  getFingerNewValue: () => ({
+  getValueAtFinger: () => ({
     newValue: 0,
-    activeIndex: 0,
+    closestThumbIndex: 0,
     newPercentageValue: 0,
   }),
   handleValueChange: NOOP,
@@ -23,6 +23,7 @@ const testRootContext: SliderRootContext = {
   max: 100,
   min: 0,
   minStepsBetweenValues: 0,
+  onValueCommitted: NOOP,
   orientation: 'horizontal',
   state: {
     activeThumbIndex: -1,
