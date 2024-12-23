@@ -6,7 +6,6 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { clearPositionerStyles } from './utils';
-import { getVisualOffsets } from '../../utils/getVisualOffsets';
 import { isWebKit } from '../../utils/detectBrowser';
 
 export function useSelectPopup(): useSelectPopup.ReturnValue {
