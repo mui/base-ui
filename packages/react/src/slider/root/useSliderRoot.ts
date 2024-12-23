@@ -55,25 +55,30 @@ function findClosest(values: number[], currentValue: number) {
   return closestIndex;
 }
 
-export function focusThumb({
-  sliderRef,
-  activeIndex,
-  setActive,
-}: {
-  sliderRef: React.RefObject<any>;
-  activeIndex: number;
-  setActive?: (num: number) => void;
-}) {
+export function focusThumb(
+  thumbIndex: number,
+  sliderRef: React.RefObject<HTMLElement | null>,
+  setActive?: useSliderRoot.ReturnValue['setActive'],
+) {
+  if (!sliderRef.current) {
+    return;
+  }
+
   const doc = ownerDocument(sliderRef.current);
+
   if (
-    !sliderRef.current?.contains(doc.activeElement) ||
-    Number(doc?.activeElement?.getAttribute('data-index')) !== activeIndex
+    !sliderRef.current.contains(doc.activeElement) ||
+    Number(doc?.activeElement?.getAttribute('data-index')) !== thumbIndex
   ) {
-    sliderRef.current?.querySelector(`[type="range"][data-index="${activeIndex}"]`).focus();
+    (
+      sliderRef.current.querySelector(
+        `[type="range"][data-index="${thumbIndex}"]`,
+      ) as HTMLInputElement
+    ).focus();
   }
 
   if (setActive) {
-    setActive(activeIndex);
+    setActive(thumbIndex);
   }
 }
 
@@ -252,7 +257,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       });
 
       if (range) {
-        focusThumb({ sliderRef, activeIndex: index });
+        focusThumb(index, sliderRef);
       }
 
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
@@ -267,7 +272,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const previousIndexRef = React.useRef<number | null>(null);
 
-  const getValueAtFinger = useEventCallback(
+  const getFingerState = useEventCallback(
     (
       fingerPosition: FingerPosition | null,
       // `move` is used to distinguish between when this is called by touchstart vs touchmove/end
@@ -312,7 +317,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       let closestThumbIndex = 0;
 
       if (!range) {
-        return { newValue, closestThumbIndex, newPercentageValue: percent };
+        return { value: newValue, percentageValue: percent, closestThumbIndex };
       }
 
       if (!move) {
@@ -341,7 +346,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         previousIndexRef.current = closestThumbIndex;
       }
 
-      return { newValue, closestThumbIndex, newPercentageValue: percent };
+      return { value: newValue, percentageValue: percent, closestThumbIndex };
     },
   );
 
@@ -380,7 +385,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       direction,
       disabled,
       dragging,
-      getValueAtFinger,
+      getFingerState,
       handleValueChange,
       largeStep,
       max,
@@ -409,7 +414,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       direction,
       disabled,
       dragging,
-      getValueAtFinger,
+      getFingerState,
       handleValueChange,
       largeStep,
       max,
@@ -554,14 +559,14 @@ export namespace useSliderRoot {
     dragging: boolean;
     direction: TextDirection;
     disabled: boolean;
-    getValueAtFinger: (
+    getFingerState: (
       fingerPosition: FingerPosition | null,
       move?: boolean,
       offset?: number,
     ) => {
-      newValue: number | number[];
+      value: number | number[];
+      percentageValue: number;
       closestThumbIndex: number;
-      newPercentageValue: number;
     } | null;
     /**
      * Callback to invoke change handlers after internal value state is updated.

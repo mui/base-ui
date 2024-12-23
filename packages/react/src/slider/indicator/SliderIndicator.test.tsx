@@ -10,10 +10,10 @@ const testRootContext: SliderRootContext = {
   direction: 'ltr',
   dragging: false,
   disabled: false,
-  getValueAtFinger: () => ({
-    newValue: 0,
+  getFingerState: () => ({
+    value: 0,
     closestThumbIndex: 0,
-    newPercentageValue: 0,
+    percentageValue: 0,
   }),
   handleValueChange: NOOP,
   largeStep: 10,
