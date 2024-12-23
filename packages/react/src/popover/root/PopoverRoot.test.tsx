@@ -1,13 +1,10 @@
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
-
-const user = userEvent.setup();
 
 function Root(props: Popover.Root.Props) {
   return <Popover.Root {...props} />;
@@ -200,7 +197,7 @@ describe('<Popover.Root />', () => {
         );
       }
 
-      await render(<Test />);
+      const { user } = await render(<Test />);
 
       const closeButton = screen.getByText('Close');
 
@@ -261,7 +258,7 @@ describe('<Popover.Root />', () => {
         );
       }
 
-      await render(<Test />);
+      const { user } = await render(<Test />);
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
@@ -402,7 +399,7 @@ describe('<Popover.Root />', () => {
 
   describe('focus management', () => {
     it('focuses the trigger after the popover is closed but not unmounted', async () => {
-      await render(
+      const { user } = await render(
         <div>
           <input type="text" />
           <Popover.Root>
@@ -435,7 +432,7 @@ describe('<Popover.Root />', () => {
     });
 
     it('does not move focus to the popover when opened with hover', async () => {
-      await render(
+      const { user } = await render(
         <Popover.Root openOnHover delay={0}>
           <Popover.Trigger>Toggle</Popover.Trigger>
           <Popover.Positioner>
@@ -474,7 +471,7 @@ describe('<Popover.Root />', () => {
         }
       `;
 
-      await render(
+      const { user } = await render(
         <div>
           {/* eslint-disable-next-line react/no-danger */}
           <style dangerouslySetInnerHTML={{ __html: style }} />

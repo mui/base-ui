@@ -14,6 +14,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
   ...baseMapping,
@@ -50,6 +51,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     setPopupElementId,
     titleElementId,
     transitionStatus,
+    modal,
   } = useAlertDialogRootContext();
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
@@ -101,16 +103,19 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   }
 
   return (
-    <FloatingFocusManager
-      context={floatingContext}
-      modal={open}
-      disabled={!mounted}
-      initialFocus={resolvedInitialFocus}
-      returnFocus={finalFocus}
-      outsideElementsInert
-    >
-      {renderElement()}
-    </FloatingFocusManager>
+    <React.Fragment>
+      {mounted && modal && <InternalBackdrop />}
+      <FloatingFocusManager
+        context={floatingContext}
+        modal={open}
+        disabled={!mounted}
+        initialFocus={resolvedInitialFocus}
+        returnFocus={finalFocus}
+        outsideElementsInert
+      >
+        {renderElement()}
+      </FloatingFocusManager>
+    </React.Fragment>
   );
 });
 
