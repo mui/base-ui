@@ -30,7 +30,6 @@ export function useSliderControl(
     rootRef: externalRef,
     setActive,
     setDragging,
-    setValueState,
     step,
     thumbRefs,
   } = parameters;
@@ -83,8 +82,6 @@ export function useSliderControl(
     focusThumb({ sliderRef: controlRef, activeIndex, setActive });
 
     if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
-      setValueState(newValue);
-
       if (!dragging && moveCountRef.current > INTENTIONAL_DRAG_COUNT_THRESHOLD) {
         setDragging(true);
       }
@@ -146,8 +143,6 @@ export function useSliderControl(
       const { newValue, activeIndex } = newFingerValue;
 
       focusThumb({ sliderRef: controlRef, activeIndex, setActive });
-
-      setValueState(newValue);
 
       handleValueChange(newValue, activeIndex, nativeEvent);
     }
@@ -236,8 +231,6 @@ export function useSliderControl(
 
               offsetRef.current = offset;
             } else {
-              setValueState(newValue);
-
               handleValueChange(newValue, activeIndex, event.nativeEvent);
             }
           }
@@ -259,7 +252,6 @@ export function useSliderControl(
       handleValueChange,
       percentageValues,
       setActive,
-      setValueState,
       thumbRefs,
     ],
   );
@@ -286,7 +278,6 @@ export namespace useSliderControl {
       | 'registerSliderControl'
       | 'setActive'
       | 'setDragging'
-      | 'setValueState'
       | 'step'
       | 'thumbRefs'
     > {

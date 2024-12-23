@@ -212,6 +212,8 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         return;
       }
 
+      setValueState(newValue);
+
       // Redefine target to allow name and value to be read.
       // This allows seamless integration with the most popular form libraries.
       // https://github.com/mui/material-ui/issues/13485#issuecomment-676048492
@@ -254,10 +256,8 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       }
 
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
-        setValueState(newValue);
-        setDirty(newValue !== validityData.initialValue);
-
         handleValueChange(newValue, index, event.nativeEvent);
+        setDirty(newValue !== validityData.initialValue);
 
         setTouched(true);
         commitValidation(newValue);
@@ -397,7 +397,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       setActive,
       setDragging,
       setThumbMap,
-      setValueState,
       step,
       tabIndex,
       thumbMap,
@@ -426,7 +425,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       setActive,
       setDragging,
       setThumbMap,
-      setValueState,
       step,
       tabIndex,
       thumbMap,
@@ -600,7 +598,6 @@ export namespace useSliderRoot {
     setActive: (activeIndex: number) => void;
     setDragging: (isDragging: boolean) => void;
     setThumbMap: (map: Map<Node, CompositeMetadata<ThumbMetadata> | null>) => void;
-    setValueState: (newValue: number | number[]) => void;
     /**
      * The step increment of the slider when incrementing or decrementing. It will snap
      * to multiples of this value. Decimal values are supported.

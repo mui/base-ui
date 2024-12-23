@@ -32,7 +32,6 @@ const SliderControl = React.forwardRef(function SliderControl(
     registerSliderControl,
     setActive,
     setDragging,
-    setValueState,
     step,
     thumbRefs,
   } = useSliderRootContext();
@@ -49,7 +48,6 @@ const SliderControl = React.forwardRef(function SliderControl(
     rootRef: forwardedRef,
     setActive,
     setDragging,
-    setValueState,
     step,
     thumbRefs,
   });
