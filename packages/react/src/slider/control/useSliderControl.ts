@@ -19,7 +19,6 @@ export function useSliderControl(
   parameters: useSliderControl.Parameters,
 ): useSliderControl.ReturnValue {
   const {
-    areValuesEqual,
     disabled,
     dragging,
     getFingerNewValue,
@@ -90,9 +89,7 @@ export function useSliderControl(
         setDragging(true);
       }
 
-      if (handleValueChange && !areValuesEqual(newValue)) {
-        handleValueChange(newValue, activeIndex, nativeEvent);
-      }
+      handleValueChange(newValue, activeIndex, nativeEvent);
     }
   });
 
@@ -117,9 +114,7 @@ export function useSliderControl(
 
     commitValidation(newFingerValue.newValue);
 
-    if (onValueCommitted) {
-      onValueCommitted(newFingerValue.newValue, nativeEvent);
-    }
+    onValueCommitted(newFingerValue.newValue, nativeEvent);
 
     touchIdRef.current = null;
 
@@ -154,9 +149,7 @@ export function useSliderControl(
 
       setValueState(newValue);
 
-      if (handleValueChange && !areValuesEqual(newValue)) {
-        handleValueChange(newValue, activeIndex, nativeEvent);
-      }
+      handleValueChange(newValue, activeIndex, nativeEvent);
     }
 
     moveCountRef.current = 0;
@@ -245,9 +238,7 @@ export function useSliderControl(
             } else {
               setValueState(newValue);
 
-              if (handleValueChange && !areValuesEqual(newValue)) {
-                handleValueChange(newValue, activeIndex, event);
-              }
+              handleValueChange(newValue, activeIndex, event.nativeEvent);
             }
           }
 
@@ -260,7 +251,6 @@ export function useSliderControl(
       });
     },
     [
-      areValuesEqual,
       disabled,
       getFingerNewValue,
       handleRootRef,
@@ -286,7 +276,6 @@ export namespace useSliderControl {
   export interface Parameters
     extends Pick<
       useSliderRoot.ReturnValue,
-      | 'areValuesEqual'
       | 'disabled'
       | 'dragging'
       | 'getFingerNewValue'
