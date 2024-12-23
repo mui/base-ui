@@ -10,6 +10,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { valueToPercent } from '../../utils/valueToPercent';
+import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { useField } from '../../field/useField';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -18,6 +19,7 @@ import { percentToValue, roundValueToStep } from '../utils';
 import { asc } from '../utils/asc';
 import { setValueIndex } from '../utils/setValueIndex';
 import { getSliderValue } from '../utils/getSliderValue';
+import { ThumbMetadata } from '../thumb/useSliderThumb';
 
 function findClosest(values: number[], currentValue: number) {
   const { index: closestIndex } =
@@ -153,6 +155,10 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const id = useBaseUiId(idProp);
 
+  const [thumbMap, setThumbMap] = React.useState(
+    () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
+  );
+
   useEnhancedEffect(() => {
     setControlId(id);
     return () => {
@@ -182,30 +188,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       }
     },
     [inputValidationRef],
-  );
-
-  // Map with index (DOM position) as the key and the id attribute of each thumb <input> element as the value
-  const [inputIdMap, setInputMap] = React.useState(() => new Map<number, string>());
-
-  const deregisterInputId = React.useCallback((index: number) => {
-    setInputMap((prevMap) => {
-      const nextMap = new Map(prevMap);
-      nextMap.delete(index);
-      return nextMap;
-    });
-  }, []);
-
-  const registerInputId = React.useCallback(
-    (index: number, inputId: string | undefined) => {
-      if (index > -1 && inputId !== undefined) {
-        setInputMap((prevMap) => new Map(prevMap).set(index, inputId));
-      }
-
-      return {
-        deregister: deregisterInputId,
-      };
-    },
-    [deregisterInputId],
   );
 
   const handleValueChange = React.useCallback(
@@ -423,7 +405,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       dragging,
       getFingerNewValue,
       handleValueChange,
-      inputIdMap,
       largeStep,
       max,
       min,
@@ -433,13 +414,14 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       orientation,
       percentageValues: values.map((v) => valueToPercent(v, min, max)),
       range,
-      registerInputId,
       registerSliderControl,
       setActive,
       setDragging,
+      setThumbMap,
       setValueState,
       step,
       tabIndex,
+      thumbMap,
       thumbRefs,
       values,
     }),
@@ -454,7 +436,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       dragging,
       getFingerNewValue,
       handleValueChange,
-      inputIdMap,
       largeStep,
       max,
       min,
@@ -463,13 +444,14 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       onValueCommitted,
       orientation,
       range,
-      registerInputId,
       registerSliderControl,
       setActive,
       setDragging,
+      setThumbMap,
       setValueState,
       step,
       tabIndex,
+      thumbMap,
       thumbRefs,
       values,
     ],
@@ -605,7 +587,6 @@ export namespace useSliderRoot {
       activeThumb: number,
       event: React.SyntheticEvent | Event,
     ) => void;
-    inputIdMap: Map<number, string>;
     /**
      * The large step value of the slider when incrementing or decrementing while the shift key is held,
      * or when using Page-Up or Page-Down keys. Snaps to multiples of this value.
@@ -631,12 +612,6 @@ export namespace useSliderRoot {
      * @default 'horizontal'
      */
     orientation: Orientation;
-    registerInputId: (
-      index: number,
-      id: string | undefined,
-    ) => {
-      deregister: (index: number) => void;
-    };
     registerSliderControl: (element: HTMLElement | null) => void;
     /**
      * The value(s) of the slider as percentages
@@ -644,6 +619,7 @@ export namespace useSliderRoot {
     percentageValues: readonly number[];
     setActive: (activeIndex: number) => void;
     setDragging: (isDragging: boolean) => void;
+    setThumbMap: (map: Map<Node, CompositeMetadata<ThumbMetadata> | null>) => void;
     setValueState: (newValue: number | number[]) => void;
     /**
      * The step increment of the slider when incrementing or decrementing. It will snap
@@ -651,6 +627,7 @@ export namespace useSliderRoot {
      * @default 1
      */
     step: number;
+    thumbMap: Map<Node, CompositeMetadata<ThumbMetadata> | null>;
     thumbRefs: React.MutableRefObject<(HTMLElement | null)[]>;
     tabIndex?: number;
     /**

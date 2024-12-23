@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import { CheckIcon } from 'docs/src/icons/CheckIcon';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
-import { DemoSourceBrowser } from './DemoSourceBrowser';
+import { DemoCodeBlock } from './DemoCodeBlock';
 import { CodeSandboxLink } from './CodeSandboxLink';
 import { GhostButton } from '../GhostButton';
 import { DemoPlayground } from './DemoPlayground';
@@ -62,7 +62,7 @@ export function Demo({
             </div>
           )}
 
-          <DemoSourceBrowser collapsibleOpen={open} compact={compact} />
+          <DemoCodeBlock collapsibleOpen={open} compact={compact} />
         </div>
       </Collapsible.Root>
     </BaseDemo.Root>

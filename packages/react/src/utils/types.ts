@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-export type EventHandlers = Record<string, React.EventHandler<any>>;
-
 export type GenericHTMLProps = React.HTMLAttributes<any> & { ref?: React.Ref<any> | undefined };
 
 export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
@@ -41,7 +39,7 @@ export type ComponentRenderFn<Props, State> = (
 export type BaseUIComponentProps<
   ElementType extends React.ElementType,
   State,
-  RenderFunctionProps = React.HTMLAttributes<any>,
+  RenderFunctionProps = GenericHTMLProps,
 > = Omit<WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>, 'className'> & {
   /**
    * CSS class applied to the element, or a function that

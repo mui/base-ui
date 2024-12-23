@@ -46,7 +46,7 @@ namespace TooltipTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<any, State> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 TooltipTrigger.propTypes /* remove-proptypes */ = {
@@ -54,6 +54,10 @@ TooltipTrigger.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component’s state.

@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
-import { useTooltipArrow } from './useTooltipArrow';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
  * Displays an element positioned against the tooltip anchor.
@@ -24,9 +24,15 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
   const { open, arrowRef, side, align, arrowUncentered, arrowStyles } =
     useTooltipPositionerContext();
 
-  const { getArrowProps } = useTooltipArrow({
-    arrowStyles,
-  });
+  const getArrowProps = React.useCallback(
+    (externalProps = {}) => {
+      return mergeReactProps<'div'>(externalProps, {
+        style: arrowStyles,
+        'aria-hidden': true,
+      });
+    },
+    [arrowStyles],
+  );
 
   const state: TooltipArrow.State = React.useMemo(
     () => ({
