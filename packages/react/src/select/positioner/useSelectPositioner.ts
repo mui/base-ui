@@ -8,10 +8,10 @@ import type {
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
 import {
-  type Boundary,
-  OffsetFunction,
-  type Side,
   useAnchorPositioning,
+  type Boundary,
+  type OffsetFunction,
+  type Side,
 } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
