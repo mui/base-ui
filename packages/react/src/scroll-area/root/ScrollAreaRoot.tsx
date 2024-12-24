@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
@@ -18,9 +19,11 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   props: ScrollAreaRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, dir, ...otherProps } = props;
+  const { render, className, ...otherProps } = props;
 
-  const scrollAreaRoot = useScrollAreaRoot({ dir });
+  const direction = useDirection();
+
+  const scrollAreaRoot = useScrollAreaRoot();
 
   const { rootId } = scrollAreaRoot;
 
@@ -35,10 +38,10 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   const contextValue = React.useMemo(
     () => ({
-      dir,
+      direction,
       ...scrollAreaRoot,
     }),
-    [dir, scrollAreaRoot],
+    [direction, scrollAreaRoot],
   );
 
   const viewportId = `[data-id="${rootId}-viewport"]`;
@@ -83,10 +86,6 @@ ScrollAreaRoot.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  dir: PropTypes.string,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
