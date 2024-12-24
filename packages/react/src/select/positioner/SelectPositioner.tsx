@@ -84,7 +84,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
       <SelectPositionerContext.Provider value={positioner}>
-        {mounted && modal && <InternalBackdrop />}
+        {mounted && modal && <InternalBackdrop inert={!open} />}
         {renderElement()}
       </SelectPositionerContext.Provider>
     </CompositeList>
