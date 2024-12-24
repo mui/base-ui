@@ -7,7 +7,7 @@
   "devDependencies": {
     "@types/eslint": "^8.56.12",
     "@typescript-eslint/experimental-utils": "^5.62.0",
-    "@typescript-eslint/parser": "^8.18.0"
+    "@typescript-eslint/parser": "^8.18.2"
   },
   "scripts": {
     "test": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/eslint-plugin-material-ui/**/*.test.js' --timeout 3000"
