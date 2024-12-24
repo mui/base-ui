@@ -1,9 +1,11 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * @ignore - internal component.
  */
-export function InternalBackdrop(props: InternalBackdrop.Props) {
+function InternalBackdrop(props: InternalBackdrop.Props) {
+  const { inert = false } = props;
   return (
     <div
       role="presentation"
@@ -19,7 +21,7 @@ export function InternalBackdrop(props: InternalBackdrop.Props) {
         // conditionally rendering the backdrop on `open` and using exit animations.
         // If the popup reopens before the exit animation finishes, the backdrop
         // receives this attribute, breaking outside click behavior.
-        pointerEvents: props.inert ? 'none' : undefined,
+        pointerEvents: inert ? 'none' : undefined,
       }}
     />
   );
@@ -34,3 +36,17 @@ namespace InternalBackdrop {
     inert?: boolean;
   }
 }
+
+InternalBackdrop.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * Whether the backdrop should be inert (not block pointer events).
+   * @default false
+   */
+  inert: PropTypes.bool,
+} as any;
+
+export { InternalBackdrop };
