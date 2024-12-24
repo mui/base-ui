@@ -18,7 +18,7 @@ export function InternalBackdrop(props: InternalBackdrop.Props) {
         // blocks outside clicks from closing the popup. This issue arises when
         // conditionally rendering the backdrop on `open` and using exit animations.
         // If the popup reopens before the exit animation finishes, the backdrop
-        // becomes inert, breaking outside click behavior.
+        // receives this attribute, breaking outside click behavior.
         pointerEvents: props.inert ? 'none' : undefined,
       }}
     />
