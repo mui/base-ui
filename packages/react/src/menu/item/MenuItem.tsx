@@ -233,6 +233,11 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
    * Whether to close the menu when the item is clicked.
    *
    * @default true
@@ -255,6 +260,13 @@ MenuItem.propTypes /* remove-proptypes */ = {
    * The click handler for the menu item.
    */
   onClick: PropTypes.func,
+  /**
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { MenuItem };
