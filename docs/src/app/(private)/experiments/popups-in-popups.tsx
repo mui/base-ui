@@ -66,22 +66,24 @@ function SelectDemo({ modal }: Props) {
         </Tooltip.Portal>
       </Tooltip.Root>
 
-      <Select.Positioner sideOffset={5} render={<Positioner />}>
-        <SelectPopup>
-          <SelectItem value="system">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>System font</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="arial">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Arial</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="roboto">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Roboto</Select.ItemText>
-          </SelectItem>
-        </SelectPopup>
-      </Select.Positioner>
+      <Select.Portal>
+        <Select.Positioner sideOffset={5} render={<Positioner />}>
+          <SelectPopup>
+            <SelectItem value="system">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>System font</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="arial">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Arial</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="roboto">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Roboto</Select.ItemText>
+            </SelectItem>
+          </SelectPopup>
+        </Select.Positioner>
+      </Select.Portal>
     </Select.Root>
   );
 }
@@ -96,105 +98,123 @@ function MenuDemo({ modal }: Props) {
   return (
     <Menu.Root modal={modal}>
       <Menu.Trigger render={<Trigger />}>Format</Menu.Trigger>
-      <Menu.Positioner
-        side="bottom"
-        align="start"
-        sideOffset={6}
-        render={<Positioner />}
-      >
-        <MenuPopup>
-          <Menu.Root closeParentOnEsc={false}>
-            <SubmenuTrigger>Text color</SubmenuTrigger>
-            <Menu.Positioner
-              align="start"
-              side="right"
-              sideOffset={12}
-              render={<Positioner />}
-            >
-              <MenuPopup>
-                <MenuItem onClick={createHandleMenuClick('Text color/Black')}>
-                  Black
-                </MenuItem>
-                <MenuItem onClick={createHandleMenuClick('Text color/Dark grey')}>
-                  Dark grey
-                </MenuItem>
-                <MenuItem onClick={createHandleMenuClick('Text color/Accent')}>
-                  Accent
-                </MenuItem>
-              </MenuPopup>
-            </Menu.Positioner>
-          </Menu.Root>
+      <Menu.Portal>
+        <Menu.Positioner
+          side="bottom"
+          align="start"
+          sideOffset={6}
+          render={<Positioner />}
+        >
+          <MenuPopup>
+            <Menu.Root closeParentOnEsc={false}>
+              <SubmenuTrigger>Text color</SubmenuTrigger>
+              <Menu.Portal>
+                <Menu.Positioner
+                  align="start"
+                  side="right"
+                  sideOffset={12}
+                  render={<Positioner />}
+                >
+                  <MenuPopup>
+                    <MenuItem onClick={createHandleMenuClick('Text color/Black')}>
+                      Black
+                    </MenuItem>
+                    <MenuItem
+                      onClick={createHandleMenuClick('Text color/Dark grey')}
+                    >
+                      Dark grey
+                    </MenuItem>
+                    <MenuItem onClick={createHandleMenuClick('Text color/Accent')}>
+                      Accent
+                    </MenuItem>
+                  </MenuPopup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
 
-          <Menu.Root>
-            <SubmenuTrigger>Style</SubmenuTrigger>
-            <Menu.Positioner
-              align="start"
-              side="right"
-              sideOffset={12}
-              render={<Positioner />}
-            >
-              <MenuPopup>
-                <Menu.Root>
-                  <SubmenuTrigger>Heading</SubmenuTrigger>
-                  <Menu.Positioner
-                    align="start"
-                    side="right"
-                    sideOffset={12}
-                    render={<Positioner />}
-                  >
-                    <MenuPopup>
-                      <MenuItem
-                        onClick={createHandleMenuClick('Style/Heading/Level 1')}
-                      >
-                        Level 1
-                      </MenuItem>
-                      <MenuItem
-                        onClick={createHandleMenuClick('Style/Heading/Level 2')}
-                      >
-                        Level 2
-                      </MenuItem>
-                      <MenuItem
-                        onClick={createHandleMenuClick('Style/Heading/Level 3')}
-                      >
-                        Level 3
-                      </MenuItem>
-                    </MenuPopup>
-                  </Menu.Positioner>
-                </Menu.Root>
-                <MenuItem onClick={createHandleMenuClick('Style/Paragraph')}>
-                  Paragraph
-                </MenuItem>
-                <Menu.Root disabled>
-                  <SubmenuTrigger disabled>List</SubmenuTrigger>
-                  <Menu.Positioner
-                    align="start"
-                    side="right"
-                    sideOffset={12}
-                    render={<Positioner />}
-                  >
-                    <MenuPopup>
-                      <MenuItem
-                        onClick={createHandleMenuClick('Style/List/Ordered')}
-                      >
-                        Ordered
-                      </MenuItem>
-                      <MenuItem
-                        onClick={createHandleMenuClick('Style/List/Unordered')}
-                      >
-                        Unordered
-                      </MenuItem>
-                    </MenuPopup>
-                  </Menu.Positioner>
-                </Menu.Root>
-              </MenuPopup>
-            </Menu.Positioner>
-          </Menu.Root>
+            <Menu.Root>
+              <SubmenuTrigger>Style</SubmenuTrigger>
+              <Menu.Portal>
+                <Menu.Positioner
+                  align="start"
+                  side="right"
+                  sideOffset={12}
+                  render={<Positioner />}
+                >
+                  <MenuPopup>
+                    <Menu.Root>
+                      <SubmenuTrigger>Heading</SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner
+                          align="start"
+                          side="right"
+                          sideOffset={12}
+                          render={<Positioner />}
+                        >
+                          <MenuPopup>
+                            <MenuItem
+                              onClick={createHandleMenuClick(
+                                'Style/Heading/Level 1',
+                              )}
+                            >
+                              Level 1
+                            </MenuItem>
+                            <MenuItem
+                              onClick={createHandleMenuClick(
+                                'Style/Heading/Level 2',
+                              )}
+                            >
+                              Level 2
+                            </MenuItem>
+                            <MenuItem
+                              onClick={createHandleMenuClick(
+                                'Style/Heading/Level 3',
+                              )}
+                            >
+                              Level 3
+                            </MenuItem>
+                          </MenuPopup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.Root>
+                    <MenuItem onClick={createHandleMenuClick('Style/Paragraph')}>
+                      Paragraph
+                    </MenuItem>
+                    <Menu.Root disabled>
+                      <SubmenuTrigger disabled>List</SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner
+                          align="start"
+                          side="right"
+                          sideOffset={12}
+                          render={<Positioner />}
+                        >
+                          <MenuPopup>
+                            <MenuItem
+                              onClick={createHandleMenuClick('Style/List/Ordered')}
+                            >
+                              Ordered
+                            </MenuItem>
+                            <MenuItem
+                              onClick={createHandleMenuClick('Style/List/Unordered')}
+                            >
+                              Unordered
+                            </MenuItem>
+                          </MenuPopup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.Root>
+                  </MenuPopup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
 
-          <MenuItem onClick={createHandleMenuClick('Clear formatting')}>
-            Clear formatting
-          </MenuItem>
-        </MenuPopup>
-      </Menu.Positioner>
+            <MenuItem onClick={createHandleMenuClick('Clear formatting')}>
+              Clear formatting
+            </MenuItem>
+          </MenuPopup>
+        </Menu.Positioner>
+      </Menu.Portal>
     </Menu.Root>
   );
 }
