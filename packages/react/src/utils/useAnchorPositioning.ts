@@ -123,8 +123,8 @@ export function useAnchorPositioning(
   const arrowRef = React.useRef<Element | null>(null);
 
   // Keep these reactive if they're not functions
-  const sideOffsetDep = typeof sideOffset === 'number' ? side : 0;
-  const alignOffsetDep = typeof alignOffset === 'number' ? align : 0;
+  const sideOffsetDep = typeof sideOffset !== 'function' ? sideOffset : 0;
+  const alignOffsetDep = typeof alignOffset !== 'function' ? alignOffset : 0;
 
   const middleware: UseFloatingOptions['middleware'] = [
     offset(
