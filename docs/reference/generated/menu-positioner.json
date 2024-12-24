@@ -7,7 +7,7 @@
       "description": "How to align the popup relative to the specified side."
     },
     "alignOffset": {
-      "type": "number",
+      "type": "func | number",
       "default": "0",
       "description": "Additional offset along the alignment axis of the element."
     },
@@ -16,7 +16,7 @@
       "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions."
     },
     "sideOffset": {
-      "type": "number",
+      "type": "func | number",
       "default": "0",
       "description": "Distance between the anchor and the popup."
     },

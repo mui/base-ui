@@ -8,7 +8,12 @@ import type {
   FloatingEvents,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import {
+  type Boundary,
+  OffsetFunction,
+  type Side,
+  useAnchorPositioning,
+} from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 
@@ -124,7 +129,7 @@ export namespace useMenuPositioner {
      * Distance between the anchor and the popup.
      * @default 0
      */
-    sideOffset?: number;
+    sideOffset?: number | OffsetFunction;
     /**
      * How to align the popup relative to the specified side.
      */
@@ -133,7 +138,7 @@ export namespace useMenuPositioner {
      * Additional offset along the alignment axis of the element.
      * @default 0
      */
-    alignOffset?: number;
+    alignOffset?: number | OffsetFunction;
     /**
      * An element or a rectangle that delimits the area that the popup is confined to.
      * @default 'clipping-ancestors'

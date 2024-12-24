@@ -118,7 +118,7 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    * Additional offset along the alignment axis of the element.
    * @default 0
    */
-  alignOffset: PropTypes.number,
+  alignOffset: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
   /**
    * An element to position the popup against.
    * By default, the popup will be positioned against the trigger.
@@ -241,7 +241,7 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    * Distance between the anchor and the popup.
    * @default 0
    */
-  sideOffset: PropTypes.number,
+  sideOffset: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
   /**
    * Whether to maintain the select menu in the viewport after
    * the anchor element is scrolled out of view.
