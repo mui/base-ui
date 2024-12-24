@@ -117,7 +117,7 @@ async function generateProptypes(project: TypeScriptProject, sourceFile: string)
         return generated;
       },
       shouldInclude: ({ prop }) => {
-        if (prop.name === 'children') {
+        if (prop.name === 'children' || prop.name === 'className' || prop.name === 'render') {
           return true;
         }
         let shouldDocument;
