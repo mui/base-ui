@@ -42,10 +42,6 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     customStyleHookMapping,
   });
 
-  if (!mounted) {
-    return null;
-  }
-
   return renderElement();
 });
 

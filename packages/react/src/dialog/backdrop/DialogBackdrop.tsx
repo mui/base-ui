@@ -45,7 +45,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   });
 
   // no need to render nested backdrops
-  const shouldRender = mounted && !nested;
+  const shouldRender = !nested;
   if (!shouldRender) {
     return null;
   }

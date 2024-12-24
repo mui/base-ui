@@ -45,10 +45,6 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     customStyleHookMapping,
   });
 
-  if (!mounted) {
-    return null;
-  }
-
   return renderElement();
 });
 

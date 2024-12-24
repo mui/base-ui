@@ -45,10 +45,6 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
     customStyleHookMapping,
   });
 
-  if (!mounted) {
-    return null;
-  }
-
   return renderElement();
 });
 
