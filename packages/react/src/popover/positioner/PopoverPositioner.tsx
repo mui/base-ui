@@ -10,6 +10,7 @@ import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 
 /**
  * Positions the popover against the trigger.
@@ -25,7 +26,6 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     render,
     className,
     anchor,
-    keepMounted = false,
     positionMethod = 'absolute',
     side = 'bottom',
     align = 'center',
@@ -40,6 +40,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const { floatingRootContext, open, mounted, setPositionerElement, popupRef, openMethod } =
     usePopoverRootContext();
+  const keepMounted = usePopoverPortalContext();
 
   const positioner = usePopoverPositioner({
     anchor,
@@ -47,7 +48,6 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     positionMethod,
     mounted,
     open,
-    keepMounted,
     side,
     sideOffset,
     align,
@@ -58,6 +58,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     sticky,
     popupRef,
     openMethod,
+    keepMounted,
   });
 
   const state: PopoverPositioner.State = React.useMemo(
@@ -81,11 +82,6 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     extraProps: otherProps,
     customStyleHookMapping: popupStateMapping,
   });
-
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
@@ -178,11 +174,6 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
       top: PropTypes.number,
     }),
   ]),
-  /**
-   * Whether to keep the HTML element in the DOM while the popover is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Determines which CSS `position` property to use.
    * @default 'absolute'

@@ -42,7 +42,7 @@ interface UseAnchorPositioningParameters {
   collisionBoundary?: Boundary;
   collisionPadding?: Padding;
   sticky?: boolean;
-  keepMounted?: boolean;
+  keepMounted: boolean;
   arrowPadding?: number;
   floatingRootContext?: FloatingRootContext;
   mounted: boolean;

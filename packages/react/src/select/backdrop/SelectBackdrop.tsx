@@ -24,7 +24,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   props: SelectBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, ...other } = props;
+  const { className, render, ...other } = props;
 
   const { open, mounted, transitionStatus } = useSelectRootContext();
 
@@ -42,8 +42,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     customStyleHookMapping,
   });
 
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
+  if (!mounted) {
     return null;
   }
 
@@ -51,13 +50,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 });
 
 namespace SelectBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to keep the HTML element in the DOM while the select menu is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {
     /**
@@ -82,11 +75,6 @@ SelectBackdrop.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether to keep the HTML element in the DOM while the select menu is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

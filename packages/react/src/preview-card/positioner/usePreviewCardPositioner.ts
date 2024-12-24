@@ -13,7 +13,7 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 export function usePreviewCardPositioner(
   params: usePreviewCardPositioner.Parameters,
 ): usePreviewCardPositioner.ReturnValue {
-  const { keepMounted, mounted } = params;
+  const { mounted } = params;
 
   const { open } = usePreviewCardRootContext();
 
@@ -33,7 +33,7 @@ export function usePreviewCardPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if (keepMounted && !open) {
+        if (!open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -46,7 +46,7 @@ export function usePreviewCardPositioner(
           },
         });
       },
-      [positionerStyles, open, keepMounted, mounted],
+      [positionerStyles, open, mounted],
     );
 
   return React.useMemo(
@@ -135,11 +135,6 @@ export namespace usePreviewCardPositioner {
      */
     arrowPadding?: number;
     /**
-     * Whether to keep the HTML element in the DOM while the preview card is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
      * Whether the preview card popup continuously tracks its anchor after the initial positioning
      * upon mount.
      * @default true
@@ -148,6 +143,10 @@ export namespace usePreviewCardPositioner {
   }
 
   export interface Parameters extends SharedParameters {
+    /**
+     * Whether the portal is kept mounted in the DOM while the popup is closed.
+     */
+    keepMounted: boolean;
     /**
      * Whether the preview card is mounted.
      */

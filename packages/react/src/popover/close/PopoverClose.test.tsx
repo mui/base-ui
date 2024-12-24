@@ -12,9 +12,11 @@ describe('<Popover.Close />', () => {
     render(node) {
       return render(
         <Popover.Root open>
-          <Popover.Positioner>
-            <Popover.Popup>{node}</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>{node}</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Popover.Root>,
       );
     },
@@ -23,12 +25,14 @@ describe('<Popover.Close />', () => {
   it('should close popover when clicked', async () => {
     await render(
       <Popover.Root defaultOpen>
-        <Popover.Positioner>
-          <Popover.Popup>
-            Content
-            <Popover.Close data-testid="close" />
-          </Popover.Popup>
-        </Popover.Positioner>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup>
+              Content
+              <Popover.Close data-testid="close" />
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
       </Popover.Root>,
     );
 

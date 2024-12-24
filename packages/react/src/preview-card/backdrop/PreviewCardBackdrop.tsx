@@ -24,7 +24,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   props: PreviewCardBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = false, ...other } = props;
+  const { render, className, ...other } = props;
 
   const { open, mounted, transitionStatus } = usePreviewCardRootContext();
 
@@ -45,8 +45,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
     customStyleHookMapping,
   });
 
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
+  if (!mounted) {
     return null;
   }
 
@@ -62,13 +61,7 @@ namespace PreviewCardBackdrop {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to keep the HTML element in the DOM while the preview card is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 PreviewCardBackdrop.propTypes /* remove-proptypes */ = {
@@ -85,11 +78,6 @@ PreviewCardBackdrop.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether to keep the HTML element in the DOM while the preview card is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
