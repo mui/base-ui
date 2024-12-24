@@ -142,24 +142,30 @@ export default function TooltipTransitionExperiment() {
         <Tooltip.Provider closeDelay={200}>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
-            <Tooltip.Positioner sideOffset={7}>
-              <TooltipPopup data-type="css-animation">Tooltip</TooltipPopup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal>
+              <Tooltip.Positioner sideOffset={7}>
+                <TooltipPopup data-type="css-animation">Tooltip</TooltipPopup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Tooltip.Root>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
-            <Tooltip.Positioner sideOffset={7}>
-              <TooltipPopup data-type="css-animation">Tooltip</TooltipPopup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal>
+              <Tooltip.Positioner sideOffset={7}>
+                <TooltipPopup data-type="css-animation">Tooltip</TooltipPopup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Tooltip.Root>
         </Tooltip.Provider>
       </div>
       <h3>CSS Animation</h3>
       <Tooltip.Root>
         <AnchorButton>Anchor</AnchorButton>
-        <Tooltip.Positioner sideOffset={7}>
-          <TooltipPopup data-type="css-animation">Tooltip</TooltipPopup>
-        </Tooltip.Positioner>
+        <Tooltip.Portal>
+          <Tooltip.Positioner sideOffset={7}>
+            <TooltipPopup data-type="css-animation">Tooltip</TooltipPopup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
       </Tooltip.Root>
 
       <h3>CSS Transition Group</h3>
@@ -167,24 +173,30 @@ export default function TooltipTransitionExperiment() {
         <Tooltip.Provider closeDelay={200}>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
-            <Tooltip.Positioner sideOffset={7}>
-              <TooltipPopup data-type="css-transition">Tooltip</TooltipPopup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal>
+              <Tooltip.Positioner sideOffset={7}>
+                <TooltipPopup data-type="css-transition">Tooltip</TooltipPopup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Tooltip.Root>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
-            <Tooltip.Positioner sideOffset={7}>
-              <TooltipPopup data-type="css-transition">Tooltip</TooltipPopup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal>
+              <Tooltip.Positioner sideOffset={7}>
+                <TooltipPopup data-type="css-transition">Tooltip</TooltipPopup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Tooltip.Root>
         </Tooltip.Provider>
       </div>
       <h3>CSS Transition</h3>
       <Tooltip.Root>
         <AnchorButton>Anchor</AnchorButton>
-        <Tooltip.Positioner sideOffset={7}>
-          <TooltipPopup data-type="css-transition">Tooltip</TooltipPopup>
-        </Tooltip.Positioner>
+        <Tooltip.Portal>
+          <Tooltip.Positioner sideOffset={7}>
+            <TooltipPopup data-type="css-transition">Tooltip</TooltipPopup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
       </Tooltip.Root>
 
       <h3>CSS Transition with `@starting-style`</h3>
@@ -196,11 +208,13 @@ export default function TooltipTransitionExperiment() {
       </p>
       <Tooltip.Root>
         <AnchorButton>Anchor</AnchorButton>
-        <Tooltip.Positioner sideOffset={7}>
-          <TooltipPopup data-type="css-transition-starting-style">
-            Tooltip
-          </TooltipPopup>
-        </Tooltip.Positioner>
+        <Tooltip.Portal>
+          <Tooltip.Positioner sideOffset={7}>
+            <TooltipPopup data-type="css-transition-starting-style">
+              Tooltip
+            </TooltipPopup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
       </Tooltip.Root>
 
       <hr />
@@ -212,28 +226,36 @@ export default function TooltipTransitionExperiment() {
         <Tooltip.Provider closeDelay={200}>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
-            <Tooltip.Positioner sideOffset={7} keepMounted>
-              <TooltipPopup data-type="css-animation-keep-mounted">
-                Tooltip
-              </TooltipPopup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal keepMounted>
+              <Tooltip.Positioner sideOffset={7}>
+                <TooltipPopup data-type="css-animation-keep-mounted">
+                  Tooltip
+                </TooltipPopup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Tooltip.Root>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
-            <Tooltip.Positioner sideOffset={7} keepMounted>
-              <TooltipPopup data-type="css-animation-keep-mounted">
-                Tooltip
-              </TooltipPopup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal keepMounted>
+              <Tooltip.Positioner sideOffset={7}>
+                <TooltipPopup data-type="css-animation-keep-mounted">
+                  Tooltip
+                </TooltipPopup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Tooltip.Root>
         </Tooltip.Provider>
       </div>
       <h3>CSS Animation</h3>
       <Tooltip.Root>
         <AnchorButton>Anchor</AnchorButton>
-        <Tooltip.Positioner sideOffset={7} keepMounted>
-          <TooltipPopup data-type="css-animation-keep-mounted">Tooltip</TooltipPopup>
-        </Tooltip.Positioner>
+        <Tooltip.Portal keepMounted>
+          <Tooltip.Positioner sideOffset={7}>
+            <TooltipPopup data-type="css-animation-keep-mounted">
+              Tooltip
+            </TooltipPopup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
       </Tooltip.Root>
 
       <h3>CSS Transition Group</h3>
@@ -241,30 +263,36 @@ export default function TooltipTransitionExperiment() {
         <Tooltip.Provider closeDelay={200}>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
-            <Tooltip.Positioner sideOffset={7} keepMounted>
-              <TooltipPopup data-type="css-transition-keep-mounted">
-                Tooltip
-              </TooltipPopup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal keepMounted>
+              <Tooltip.Positioner sideOffset={7}>
+                <TooltipPopup data-type="css-transition-keep-mounted">
+                  Tooltip
+                </TooltipPopup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Tooltip.Root>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
-            <Tooltip.Positioner sideOffset={7} keepMounted>
-              <TooltipPopup data-type="css-transition-keep-mounted">
-                Tooltip
-              </TooltipPopup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal keepMounted>
+              <Tooltip.Positioner sideOffset={7}>
+                <TooltipPopup data-type="css-transition-keep-mounted">
+                  Tooltip
+                </TooltipPopup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Tooltip.Root>
         </Tooltip.Provider>
       </div>
       <h3>CSS Transition</h3>
       <Tooltip.Root>
         <AnchorButton>Anchor</AnchorButton>
-        <Tooltip.Positioner sideOffset={7} keepMounted>
-          <TooltipPopup data-type="css-transition-keep-mounted">
-            Tooltip
-          </TooltipPopup>
-        </Tooltip.Positioner>
+        <Tooltip.Portal keepMounted>
+          <Tooltip.Positioner sideOffset={7}>
+            <TooltipPopup data-type="css-transition-keep-mounted">
+              Tooltip
+            </TooltipPopup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
       </Tooltip.Root>
 
       <hr />
@@ -282,20 +310,22 @@ function FramerMotion() {
       <AnchorButton>Anchor</AnchorButton>
       <AnimatePresence>
         {isOpen && (
-          <Tooltip.Positioner keepMounted sideOffset={7}>
-            <TooltipPopup
-              data-type="framer-motion"
-              render={
-                <motion.div
-                  animate={{ opacity: 1, scale: 1 }}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  exit={{ opacity: 0, scale: 0 }}
-                />
-              }
-            >
-              Tooltip
-            </TooltipPopup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal keepMounted>
+            <Tooltip.Positioner sideOffset={7}>
+              <TooltipPopup
+                data-type="framer-motion"
+                render={
+                  <motion.div
+                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    exit={{ opacity: 0, scale: 0 }}
+                  />
+                }
+              >
+                Tooltip
+              </TooltipPopup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         )}
       </AnimatePresence>
     </Tooltip.Root>

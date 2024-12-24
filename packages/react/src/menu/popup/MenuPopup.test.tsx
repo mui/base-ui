@@ -9,7 +9,9 @@ describe('<Menu.Popup />', () => {
     render: (node) => {
       return render(
         <Menu.Root open>
-          <Menu.Positioner>{node}</Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>{node}</Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
     },

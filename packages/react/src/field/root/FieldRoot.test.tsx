@@ -484,12 +484,14 @@ describe('<Field.Root />', () => {
           <Field.Root>
             <Select.Root>
               <Select.Trigger data-testid="trigger" />
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.Item value="">Select</Select.Item>
-                  <Select.Item value="1">Option 1</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
             </Select.Root>
           </Field.Root>,
         );
@@ -683,12 +685,14 @@ describe('<Field.Root />', () => {
           <Field.Root>
             <Select.Root>
               <Select.Trigger data-testid="trigger" />
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.Item value="">Select</Select.Item>
-                  <Select.Item value="1">Option 1</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
             </Select.Root>
           </Field.Root>,
         );

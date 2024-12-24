@@ -10,9 +10,11 @@ describe('<Menu.Arrow />', () => {
     render(node) {
       return render(
         <Menu.Root open>
-          <Menu.Positioner>
-            <Menu.Popup>{node}</Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>{node}</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
     },

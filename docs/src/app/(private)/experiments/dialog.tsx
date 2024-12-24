@@ -46,15 +46,17 @@ function renderContent(
           <Dialog.Root modal={modal} dismissible={dismissible}>
             <Dialog.Trigger className={classes.button}>Open nested</Dialog.Trigger>
             <Dialog.Backdrop className={clsx(classes.backdrop, nestedClassName)} />
-            <Dialog.Popup className={clsx(classes.dialog, nestedClassName)}>
-              {renderContent(
-                `Nested dialog ${NESTED_DIALOGS + 1 - includeNested}`,
-                includeNested - 1,
-                nestedClassName,
-                modal,
-                dismissible,
-              )}
-            </Dialog.Popup>
+            <Dialog.Portal>
+              <Dialog.Popup className={clsx(classes.dialog, nestedClassName)}>
+                {renderContent(
+                  `Nested dialog ${NESTED_DIALOGS + 1 - includeNested}`,
+                  includeNested - 1,
+                  nestedClassName,
+                  modal,
+                  dismissible,
+                )}
+              </Dialog.Popup>
+            </Dialog.Portal>
           </Dialog.Root>
         ) : null}
 
@@ -72,23 +74,20 @@ function CssTransitionDialogDemo({ keepMounted, modal, dismissible }: DemoProps)
           Open with CSS transition
         </Dialog.Trigger>
 
-        <Dialog.Backdrop
-          keepMounted={keepMounted}
-          className={clsx(classes.backdrop, classes.withTransitions)}
-        />
-
-        <Dialog.Popup
-          keepMounted={keepMounted}
-          className={clsx(classes.dialog, classes.withTransitions)}
-        >
-          {renderContent(
-            'Dialog with CSS transitions',
-            NESTED_DIALOGS,
-            classes.withTransitions,
-            modal,
-            dismissible,
-          )}
-        </Dialog.Popup>
+        <Dialog.Portal keepMounted={keepMounted}>
+          <Dialog.Backdrop
+            className={clsx(classes.backdrop, classes.withTransitions)}
+          />
+          <Dialog.Popup className={clsx(classes.dialog, classes.withTransitions)}>
+            {renderContent(
+              'Dialog with CSS transitions',
+              NESTED_DIALOGS,
+              classes.withTransitions,
+              modal,
+              dismissible,
+            )}
+          </Dialog.Popup>
+        </Dialog.Portal>
       </Dialog.Root>
     </span>
   );
@@ -102,23 +101,20 @@ function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: DemoProps) 
           Open with CSS animation
         </Dialog.Trigger>
 
-        <Dialog.Backdrop
-          keepMounted={keepMounted}
-          className={clsx(classes.backdrop, classes.withAnimations)}
-        />
-
-        <Dialog.Popup
-          keepMounted={keepMounted}
-          className={clsx(classes.dialog, classes.withAnimations)}
-        >
-          {renderContent(
-            'Dialog with CSS animations',
-            NESTED_DIALOGS,
-            classes.withAnimations,
-            modal,
-            dismissible,
-          )}
-        </Dialog.Popup>
+        <Dialog.Portal keepMounted={keepMounted}>
+          <Dialog.Backdrop
+            className={clsx(classes.backdrop, classes.withAnimations)}
+          />
+          <Dialog.Popup className={clsx(classes.dialog, classes.withAnimations)}>
+            {renderContent(
+              'Dialog with CSS animations',
+              NESTED_DIALOGS,
+              classes.withAnimations,
+              modal,
+              dismissible,
+            )}
+          </Dialog.Popup>
+        </Dialog.Portal>
       </Dialog.Root>
     </span>
   );
@@ -141,18 +137,19 @@ function ReactSpringDialogDemo({ keepMounted, modal, dismissible }: DemoProps) {
         />
 
         <ReactSpringTransition open={open}>
-          <Dialog.Popup
-            keepMounted={keepMounted}
-            className={`${classes.dialog} ${classes.withReactSpringTransition}`}
-          >
-            {renderContent(
-              'Dialog with ReactSpring transitions',
-              3,
-              classes.withReactSpringTransition,
-              modal,
-              dismissible,
-            )}
-          </Dialog.Popup>
+          <Dialog.Portal keepMounted={keepMounted}>
+            <Dialog.Popup
+              className={`${classes.dialog} ${classes.withReactSpringTransition}`}
+            >
+              {renderContent(
+                'Dialog with ReactSpring transitions',
+                3,
+                classes.withReactSpringTransition,
+                modal,
+                dismissible,
+              )}
+            </Dialog.Popup>
+          </Dialog.Portal>
         </ReactSpringTransition>
       </Dialog.Root>
     </span>

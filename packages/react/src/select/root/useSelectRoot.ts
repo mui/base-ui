@@ -140,20 +140,31 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     setLabel(labelsRef.current[index] ?? '');
   });
 
+  const hasRegisteredRef = React.useRef(false);
+
+  const registerSelectedItem = useEventCallback((suppliedIndex: number | undefined) => {
+    if (suppliedIndex !== undefined) {
+      hasRegisteredRef.current = true;
+    }
+
+    const stringValue = typeof value === 'string' || value === null ? value : JSON.stringify(value);
+    const index = suppliedIndex ?? valuesRef.current.indexOf(stringValue);
+
+    if (index !== -1) {
+      setSelectedIndex(index);
+      setLabel(labelsRef.current[index] ?? '');
+    } else if (value) {
+      warn(`The value \`${stringValue}\` is not present in the select items.`);
+    }
+  });
+
   useEnhancedEffect(() => {
-    // Wait for the items to have registered their values in `valuesRef`.
-    queueMicrotask(() => {
-      const stringValue =
-        typeof value === 'string' || value === null ? value : JSON.stringify(value);
-      const index = valuesRef.current.indexOf(stringValue);
-      if (index !== -1) {
-        setSelectedIndex(index);
-        setLabel(labelsRef.current[index] ?? '');
-      } else if (value) {
-        warn(`The value \`${stringValue}\` is not present in the select items.`);
-      }
-    });
-  }, [value]);
+    if (!hasRegisteredRef.current) {
+      return;
+    }
+
+    registerSelectedItem(undefined);
+  }, [value, registerSelectedItem]);
 
   const floatingRootContext = useFloatingRootContext({
     open,
@@ -263,6 +274,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       transitionStatus,
       fieldControlValidation,
       modal,
+      registerSelectedItem,
     }),
     [
       id,
@@ -290,6 +302,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       transitionStatus,
       fieldControlValidation,
       modal,
+      registerSelectedItem,
     ],
   );
 
