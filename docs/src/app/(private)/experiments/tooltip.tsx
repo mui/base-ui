@@ -142,7 +142,7 @@ export default function TooltipTransitionExperiment() {
         <Tooltip.Provider closeDelay={200}>
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
-            <Tooltip.Positioner sideOffset={(sizes) => sizes.anchor.height}>
+            <Tooltip.Positioner sideOffset={7}>
               <TooltipPopup data-type="css-animation">Tooltip</TooltipPopup>
             </Tooltip.Positioner>
           </Tooltip.Root>

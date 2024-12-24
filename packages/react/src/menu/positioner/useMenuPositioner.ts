@@ -9,10 +9,10 @@ import type {
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import {
-  type Boundary,
-  OffsetFunction,
-  type Side,
   useAnchorPositioning,
+  type Boundary,
+  type OffsetFunction,
+  type Side,
 } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';

@@ -7,9 +7,9 @@ import type {
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import {
-  Boundary,
-  OffsetFunction,
   useAnchorPositioning,
+  type Boundary,
+  type OffsetFunction,
   type Side,
 } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
