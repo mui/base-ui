@@ -100,7 +100,14 @@ export namespace usePopoverPositioner {
      */
     side?: Side;
     /**
-     * Distance between the anchor and the popup.
+     * Distance between the anchor and the popup in pixels.
+     * Also accepts a function that returns a number to read the dimensions of the anchor and popup,
+     * along with its side and alignment.
+     *
+     * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
+     * - `data.popup`: the dimensions of the popup element with properties `width` and `height`.
+     * - `data.side`: which side of the anchor element the popup is aligned against.
+     * - `data.align`: how the popup is aligned relative to the specified side.
      * @default 0
      */
     sideOffset?: number | OffsetFunction;
