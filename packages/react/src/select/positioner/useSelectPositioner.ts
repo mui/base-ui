@@ -7,7 +7,12 @@ import type {
   Middleware,
 } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
-import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import {
+  type Boundary,
+  OffsetFunction,
+  type Side,
+  useAnchorPositioning,
+} from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
@@ -123,7 +128,7 @@ export namespace useSelectPositioner {
      * Distance between the anchor and the popup.
      * @default 0
      */
-    sideOffset?: number;
+    sideOffset?: number | OffsetFunction;
     /**
      * How to align the popup relative to the specified side.
      * @default 'start'
@@ -133,7 +138,7 @@ export namespace useSelectPositioner {
      * Additional offset along the alignment axis of the element.
      * @default 0
      */
-    alignOffset?: number;
+    alignOffset?: number | OffsetFunction;
     /**
      * An element or a rectangle that delimits the area that the popup is confined to.
      * @default 'clipping-ancestors'

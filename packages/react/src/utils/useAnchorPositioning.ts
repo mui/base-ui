@@ -25,6 +25,10 @@ import { useDirection } from '../direction-provider/DirectionContext';
 export type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 export type Align = 'start' | 'center' | 'end';
 export type Boundary = 'clipping-ancestors' | Element | Element[] | Rect;
+export type OffsetFunction = (sizes: {
+  anchor: { width: number; height: number };
+  popup: { width: number; height: number };
+}) => number;
 
 interface UseAnchorPositioningParameters {
   anchor?:
@@ -35,9 +39,9 @@ interface UseAnchorPositioningParameters {
     | null;
   positionMethod?: 'absolute' | 'fixed';
   side?: Side;
-  sideOffset?: number;
+  sideOffset?: number | OffsetFunction;
   align?: Align;
-  alignOffset?: number;
+  alignOffset?: number | OffsetFunction;
   fallbackAxisSideDirection?: 'start' | 'end' | 'none';
   collisionBoundary?: Boundary;
   collisionPadding?: Padding;
@@ -118,12 +122,29 @@ export function useAnchorPositioning(
   // presence.
   const arrowRef = React.useRef<Element | null>(null);
 
+  // Keep these reactive if they're not functions
+  const sideOffsetDep = typeof sideOffset === 'number' ? side : 0;
+  const alignOffsetDep = typeof alignOffset === 'number' ? align : 0;
+
   const middleware: UseFloatingOptions['middleware'] = [
-    offset({
-      mainAxis: sideOffset,
-      crossAxis: alignOffset,
-      alignmentAxis: alignOffset,
-    }),
+    offset(
+      ({ rects }) => {
+        const sizes = {
+          anchor: { width: rects.reference.width, height: rects.reference.height },
+          popup: { width: rects.floating.width, height: rects.floating.height },
+        };
+
+        const sideAxis = typeof sideOffset === 'function' ? sideOffset(sizes) : sideOffset;
+        const alignAxis = typeof alignOffset === 'function' ? alignOffset(sizes) : alignOffset;
+
+        return {
+          mainAxis: sideAxis,
+          crossAxis: alignAxis,
+          alignmentAxis: alignAxis,
+        };
+      },
+      [sideOffsetDep, alignOffsetDep],
+    ),
   ];
 
   const flipMiddleware = flip({
