@@ -22,9 +22,29 @@ import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
 
+function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
+  const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
+  const logicalRight = isRtl ? 'inline-start' : 'inline-end';
+  const logicalLeft = isRtl ? 'inline-end' : 'inline-start';
+  return (
+    {
+      top: 'top',
+      right: isLogicalSideParam ? logicalRight : 'right',
+      bottom: 'bottom',
+      left: isLogicalSideParam ? logicalLeft : 'left',
+    } satisfies Record<PhysicalSide, Side>
+  )[renderedSide];
+}
+
 export type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 export type Align = 'start' | 'center' | 'end';
 export type Boundary = 'clipping-ancestors' | Element | Element[] | Rect;
+export type OffsetFunction = (data: {
+  side: Side;
+  align: Align;
+  anchor: { width: number; height: number };
+  popup: { width: number; height: number };
+}) => number;
 
 interface UseAnchorPositioningParameters {
   anchor?:
@@ -35,9 +55,9 @@ interface UseAnchorPositioningParameters {
     | null;
   positionMethod?: 'absolute' | 'fixed';
   side?: Side;
-  sideOffset?: number;
+  sideOffset?: number | OffsetFunction;
   align?: Align;
-  alignOffset?: number;
+  alignOffset?: number | OffsetFunction;
   fallbackAxisSideDirection?: 'start' | 'end' | 'none';
   collisionBoundary?: Boundary;
   collisionPadding?: Padding;
@@ -118,12 +138,31 @@ export function useAnchorPositioning(
   // presence.
   const arrowRef = React.useRef<Element | null>(null);
 
+  // Keep these reactive if they're not functions
+  const sideOffsetDep = typeof sideOffset !== 'function' ? sideOffset : 0;
+  const alignOffsetDep = typeof alignOffset !== 'function' ? alignOffset : 0;
+
   const middleware: UseFloatingOptions['middleware'] = [
-    offset({
-      mainAxis: sideOffset,
-      crossAxis: alignOffset,
-      alignmentAxis: alignOffset,
-    }),
+    offset(
+      ({ rects, placement: currentPlacement }) => {
+        const data = {
+          side: getLogicalSide(sideParam, getSide(currentPlacement), isRtl),
+          align: getAlignment(currentPlacement) || 'center',
+          anchor: { width: rects.reference.width, height: rects.reference.height },
+          popup: { width: rects.floating.width, height: rects.floating.height },
+        } as const;
+
+        const sideAxis = typeof sideOffset === 'function' ? sideOffset(data) : sideOffset;
+        const alignAxis = typeof alignOffset === 'function' ? alignOffset(data) : alignOffset;
+
+        return {
+          mainAxis: sideAxis,
+          crossAxis: alignAxis,
+          alignmentAxis: alignAxis,
+        };
+      },
+      [sideOffsetDep, alignOffsetDep, isRtl, sideParam],
+    ),
   ];
 
   const flipMiddleware = flip({
@@ -285,17 +324,7 @@ export function useAnchorPositioning(
   }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
 
   const renderedSide = getSide(renderedPlacement);
-  const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
-  const logicalRight = isRtl ? 'inline-start' : 'inline-end';
-  const logicalLeft = isRtl ? 'inline-end' : 'inline-start';
-  const logicalRenderedSide = (
-    {
-      top: 'top',
-      right: isLogicalSideParam ? logicalRight : 'right',
-      bottom: 'bottom',
-      left: isLogicalSideParam ? logicalLeft : 'left',
-    } satisfies Record<PhysicalSide, Side>
-  )[renderedSide];
+  const logicalRenderedSide = getLogicalSide(sideParam, renderedSide, isRtl);
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 

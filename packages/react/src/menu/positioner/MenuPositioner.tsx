@@ -181,7 +181,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    * Additional offset along the alignment axis of the element.
    * @default 0
    */
-  alignOffset: PropTypes.number,
+  alignOffset: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
   /**
    * An element to position the popup against.
    * By default, the popup will be positioned against the trigger.
@@ -258,10 +258,17 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
-   * Distance between the anchor and the popup.
+   * Distance between the anchor and the popup in pixels.
+   * Also accepts a function that returns a number to read the dimensions of the anchor and popup,
+   * along with its side and alignment.
+   *
+   * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
+   * - `data.popup`: the dimensions of the popup element with properties `width` and `height`.
+   * - `data.side`: which side of the anchor element the popup is aligned against.
+   * - `data.align`: how the popup is aligned relative to the specified side.
    * @default 0
    */
-  sideOffset: PropTypes.number,
+  sideOffset: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
   /**
    * Whether to maintain the menu in the viewport after
    * the anchor element is scrolled out of view.
