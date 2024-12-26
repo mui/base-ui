@@ -147,7 +147,8 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   });
 
   const dismiss = useDismiss(context, {
-    outsidePressEvent: modal || backdropRendered ? 'mousedown' : undefined,
+    // For infotips (`openOnHover`), ensure another infotip can immediately open on tap
+    outsidePressEvent: !openOnHover && (modal || backdropRendered) ? 'mousedown' : undefined,
   });
 
   const role = useRole(context);
