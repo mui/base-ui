@@ -383,7 +383,8 @@ export namespace useSelectRoot {
      */
     transitionStatus?: TransitionStatus;
     /**
-     * Whether the select should prevent outside clicks and lock page scroll when open.
+     * Whether the select should prevent interactivity of other elements
+     * on the page when open and the anchor is visible.
      * @default true
      */
     modal?: boolean;

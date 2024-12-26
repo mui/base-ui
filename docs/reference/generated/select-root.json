@@ -40,7 +40,7 @@
     "modal": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether the select should prevent outside clicks and lock page scroll when open."
+      "description": "Whether the select should prevent interactivity of other elements\non the page when open and the anchor is visible."
     },
     "disabled": {
       "type": "boolean",
