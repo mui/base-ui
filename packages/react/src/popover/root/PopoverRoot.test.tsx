@@ -1,10 +1,19 @@
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  describeSkipIf,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
+
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 function Root(props: Popover.Root.Props) {
   return <Popover.Root {...props} />;
@@ -503,6 +512,88 @@ describe('<Popover.Root />', () => {
       });
 
       expect(lastInput).toHaveFocus();
+    });
+  });
+
+  describeSkipIf(isJSDOM)('prop: onClosed', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Popover.Root open={open}>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup" />
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let onClosedCalled = false;
+      function notifyOnHidden() {
+        onClosedCalled = true;
+      }
+
+      function Test() {
+        const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 50ms;
+        }
+      `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Popover.Root open={open} onClosed={notifyOnHidden}>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup className="animation-test-indicator" data-testid="popup" />
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.to.equal(null);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onClosedCalled).to.equal(true);
     });
   });
 });

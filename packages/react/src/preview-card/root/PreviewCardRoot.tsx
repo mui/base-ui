@@ -13,7 +13,7 @@ import { PortalContext } from '../../portal/PortalContext';
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(props) {
-  const { delay, closeDelay } = props;
+  const { delay, closeDelay, onClosed } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
@@ -35,6 +35,7 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
   } = usePreviewCardRoot({
     delay,
     closeDelay,
+    onClosed,
     open: props.open,
     onOpenChange: props.onOpenChange,
     defaultOpen: props.defaultOpen,

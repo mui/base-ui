@@ -1,9 +1,17 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
-import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  describeSkipIf,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
+
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<Select.Root />', () => {
   const { render } = createRenderer();
@@ -408,6 +416,88 @@ describe('<Select.Root />', () => {
       const positioner = screen.getByTestId('positioner');
 
       expect(positioner.previousElementSibling).to.equal(null);
+    });
+  });
+
+  describeSkipIf(isJSDOM)('prop: onClosed', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Select.Root open={open}>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner">
+                  <Select.Popup />
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).to.have.attribute('hidden', '');
+      });
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let onClosedCalled = false;
+      function notifyOnHidden() {
+        onClosedCalled = true;
+      }
+
+      function Test() {
+        const style = `
+            @keyframes test-anim {
+              to {
+                opacity: 0;
+              }
+            }
+    
+            .animation-test-indicator[data-ending-style] {
+              animation: test-anim 50ms;
+            }
+          `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Select.Root open={open} onClosed={notifyOnHidden}>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner">
+                  <Select.Popup className="animation-test-indicator" />
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('positioner')).not.to.have.attribute('hidden');
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).to.have.attribute('hidden', '');
+      });
+
+      expect(onClosedCalled).to.equal(true);
     });
   });
 });

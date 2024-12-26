@@ -13,7 +13,7 @@ import { PortalContext } from '../../portal/PortalContext';
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
-  const { openOnHover = false, delay, closeDelay = 0 } = props;
+  const { openOnHover = false, delay, closeDelay = 0, onClosed } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
 
@@ -39,6 +39,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     openReason,
   } = usePopoverRoot({
     openOnHover,
+    onClosed,
     delay: delayWithDefault,
     closeDelay,
     open: props.open,

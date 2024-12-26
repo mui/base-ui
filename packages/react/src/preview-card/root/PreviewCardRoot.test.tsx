@@ -1,10 +1,19 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui-components/react/preview-card';
-import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  screen,
+  flushMicrotasks,
+  waitFor,
+  describeSkipIf,
+} from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
+
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 function Root(props: PreviewCard.Root.Props) {
   return <PreviewCard.Root {...props} />;
@@ -465,6 +474,88 @@ describe('<PreviewCard.Root />', () => {
       clock.tick(100);
 
       expect(screen.queryByText('Content')).to.equal(null);
+    });
+  });
+
+  describeSkipIf(isJSDOM)('prop: onClosed', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <PreviewCard.Root open={open}>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="popup" />
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let onClosedCalled = false;
+      function notifyOnHidden() {
+        onClosedCalled = true;
+      }
+
+      function Test() {
+        const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 50ms;
+        }
+      `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <PreviewCard.Root open={open} onClosed={notifyOnHidden}>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup className="animation-test-indicator" data-testid="popup" />
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.to.equal(null);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onClosedCalled).to.equal(true);
     });
   });
 });

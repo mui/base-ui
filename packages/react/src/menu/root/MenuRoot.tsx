@@ -26,6 +26,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     orientation = 'vertical',
     delay = 100,
     openOnHover: openOnHoverProp,
+    onClosed,
   } = props;
 
   const direction = useDirection();
@@ -54,6 +55,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     delay,
     onTypingChange,
     modal,
+    onClosed,
   });
 
   const context: MenuRootContext = React.useMemo(
@@ -113,6 +115,10 @@ namespace MenuRoot {
      * Event handler called when the menu is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event) => void;
+    /**
+     * Event handler called after any exit animations finish when the menu is closed.
+     */
+    onClosed?: () => void;
     /**
      * Whether the menu is currently open.
      */
