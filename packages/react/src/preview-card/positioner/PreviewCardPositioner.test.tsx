@@ -23,20 +23,24 @@ describe('<PreviewCard.Positioner />', () => {
     },
   }));
 
-  const baselineX = 10.5;
-  const baselineY = 18.5;
-  const popupWidth = 51;
+  const baselineX = 10;
+  const baselineY = 36;
+  const popupWidth = 52;
+  const popupHeight = 24;
   const anchorWidth = 72;
+  const anchorHeight = 36;
+  const triggerStyle = { width: anchorWidth, height: anchorHeight };
+  const popupStyle = { width: popupWidth, height: popupHeight };
 
   describeSkipIf(isJSDOM)('prop: sideOffset', () => {
     it('offsets the side when a number is specified', async () => {
       const sideOffset = 7;
       await render(
         <PreviewCard.Root open>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <PreviewCard.Portal>
             <PreviewCard.Positioner data-testid="positioner" sideOffset={sideOffset}>
-              <PreviewCard.Popup style={{ width: popupWidth }}>Popup</PreviewCard.Popup>
+              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
             </PreviewCard.Positioner>
           </PreviewCard.Portal>
         </PreviewCard.Root>,
@@ -50,13 +54,13 @@ describe('<PreviewCard.Positioner />', () => {
     it('offsets the side when a function is specified', async () => {
       await render(
         <PreviewCard.Root open>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <PreviewCard.Portal>
             <PreviewCard.Positioner
               data-testid="positioner"
               sideOffset={(data) => data.popup.width + data.anchor.width}
             >
-              <PreviewCard.Popup style={{ width: popupWidth }}>Popup</PreviewCard.Popup>
+              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
             </PreviewCard.Positioner>
           </PreviewCard.Portal>
         </PreviewCard.Root>,
@@ -71,7 +75,7 @@ describe('<PreviewCard.Positioner />', () => {
       let side = 'none';
       await render(
         <PreviewCard.Root open>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <PreviewCard.Portal>
             <PreviewCard.Positioner
               side="left"
@@ -81,7 +85,7 @@ describe('<PreviewCard.Positioner />', () => {
                 return 0;
               }}
             >
-              <PreviewCard.Popup style={{ width: popupWidth }}>Popup</PreviewCard.Popup>
+              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
             </PreviewCard.Positioner>
           </PreviewCard.Portal>
         </PreviewCard.Root>,
@@ -95,7 +99,7 @@ describe('<PreviewCard.Positioner />', () => {
       let align = 'none';
       await render(
         <PreviewCard.Root open>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <PreviewCard.Portal>
             <PreviewCard.Positioner
               side="right"
@@ -106,13 +110,14 @@ describe('<PreviewCard.Positioner />', () => {
                 return 0;
               }}
             >
-              <PreviewCard.Popup style={{ width: popupWidth }}>Popup</PreviewCard.Popup>
+              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
             </PreviewCard.Positioner>
           </PreviewCard.Portal>
         </PreviewCard.Root>,
       );
 
-      expect(align).to.equal('start');
+      // correctly flips the align in the browser
+      expect(align).to.equal('end');
     });
   });
 
@@ -121,10 +126,10 @@ describe('<PreviewCard.Positioner />', () => {
       const alignOffset = 7;
       await render(
         <PreviewCard.Root open>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <PreviewCard.Portal>
             <PreviewCard.Positioner data-testid="positioner" alignOffset={alignOffset}>
-              <PreviewCard.Popup style={{ width: popupWidth }}>Popup</PreviewCard.Popup>
+              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
             </PreviewCard.Positioner>
           </PreviewCard.Portal>
         </PreviewCard.Root>,
@@ -138,13 +143,13 @@ describe('<PreviewCard.Positioner />', () => {
     it('offsets the align when a function is specified', async () => {
       await render(
         <PreviewCard.Root open>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <PreviewCard.Portal>
             <PreviewCard.Positioner
               data-testid="positioner"
               alignOffset={(data) => data.popup.width}
             >
-              <PreviewCard.Popup style={{ width: popupWidth }}>Popup</PreviewCard.Popup>
+              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
             </PreviewCard.Positioner>
           </PreviewCard.Portal>
         </PreviewCard.Root>,
@@ -159,7 +164,7 @@ describe('<PreviewCard.Positioner />', () => {
       let side = 'none';
       await render(
         <PreviewCard.Root open>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <PreviewCard.Portal>
             <PreviewCard.Positioner
               side="left"
@@ -169,7 +174,7 @@ describe('<PreviewCard.Positioner />', () => {
                 return 0;
               }}
             >
-              <PreviewCard.Popup style={{ width: popupWidth }}>Popup</PreviewCard.Popup>
+              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
             </PreviewCard.Positioner>
           </PreviewCard.Portal>
         </PreviewCard.Root>,
@@ -183,7 +188,7 @@ describe('<PreviewCard.Positioner />', () => {
       let align = 'none';
       await render(
         <PreviewCard.Root open>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <PreviewCard.Portal>
             <PreviewCard.Positioner
               side="right"
@@ -194,13 +199,14 @@ describe('<PreviewCard.Positioner />', () => {
                 return 0;
               }}
             >
-              <PreviewCard.Popup style={{ width: popupWidth }}>Popup</PreviewCard.Popup>
+              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
             </PreviewCard.Positioner>
           </PreviewCard.Portal>
         </PreviewCard.Root>,
       );
 
-      expect(align).to.equal('start');
+      // correctly flips the align in the browser
+      expect(align).to.equal('end');
     });
   });
 });
