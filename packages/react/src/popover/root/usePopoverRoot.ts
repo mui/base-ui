@@ -147,7 +147,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   });
 
   const dismiss = useDismiss(context, {
-    outsidePressEvent: backdropRendered ? 'mousedown' : undefined,
+    outsidePressEvent: modal || backdropRendered ? 'mousedown' : undefined,
   });
 
   const role = useRole(context);
