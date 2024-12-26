@@ -146,7 +146,9 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     stickIfOpen: false,
   });
 
-  const dismiss = useDismiss(context);
+  const dismiss = useDismiss(context, {
+    outsidePressEvent: backdropRendered ? 'mousedown' : undefined,
+  });
 
   const role = useRole(context);
 

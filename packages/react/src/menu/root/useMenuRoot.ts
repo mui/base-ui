@@ -107,7 +107,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const dismiss = useDismiss(floatingRootContext, {
     bubbles: closeParentOnEsc && nested,
-    outsidePressEvent: 'mousedown',
+    outsidePressEvent: backdropRendered ? 'mousedown' : undefined,
   });
 
   const role = useRole(floatingRootContext, {
