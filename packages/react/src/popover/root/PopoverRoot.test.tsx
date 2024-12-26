@@ -517,12 +517,17 @@ describe('<Popover.Root />', () => {
 
   describeSkipIf(isJSDOM)('prop: onClosed', () => {
     it('is called on close when there is no exit animation defined', async () => {
+      let onClosedCalled = false;
+      function notifyOnClosed() {
+        onClosedCalled = true;
+      }
+
       function Test() {
         const [open, setOpen] = React.useState(true);
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <Popover.Root open={open}>
+            <Popover.Root open={open} onClosed={notifyOnClosed}>
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup data-testid="popup" />
@@ -541,13 +546,15 @@ describe('<Popover.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
+
+      expect(onClosedCalled).to.equal(true);
     });
 
     it('is called on close when the exit animation finishes', async () => {
       (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
 
       let onClosedCalled = false;
-      function notifyOnHidden() {
+      function notifyOnClosed() {
         onClosedCalled = true;
       }
 
@@ -571,7 +578,7 @@ describe('<Popover.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
-            <Popover.Root open={open} onClosed={notifyOnHidden}>
+            <Popover.Root open={open} onClosed={notifyOnClosed}>
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup className="animation-test-indicator" data-testid="popup" />

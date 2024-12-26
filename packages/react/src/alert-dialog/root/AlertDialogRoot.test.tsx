@@ -129,12 +129,17 @@ describe('<AlertDialog.Root />', () => {
 
   describeSkipIf(isJSDOM)('prop: onClosed', () => {
     it('is called on close when there is no exit animation defined', async () => {
+      let onClosedCalled = false;
+      function notifyOnClosed() {
+        onClosedCalled = true;
+      }
+
       function Test() {
         const [open, setOpen] = React.useState(true);
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <AlertDialog.Root open={open}>
+            <AlertDialog.Root open={open} onClosed={notifyOnClosed}>
               <AlertDialog.Portal>
                 <AlertDialog.Popup data-testid="popup" />
               </AlertDialog.Portal>
@@ -151,13 +156,15 @@ describe('<AlertDialog.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
+
+      expect(onClosedCalled).to.equal(true);
     });
 
     it('is called on close when the exit animation finishes', async () => {
       (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
 
       let onClosedCalled = false;
-      function notifyOnHidden() {
+      function notifyOnClosed() {
         onClosedCalled = true;
       }
 
@@ -181,7 +188,7 @@ describe('<AlertDialog.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
-            <AlertDialog.Root open={open} onClosed={notifyOnHidden}>
+            <AlertDialog.Root open={open} onClosed={notifyOnClosed}>
               <AlertDialog.Portal>
                 <AlertDialog.Popup className="animation-test-indicator" data-testid="popup" />
               </AlertDialog.Portal>

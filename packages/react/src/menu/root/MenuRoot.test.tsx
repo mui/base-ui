@@ -857,12 +857,17 @@ describe('<Menu.Root />', () => {
 
   describeSkipIf(isJSDOM)('prop: onClosed', () => {
     it('is called on close when there is no exit animation defined', async () => {
+      let onClosedCalled = false;
+      function notifyOnClosed() {
+        onClosedCalled = true;
+      }
+
       function Test() {
         const [open, setOpen] = React.useState(true);
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <Menu.Root open={open}>
+            <Menu.Root open={open} onClosed={notifyOnClosed}>
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup data-testid="popup" />
@@ -881,13 +886,15 @@ describe('<Menu.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
+
+      expect(onClosedCalled).to.equal(true);
     });
 
     it('is called on close when the exit animation finishes', async () => {
       (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
 
       let onClosedCalled = false;
-      function notifyOnHidden() {
+      function notifyOnClosed() {
         onClosedCalled = true;
       }
 
@@ -911,7 +918,7 @@ describe('<Menu.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
-            <Menu.Root open={open} onClosed={notifyOnHidden}>
+            <Menu.Root open={open} onClosed={notifyOnClosed}>
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup className="animation-test-indicator" data-testid="popup" />
