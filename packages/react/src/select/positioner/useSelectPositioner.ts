@@ -10,7 +10,6 @@ import type { GenericHTMLProps } from '../../utils/types';
 import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useScrollLock } from '../../utils/useScrollLock';
 
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,

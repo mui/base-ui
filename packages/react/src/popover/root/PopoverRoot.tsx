@@ -35,7 +35,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
       closeDelay,
       modal,
     }),
-    [popoverRoot, openOnHover, delayWithDefault, closeDelay, open, modal],
+    [popoverRoot, openOnHover, delayWithDefault, closeDelay, modal],
   );
 
   return (
@@ -86,7 +86,7 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
   delay: PropTypes.number,
   /**
    * Whether the popover should prevent interactivity of other elements
-   * on the page when open and the anchor is visible.
+   * on the page when open and its positioning anchor is visible.
    * @default true
    */
   modal: PropTypes.bool,

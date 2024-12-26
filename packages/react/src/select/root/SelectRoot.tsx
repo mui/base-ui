@@ -146,7 +146,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   disabled: PropTypes.bool,
   /**
    * Whether the select should prevent interactivity of other elements
-   * on the page when open and the anchor is visible.
+   * on the page when open and its positioning anchor is visible.
    * @default true
    */
   modal: PropTypes.bool,

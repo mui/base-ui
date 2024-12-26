@@ -8,7 +8,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { useEnhancedEffect } from '@base-ui-components/react/utils';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
   ...popupStateMapping,

@@ -40,7 +40,7 @@
     "modal": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether the select should prevent interactivity of other elements\non the page when open and the anchor is visible."
+      "description": "Whether the select should prevent interactivity of other elements\non the page when open and its positioning anchor is visible."
     },
     "disabled": {
       "type": "boolean",
