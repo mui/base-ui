@@ -67,6 +67,8 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
+  const { openMethod, triggerProps } = useOpenInteractionType(open);
+
   useScrollLock(open && modal && backdropRendered, triggerElement);
 
   const setOpen = useEventCallback(
@@ -146,16 +148,19 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     stickIfOpen: false,
   });
 
+  let outsidePressEvent: 'mousedown' | undefined =
+    modal || backdropRendered ? 'mousedown' : undefined;
+  // For infotips (`openOnHover`), ensure another infotip can immediately open on tap
+  if (!backdropRendered && openOnHover && openMethod === 'touch') {
+    outsidePressEvent = undefined;
+  }
   const dismiss = useDismiss(context, {
-    // For infotips (`openOnHover`), ensure another infotip can immediately open on tap
-    outsidePressEvent: !openOnHover && (modal || backdropRendered) ? 'mousedown' : undefined,
+    outsidePressEvent,
   });
 
   const role = useRole(context);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
-
-  const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   return React.useMemo(
     () => ({
