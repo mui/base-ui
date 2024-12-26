@@ -156,6 +156,10 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   name: PropTypes.string,
   /**
+   * Event handler called after any exit animations finish when the select menu is closed.
+   */
+  onClosed: PropTypes.func,
+  /**
    * Event handler called when the select menu is opened or closed.
    */
   onOpenChange: PropTypes.func,

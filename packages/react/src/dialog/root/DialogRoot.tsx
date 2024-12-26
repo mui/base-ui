@@ -84,6 +84,10 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   modal: PropTypes.bool,
   /**
+   * Event handler called after any exit animations finish when the dialog is closed.
+   */
+  onClosed: PropTypes.func,
+  /**
    * Event handler called when the dialog is opened or closed.
    */
   onOpenChange: PropTypes.func,

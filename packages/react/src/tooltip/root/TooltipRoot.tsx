@@ -129,6 +129,10 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   hoverable: PropTypes.bool,
   /**
+   * Event handler called after any exit animations finish when the tooltip is closed.
+   */
+  onClosed: PropTypes.func,
+  /**
    * Event handler called when the tooltip is opened or closed.
    */
   onOpenChange: PropTypes.func,

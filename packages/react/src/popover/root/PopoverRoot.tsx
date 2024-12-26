@@ -145,6 +145,10 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
+   * Event handler called after any exit animations finish when the popover is closed.
+   */
+  onClosed: PropTypes.func,
+  /**
    * Event handler called when the popover is opened or closed.
    */
   onOpenChange: PropTypes.func,
