@@ -21,6 +21,7 @@ import {
 import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
+import { useLatestRef } from './useLatestRef';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -139,6 +140,8 @@ export function useAnchorPositioning(
   const arrowRef = React.useRef<Element | null>(null);
 
   // Keep these reactive if they're not functions
+  const sideOffsetRef = useLatestRef(sideOffset);
+  const alignOffsetRef = useLatestRef(alignOffset);
   const sideOffsetDep = typeof sideOffset !== 'function' ? sideOffset : 0;
   const alignOffsetDep = typeof alignOffset !== 'function' ? alignOffset : 0;
 
@@ -152,8 +155,14 @@ export function useAnchorPositioning(
           popup: { width: rects.floating.width, height: rects.floating.height },
         } as const;
 
-        const sideAxis = typeof sideOffset === 'function' ? sideOffset(data) : sideOffset;
-        const alignAxis = typeof alignOffset === 'function' ? alignOffset(data) : alignOffset;
+        const sideAxis =
+          typeof sideOffsetRef.current === 'function'
+            ? sideOffsetRef.current(data)
+            : sideOffsetRef.current;
+        const alignAxis =
+          typeof alignOffsetRef.current === 'function'
+            ? alignOffsetRef.current(data)
+            : alignOffsetRef.current;
 
         return {
           mainAxis: sideAxis,
