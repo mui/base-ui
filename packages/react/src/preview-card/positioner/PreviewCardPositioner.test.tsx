@@ -123,6 +123,30 @@ describe('<PreviewCard.Positioner />', () => {
       // correctly flips the align in the browser
       expect(align).to.equal('end');
     });
+
+    it('reads logical side inside sideOffset', async () => {
+      let side = 'none';
+      await render(
+        <PreviewCard.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner
+              side="inline-start"
+              data-testid="positioner"
+              sideOffset={(data) => {
+                side = data.side;
+                return 0;
+              }}
+            >
+              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+
+      // correctly flips the side in the browser
+      expect(side).to.equal('inline-end');
+    });
   });
 
   describeSkipIf(isJSDOM)('prop: alignOffset', () => {
@@ -211,6 +235,30 @@ describe('<PreviewCard.Positioner />', () => {
 
       // correctly flips the align in the browser
       expect(align).to.equal('end');
+    });
+
+    it('reads logical side inside alignOffset', async () => {
+      let side = 'none';
+      await render(
+        <PreviewCard.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner
+              side="inline-start"
+              data-testid="positioner"
+              alignOffset={(data) => {
+                side = data.side;
+                return 0;
+              }}
+            >
+              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+
+      // correctly flips the side in the browser
+      expect(side).to.equal('inline-end');
     });
   });
 });

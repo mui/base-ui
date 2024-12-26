@@ -123,6 +123,30 @@ describe('<Tooltip.Positioner />', () => {
       // correctly flips the align in the browser
       expect(align).to.equal('end');
     });
+
+    it('reads logical side inside sideOffset', async () => {
+      let side = 'none';
+      await render(
+        <Tooltip.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner
+              side="inline-start"
+              data-testid="positioner"
+              sideOffset={(data) => {
+                side = data.side;
+                return 0;
+              }}
+            >
+              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>,
+      );
+
+      // correctly flips the side in the browser
+      expect(side).to.equal('inline-end');
+    });
   });
 
   describeSkipIf(isJSDOM)('prop: alignOffset', () => {
@@ -208,6 +232,30 @@ describe('<Tooltip.Positioner />', () => {
 
       // correctly flips the align in the browser
       expect(align).to.equal('end');
+    });
+
+    it('reads logical side inside alignOffset', async () => {
+      let side = 'none';
+      await render(
+        <Tooltip.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner
+              side="inline-start"
+              data-testid="positioner"
+              alignOffset={(data) => {
+                side = data.side;
+                return 0;
+              }}
+            >
+              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>,
+      );
+
+      // correctly flips the side in the browser
+      expect(side).to.equal('inline-end');
     });
   });
 });
