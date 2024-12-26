@@ -145,7 +145,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const hover = useHover(floatingRootContext, {
-    enabled: hoverEnabled && openOnHover && !disabled,
+    enabled: hoverEnabled && openOnHover && !disabled && openReason !== 'click',
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: false,
