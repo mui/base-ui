@@ -27,20 +27,24 @@ describe('<Select.Positioner />', () => {
     },
   }));
 
-  const baselineX = 10.5;
-  const baselineY = 18.5;
-  const popupWidth = 51;
+  const baselineX = 10;
+  const baselineY = 36;
+  const popupWidth = 52;
+  const popupHeight = 24;
   const anchorWidth = 72;
+  const anchorHeight = 36;
+  const triggerStyle = { width: anchorWidth, height: anchorHeight };
+  const popupStyle = { width: popupWidth, height: popupHeight };
 
   describeSkipIf(isJSDOM)('prop: sideOffset', () => {
     it('offsets the side when a number is specified', async () => {
       const sideOffset = 7;
       await render(
         <Select.Root open alignItemToTrigger={false}>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner data-testid="positioner" align="center" sideOffset={sideOffset}>
-              <Select.Popup style={{ width: popupWidth }}>Popup</Select.Popup>
+              <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
           </Select.Portal>
         </Select.Root>,
@@ -54,14 +58,14 @@ describe('<Select.Positioner />', () => {
     it('offsets the side when a function is specified', async () => {
       await render(
         <Select.Root open alignItemToTrigger={false}>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner
               data-testid="positioner"
               align="center"
               sideOffset={(data) => data.popup.width + data.anchor.width}
             >
-              <Select.Popup style={{ width: popupWidth }}>Popup</Select.Popup>
+              <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
           </Select.Portal>
         </Select.Root>,
@@ -76,7 +80,7 @@ describe('<Select.Positioner />', () => {
       let side = 'none';
       await render(
         <Select.Root open alignItemToTrigger={false}>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner
               side="left"
@@ -87,7 +91,7 @@ describe('<Select.Positioner />', () => {
                 return 0;
               }}
             >
-              <Select.Popup style={{ width: popupWidth }}>Popup</Select.Popup>
+              <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
           </Select.Portal>
         </Select.Root>,
@@ -101,7 +105,7 @@ describe('<Select.Positioner />', () => {
       let align = 'none';
       await render(
         <Select.Root open alignItemToTrigger={false}>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner
               side="right"
@@ -112,13 +116,14 @@ describe('<Select.Positioner />', () => {
                 return 0;
               }}
             >
-              <Select.Popup style={{ width: popupWidth }}>Popup</Select.Popup>
+              <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
           </Select.Portal>
         </Select.Root>,
       );
 
-      expect(align).to.equal('start');
+      // correctly flips the align in the browser
+      expect(align).to.equal('end');
     });
   });
 
@@ -127,10 +132,10 @@ describe('<Select.Positioner />', () => {
       const alignOffset = 7;
       await render(
         <Select.Root open alignItemToTrigger={false}>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner data-testid="positioner" align="center" alignOffset={alignOffset}>
-              <Select.Popup style={{ width: popupWidth }}>Popup</Select.Popup>
+              <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
           </Select.Portal>
         </Select.Root>,
@@ -144,14 +149,14 @@ describe('<Select.Positioner />', () => {
     it('offsets the align when a function is specified', async () => {
       await render(
         <Select.Root open alignItemToTrigger={false}>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner
               data-testid="positioner"
               align="center"
               alignOffset={(data) => data.popup.width}
             >
-              <Select.Popup style={{ width: popupWidth }}>Popup</Select.Popup>
+              <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
           </Select.Portal>
         </Select.Root>,
@@ -166,7 +171,7 @@ describe('<Select.Positioner />', () => {
       let side = 'none';
       await render(
         <Select.Root open alignItemToTrigger={false}>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner
               side="left"
@@ -177,7 +182,7 @@ describe('<Select.Positioner />', () => {
                 return 0;
               }}
             >
-              <Select.Popup style={{ width: popupWidth }}>Popup</Select.Popup>
+              <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
           </Select.Portal>
         </Select.Root>,
@@ -191,7 +196,7 @@ describe('<Select.Positioner />', () => {
       let align = 'none';
       await render(
         <Select.Root open alignItemToTrigger={false}>
-          <Trigger style={{ width: anchorWidth }}>Trigger</Trigger>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner
               side="right"
@@ -202,13 +207,14 @@ describe('<Select.Positioner />', () => {
                 return 0;
               }}
             >
-              <Select.Popup style={{ width: popupWidth }}>Popup</Select.Popup>
+              <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
           </Select.Portal>
         </Select.Root>,
       );
 
-      expect(align).to.equal('start');
+      // correctly flips the align in the browser
+      expect(align).to.equal('end');
     });
   });
 });
