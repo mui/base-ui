@@ -265,5 +265,7 @@ export namespace usePopoverRoot {
     popupRef: React.RefObject<HTMLElement | null>;
     openMethod: InteractionType | null;
     openReason: OpenChangeReason | null;
+    backdropRendered: boolean;
+    setBackdropRendered: React.Dispatch<React.SetStateAction<boolean>>;
   }
 }

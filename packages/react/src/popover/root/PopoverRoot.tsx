@@ -17,27 +17,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
 
   const delayWithDefault = delay ?? OPEN_DELAY;
 
-  const {
-    open,
-    setOpen,
-    mounted,
-    setMounted,
-    setTriggerElement,
-    positionerElement,
-    setPositionerElement,
-    popupRef,
-    instantType,
-    transitionStatus,
-    floatingRootContext,
-    getRootTriggerProps,
-    getRootPopupProps,
-    titleId,
-    setTitleId,
-    descriptionId,
-    setDescriptionId,
-    openMethod,
-    openReason,
-  } = usePopoverRoot({
+  const popoverRoot = usePopoverRoot({
     openOnHover,
     modal,
     delay: delayWithDefault,
@@ -49,60 +29,18 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
 
   const contextValue: PopoverRootContext = React.useMemo(
     () => ({
+      ...popoverRoot,
       openOnHover,
       delay: delayWithDefault,
       closeDelay,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      transitionStatus,
-      titleId,
-      setTitleId,
-      descriptionId,
-      setDescriptionId,
-      floatingRootContext,
-      getRootPopupProps,
-      getRootTriggerProps,
-      openMethod,
-      openReason,
       modal,
     }),
-    [
-      openOnHover,
-      delayWithDefault,
-      closeDelay,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      transitionStatus,
-      titleId,
-      setTitleId,
-      descriptionId,
-      setDescriptionId,
-      floatingRootContext,
-      getRootPopupProps,
-      getRootTriggerProps,
-      openMethod,
-      openReason,
-      modal,
-    ],
+    [popoverRoot, openOnHover, delayWithDefault, closeDelay, open, modal],
   );
 
   return (
     <PopoverRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
+      <PortalContext.Provider value={popoverRoot.mounted}>{props.children}</PortalContext.Provider>
     </PopoverRootContext.Provider>
   );
 };
