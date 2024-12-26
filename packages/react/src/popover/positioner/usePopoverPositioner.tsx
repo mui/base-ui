@@ -9,11 +9,14 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
+import { usePopoverRootContext } from '../root/PopoverRootContext';
 
 export function usePopoverPositioner(
   params: usePopoverPositioner.Parameters,
 ): usePopoverPositioner.ReturnValue {
-  const { open = false, keepMounted = false, mounted } = params;
+  const { keepMounted = false, mounted } = params;
+
+  const { open, setOpen } = usePopoverRootContext();
 
   const {
     positionerStyles,
@@ -25,6 +28,12 @@ export function usePopoverPositioner(
     renderedAlign,
     positionerContext,
   } = useAnchorPositioning(params);
+
+  React.useEffect(() => {
+    if (open && anchorHidden) {
+      setOpen(false);
+    }
+  }, [open, anchorHidden, setOpen]);
 
   const getPositionerProps: usePopoverPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(
@@ -149,10 +158,6 @@ export namespace usePopoverPositioner {
      * Whether the popover is mounted.
      */
     mounted: boolean;
-    /**
-     * Whether the popover is currently open.
-     */
-    open?: boolean;
     /**
      * The floating root context.
      */
