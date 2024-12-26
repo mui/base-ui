@@ -64,9 +64,25 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               prevPopupHeightRef.current = popupRef.current.offsetHeight;
             }
           },
-          onMouseLeave() {
+          onMouseLeave(event) {
             const popup = popupRef.current;
             if (!popup || !open) {
+              return;
+            }
+
+            const targetRect = event.currentTarget.getBoundingClientRect();
+
+            // Safari randomly fires `mouseleave` incorrectly when the item is
+            // aligned to the trigger. This is a workaround to prevent the highlight
+            // from being removed while the cursor is still within the bounds of the item.
+            // https://github.com/mui/base-ui/issues/869
+            const isWithinBounds =
+              targetRect.top <= event.clientY &&
+              event.clientY <= targetRect.bottom &&
+              targetRect.left <= event.clientX &&
+              event.clientX <= targetRect.right;
+
+            if (isWithinBounds) {
               return;
             }
 
