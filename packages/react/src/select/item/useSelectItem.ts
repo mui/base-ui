@@ -77,10 +77,10 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
             // from being removed while the cursor is still within the bounds of the item.
             // https://github.com/mui/base-ui/issues/869
             const isWithinBounds =
-              targetRect.top <= event.clientY &&
-              event.clientY <= targetRect.bottom &&
-              targetRect.left <= event.clientX &&
-              event.clientX <= targetRect.right;
+              targetRect.top + 1 <= event.clientY &&
+              event.clientY <= targetRect.bottom - 1 &&
+              targetRect.left + 1 <= event.clientX &&
+              event.clientX <= targetRect.right - 1;
 
             if (isWithinBounds) {
               return;
