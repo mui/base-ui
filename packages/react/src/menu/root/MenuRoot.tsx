@@ -105,7 +105,8 @@ namespace MenuRoot {
      */
     loop?: boolean;
     /**
-     * Whether the menu should prevent outside clicks and lock page scroll when open.
+     * Whether the menu should prevent interactivity of other elements
+     * on the page when open and the anchor is visible.
      * @default true
      */
     modal?: boolean;
@@ -191,7 +192,8 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   loop: PropTypes.bool,
   /**
-   * Whether the menu should prevent outside clicks and lock page scroll when open.
+   * Whether the menu should prevent interactivity of other elements
+   * on the page when open and the anchor is visible.
    * @default true
    */
   modal: PropTypes.bool,

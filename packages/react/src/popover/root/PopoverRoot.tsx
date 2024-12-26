@@ -13,7 +13,7 @@ import { PortalContext } from '../../portal/PortalContext';
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
-  const { openOnHover = false, delay, closeDelay = 0 } = props;
+  const { openOnHover = false, modal = true, delay, closeDelay = 0 } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
 
@@ -39,6 +39,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     openReason,
   } = usePopoverRoot({
     openOnHover,
+    modal,
     delay: delayWithDefault,
     closeDelay,
     open: props.open,
@@ -70,6 +71,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
       getRootTriggerProps,
       openMethod,
       openReason,
+      modal,
     }),
     [
       openOnHover,
@@ -94,6 +96,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
       getRootTriggerProps,
       openMethod,
       openReason,
+      modal,
     ],
   );
 
@@ -143,6 +146,12 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    * @default 300
    */
   delay: PropTypes.number,
+  /**
+   * Whether the popover should prevent interactivity of other elements
+   * on the page when open and the anchor is visible.
+   * @default true
+   */
+  modal: PropTypes.bool,
   /**
    * Event handler called when the popover is opened or closed.
    */

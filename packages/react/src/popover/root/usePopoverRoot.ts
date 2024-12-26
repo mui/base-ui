@@ -24,6 +24,7 @@ import {
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useScrollLock } from '../../utils/useScrollLock';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -33,6 +34,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     delay,
     closeDelay,
     openOnHover = false,
+    modal,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -45,6 +47,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
   const [clickEnabled, setClickEnabled] = React.useState(true);
+  const [backdropRendered, setBackdropRendered] = React.useState(false);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const clickEnabledTimeoutRef = React.useRef(-1);
@@ -63,6 +66,8 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  useScrollLock(open && modal && backdropRendered, triggerElement);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -129,7 +134,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     enabled: openOnHover,
     mouseOnly: true,
     move: false,
-    handleClose: safePolygon(),
+    handleClose: safePolygon({ blockPointerEvents: true }),
     restMs: computedRestMs,
     delay: {
       close: closeDelayWithDefault,
@@ -171,6 +176,8 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       instantType,
       openMethod,
       openReason,
+      backdropRendered,
+      setBackdropRendered,
     }),
     [
       mounted,
@@ -188,6 +195,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       openMethod,
       triggerProps,
       openReason,
+      backdropRendered,
     ],
   );
 }
@@ -229,6 +237,12 @@ export namespace usePopoverRoot {
      * @default 0
      */
     closeDelay?: number;
+    /**
+     * Whether the popover should prevent interactivity of other elements
+     * on the page when open and the anchor is visible.
+     * @default true
+     */
+    modal?: boolean;
   }
 
   export interface ReturnValue {

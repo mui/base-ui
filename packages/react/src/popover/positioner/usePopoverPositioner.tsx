@@ -16,7 +16,7 @@ export function usePopoverPositioner(
 ): usePopoverPositioner.ReturnValue {
   const { keepMounted = false, mounted } = params;
 
-  const { open, setOpen } = usePopoverRootContext();
+  const { open } = usePopoverRootContext();
 
   const {
     positionerStyles,
@@ -28,12 +28,6 @@ export function usePopoverPositioner(
     renderedAlign,
     positionerContext,
   } = useAnchorPositioning(params);
-
-  React.useEffect(() => {
-    if (open && anchorHidden) {
-      setOpen(false);
-    }
-  }, [open, anchorHidden, setOpen]);
 
   const getPositionerProps: usePopoverPositioner.ReturnValue['getPositionerProps'] =
     React.useCallback(

@@ -8,6 +8,7 @@ import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.State> = {
   ...baseMapping,
@@ -26,7 +27,14 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 ) {
   const { className, render, keepMounted = false, ...other } = props;
 
-  const { open, mounted, transitionStatus } = usePopoverRootContext();
+  const { open, mounted, transitionStatus, setBackdropRendered } = usePopoverRootContext();
+
+  useEnhancedEffect(() => {
+    setBackdropRendered(true);
+    return () => {
+      setBackdropRendered(false);
+    };
+  }, [setBackdropRendered]);
 
   const state: PopoverBackdrop.State = React.useMemo(
     () => ({

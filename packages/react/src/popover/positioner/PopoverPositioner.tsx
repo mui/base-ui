@@ -10,6 +10,7 @@ import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
 
 /**
  * Positions the popover against the trigger.
@@ -38,7 +39,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     ...otherProps
   } = props;
 
-  const { floatingRootContext, open, mounted, setPositionerElement, popupRef, openMethod } =
+  const { floatingRootContext, open, mounted, setPositionerElement, popupRef, openMethod, modal } =
     usePopoverRootContext();
 
   const positioner = usePopoverPositioner({
@@ -88,6 +89,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
+      {mounted && modal && <InternalBackdrop inert={!open || positioner.anchorHidden} />}
       {renderElement()}
     </PopoverPositionerContext.Provider>
   );

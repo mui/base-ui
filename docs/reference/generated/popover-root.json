@@ -15,6 +15,11 @@
       "type": "(open, event, reason) => void",
       "description": "Event handler called when the popover is opened or closed."
     },
+    "modal": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the popover should prevent interactivity of other elements\non the page when open and the anchor is visible."
+    },
     "openOnHover": {
       "type": "boolean",
       "default": "false",

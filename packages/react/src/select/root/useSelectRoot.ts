@@ -12,7 +12,7 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
-import { type TransitionStatus, useTransitionStatus } from '../../utils';
+import { type TransitionStatus, useScrollLock, useTransitionStatus } from '../../utils';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
@@ -80,10 +80,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const [touchModality, setTouchModality] = React.useState(false);
   const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
   const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
+  const [backdropRendered, setBackdropRendered] = React.useState(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const alignItemToTrigger = Boolean(mounted && controlledAlignItemToTrigger && !touchModality);
+
+  useScrollLock(open && (alignItemToTrigger || (modal && backdropRendered)), triggerElement);
 
   if (!mounted && controlledAlignItemToTrigger !== alignItemToTriggerParam) {
     setcontrolledAlignItemToTrigger(alignItemToTriggerParam);
@@ -263,6 +266,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       transitionStatus,
       fieldControlValidation,
       modal,
+      backdropRendered,
+      setBackdropRendered,
     }),
     [
       id,
@@ -290,6 +295,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       transitionStatus,
       fieldControlValidation,
       modal,
+      backdropRendered,
     ],
   );
 
