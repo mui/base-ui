@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Tooltip } from '@base-ui-components/react/tooltip';
 import { styled, keyframes } from '@mui/system';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 const scaleIn = keyframes`
   from {

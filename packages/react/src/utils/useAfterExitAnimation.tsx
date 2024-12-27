@@ -1,5 +1,5 @@
+import * as React from 'react';
 import { useAnimationsFinished } from './useAnimationsFinished';
-import { useEnhancedEffect } from './useEnhancedEffect';
 import { useEventCallback } from './useEventCallback';
 import { useLatestRef } from './useLatestRef';
 
@@ -8,13 +8,17 @@ import { useLatestRef } from './useLatestRef';
  * Useful for unmounting the component after animating out.
  */
 export function useAfterExitAnimation(parameters: useAfterExitAnimation.Parameters) {
-  const { open, animatedElementRef, onFinished: onFinishedParam } = parameters;
+  const { enabled = true, open, animatedElementRef, onFinished: onFinishedParam } = parameters;
 
   const onFinished = useEventCallback(onFinishedParam);
   const runOnceAnimationsFinish = useAnimationsFinished(animatedElementRef);
   const openRef = useLatestRef(open);
 
-  useEnhancedEffect(() => {
+  React.useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     function callOnFinished() {
       if (!openRef.current) {
         onFinished();
@@ -24,11 +28,12 @@ export function useAfterExitAnimation(parameters: useAfterExitAnimation.Paramete
     if (!open) {
       runOnceAnimationsFinish(callOnFinished);
     }
-  }, [open, openRef, runOnceAnimationsFinish, onFinished]);
+  }, [enabled, open, openRef, runOnceAnimationsFinish, onFinished]);
 }
 
 export namespace useAfterExitAnimation {
   export interface Parameters {
+    enabled?: boolean;
     /**
      * Determines if the component is open.
      * The logic runs when the component goes from open to closed.

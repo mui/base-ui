@@ -75,14 +75,19 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     },
   );
 
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+    setOpenReason(null);
+  });
+
   useAfterExitAnimation({
+    enabled: !params.unmountRef,
     open,
     animatedElementRef: popupRef,
-    onFinished: () => {
-      setMounted(false);
-      setOpenReason(null);
-    },
+    onFinished: handleUnmount,
   });
+
+  React.useImperativeHandle(params.unmountRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   React.useEffect(() => {
     return () => {
@@ -229,6 +234,10 @@ export namespace usePopoverRoot {
      * @default 0
      */
     closeDelay?: number;
+    /**
+     * A ref to manually unmount the popover.
+     */
+    unmountRef?: React.RefObject<{ unmount: () => void }>;
   }
 
   export interface ReturnValue {
