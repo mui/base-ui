@@ -102,11 +102,21 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
   });
 
+  const clearStickIfOpenTimeout = useEventCallback(() => {
+    clearTimeout(stickIfOpenTimeoutRef.current);
+  });
+
+  React.useEffect(() => {
+    if (!open) {
+      clearStickIfOpenTimeout();
+    }
+  }, [clearStickIfOpenTimeout, open]);
+
   React.useEffect(() => {
     return () => {
-      clearTimeout(stickIfOpenTimeoutRef.current);
+      clearStickIfOpenTimeout();
     };
-  }, []);
+  }, [clearStickIfOpenTimeout]);
 
   const floatingRootContext = useFloatingRootContext({
     elements: {
@@ -126,7 +136,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       if (isHover) {
         // Only allow "patient" clicks to close the popover if it's open.
         // If they clicked within 500ms of the popover opening, keep it open.
-        clearTimeout(stickIfOpenTimeoutRef.current);
+        clearStickIfOpenTimeout();
         stickIfOpenTimeoutRef.current = window.setTimeout(() => {
           setStickIfOpen(false);
         }, PATIENT_CLICK_THRESHOLD);
