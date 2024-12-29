@@ -4,7 +4,7 @@ import { Accordion } from '@base-ui-components/react/accordion';
 export default function ExampleAccordion() {
   return (
     <Accordion.Root className="flex w-96 max-w-[calc(100vw-8rem)] flex-col justify-center text-gray-900">
-      <Accordion.Item className="border-b border-gray-200">
+      <Accordion.Item className="data-[closed]:[overflow-anchor:none] border-b border-gray-200">
         <Accordion.Header>
           <Accordion.Trigger className="group flex w-full cursor-pointer items-baseline justify-between gap-4 py-2 text-left font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800">
             What is Base UI?
@@ -19,7 +19,7 @@ export default function ExampleAccordion() {
         </Accordion.Panel>
       </Accordion.Item>
 
-      <Accordion.Item className="border-b border-gray-200">
+      <Accordion.Item className="data-[closed]:[overflow-anchor:none] border-b border-gray-200">
         <Accordion.Header>
           <Accordion.Trigger className="group flex w-full cursor-pointer items-baseline justify-between gap-4 py-2 text-left font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800">
             How do I get started?
@@ -34,7 +34,7 @@ export default function ExampleAccordion() {
         </Accordion.Panel>
       </Accordion.Item>
 
-      <Accordion.Item className="border-b border-gray-200">
+      <Accordion.Item className="data-[closed]:[overflow-anchor:none] border-b border-gray-200">
         <Accordion.Header>
           <Accordion.Trigger className="group flex w-full cursor-pointer items-baseline justify-between gap-4 py-2 text-left font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800">
             Can I use it for my project?
