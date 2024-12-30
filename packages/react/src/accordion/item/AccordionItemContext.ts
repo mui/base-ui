@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { AccordionItem } from './AccordionItem';
+import { productionContextError } from '../../utils/productionContextError';
 
 export interface AccordionItemContext {
   open: boolean;
@@ -19,10 +20,13 @@ if (process.env.NODE_ENV !== 'production') {
 
 export function useAccordionItemContext() {
   const context = React.useContext(AccordionItemContext);
-  if (context === undefined) {
-    throw new Error(
-      'Base UI: AccordionItemContext is missing. Accordion parts must be placed within <Accordion.Item>.',
-    );
+  if (!context) {
+    if (process.env.NODE_ENV !== 'production') {
+      throw new Error(
+        'Base UI: AccordionItemContext is missing. Accordion parts must be placed within <Accordion.Item>.',
+      );
+    }
+    productionContextError();
   }
   return context;
 }
