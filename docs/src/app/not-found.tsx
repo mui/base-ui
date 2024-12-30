@@ -13,7 +13,7 @@ export default function NotFound() {
           <Logo className="mb-8 ml-px" aria-label="Base UI" />
           <h1 className="NotFoundHeading">404</h1>
           <p className="NotFoundCaption">
-            This page couldn’t be found. Please return to the docs or create a
+            This page couldn't be found. Please return to the docs or create a
             corresponding issue on GitHub.
           </p>
           <div className="flex flex-col items-start gap-2">
