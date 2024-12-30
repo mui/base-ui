@@ -51,7 +51,9 @@ async function run() {
       }),
     );
 
-    const packageFile = await fs.readFile(path.resolve(packagePath, './package.json'), { encoding: 'utf-8' });
+    const packageFile = await fs.readFile(path.resolve(packagePath, './package.json'), {
+      encoding: 'utf-8',
+    });
     const packageData = JSON.parse(packageFile);
     await addLicense(packageData);
     await removeBuildArtefacts();
