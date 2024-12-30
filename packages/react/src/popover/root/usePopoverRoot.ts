@@ -6,7 +6,6 @@ import {
   useDismiss,
   useFloatingRootContext,
   useHover,
-  useInteractions,
   useRole,
   type FloatingRootContext,
 } from '@floating-ui/react';
@@ -24,6 +23,7 @@ import {
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useInteractions } from '../../utils/useInteractions';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {

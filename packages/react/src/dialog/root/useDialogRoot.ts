@@ -5,7 +5,6 @@ import {
   useClick,
   useDismiss,
   useFloatingRootContext,
-  useInteractions,
   type OpenChangeReason as FloatingUIOpenChangeReason,
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
@@ -20,6 +19,7 @@ import {
   type OpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import { useInteractions } from '../../utils/useInteractions';
 
 export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {

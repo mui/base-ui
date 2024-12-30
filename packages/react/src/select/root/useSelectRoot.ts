@@ -3,7 +3,6 @@ import {
   useClick,
   useDismiss,
   useFloatingRootContext,
-  useInteractions,
   useListNavigation,
   useRole,
   useTypeahead,
@@ -19,6 +18,7 @@ import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useInteractions } from '../../utils/useInteractions';
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {

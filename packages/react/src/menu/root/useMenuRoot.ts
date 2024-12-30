@@ -6,7 +6,6 @@ import {
   useDismiss,
   useFloatingRootContext,
   useHover,
-  useInteractions,
   useListNavigation,
   useRole,
   useTypeahead,
@@ -21,6 +20,7 @@ import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
+import { useInteractions } from '../../utils/useInteractions';
 
 const EMPTY_ARRAY: never[] = [];
 

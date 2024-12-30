@@ -8,7 +8,6 @@ import {
   useFloatingRootContext,
   useFocus,
   useHover,
-  useInteractions,
   type FloatingRootContext,
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
@@ -22,6 +21,7 @@ import {
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useInteractions } from '../../utils/useInteractions';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
