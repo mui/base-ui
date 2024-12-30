@@ -1,7 +1,10 @@
 /* eslint-disable no-console */
 import path from 'path';
-import fse from 'fs-extra';
+import fs from 'fs/promises';
+import { $ } from 'execa';
 import { includeFileInBuild, prepend, typescriptCopy } from './copyFilesUtils.mjs';
+
+const $$ = $({ stdio: 'inherit' });
 
 const packagePath = process.cwd();
 const buildPath = path.join(packagePath, './build');
@@ -31,6 +34,10 @@ async function addLicense(packageData) {
   );
 }
 
+async function removeBuildArtefacts() {
+  await $$`rimraf --glob ${buildPath}/*.tsbuildinfo`;
+}
+
 async function run() {
   const extraFiles = process.argv.slice(2);
   try {
@@ -44,9 +51,10 @@ async function run() {
       }),
     );
 
-    const packageFile = await fse.readFile(path.resolve(packagePath, './package.json'), 'utf8');
+    const packageFile = await fs.readFile(path.resolve(packagePath, './package.json'), { encoding: 'utf-8' });
     const packageData = JSON.parse(packageFile);
     await addLicense(packageData);
+    await removeBuildArtefacts();
   } catch (err) {
     console.error(err);
     process.exit(1);
