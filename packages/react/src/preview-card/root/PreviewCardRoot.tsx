@@ -18,21 +18,7 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
 
-  const {
-    open,
-    setOpen,
-    mounted,
-    setMounted,
-    setTriggerElement,
-    positionerElement,
-    setPositionerElement,
-    popupRef,
-    instantType,
-    getRootTriggerProps,
-    getRootPopupProps,
-    floatingRootContext,
-    transitionStatus,
-  } = usePreviewCardRoot({
+  const previewCardRoot = usePreviewCardRoot({
     delay,
     closeDelay,
     open: props.open,
@@ -42,44 +28,18 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
 
   const contextValue = React.useMemo(
     () => ({
+      ...previewCardRoot,
       delay: delayWithDefault,
       closeDelay: closeDelayWithDefault,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      getRootTriggerProps,
-      getRootPopupProps,
-      floatingRootContext,
-      transitionStatus,
     }),
-    [
-      delayWithDefault,
-      closeDelayWithDefault,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      getRootTriggerProps,
-      getRootPopupProps,
-      floatingRootContext,
-      transitionStatus,
-    ],
+    [closeDelayWithDefault, delayWithDefault, previewCardRoot],
   );
 
   return (
     <PreviewCardRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
+      <PortalContext.Provider value={previewCardRoot.mounted}>
+        {props.children}
+      </PortalContext.Provider>
     </PreviewCardRootContext.Provider>
   );
 };

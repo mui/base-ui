@@ -6,10 +6,10 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositioner } from './usePreviewCardPositioner';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { useForkRef } from '../../utils/useForkRef';
-import { HTMLElementType } from '../../utils/proptypes';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
  * Positions the popup against the trigger.
@@ -35,6 +35,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     arrowPadding = 5,
     sticky = false,
     keepMounted = false,
+    trackAnchor = true,
     ...otherProps
   } = props;
 
@@ -55,6 +56,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
+    trackAnchor,
   });
 
   const state: PreviewCardPositioner.State = React.useMemo(
@@ -145,6 +147,7 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
+    refType,
     PropTypes.object,
     PropTypes.func,
   ]),
@@ -193,7 +196,7 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * Whether to keep the HTML element in the DOM while the preview card is hidden.
+   * Whether to keep the popup mounted in the DOM while it's hidden.
    * @default false
    */
   keepMounted: PropTypes.bool,
@@ -222,10 +225,15 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
   sideOffset: PropTypes.number,
   /**
    * Whether to maintain the popup in the viewport after
-   * the anchor element is scrolled out of view.
+   * the anchor element was scrolled out of view.
    * @default false
    */
   sticky: PropTypes.bool,
+  /**
+   * Whether the popup tracks any layout shift of its positioning anchor.
+   * @default true
+   */
+  trackAnchor: PropTypes.bool,
 } as any;
 
 export { PreviewCardPositioner };
