@@ -103,17 +103,18 @@ export function useSelectTrigger(
             function getPseudoElementPadding(triggerRefElement: HTMLElement) {
               const beforeStyles = window.getComputedStyle(triggerRefElement, '::before');
               const afterStyles = window.getComputedStyle(triggerRefElement, '::after');
-              
-              const hasPseudoElements = 
-                beforeStyles.content !== 'none' ||
-                afterStyles.content !== 'none';
 
-              const padding = hasPseudoElements ? Math.max(
-                parseInt(beforeStyles.width || '0', 10),
-                parseInt(afterStyles.width || '0', 10),
-                parseInt(beforeStyles.height || '0', 10),
-                parseInt(afterStyles.height || '0', 10)
-              ) / 2 : 0;
+              const hasPseudoElements =
+                beforeStyles.content !== 'none' || afterStyles.content !== 'none';
+
+              const padding = hasPseudoElements
+                ? Math.max(
+                    parseInt(beforeStyles.width || '0', 10),
+                    parseInt(afterStyles.width || '0', 10),
+                    parseInt(beforeStyles.height || '0', 10),
+                    parseInt(afterStyles.height || '0', 10),
+                  ) / 2
+                : 0;
 
               return padding;
             }
@@ -124,7 +125,7 @@ export function useSelectTrigger(
               }
 
               const mouseUpTarget = mouseEvent.target as Element | null;
-              
+
               if (
                 contains(triggerRef.current, mouseUpTarget) ||
                 contains(positionerElement, mouseUpTarget) ||
