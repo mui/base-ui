@@ -691,6 +691,9 @@ importers:
       react-dom:
         specifier: 19.0.0-rc-fb9a90fa48-20240614
         version: 19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614)
+      react-router-dom:
+        specifier: ^6.28.0
+        version: 6.28.0(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)
       sinon:
         specifier: ^19.0.2
         version: 19.0.2
