@@ -100,25 +100,47 @@ export function useSelectTrigger(
 
             const doc = ownerDocument(event.currentTarget);
 
+            function getPseudoElementPadding(triggerRefElement: HTMLElement) {
+              const beforeStyles = window.getComputedStyle(triggerRefElement, '::before');
+              const afterStyles = window.getComputedStyle(triggerRefElement, '::after');
+              
+              const hasPseudoElements = 
+                beforeStyles.content !== 'none' ||
+                afterStyles.content !== 'none';
+
+              const padding = hasPseudoElements ? Math.max(
+                parseInt(beforeStyles.width || '0', 10),
+                parseInt(afterStyles.width || '0', 10),
+                parseInt(beforeStyles.height || '0', 10),
+                parseInt(afterStyles.height || '0', 10)
+              ) / 2 : 0;
+
+              return padding;
+            }
+
             function handleMouseUp(mouseEvent: MouseEvent) {
               if (!triggerRef.current) {
                 return;
               }
 
               const mouseUpTarget = mouseEvent.target as Element | null;
+              
+              if (
+                contains(triggerRef.current, mouseUpTarget) ||
+                contains(positionerElement, mouseUpTarget) ||
+                mouseUpTarget === triggerRef.current
+              ) {
+                return;
+              }
 
+              const padding = getPseudoElementPadding(triggerRef.current);
               const triggerRect = triggerRef.current.getBoundingClientRect();
 
-              const isInsideTrigger =
-                mouseEvent.clientX >= triggerRect.left &&
-                mouseEvent.clientX <= triggerRect.right &&
-                mouseEvent.clientY >= triggerRect.top &&
-                mouseEvent.clientY <= triggerRect.bottom;
-
               if (
-                isInsideTrigger ||
-                contains(positionerElement, mouseUpTarget) ||
-                contains(triggerRef.current, mouseUpTarget)
+                mouseEvent.clientX >= triggerRect.left - padding &&
+                mouseEvent.clientX <= triggerRect.right + padding &&
+                mouseEvent.clientY >= triggerRect.top - padding &&
+                mouseEvent.clientY <= triggerRect.bottom + padding
               ) {
                 return;
               }
