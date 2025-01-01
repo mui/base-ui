@@ -92,7 +92,7 @@ export function useSliderControl(
       return;
     }
 
-    const finger = getFingerState(fingerPosition, true);
+    const finger = getFingerState(fingerPosition, false);
 
     if (finger == null) {
       return;
@@ -124,7 +124,7 @@ export function useSliderControl(
     const fingerPosition = trackFinger(nativeEvent, touchIdRef);
 
     if (fingerPosition != null) {
-      const finger = getFingerState(fingerPosition);
+      const finger = getFingerState(fingerPosition, true);
 
       if (finger == null) {
         return;
@@ -197,7 +197,7 @@ export function useSliderControl(
           const fingerPosition = trackFinger(event, touchIdRef);
 
           if (fingerPosition != null) {
-            const finger = getFingerState(fingerPosition);
+            const finger = getFingerState(fingerPosition, true);
 
             if (finger == null) {
               return;
