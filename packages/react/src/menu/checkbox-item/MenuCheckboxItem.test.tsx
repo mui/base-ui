@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import userEvent from '@testing-library/user-event';
 import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base-ui-components/react/menu';
@@ -33,8 +32,13 @@ const testRootContext: MenuRootContext = {
 };
 
 describe('<Menu.CheckboxItem />', () => {
-  const { render } = createRenderer();
-  const user = userEvent.setup();
+  const { render, clock } = createRenderer({
+    clockOptions: {
+      shouldAdvanceTime: true,
+    },
+  });
+
+  clock.withFakeTimers();
 
   describeConformance(<Menu.CheckboxItem />, () => ({
     render: (node) => {
@@ -133,7 +137,7 @@ describe('<Menu.CheckboxItem />', () => {
       ] as const
     ).forEach(([checked, ariaChecked, dataState]) =>
       it('adds the state and ARIA attributes when checked', async () => {
-        const { getByRole } = await render(
+        const { getByRole, user } = await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
             <Menu.Positioner>
@@ -154,7 +158,7 @@ describe('<Menu.CheckboxItem />', () => {
     );
 
     it('toggles the checked state when clicked', async () => {
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
@@ -181,7 +185,7 @@ describe('<Menu.CheckboxItem />', () => {
     });
 
     it(`toggles the checked state when Space is pressed`, async () => {
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
@@ -217,7 +221,7 @@ describe('<Menu.CheckboxItem />', () => {
         this?.skip?.() || t?.skip();
       }
 
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
@@ -246,7 +250,7 @@ describe('<Menu.CheckboxItem />', () => {
 
     it('calls `onCheckedChange` when the item is clicked', async () => {
       const onCheckedChange = spy();
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
@@ -273,7 +277,7 @@ describe('<Menu.CheckboxItem />', () => {
     });
 
     it('keeps the state when closed and reopened', async () => {
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner keepMounted>
@@ -302,7 +306,7 @@ describe('<Menu.CheckboxItem />', () => {
 
   describe('prop: closeOnClick', () => {
     it('when `closeOnClick=true`, closes the menu when the item is clicked', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>
@@ -323,7 +327,7 @@ describe('<Menu.CheckboxItem />', () => {
     });
 
     it('does not close the menu when the item is clicked by default', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Positioner>

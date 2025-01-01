@@ -55,7 +55,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
   const id = useBaseUiId(idParam);
   const handleRef = useForkRef(ref, popupRef, setPopupElement);
 
-  useScrollLock(modal && open, elements.floating);
+  useScrollLock(open && modal, elements.floating);
 
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
@@ -91,7 +91,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     mergeReactProps<'div'>(externalProps, {
       'aria-labelledby': titleElementId ?? undefined,
       'aria-describedby': descriptionElementId ?? undefined,
-      'aria-modal': open && modal ? true : undefined,
+      'aria-modal': mounted && modal ? true : undefined,
       role: 'dialog',
       tabIndex: -1,
       ...getPopupProps(),
