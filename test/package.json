@@ -8,8 +8,8 @@
   "devDependencies": {
     "@babel/runtime": "^7.26.0",
     "@base-ui-components/react": "workspace:*",
-    "@emotion/cache": "^11.13.5",
-    "@emotion/react": "^11.13.5",
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
     "@mui/internal-test-utils": "^1.0.22",
     "@playwright/test": "1.49.1",
     "@testing-library/dom": "^10.4.0",
