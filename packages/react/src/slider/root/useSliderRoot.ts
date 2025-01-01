@@ -266,13 +266,17 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     },
   );
 
-  const previousIndexRef = React.useRef<number | null>(null);
+  const closestThumbIndexRef = React.useRef<number | null>(null);
 
   const getFingerState = useEventCallback(
     (
       fingerPosition: FingerPosition | null,
-      // `move` is used to distinguish between when this is called by touchstart vs touchmove/end
-      move: boolean = false,
+
+      /**
+       * When `true`, closestThumbIndexRef is updated.
+       * It's `true` when called by touchstart or pointerdown.
+       */
+      shouldCaptureThumbIndex: boolean = false,
       offset: number = 0,
     ) => {
       if (fingerPosition == null) {
@@ -288,7 +292,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       const isRtl = direction === 'rtl';
       const isVertical = orientation === 'vertical';
 
-      const { width, height, bottom, left } = sliderControl!.getBoundingClientRect();
+      const { width, height, bottom, left } = sliderControl.getBoundingClientRect();
       let percent;
 
       if (isVertical) {
@@ -310,17 +314,16 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       }
 
       newValue = clamp(newValue, min, max);
-      let closestThumbIndex = 0;
 
       if (!range) {
-        return { value: newValue, percentageValue: percent, closestThumbIndex };
+        return { value: newValue, percentageValue: percent, closestThumbIndex: 0 };
       }
 
-      if (!move) {
-        closestThumbIndex = findClosest(values, newValue)!;
-      } else {
-        closestThumbIndex = previousIndexRef.current!;
+      if (shouldCaptureThumbIndex) {
+        closestThumbIndexRef.current = findClosest(values, newValue) ?? 0;
       }
+
+      const closestThumbIndex = closestThumbIndexRef.current ?? 0;
 
       // Bound the new value to the thumb's neighbours.
       newValue = clamp(
@@ -329,18 +332,11 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         values[closestThumbIndex + 1] - minStepsBetweenValues || Infinity,
       );
 
-      const previousValue = newValue;
       newValue = setValueIndex({
         values,
         newValue,
         index: closestThumbIndex,
       });
-
-      // Potentially swap the index if needed.
-      if (!move) {
-        closestThumbIndex = newValue.indexOf(previousValue);
-        previousIndexRef.current = closestThumbIndex;
-      }
 
       return { value: newValue, percentageValue: percent, closestThumbIndex };
     },
@@ -348,7 +344,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   useEnhancedEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
-    if (disabled && sliderRef.current!.contains(activeEl)) {
+    if (disabled && sliderRef.current?.contains(activeEl)) {
       // This is necessary because Firefox and Safari will keep focus
       // on a disabled element:
       // https://codesandbox.io/p/sandbox/mui-pr-22247-forked-h151h?file=/src/App.js
