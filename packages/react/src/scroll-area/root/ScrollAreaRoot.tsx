@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useDirection } from '../../direction-provider/DirectionContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
@@ -21,8 +20,6 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const direction = useDirection();
-
   const scrollAreaRoot = useScrollAreaRoot();
 
   const { rootId } = scrollAreaRoot;
@@ -36,13 +33,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     extraProps: otherProps,
   });
 
-  const contextValue = React.useMemo(
-    () => ({
-      direction,
-      ...scrollAreaRoot,
-    }),
-    [direction, scrollAreaRoot],
-  );
+  const contextValue = React.useMemo(() => scrollAreaRoot, [scrollAreaRoot]);
 
   const viewportId = `[data-id="${rootId}-viewport"]`;
 

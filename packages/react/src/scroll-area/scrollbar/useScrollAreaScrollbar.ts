@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { getOffset } from '../utils/getOffset';
+import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
 import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
 
@@ -9,7 +10,6 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
   const { orientation } = params;
 
   const {
-    direction,
     scrollbarYRef,
     scrollbarXRef,
     viewportRef,
@@ -20,6 +20,8 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
     rootId,
     thumbSize,
   } = useScrollAreaRootContext();
+
+  const direction = useDirection();
 
   React.useEffect(() => {
     const viewportEl = viewportRef.current;
