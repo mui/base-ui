@@ -165,7 +165,7 @@
     "terser": "^5.31.0",
     "terser-webpack-plugin": "^5.3.10",
     "tsc-alias": "^1.8.10",
-    "tsx": "^4.8.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "unist-util-visit": "^5.0.0",
     "url-join": "4.0.1",
