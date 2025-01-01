@@ -29,7 +29,7 @@
     "react": "19.0.0-rc-fb9a90fa48-20240614",
     "react-dom": "19.0.0-rc-fb9a90fa48-20240614",
     "react-is": "19.0.0-rc-fb9a90fa48-20240614",
-    "react-router-dom": "^6.28.0",
+    "react-router-dom": "^6.28.1",
     "sinon": "^17.0.1",
     "styled-components": "^6.1.13",
     "stylis": "4.3.4",
