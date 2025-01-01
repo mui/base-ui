@@ -15,10 +15,11 @@ import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { useField } from '../../field/useField';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
-import { percentToValue, roundValueToStep } from '../utils';
 import { asc } from '../utils/asc';
-import { setValueIndex } from '../utils/setValueIndex';
 import { getSliderValue } from '../utils/getSliderValue';
+import { percentToValue } from '../utils/percentToValue';
+import { roundValueToStep } from '../utils/roundValueToStep';
+import { setValueIndex } from '../utils/setValueIndex';
 import { ThumbMetadata } from '../thumb/useSliderThumb';
 
 function areValuesEqual(
