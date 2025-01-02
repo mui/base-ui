@@ -101,6 +101,7 @@
     "publint": "^0.2.12",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^6.28.1",
     "sinon": "^19.0.2",
     "typescript": "^5.7.2"
   },
