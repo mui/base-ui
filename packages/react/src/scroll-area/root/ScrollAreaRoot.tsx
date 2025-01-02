@@ -18,9 +18,9 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   props: ScrollAreaRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, dir, ...otherProps } = props;
+  const { render, className, ...otherProps } = props;
 
-  const scrollAreaRoot = useScrollAreaRoot({ dir });
+  const scrollAreaRoot = useScrollAreaRoot();
 
   const { rootId } = scrollAreaRoot;
 
@@ -33,13 +33,7 @@ const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     extraProps: otherProps,
   });
 
-  const contextValue = React.useMemo(
-    () => ({
-      dir,
-      ...scrollAreaRoot,
-    }),
-    [dir, scrollAreaRoot],
-  );
+  const contextValue = React.useMemo(() => scrollAreaRoot, [scrollAreaRoot]);
 
   const viewportId = `[data-id="${rootId}-viewport"]`;
 
@@ -83,10 +77,6 @@ ScrollAreaRoot.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  dir: PropTypes.string,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
