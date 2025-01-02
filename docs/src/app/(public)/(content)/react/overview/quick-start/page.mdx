@@ -5,17 +5,18 @@
 
 ## Install the library
 
-Install Base UI using a package manager.
+Install Base UI using a package manager.
 
 ```jsx title="Terminal"
 npm i @base-ui-components/react
 ```
 
-All components are included in a single package. Base UI is tree-shakeable, so your app bundle will contain only the components that you actually use.
+All components are included in a single package. Base UI is tree-shakeable, so your app bundle will contain only the components that you actually use.
 
 ## Set up portals
 
-Base UI uses portals for components that render popups, such as Dialog and Popover. To make portalled components always appear on top of the entire page, add the following style to your application layout root:
+Base UI uses portals for components that render popups, such as Dialog and Popover.
+To make portalled components always appear on top of the entire page, add the following style to your application layout root:
 
 ```tsx title="layout.tsx"
 <body>
@@ -32,14 +33,17 @@ Base UI uses portals for components that render popups, such as Dialog and Popov
 }
 ```
 
-This style creates a separate stacking context for your application's `.Root` element. This way, popups will always appear above the page contents, and any `z-index` property in your styles won't interfere with them.
+This style creates a separate stacking context for your application's `.Root` element.
+This way, popups will always appear above the page contents, and any `z-index` property in your styles won't interfere with them.
 
 ## Assemble a component
 
-This demo shows you how to import a [Popover](/react/components/popover) component, assemble its parts, and apply styles. There are examples for both Tailwind and CSS Modules below, but since Base UI is unstyled, you can use CSS-in-JS, plain CSS, or any other styling solution you prefer.
+This demo shows you how to import a [Popover](/react/components/popover) component, assemble its parts, and apply styles.
+There are examples for both Tailwind and CSS Modules below, but since Base UI is unstyled, you can use CSS-in-JS, plain CSS, or any other styling solution you prefer.
 
 <Demo path="../../components/popover/demos/hero" />
 
 ## Next steps
 
-This walkthrough outlines the basics of putting together a Base UI component. Browse the rest of the documentation to see what components are available in the library and how to use them.
+This walkthrough outlines the basics of putting together a Base UI component.
+Browse the rest of the documentation to see what components are available in the library and how to use them.

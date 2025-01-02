@@ -17,10 +17,12 @@
 
     /* The variable is used in JS positioning logic */
     --top: -1px;
+    --margin-top: 5.75rem; /* Match hero code block top */
     @apply text-md;
     z-index: 1;
     position: sticky;
     top: var(--top);
+    margin-top: var(--margin-top);
     width: 0;
     float: right;
     contain: layout;
@@ -36,7 +38,7 @@
     position: relative;
     left: var(--quick-nav-margin-x);
     padding-top: 0.75rem;
-    padding-bottom: 1.5rem;
+    padding-bottom: 2.5rem;
     width: calc(var(--sidebar-width) - var(--quick-nav-margin-x) * 2);
   }
 

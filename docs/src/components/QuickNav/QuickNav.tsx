@@ -24,6 +24,10 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
     return undefined;
   }
 
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  /** How much of the nav should be cut off at the bottom to stop using the default sticky top position */
+  const stickyTopThreshold = 2.25 * rem;
+
   let top: number;
   let bottom: number;
   let prevScrollY = window.scrollY;
@@ -68,9 +72,10 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
     // if it was `position: static` and `position: absolute`
     // relative to the start of the document
     ref.current.style.position = 'static';
-    const staticTop = window.scrollY + ref.current.getBoundingClientRect().y;
+    const staticTop = window.scrollY + Math.round(ref.current.getBoundingClientRect().y);
+    ref.current.style.marginTop = '0px';
     ref.current.style.position = 'absolute';
-    const absoluteTop = window.scrollY + ref.current.getBoundingClientRect().y;
+    const absoluteTop = window.scrollY + Math.round(ref.current.getBoundingClientRect().y);
 
     // Get the nav bottom Y coordinate when it's at its maximum possible bottom position
     // relative to the start of the document
@@ -78,7 +83,7 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
     ref.current.style.top = 'auto';
     ref.current.style.bottom = '0';
     const rect = ref.current.getBoundingClientRect();
-    const absoluteBottom = window.scrollY + rect.bottom;
+    const absoluteBottom = window.scrollY + Math.round(rect.bottom);
 
     ref.current.style.position = '';
     ref.current.style.top = initialStyles.top;
@@ -155,14 +160,12 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
       if (!ref.current || isScrollLocked) {
         return;
       }
-
       const delta = window.scrollY - prevScrollY;
       prevScrollY = window.scrollY;
 
-      // We may get into <0.1px rounding issues in Safari and Firefox
       const rect = ref.current.getBoundingClientRect();
-      top = Math.round(rect.top);
-      bottom = Math.round(rect.bottom);
+      top = rect.top;
+      bottom = rect.bottom;
 
       // Skip when scrolling in the direction that matches the sticky position
       if ((delta > 0 && state === 'StickyBottom') || (delta < 0 && state === 'StickyTop')) {
@@ -179,10 +182,14 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
 
       if (state === 'StickyTop') {
         const clippedAtBottom = bottom - window.innerHeight;
-        if (delta >= clippedAtBottom) {
-          stickToBottom();
-        } else {
-          unstick(top - delta, bottom - delta);
+
+        if (clippedAtBottom - top > stickyTopThreshold) {
+          if (delta >= clippedAtBottom) {
+            stickToBottom();
+            // Unstick if we are scrolling down (and not recovering from overscroll)
+          } else if (delta > 0 && !isOverscrolling()) {
+            unstick(Math.round(top) - delta, Math.round(bottom) - delta);
+          }
         }
         return;
       }
@@ -190,13 +197,14 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
       if (state === 'StickyBottom') {
         if (delta <= top) {
           stickToTop();
-        } else {
-          unstick(top - delta, bottom - delta);
+          // Unstick if we are scrolling up (and not recovering from overscroll)
+        } else if (delta < 0 && !isOverscrolling()) {
+          unstick(Math.round(top) - delta, Math.round(bottom) - delta);
         }
         return;
       }
 
-      if (state === 'Scrollable' && delta <= 0 && top - delta >= cssTop) {
+      if (state === 'Scrollable' && delta < 0 && top - delta >= cssTop) {
         stickToTop();
         return;
       }
@@ -252,8 +260,15 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
   };
 }
 
-export function Title({ className, ...props }: React.ComponentProps<'h2'>) {
-  return <div aria-hidden className={clsx('QuickNavTitle', className)} {...props} />;
+function isOverscrolling() {
+  return (
+    window.scrollY < 0 ||
+    window.scrollY + window.innerHeight > document.documentElement.scrollHeight
+  );
+}
+
+export function Title({ className, ...props }: React.ComponentProps<'header'>) {
+  return <header className={clsx('QuickNavTitle', className)} {...props} />;
 }
 
 export function List({ className, ...props }: React.ComponentProps<'ul'>) {

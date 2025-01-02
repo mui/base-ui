@@ -40,3 +40,16 @@
   --syntax-string: var(--color-navy);
   --syntax-nullish: var(--color-gray-500);
 }
+
+[data-highlighted-line] {
+  background-color: var(--color-line-highlight);
+}
+
+[data-highlighted-line-id='strong'] {
+  background-color: var(--color-line-highlight-strong);
+}
+
+[data-highlighted-chars] {
+  color: var(--syntax-default);
+  background-color: var(--color-inline-highlight);
+}

@@ -8,9 +8,10 @@
 
 ### Composing custom React components
 
-Use the `render` prop to compose a Base UI part with your own React components.
+Use the `render` prop to compose a Base UI part with your own React components.
 
-For example, most triggers render a `<button>` by default. The code snippet below shows how to use a custom button instead.
+For example, most triggers render a `<button>` by default.
+The code snippet below shows how to use a custom button instead.
 
 ```tsx title="index.tsx"
 // prettier-ignore
@@ -23,7 +24,8 @@ The custom component must forward the `ref`, and spread all the received props o
 
 ### Composing multiple components
 
-In situations where you need to compose multiple Base UI components with custom React components, `render` props can be nested as deeply as necessary. Working with Tooltip is a common example.
+In situations where you need to compose multiple Base UI components with custom React components, `render` props can be nested as deeply as necessary.
+Working with Tooltip is a common example.
 
 ```tsx title="index.tsx"
 <Dialog.Root>
@@ -50,7 +52,8 @@ In situations where you need to compose multiple Base UI components with custom 
 
 You can also use the `render` prop to override the rendered element of the component.
 
-For example, `Menu.Item` renders a `<div>` by default. The code snippet below shows how to render it as an `<a>` element so that it works like a link.
+For example, `Menu.Item` renders a `<div>` by default.
+The code snippet below shows how to render it as an `<a>` element so that it works like a link.
 
 ```tsx title="index.tsx"
 import * as React from 'react';
@@ -73,7 +76,7 @@ export default () => (
 );
 ```
 
-Each Base UI component renders the most appropriate element by default, and in most cases, rendering a different element is recommended only on a case-by-case basis.
+Each Base UI component renders the most appropriate element by default, and in most cases, rendering a different element is recommended only on a case-by-case basis.
 
 ### Render function
 

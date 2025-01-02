@@ -5,10 +5,10 @@ import { usePopoverPositionerContext } from '../positioner/PopoverPositionerCont
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import { usePopoverArrow } from './usePopoverArrow';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
  * Displays an element positioned against the popover anchor.
@@ -25,9 +25,15 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
   const { open } = usePopoverRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
 
-  const { getArrowProps } = usePopoverArrow({
-    arrowStyles,
-  });
+  const getArrowProps = React.useCallback(
+    (externalProps = {}) => {
+      return mergeReactProps<'div'>(externalProps, {
+        style: arrowStyles,
+        'aria-hidden': true,
+      });
+    },
+    [arrowStyles],
+  );
 
   const state: PopoverArrow.State = React.useMemo(
     () => ({

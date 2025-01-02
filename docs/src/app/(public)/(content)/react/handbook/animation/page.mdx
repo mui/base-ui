@@ -3,16 +3,17 @@
 <Subtitle>A guide to animating Base UI components.</Subtitle>
 <Meta name="description" content="A guide to animating Base UI components." />
 
-Base UI components can be animated using CSS transitions, CSS animations, or JavaScript animation libraries. Each component provides a number of data attributes to target its states, as well as a few attributes specifically for animation.
+Base UI components can be animated using CSS transitions, CSS animations, or JavaScript animation libraries. Each component provides a number of data attributes to target its states, as well as a few attributes specifically for animation.
 
 ## CSS transitions
 
-Use the following Base UI attributes for creating transitions when a component becomes visible or hidden:
+Use the following Base UI attributes for creating transitions when a component becomes visible or hidden:
 
 - `[data-starting-style]` corresponds to the initial style to transition from.
 - `[data-ending-style]` corresponds the final style to transition to.
 
-Transitions are recommended over CSS animations, because a transition can be smoothly cancelled midway. For example, if the user closes a popup before it finishes opening, with CSS transitions it will smoothly animate to its closed state without any abrupt changes.
+Transitions are recommended over CSS animations, because a transition can be smoothly cancelled midway.
+For example, if the user closes a popup before it finishes opening, with CSS transitions it will smoothly animate to its closed state without any abrupt changes.
 
 ```css title="popover.css"
 .Popup {
@@ -34,10 +35,10 @@ Transitions are recommended over CSS animations, because a transition can be smo
 
 ## CSS animations
 
-Use the following Base UI attributes for creating CSS animations when a component becomes visible or hidden:
+Use the following Base UI attributes for creating CSS animations when a component becomes visible or hidden:
 
 - `[data-open]` corresponds to the style applied when a component becomes visible.
-- `[data-ending-style]` corresponds the style applied before a component becomes hidden.
+- `[data-closed]` corresponds the style applied before a component becomes hidden.
 
 ```css title="popover.css"
 @keyframes scaleIn {
@@ -73,4 +74,5 @@ Use the following Base UI attributes for creating CSS animations when a componen
 
 ## JavaScript animations
 
-JavaScript animation libraries such as [Motion](https://motion.dev) require control of the mounting and unmounting lifecycle of components. Most Base UI components are unmounted when hidden. These components usually provide the `keepMounted` prop to allow JavaScript animation libraries to take control.
+JavaScript animation libraries such as [Motion](https://motion.dev) require control of the mounting and unmounting lifecycle of components.
+Most Base UI components are unmounted when hidden. These components usually provide the `keepMounted` prop to allow JavaScript animation libraries to take control.

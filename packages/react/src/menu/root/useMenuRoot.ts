@@ -64,9 +64,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const allowMouseUpTriggerRef = React.useRef(false);
 
-  useScrollLock(modal && open, triggerElement);
-
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  useScrollLock(open && modal, triggerElement);
 
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     onOpenChange?.(nextOpen, event);
