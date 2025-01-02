@@ -22,13 +22,19 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   });
 
   const isNativeButton = useEventCallback(() => {
-    const button = buttonRef.current;
+    const element = buttonRef.current;
 
     return (
       elementName === 'BUTTON' ||
       (elementName === 'INPUT' &&
-        ['button', 'submit', 'reset'].includes((button as HTMLInputElement)?.type))
+        ['button', 'submit', 'reset'].includes((element as HTMLInputElement)?.type))
     );
+  });
+
+  const isValidLink = useEventCallback(() => {
+    const element = buttonRef.current;
+
+    return Boolean(elementName === 'A' && (element as HTMLAnchorElement)?.href);
   });
 
   const mergedRef = useForkRef(updateRootElementName, externalRef, buttonRef);
@@ -71,6 +77,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
           if (
             event.target === event.currentTarget &&
             !isNativeButton() &&
+            !isValidLink() &&
             event.key === 'Enter' &&
             !disabled
           ) {
@@ -94,7 +101,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         ref: mergedRef,
       });
     },
-    [buttonProps, disabled, mergedRef, isNativeButton, type],
+    [buttonProps, disabled, isNativeButton, isValidLink, mergedRef, type],
   );
 
   return {
