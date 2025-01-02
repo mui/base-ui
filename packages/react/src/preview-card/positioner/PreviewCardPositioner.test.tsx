@@ -8,7 +8,11 @@ describe('<PreviewCard.Positioner />', () => {
   describeConformance(<PreviewCard.Positioner />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(<PreviewCard.Root open>{node}</PreviewCard.Root>);
+      return render(
+        <PreviewCard.Root open>
+          <PreviewCard.Portal>{node}</PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
     },
   }));
 });

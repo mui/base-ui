@@ -145,11 +145,6 @@ export namespace useSelectPositioner {
      */
     collisionPadding?: Padding;
     /**
-     * Whether to keep the HTML element in the DOM while the select menu is hidden.
-     * @default true
-     */
-    keepMounted?: boolean;
-    /**
      * Whether to maintain the select menu in the viewport after
      * the anchor element is scrolled out of view.
      * @default false

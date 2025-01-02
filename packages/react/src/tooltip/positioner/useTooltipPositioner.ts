@@ -8,7 +8,7 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 export function useTooltipPositioner(
   params: useTooltipPositioner.Parameters,
 ): useTooltipPositioner.ReturnValue {
-  const { keepMounted, mounted } = params;
+  const { mounted } = params;
 
   const { open, trackCursorAxis } = useTooltipRootContext();
 
@@ -27,7 +27,7 @@ export function useTooltipPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if (keepMounted && !open) {
+        if (!open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -44,7 +44,7 @@ export function useTooltipPositioner(
           },
         });
       },
-      [keepMounted, open, trackCursorAxis, mounted, positionerStyles],
+      [open, trackCursorAxis, mounted, positionerStyles],
     );
 
   return React.useMemo(
@@ -135,11 +135,6 @@ export namespace useTooltipPositioner {
      */
     arrowPadding?: number;
     /**
-     * Whether to keep the HTML element in the DOM while the tooltip is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
      * Whether the tooltip continuously tracks its anchor after the initial positioning upon
      * mount.
      * @default true
@@ -157,6 +152,10 @@ export namespace useTooltipPositioner {
   }
 
   export interface Parameters extends SharedParameters {
+    /**
+     * Whether the portal is kept mounted in the DOM while the popup is closed.
+     */
+    keepMounted: boolean;
     /**
      * Whether the tooltip is mounted.
      */

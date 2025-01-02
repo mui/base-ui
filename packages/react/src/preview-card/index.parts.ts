@@ -1,5 +1,5 @@
 export { PreviewCardRoot as Root } from './root/PreviewCardRoot';
-export { Portal } from '../portal/Portal';
+export { PreviewCardPortal as Portal } from './portal/PreviewCardPortal';
 export { PreviewCardTrigger as Trigger } from './trigger/PreviewCardTrigger';
 export { PreviewCardPositioner as Positioner } from './positioner/PreviewCardPositioner';
 export { PreviewCardPopup as Popup } from './popup/PreviewCardPopup';

@@ -16,9 +16,11 @@ describe('<Tooltip.Provider />', () => {
         <Tooltip.Provider delay={10_000}>
           <Tooltip.Root>
             <Tooltip.Trigger />
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Tooltip.Root>
         </Tooltip.Provider>,
       );
@@ -50,9 +52,11 @@ describe('<Tooltip.Provider />', () => {
         <Tooltip.Provider closeDelay={400}>
           <Tooltip.Root>
             <Tooltip.Trigger />
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Tooltip.Root>
         </Tooltip.Provider>,
       );

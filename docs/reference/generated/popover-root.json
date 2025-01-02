@@ -15,6 +15,10 @@
       "type": "(open, event, reason) => void",
       "description": "Event handler called when the popover is opened or closed."
     },
+    "unmountRef": {
+      "type": "{ current: { unmount: func } }",
+      "description": "A ref to manually unmount the popover."
+    },
     "openOnHover": {
       "type": "boolean",
       "default": "false",

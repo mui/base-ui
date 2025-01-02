@@ -24,13 +24,15 @@ describe('<Menu.GroupLabel />', () => {
     it('should have the role `presentation`', async () => {
       const { getByText } = await render(
         <Menu.Root open>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Group>
-                <Menu.GroupLabel>Test group</Menu.GroupLabel>
-              </Menu.Group>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Group>
+                  <Menu.GroupLabel>Test group</Menu.GroupLabel>
+                </Menu.Group>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -41,13 +43,15 @@ describe('<Menu.GroupLabel />', () => {
     it("should reference the generated id in Group's `aria-labelledby`", async () => {
       const { getByText, getByRole } = await render(
         <Menu.Root open>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Group>
-                <Menu.GroupLabel>Test group</Menu.GroupLabel>
-              </Menu.Group>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Group>
+                  <Menu.GroupLabel>Test group</Menu.GroupLabel>
+                </Menu.Group>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -60,13 +64,15 @@ describe('<Menu.GroupLabel />', () => {
     it("should reference the provided id in Group's `aria-labelledby`", async () => {
       const { getByRole } = await render(
         <Menu.Root open>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Group>
-                <Menu.GroupLabel id="test-group">Test group</Menu.GroupLabel>
-              </Menu.Group>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Group>
+                  <Menu.GroupLabel id="test-group">Test group</Menu.GroupLabel>
+                </Menu.Group>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 

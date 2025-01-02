@@ -24,7 +24,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   props: PopoverBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, ...other } = props;
+  const { className, render, ...other } = props;
 
   const { open, mounted, transitionStatus } = usePopoverRootContext();
 
@@ -45,11 +45,6 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     customStyleHookMapping,
   });
 
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
-
   return renderElement();
 });
 
@@ -62,13 +57,7 @@ namespace PopoverBackdrop {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to keep the HTML element in the DOM while the popover is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 PopoverBackdrop.propTypes /* remove-proptypes */ = {
@@ -85,11 +74,6 @@ PopoverBackdrop.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether to keep the HTML element in the DOM while the popover is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
