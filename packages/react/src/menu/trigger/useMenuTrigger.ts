@@ -81,12 +81,13 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
               }
 
               const bounds = getPseudoElementBounds(triggerRef.current);
+              const r = Math.round;
 
               if (
-                mouseEvent.clientX >= bounds.left &&
-                mouseEvent.clientX <= bounds.right &&
-                mouseEvent.clientY >= bounds.top &&
-                mouseEvent.clientY <= bounds.bottom
+                r(mouseEvent.clientX) >= r(bounds.left) &&
+                r(mouseEvent.clientX) <= r(bounds.right) &&
+                r(mouseEvent.clientY) >= r(bounds.top) &&
+                r(mouseEvent.clientY) <= r(bounds.bottom)
               ) {
                 return;
               }

@@ -118,13 +118,14 @@ export function useSelectTrigger(
               }
 
               const bounds = getPseudoElementBounds(triggerRef.current);
+              const r = Math.round;
 
               // Check if click is within extended trigger area
               if (
-                mouseEvent.clientX >= bounds.left &&
-                mouseEvent.clientX <= bounds.right &&
-                mouseEvent.clientY >= bounds.top &&
-                mouseEvent.clientY <= bounds.bottom
+                r(mouseEvent.clientX) >= r(bounds.left) &&
+                r(mouseEvent.clientX) <= r(bounds.right) &&
+                r(mouseEvent.clientY) >= r(bounds.top) &&
+                r(mouseEvent.clientY) <= r(bounds.bottom)
               ) {
                 return;
               }
