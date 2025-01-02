@@ -143,14 +143,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
           }
           setTouched(true);
           commitValidation(
-            getSliderValue({
-              valueInput: thumbValue,
-              min,
-              max,
-              index,
-              range: sliderValues.length > 1,
-              values: sliderValues,
-            }),
+            getSliderValue(thumbValue, index, min, max, sliderValues.length > 1, sliderValues),
           );
         },
         onKeyDown(event: React.KeyboardEvent) {
@@ -215,9 +208,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
           }
         },
         ref: mergedThumbRef,
-        style: {
-          ...getThumbStyle(),
-        },
+        style: getThumbStyle(),
         tabIndex: externalTabIndex ?? (disabled ? undefined : 0),
       });
     },
