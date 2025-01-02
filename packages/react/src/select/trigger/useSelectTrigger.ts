@@ -7,6 +7,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 
 export function useSelectTrigger(
   parameters: useSelectTrigger.Parameters,
@@ -100,25 +101,6 @@ export function useSelectTrigger(
 
             const doc = ownerDocument(event.currentTarget);
 
-            function getPseudoElementPadding(triggerRefElement: HTMLElement) {
-              const beforeStyles = window.getComputedStyle(triggerRefElement, '::before');
-              const afterStyles = window.getComputedStyle(triggerRefElement, '::after');
-
-              const hasPseudoElements =
-                beforeStyles.content !== 'none' || afterStyles.content !== 'none';
-
-              const padding = hasPseudoElements
-                ? Math.max(
-                    parseInt(beforeStyles.width || '0', 10),
-                    parseInt(afterStyles.width || '0', 10),
-                    parseInt(beforeStyles.height || '0', 10),
-                    parseInt(afterStyles.height || '0', 10),
-                  ) / 2
-                : 0;
-
-              return padding;
-            }
-
             function handleMouseUp(mouseEvent: MouseEvent) {
               if (!triggerRef.current) {
                 return;
@@ -126,6 +108,7 @@ export function useSelectTrigger(
 
               const mouseUpTarget = mouseEvent.target as Element | null;
 
+              // Early return if clicked on trigger element or its children
               if (
                 contains(triggerRef.current, mouseUpTarget) ||
                 contains(positionerElement, mouseUpTarget) ||
@@ -134,14 +117,14 @@ export function useSelectTrigger(
                 return;
               }
 
-              const padding = getPseudoElementPadding(triggerRef.current);
-              const triggerRect = triggerRef.current.getBoundingClientRect();
+              const bounds = getPseudoElementBounds(triggerRef.current);
 
+              // Check if click is within extended trigger area
               if (
-                mouseEvent.clientX >= triggerRect.left - padding &&
-                mouseEvent.clientX <= triggerRect.right + padding &&
-                mouseEvent.clientY >= triggerRect.top - padding &&
-                mouseEvent.clientY <= triggerRect.bottom + padding
+                mouseEvent.clientX >= bounds.left &&
+                mouseEvent.clientX <= bounds.right &&
+                mouseEvent.clientY >= bounds.top &&
+                mouseEvent.clientY <= bounds.bottom
               ) {
                 return;
               }

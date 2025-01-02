@@ -6,6 +6,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
+import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
   const {
@@ -61,25 +62,6 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
             const doc = ownerDocument(event.currentTarget);
 
-            function getPseudoElementPadding(triggerRefElement: HTMLElement) {
-              const beforeStyles = window.getComputedStyle(triggerRefElement, '::before');
-              const afterStyles = window.getComputedStyle(triggerRefElement, '::after');
-
-              const hasPseudoElements =
-                beforeStyles.content !== 'none' || afterStyles.content !== 'none';
-
-              const padding = hasPseudoElements
-                ? Math.max(
-                    parseInt(beforeStyles.width || '0', 10),
-                    parseInt(afterStyles.width || '0', 10),
-                    parseInt(beforeStyles.height || '0', 10),
-                    parseInt(afterStyles.height || '0', 10),
-                  ) / 2
-                : 0;
-
-              return padding;
-            }
-
             function handleMouseUp(mouseEvent: MouseEvent) {
               if (!triggerRef.current) {
                 return;
@@ -98,14 +80,13 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
                 return;
               }
 
-              const padding = getPseudoElementPadding(triggerRef.current);
-              const triggerRect = triggerRef.current.getBoundingClientRect();
+              const bounds = getPseudoElementBounds(triggerRef.current);
 
               if (
-                mouseEvent.clientX >= triggerRect.left - padding &&
-                mouseEvent.clientX <= triggerRect.right + padding &&
-                mouseEvent.clientY >= triggerRect.top - padding &&
-                mouseEvent.clientY <= triggerRect.bottom + padding
+                mouseEvent.clientX >= bounds.left &&
+                mouseEvent.clientX <= bounds.right &&
+                mouseEvent.clientY >= bounds.top &&
+                mouseEvent.clientY <= bounds.bottom
               ) {
                 return;
               }
