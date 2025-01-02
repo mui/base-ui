@@ -1,5 +1,5 @@
 import { clamp } from '../../utils/clamp';
-import { setValueIndex } from './setValueIndex';
+import { replaceArrayItemAtIndex } from './replaceArrayItemAtIndex';
 
 interface GetSliderValueParameters {
   valueInput: number;
@@ -18,14 +18,12 @@ export function getSliderValue(params: GetSliderValueParameters) {
   newValue = clamp(newValue, min, max);
 
   if (range) {
-    // Bound the new value to the thumb's neighbours.
-    newValue = clamp(newValue, values[index - 1] || -Infinity, values[index + 1] || Infinity);
-
-    newValue = setValueIndex({
+    newValue = replaceArrayItemAtIndex(
       values,
-      newValue,
       index,
-    });
+      // Bound the new value to the thumb's neighbours.
+      clamp(newValue, values[index - 1] || -Infinity, values[index + 1] || Infinity),
+    );
   }
 
   return newValue;

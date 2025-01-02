@@ -157,7 +157,7 @@ export namespace SliderRoot {
     /**
      * The raw number value of the slider.
      */
-    values: ReadonlyArray<number>;
+    values: readonly number[];
   }
 
   export interface Props
@@ -182,7 +182,7 @@ export namespace SliderRoot {
      *
      * To render a controlled slider, use the `value` prop instead.
      */
-    defaultValue?: number | ReadonlyArray<number>;
+    defaultValue?: number | readonly number[];
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -200,7 +200,7 @@ export namespace SliderRoot {
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
      */
-    value?: number | ReadonlyArray<number>;
+    value?: number | readonly number[];
   }
 }
 

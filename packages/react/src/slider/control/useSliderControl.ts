@@ -73,14 +73,14 @@ export function useSliderControl(
       return;
     }
 
-    focusThumb(finger.closestThumbIndex, controlRef, setActive);
+    focusThumb(finger.thumbIndex, controlRef, setActive);
 
     if (validateMinimumDistance(finger.value, step, minStepsBetweenValues)) {
       if (!dragging && moveCountRef.current > INTENTIONAL_DRAG_COUNT_THRESHOLD) {
         setDragging(true);
       }
 
-      setValue(finger.value, finger.closestThumbIndex, nativeEvent);
+      setValue(finger.value, finger.percentageValues, finger.thumbIndex, nativeEvent);
     }
   });
 
@@ -130,9 +130,9 @@ export function useSliderControl(
         return;
       }
 
-      focusThumb(finger.closestThumbIndex, controlRef, setActive);
+      focusThumb(finger.thumbIndex, controlRef, setActive);
 
-      setValue(finger.value, finger.closestThumbIndex, nativeEvent);
+      setValue(finger.value, finger.percentageValues, finger.thumbIndex, nativeEvent);
     }
 
     moveCountRef.current = 0;
@@ -203,20 +203,16 @@ export function useSliderControl(
               return;
             }
 
-            focusThumb(finger.closestThumbIndex, controlRef, setActive);
+            focusThumb(finger.thumbIndex, controlRef, setActive);
 
             // if the event lands on a thumb, don't change the value, just get the
             // percentageValue difference represented by the distance between the click origin
             // and the coordinates of the value on the track area
             if (thumbRefs.current.includes(event.target as HTMLElement)) {
-              const targetThumbIndex = (event.target as HTMLElement).getAttribute('data-index');
-
-              const offset =
-                percentageValues[Number(targetThumbIndex)] / 100 - finger.percentageValue;
-
-              offsetRef.current = offset;
+              offsetRef.current =
+                percentageValues[finger.thumbIndex] / 100 - finger.percentageValue;
             } else {
-              setValue(finger.value, finger.closestThumbIndex, event.nativeEvent);
+              setValue(finger.value, finger.percentageValues, finger.thumbIndex, event.nativeEvent);
             }
           }
 
