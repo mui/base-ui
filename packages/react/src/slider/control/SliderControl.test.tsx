@@ -12,7 +12,7 @@ const testRootContext: SliderRootContext = {
   disabled: false,
   getFingerState: () => ({
     value: 0,
-    percentageValue: 0,
+    valueRescaled: 0,
     percentageValues: [0],
     thumbIndex: 0,
   }),

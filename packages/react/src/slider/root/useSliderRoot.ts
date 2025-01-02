@@ -17,7 +17,6 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
-import { percentToValue } from '../utils/percentToValue';
 import { replaceArrayItemAtIndex } from '../utils/replaceArrayItemAtIndex';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { ThumbMetadata } from '../thumb/useSliderThumb';
@@ -104,33 +103,6 @@ export function validateMinimumDistance(
   return Math.min(...distances) >= step * minStepsBetweenValues;
 }
 
-export function trackFinger(
-  event: TouchEvent | PointerEvent | React.PointerEvent,
-  touchIdRef: React.RefObject<any>,
-): FingerPosition | null {
-  // The event is TouchEvent
-  if (touchIdRef.current !== undefined && (event as TouchEvent).changedTouches) {
-    const touchEvent = event as TouchEvent;
-    for (let i = 0; i < touchEvent.changedTouches.length; i += 1) {
-      const touch = touchEvent.changedTouches[i];
-      if (touch.identifier === touchIdRef.current) {
-        return {
-          x: touch.clientX,
-          y: touch.clientY,
-        };
-      }
-    }
-
-    return null;
-  }
-
-  // The event is PointerEvent
-  return {
-    x: (event as PointerEvent).clientX,
-    y: (event as PointerEvent).clientY,
-  };
-}
-
 /**
  */
 export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRoot.ReturnValue {
@@ -211,13 +183,13 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   const range = Array.isArray(valueUnwrapped);
 
   const values = React.useMemo(() => {
-    return (range ? valueUnwrapped.slice().sort(asc) : [valueUnwrapped]).map((val) =>
-      val == null ? min : clamp(val, min, max),
-    );
+    if (!range) {
+      return [clamp(valueUnwrapped as number, min, max)];
+    }
+    return valueUnwrapped.slice().sort(asc);
   }, [max, min, range, valueUnwrapped]);
 
   function initializePercentageValues() {
-    // console.log('initializePercentageValues');
     const vals = [];
     for (let i = 0; i < values.length; i += 1) {
       vals.push(valueToPercent(values[i], min, max));
@@ -228,7 +200,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   const [percentageValues, setPercentageValues] = React.useState<readonly number[]>(
     initializePercentageValues,
   );
-  // console.log('percentageValues', percentageValues);
 
   const setValue = useEventCallback(
     (
@@ -263,14 +234,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const handleInputChange = useEventCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
-      const newValue = getSliderValue({
-        valueInput,
-        min,
-        max,
-        index,
-        range,
-        values,
-      });
+      const newValue = getSliderValue(valueInput, index, min, max, range, values);
 
       if (range) {
         focusThumb(index, sliderRef);
@@ -310,10 +274,11 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
        */
       shouldCaptureThumbIndex: boolean = false,
       /**
-       * The pixel distance between the finger origin and the center of the thumb.
+       * The difference between the value at the finger origin and the value at
+       * the center of the thumb scaled down to fit the range [0, 1]
        */
       offset: number = 0,
-    ) => {
+    ): FingerState | null => {
       if (fingerPosition == null) {
         return null;
       }
@@ -329,26 +294,26 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
       const { width, height, bottom, left } = sliderControl.getBoundingClientRect();
 
-      // percent is a value between 0 and 1, e.g. "41%" is `0.41`
-      const valueRescaled = isVertical
+      // the value at the finger origin scaled down to fit the range [0, 1]
+      let valueRescaled = isVertical
         ? (bottom - fingerPosition.y) / height + offset
         : (fingerPosition.x - left) / width + offset * (isRtl ? -1 : 1);
 
-      let percentageValue = Math.min(valueRescaled, 1);
+      valueRescaled = Math.min(valueRescaled, 1);
 
       if (isRtl && !isVertical) {
-        percentageValue = 1 - percentageValue;
+        valueRescaled = 1 - valueRescaled;
       }
 
-      let newValue = percentToValue(percentageValue, min, max);
+      let newValue = (max - min) * valueRescaled + min;
       newValue = roundValueToStep(newValue, step, min);
       newValue = clamp(newValue, min, max);
 
       if (!range) {
         return {
           value: newValue,
-          percentageValue,
-          percentageValues: [percentageValue * 100],
+          valueRescaled,
+          percentageValues: [valueRescaled * 100],
           thumbIndex: 0,
         };
       }
@@ -368,11 +333,11 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
       return {
         value: replaceArrayItemAtIndex(values, closestThumbIndex, newValue),
-        percentageValue,
+        valueRescaled,
         percentageValues: replaceArrayItemAtIndex(
           percentageValues,
           closestThumbIndex,
-          percentageValue * 100,
+          valueRescaled * 100,
         ),
         thumbIndex: closestThumbIndex,
       };
@@ -467,10 +432,17 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   );
 }
 
-export type FingerPosition = {
+export interface FingerPosition {
   x: number;
   y: number;
-};
+}
+
+interface FingerState {
+  value: number | number[];
+  valueRescaled: number;
+  percentageValues: number[];
+  thumbIndex: number;
+}
 
 export namespace useSliderRoot {
   export type Orientation = 'horizontal' | 'vertical';
@@ -589,12 +561,7 @@ export namespace useSliderRoot {
       fingerPosition: FingerPosition | null,
       shouldCaptureThumbIndex?: boolean,
       offset?: number,
-    ) => {
-      value: number | number[];
-      percentageValue: number;
-      percentageValues: number[];
-      thumbIndex: number;
-    } | null;
+    ) => FingerState | null;
     /**
      * Callback to invoke change handlers after internal value state is updated.
      */

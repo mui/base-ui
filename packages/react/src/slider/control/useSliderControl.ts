@@ -7,13 +7,40 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import {
   focusThumb,
-  trackFinger,
   validateMinimumDistance,
+  type FingerPosition,
   type useSliderRoot,
 } from '../root/useSliderRoot';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
+
+function trackFinger(
+  event: TouchEvent | PointerEvent | React.PointerEvent,
+  touchIdRef: React.RefObject<any>,
+): FingerPosition | null {
+  // The event is TouchEvent
+  if (touchIdRef.current !== undefined && (event as TouchEvent).changedTouches) {
+    const touchEvent = event as TouchEvent;
+    for (let i = 0; i < touchEvent.changedTouches.length; i += 1) {
+      const touch = touchEvent.changedTouches[i];
+      if (touch.identifier === touchIdRef.current) {
+        return {
+          x: touch.clientX,
+          y: touch.clientY,
+        };
+      }
+    }
+
+    return null;
+  }
+
+  // The event is PointerEvent
+  return {
+    x: (event as PointerEvent).clientX,
+    y: (event as PointerEvent).clientY,
+  };
+}
 
 export function useSliderControl(
   parameters: useSliderControl.Parameters,
@@ -42,12 +69,11 @@ export function useSliderControl(
 
   // A number that uniquely identifies the current finger in the touch session.
   const touchIdRef = React.useRef<number | null>(null);
-
   const moveCountRef = React.useRef(0);
-
-  // offset distance between:
-  // 1. pointerDown coordinates and
-  // 2. the exact intersection of the center of the thumb and the track
+  /**
+   * The difference between the value at the finger origin and the value at
+   * the center of the thumb scaled down to fit the range [0, 1]
+   */
   const offsetRef = React.useRef(0);
 
   const handleTouchMove = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
@@ -209,8 +235,7 @@ export function useSliderControl(
             // percentageValue difference represented by the distance between the click origin
             // and the coordinates of the value on the track area
             if (thumbRefs.current.includes(event.target as HTMLElement)) {
-              offsetRef.current =
-                percentageValues[finger.thumbIndex] / 100 - finger.percentageValue;
+              offsetRef.current = percentageValues[finger.thumbIndex] / 100 - finger.valueRescaled;
             } else {
               setValue(finger.value, finger.percentageValues, finger.thumbIndex, event.nativeEvent);
             }
