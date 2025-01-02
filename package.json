@@ -84,7 +84,7 @@
     "@types/lodash": "^4.17.13",
     "@types/mocha": "^10.0.10",
     "@types/node": "^18.19.69",
-    "@types/react": "npm:types-react@19.0.0-rc.1",
+    "@types/react": "^19.0.2",
     "@types/url-join": "^4.0.3",
     "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
@@ -151,9 +151,9 @@
     "prettier-plugin-tailwindcss": "^0.6.9",
     "pretty-quick": "^4.0.0",
     "process": "^0.11.10",
-    "react": "19.0.0-rc-fb9a90fa48-20240614",
+    "react": "^19.0.0",
     "react-docgen": "^5.4.3",
-    "react-dom": "19.0.0-rc-fb9a90fa48-20240614",
+    "react-dom": "^19.0.0",
     "recast": "^0.23.9",
     "remark": "^15.0.1",
     "rimraf": "^5.0.10",
@@ -188,8 +188,8 @@
     "@babel/runtime": "^7.26.0",
     "@babel/types": "^7.26.0",
     "@types/node": "^18.19.69",
-    "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2"
   },
   "nyc": {
     "include": [
