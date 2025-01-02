@@ -84,8 +84,8 @@
     "use-sync-external-store": "^1.4.0"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.17.1",
-    "@mui/internal-test-utils": "^1.0.22",
+    "@arethetypeswrong/cli": "^0.17.2",
+    "@mui/internal-test-utils": "^1.0.24",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
     "@types/chai": "^4.3.20",
