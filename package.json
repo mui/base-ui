@@ -162,7 +162,7 @@
     "stylelint": "^16.12.0",
     "stylelint-config-standard": "^36.0.1",
     "tailwindcss": "4.0.0-beta.2",
-    "terser": "^5.31.0",
+    "terser": "^5.37.0",
     "terser-webpack-plugin": "^5.3.10",
     "tsc-alias": "^1.8.10",
     "tsx": "^4.19.2",
