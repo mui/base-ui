@@ -12,8 +12,9 @@ const testRootContext: SliderRootContext = {
   disabled: false,
   getFingerState: () => ({
     value: 0,
-    closestThumbIndex: 0,
     percentageValue: 0,
+    percentageValues: [0],
+    thumbIndex: 0,
   }),
   setValue: NOOP,
   largeStep: 10,
@@ -42,6 +43,7 @@ const testRootContext: SliderRootContext = {
   registerSliderControl: NOOP,
   setActive: NOOP,
   setDragging: NOOP,
+  setPercentageValues: NOOP,
   setThumbMap: NOOP,
   step: 1,
   tabIndex: null,
