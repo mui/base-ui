@@ -63,14 +63,14 @@
   },
   "type": "commonjs",
   "scripts": {
+    "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
     "build": "pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files && pnpm build:manifest",
     "build:node": "node ../../scripts/build.mjs node",
     "build:stable": "node ../../scripts/build.mjs stable",
+    "build:types": "tsx ../../scripts/buildTypes.mts --project tsconfig.build.json --copy build/cjs",
     "build:copy-files": "node ../../scripts/copyFiles.mjs",
-    "build:types": "tsx ../../scripts/buildTypes.mjs --project tsconfig.build.json --copy build/cjs",
     "build:manifest": "tsx ./scripts/createPackageManifest.mts",
     "test:package": "publint ./build && attw --pack ./build",
-    "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
     "release": "pnpm build && pnpm publish",
     "test": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/react/**/*.test.{js,ts,tsx}'",
     "typescript": "tsc -b tsconfig.json"
