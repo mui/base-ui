@@ -19,6 +19,7 @@ const regressionFixtures: Fixture[] = [];
 
 for (const path in globbedRegressionFixtures) {
   const [suite, name] = path
+    .replace(/\\/g, '/')
     .replace('./', '')
     .replace(/\.\w+$/, '')
     .split('/');
@@ -73,7 +74,8 @@ function excludeDemoFixture(suite: string, name: string, path: string) {
 
 // Also use all public demos to avoid code duplication.
 const globbedDemos = import.meta.glob<{ default: React.ComponentType<unknown> }>(
-  'docs/src/app/\\(public\\)/\\(content\\)/react/**/*.tsx',
+  // technically it should be 'docs/src/app/\\(public\\)/\\(content\\)/react/**/*.tsx' but tinyglobby doesn't resolve this on Windows
+  'docs/src/app/?public?/?content?/react/**/*.tsx',
 );
 
 const demoFixtures: Fixture[] = [];
