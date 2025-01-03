@@ -66,7 +66,7 @@
     "build": "pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files && pnpm build:manifest",
     "build:node": "node ../../scripts/build.mjs node",
     "build:stable": "node ../../scripts/build.mjs stable",
-    "build:copy-files": "node ../../scripts/copyFiles.mjs",
+    "build:copy-files": "node ../../scripts/copyFiles.mjs ./.npmignore:./.npmignore",
     "build:types": "tsx ../../scripts/buildTypes.mjs --project tsconfig.build.json --copy build/cjs",
     "build:manifest": "tsx ./scripts/createPackageManifest.mts",
     "test:package": "publint ./build && attw --pack ./build",
@@ -84,30 +84,31 @@
     "use-sync-external-store": "^1.4.0"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.17.1",
-    "@mui/internal-test-utils": "^1.0.22",
+    "@arethetypeswrong/cli": "^0.17.2",
+    "@mui/internal-test-utils": "^1.0.24",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
     "@types/chai": "^4.3.20",
     "@types/chai-dom": "^1.11.3",
     "@types/prop-types": "^15.7.14",
-    "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
     "@types/sinon": "^17.0.3",
     "@types/use-sync-external-store": "^0.0.6",
     "chai": "^4.5.0",
     "fs-extra": "^11.2.0",
     "lodash": "^4.17.21",
     "publint": "^0.2.12",
-    "react": "19.0.0-rc-fb9a90fa48-20240614",
-    "react-dom": "19.0.0-rc-fb9a90fa48-20240614",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^6.28.1",
     "sinon": "^19.0.2",
     "typescript": "^5.7.2"
   },
   "peerDependencies": {
-    "@types/react": "^17.0.0 || ^18.0.0 || ^19.0 || ^19.0.0-rc",
-    "react": "^17.0.0 || ^18.0.0 || ^19.0 || ^19.0.0-rc",
-    "react-dom": "^17.0.0 || ^18.0.0 || ^19.0 || ^19.0.0-rc"
+    "@types/react": "^17 || ^18 || ^19",
+    "react": "^17 || ^18 || ^19",
+    "react-dom": "^17 || ^18 || ^19"
   },
   "peerDependenciesMeta": {
     "@types/react": {

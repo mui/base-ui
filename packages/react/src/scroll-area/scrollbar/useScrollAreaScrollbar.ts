@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { getOffset } from '../utils/getOffset';
+import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
 import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
 
@@ -9,7 +10,6 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
   const { orientation } = params;
 
   const {
-    dir,
     scrollbarYRef,
     scrollbarXRef,
     viewportRef,
@@ -20,6 +20,8 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
     rootId,
     thumbSize,
   } = useScrollAreaRootContext();
+
+  const direction = useDirection();
 
   React.useEffect(() => {
     const viewportEl = viewportRef.current;
@@ -130,7 +132,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
             const scrollRatioX = clickX / maxThumbOffsetX;
 
             let newScrollLeft: number;
-            if (dir === 'rtl') {
+            if (direction === 'rtl') {
               // In RTL, invert the scroll direction
               newScrollLeft = (1 - scrollRatioX) * (scrollableContentWidth - viewportWidth);
 
@@ -154,13 +156,12 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
           ...(orientation === 'vertical' && {
             top: 0,
             bottom: `var(${ScrollAreaRootCssVars.scrollAreaCornerHeight})`,
-            [dir === 'rtl' ? 'left' : 'right']: 0,
+            insetInlineEnd: 0,
             [ScrollAreaScrollbarCssVars.scrollAreaThumbHeight as string]: `${thumbSize.height}px`,
           }),
           ...(orientation === 'horizontal' && {
-            [dir === 'rtl' ? 'right' : 'left']: 0,
-            [dir === 'rtl' ? 'left' : 'right']:
-              `var(${ScrollAreaRootCssVars.scrollAreaCornerWidth})`,
+            insetInlineStart: 0,
+            insetInlineEnd: `var(${ScrollAreaRootCssVars.scrollAreaCornerWidth})`,
             bottom: 0,
             [ScrollAreaScrollbarCssVars.scrollAreaThumbWidth as string]: `${thumbSize.width}px`,
           }),
@@ -170,7 +171,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
       rootId,
       handlePointerUp,
       orientation,
-      dir,
+      direction,
       thumbSize.height,
       thumbSize.width,
       viewportRef,

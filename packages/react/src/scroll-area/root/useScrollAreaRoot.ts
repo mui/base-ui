@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { SCROLL_TIMEOUT } from '../constants';
@@ -12,9 +11,7 @@ interface Size {
   height: number;
 }
 
-export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
-  const { dir: dirParam } = params;
-
+export function useScrollAreaRoot() {
   const [hovering, setHovering] = React.useState(false);
   const [scrollingX, setScrollingX] = React.useState(false);
   const [scrollingY, setScrollingY] = React.useState(false);
@@ -46,15 +43,6 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
     scrollbarXHidden: false,
     cornerHidden: false,
   });
-
-  const [autoDir, setAutoDir] = React.useState(dirParam);
-  const dir = dirParam ?? autoDir;
-
-  useEnhancedEffect(() => {
-    if (dirParam === undefined && viewportRef.current) {
-      setAutoDir(getComputedStyle(viewportRef.current).direction);
-    }
-  }, [dirParam]);
 
   React.useEffect(() => {
     return () => {
@@ -193,7 +181,6 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
-        dir,
         onPointerEnter: handlePointerEnterOrMove,
         onPointerMove: handlePointerEnterOrMove,
         onPointerDown({ pointerType }) {
@@ -208,7 +195,7 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
           [ScrollAreaRootCssVars.scrollAreaCornerWidth as string]: `${cornerSize.width}px`,
         },
       }),
-    [cornerSize, dir, handlePointerEnterOrMove],
+    [cornerSize, handlePointerEnterOrMove],
   );
 
   return React.useMemo(
@@ -266,8 +253,4 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   );
 }
 
-export namespace useScrollAreaRoot {
-  export interface Parameters {
-    dir: string | undefined;
-  }
-}
+export namespace useScrollAreaRoot {}
