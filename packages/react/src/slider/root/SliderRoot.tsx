@@ -214,6 +214,7 @@ export namespace SliderRoot {
 
 export { SliderRoot };
 
+// @ts-expect-error
 SliderRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
