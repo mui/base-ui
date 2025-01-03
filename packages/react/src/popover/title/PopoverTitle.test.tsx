@@ -12,9 +12,11 @@ describe('<Popover.Title />', () => {
     render(node) {
       return render(
         <Popover.Root open>
-          <Popover.Positioner>
-            <Popover.Popup>{node}</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>{node}</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Popover.Root>,
       );
     },
@@ -23,11 +25,13 @@ describe('<Popover.Title />', () => {
   it('labels the popup element with its id', async () => {
     await render(
       <Popover.Root open>
-        <Popover.Positioner>
-          <Popover.Popup>
-            <Popover.Title>Title</Popover.Title>
-          </Popover.Popup>
-        </Popover.Positioner>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup>
+              <Popover.Title>Title</Popover.Title>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
       </Popover.Root>,
     );
 

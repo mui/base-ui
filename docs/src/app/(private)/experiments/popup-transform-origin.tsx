@@ -9,9 +9,11 @@ function Popover({ side }: { side: Side }) {
       <PopoverPrimitive.Trigger className={styles.Trigger}>
         {side}
       </PopoverPrimitive.Trigger>
-      <PopoverPrimitive.Positioner side={side} sideOffset={20}>
-        <PopoverPrimitive.Popup className={styles.Popup} />
-      </PopoverPrimitive.Positioner>
+      <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Positioner side={side} sideOffset={20}>
+          <PopoverPrimitive.Popup className={styles.Popup} />
+        </PopoverPrimitive.Positioner>
+      </PopoverPrimitive.Portal>
     </PopoverPrimitive.Root>
   );
 }
@@ -22,11 +24,13 @@ function PopoverWithArrow({ side }: { side: Side }) {
       <PopoverPrimitive.Trigger className={styles.Trigger}>
         {side}
       </PopoverPrimitive.Trigger>
-      <PopoverPrimitive.Positioner side={side} sideOffset={20}>
-        <PopoverPrimitive.Popup className={styles.Popup}>
-          <PopoverPrimitive.Arrow className={styles.Arrow} />
-        </PopoverPrimitive.Popup>
-      </PopoverPrimitive.Positioner>
+      <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Positioner side={side} sideOffset={20}>
+          <PopoverPrimitive.Popup className={styles.Popup}>
+            <PopoverPrimitive.Arrow className={styles.Arrow} />
+          </PopoverPrimitive.Popup>
+        </PopoverPrimitive.Positioner>
+      </PopoverPrimitive.Portal>
     </PopoverPrimitive.Root>
   );
 }

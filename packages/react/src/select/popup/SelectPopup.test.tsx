@@ -10,7 +10,9 @@ describe('<Select.Popup />', () => {
     render(node) {
       return render(
         <Select.Root open>
-          <Select.Positioner>{node}</Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>{node}</Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
     },

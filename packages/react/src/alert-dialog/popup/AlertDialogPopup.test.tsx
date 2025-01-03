@@ -13,8 +13,10 @@ describe('<AlertDialog.Popup />', () => {
     render: (node) => {
       return render(
         <AlertDialog.Root open>
-          <AlertDialog.Backdrop />
-          {node}
+          <AlertDialog.Portal>
+            <AlertDialog.Backdrop />
+            {node}
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
     },
@@ -24,7 +26,9 @@ describe('<AlertDialog.Popup />', () => {
     const { getByTestId } = await render(
       <AlertDialog.Root open>
         <AlertDialog.Backdrop />
-        <AlertDialog.Popup data-testid="test-alert-dialog" />
+        <AlertDialog.Portal>
+          <AlertDialog.Popup data-testid="test-alert-dialog" />
+        </AlertDialog.Portal>
       </AlertDialog.Root>,
     );
 
@@ -40,10 +44,12 @@ describe('<AlertDialog.Popup />', () => {
           <AlertDialog.Root>
             <AlertDialog.Backdrop />
             <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-            <AlertDialog.Popup data-testid="dialog">
-              <input data-testid="dialog-input" />
-              <button>Close</button>
-            </AlertDialog.Popup>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup data-testid="dialog">
+                <input data-testid="dialog-input" />
+                <button>Close</button>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
           </AlertDialog.Root>
           <input />
         </div>,
@@ -69,12 +75,14 @@ describe('<AlertDialog.Popup />', () => {
             <AlertDialog.Root>
               <AlertDialog.Backdrop />
               <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-              <AlertDialog.Popup data-testid="dialog" initialFocus={input2Ref}>
-                <input data-testid="input-1" />
-                <input data-testid="input-2" ref={input2Ref} />
-                <input data-testid="input-3" />
-                <button>Close</button>
-              </AlertDialog.Popup>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="dialog" initialFocus={input2Ref}>
+                  <input data-testid="input-1" />
+                  <input data-testid="input-2" ref={input2Ref} />
+                  <input data-testid="input-3" />
+                  <button>Close</button>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
             </AlertDialog.Root>
             <input />
           </div>
@@ -106,12 +114,14 @@ describe('<AlertDialog.Popup />', () => {
             <AlertDialog.Root>
               <AlertDialog.Backdrop />
               <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-              <AlertDialog.Popup data-testid="dialog" initialFocus={getRef}>
-                <input data-testid="input-1" />
-                <input data-testid="input-2" ref={input2Ref} />
-                <input data-testid="input-3" />
-                <button>Close</button>
-              </AlertDialog.Popup>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="dialog" initialFocus={getRef}>
+                  <input data-testid="input-1" />
+                  <input data-testid="input-2" ref={input2Ref} />
+                  <input data-testid="input-3" />
+                  <button>Close</button>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
             </AlertDialog.Root>
             <input />
           </div>
@@ -140,9 +150,11 @@ describe('<AlertDialog.Popup />', () => {
           <AlertDialog.Root>
             <AlertDialog.Backdrop />
             <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-            <AlertDialog.Popup>
-              <AlertDialog.Close>Close</AlertDialog.Close>
-            </AlertDialog.Popup>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup>
+                <AlertDialog.Close>Close</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
           </AlertDialog.Root>
           <input />
         </div>,
@@ -168,9 +180,11 @@ describe('<AlertDialog.Popup />', () => {
             <AlertDialog.Root>
               <AlertDialog.Backdrop />
               <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-              <AlertDialog.Popup finalFocus={inputRef}>
-                <AlertDialog.Close>Close</AlertDialog.Close>
-              </AlertDialog.Popup>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup finalFocus={inputRef}>
+                  <AlertDialog.Close>Close</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
             </AlertDialog.Root>
             <input />
             <input data-testid="input-to-focus" ref={inputRef} />

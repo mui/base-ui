@@ -10,9 +10,11 @@ describe('<PreviewCard.Arrow />', () => {
     render(node) {
       return render(
         <PreviewCard.Root open>
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>{node}</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>{node}</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </PreviewCard.Root>,
       );
     },

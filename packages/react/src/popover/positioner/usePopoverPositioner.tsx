@@ -13,7 +13,7 @@ import { InteractionType } from '../../utils/useEnhancedClickHandler';
 export function usePopoverPositioner(
   params: usePopoverPositioner.Parameters,
 ): usePopoverPositioner.ReturnValue {
-  const { open = false, keepMounted = false, mounted } = params;
+  const { open = false, mounted } = params;
 
   const {
     positionerStyles,
@@ -31,7 +31,7 @@ export function usePopoverPositioner(
       (externalProps = {}) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if (keepMounted && !open) {
+        if (!open) {
           hiddenStyles.pointerEvents = 'none';
         }
 
@@ -44,7 +44,7 @@ export function usePopoverPositioner(
           },
         });
       },
-      [keepMounted, open, mounted, positionerStyles],
+      [open, mounted, positionerStyles],
     );
 
   return React.useMemo(
@@ -133,11 +133,6 @@ export namespace usePopoverPositioner {
      */
     arrowPadding?: number;
     /**
-     * Whether to keep the HTML element in the DOM while the popover is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
      * Whether the popover continuously tracks its anchor after the initial positioning upon mount.
      * @default true
      */
@@ -145,6 +140,10 @@ export namespace usePopoverPositioner {
   }
 
   export interface Parameters extends SharedParameters {
+    /**
+     * Whether the portal is kept mounted in the DOM while the popup is closed.
+     */
+    keepMounted: boolean;
     /**
      * Whether the popover is mounted.
      */

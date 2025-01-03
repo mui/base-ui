@@ -12,7 +12,9 @@ describe('<Popover.Popup />', () => {
     render(node) {
       return render(
         <Popover.Root open>
-          <Popover.Positioner>{node}</Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>{node}</Popover.Positioner>
+          </Popover.Portal>
         </Popover.Root>,
       );
     },
@@ -21,9 +23,11 @@ describe('<Popover.Popup />', () => {
   it('should render the children', async () => {
     await render(
       <Popover.Root open>
-        <Popover.Positioner>
-          <Popover.Popup>Content</Popover.Popup>
-        </Popover.Positioner>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup>Content</Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
       </Popover.Root>,
     );
 
@@ -37,12 +41,14 @@ describe('<Popover.Popup />', () => {
           <input />
           <Popover.Root>
             <Popover.Trigger>Open</Popover.Trigger>
-            <Popover.Positioner>
-              <Popover.Popup data-testid="popover">
-                <input data-testid="popover-input" />
-                <button>Close</button>
-              </Popover.Popup>
-            </Popover.Positioner>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popover">
+                  <input data-testid="popover-input" />
+                  <button>Close</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
           </Popover.Root>
           <input />
         </div>,
@@ -67,14 +73,16 @@ describe('<Popover.Popup />', () => {
             <input />
             <Popover.Root>
               <Popover.Trigger>Open</Popover.Trigger>
-              <Popover.Positioner>
-                <Popover.Popup initialFocus={input2Ref}>
-                  <input data-testid="input-1" />
-                  <input data-testid="input-2" ref={input2Ref} />
-                  <input data-testid="input-3" />
-                  <button>Close</button>
-                </Popover.Popup>
-              </Popover.Positioner>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup initialFocus={input2Ref}>
+                    <input data-testid="input-1" />
+                    <input data-testid="input-2" ref={input2Ref} />
+                    <input data-testid="input-3" />
+                    <button>Close</button>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
             </Popover.Root>
             <input />
           </div>
@@ -105,14 +113,16 @@ describe('<Popover.Popup />', () => {
             <input />
             <Popover.Root>
               <Popover.Trigger>Open</Popover.Trigger>
-              <Popover.Positioner>
-                <Popover.Popup initialFocus={getRef}>
-                  <input data-testid="input-1" />
-                  <input data-testid="input-2" ref={input2Ref} />
-                  <input data-testid="input-3" />
-                  <button>Close</button>
-                </Popover.Popup>
-              </Popover.Positioner>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup initialFocus={getRef}>
+                    <input data-testid="input-1" />
+                    <input data-testid="input-2" ref={input2Ref} />
+                    <input data-testid="input-3" />
+                    <button>Close</button>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
             </Popover.Root>
             <input />
           </div>
@@ -140,11 +150,13 @@ describe('<Popover.Popup />', () => {
           <input />
           <Popover.Root>
             <Popover.Trigger>Open</Popover.Trigger>
-            <Popover.Positioner>
-              <Popover.Popup>
-                <Popover.Close>Close</Popover.Close>
-              </Popover.Popup>
-            </Popover.Positioner>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <Popover.Close>Close</Popover.Close>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
           </Popover.Root>
           <input />
         </div>,
@@ -173,11 +185,13 @@ describe('<Popover.Popup />', () => {
             <input />
             <Popover.Root>
               <Popover.Trigger>Open</Popover.Trigger>
-              <Popover.Positioner>
-                <Popover.Popup finalFocus={inputRef}>
-                  <Popover.Close>Close</Popover.Close>
-                </Popover.Popup>
-              </Popover.Positioner>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup finalFocus={inputRef}>
+                    <Popover.Close>Close</Popover.Close>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
             </Popover.Root>
             <input />
             <input data-testid="input-to-focus" ref={inputRef} />

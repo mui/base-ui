@@ -24,7 +24,7 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   props: AlertDialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted = false, ...other } = props;
+  const { render, className, ...other } = props;
   const { open, nested, mounted, transitionStatus } = useAlertDialogRootContext();
 
   const state: AlertDialogBackdrop.State = React.useMemo(
@@ -45,7 +45,7 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   });
 
   // no need to render nested backdrops
-  const shouldRender = (keepMounted || mounted) && !nested;
+  const shouldRender = !nested;
   if (!shouldRender) {
     return null;
   }
@@ -54,13 +54,7 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
 });
 
 namespace AlertDialogBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to keep the element in the DOM while the alert dialog is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {
     /**
@@ -85,11 +79,6 @@ AlertDialogBackdrop.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether to keep the element in the DOM while the alert dialog is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
