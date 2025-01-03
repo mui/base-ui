@@ -30,6 +30,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly = false,
     required = false,
     modal = true,
+    onClosed,
   } = props;
 
   const selectRoot = useSelectRoot<Value>({
@@ -45,6 +46,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly,
     required,
     modal,
+    onClosed,
   });
 
   const { setDirty, validityData } = useFieldRootContext();
@@ -153,6 +155,10 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
+  /**
+   * Event handler called after any exit animations finish when the select menu is closed.
+   */
+  onClosed: PropTypes.func,
   /**
    * Event handler called when the select menu is opened or closed.
    */

@@ -33,6 +33,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     delay,
     closeDelay,
     openOnHover = false,
+    onClosed,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -81,6 +82,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     onFinished: () => {
       setMounted(false);
       setOpenReason(null);
+      onClosed?.();
     },
   });
 
@@ -209,6 +211,10 @@ export namespace usePopoverRoot {
      * Event handler called when the popover is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    /**
+     * Event handler called after any exit animations finish when the popover is closed.
+     */
+    onClosed?: () => void;
     /**
      * Whether the popover should also open when the trigger is hovered.
      * @default false

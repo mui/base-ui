@@ -15,6 +15,10 @@
       "type": "(open, event, reason) => void",
       "description": "Event handler called when the popover is opened or closed."
     },
+    "onClosed": {
+      "type": "function",
+      "description": "Event handler called after any exit animations finish when the popover is closed."
+    },
     "openOnHover": {
       "type": "boolean",
       "default": "false",
