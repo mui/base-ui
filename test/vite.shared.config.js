@@ -1,0 +1,20 @@
+import * as path from 'path';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  mode: process.env.NODE_ENV || 'development',
+  plugins: [react()],
+
+  resolve: {
+    alias: {
+      '@base-ui-components/react': path.join(process.cwd(), 'packages/react/src'),
+      './fonts': path.resolve(__dirname, '../../docs/src/fonts'),
+      docs: path.resolve(__dirname, '../../docs'),
+      stream: null,
+      zlib: null,
+    },
+  },
+
+  build: { chunkSizeWarningLimit: 9999 },
+});

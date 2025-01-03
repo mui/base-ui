@@ -1,19 +1,10 @@
 import * as path from 'path';
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig, mergeConfig } from 'vite';
+import sharedConfig from '../vite.shared.config';
 
-export default defineConfig({
-  root: path.join(process.cwd(), 'test/e2e'),
-  mode: process.env.NODE_ENV || 'development',
-  plugins: [react()],
-
-  resolve: {
-    alias: {
-      '@base-ui-components/react': path.join(process.cwd(), 'packages/react/src'),
-      './fonts': path.resolve(__dirname, '../../docs/src/fonts'),
-      docs: path.resolve(__dirname, '../../docs'),
-      stream: null,
-      zlib: null,
-    },
-  },
-});
+export default mergeConfig(
+  sharedConfig,
+  defineConfig({
+    root: path.join(process.cwd(), 'test/e2e'),
+  }),
+);
