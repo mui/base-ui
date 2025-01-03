@@ -10,6 +10,7 @@ import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
 import { SliderRootContext } from './SliderRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { fixedForwardRef } from '../utils/fixedForwardRef';
 
 /**
  * Groups all parts of the slider.
@@ -17,8 +18,8 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderRoot = React.forwardRef(function SliderRoot(
-  props: SliderRoot.Props,
+const SliderRoot = fixedForwardRef(function SliderRoot<TValue extends number | number[]>(
+  props: SliderRoot.Props<TValue>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -59,8 +60,8 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     min,
     minStepsBetweenValues,
     name,
-    onValueChange,
-    onValueCommitted,
+    onValueChange: onValueChange as useSliderRoot.Parameters['onValueChange'],
+    onValueCommitted: onValueCommitted as useSliderRoot.Parameters['onValueCommitted'],
     orientation,
     rootRef: forwardedRef,
     step,
@@ -157,7 +158,7 @@ export namespace SliderRoot {
     values: ReadonlyArray<number>;
   }
 
-  export interface Props
+  export interface Props<TValue extends number[] | number = number | number[]>
     extends Pick<
         useSliderRoot.Parameters,
         | 'disabled'
@@ -165,8 +166,6 @@ export namespace SliderRoot {
         | 'min'
         | 'minStepsBetweenValues'
         | 'name'
-        | 'onValueChange'
-        | 'onValueCommitted'
         | 'orientation'
         | 'largeStep'
         | 'step'
@@ -178,7 +177,7 @@ export namespace SliderRoot {
      *
      * To render a controlled slider, use the `value` prop instead.
      */
-    defaultValue?: number | ReadonlyArray<number>;
+    defaultValue?: TValue;
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -192,12 +191,30 @@ export namespace SliderRoot {
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
      */
-    value?: number | ReadonlyArray<number>;
+    value?: TValue;
+    /**
+     * Callback function that is fired when the slider's value changed.
+     *
+     * @param {number | number[]} value The new value.
+     * @param {Event} event The corresponding event that initiated the change.
+     * You can pull out the new value by accessing `event.target.value` (any).
+     * @param {number} activeThumbIndex Index of the currently moved thumb.
+     */
+    onValueChange?: (value: TValue, event: Event, activeThumbIndex: number) => void;
+    /**
+     * Callback function that is fired when the `pointerup` is triggered.
+     *
+     * @param {number | number[]} value The new value.
+     * @param {Event} event The corresponding event that initiated the change.
+     * **Warning**: This is a generic event not a change event.
+     */
+    onValueCommitted?: (value: TValue, event: Event) => void;
   }
 }
 
 export { SliderRoot };
 
+// @ts-expect-error
 SliderRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
