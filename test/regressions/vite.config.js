@@ -9,6 +9,7 @@ export default defineConfig({
 
   resolve: {
     alias: {
+      '@base-ui-components/react': path.join(process.cwd(), 'packages/react/src'),
       './fonts': path.resolve(__dirname, '../../docs/src/fonts'),
       docs: path.resolve(__dirname, '../../docs'),
       stream: null,
