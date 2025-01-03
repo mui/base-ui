@@ -299,7 +299,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         ? (bottom - fingerPosition.y) / height + offset
         : (fingerPosition.x - left) / width + offset * (isRtl ? -1 : 1);
 
-      valueRescaled = Math.min(valueRescaled, 1);
+      valueRescaled = clamp(valueRescaled, 0, 1);
 
       if (isRtl && !isVertical) {
         valueRescaled = 1 - valueRescaled;
