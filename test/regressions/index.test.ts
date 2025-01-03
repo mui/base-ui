@@ -3,7 +3,7 @@ import * as fse from 'fs-extra';
 import * as playwright from 'playwright';
 import { describe, it } from 'vitest';
 
-const baseUrl = 'http://localhost:5001';
+const baseUrl = 'http://localhost:5173';
 const screenshotDir = path.resolve(__dirname, './screenshots/chrome');
 
 const browser = await playwright.chromium.launch({

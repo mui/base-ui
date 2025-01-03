@@ -11,7 +11,7 @@ import type {
 import '@mui/internal-test-utils/initMatchers';
 import '@mui/internal-test-utils/initPlaywrightMatchers';
 
-const BASE_URL = 'http://localhost:5001';
+const BASE_URL = 'http://localhost:5173';
 
 function sleep(duration: number): Promise<void> {
   return new Promise<void>((resolve) => {
