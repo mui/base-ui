@@ -7,9 +7,7 @@ import {
   type TextDirection,
 } from '@base-ui-components/react/direction-provider';
 import { Tabs } from '@base-ui-components/react/tabs';
-import { createRenderer, describeConformance } from '#test-utils';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Tabs.Root />', () => {
   const { render } = createRenderer();

@@ -2,10 +2,8 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { describeSkipIf, screen, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { spy } from 'sinon';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<AlertDialog.Root />', () => {
   const { render } = createRenderer();

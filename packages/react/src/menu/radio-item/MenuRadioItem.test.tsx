@@ -4,7 +4,7 @@ import { spy } from 'sinon';
 import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base-ui-components/react/menu';
-import { describeConformance, createRenderer } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { MenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRootContext } from '../root/MenuRootContext';
 
@@ -62,7 +62,7 @@ describe('<Menu.RadioItem />', () => {
   }));
 
   it('perf: does not rerender menu items unnecessarily', async function test(t = {}) {
-    if (/jsdom/.test(window.navigator.userAgent)) {
+    if (isJSDOM) {
       // @ts-expect-error to support mocha and vitest
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this?.skip?.() || t?.skip();

@@ -2,10 +2,8 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { Progress } from '@base-ui-components/react/progress';
 import { describeSkipIf } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { ProgressRootContext } from '../root/ProgressRootContext';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 const contextValue: ProgressRootContext = {
   max: 100,

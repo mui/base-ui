@@ -5,7 +5,7 @@ import { DirectionProvider } from '@base-ui-components/react/direction-provider'
 import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Menu.Root />', () => {
   beforeEach(() => {
@@ -139,7 +139,7 @@ describe('<Menu.Root />', () => {
 
     describe('text navigation', () => {
       it('changes the highlighted item', async function test(t = {}) {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
           // @ts-expect-error to support mocha and vitest
@@ -184,7 +184,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('changes the highlighted item using text navigation on label prop', async function test(t = {}) {
-        if (!/jsdom/.test(window.navigator.userAgent)) {
+        if (!isJSDOM) {
           // This test is very flaky in real browsers
           // @ts-expect-error to support mocha and vitest
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -239,7 +239,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('skips the non-stringifiable items', async function test(t = {}) {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
           // @ts-expect-error to support mocha and vitest
@@ -285,7 +285,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('navigate to options with diacritic characters', async function test(t = {}) {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
           // @ts-expect-error to support mocha and vitest
@@ -326,7 +326,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('navigate to next options beginning with diacritic characters', async function test(t = {}) {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
           // @ts-expect-error to support mocha and vitest
@@ -361,7 +361,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('does not trigger the onClick event when Space is pressed during text navigation', async function test(t = {}) {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
           // @ts-expect-error to support mocha and vitest
@@ -559,7 +559,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('focuses the trigger after the menu is closed but not unmounted', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // TODO: this stopped working in vitest JSDOM mode
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -695,7 +695,7 @@ describe('<Menu.Root />', () => {
 
   describe('controlled mode', () => {
     it('should remove the popup when and there is no exit animation defined', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -727,7 +727,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('should remove the popup when the animation finishes', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();

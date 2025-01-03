@@ -4,7 +4,7 @@ import { spy } from 'sinon';
 import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base-ui-components/react/menu';
-import { describeConformance, createRenderer } from '../../../test';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { MenuRootContext } from '../root/MenuRootContext';
 
 const testRootContext: MenuRootContext = {
@@ -52,7 +52,7 @@ describe('<Menu.CheckboxItem />', () => {
   }));
 
   it('perf: does not rerender menu items unnecessarily', async function test(t = {}) {
-    if (/jsdom/.test(window.navigator.userAgent)) {
+    if (isJSDOM) {
       // @ts-expect-error to support mocha and vitest
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this?.skip?.() || t?.skip();
@@ -215,7 +215,7 @@ describe('<Menu.CheckboxItem />', () => {
     });
 
     it(`toggles the checked state when Enter is pressed`, async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();

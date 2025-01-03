@@ -8,9 +8,7 @@ import {
 } from '@base-ui-components/react/direction-provider';
 import { ToggleGroup } from '@base-ui-components/react/toggle-group';
 import { Toggle } from '@base-ui-components/react/toggle';
-import { createRenderer, describeConformance } from '#test-utils';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<ToggleGroup />', () => {
   const { render } = createRenderer();

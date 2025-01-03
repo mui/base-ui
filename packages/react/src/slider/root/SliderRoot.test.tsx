@@ -4,12 +4,10 @@ import { spy, stub } from 'sinon';
 import { act, describeSkipIf, fireEvent, screen } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Slider } from '@base-ui-components/react/slider';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import type { SliderRoot } from './SliderRoot';
 
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 const GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL = {
   width: 100,

@@ -4,7 +4,7 @@ import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
-import { describeConformance, createRenderer } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { MenuRootContext } from '../root/MenuRootContext';
 
 const testRootContext: MenuRootContext = {
@@ -47,7 +47,7 @@ describe('<Menu.Positioner />', () => {
 
   describe('prop: anchor', () => {
     it('should be placed near the specified element when a ref is passed', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -92,7 +92,7 @@ describe('<Menu.Positioner />', () => {
     });
 
     it('should be placed near the specified element when an element is passed', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -140,7 +140,7 @@ describe('<Menu.Positioner />', () => {
     });
 
     it('should be placed near the specified element when a function returning an element is passed', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -190,7 +190,7 @@ describe('<Menu.Positioner />', () => {
     });
 
     it('should be placed at the specified position', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
