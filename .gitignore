@@ -24,7 +24,6 @@
 .netlify
 build
 build-tests
-dist
 node_modules
 package-lock.json
 size-snapshot.json
