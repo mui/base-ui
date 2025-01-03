@@ -32,8 +32,17 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 ) {
   const { render, className, ...other } = props;
 
-  const { open, setOpen, popupRef, transitionStatus, nested, getPopupProps, modal, mounted } =
-    useMenuRootContext();
+  const {
+    open,
+    setOpen,
+    popupRef,
+    transitionStatus,
+    nested,
+    getPopupProps,
+    modal,
+    mounted,
+    instantType,
+  } = useMenuRootContext();
   const { side, align, floatingContext } = useMenuPositionerContext();
 
   const { events: menuEvents } = useFloatingTree()!;
@@ -52,8 +61,9 @@ const MenuPopup = React.forwardRef(function MenuPopup(
       align,
       open,
       nested,
+      instant: instantType,
     }),
-    [transitionStatus, side, align, open, nested],
+    [transitionStatus, side, align, open, nested, instantType],
   );
 
   const { renderElement } = useComponentRenderer({
