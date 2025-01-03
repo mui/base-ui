@@ -7,6 +7,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 
 export function useSelectTrigger(
   parameters: useSelectTrigger.Parameters,
@@ -107,18 +108,24 @@ export function useSelectTrigger(
 
               const mouseUpTarget = mouseEvent.target as Element | null;
 
-              const triggerRect = triggerRef.current.getBoundingClientRect();
-
-              const isInsideTrigger =
-                mouseEvent.clientX >= triggerRect.left &&
-                mouseEvent.clientX <= triggerRect.right &&
-                mouseEvent.clientY >= triggerRect.top &&
-                mouseEvent.clientY <= triggerRect.bottom;
-
+              // Early return if clicked on trigger element or its children
               if (
-                isInsideTrigger ||
+                contains(triggerRef.current, mouseUpTarget) ||
                 contains(positionerElement, mouseUpTarget) ||
-                contains(triggerRef.current, mouseUpTarget)
+                mouseUpTarget === triggerRef.current
+              ) {
+                return;
+              }
+
+              const bounds = getPseudoElementBounds(triggerRef.current);
+              const r = Math.round;
+
+              // Check if click is within extended trigger area
+              if (
+                r(mouseEvent.clientX) >= r(bounds.left) &&
+                r(mouseEvent.clientX) <= r(bounds.right) &&
+                r(mouseEvent.clientY) >= r(bounds.top) &&
+                r(mouseEvent.clientY) <= r(bounds.bottom)
               ) {
                 return;
               }

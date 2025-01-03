@@ -6,6 +6,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
+import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
   const {
@@ -71,18 +72,22 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
               const mouseUpTarget = mouseEvent.target as Element | null;
 
-              const triggerRect = triggerRef.current.getBoundingClientRect();
+              if (
+                contains(triggerRef.current, mouseUpTarget) ||
+                contains(positionerRef.current, mouseUpTarget) ||
+                mouseUpTarget === triggerRef.current
+              ) {
+                return;
+              }
 
-              const isInsideTrigger =
-                mouseEvent.clientX >= triggerRect.left &&
-                mouseEvent.clientX <= triggerRect.right &&
-                mouseEvent.clientY >= triggerRect.top &&
-                mouseEvent.clientY <= triggerRect.bottom;
+              const bounds = getPseudoElementBounds(triggerRef.current);
+              const r = Math.round;
 
               if (
-                isInsideTrigger ||
-                contains(positionerRef.current, mouseUpTarget) ||
-                contains(triggerRef.current, mouseUpTarget)
+                r(mouseEvent.clientX) >= r(bounds.left) &&
+                r(mouseEvent.clientX) <= r(bounds.right) &&
+                r(mouseEvent.clientY) >= r(bounds.top) &&
+                r(mouseEvent.clientY) <= r(bounds.bottom)
               ) {
                 return;
               }
