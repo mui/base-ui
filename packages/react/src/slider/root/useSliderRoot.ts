@@ -11,7 +11,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import { valueToPercent } from '../../utils/valueToPercent';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
-import type { TextDirection } from '../../direction-provider/DirectionContext';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { useField } from '../../field/useField';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
@@ -109,7 +109,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   const {
     'aria-labelledby': ariaLabelledby,
     defaultValue,
-    direction = 'ltr',
     disabled = false,
     id,
     largeStep = 10,
@@ -125,6 +124,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     value: valueProp,
   } = parameters;
 
+  const direction = useDirection();
   const { setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
 
   const {
@@ -375,7 +375,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       getRootProps,
       'aria-labelledby': ariaLabelledby,
       active,
-      direction,
       disabled,
       dragging,
       getFingerState,
@@ -404,7 +403,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       getRootProps,
       active,
       ariaLabelledby,
-      direction,
       disabled,
       dragging,
       getFingerState,
@@ -460,11 +458,6 @@ export namespace useSliderRoot {
      * The default value. Use when the component is not controlled.
      */
     defaultValue?: number | readonly number[];
-    /**
-     * Sets the direction. For right-to-left languages, the lowest value is on the right-hand side.
-     * @default 'ltr'
-     */
-    direction: TextDirection;
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -555,7 +548,6 @@ export namespace useSliderRoot {
       event: React.KeyboardEvent | React.ChangeEvent,
     ) => void;
     dragging: boolean;
-    direction: TextDirection;
     disabled: boolean;
     getFingerState: (
       fingerPosition: FingerPosition | null,
