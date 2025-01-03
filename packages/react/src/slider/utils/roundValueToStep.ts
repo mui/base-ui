@@ -11,10 +11,6 @@ function getDecimalPrecision(num: number) {
   return decimalPart ? decimalPart.length : 0;
 }
 
-export function percentToValue(percent: number, min: number, max: number) {
-  return (max - min) * percent + min;
-}
-
 export function roundValueToStep(value: number, step: number, min: number) {
   const nearest = Math.round((value - min) / step) * step + min;
   return Number(nearest.toFixed(getDecimalPrecision(step)));

@@ -7,23 +7,49 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import {
   focusThumb,
-  trackFinger,
-  type useSliderRoot,
   validateMinimumDistance,
+  type FingerPosition,
+  type useSliderRoot,
 } from '../root/useSliderRoot';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 
+function trackFinger(
+  event: TouchEvent | PointerEvent | React.PointerEvent,
+  touchIdRef: React.RefObject<any>,
+): FingerPosition | null {
+  // The event is TouchEvent
+  if (touchIdRef.current !== undefined && (event as TouchEvent).changedTouches) {
+    const touchEvent = event as TouchEvent;
+    for (let i = 0; i < touchEvent.changedTouches.length; i += 1) {
+      const touch = touchEvent.changedTouches[i];
+      if (touch.identifier === touchIdRef.current) {
+        return {
+          x: touch.clientX,
+          y: touch.clientY,
+        };
+      }
+    }
+
+    return null;
+  }
+
+  // The event is PointerEvent
+  return {
+    x: (event as PointerEvent).clientX,
+    y: (event as PointerEvent).clientY,
+  };
+}
+
 export function useSliderControl(
   parameters: useSliderControl.Parameters,
 ): useSliderControl.ReturnValue {
   const {
-    areValuesEqual,
     disabled,
     dragging,
-    getFingerNewValue,
-    handleValueChange,
+    getFingerState,
+    setValue,
     onValueCommitted,
     minStepsBetweenValues,
     percentageValues,
@@ -31,7 +57,6 @@ export function useSliderControl(
     rootRef: externalRef,
     setActive,
     setDragging,
-    setValueState,
     step,
     thumbRefs,
   } = parameters;
@@ -44,18 +69,17 @@ export function useSliderControl(
 
   // A number that uniquely identifies the current finger in the touch session.
   const touchIdRef = React.useRef<number | null>(null);
-
   const moveCountRef = React.useRef(0);
-
-  // offset distance between:
-  // 1. pointerDown coordinates and
-  // 2. the exact intersection of the center of the thumb and the track
+  /**
+   * The difference between the value at the finger origin and the value at
+   * the center of the thumb scaled down to fit the range [0, 1]
+   */
   const offsetRef = React.useRef(0);
 
   const handleTouchMove = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
-    const finger = trackFinger(nativeEvent, touchIdRef);
+    const fingerPosition = trackFinger(nativeEvent, touchIdRef);
 
-    if (!finger) {
+    if (fingerPosition == null) {
       return;
     }
 
@@ -69,57 +93,42 @@ export function useSliderControl(
       return;
     }
 
-    const newFingerValue = getFingerNewValue({
-      finger,
-      move: true,
-      offset: offsetRef.current,
-    });
+    const finger = getFingerState(fingerPosition, false, offsetRef.current);
 
-    if (!newFingerValue) {
+    if (finger == null) {
       return;
     }
 
-    const { newValue, activeIndex } = newFingerValue;
+    focusThumb(finger.thumbIndex, controlRef, setActive);
 
-    focusThumb({ sliderRef: controlRef, activeIndex, setActive });
-
-    if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
-      setValueState(newValue);
-
+    if (validateMinimumDistance(finger.value, step, minStepsBetweenValues)) {
       if (!dragging && moveCountRef.current > INTENTIONAL_DRAG_COUNT_THRESHOLD) {
         setDragging(true);
       }
 
-      if (handleValueChange && !areValuesEqual(newValue)) {
-        handleValueChange(newValue, activeIndex, nativeEvent);
-      }
+      setValue(finger.value, finger.percentageValues, finger.thumbIndex, nativeEvent);
     }
   });
 
   const handleTouchEnd = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
-    const finger = trackFinger(nativeEvent, touchIdRef);
+    const fingerPosition = trackFinger(nativeEvent, touchIdRef);
     setDragging(false);
 
-    if (!finger) {
+    if (fingerPosition == null) {
       return;
     }
 
-    const newFingerValue = getFingerNewValue({
-      finger,
-      move: true,
-    });
+    const finger = getFingerState(fingerPosition, false);
 
-    if (!newFingerValue) {
+    if (finger == null) {
       return;
     }
 
     setActive(-1);
 
-    commitValidation(newFingerValue.newValue);
+    commitValidation(finger.value);
 
-    if (onValueCommitted) {
-      onValueCommitted(newFingerValue.newValue, nativeEvent);
-    }
+    onValueCommitted(finger.value, nativeEvent);
 
     touchIdRef.current = null;
 
@@ -138,25 +147,18 @@ export function useSliderControl(
       touchIdRef.current = touch.identifier;
     }
 
-    const finger = trackFinger(nativeEvent, touchIdRef);
+    const fingerPosition = trackFinger(nativeEvent, touchIdRef);
 
-    if (finger !== false) {
-      const newFingerValue = getFingerNewValue({
-        finger,
-      });
+    if (fingerPosition != null) {
+      const finger = getFingerState(fingerPosition, true);
 
-      if (!newFingerValue) {
+      if (finger == null) {
         return;
       }
-      const { newValue, activeIndex } = newFingerValue;
 
-      focusThumb({ sliderRef: controlRef, activeIndex, setActive });
+      focusThumb(finger.thumbIndex, controlRef, setActive);
 
-      setValueState(newValue);
-
-      if (handleValueChange && !areValuesEqual(newValue)) {
-        handleValueChange(newValue, activeIndex, nativeEvent);
-      }
+      setValue(finger.value, finger.percentageValues, finger.thumbIndex, nativeEvent);
     }
 
     moveCountRef.current = 0;
@@ -218,36 +220,24 @@ export function useSliderControl(
           // Avoid text selection
           event.preventDefault();
 
-          const finger = trackFinger(event, touchIdRef);
+          const fingerPosition = trackFinger(event, touchIdRef);
 
-          if (finger !== false) {
-            const newFingerValue = getFingerNewValue({
-              finger,
-            });
+          if (fingerPosition != null) {
+            const finger = getFingerState(fingerPosition, true);
 
-            if (!newFingerValue) {
+            if (finger == null) {
               return;
             }
 
-            const { newValue, activeIndex, newPercentageValue } = newFingerValue;
-
-            focusThumb({ sliderRef: controlRef, activeIndex, setActive });
+            focusThumb(finger.thumbIndex, controlRef, setActive);
 
             // if the event lands on a thumb, don't change the value, just get the
             // percentageValue difference represented by the distance between the click origin
             // and the coordinates of the value on the track area
             if (thumbRefs.current.includes(event.target as HTMLElement)) {
-              const targetThumbIndex = (event.target as HTMLElement).getAttribute('data-index');
-
-              const offset = percentageValues[Number(targetThumbIndex)] / 100 - newPercentageValue;
-
-              offsetRef.current = offset;
+              offsetRef.current = percentageValues[finger.thumbIndex] / 100 - finger.valueRescaled;
             } else {
-              setValueState(newValue);
-
-              if (handleValueChange && !areValuesEqual(newValue)) {
-                handleValueChange(newValue, activeIndex, event);
-              }
+              setValue(finger.value, finger.percentageValues, finger.thumbIndex, event.nativeEvent);
             }
           }
 
@@ -260,16 +250,14 @@ export function useSliderControl(
       });
     },
     [
-      areValuesEqual,
       disabled,
-      getFingerNewValue,
+      getFingerState,
       handleRootRef,
       handleTouchMove,
       handleTouchEnd,
-      handleValueChange,
+      setValue,
       percentageValues,
       setActive,
-      setValueState,
       thumbRefs,
     ],
   );
@@ -286,18 +274,16 @@ export namespace useSliderControl {
   export interface Parameters
     extends Pick<
       useSliderRoot.ReturnValue,
-      | 'areValuesEqual'
       | 'disabled'
       | 'dragging'
-      | 'getFingerNewValue'
-      | 'handleValueChange'
+      | 'getFingerState'
+      | 'setValue'
       | 'minStepsBetweenValues'
       | 'onValueCommitted'
       | 'percentageValues'
       | 'registerSliderControl'
       | 'setActive'
       | 'setDragging'
-      | 'setValueState'
       | 'step'
       | 'thumbRefs'
     > {
