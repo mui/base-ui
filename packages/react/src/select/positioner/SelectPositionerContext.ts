@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useSelectPositioner } from './useSelectPositioner';
 
-type SelectPositionerContext = ReturnType<typeof useSelectPositioner>['positioner'];
+type SelectPositionerContext = ReturnType<typeof useSelectPositioner>;
 
 export const SelectPositionerContext = React.createContext<SelectPositionerContext | null>(null);
 

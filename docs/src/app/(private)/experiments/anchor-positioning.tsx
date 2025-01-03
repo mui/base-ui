@@ -37,7 +37,7 @@ export default function AnchorPositioning() {
     positionerStyles,
     arrowStyles,
     arrowRef,
-    renderedSide,
+    side: renderedSide,
     arrowUncentered,
   } = useAnchorPositioning({
     side,
