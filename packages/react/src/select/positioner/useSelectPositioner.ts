@@ -10,14 +10,11 @@ import type { GenericHTMLProps } from '../../utils/types';
 import { type Boundary, type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useScrollLock } from '../../utils/useScrollLock';
 
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
-  const { open, alignItemToTrigger, mounted, triggerElement, modal } = useSelectRootContext();
-
-  useScrollLock((alignItemToTrigger || modal) && open, triggerElement);
+  const { open, alignItemToTrigger, mounted } = useSelectRootContext();
 
   const {
     positionerStyles: enabledPositionerStyles,

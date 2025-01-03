@@ -13,32 +13,13 @@ import { PortalContext } from '../../portal/PortalContext';
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
-  const { openOnHover = false, delay, closeDelay = 0 } = props;
+  const { openOnHover = false, modal = true, delay, closeDelay = 0 } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
 
-  const {
-    open,
-    setOpen,
-    mounted,
-    setMounted,
-    setTriggerElement,
-    positionerElement,
-    setPositionerElement,
-    popupRef,
-    instantType,
-    transitionStatus,
-    floatingRootContext,
-    getRootTriggerProps,
-    getRootPopupProps,
-    titleId,
-    setTitleId,
-    descriptionId,
-    setDescriptionId,
-    openMethod,
-    openReason,
-  } = usePopoverRoot({
+  const popoverRoot = usePopoverRoot({
     openOnHover,
+    modal,
     delay: delayWithDefault,
     closeDelay,
     open: props.open,
@@ -48,58 +29,18 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
 
   const contextValue: PopoverRootContext = React.useMemo(
     () => ({
+      ...popoverRoot,
       openOnHover,
       delay: delayWithDefault,
       closeDelay,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      transitionStatus,
-      titleId,
-      setTitleId,
-      descriptionId,
-      setDescriptionId,
-      floatingRootContext,
-      getRootPopupProps,
-      getRootTriggerProps,
-      openMethod,
-      openReason,
+      modal,
     }),
-    [
-      openOnHover,
-      delayWithDefault,
-      closeDelay,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      transitionStatus,
-      titleId,
-      setTitleId,
-      descriptionId,
-      setDescriptionId,
-      floatingRootContext,
-      getRootPopupProps,
-      getRootTriggerProps,
-      openMethod,
-      openReason,
-    ],
+    [popoverRoot, openOnHover, delayWithDefault, closeDelay, modal],
   );
 
   return (
     <PopoverRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
+      <PortalContext.Provider value={popoverRoot.mounted}>{props.children}</PortalContext.Provider>
     </PopoverRootContext.Provider>
   );
 };
@@ -143,6 +84,12 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    * @default 300
    */
   delay: PropTypes.number,
+  /**
+   * Whether the popover should prevent interactivity of other elements
+   * on the page when open and its positioning anchor is visible.
+   * @default true
+   */
+  modal: PropTypes.bool,
   /**
    * Event handler called when the popover is opened or closed.
    */

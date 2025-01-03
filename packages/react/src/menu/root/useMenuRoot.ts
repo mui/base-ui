@@ -49,6 +49,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const positionerRef = React.useRef<HTMLElement | null>(null);
   const [hoverEnabled, setHoverEnabled] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+  const [backdropRendered, setBackdropRendered] = React.useState(false);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
@@ -66,7 +67,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(open && modal, triggerElement);
+  useScrollLock(open && modal && backdropRendered, triggerElement);
 
   const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
     onOpenChange?.(nextOpen, event);
@@ -106,7 +107,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const dismiss = useDismiss(floatingRootContext, {
     bubbles: closeParentOnEsc && nested,
-    outsidePressEvent: 'mousedown',
+    outsidePressEvent: modal || backdropRendered ? 'mousedown' : undefined,
   });
 
   const role = useRole(floatingRootContext, {
@@ -191,6 +192,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       setPositionerElement,
       setTriggerElement,
       transitionStatus,
+      backdropRendered,
+      setBackdropRendered,
     }),
     [
       activeIndex,
@@ -198,14 +201,12 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       getItemProps,
       getPopupProps,
       getTriggerProps,
-      itemDomElements,
-      itemLabels,
       mounted,
       open,
-      positionerRef,
       setOpen,
-      transitionStatus,
       setPositionerElement,
+      transitionStatus,
+      backdropRendered,
     ],
   );
 }
@@ -289,5 +290,7 @@ export namespace useMenuRoot {
     setTriggerElement: (element: HTMLElement | null) => void;
     transitionStatus: TransitionStatus;
     allowMouseUpTriggerRef: React.RefObject<boolean>;
+    backdropRendered: boolean;
+    setBackdropRendered: (value: boolean) => void;
   }
 }

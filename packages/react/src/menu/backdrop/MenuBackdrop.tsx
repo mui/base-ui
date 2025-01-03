@@ -8,6 +8,7 @@ import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
   ...baseMapping,
@@ -25,7 +26,15 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, keepMounted = false, ...other } = props;
-  const { open, mounted, transitionStatus } = useMenuRootContext();
+
+  const { open, mounted, transitionStatus, setBackdropRendered } = useMenuRootContext();
+
+  useEnhancedEffect(() => {
+    setBackdropRendered(true);
+    return () => {
+      setBackdropRendered(false);
+    };
+  }, [setBackdropRendered]);
 
   const state: MenuBackdrop.State = React.useMemo(
     () => ({
