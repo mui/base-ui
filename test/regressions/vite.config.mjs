@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { defineConfig, mergeConfig } from 'vite';
-import sharedConfig from '../vite.shared.config';
+import sharedConfig from '../vite.shared.config.mjs';
 
 export default mergeConfig(
   sharedConfig,
