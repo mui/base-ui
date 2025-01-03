@@ -9,7 +9,6 @@ import { NOOP } from '../../utils/noop';
 const testRootContext: SliderRootContext = {
   active: -1,
   handleInputChange: NOOP,
-  direction: 'ltr',
   dragging: false,
   disabled: false,
   getFingerState: () => ({

@@ -14,6 +14,7 @@ import {
   END,
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
@@ -60,7 +61,6 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
     handleInputChange,
-    direction,
     disabled,
     format,
     getAriaLabel = null,
@@ -80,6 +80,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     values: sliderValues,
   } = parameters;
 
+  const direction = useDirection();
   const { setTouched } = useFieldRootContext();
   const {
     getInputValidationProps,
@@ -316,7 +317,6 @@ export namespace useSliderThumb {
       | 'active'
       | 'aria-labelledby'
       | 'handleInputChange'
-      | 'direction'
       | 'largeStep'
       | 'max'
       | 'min'

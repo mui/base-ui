@@ -7,7 +7,6 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { CompositeList } from '../../composite/list/CompositeList';
-import { useDirection } from '../../direction-provider/DirectionContext';
 import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
 import { SliderRootContext } from './SliderRootContext';
@@ -46,7 +45,6 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   } = props;
 
   const id = useBaseUiId(idProp);
-  const direction = useDirection();
 
   const { labelId, state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
@@ -54,7 +52,6 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   const { getRootProps, ...slider } = useSliderRoot({
     'aria-labelledby': ariaLabelledby ?? labelId ?? '',
     defaultValue,
-    direction,
     disabled,
     id: id ?? '',
     largeStep,
