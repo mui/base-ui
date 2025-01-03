@@ -3,7 +3,7 @@ import { Popover } from '@base-ui-components/react/popover';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 function Root(props: Popover.Root.Props) {
@@ -176,7 +176,7 @@ describe('<Popover.Root />', () => {
     });
 
     it('should remove the popup when there is no exit animation defined', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -209,7 +209,7 @@ describe('<Popover.Root />', () => {
     });
 
     it('should remove the popup when the animation finishes', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
@@ -196,7 +196,7 @@ describe('<Select.Root />', () => {
     });
 
     it('when `false`, should remove the popup when there is no exit animation defined', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -228,7 +228,7 @@ describe('<Select.Root />', () => {
     });
 
     it('when `false`, should remove the popup when the animation finishes', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();

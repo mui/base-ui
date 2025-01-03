@@ -3,11 +3,9 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent, screen, waitFor, describeSkipIf } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui-components/react/dialog';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { Select } from '@base-ui-components/react/select';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<Dialog.Root />', () => {
   beforeEach(() => {
@@ -54,7 +52,7 @@ describe('<Dialog.Root />', () => {
     });
 
     it('should remove the popup when there is no exit animation defined', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -84,7 +82,7 @@ describe('<Dialog.Root />', () => {
     });
 
     it('should remove the popup when the animation finishes', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -363,7 +361,7 @@ describe('<Dialog.Root />', () => {
     }
   `;
 
-    if (/jsdom/.test(window.navigator.userAgent)) {
+    if (isJSDOM) {
       // @ts-expect-error to support mocha and vitest
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this?.skip?.() || t?.skip();

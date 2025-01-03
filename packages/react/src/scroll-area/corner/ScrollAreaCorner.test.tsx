@@ -2,10 +2,8 @@ import * as React from 'react';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { expect } from 'chai';
 import { screen, describeSkipIf } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { describeConformance } from '../../../test/describeConformance';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<ScrollArea.Corner />', () => {
   const { render } = createRenderer();

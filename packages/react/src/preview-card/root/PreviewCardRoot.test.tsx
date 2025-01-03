@@ -3,7 +3,7 @@ import { PreviewCard } from '@base-ui-components/react/preview-card';
 import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
 function Root(props: PreviewCard.Root.Props) {
@@ -79,7 +79,7 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('should open when the trigger is focused', async () => {
-      if (!/jsdom/.test(window.navigator.userAgent)) {
+      if (!isJSDOM) {
         // Ignore due to `:focus-visible` being required in the browser.
         return;
       }
@@ -153,7 +153,7 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('should remove the popup when there is no exit animation defined', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
@@ -185,7 +185,7 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('should remove the popup when the animation finishes', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // @ts-expect-error to support mocha and vitest
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this?.skip?.() || t?.skip();
