@@ -1,35 +1,41 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import webfontloader from 'webfontloader';
 import TestViewer from './TestViewer';
 import 'docs/src/styles.css';
 
-// Get all the fixtures specifically written for preventing visual regressions.
-const importRegressionFixtures = require.context('./fixtures', true, /\.(js|ts|tsx)$/, 'lazy');
-const regressionFixtures = [];
-importRegressionFixtures
-  .keys()
-  .filter((path) => path.startsWith('./'))
-  .forEach((path) => {
-    const [suite, name] = path
-      .replace('./', '')
-      .replace(/\.\w+$/, '')
-      .split('/');
-    regressionFixtures.push({
-      path,
-      suite: `regression-${suite}`,
-      name,
-      Component: React.lazy(() => importRegressionFixtures(path)),
-    });
-  }, []);
+interface Fixture {
+  Component: React.LazyExoticComponent<React.ComponentType<any>>;
+  name: string;
+  path: string;
+  suite: string;
+}
 
-const blacklist = [];
+// Get all the fixtures specifically written for preventing visual regressions.
+const globbedRegressionFixtures = import.meta.glob<{ default: React.ComponentType<unknown> }>(
+  './fixtures/**/*.tsx',
+);
+const regressionFixtures: Fixture[] = [];
+
+for (const path in globbedRegressionFixtures) {
+  const [suite, name] = path
+    .replace(/\\/g, '/')
+    .replace('./', '')
+    .replace(/\.\w+$/, '')
+    .split('/');
+  regressionFixtures.push({
+    path,
+    suite: `regression-${suite}`,
+    name,
+    Component: React.lazy(() => globbedRegressionFixtures[path]()),
+  });
+}
+
+const blacklist: (string | RegExp)[] = [];
 
 const unusedBlacklistPatterns = new Set(blacklist);
 
-function excludeDemoFixture(suite, name, path) {
+function excludeDemoFixture(suite: string, name: string, path: string) {
   const blacklisted = blacklist.some((pattern) => {
     if (typeof pattern === 'string') {
       if (pattern === suite) {
@@ -46,7 +52,6 @@ function excludeDemoFixture(suite, name, path) {
       return false;
     }
 
-    // assume regex
     if (pattern.test(suite)) {
       unusedBlacklistPatterns.delete(pattern);
       return true;
@@ -67,31 +72,30 @@ function excludeDemoFixture(suite, name, path) {
   return false;
 }
 
-// Also use some of the demos to avoid code duplication.
-const importDemos = require.context(
-  'docs/src/app/(public)/(content)/react',
-  true,
-  /\.tsx$/,
-  'lazy',
+// Also use all public demos to avoid code duplication.
+const globbedDemos = import.meta.glob<{ default: React.ComponentType<unknown> }>(
+  // technically it should be 'docs/src/app/\\(public\\)/\\(content\\)/react/**/*.tsx' but tinyglobby doesn't resolve this on Windows
+  'docs/src/app/?public?/?content?/react/**/*.tsx',
 );
-const demoFixtures = [];
 
-importDemos
-  .keys()
-  .filter((path) => path.startsWith('./'))
-  .forEach((path) => {
-    const [name, ...suiteArray] = path.replace('./', '').replace('.js', '').split('/').reverse();
-    const suite = `docs-${suiteArray.reverse().join('-')}`;
+const demoFixtures: Fixture[] = [];
 
-    if (!excludeDemoFixture(suite, name, path)) {
-      demoFixtures.push({
-        path,
-        suite,
-        name,
-        Component: React.lazy(() => importDemos(path)),
-      });
-    }
-  }, []);
+for (const path in globbedDemos) {
+  const [name, ...suiteArray] = path.split('react')[1].split('/').reverse();
+  const suite = `docs-${suiteArray
+    .filter((v) => v)
+    .reverse()
+    .join('-')}`;
+
+  if (!excludeDemoFixture(suite, name, path)) {
+    demoFixtures.push({
+      path,
+      suite,
+      name,
+      Component: React.lazy(() => globbedDemos[path]()),
+    });
+  }
+}
 
 if (unusedBlacklistPatterns.size > 0) {
   console.warn(
@@ -103,8 +107,8 @@ if (unusedBlacklistPatterns.size > 0) {
 
 const viewerRoot = document.getElementById('test-viewer');
 
-function FixtureRenderer({ component: FixtureComponent }) {
-  const viewerReactRoot = React.useRef(null);
+function FixtureRenderer({ component: FixtureComponent }: { component: React.ElementType }) {
+  const viewerReactRoot = React.useRef<ReactDOMClient.Root | null>(null);
 
   React.useLayoutEffect(() => {
     const renderTimeout = setTimeout(() => {
@@ -114,17 +118,17 @@ function FixtureRenderer({ component: FixtureComponent }) {
         </TestViewer>
       );
 
-      if (viewerReactRoot.current === null) {
+      if (viewerReactRoot.current == null && viewerRoot != null) {
         viewerReactRoot.current = ReactDOMClient.createRoot(viewerRoot);
       }
 
-      viewerReactRoot.current.render(children);
+      viewerReactRoot.current?.render(children);
     });
 
     return () => {
       clearTimeout(renderTimeout);
       setTimeout(() => {
-        viewerReactRoot.current.unmount();
+        viewerReactRoot.current?.unmount();
         viewerReactRoot.current = null;
       });
     };
@@ -133,11 +137,7 @@ function FixtureRenderer({ component: FixtureComponent }) {
   return null;
 }
 
-FixtureRenderer.propTypes = {
-  component: PropTypes.elementType,
-};
-
-function App(props) {
+function App(props: { fixtures: Fixture[] }) {
   const { fixtures } = props;
 
   function computeIsDev() {
@@ -161,32 +161,19 @@ function App(props) {
     };
   }, []);
 
-  // Using <link rel="stylesheet" /> does not apply the google Roboto font in chromium headless/headfull.
-  const [fontState, setFontState] = React.useState('pending');
-  React.useEffect(() => {
-    webfontloader.load({
-      custom: {
-        families: ['Unica 77'],
-        urls: ['../../docs/src/styles.css'],
-      },
-      timeout: 20000,
-      active: () => {
-        setFontState('active');
-      },
-      inactive: () => {
-        setFontState('inactive');
-      },
-    });
-  }, []);
-
-  const fixturePrepared = fontState !== 'pending';
-
-  function computePath(fixture) {
+  function computePath(fixture: Fixture) {
     return `/${fixture.suite}/${fixture.name}`;
   }
 
   return (
-    <Router>
+    <Router
+      future={{
+        // we don't use or need these features but this removes console warnings
+        // https://github.com/remix-run/react-router/issues/12250
+        v7_relativeSplatPath: true,
+        v7_startTransition: true,
+      }}
+    >
       <Routes>
         {fixtures.map((fixture) => {
           const path = computePath(fixture);
@@ -199,16 +186,14 @@ function App(props) {
           return (
             <Route
               key={path}
-              exact
               path={path}
-              element={fixturePrepared ? <FixtureRenderer component={FixtureComponent} /> : null}
+              element={<FixtureRenderer component={FixtureComponent} />}
             />
           );
         })}
       </Routes>
 
       <div hidden={!isDev}>
-        <div data-webfontloader={fontState}>webfontloader: {fontState}</div>
         <p>
           Devtools can be enabled by appending <code>#dev</code> in the addressbar or disabled by
           appending <code>#no-dev</code>.
@@ -234,11 +219,10 @@ function App(props) {
   );
 }
 
-App.propTypes = {
-  fixtures: PropTypes.array,
-};
-
 const container = document.getElementById('react-root');
 const children = <App fixtures={regressionFixtures.concat(demoFixtures)} />;
-const reactRoot = ReactDOMClient.createRoot(container);
-reactRoot.render(children);
+
+if (container != null) {
+  const reactRoot = ReactDOMClient.createRoot(container);
+  reactRoot.render(children);
+}

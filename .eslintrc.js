@@ -87,5 +87,12 @@ module.exports = {
         '@typescript-eslint/no-use-before-define': 'off',
       },
     },
+    {
+      files: ['test/**/*{.ts,.tsx}'],
+      rules: {
+        'react/prop-types': 'off',
+        'guard-for-in': 'off',
+      },
+    },
   ],
 };

@@ -1,8 +1,7 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useFakeTimers } from 'sinon';
 
-function TestViewer(props) {
+function TestViewer(props: { children: React.ReactNode }) {
   const { children } = props;
 
   // We're simulating `act(() => ReactDOM.render(children))`
@@ -10,7 +9,7 @@ function TestViewer(props) {
   // React doesn't have any such guarantee outside of `act()` so we're approximating it.
   const [ready, setReady] = React.useState(false);
   React.useEffect(() => {
-    function handleFontsEvent(event) {
+    function handleFontsEvent(event: Event) {
       if (event.type === 'loading') {
         setReady(false);
       } else if (event.type === 'loadingdone') {
@@ -77,9 +76,5 @@ function TestViewer(props) {
     </React.Fragment>
   );
 }
-
-TestViewer.propTypes = {
-  children: PropTypes.node.isRequired,
-};
 
 export default TestViewer;

@@ -1,4 +1,6 @@
+import { expect } from 'chai';
 import * as playwright from 'playwright';
+import { describe, it } from 'vitest';
 import type {
   ByRoleMatcher,
   ByRoleOptions,
@@ -8,6 +10,8 @@ import type {
 } from '@testing-library/dom';
 import '@mui/internal-test-utils/initMatchers';
 import '@mui/internal-test-utils/initPlaywrightMatchers';
+
+const BASE_URL = 'http://localhost:5173';
 
 function sleep(duration: number): Promise<void> {
   return new Promise<void>((resolve) => {
@@ -63,10 +67,8 @@ async function attemptGoto(page: playwright.Page, url: string): Promise<boolean>
 }
 
 describe('e2e', () => {
-  const baseUrl = 'http://localhost:5001';
   let browser: playwright.Browser;
   let page: playwright.Page;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const screen: PlaywrightScreen = {
     getByLabelText: (...inputArgs) => {
       return page.evaluateHandle(
@@ -94,28 +96,45 @@ describe('e2e', () => {
     },
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function renderFixture(fixturePath: string) {
-    await page.goto(`${baseUrl}/e2e/${fixturePath}#no-dev`);
+    await page.goto(`${BASE_URL}/e2e-fixtures/${fixturePath}#no-dev`);
     await page.waitForSelector('[data-testid="testcase"]:not([aria-busy="true"])');
   }
 
   before(async function beforeHook() {
-    this.timeout(20000);
+    this?.timeout(20000);
 
     browser = await playwright.chromium.launch({
       headless: true,
     });
     page = await browser.newPage();
-    const isServerRunning = await attemptGoto(page, `${baseUrl}#no-dev`);
+    const isServerRunning = await attemptGoto(page, `${BASE_URL}#no-dev`);
     if (!isServerRunning) {
       throw new Error(
-        `Unable to navigate to ${baseUrl} after multiple attempts. Did you forget to run \`pnpm test:e2e:server\` and \`pnpm test:e2e:build\`?`,
+        `Unable to navigate to ${BASE_URL} after multiple attempts. Did you forget to run \`pnpm test:e2e:server\` and \`pnpm test:e2e:build\`?`,
       );
     }
   });
 
   after(async () => {
     await browser.close();
+  });
+
+  describe('<Radio />', () => {
+    it('loops focus by default', async () => {
+      await renderFixture('Radio');
+
+      await page.keyboard.press('Tab');
+      await expect(screen.getByTestId('one')).toHaveFocus();
+
+      await page.keyboard.press('ArrowRight');
+      await expect(screen.getByTestId('two')).toHaveFocus();
+
+      await page.keyboard.press('ArrowLeft');
+      await expect(screen.getByTestId('one')).toHaveFocus();
+
+      await page.keyboard.press('ArrowLeft');
+      await expect(screen.getByTestId('three')).toHaveFocus();
+    });
   });
 });
