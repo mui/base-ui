@@ -49,7 +49,7 @@ function describeConformanceFn(
       only.indexOf(testKey) !== -1 && skip.indexOf(testKey as keyof typeof fullSuite) === -1,
   ) as (keyof typeof fullSuite)[];
 
-  after(runAfterHook);
+  afterAll(runAfterHook);
 
   filteredTests.forEach((testKey) => {
     const test = fullSuite[testKey];

@@ -80,11 +80,9 @@ describe('<Select.Item />', () => {
     });
   });
 
-  it('should select item when Enter key is pressed', async function test(t = {}) {
+  it('should select item when Enter key is pressed', async ({ skip }) => {
     if (!isJSDOM) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
     }
 
     const { user } = await render(
@@ -179,11 +177,9 @@ describe('<Select.Item />', () => {
   });
 
   describe('style hooks', () => {
-    it('should apply data-highlighted attribute when item is highlighted', async function test(t = {}) {
+    it('should apply data-highlighted attribute when item is highlighted', async ({ skip }) => {
       if (!isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       const { user } = await render(

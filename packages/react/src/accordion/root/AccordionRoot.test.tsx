@@ -46,11 +46,9 @@ describe('<Accordion.Root />', () => {
   });
 
   describe('uncontrolled', () => {
-    it('open state', async function test(t = {}) {
+    it('open state', async ({ skip }) => {
       if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       const { getByRole, queryByText, user } = await render(

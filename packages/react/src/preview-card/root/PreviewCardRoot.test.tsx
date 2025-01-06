@@ -152,11 +152,9 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
 
-    it('should remove the popup when there is no exit animation defined', async function test(t = {}) {
+    it('should remove the popup when there is no exit animation defined', async ({ skip }) => {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       function Test() {
@@ -184,11 +182,9 @@ describe('<PreviewCard.Root />', () => {
       });
     });
 
-    it('should remove the popup when the animation finishes', async function test(t = {}) {
+    it('should remove the popup when the animation finishes', async ({ skip }) => {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       let animationFinished = false;

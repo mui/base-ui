@@ -68,11 +68,9 @@ describe('<Collapsible.Root />', () => {
       expect(queryByText(PANEL_CONTENT)).to.equal(null);
     });
 
-    it('uncontrolled mode', async function test(t = {}) {
+    it('uncontrolled mode', async ({ skip }) => {
       if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
       const { getByRole, queryByText, user } = await render(
         <Collapsible.Root defaultOpen={false}>

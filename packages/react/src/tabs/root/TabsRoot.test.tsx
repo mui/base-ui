@@ -14,7 +14,7 @@ const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 describe('<Tabs.Root />', () => {
   const { render } = createRenderer();
 
-  before(function beforeHook() {
+  beforeEach(function beforeHook({ skip }) {
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
     // The test fails on Safari with just:
@@ -22,9 +22,7 @@ describe('<Tabs.Root />', () => {
     // container.scrollLeft = 200;
     // expect(container.scrollLeft).to.equal(200); 💥
     if (isSafari) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
     }
   });
 

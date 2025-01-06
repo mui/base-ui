@@ -53,11 +53,9 @@ describe('<Dialog.Root />', () => {
       expect(queryByRole('dialog')).to.equal(null);
     });
 
-    it('should remove the popup when there is no exit animation defined', async function test(t = {}) {
+    it('should remove the popup when there is no exit animation defined', async ({ skip }) => {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       function Test() {
@@ -83,11 +81,9 @@ describe('<Dialog.Root />', () => {
       });
     });
 
-    it('should remove the popup when the animation finishes', async function test(t = {}) {
+    it('should remove the popup when the animation finishes', async ({ skip }) => {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
@@ -352,7 +348,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  it('waits for the exit transition to finish before unmounting', async function test(t = {}) {
+  it('waits for the exit transition to finish before unmounting', async ({ skip }) => {
     const css = `
     .dialog {
       opacity: 0;
@@ -364,9 +360,7 @@ describe('<Dialog.Root />', () => {
   `;
 
     if (/jsdom/.test(window.navigator.userAgent)) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
     }
 
     (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;

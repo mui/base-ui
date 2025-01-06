@@ -27,11 +27,9 @@ describe('<ToggleGroup />', () => {
   });
 
   describe('uncontrolled', () => {
-    it('pressed state', async function test(t = {}) {
+    it('pressed state', async ({ skip }) => {
       if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       const { getAllByRole, user } = await render(
@@ -342,11 +340,9 @@ describe('<ToggleGroup />', () => {
     });
 
     ['Enter', 'Space'].forEach((key) => {
-      it(`fires when when the ${key} is pressed`, async function test(t = {}) {
+      it(`fires when when the ${key} is pressed`, async ({ skip }) => {
         if (isJSDOM) {
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const onValueChange = spy();

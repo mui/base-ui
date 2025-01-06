@@ -138,13 +138,11 @@ describe('<Menu.Root />', () => {
     });
 
     describe('text navigation', () => {
-      it('changes the highlighted item', async function test(t = {}) {
+      it('changes the highlighted item', async ({ skip }) => {
         if (/jsdom/.test(window.navigator.userAgent)) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const { getByText, getAllByRole } = await render(
@@ -183,12 +181,10 @@ describe('<Menu.Root />', () => {
         expect(getByText('Cd')).to.have.attribute('tabindex', '0');
       });
 
-      it('changes the highlighted item using text navigation on label prop', async function test(t = {}) {
+      it('changes the highlighted item using text navigation on label prop', async ({ skip }) => {
         if (!/jsdom/.test(window.navigator.userAgent)) {
           // This test is very flaky in real browsers
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const { getByRole, getAllByRole } = await render(
@@ -238,13 +234,11 @@ describe('<Menu.Root />', () => {
         });
       });
 
-      it('skips the non-stringifiable items', async function test(t = {}) {
+      it('skips the non-stringifiable items', async ({ skip }) => {
         if (/jsdom/.test(window.navigator.userAgent)) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const { getByText, getAllByRole } = await render(
@@ -284,13 +278,11 @@ describe('<Menu.Root />', () => {
         expect(getByText('Bc')).to.have.attribute('tabindex', '0');
       });
 
-      it('navigate to options with diacritic characters', async function test(t = {}) {
+      it('navigate to options with diacritic characters', async ({ skip }) => {
         if (/jsdom/.test(window.navigator.userAgent)) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const { getByText, getAllByRole } = await render(
@@ -325,13 +317,11 @@ describe('<Menu.Root />', () => {
         expect(getByText('Bą')).to.have.attribute('tabindex', '0');
       });
 
-      it('navigate to next options beginning with diacritic characters', async function test(t = {}) {
+      it('navigate to next options beginning with diacritic characters', async ({ skip }) => {
         if (/jsdom/.test(window.navigator.userAgent)) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const { getByText, getAllByRole } = await render(
@@ -360,13 +350,13 @@ describe('<Menu.Root />', () => {
         expect(getByText('ąa')).to.have.attribute('tabindex', '0');
       });
 
-      it('does not trigger the onClick event when Space is pressed during text navigation', async function test(t = {}) {
+      it('does not trigger the onClick event when Space is pressed during text navigation', async ({
+        skip,
+      }) => {
         if (/jsdom/.test(window.navigator.userAgent)) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const handleClick = spy();
@@ -558,12 +548,10 @@ describe('<Menu.Root />', () => {
       expect(button).toHaveFocus();
     });
 
-    it('focuses the trigger after the menu is closed but not unmounted', async function test(t = {}) {
+    it('focuses the trigger after the menu is closed but not unmounted', async ({ skip }) => {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // TODO: this stopped working in vitest JSDOM mode
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       const { getByRole } = await render(
@@ -694,11 +682,9 @@ describe('<Menu.Root />', () => {
   });
 
   describe('controlled mode', () => {
-    it('should remove the popup when and there is no exit animation defined', async function test(t = {}) {
+    it('should remove the popup when and there is no exit animation defined', async ({ skip }) => {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       function Test() {
@@ -726,11 +712,9 @@ describe('<Menu.Root />', () => {
       });
     });
 
-    it('should remove the popup when the animation finishes', async function test(t = {}) {
+    it('should remove the popup when the animation finishes', async ({ skip }) => {
       if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;

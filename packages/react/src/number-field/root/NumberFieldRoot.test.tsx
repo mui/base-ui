@@ -441,12 +441,10 @@ describe('<NumberField />', () => {
   });
 
   describe('form handling', () => {
-    it('should include the input value in the form submission', async function test(t = {}) {
+    it('should include the input value in the form submission', async ({ skip }) => {
       if (/jsdom/.test(window.navigator.userAgent)) {
         // FormData is not available in JSDOM
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       let stringifiedFormData = '';
