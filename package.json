@@ -125,7 +125,6 @@
     "lodash": "^4.17.21",
     "markdownlint-cli2": "^0.17.1",
     "nx": "^18.3.5",
-    "nyc": "^15.1.0",
     "piscina": "^4.8.0",
     "postcss": "^8.4.49",
     "postcss-loader": "^8.1.1",
@@ -174,16 +173,5 @@
     "@types/node": "^18.19.69",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2"
-  },
-  "nyc": {
-    "include": [
-      "packages/react/src/**/*.{js,ts,tsx}"
-    ],
-    "exclude": [
-      "**/*.test.{js,ts,tsx}",
-      "**/*.test/*"
-    ],
-    "sourceMap": false,
-    "instrument": false
   }
 }
