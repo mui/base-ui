@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { expect } from 'chai';
-import { describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
+import { flushMicrotasks } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -116,7 +116,7 @@ describe('<Collapsible.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('keyboard interactions', () => {
+  describe.skipIf(isJSDOM)('keyboard interactions', () => {
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} should toggle the Collapsible`, async () => {
         const { queryByText, getByRole, user } = await render(

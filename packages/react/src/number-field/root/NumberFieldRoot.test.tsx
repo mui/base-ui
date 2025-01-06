@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, screen, fireEvent, describeSkipIf } from '@mui/internal-test-utils';
+import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField as NumberFieldBase } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -487,7 +487,7 @@ describe('<NumberField />', () => {
     });
   });
 
-  describeSkipIf(/jsdom/.test(window.navigator.userAgent))('pasting', () => {
+  describe.skipIf(/jsdom/.test(window.navigator.userAgent))('pasting', () => {
     it('should allow pasting a valid number', async () => {
       await render(<NumberField />);
       const input = screen.getByRole('textbox');

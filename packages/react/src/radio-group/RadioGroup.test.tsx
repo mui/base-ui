@@ -7,7 +7,7 @@ import {
 } from '@base-ui-components/react/direction-provider';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, act, screen, fireEvent, describeSkipIf } from '@mui/internal-test-utils';
+import { createRenderer, act, screen, fireEvent } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
@@ -232,7 +232,7 @@ describe('<RadioGroup />', () => {
     ].forEach((entry) => {
       const [direction, horizontalNextKey, horizontalPrevKey] = entry;
 
-      describeSkipIf(isJSDOM && direction === 'rtl')(direction, () => {
+      describe.skipIf(isJSDOM && direction === 'rtl')(direction, () => {
         it(direction, async () => {
           const { user } = await render(
             <DirectionProvider direction={direction as TextDirection}>

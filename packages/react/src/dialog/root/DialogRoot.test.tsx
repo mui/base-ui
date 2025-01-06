@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen, waitFor, describeSkipIf } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { createRenderer } from '#test-utils';
 import { Menu } from '@base-ui-components/react/menu';
@@ -232,7 +232,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: modal', () => {
+  describe.skipIf(isJSDOM)('prop: modal', () => {
     it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
       const { user } = await render(
         <div>
@@ -444,7 +444,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('nested popups', () => {
+  describe.skipIf(isJSDOM)('nested popups', () => {
     it('should not dismiss the dialog when dismissing outside a nested modal menu', async () => {
       const { user } = await render(
         <Dialog.Root>

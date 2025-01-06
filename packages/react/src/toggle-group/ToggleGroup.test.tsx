@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
+import { act, flushMicrotasks } from '@mui/internal-test-utils';
 import {
   DirectionProvider,
   type TextDirection,
@@ -220,7 +220,7 @@ describe('<ToggleGroup />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('keyboard interactions', () => {
+  describe.skipIf(isJSDOM)('keyboard interactions', () => {
     [
       ['ltr', 'ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'],
       ['rtl', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 'ArrowUp'],

@@ -1,12 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import {
-  act,
-  createRenderer,
-  describeSkipIf,
-  fireEvent,
-  flushMicrotasks,
-} from '@mui/internal-test-utils';
+import { act, createRenderer, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { CompositeItem } from '../item/CompositeItem';
 import { CompositeRoot } from './CompositeRoot';
 
@@ -154,7 +148,7 @@ describe('Composite', () => {
       });
     });
 
-    describeSkipIf(isJSDOM)('rtl', () => {
+    describe.skipIf(isJSDOM)('rtl', () => {
       it('horizontal orientation', async () => {
         const { getByTestId } = render(
           <div dir="rtl">
@@ -334,7 +328,7 @@ describe('Composite', () => {
       expect(getByTestId('9')).to.have.attribute('tabindex', '0');
     });
 
-    describeSkipIf(isJSDOM)('rtl', () => {
+    describe.skipIf(isJSDOM)('rtl', () => {
       it('horizontal orientation', async () => {
         const { getByTestId } = render(
           <div dir="rtl">

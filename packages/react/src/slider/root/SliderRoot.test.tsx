@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
-import { act, describeSkipIf, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Slider } from '@base-ui-components/react/slider';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -64,7 +64,7 @@ function TestRangeSlider(props: SliderRoot.Props) {
   );
 }
 
-describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
+describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   beforeAll(function beforeHook() {
     // PointerEvent not fully implemented in jsdom, causing
     // fireEvent.pointer* to ignore options
@@ -166,7 +166,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('rtl', () => {
+  describe.skipIf(isJSDOM)('rtl', () => {
     it('should handle RTL', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(

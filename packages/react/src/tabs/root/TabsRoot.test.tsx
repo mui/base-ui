@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, flushMicrotasks, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, fireEvent, screen } from '@mui/internal-test-utils';
 import {
   DirectionProvider,
   type TextDirection,
@@ -279,7 +279,7 @@ describe('<Tabs.Root />', () => {
     ].forEach((entry) => {
       const [orientation, direction, previousItemKey, nextItemKey] = entry;
 
-      describeSkipIf(isJSDOM && direction === 'rtl')(
+      describe.skipIf(isJSDOM && direction === 'rtl')(
         `when focus is on a tab element in a ${orientation} ${direction ?? ''} tablist`,
         () => {
           describe(previousItemKey ?? '', () => {
@@ -802,7 +802,7 @@ describe('<Tabs.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('activation direction', () => {
+  describe.skipIf(isJSDOM)('activation direction', () => {
     it('should set the `data-activation-direction` attribute on the tabs root with orientation=horizontal', async () => {
       const { getAllByRole, getByTestId } = await render(
         <Tabs.Root data-testid="root">
