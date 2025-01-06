@@ -4,6 +4,7 @@ import { FloatingEvents } from '@floating-ui/react';
 import { useMenuItem } from '../item/useMenuItem';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 type MenuKeyboardEvent = {
   key: 'ArrowRight' | 'ArrowLeft' | 'ArrowUp' | 'ArrowDown';
@@ -23,6 +24,7 @@ export function useMenuSubmenuTrigger(
     typingRef,
     onKeyDown,
     setActiveIndex,
+    onClick,
   } = parameters;
 
   const { getRootProps: getMenuItemProps, rootRef: menuItemRef } = useMenuItem({
@@ -40,10 +42,9 @@ export function useMenuSubmenuTrigger(
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps) => {
-      return {
+      return mergeReactProps(externalProps, {
         ...getMenuItemProps({
           'aria-haspopup': 'menu' as const,
-          ...externalProps,
           onKeyDown: (event: MenuKeyboardEvent) => {
             if (event.key === 'ArrowRight' && highlighted) {
               // Clear parent menu's highlight state when entering submenu
@@ -51,13 +52,18 @@ export function useMenuSubmenuTrigger(
               setActiveIndex(null);
             }
             onKeyDown?.(event);
-            externalProps?.onKeyDown?.(event);
+          },
+          onClick: (event: React.MouseEvent) => {
+            if (highlighted) {
+              setActiveIndex(null);
+            }
+            onClick?.(event);
           },
         }),
         ref: menuTriggerRef,
-      };
+      });
     },
-    [getMenuItemProps, menuTriggerRef, onKeyDown, highlighted, setActiveIndex],
+    [getMenuItemProps, menuTriggerRef, onKeyDown, onClick, highlighted, setActiveIndex],
   );
 
   return React.useMemo(
@@ -102,6 +108,11 @@ export namespace useSubmenuTrigger {
      * @param event - The keyboard event that triggered the callback.
      */
     onKeyDown?: (event: MenuKeyboardEvent) => void;
+    /**
+     * Callback function that is triggered on click events.
+     * @param event - The click event that triggered the callback.
+     */
+    onClick?: (event: React.MouseEvent) => void;
     /**
      * Callback to update the active (highlighted) item index.
      * Set to null to remove highlighting from all items.
