@@ -67,6 +67,7 @@ const TabsIndicator = React.forwardRef<HTMLSpanElement, TabsIndicator.Props>(
       customStyleHookMapping: {
         ...tabsStyleHookMapping,
         selectedTabPosition: noop,
+        selectedTabSize: noop,
       },
       ref: forwardedRef,
     });
