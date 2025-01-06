@@ -57,8 +57,8 @@ describe('<Tabs.Indicator />', () => {
         right: tabRight,
         top: tabTop,
         bottom: tabBottom,
-        width,
-        height,
+        width: tabWidth,
+        height: tabHeight,
       } = activeTab.getBoundingClientRect();
 
       const relativeLeft = tabLeft - listLeft;
@@ -78,8 +78,8 @@ describe('<Tabs.Indicator />', () => {
       assertSize(actualRight, relativeRight);
       assertSize(actualTop, relativeTop);
       assertSize(actualBottom, relativeBottom);
-      assertSize(actualWidth, width);
-      assertSize(actualHeight, height);
+      assertSize(actualWidth, tabWidth);
+      assertSize(actualHeight, tabHeight);
     }
 
     it('should set CSS variables corresponding to the active tab', async () => {
