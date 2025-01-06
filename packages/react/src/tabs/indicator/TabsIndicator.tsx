@@ -8,7 +8,7 @@ import type { TabsOrientation, TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsListContext } from '../list/TabsListContext';
-import { ActiveTabPosition, useTabsIndicator } from './useTabsIndicator';
+import { ActiveTabPosition, ActiveTabSize, useTabsIndicator } from './useTabsIndicator';
 import { script as prehydrationScript } from './prehydrationScript.min';
 
 const noop = () => null;
@@ -34,7 +34,11 @@ const TabsIndicator = React.forwardRef<HTMLSpanElement, TabsIndicator.Props>(
 
     useOnMount(() => setIsMounted(true));
 
-    const { getRootProps, activeTabPosition: selectedTabPosition } = useTabsIndicator({
+    const {
+      getRootProps,
+      activeTabPosition: selectedTabPosition,
+      activeTabSize: selectedTabSize,
+    } = useTabsIndicator({
       getTabElementBySelectedValue,
       tabsListRef,
       value,
@@ -44,9 +48,10 @@ const TabsIndicator = React.forwardRef<HTMLSpanElement, TabsIndicator.Props>(
       () => ({
         orientation,
         selectedTabPosition,
+        selectedTabSize,
         tabActivationDirection,
       }),
-      [orientation, selectedTabPosition, tabActivationDirection],
+      [orientation, selectedTabPosition, selectedTabSize, tabActivationDirection],
     );
 
     const { renderElement } = useComponentRenderer({
@@ -88,6 +93,7 @@ const TabsIndicator = React.forwardRef<HTMLSpanElement, TabsIndicator.Props>(
 namespace TabsIndicator {
   export interface State extends TabsRoot.State {
     selectedTabPosition: ActiveTabPosition | null;
+    selectedTabSize: ActiveTabSize | null;
     orientation: TabsOrientation;
   }
 
