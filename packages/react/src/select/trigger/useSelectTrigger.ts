@@ -12,7 +12,7 @@ import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 export function useSelectTrigger(
   parameters: useSelectTrigger.Parameters,
 ): useSelectTrigger.ReturnValue {
-  const BOUNDARY_OFFSET = 1;
+  const BOUNDARY_OFFSET = 2;
 
   const { disabled = false, rootRef: externalRef } = parameters;
 

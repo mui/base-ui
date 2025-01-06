@@ -9,7 +9,7 @@ import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
-  const BOUNDARY_OFFSET = 1;
+  const BOUNDARY_OFFSET = 2;
 
   const {
     disabled = false,
