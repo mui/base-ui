@@ -12,6 +12,8 @@ import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 export function useSelectTrigger(
   parameters: useSelectTrigger.Parameters,
 ): useSelectTrigger.ReturnValue {
+  const BOUNDARY_OFFSET = 1;
+
   const { disabled = false, rootRef: externalRef } = parameters;
 
   const {
@@ -118,13 +120,12 @@ export function useSelectTrigger(
               }
 
               const bounds = getPseudoElementBounds(triggerRef.current);
-              const { floor, ceil } = Math;
 
               if (
-                mouseEvent.clientX >= floor(bounds.left) &&
-                mouseEvent.clientX <= ceil(bounds.right) &&
-                mouseEvent.clientY >= floor(bounds.top) &&
-                mouseEvent.clientY <= ceil(bounds.bottom)
+                mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
+                mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
+                mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
+                mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
               ) {
                 return;
               }
