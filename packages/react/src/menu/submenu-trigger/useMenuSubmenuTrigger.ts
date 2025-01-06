@@ -22,9 +22,7 @@ export function useMenuSubmenuTrigger(
     setTriggerElement,
     allowMouseUpTriggerRef,
     typingRef,
-    onKeyDown,
     setActiveIndex,
-    onClick,
   } = parameters;
 
   const { getRootProps: getMenuItemProps, rootRef: menuItemRef } = useMenuItem({
@@ -51,19 +49,13 @@ export function useMenuSubmenuTrigger(
               // This prevents multiple highlighted items across menu levels
               setActiveIndex(null);
             }
-            onKeyDown?.(event);
           },
-          onClick: (event: React.MouseEvent) => {
-            if (highlighted) {
-              setActiveIndex(null);
-            }
-            onClick?.(event);
-          },
+          onClick: () => highlighted && setActiveIndex(null),
         }),
         ref: menuTriggerRef,
       });
     },
-    [getMenuItemProps, menuTriggerRef, onKeyDown, onClick, highlighted, setActiveIndex],
+    [getMenuItemProps, menuTriggerRef, highlighted, setActiveIndex],
   );
 
   return React.useMemo(
@@ -103,16 +95,6 @@ export namespace useSubmenuTrigger {
      * A ref that is set to `true` when the user is using the typeahead feature.
      */
     typingRef: React.RefObject<boolean>;
-    /**
-     * Callback function that is triggered on key down events.
-     * @param event - The keyboard event that triggered the callback.
-     */
-    onKeyDown?: (event: MenuKeyboardEvent) => void;
-    /**
-     * Callback function that is triggered on click events.
-     * @param event - The click event that triggered the callback.
-     */
-    onClick?: (event: React.MouseEvent) => void;
     /**
      * Callback to update the active (highlighted) item index.
      * Set to null to remove highlighting from all items.
