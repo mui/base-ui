@@ -151,7 +151,7 @@ jobs:
           react-version: << parameters.react-version >>
       - run:
           name: Run tests on JSDOM
-          command: pnpm test:jsdom --coverage --project @base-ui-components/react --project docs
+          command: pnpm test:jsdom:coverage
       - run:
           name: Check if coverage report is generated
           command: |
@@ -290,7 +290,7 @@ jobs:
           browsers: true
       - run:
           name: Run tests on headless Chromium
-          command: pnpm test:chromium --coverage --project @base-ui-components/react --project docs
+          command: pnpm test:chromium:coverage
       - run:
           name: Check if coverage report is generated
           command: |
@@ -308,32 +308,6 @@ jobs:
           # hardcoded in karma-webpack
           path: /tmp/_karma_webpack_
           destination: artifact-file
-  test_profile:
-    <<: *default-job
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.49.1-noble
-    steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
-          browsers: true
-      - run:
-          name: Tests real browsers
-          # Run a couple of times for a better sample.
-          # TODO: hack something together where we can compile once and run multiple times e.g. by abusing watchmode.
-          command: |
-            # Running on chrome only since actual times are innaccurate anyway
-            # The other reason is that browserstack allows little concurrency so it's likely that we're starving other runs.
-            pnpm test:karma:profile --browsers chrome,chromeHeadless
-            pnpm test:karma:profile --browsers chrome,chromeHeadless
-            pnpm test:karma:profile --browsers chrome,chromeHeadless
-            pnpm test:karma:profile --browsers chrome,chromeHeadless
-            pnpm test:karma:profile --browsers chrome,chromeHeadless
-      # Persist reports for inspection in https://mui-dashboard.netlify.app/
-      - store_artifacts:
-          # see karma.conf.profile.js reactProfilerReporter.outputDir
-          path: tmp/react-profiler-report/karma
-          destination: react-profiler-report/karma
   test_regressions:
     <<: *default-job
     docker:
@@ -430,12 +404,6 @@ workflows:
           <<: *default-context
           requires:
             - checkout
-  profile:
-    when:
-      equal: [profile, << pipeline.parameters.workflow >>]
-    jobs:
-      - test_profile:
-          <<: *default-context
   react-17:
     triggers:
       - schedule:
