@@ -49,14 +49,15 @@ export function useSliderControl(
     disabled,
     dragging,
     getFingerState,
-    setValue,
-    onValueCommitted,
+    lastChangedValueRef,
     minStepsBetweenValues,
+    onValueCommitted,
     percentageValues,
     registerSliderControl,
     rootRef: externalRef,
     setActive,
     setDragging,
+    setValue,
     step,
     thumbRefs,
   } = parameters;
@@ -126,9 +127,9 @@ export function useSliderControl(
 
     setActive(-1);
 
-    commitValidation(finger.value);
+    commitValidation(lastChangedValueRef.current ?? finger.value);
 
-    onValueCommitted(finger.value, nativeEvent);
+    onValueCommitted(lastChangedValueRef.current ?? finger.value, nativeEvent);
 
     touchIdRef.current = null;
 
@@ -277,13 +278,14 @@ export namespace useSliderControl {
       | 'disabled'
       | 'dragging'
       | 'getFingerState'
-      | 'setValue'
+      | 'lastChangedValueRef'
       | 'minStepsBetweenValues'
       | 'onValueCommitted'
       | 'percentageValues'
       | 'registerSliderControl'
       | 'setActive'
       | 'setDragging'
+      | 'setValue'
       | 'step'
       | 'thumbRefs'
     > {
