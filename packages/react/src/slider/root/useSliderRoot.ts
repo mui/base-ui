@@ -145,6 +145,8 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   const controlRef: React.RefObject<HTMLElement | null> = React.useRef(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
 
+  const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
+
   const [thumbMap, setThumbMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
@@ -226,6 +228,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         value: { value: newValue, name },
       });
 
+      lastChangedValueRef.current = newValue;
       onValueChange(newValue, clonedEvent, thumbIndex);
     },
   );
@@ -257,8 +260,8 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         }
         setDirty(newValue !== validityData.initialValue);
         setTouched(true);
-        commitValidation(newValue);
-        onValueCommitted(newValue, event.nativeEvent);
+        commitValidation(lastChangedValueRef.current ?? newValue);
+        onValueCommitted(lastChangedValueRef.current ?? newValue, event.nativeEvent);
       }
     },
   );
@@ -380,6 +383,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       getFingerState,
       handleInputChange,
       largeStep,
+      lastChangedValueRef,
       max,
       min,
       minStepsBetweenValues,
@@ -408,6 +412,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       getFingerState,
       handleInputChange,
       largeStep,
+      lastChangedValueRef,
       max,
       min,
       minStepsBetweenValues,
@@ -487,7 +492,7 @@ export namespace useSliderRoot {
     /**
      * Callback function that is fired when the slider's value changed.
      *
-     * @param {number | number[]} value The new value.
+     * @param {number | readonly number[]} value The new value.
      * @param {Event} event The corresponding event that initiated the change.
      * You can pull out the new value by accessing `event.target.value` (any).
      * @param {number} activeThumbIndex Index of the currently moved thumb.
@@ -500,7 +505,7 @@ export namespace useSliderRoot {
      * @param {Event} event The corresponding event that initiated the change.
      * **Warning**: This is a generic event not a change event.
      */
-    onValueCommitted: (value: number | number[], event: Event) => void;
+    onValueCommitted: (value: number | readonly number[], event: Event) => void;
     /**
      * The component orientation.
      * @default 'horizontal'
@@ -565,6 +570,7 @@ export namespace useSliderRoot {
      * @default 10
      */
     largeStep: number;
+    lastChangedValueRef: React.RefObject<number | readonly number[] | null>;
     /**
      * The maximum allowed value of the slider.
      */
@@ -578,7 +584,7 @@ export namespace useSliderRoot {
      */
     minStepsBetweenValues: number;
     name: string;
-    onValueCommitted: (value: number | number[], event: Event) => void;
+    onValueCommitted: (value: number | readonly number[], event: Event) => void;
     /**
      * The component orientation.
      * @default 'horizontal'

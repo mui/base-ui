@@ -17,6 +17,7 @@ const testRootContext: SliderRootContext = {
   }),
   setValue: NOOP,
   largeStep: 10,
+  lastChangedValueRef: { current: null },
   thumbMap: new Map(),
   max: 100,
   min: 0,
