@@ -224,12 +224,14 @@ describe('<Menu.Item />', () => {
           <LocationDisplay />
 
           <Menu.Root open>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item render={<Link to="/" />}>link 1</Menu.Item>
-                <Menu.Item render={<Link to="/two" />}>link 2</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item render={<Link to="/" />}>link 1</Menu.Item>
+                  <Menu.Item render={<Link to="/two" />}>link 2</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
         </MemoryRouter>,
       );
