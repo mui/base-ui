@@ -35,7 +35,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    keepMounted = false,
     trackAnchor = true,
     ...otherProps
   } = props;
