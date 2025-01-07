@@ -41,22 +41,24 @@ function SelectDemo({ modal, withBackdrop }: Props) {
 
       {withBackdrop && <Select.Backdrop render={<Backdrop />} />}
 
-      <Select.Positioner sideOffset={5} render={<Positioner />}>
-        <SelectPopup>
-          <SelectItem value="system">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>System font</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="arial">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Arial</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="roboto">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Roboto</Select.ItemText>
-          </SelectItem>
-        </SelectPopup>
-      </Select.Positioner>
+      <Select.Portal>
+        <Select.Positioner sideOffset={5} render={<Positioner />}>
+          <SelectPopup>
+            <SelectItem value="system">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>System font</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="arial">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Arial</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="roboto">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Roboto</Select.ItemText>
+            </SelectItem>
+          </SelectPopup>
+        </Select.Positioner>
+      </Select.Portal>
     </Select.Root>
   );
 }
@@ -68,11 +70,15 @@ function MenuDemo({ modal, withBackdrop }: Props) {
 
       {withBackdrop && <Menu.Backdrop render={<Backdrop />} />}
 
-      <Menu.Positioner align="start" sideOffset={8} render={<Positioner />}>
-        <MenuPopup>
-          <MenuItem onClick={() => console.log('Log out clicked')}>Log out</MenuItem>
-        </MenuPopup>
-      </Menu.Positioner>
+      <Menu.Portal>
+        <Menu.Positioner align="start" sideOffset={8} render={<Positioner />}>
+          <MenuPopup>
+            <MenuItem onClick={() => console.log('Log out clicked')}>
+              Log out
+            </MenuItem>
+          </MenuPopup>
+        </Menu.Positioner>
+      </Menu.Portal>
     </Menu.Root>
   );
 }
@@ -84,16 +90,18 @@ function DialogDemo({ modal, withBackdrop }: Props) {
 
       {withBackdrop && <Dialog.Backdrop render={<Backdrop />} />}
 
-      <DialogPopup>
-        <Dialog.Title>Subscribe</Dialog.Title>
-        <Dialog.Description>
-          Enter your email address to subscribe to our newsletter.
-        </Dialog.Description>
-        <DialogControls>
-          <DialogCloseButton>Subscribe</DialogCloseButton>
-          <DialogCloseButton>Cancel</DialogCloseButton>
-        </DialogControls>
-      </DialogPopup>
+      <Dialog.Portal>
+        <DialogPopup>
+          <Dialog.Title>Subscribe</Dialog.Title>
+          <Dialog.Description>
+            Enter your email address to subscribe to our newsletter.
+          </Dialog.Description>
+          <DialogControls>
+            <DialogCloseButton>Subscribe</DialogCloseButton>
+            <DialogCloseButton>Cancel</DialogCloseButton>
+          </DialogControls>
+        </DialogPopup>
+      </Dialog.Portal>
     </Dialog.Root>
   );
 }

@@ -24,7 +24,7 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   props: MenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, ...other } = props;
+  const { className, render, ...other } = props;
   const { open, mounted, transitionStatus } = useMenuRootContext();
 
   const state: MenuBackdrop.State = React.useMemo(
@@ -44,11 +44,6 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
     customStyleHookMapping,
   });
 
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
-
   return renderElement();
 });
 
@@ -61,13 +56,7 @@ namespace MenuBackdrop {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to keep the HTML element in the DOM while the menu is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 MenuBackdrop.propTypes /* remove-proptypes */ = {
@@ -84,11 +73,6 @@ MenuBackdrop.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether to keep the HTML element in the DOM while the menu is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

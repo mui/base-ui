@@ -15,7 +15,7 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 export function useMenuPositioner(
   params: useMenuPositioner.Parameters,
 ): useMenuPositioner.ReturnValue {
-  const { keepMounted, mounted, menuEvents, nodeId, parentNodeId, setOpen } = params;
+  const { mounted, menuEvents, nodeId, parentNodeId, setOpen } = params;
 
   const { open } = useMenuRootContext();
 
@@ -34,7 +34,7 @@ export function useMenuPositioner(
     (externalProps = {}) => {
       const hiddenStyles: React.CSSProperties = {};
 
-      if (keepMounted && !open) {
+      if (!open) {
         hiddenStyles.pointerEvents = 'none';
       }
 
@@ -47,7 +47,7 @@ export function useMenuPositioner(
         },
       });
     },
-    [keepMounted, open, positionerStyles, mounted],
+    [open, positionerStyles, mounted],
   );
 
   React.useEffect(() => {
@@ -145,11 +145,6 @@ export namespace useMenuPositioner {
      */
     collisionPadding?: Padding;
     /**
-     * Whether to keep the HTML element in the DOM while the menu is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
      * Whether to maintain the menu in the viewport after
      * the anchor element is scrolled out of view.
      * @default false
@@ -165,6 +160,10 @@ export namespace useMenuPositioner {
   }
 
   export interface Parameters extends SharedParameters {
+    /**
+     * Whether the portal is kept mounted in the DOM while the popup is closed.
+     */
+    keepMounted: boolean;
     /**
      * Whether the Menu is mounted.
      */

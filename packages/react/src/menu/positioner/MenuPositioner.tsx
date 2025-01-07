@@ -18,6 +18,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { useMenuPortalContext } from '../portal/MenuPortalContext';
 
 /**
  * Positions the menu popup against the trigger.
@@ -34,7 +35,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     positionMethod = 'absolute',
     className,
     render,
-    keepMounted = false,
     side,
     align,
     sideOffset = 0,
@@ -57,6 +57,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     setOpen,
     modal,
   } = useMenuRootContext();
+  const keepMounted = useMenuPortalContext();
 
   const { events: menuEvents } = useFloatingTree()!;
 
@@ -90,6 +91,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     parentNodeId,
     menuEvents,
     setOpen,
+    keepMounted,
   });
 
   const state: MenuPositioner.State = React.useMemo(
@@ -133,11 +135,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     ref: mergedRef,
     extraProps: otherProps,
   });
-
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
 
   return (
     <MenuPositionerContext.Provider value={contextValue}>
@@ -235,11 +232,6 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
       top: PropTypes.number,
     }),
   ]),
-  /**
-   * Whether to keep the HTML element in the DOM while the menu is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Determines which CSS `position` property to use.
    * @default 'absolute'
