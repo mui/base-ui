@@ -32,6 +32,12 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
   const handleRef = useForkRef(buttonRef, setTriggerElement);
 
+  React.useEffect(() => {
+    if (!open) {
+      allowMouseUpTriggerRef.current = false;
+    }
+  }, [allowMouseUpTriggerRef, open]);
+
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return mergeReactProps(
