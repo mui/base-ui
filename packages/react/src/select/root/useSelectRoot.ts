@@ -28,7 +28,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     required = false,
     alignItemToTrigger: alignItemToTriggerParam = true,
     modal = false,
-    onClosed,
+    onCloseComplete,
   } = params;
 
   const { setDirty, validityData, validationMode, setControlId } = useFieldRootContext();
@@ -123,7 +123,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     onFinished() {
       setMounted(false);
       setActiveIndex(null);
-      onClosed?.();
+      onCloseComplete?.();
     },
   });
 
@@ -368,7 +368,7 @@ export namespace useSelectRoot {
     /**
      * Event handler called after any exit animations finish when the select menu is closed.
      */
-    onClosed?: () => void;
+    onCloseComplete?: () => void;
     /**
      * Whether the select menu is currently open.
      */

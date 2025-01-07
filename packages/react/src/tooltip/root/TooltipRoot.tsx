@@ -13,7 +13,7 @@ import { PortalContext } from '../../portal/PortalContext';
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
-  const { delay, closeDelay, hoverable = true, trackCursorAxis = 'none', onClosed } = props;
+  const { delay, closeDelay, hoverable = true, trackCursorAxis = 'none', onCloseComplete } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
@@ -37,7 +37,7 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
     trackCursorAxis,
     delay,
     closeDelay,
-    onClosed,
+    onCloseComplete,
     open: props.open,
     onOpenChange: props.onOpenChange,
     defaultOpen: props.defaultOpen,
@@ -131,7 +131,7 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
   /**
    * Event handler called after any exit animations finish when the tooltip is closed.
    */
-  onClosed: PropTypes.func,
+  onCloseComplete: PropTypes.func,
   /**
    * Event handler called when the tooltip is opened or closed.
    */

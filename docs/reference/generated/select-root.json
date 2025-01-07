@@ -42,7 +42,7 @@
       "default": "true",
       "description": "Whether the select should prevent outside clicks and lock page scroll when open."
     },
-    "onClosed": {
+    "onCloseComplete": {
       "type": "function",
       "description": "Event handler called after any exit animations finish when the select menu is closed."
     },

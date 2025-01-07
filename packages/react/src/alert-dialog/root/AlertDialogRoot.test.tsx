@@ -127,11 +127,11 @@ describe('<AlertDialog.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: onClosed', () => {
+  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
-      let onClosedCalled = false;
-      function notifyOnClosed() {
-        onClosedCalled = true;
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
       }
 
       function Test() {
@@ -139,7 +139,7 @@ describe('<AlertDialog.Root />', () => {
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <AlertDialog.Root open={open} onClosed={notifyOnClosed}>
+            <AlertDialog.Root open={open} onCloseComplete={notifyonCloseComplete}>
               <AlertDialog.Portal>
                 <AlertDialog.Popup data-testid="popup" />
               </AlertDialog.Portal>
@@ -157,15 +157,15 @@ describe('<AlertDialog.Root />', () => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
 
-      expect(onClosedCalled).to.equal(true);
+      expect(onCloseCompleteCalled).to.equal(true);
     });
 
     it('is called on close when the exit animation finishes', async () => {
       (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
 
-      let onClosedCalled = false;
-      function notifyOnClosed() {
-        onClosedCalled = true;
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
       }
 
       function Test() {
@@ -188,7 +188,7 @@ describe('<AlertDialog.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
-            <AlertDialog.Root open={open} onClosed={notifyOnClosed}>
+            <AlertDialog.Root open={open} onCloseComplete={notifyonCloseComplete}>
               <AlertDialog.Portal>
                 <AlertDialog.Popup className="animation-test-indicator" data-testid="popup" />
               </AlertDialog.Portal>
@@ -208,7 +208,7 @@ describe('<AlertDialog.Root />', () => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
 
-      expect(onClosedCalled).to.equal(true);
+      expect(onCloseCompleteCalled).to.equal(true);
     });
   });
 });

@@ -13,7 +13,7 @@ import { PortalContext } from '../../portal/PortalContext';
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
-  const { children, defaultOpen = false, onOpenChange, open, onClosed } = props;
+  const { children, defaultOpen = false, onOpenChange, open, onCloseComplete } = props;
 
   const parentDialogRootContext = React.useContext(AlertDialogRootContext);
 
@@ -21,7 +21,7 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
     open,
     defaultOpen,
     onOpenChange,
-    onClosed,
+    onCloseComplete,
     modal: true,
     dismissible: false,
     onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
@@ -65,7 +65,7 @@ AlertDialogRoot.propTypes /* remove-proptypes */ = {
   /**
    * Event handler called after any exit animations finish when the dialog is closed.
    */
-  onClosed: PropTypes.func,
+  onCloseComplete: PropTypes.func,
   /**
    * Event handler called when the dialog is opened or closed.
    */

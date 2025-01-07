@@ -25,7 +25,7 @@
       "default": "true",
       "description": "Whether the dialog should prevent outside clicks and lock page scroll when open."
     },
-    "onClosed": {
+    "onCloseComplete": {
       "type": "function",
       "description": "Event handler called after any exit animations finish when the dialog is closed."
     }

@@ -30,7 +30,7 @@ export function usePreviewCardRoot(
     defaultOpen = false,
     delay,
     closeDelay,
-    onClosed,
+    onCloseComplete,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -65,7 +65,7 @@ export function usePreviewCardRoot(
     animatedElementRef: popupRef,
     onFinished() {
       setMounted(false);
-      onClosed?.();
+      onCloseComplete?.();
     },
   });
 
@@ -167,7 +167,7 @@ export namespace usePreviewCardRoot {
     /**
      * Event handler called after any exit animations finish when the preview card is closed.
      */
-    onClosed?: () => void;
+    onCloseComplete?: () => void;
     /**
      * How long to wait before the preview card opens. Specified in milliseconds.
      * @default 600

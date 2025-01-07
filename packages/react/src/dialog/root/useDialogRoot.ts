@@ -30,7 +30,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     onNestedDialogOpen,
     onOpenChange: onOpenChangeParameter,
     open: openParam,
-    onClosed,
+    onCloseComplete,
   } = parameters;
 
   const [open, setOpenUnwrapped] = useControlled({
@@ -64,7 +64,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     animatedElementRef: popupRef,
     onFinished() {
       setMounted(false);
-      onClosed?.();
+      onCloseComplete?.();
     },
   });
 
@@ -199,7 +199,7 @@ export interface CommonParameters {
   /**
    * Event handler called after any exit animations finish when the dialog is closed.
    */
-  onClosed?: () => void;
+  onCloseComplete?: () => void;
   /**
    * Determines whether the dialog should close on outside clicks.
    * @default true
@@ -209,7 +209,7 @@ export interface CommonParameters {
 
 export namespace useDialogRoot {
   export interface Parameters
-    extends RequiredExcept<CommonParameters, 'open' | 'onOpenChange' | 'onClosed'> {
+    extends RequiredExcept<CommonParameters, 'open' | 'onOpenChange' | 'onCloseComplete'> {
     /**
      * Callback to invoke when a nested dialog is opened.
      */

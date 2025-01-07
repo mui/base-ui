@@ -20,7 +20,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     modal = true,
     onOpenChange,
     open,
-    onClosed,
+    onCloseComplete,
   } = props;
 
   const parentDialogRootContext = useOptionalDialogRootContext();
@@ -31,7 +31,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     onOpenChange,
     modal,
     dismissible,
-    onClosed,
+    onCloseComplete,
     onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
     onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,
   });
@@ -86,7 +86,7 @@ DialogRoot.propTypes /* remove-proptypes */ = {
   /**
    * Event handler called after any exit animations finish when the dialog is closed.
    */
-  onClosed: PropTypes.func,
+  onCloseComplete: PropTypes.func,
   /**
    * Event handler called when the dialog is opened or closed.
    */

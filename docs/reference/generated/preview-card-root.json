@@ -15,7 +15,7 @@
       "type": "(open, event, reason) => void",
       "description": "Event handler called when the preview card is opened or closed."
     },
-    "onClosed": {
+    "onCloseComplete": {
       "type": "function",
       "description": "Event handler called after any exit animations finish when the preview card is closed."
     },

@@ -29,7 +29,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     open: openParam,
     defaultOpen,
     onOpenChange,
-    onClosed,
+    onCloseComplete,
     orientation,
     direction,
     disabled,
@@ -79,7 +79,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     animatedElementRef: popupRef,
     onFinished() {
       setMounted(false);
-      onClosed?.();
+      onCloseComplete?.();
     },
   });
 
@@ -229,7 +229,7 @@ export namespace useMenuRoot {
     /**
      * Event handler called after any exit animations finish when the menu is closed.
      */
-    onClosed: (() => void) | undefined;
+    onCloseComplete: (() => void) | undefined;
     /**
      * Whether the menu is initially open.
      *
