@@ -13,6 +13,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { HTMLElementType, refType } from '../../utils/proptypes';
+import { useMenuPortalContext } from '../portal/MenuPortalContext';
 
 /**
  * Positions the menu popup against the trigger.
@@ -29,7 +30,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     positionMethod = 'absolute',
     className,
     render,
-    keepMounted = false,
     side,
     align,
     sideOffset = 0,
@@ -52,6 +52,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     nested,
     modal,
   } = useMenuRootContext();
+  const keepMounted = useMenuPortalContext();
 
   const nodeId = useFloatingNodeId();
   const parentNodeId = useFloatingParentNodeId();
@@ -126,11 +127,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     ref: mergedRef,
     extraProps: otherProps,
   });
-
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
 
   return (
     <MenuPositionerContext.Provider value={contextValue}>
@@ -230,11 +226,6 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
       top: PropTypes.number,
     }),
   ]),
-  /**
-   * Whether to keep the popup mounted in the DOM while it's hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Determines which CSS `position` property to use.
    * @default 'absolute'

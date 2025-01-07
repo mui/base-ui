@@ -102,10 +102,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       if (onNestedDialogClose && open) {
         onNestedDialogClose();
       }
-
-      if (onNestedDialogOpen && !open) {
-        onNestedDialogOpen(ownNestedOpenDialogs);
-      }
     };
   }, [open, onNestedDialogClose, onNestedDialogOpen, ownNestedOpenDialogs]);
 

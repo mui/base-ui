@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useTooltipRoot } from './useTooltipRoot';
 import { OPEN_DELAY } from '../utils/constants';
-import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the tooltip.
@@ -48,9 +47,7 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
   );
 
   return (
-    <TooltipRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={tooltipRoot.mounted}>{props.children}</PortalContext.Provider>
-    </TooltipRootContext.Provider>
+    <TooltipRootContext.Provider value={contextValue}>{props.children}</TooltipRootContext.Provider>
   );
 };
 

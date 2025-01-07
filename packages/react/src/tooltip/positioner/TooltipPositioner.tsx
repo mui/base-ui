@@ -10,6 +10,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { HTMLElementType, refType } from '../../utils/proptypes';
+import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 
 /**
  * Positions the tooltip against the trigger.
@@ -25,7 +26,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     render,
     className,
     anchor,
-    keepMounted = false,
     positionMethod = 'absolute',
     side = 'top',
     align = 'center',
@@ -40,6 +40,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   } = props;
 
   const { open, setPositionerElement, mounted, floatingRootContext } = useTooltipRootContext();
+  const keepMounted = useTooltipPortalContext();
 
   const positioner = useTooltipPositioner({
     anchor,
@@ -47,7 +48,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     floatingRootContext,
     trackAnchor,
     mounted,
-    keepMounted,
     side,
     sideOffset,
     align,
@@ -56,6 +56,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     collisionPadding,
     sticky,
     arrowPadding,
+    keepMounted,
   });
 
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
@@ -89,11 +90,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     extraProps: otherProps,
     customStyleHookMapping: popupStateMapping,
   });
-
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
 
   return (
     <TooltipPositionerContext.Provider value={contextValue}>
@@ -187,11 +183,6 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
       top: PropTypes.number,
     }),
   ]),
-  /**
-   * Whether to keep the popup mounted in the DOM while it's hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Determines which CSS `position` property to use.
    * @default 'absolute'

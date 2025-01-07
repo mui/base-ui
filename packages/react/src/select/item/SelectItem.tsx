@@ -233,16 +233,28 @@ const SelectItem = React.forwardRef(function SelectItem(
   const listItem = useCompositeListItem({ label });
 
   const { activeIndex, selectedIndex, setActiveIndex } = useSelectIndexContext();
-  const { getItemProps, setOpen, setValue, open, selectionRef, typingRef, valuesRef, popupRef } =
-    useSelectRootContext();
+  const {
+    getItemProps,
+    setOpen,
+    setValue,
+    open,
+    selectionRef,
+    typingRef,
+    valuesRef,
+    popupRef,
+    registerSelectedItem,
+    value,
+  } = useSelectRootContext();
 
+  const itemRef = React.useRef<HTMLDivElement | null>(null);
   const selectedIndexRef = useLatestRef(selectedIndex);
   const indexRef = useLatestRef(listItem.index);
+  const mergedRef = useForkRef(listItem.ref, forwardedRef, itemRef);
 
-  const mergedRef = useForkRef(listItem.ref, forwardedRef);
+  const hasRegistered = listItem.index !== -1;
 
   useEnhancedEffect(() => {
-    if (listItem.index === -1) {
+    if (!hasRegistered) {
       return undefined;
     }
 
@@ -252,7 +264,13 @@ const SelectItem = React.forwardRef(function SelectItem(
     return () => {
       delete values[listItem.index];
     };
-  }, [listItem.index, valueProp, valuesRef]);
+  }, [hasRegistered, listItem.index, valueProp, valuesRef]);
+
+  useEnhancedEffect(() => {
+    if (hasRegistered && valueProp === value) {
+      registerSelectedItem(listItem.index);
+    }
+  }, [hasRegistered, listItem.index, registerSelectedItem, valueProp, value]);
 
   const highlighted = activeIndex === listItem.index;
   const selected = selectedIndex === listItem.index;
@@ -322,6 +340,11 @@ SelectItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
    * Whether the component should ignore user interaction.
    * @default false
    */
@@ -331,6 +354,13 @@ SelectItem.propTypes /* remove-proptypes */ = {
    * and when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
+  /**
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * A unique value that identifies this select item.
    * @default null

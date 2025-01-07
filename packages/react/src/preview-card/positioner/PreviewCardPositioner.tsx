@@ -10,6 +10,7 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { HTMLElementType, refType } from '../../utils/proptypes';
+import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 
 /**
  * Positions the popup against the trigger.
@@ -40,6 +41,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
   } = props;
 
   const { open, mounted, floatingRootContext, setPositionerElement } = usePreviewCardRootContext();
+  const keepMounted = usePreviewCardPortalContext();
 
   const positioner = usePreviewCardPositioner({
     anchor,
@@ -47,7 +49,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     positionMethod,
     open,
     mounted,
-    keepMounted,
     side,
     sideOffset,
     align,
@@ -57,6 +58,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     collisionPadding,
     sticky,
     trackAnchor,
+    keepMounted,
   });
 
   const state: PreviewCardPositioner.State = React.useMemo(
@@ -97,11 +99,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     extraProps: otherProps,
     customStyleHookMapping: popupStateMapping,
   });
-
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
 
   return (
     <PreviewCardPositionerContext.Provider value={contextValue}>
@@ -195,11 +192,6 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
       top: PropTypes.number,
     }),
   ]),
-  /**
-   * Whether to keep the popup mounted in the DOM while it's hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Determines which CSS `position` property to use.
    * @default 'absolute'

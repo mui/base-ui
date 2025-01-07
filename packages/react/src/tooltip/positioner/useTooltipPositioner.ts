@@ -18,7 +18,7 @@ export function useTooltipPositioner(
       (externalProps) => {
         const hiddenStyles: React.CSSProperties = {};
 
-        if (keepMounted && !open) {
+        if (!open) {
           hiddenStyles.pointerEvents = 'none';
         }
 

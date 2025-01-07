@@ -12,13 +12,15 @@ describe('<Menu.RadioItemIndicator />', () => {
     render(node) {
       return render(
         <Menu.Root open>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.RadioGroup>
-                <Menu.RadioItem value="">{node}</Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup>
+                  <Menu.RadioItem value="">{node}</Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
     },
@@ -37,20 +39,22 @@ describe('<Menu.RadioItemIndicator />', () => {
         <div>
           <button onClick={() => setValue('b')}>Close</button>
           <Menu.Root open modal={false}>
-            <Menu.Positioner>
-              <Menu.Popup>
+            <Menu.Portal>
+              <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.RadioGroup value={value}>
-                    <Menu.RadioItem value="a">
-                      <Menu.RadioItemIndicator data-testid="indicator" keepMounted />
-                    </Menu.RadioItem>
-                    <Menu.RadioItem value="b">
-                      <Menu.RadioItemIndicator keepMounted />
-                    </Menu.RadioItem>
-                  </Menu.RadioGroup>
+                  <Menu.Popup>
+                    <Menu.RadioGroup value={value}>
+                      <Menu.RadioItem value="a">
+                        <Menu.RadioItemIndicator data-testid="indicator" keepMounted />
+                      </Menu.RadioItem>
+                      <Menu.RadioItem value="b">
+                        <Menu.RadioItemIndicator keepMounted />
+                      </Menu.RadioItem>
+                    </Menu.RadioGroup>
+                  </Menu.Popup>
                 </Menu.Popup>
-              </Menu.Popup>
-            </Menu.Positioner>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
         </div>
       );
@@ -103,23 +107,25 @@ describe('<Menu.RadioItemIndicator />', () => {
           <style dangerouslySetInnerHTML={{ __html: style }} />
           <button onClick={() => setValue('b')}>Close</button>
           <Menu.Root open modal={false}>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.RadioGroup value={value}>
-                  <Menu.RadioItem value="a">
-                    <Menu.RadioItemIndicator
-                      className="animation-test-indicator"
-                      data-testid="indicator"
-                      keepMounted
-                      onAnimationEnd={notifyAnimationFinished}
-                    />
-                  </Menu.RadioItem>
-                  <Menu.RadioItem value="b">
-                    <Menu.RadioItemIndicator keepMounted />
-                  </Menu.RadioItem>
-                </Menu.RadioGroup>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.RadioGroup value={value}>
+                    <Menu.RadioItem value="a">
+                      <Menu.RadioItemIndicator
+                        className="animation-test-indicator"
+                        data-testid="indicator"
+                        keepMounted
+                        onAnimationEnd={notifyAnimationFinished}
+                      />
+                    </Menu.RadioItem>
+                    <Menu.RadioItem value="b">
+                      <Menu.RadioItemIndicator keepMounted />
+                    </Menu.RadioItem>
+                  </Menu.RadioGroup>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
         </div>
       );

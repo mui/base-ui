@@ -11,7 +11,9 @@ describe('<AlertDialog.Close />', () => {
       return render(
         <AlertDialog.Root open>
           <AlertDialog.Backdrop />
-          <AlertDialog.Popup>{node}</AlertDialog.Popup>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>{node}</AlertDialog.Popup>
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
     },

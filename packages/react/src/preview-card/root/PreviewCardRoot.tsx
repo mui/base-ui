@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { usePreviewCardRoot } from './usePreviewCardRoot';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the preview card.
@@ -37,9 +36,7 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
 
   return (
     <PreviewCardRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={previewCardRoot.mounted}>
-        {props.children}
-      </PortalContext.Provider>
+      {props.children}
     </PreviewCardRootContext.Provider>
   );
 };

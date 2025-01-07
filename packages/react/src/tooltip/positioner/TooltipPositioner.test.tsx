@@ -8,7 +8,11 @@ describe('<Tooltip.Positioner />', () => {
   describeConformance(<Tooltip.Positioner />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(<Tooltip.Root open>{node}</Tooltip.Root>);
+      return render(
+        <Tooltip.Root open>
+          <Tooltip.Portal>{node}</Tooltip.Portal>
+        </Tooltip.Root>,
+      );
     },
   }));
 });

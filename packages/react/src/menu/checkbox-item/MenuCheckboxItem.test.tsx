@@ -74,22 +74,24 @@ describe('<Menu.CheckboxItem />', () => {
 
     const { getAllByRole } = await render(
       <Menu.Root open>
-        <Menu.Positioner>
-          <Menu.Popup>
-            <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem1Spy} />} id="item-1">
-              1
-            </Menu.CheckboxItem>
-            <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem2Spy} />} id="item-2">
-              2
-            </Menu.CheckboxItem>
-            <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem3Spy} />} id="item-3">
-              3
-            </Menu.CheckboxItem>
-            <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem4Spy} />} id="item-4">
-              4
-            </Menu.CheckboxItem>
-          </Menu.Popup>
-        </Menu.Positioner>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem1Spy} />} id="item-1">
+                1
+              </Menu.CheckboxItem>
+              <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem2Spy} />} id="item-2">
+                2
+              </Menu.CheckboxItem>
+              <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem3Spy} />} id="item-3">
+                3
+              </Menu.CheckboxItem>
+              <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem4Spy} />} id="item-4">
+                4
+              </Menu.CheckboxItem>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
       </Menu.Root>,
     );
 
@@ -140,11 +142,13 @@ describe('<Menu.CheckboxItem />', () => {
         const { getByRole, user } = await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.CheckboxItem checked={checked}>Item</Menu.CheckboxItem>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.CheckboxItem checked={checked}>Item</Menu.CheckboxItem>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -161,11 +165,13 @@ describe('<Menu.CheckboxItem />', () => {
       const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -188,11 +194,13 @@ describe('<Menu.CheckboxItem />', () => {
       const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -224,11 +232,13 @@ describe('<Menu.CheckboxItem />', () => {
       const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -253,11 +263,13 @@ describe('<Menu.CheckboxItem />', () => {
       const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem onCheckedChange={onCheckedChange}>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem onCheckedChange={onCheckedChange}>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -280,11 +292,13 @@ describe('<Menu.CheckboxItem />', () => {
       const { getByRole, user } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner keepMounted>
-            <Menu.Popup>
-              <Menu.CheckboxItem>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal keepMounted>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -309,11 +323,13 @@ describe('<Menu.CheckboxItem />', () => {
       const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem closeOnClick>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem closeOnClick>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -330,11 +346,13 @@ describe('<Menu.CheckboxItem />', () => {
       const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
