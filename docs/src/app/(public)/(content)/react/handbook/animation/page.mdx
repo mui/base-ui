@@ -159,15 +159,15 @@ function App() {
 
 ### Manual unmounting
 
-For full control, you can manually unmount the component when it's closed once animations have finished using an `unmountRef` passed to the `Root`:
+For full control, you can manually unmount the component when it's closed once animations have finished using an `action` passed to the `Root`:
 
-```jsx title="manual-unmount.tsx" "unmountRef"
+```jsx title="manual-unmount.tsx" "action"
 function App() {
   const [open, setOpen] = React.useState(false);
-  const unmountRef = React.useRef({ unmount: () => {} });
+  const action = React.useRef({ unmount: () => {} });
 
   return (
-    <Popover.Root open={open} onOpenChange={setOpen} unmountRef={unmountRef}>
+    <Popover.Root open={open} onOpenChange={setOpen} action={action}>
       <Popover.Trigger>Trigger</Popover.Trigger>
       <AnimatePresence>
         {open && (
@@ -181,7 +181,7 @@ function App() {
                     exit={{ scale: 0 }}
                     onAnimationComplete={() => {
                       if (!open) {
-                        unmountRef.current.unmount();
+                        action.current.unmount();
                       }
                     }}
                   />

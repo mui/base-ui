@@ -59,10 +59,10 @@ function AlwaysMounted() {
 
 function NoOpacity() {
   const [open, setOpen] = React.useState(false);
-  const unmountRef = React.useRef({ unmount: () => {} });
+  const action = React.useRef({ unmount: () => {} });
 
   return (
-    <Popover.Root open={open} onOpenChange={setOpen} unmountRef={unmountRef}>
+    <Popover.Root open={open} onOpenChange={setOpen} action={action}>
       <Popover.Trigger>Trigger</Popover.Trigger>
       <AnimatePresence>
         {open && (
@@ -76,7 +76,7 @@ function NoOpacity() {
                     exit={{ scale: 0 }}
                     onAnimationComplete={() => {
                       if (!open) {
-                        unmountRef.current.unmount();
+                        action.current.unmount();
                       }
                     }}
                   />
