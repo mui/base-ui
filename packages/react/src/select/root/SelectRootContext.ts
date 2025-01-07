@@ -51,6 +51,8 @@ export interface SelectRootContext {
   id: string | undefined;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
   modal: boolean;
+  backdropRendered: boolean;
+  setBackdropRendered: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

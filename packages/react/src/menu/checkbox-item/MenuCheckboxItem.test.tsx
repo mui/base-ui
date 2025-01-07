@@ -29,6 +29,8 @@ const testRootContext: MenuRootContext = {
   modal: false,
   positionerRef: { current: null },
   allowMouseUpTriggerRef: { current: false },
+  backdropRendered: false,
+  setBackdropRendered: () => {},
 };
 
 describe('<Menu.CheckboxItem />', () => {
