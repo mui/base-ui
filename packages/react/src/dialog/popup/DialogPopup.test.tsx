@@ -2,8 +2,10 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
-import { act, waitFor, screen } from '@mui/internal-test-utils';
+import { act, describeSkipIf, waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer } from '#test-utils';
+
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<Dialog.Popup />', () => {
   const { render } = createRenderer();
@@ -212,6 +214,164 @@ describe('<Dialog.Popup />', () => {
       await waitFor(() => {
         expect(inputToFocus).toHaveFocus();
       });
+    });
+  });
+
+  describeSkipIf(isJSDOM)('nested dialog count', () => {
+    it('provides the number of open nested dialogs as a CSS variable', async () => {
+      const { user } = await render(
+        <Dialog.Root>
+          <Dialog.Trigger>Trigger 0</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="popup0">
+              <Dialog.Root>
+                <Dialog.Trigger>Trigger 1</Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Popup data-testid="popup1">
+                    <Dialog.Root>
+                      <Dialog.Trigger>Trigger 2</Dialog.Trigger>
+                      <Dialog.Portal>
+                        <Dialog.Popup data-testid="popup2">
+                          <Dialog.Close>Close 2</Dialog.Close>
+                        </Dialog.Popup>
+                      </Dialog.Portal>
+                    </Dialog.Root>
+                    <Dialog.Close>Close 1</Dialog.Close>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup0')).not.to.equal(null);
+      });
+
+      const computedStyles = getComputedStyle(screen.getByTestId('popup0'));
+
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup1')).not.to.equal(null);
+      });
+
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('1');
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 2' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup2')).not.to.equal(null);
+      });
+
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('2');
+
+      await user.click(screen.getByRole('button', { name: 'Close 2' }));
+
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('1');
+
+      await user.click(screen.getByRole('button', { name: 'Close 1' }));
+
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+    });
+
+    it('decrements the count when an open nested dialog is unmounted', async () => {
+      function App() {
+        const [showNested, setShowNested] = React.useState(true);
+        return (
+          <React.Fragment>
+            <button onClick={() => setShowNested(!showNested)}>toggle</button>
+            <Dialog.Root>
+              <Dialog.Trigger>Trigger 0</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="popup0">
+                  {showNested && (
+                    <Dialog.Root>
+                      <Dialog.Trigger>Trigger 1</Dialog.Trigger>
+                      <Dialog.Portal>
+                        <Dialog.Popup data-testid="popup1">
+                          <Dialog.Close>Close 1</Dialog.Close>
+                        </Dialog.Popup>
+                      </Dialog.Portal>
+                    </Dialog.Root>
+                  )}
+                  <Dialog.Close>Close 0</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup0')).not.to.equal(null);
+      });
+
+      const computedStyles = getComputedStyle(screen.getByTestId('popup0'));
+
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup1')).not.to.equal(null);
+      });
+
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('1');
+
+      await user.click(screen.getByRole('button', { name: 'toggle' }));
+
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+    });
+
+    it('does not change the count when a closed nested dialog is unmounted', async () => {
+      function App() {
+        const [showNested, setShowNested] = React.useState(true);
+        return (
+          <Dialog.Root>
+            <Dialog.Trigger>Trigger 0</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="popup0">
+                {showNested && (
+                  <Dialog.Root>
+                    <Dialog.Trigger />
+                    <Dialog.Portal>
+                      <Dialog.Popup />
+                    </Dialog.Portal>
+                  </Dialog.Root>
+                )}
+                <button onClick={() => setShowNested(!showNested)}>toggle</button>
+                <Dialog.Close>Close 0</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup0')).not.to.equal(null);
+      });
+
+      const computedStyles = getComputedStyle(screen.getByTestId('popup0'));
+
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+
+      await user.click(screen.getByRole('button', { name: 'toggle' }));
+
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
     });
   });
 

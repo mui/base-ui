@@ -138,7 +138,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   return (
     <MenuPositionerContext.Provider value={contextValue}>
-      {mounted && modal && parentNodeId === null && <InternalBackdrop />}
+      {mounted && modal && parentNodeId === null && <InternalBackdrop inert={!open} />}
       <FloatingNode id={nodeId}>
         <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
           {renderElement()}
