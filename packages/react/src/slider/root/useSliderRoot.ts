@@ -203,7 +203,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const setValue = useEventCallback(
     (
-      newValue: number | readonly number[],
+      newValue: number | number[],
       newPercentageValues: readonly number[],
       thumbIndex: number,
       event: Event,
@@ -492,11 +492,7 @@ export namespace useSliderRoot {
      * You can pull out the new value by accessing `event.target.value` (any).
      * @param {number} activeThumbIndex Index of the currently moved thumb.
      */
-    onValueChange: (
-      value: number | readonly number[],
-      event: Event,
-      activeThumbIndex: number,
-    ) => void;
+    onValueChange: (value: number | number[], event: Event, activeThumbIndex: number) => void;
     /**
      * Callback function that is fired when the `pointerup` is triggered.
      *
@@ -558,8 +554,8 @@ export namespace useSliderRoot {
      * Callback to invoke change handlers after internal value state is updated.
      */
     setValue: (
-      newValue: number | readonly number[],
-      newPercentageValue: readonly number[],
+      newValue: number | number[],
+      newPercentageValues: readonly number[],
       activeThumb: number,
       event: Event,
     ) => void;
