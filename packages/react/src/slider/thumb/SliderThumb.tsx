@@ -3,8 +3,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { NOOP } from '../../utils/noop';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
@@ -40,22 +42,28 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     'aria-valuetext': ariaValuetext,
     className,
     disabled: disabledProp = false,
-    getAriaLabel,
-    getAriaValueText,
-    id,
-    inputId,
+    getAriaLabel: getAriaLabelProp,
+    getAriaValueText: getAriaValueTextProp,
+    id: idProp,
+    inputId: inputIdProp,
+    onBlur: onBlurProp,
+    onFocus: onFocusProp,
+    onKeyDown: onKeyDownProp,
+    tabIndex: tabIndexProp,
     ...otherProps
   } = props;
+
+  const id = useBaseUiId(idProp);
+  const inputId = useBaseUiId(inputIdProp);
 
   const render = renderProp ?? defaultRender;
 
   const {
     active: activeIndex,
     'aria-labelledby': ariaLabelledby,
-    changeValue,
-    direction,
+    handleInputChange,
     disabled: contextDisabled,
-    format,
+    format = null,
     largeStep,
     max,
     min,
@@ -65,7 +73,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     state,
     percentageValues,
     step,
-    tabIndex,
+    tabIndex: contextTabIndex,
     values,
   } = useSliderRootContext();
 
@@ -78,27 +86,29 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 
   const { getRootProps, getThumbInputProps, disabled, index } = useSliderThumb({
     active: activeIndex,
-    'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledby,
-    'aria-valuetext': ariaValuetext,
-    changeValue,
-    direction,
+    'aria-label': ariaLabel ?? '',
+    'aria-labelledby': ariaLabelledby ?? '',
+    'aria-valuetext': ariaValuetext ?? '',
+    handleInputChange,
     disabled: disabledProp || contextDisabled,
     format,
-    getAriaLabel,
-    getAriaValueText,
-    id,
-    inputId,
+    getAriaLabel: getAriaLabelProp ?? null,
+    getAriaValueText: getAriaValueTextProp ?? null,
+    id: id ?? '',
+    inputId: inputId ?? '',
     largeStep,
     max,
     min,
     minStepsBetweenValues,
     name,
+    onBlur: onBlurProp ?? NOOP,
+    onFocus: onFocusProp ?? NOOP,
+    onKeyDown: onKeyDownProp ?? NOOP,
     orientation,
     percentageValues,
     rootRef: mergedRef,
     step,
-    tabIndex,
+    tabIndex: tabIndexProp ?? contextTabIndex,
     values,
   });
 
@@ -145,7 +155,7 @@ export namespace SliderThumb {
 
   export interface Props
     extends Partial<Omit<useSliderThumb.Parameters, 'rootRef'>>,
-      Omit<BaseUIComponentProps<'div', State>, 'render'> {
+      Omit<BaseUIComponentProps<'div', State>, 'render' | 'tabIndex'> {
     onPointerLeave?: React.PointerEventHandler;
     onPointerOver?: React.PointerEventHandler;
     onBlur?: React.FocusEventHandler;
@@ -199,6 +209,7 @@ SliderThumb.propTypes /* remove-proptypes */ = {
    * Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb
    * @param {number} index The index of the input
    * @returns {string}
+   * @type {((index: number) => string) | null}
    */
   getAriaLabel: PropTypes.func,
   /**
@@ -208,6 +219,7 @@ SliderThumb.propTypes /* remove-proptypes */ = {
    * @param {number} value The thumb's numerical value.
    * @param {number} index The thumb's index.
    * @returns {string}
+   * @type {((formattedValue: string, value: number, index: number) => string) | null}
    */
   getAriaValueText: PropTypes.func,
   /**
@@ -248,4 +260,9 @@ SliderThumb.propTypes /* remove-proptypes */ = {
     PropTypes.func,
     PropTypes.node,
   ]),
+  /**
+   * Optional tab index attribute for the thumb components.
+   * @default null
+   */
+  tabIndex: PropTypes.number,
 } as any;
