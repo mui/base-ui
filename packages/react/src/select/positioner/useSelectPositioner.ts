@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
-import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
@@ -46,9 +46,10 @@ export function useSelectPositioner(
   return React.useMemo(
     () => ({
       ...positioning,
+      side: alignItemToTrigger ? 'none' : positioning.side,
       getPositionerProps,
     }),
-    [getPositionerProps, positioning],
+    [alignItemToTrigger, getPositionerProps, positioning],
   );
 }
 
@@ -57,7 +58,8 @@ export namespace useSelectPositioner {
 
   export interface SharedParameters extends useAnchorPositioning.SharedParameters {}
 
-  export interface ReturnValue extends useAnchorPositioning.ReturnValue {
+  export interface ReturnValue extends Omit<useAnchorPositioning.ReturnValue, 'side'> {
     getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    side: Side | 'none';
   }
 }
