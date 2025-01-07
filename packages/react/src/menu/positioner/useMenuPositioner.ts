@@ -9,7 +9,7 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 export function useMenuPositioner(
   params: useMenuPositioner.Parameters,
 ): useMenuPositioner.ReturnValue {
-  const { keepMounted, nodeId, parentNodeId } = params;
+  const { nodeId, parentNodeId } = params;
 
   const { open, setOpen, mounted } = useMenuRootContext();
 
@@ -34,7 +34,7 @@ export function useMenuPositioner(
         },
       });
     },
-    [keepMounted, open, mounted, positioning.positionerStyles],
+    [open, mounted, positioning.positionerStyles],
   );
 
   React.useEffect(() => {

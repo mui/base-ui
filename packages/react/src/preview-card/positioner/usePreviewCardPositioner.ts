@@ -7,8 +7,6 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 export function usePreviewCardPositioner(
   params: usePreviewCardPositioner.Parameters,
 ): usePreviewCardPositioner.ReturnValue {
-  const { keepMounted } = params;
-
   const { open, mounted } = usePreviewCardRootContext();
 
   const positioning = useAnchorPositioning(params);
@@ -31,7 +29,7 @@ export function usePreviewCardPositioner(
           },
         });
       },
-      [keepMounted, open, mounted, positioning.positionerStyles],
+      [open, mounted, positioning.positionerStyles],
     );
 
   return React.useMemo(

@@ -7,8 +7,6 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 export function useTooltipPositioner(
   params: useTooltipPositioner.Parameters,
 ): useTooltipPositioner.ReturnValue {
-  const { keepMounted } = params;
-
   const { open, trackCursorAxis, mounted } = useTooltipRootContext();
 
   const positioning = useAnchorPositioning(params);
@@ -35,7 +33,7 @@ export function useTooltipPositioner(
           },
         });
       },
-      [keepMounted, open, trackCursorAxis, mounted, positioning.positionerStyles],
+      [open, trackCursorAxis, mounted, positioning.positionerStyles],
     );
 
   return React.useMemo(

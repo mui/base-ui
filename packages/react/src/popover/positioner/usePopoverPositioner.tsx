@@ -7,8 +7,6 @@ import { usePopoverRootContext } from '../root/PopoverRootContext';
 export function usePopoverPositioner(
   params: usePopoverPositioner.Parameters,
 ): usePopoverPositioner.ReturnValue {
-  const { keepMounted } = params;
-
   const { open, mounted } = usePopoverRootContext();
 
   const positioning = useAnchorPositioning(params);
@@ -31,7 +29,7 @@ export function usePopoverPositioner(
           },
         });
       },
-      [keepMounted, open, mounted, positioning.positionerStyles],
+      [open, mounted, positioning.positionerStyles],
     );
 
   return React.useMemo(
