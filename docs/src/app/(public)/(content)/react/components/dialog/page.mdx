@@ -76,7 +76,7 @@ return (
 );
 ```
 
-It’s also common to use `onOpenChange` if your app needs to do something when the dialog is closed or opened. This is recommended over `React.useEffect` when reacting to state changes.
+It's also common to use `onOpenChange` if your app needs to do something when the dialog is closed or opened. This is recommended over `React.useEffect` when reacting to state changes.
 
 ```tsx title="Running code when dialog state changes"
 <Dialog.Root
@@ -96,7 +96,7 @@ It’s also common to use `onOpenChange` if your app needs to do something when 
 
 In order to open a dialog using a menu, control the dialog state and open it imperatively using the `onClick` handler on the menu item.
 
-Make sure to also use the dialog’s `finalFocus` prop to return focus back to the menu trigger.
+Make sure to also use the dialog's `finalFocus` prop to return focus back to the menu trigger.
 
 ```tsx {12-13,17-18,24-25,28-29} title="Connecting a dialog to a menu"
 import * as React from 'react';
