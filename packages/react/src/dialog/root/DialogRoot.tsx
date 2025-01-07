@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
 import { DialogContext } from '../utils/DialogContext';
 import { type SharedParameters, useDialogRoot } from './useDialogRoot';
-import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the dialog.
