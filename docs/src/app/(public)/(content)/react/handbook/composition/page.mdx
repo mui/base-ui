@@ -6,7 +6,7 @@
   content="A guide to composing Base UI components with your own React components."
 />
 
-### Composing custom React components
+## Composing custom React components
 
 Use the `render` prop to compose a Base UI part with your own React components.
 
@@ -22,7 +22,7 @@ The code snippet below shows how to use a custom button instead.
 
 The custom component must forward the `ref`, and spread all the received props on its underlying DOM node.
 
-### Composing multiple components
+## Composing multiple components
 
 In situations where you need to compose multiple Base UI components with custom React components, `render` props can be nested as deeply as necessary.
 Working with Tooltip is a common example.
@@ -48,7 +48,7 @@ Working with Tooltip is a common example.
 </Dialog.Root>
 ```
 
-### Changing the default rendered element
+## Changing the default rendered element
 
 You can also use the `render` prop to override the rendered element of the component.
 
@@ -78,7 +78,7 @@ export default () => (
 
 Each Base UI component renders the most appropriate element by default, and in most cases, rendering a different element is recommended only on a case-by-case basis.
 
-### Render function
+## Render function
 
 If you are working in an extremely performance-sensitive application, you might want to pass a function to the `render` prop instead of a React element.
 
