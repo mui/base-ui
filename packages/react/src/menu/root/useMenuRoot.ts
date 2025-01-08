@@ -217,25 +217,16 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     typeahead,
   ]);
 
-  const virtualEventHandler = listNavigation.reference?.onPointerDown;
-
   const getTriggerProps = React.useCallback(
-    (externalProps?: GenericHTMLProps) => {
-      const props = getReferenceProps(
+    (externalProps?: GenericHTMLProps) =>
+      getReferenceProps(
         mergeReactProps(externalProps, {
           onMouseEnter() {
             setHoverEnabled(true);
           },
         }),
-      );
-      return {
-        ...props,
-        // Floating UI doesn't check for virtual pointer on `onPointerEnter`, only
-        // `onPointerDown`. TODO: Fix internally in Floating UI.
-        onPointerEnter: virtualEventHandler,
-      };
-    },
-    [getReferenceProps, virtualEventHandler],
+      ),
+    [getReferenceProps],
   );
 
   const getPopupProps = React.useCallback(
