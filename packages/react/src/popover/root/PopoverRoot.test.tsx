@@ -1,19 +1,10 @@
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
-import {
-  act,
-  describeSkipIf,
-  fireEvent,
-  flushMicrotasks,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 function Root(props: Popover.Root.Props) {
   return <Popover.Root {...props} />;
@@ -21,7 +12,7 @@ function Root(props: Popover.Root.Props) {
 
 describe('<Popover.Root />', () => {
   beforeEach(() => {
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   const { render, clock } = createRenderer();
@@ -196,11 +187,9 @@ describe('<Popover.Root />', () => {
       expect(handleChange.firstCall.args[0]).to.equal(false);
     });
 
-    it('should remove the popup when there is no exit animation defined', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should remove the popup when there is no exit animation defined', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       function Test() {
@@ -231,14 +220,12 @@ describe('<Popover.Root />', () => {
       });
     });
 
-    it('should remove the popup when the animation finishes', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should remove the popup when the animation finishes', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let animationFinished = false;
       const notifyAnimationFinished = () => {
@@ -549,7 +536,7 @@ describe('<Popover.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
+  describe.skipIf(isJSDOM)('prop: onCloseComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       let onCloseCompleteCalled = false;
       function notifyonCloseComplete() {
@@ -585,7 +572,7 @@ describe('<Popover.Root />', () => {
     });
 
     it('is called on close when the exit animation finishes', async () => {
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let onCloseCompleteCalled = false;
       function notifyonCloseComplete() {

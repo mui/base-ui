@@ -4,6 +4,7 @@
  * import the entire lib for coverage reporting
  */
 import { expect } from 'chai';
+import { describe, it } from 'vitest';
 import * as BaseUI from './index';
 
 describe('@base-ui-components/react', () => {

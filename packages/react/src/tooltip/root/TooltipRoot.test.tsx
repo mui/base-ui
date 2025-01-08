@@ -1,19 +1,10 @@
 import * as React from 'react';
 import { Tooltip } from '@base-ui-components/react/tooltip';
-import {
-  act,
-  describeSkipIf,
-  fireEvent,
-  flushMicrotasks,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 function Root(props: Tooltip.Root.Props) {
   return <Tooltip.Root {...props} />;
@@ -21,7 +12,7 @@ function Root(props: Tooltip.Root.Props) {
 
 describe('<Tooltip.Root />', () => {
   beforeEach(() => {
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   const { render, clock } = createRenderer();
@@ -81,11 +72,9 @@ describe('<Tooltip.Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
 
-    it('should open when the trigger is focused', async function test(t = {}) {
+    it('should open when the trigger is focused', async ({ skip }) => {
       if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       await render(
@@ -406,7 +395,7 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
+  describe.skipIf(isJSDOM)('prop: onCloseComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       let onCloseCompleteCalled = false;
       function notifyonCloseComplete() {
@@ -442,7 +431,7 @@ describe('<Tooltip.Root />', () => {
     });
 
     it('is called on close when the exit animation finishes', async () => {
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let onCloseCompleteCalled = false;
       function notifyonCloseComplete() {

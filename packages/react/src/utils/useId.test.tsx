@@ -86,9 +86,9 @@ describe('useId', () => {
     );
   });
 
-  it('provides an ID on server in React 18', function test() {
+  it('provides an ID on server in React 18', ({ skip }) => {
     if (React.useId === undefined) {
-      this.skip();
+      skip();
     }
     function TestComponent() {
       const id = useId();

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
-import { describeConformance, createRenderer } from '../../../test';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Menu.CheckboxItem />', () => {
   const { render, clock } = createRenderer({
@@ -21,11 +21,9 @@ describe('<Menu.CheckboxItem />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  it('perf: does not rerender menu items unnecessarily', async function test(t = {}) {
-    if (/jsdom/.test(window.navigator.userAgent)) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+  it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
+    if (isJSDOM) {
+      skip();
     }
 
     const renderItem1Spy = spy();
@@ -192,11 +190,9 @@ describe('<Menu.CheckboxItem />', () => {
       expect(item).to.have.attribute('data-unchecked', '');
     });
 
-    it(`toggles the checked state when Enter is pressed`, async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it(`toggles the checked state when Enter is pressed`, async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       const { getByRole, user } = await render(

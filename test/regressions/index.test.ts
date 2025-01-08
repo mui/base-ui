@@ -87,20 +87,20 @@ describe('visual regressions', () => {
     });
   });
 
-  after(async () => {
+  afterAll(async () => {
     await browser.close();
   });
 
   routes.forEach((route: string, index: number) => {
-    it(`creates screenshots of ${route}`, async function test() {
+    it(
+      `creates screenshots of ${route}`,
       // With the playwright inspector we might want to call `page.pause` which would lead to a timeout.
-      if (process.env.PWDEBUG) {
-        this?.timeout(0);
-      }
+      { timeout: process.env.PWDEBUG ? 0 : 5000 },
+      async () => {
+        const testcase = await renderFixture(index);
 
-      const testcase = await renderFixture(index);
-
-      await takeScreenshot({ testcase, route });
-    });
+        await takeScreenshot({ testcase, route });
+      },
+    );
   });
 });
