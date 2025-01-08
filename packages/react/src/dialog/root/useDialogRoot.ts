@@ -204,7 +204,8 @@ export interface SharedParameters {
 }
 
 export namespace useDialogRoot {
-  export interface Parameters extends RequiredExcept<SharedParameters, 'open' | 'onOpenChange' | 'onCloseComplete'> {
+  export interface Parameters
+    extends RequiredExcept<SharedParameters, 'open' | 'onOpenChange' | 'onCloseComplete'> {
     /**
      * Callback to invoke when a nested dialog is opened.
      */
