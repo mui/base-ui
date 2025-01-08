@@ -17,7 +17,7 @@
     },
     "onOpenChangeComplete": {
       "type": "function",
-      "description": "Event handler called after any animations complete when the dialog is closed."
+      "description": "Event handler called after any animations complete when the dialog is opened or closed."
     }
   },
   "dataAttributes": {},
