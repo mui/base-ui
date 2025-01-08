@@ -9,7 +9,7 @@ export function useOpenChangeComplete(parameters: useOpenChangeComplete.Paramete
   const { open, ref, onComplete: onCompleteParam } = parameters;
 
   const onComplete = useEventCallback(onCompleteParam);
-  const runOnceAnimationsFinish = useAnimationsFinished(ref);
+  const runOnceAnimationsFinish = useAnimationsFinished(ref, open);
 
   useEnhancedEffect(() => {
     runOnceAnimationsFinish(onComplete);

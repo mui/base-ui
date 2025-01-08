@@ -64,7 +64,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     open,
     ref: popupRef,
     onComplete() {
-      onOpenChangeComplete?.(false);
+      onOpenChangeComplete?.(open);
 
       if (!open) {
         setMounted(false);

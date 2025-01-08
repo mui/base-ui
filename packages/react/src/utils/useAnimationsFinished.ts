@@ -7,7 +7,10 @@ import { useEventCallback } from './useEventCallback';
  * Executes a function once all animations have finished on the provided element.
  * @ignore - internal hook.
  */
-export function useAnimationsFinished(ref: React.RefObject<HTMLElement | null>) {
+export function useAnimationsFinished(
+  ref: React.RefObject<HTMLElement | null>,
+  extraFrame: boolean,
+) {
   const frameRef = React.useRef(-1);
 
   const cancelFrames = useEventCallback(() => {
@@ -29,11 +32,24 @@ export function useAnimationsFinished(ref: React.RefObject<HTMLElement | null>) 
       fnToExecute();
     } else {
       frameRef.current = requestAnimationFrame(() => {
-        Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(() => {
-          // Synchronously flush the unmounting of the component so that the browser doesn't
-          // paint: https://github.com/mui/base-ui/issues/979
-          ReactDOM.flushSync(fnToExecute);
-        });
+        function exec() {
+          if (!element) {
+            return;
+          }
+
+          Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(() => {
+            // Synchronously flush the unmounting of the component so that the browser doesn't
+            // paint: https://github.com/mui/base-ui/issues/979
+            ReactDOM.flushSync(fnToExecute);
+          });
+        }
+
+        // `open` animations needs to wait 2 frames for the animations to be detected.
+        if (extraFrame) {
+          frameRef.current = requestAnimationFrame(exec);
+        } else {
+          exec();
+        }
       });
     }
   });
