@@ -12,16 +12,24 @@ import { useSliderRoot } from './useSliderRoot';
 import { SliderRootContext } from './SliderRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
+type SliderRootType = {
+  <Value extends number | readonly number[]>(
+    props: SliderRoot.Props<Value> & {
+      ref?: React.RefObject<HTMLDivElement>;
+    },
+  ): React.JSX.Element;
+  propTypes?: any;
+};
+
 /**
  * Groups all parts of the slider.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderRoot = React.forwardRef(function SliderRoot(
-  props: SliderRoot.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
+export const SliderRoot = React.forwardRef(function SliderRoot<
+  Value extends number | readonly number[],
+>(props: SliderRoot.Props<Value>, forwardedRef: React.ForwardedRef<HTMLDivElement>) {
   const {
     'aria-labelledby': ariaLabelledby,
     className,
@@ -59,8 +67,9 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     min,
     minStepsBetweenValues,
     name: nameProp ?? '',
-    onValueChange: onValueChangeProp ?? NOOP,
-    onValueCommitted: onValueCommittedProp ?? NOOP,
+    onValueChange: (onValueChangeProp as useSliderRoot.Parameters['onValueChange']) ?? NOOP,
+    onValueCommitted:
+      (onValueCommittedProp as useSliderRoot.Parameters['onValueCommitted']) ?? NOOP,
     orientation,
     rootRef: forwardedRef,
     step,
@@ -118,7 +127,7 @@ const SliderRoot = React.forwardRef(function SliderRoot(
       <CompositeList elementsRef={slider.thumbRefs}>{renderElement()}</CompositeList>
     </SliderRootContext.Provider>
   );
-});
+}) as SliderRootType;
 
 export namespace SliderRoot {
   export interface State extends FieldRoot.State {
@@ -157,7 +166,7 @@ export namespace SliderRoot {
     values: readonly number[];
   }
 
-  export interface Props
+  export interface Props<Value extends number | readonly number[] = number | readonly number[]>
     extends Partial<
         Pick<
           useSliderRoot.Parameters,
@@ -166,8 +175,6 @@ export namespace SliderRoot {
           | 'min'
           | 'minStepsBetweenValues'
           | 'name'
-          | 'onValueChange'
-          | 'onValueCommitted'
           | 'orientation'
           | 'largeStep'
           | 'step'
@@ -179,7 +186,7 @@ export namespace SliderRoot {
      *
      * To render a controlled slider, use the `value` prop instead.
      */
-    defaultValue?: number | readonly number[];
+    defaultValue?: Value;
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -197,11 +204,26 @@ export namespace SliderRoot {
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
      */
-    value?: number | readonly number[];
+    value?: Value;
+    /**
+     * Callback function that is fired when the slider's value changed.
+     *
+     * @param {number | number[]} value The new value.
+     * @param {Event} event The corresponding event that initiated the change.
+     * You can pull out the new value by accessing `event.target.value` (any).
+     * @param {number} activeThumbIndex Index of the currently moved thumb.
+     */
+    onValueChange?: (value: Value, event: Event, activeThumbIndex: number) => void;
+    /**
+     * Callback function that is fired when the `pointerup` is triggered.
+     *
+     * @param {number | number[]} value The new value.
+     * @param {Event} event The corresponding event that initiated the change.
+     * **Warning**: This is a generic event not a change event.
+     */
+    onValueCommitted?: (value: Value, event: Event) => void;
   }
 }
-
-export { SliderRoot };
 
 SliderRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
