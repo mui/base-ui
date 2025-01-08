@@ -1,0 +1,93 @@
+.Root {
+  display: flex;
+  gap: 0.5rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
+  padding: 0.125rem;
+  text-wrap: nowrap;
+}
+
+.Separator {
+  width: 1px;
+  margin-block: 2px;
+  background-color: var(--color-gray-300);
+}
+
+.Link {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--color-gray-900);
+  text-decoration-color: var(--color-gray-400);
+  text-decoration-thickness: 1px;
+  text-decoration-line: none;
+  text-underline-offset: 2px;
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration-line: underline;
+    }
+  }
+
+  &:focus-visible {
+    border-radius: 0.125rem;
+    outline: 2px solid var(--color-blue);
+    text-decoration-line: none;
+  }
+}
+
+/* ToggleGroup  */
+.ToggleGroup {
+  display: flex;
+  gap: 1px;
+  border-radius: 0.375rem;
+  padding: 0.125rem;
+}
+
+.Toggle {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  margin: 0;
+  outline: 0;
+  border: 0;
+  border-radius: 0.25rem;
+  background-color: transparent;
+  color: var(--color-gray-600);
+  user-select: none;
+
+  &:focus-visible {
+    background-color: transparent;
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  &:active {
+    background-color: var(--color-gray-200);
+  }
+
+  &[data-pressed] {
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-900);
+  }
+}
+
+.Icon {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
