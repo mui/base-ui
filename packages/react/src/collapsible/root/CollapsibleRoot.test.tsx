@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
 import { expect } from 'chai';
-import { describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
+import { flushMicrotasks } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui-components/react/collapsible';
-import { createRenderer, describeConformance } from '#test-utils';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const PANEL_CONTENT = 'This is panel content';
 
@@ -36,7 +34,7 @@ describe('<Collapsible.Root />', () => {
   });
 
   describe('open state', () => {
-    it('controlled mode', async function test() {
+    it('controlled mode', async () => {
       const { queryByText, getByRole, setProps } = await render(
         <Collapsible.Root open={false}>
           <Collapsible.Trigger />
@@ -68,11 +66,9 @@ describe('<Collapsible.Root />', () => {
       expect(queryByText(PANEL_CONTENT)).to.equal(null);
     });
 
-    it('uncontrolled mode', async function test(t = {}) {
+    it('uncontrolled mode', async ({ skip }) => {
       if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
       const { getByRole, queryByText, user } = await render(
         <Collapsible.Root defaultOpen={false}>
@@ -118,7 +114,7 @@ describe('<Collapsible.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('keyboard interactions', () => {
+  describe.skipIf(isJSDOM)('keyboard interactions', () => {
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} should toggle the Collapsible`, async () => {
         const { queryByText, getByRole, user } = await render(

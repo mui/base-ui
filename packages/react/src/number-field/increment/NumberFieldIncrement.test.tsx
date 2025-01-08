@@ -287,4 +287,32 @@ describe('<NumberField.Increment />', () => {
 
     expect(input).to.have.value('101');
   });
+
+  it('always increments on quick touch (touchend that occurs before TOUCH_TIMEOUT)', async () => {
+    await render(
+      <NumberField.Root defaultValue={0}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+    const input = screen.getByRole('textbox');
+
+    fireEvent.touchStart(button);
+    fireEvent.mouseEnter(button);
+    fireEvent.pointerDown(button, { pointerType: 'touch' });
+    fireEvent.click(button, { detail: 1 });
+    fireEvent.touchEnd(button);
+
+    expect(input).to.have.value('1');
+
+    fireEvent.touchStart(button);
+    // No mouseenter occurs after the first focus
+    fireEvent.pointerDown(button, { pointerType: 'touch' });
+    fireEvent.click(button, { detail: 1 });
+    fireEvent.touchEnd(button);
+
+    expect(input).to.have.value('2');
+  });
 });

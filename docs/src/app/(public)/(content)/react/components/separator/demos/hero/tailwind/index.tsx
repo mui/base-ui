@@ -29,7 +29,7 @@ export default function ExampleSeparator() {
         Support
       </a>
 
-      <Separator className="w-px bg-gray-300" />
+      <Separator orientation="vertical" className="w-px bg-gray-300" />
 
       <a
         href="#"

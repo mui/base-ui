@@ -25,10 +25,7 @@ export function useAnimationsFinished(ref: React.RefObject<HTMLElement | null>) 
       return;
     }
 
-    if (
-      typeof element.getAnimations !== 'function' ||
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED
-    ) {
+    if (typeof element.getAnimations !== 'function' || globalThis.BASE_UI_ANIMATIONS_DISABLED) {
       fnToExecute();
     } else {
       frameRef.current = requestAnimationFrame(() => {

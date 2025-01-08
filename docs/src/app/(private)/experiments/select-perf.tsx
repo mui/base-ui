@@ -30,38 +30,40 @@ function BaseSelectExample() {
       >
         <BaseSelect.Value placeholder="Select..." />
       </BaseSelect.Trigger>
-      <BaseSelect.Positioner>
-        <BaseSelect.ScrollUpArrow
-          style={{
-            ...arrowStyles,
-            top: 0,
-            marginTop: 1,
-          }}
-        />
-        <BaseSelect.Popup
-          style={{
-            padding: '1rem 0.5rem',
-            border: '1px solid black',
-            background: 'white',
-            fontSize: 16,
-            fontFamily: 'Arial',
-            scrollPadding: 15,
-          }}
-        >
-          {items.map((item) => (
-            <BaseSelect.Item key={item} value={item} style={{ lineHeight: 1 }}>
-              <BaseSelect.ItemText>{item}</BaseSelect.ItemText>
-            </BaseSelect.Item>
-          ))}
-        </BaseSelect.Popup>
-        <BaseSelect.ScrollDownArrow
-          style={{
-            ...arrowStyles,
-            bottom: 0,
-            marginBottom: 1,
-          }}
-        />
-      </BaseSelect.Positioner>
+      <BaseSelect.Portal>
+        <BaseSelect.Positioner>
+          <BaseSelect.ScrollUpArrow
+            style={{
+              ...arrowStyles,
+              top: 0,
+              marginTop: 1,
+            }}
+          />
+          <BaseSelect.Popup
+            style={{
+              padding: '1rem 0.5rem',
+              border: '1px solid black',
+              background: 'white',
+              fontSize: 16,
+              fontFamily: 'Arial',
+              scrollPadding: 15,
+            }}
+          >
+            {items.map((item) => (
+              <BaseSelect.Item key={item} value={item} style={{ lineHeight: 1 }}>
+                <BaseSelect.ItemText>{item}</BaseSelect.ItemText>
+              </BaseSelect.Item>
+            ))}
+          </BaseSelect.Popup>
+          <BaseSelect.ScrollDownArrow
+            style={{
+              ...arrowStyles,
+              bottom: 0,
+              marginBottom: 1,
+            }}
+          />
+        </BaseSelect.Positioner>
+      </BaseSelect.Portal>
     </BaseSelect.Root>
   );
 }
