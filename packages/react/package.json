@@ -72,7 +72,7 @@
     "test:package": "publint ./build && attw --pack ./build",
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
     "release": "pnpm build && pnpm publish",
-    "test": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/react/**/*.test.{js,ts,tsx}'",
+    "test": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {

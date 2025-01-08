@@ -33,11 +33,9 @@ describe('<Menu.RadioItem />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  it('perf: does not rerender menu items unnecessarily', async function test(t = {}) {
+  it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
     if (/jsdom/.test(window.navigator.userAgent)) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
     }
 
     const renderItem1Spy = spy();

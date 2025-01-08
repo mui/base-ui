@@ -6,7 +6,7 @@ import { expect } from 'chai';
 
 describe('<Menu.CheckboxItemIndicator />', () => {
   beforeEach(() => {
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   const { render } = createRenderer();
@@ -28,11 +28,9 @@ describe('<Menu.CheckboxItemIndicator />', () => {
     },
   }));
 
-  it('should remove the indicator when there is no exit animation defined', async function test(t = {}) {
+  it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
     if (/jsdom/.test(window.navigator.userAgent)) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
     }
 
     function Test() {
@@ -68,14 +66,12 @@ describe('<Menu.CheckboxItemIndicator />', () => {
     });
   });
 
-  it('should remove the indicator when the animation finishes', async function test(t = {}) {
+  it('should remove the indicator when the animation finishes', async ({ skip }) => {
     if (/jsdom/.test(window.navigator.userAgent)) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
     }
 
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
     let animationFinished = false;
     const notifyAnimationFinished = () => {

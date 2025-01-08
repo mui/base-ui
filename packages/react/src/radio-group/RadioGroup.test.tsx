@@ -7,7 +7,7 @@ import {
 } from '@base-ui-components/react/direction-provider';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, act, screen, fireEvent, describeSkipIf } from '@mui/internal-test-utils';
+import { createRenderer, act, screen, fireEvent } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
@@ -159,12 +159,10 @@ describe('<RadioGroup />', () => {
     expect(group.nextElementSibling).to.have.attribute('name', 'radio-group');
   });
 
-  it('should include the radio value in the form submission', async function test(t = {}) {
+  it('should include the radio value in the form submission', async ({ skip }) => {
     if (isJSDOM) {
       // FormData is not available in JSDOM
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
     }
 
     let stringifiedFormData = '';
@@ -234,7 +232,7 @@ describe('<RadioGroup />', () => {
     ].forEach((entry) => {
       const [direction, horizontalNextKey, horizontalPrevKey] = entry;
 
-      describeSkipIf(isJSDOM && direction === 'rtl')(direction, () => {
+      describe.skipIf(isJSDOM && direction === 'rtl')(direction, () => {
         it(direction, async () => {
           const { user } = await render(
             <DirectionProvider direction={direction as TextDirection}>

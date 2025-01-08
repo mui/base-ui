@@ -5,7 +5,7 @@ Thanks for writing tests! Here's a quick run-down on our current setup.
 ## Getting started
 
 1. Add a unit test to `packages/*/src/TheUnitInQuestion/TheUnitInQuestion.test.js` or an integration test `packages/*/test/`.
-2. Run `pnpm t TheUnitInQuestion`.
+2. Run `pnpm test:jsdom TheUnitInQuestion`.
 3. Implement the tested behavior
 4. Open a PR once the test passes or if you want somebody to review your work
 
@@ -14,14 +14,13 @@ Thanks for writing tests! Here's a quick run-down on our current setup.
 - [@testing-library/react](https://testing-library.com/docs/react-testing-library/intro/)
 - [Chai](https://www.chaijs.com/)
 - [Sinon](https://sinonjs.org/)
-- [Mocha](https://mochajs.org/)
-- [Karma](https://karma-runner.github.io/latest/index.html)
+- [Vitest](https://vitest.dev/)
 - [Playwright](https://playwright.dev/)
 - [jsdom](https://github.com/jsdom/jsdom)
 
 ## Writing tests
 
-For all unit tests, please use the return value from `@mui/internal-test-utils/createRenderer`.
+For all unit tests, please use the return value of `createRenderer` from `#test-utils`.
 It prepares the test suite and returns a function with the same interface as
 [`render` from `@testing-library/react`](https://testing-library.com/docs/react-testing-library/api#render).
 
@@ -29,8 +28,8 @@ It prepares the test suite and returns a function with the same interface as
 describe('test suite', () => {
   const { render } = createRenderer();
 
-  test('first', () => {
-    render(<input />);
+  test('first', async () => {
+    await render(<input />);
   });
 });
 ```
@@ -42,7 +41,7 @@ In addition to the core matchers from `chai` we also use matchers from [`chai-do
 
 Deciding where to put a test is (like naming things) a hard problem:
 
-- When in doubt, put the new test case directly in the unit test file for that component, for example `packages/react/src/Accordion/Root/AccordionRoot.test.tsx`.
+- When in doubt, put the new test case directly in the unit test file for that component, for example `packages/react/src/accordion/root/AccordionRoot.test.tsx`.
 - If your test requires multiple components from the library create a new integration test.
 - If you find yourself using a lot of `data-testid` attributes or you're accessing
   a lot of styles consider adding a component (that doesn't require any interaction)
@@ -114,53 +113,36 @@ trade-off, mainly completeness vs. speed.
 
 #### Debugging tests
 
-If you want to debug tests with the, for example Chrome inspector (chrome://inspect) you can run `pnpm t <testFilePattern> --debug`.
+If you want to debug tests with the, for example Chrome inspector (chrome://inspect) you can run `pnpm test:jsdom <testFilePattern> --debug`.
 Note that the test will not get executed until you start code execution in the inspector.
 
-We have a dedicated task to use VS Code's integrated debugger to debug the currently opened test file.
-Open the test you want to run and press F5 (launch "Test Current File").
+Running a browser test (`pnpm test:chromium`) locally opens a browser window that lets you set breakpoints.
 
-#### Run the core mocha unit/integration test suite
+#### Run the core unit test suite
 
-To run all of the unit and integration tests run `pnpm test:unit`
+To run all of the unit tests run `pnpm test:jsdom`.
+It runs a Vitest CLI that lets you filter tests and watches for changes.
 
-If you want to `grep` for certain tests add `-g STRING_TO_GREP` though for development we recommend `pnpm t <testFilePattern>`.
-
-#### Watch the core mocha unit/integration test suite
-
-`pnpm t <testFilePattern>`
-
-First, we have the **unit test** suite.
-It uses [mocha](https://mochajs.org) and a thin wrapper around `@testing-library/react`.
-Here is an [example](https://github.com/mui/material-ui/blob/6d9f42a637184a3b3cb552d2591e2cf39653025d/packages/mui-material/src/Dialog/Dialog.test.js#L60-L69) with the `Dialog` component.
-
-Next, we have the **integration** tests. They are mostly used for components that
-act as composite widgets like `Select` or `Menu`.
-Here is an [example](https://github.com/mui/material-ui/blob/814fb60bbd8e500517b2307b6a297a638838ca89/packages/material-ui/test/integration/Menu.test.js#L98-L108) with the `Menu` component.
-
-#### Create HTML coverage reports
-
-`pnpm test:coverage:html`
-
-When running this command you should get under `coverage/index.html` a full coverage report in HTML format. This is created using [Istanbul](https://istanbul.js.org)'s HTML reporter and gives good data such as line, branch and function coverage.
+If you want to run only tests from a particular file, append its name to the commandline: `pnpm test:jsdom TheUnitInQuestion`
 
 ### DOM API level
 
-#### Run the mocha test suite using the karma runner
+#### Run the test suite in the browser
 
-`pnpm test:karma`
+`pnpm test:chromium`
+`pnpm test:firefox`
 
-Testing the components at the React level isn't enough;
-we need to make sure they will behave as expected with a **real DOM**.
-To solve that problem we use [Karma](https://github.com/karma-runner/karma),
-which is almost a drop-in replacement of [jsdom](https://github.com/jsdom/jsdom).
+Testing the components with JSDOM sometimes isn't enough, as it doesn't support all the APIs.
+We need to make sure they will behave as expected with a **real DOM**.
+To solve that problem we use Vitest in [browser mode](https://vitest.dev/guide/browser/).
+
 Our tests run on different browsers to increase the coverage:
 
-- [Headless Chrome](https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md)
+- [Headless Chromium](https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md)
 - Headless Firefox
 - Chrome, Safari, and Edge thanks to [BrowserStack](https://www.browserstack.com)
 
-In development mode, if `pnpm test:karma` fails with this error "Cannot start ChromeHeadless. Can not find the binary", you can solve it by installing the missing headless browsers: `pnpm playwright install --with-deps`.
+In development mode, if `pnpm test:chromium` or `pnpm test:firefox` fails with this error "Cannot start ChromeHeadless. Can not find the binary", you can solve it by installing the missing headless browsers: `pnpm playwright install --with-deps`.
 
 ##### BrowserStack
 
@@ -196,51 +178,9 @@ Checkout the [end-to-end testing readme](./e2e/README.md) for more information.
 
 When working on the visual regression tests you can run `pnpm test:regressions:dev` in the background to constantly rebuild the views used for visual regression testing.
 To actually take the screenshots you can then run `pnpm test:regressions:run`.
-You can pass the same arguments as you could to `mocha`.
-For example, `pnpm test:regressions:run --watch --grep "docs-system-basic"` to take new screenshots of every demo in `docs/src/pages/system/basic`.
 You can view the screenshots in `test/regressions/screenshots/chrome`.
 
 Alternatively, you might want to open `http://localhost:5173` (while `pnpm test:regressions:dev` is running) to view individual views separately.
-
-### Caveats
-
-#### Accessibility tree exclusion
-
-Our tests also explicitly document which parts of the queried element are included in
-the accessibility (a11y) tree and which are excluded.
-This check is fairly expensive which is why it is disabled when tests are run locally by default.
-The rationale being that in almost all cases including or excluding elements from a query-set depending on their a11y-tree membership makes no difference.
-
-The queries where this does make a difference explicitly include checking for a11y tree inclusion, for example `getByRole('button', { hidden: false })` (see [byRole documentation](https://testing-library.com/docs/dom-testing-library/api-queries#byrole) for more information).
-To see if your test (`test:karma` or `test:unit`) behaves the same between CI and local environment, set the environment variable `CI` to `'true'`.
-
-Not considering a11y tree exclusion is a common cause of "Unable to find an accessible element with the role" or "Found multiple elements with the role".
-
-### Performance monitoring
-
-We have a dedicated CI task that profiles our core test suite.
-Since this task is fairly expensive and not relevant to most day-to-day work it has to be started manually.
-The CircleCI docs explain [how to start a pipeline manually](https://circleci.com/docs/api/v2/#operation/triggerPipeline) in detail.
-Example:
-With an environment variable `$CIRCLE_TOKEN` containing a [CircleCI personal access token](https://app.circleci.com/settings/user/tokens).
-
-The following command triggers the `profile` workflow for the pull request #24289.
-
-```bash
-curl --request POST \
-  --url https://circleci.com/api/v2/project/gh/mui/base-ui/pipeline \
-  --header 'content-type: application/json' \
-  --header 'Circle-Token: $CIRCLE_TOKEN' \
-  --data-raw '{"branch":"pull/24289/head","parameters":{"workflow":"profile"}}'
-```
-
-To analyze this profile run you can use https://mui-dashboard.netlify.app/test-profile/:job-number.
-
-To find out the job number you can start with the response of the previous CircleCI API request which includes the created pipeline id.
-You then have to search in the [CircleCI UI](https://app.circleci.com/pipelines/github/mui/base-ui) for the job number of `test_profile` that is part of the started pipeline.
-The job number can be extracted from the URL of a particular CircleCI job.
-
-For example, in https://app.circleci.com/pipelines/github/mui/base-ui/32796/workflows/23f946de-328e-49b7-9c94-bfe0a0248a12/jobs/211258 `jobs/211258` points to the job number which is in this case `211258` which means you want to visit https://mui-dashboard.netlify.app/test-profile/211258 to analyze the profile.
 
 ### Testing multiple versions of React
 

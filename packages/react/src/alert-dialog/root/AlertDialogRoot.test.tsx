@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { describeSkipIf, screen, waitFor } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { createRenderer } from '#test-utils';
 import { spy } from 'sinon';
@@ -88,7 +88,7 @@ describe('<AlertDialog.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('modality', () => {
+  describe.skipIf(isJSDOM)('modality', () => {
     it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
       const { user } = await render(
         <div>
@@ -135,7 +135,7 @@ describe('<AlertDialog.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
+  describe.skipIf(isJSDOM)('prop: onCloseComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       let onCloseCompleteCalled = false;
       function notifyonCloseComplete() {
@@ -169,7 +169,7 @@ describe('<AlertDialog.Root />', () => {
     });
 
     it('is called on close when the exit animation finishes', async () => {
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let onCloseCompleteCalled = false;
       function notifyonCloseComplete() {
