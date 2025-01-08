@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, createRenderer, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
+import { isJSDOM } from '#test-utils';
 import { CompositeItem } from '../item/CompositeItem';
 import { CompositeRoot } from './CompositeRoot';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('Composite', () => {
   const { render } = createRenderer();

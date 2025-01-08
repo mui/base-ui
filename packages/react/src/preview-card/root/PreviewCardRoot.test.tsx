@@ -3,10 +3,8 @@ import { PreviewCard } from '@base-ui-components/react/preview-card';
 import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 function Root(props: PreviewCard.Root.Props) {
   return <PreviewCard.Root {...props} />;
@@ -85,7 +83,7 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('should open when the trigger is focused', async () => {
-      if (!/jsdom/.test(window.navigator.userAgent)) {
+      if (!isJSDOM) {
         // Ignore due to `:focus-visible` being required in the browser.
         return;
       }
@@ -167,7 +165,7 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('should remove the popup when there is no exit animation defined', async ({ skip }) => {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         skip();
       }
 
@@ -199,7 +197,7 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('should remove the popup when the animation finishes', async ({ skip }) => {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         skip();
       }
 

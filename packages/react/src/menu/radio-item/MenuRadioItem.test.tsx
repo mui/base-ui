@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
-import { describeConformance, createRenderer } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { MenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 
 const testRadioGroupContext = {
@@ -34,7 +34,7 @@ describe('<Menu.RadioItem />', () => {
   }));
 
   it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
-    if (/jsdom/.test(window.navigator.userAgent)) {
+    if (isJSDOM) {
       skip();
     }
 

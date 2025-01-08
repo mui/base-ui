@@ -2,10 +2,8 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { useButton } from '.';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('useButton', () => {
   const { render, renderToString } = createRenderer();

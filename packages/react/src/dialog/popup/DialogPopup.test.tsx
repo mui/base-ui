@@ -3,9 +3,7 @@ import { expect } from 'chai';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { act, waitFor, screen } from '@mui/internal-test-utils';
-import { describeConformance, createRenderer } from '#test-utils';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Dialog.Popup />', () => {
   const { render } = createRenderer();

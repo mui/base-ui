@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 
@@ -29,7 +29,7 @@ describe('<Menu.CheckboxItemIndicator />', () => {
   }));
 
   it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
-    if (/jsdom/.test(window.navigator.userAgent)) {
+    if (isJSDOM) {
       skip();
     }
 
@@ -67,7 +67,7 @@ describe('<Menu.CheckboxItemIndicator />', () => {
   });
 
   it('should remove the indicator when the animation finishes', async ({ skip }) => {
-    if (/jsdom/.test(window.navigator.userAgent)) {
+    if (isJSDOM) {
       skip();
     }
 

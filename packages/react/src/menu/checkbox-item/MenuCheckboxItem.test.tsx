@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
-import { describeConformance, createRenderer } from '../../../test';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Menu.CheckboxItem />', () => {
   const { render, clock } = createRenderer({
@@ -22,7 +22,7 @@ describe('<Menu.CheckboxItem />', () => {
   }));
 
   it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
-    if (/jsdom/.test(window.navigator.userAgent)) {
+    if (isJSDOM) {
       skip();
     }
 
@@ -191,7 +191,7 @@ describe('<Menu.CheckboxItem />', () => {
     });
 
     it(`toggles the checked state when Enter is pressed`, async ({ skip }) => {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         skip();
       }
 

@@ -3,11 +3,9 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui-components/react/collapsible';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../utils/noop';
 import { CollapsibleRootContext } from '../root/CollapsibleRootContext';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 const PANEL_CONTENT = 'This is panel content';
 

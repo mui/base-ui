@@ -3,10 +3,8 @@ import { Popover } from '@base-ui-components/react/popover';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 function Root(props: Popover.Root.Props) {
   return <Popover.Root {...props} />;
@@ -190,7 +188,7 @@ describe('<Popover.Root />', () => {
     });
 
     it('should remove the popup when there is no exit animation defined', async ({ skip }) => {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         skip();
       }
 
@@ -223,7 +221,7 @@ describe('<Popover.Root />', () => {
     });
 
     it('should remove the popup when the animation finishes', async ({ skip }) => {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         skip();
       }
 

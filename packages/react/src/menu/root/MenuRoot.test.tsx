@@ -5,9 +5,7 @@ import { DirectionProvider } from '@base-ui-components/react/direction-provider'
 import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+import { createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Menu.Root />', () => {
   beforeEach(() => {
@@ -147,7 +145,7 @@ describe('<Menu.Root />', () => {
 
     describe('text navigation', () => {
       it('changes the highlighted item', async ({ skip }) => {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
           skip();
@@ -192,7 +190,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('changes the highlighted item using text navigation on label prop', async ({ skip }) => {
-        if (!/jsdom/.test(window.navigator.userAgent)) {
+        if (!isJSDOM) {
           // This test is very flaky in real browsers
           skip();
         }
@@ -247,7 +245,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('skips the non-stringifiable items', async ({ skip }) => {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
           skip();
@@ -293,7 +291,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('navigate to options with diacritic characters', async ({ skip }) => {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
           skip();
@@ -334,7 +332,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('navigate to next options beginning with diacritic characters', async ({ skip }) => {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
           skip();
@@ -371,7 +369,7 @@ describe('<Menu.Root />', () => {
       it('does not trigger the onClick event when Space is pressed during text navigation', async ({
         skip,
       }) => {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
           skip();
@@ -577,7 +575,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('focuses the trigger after the menu is closed but not unmounted', async ({ skip }) => {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // TODO: this stopped working in vitest JSDOM mode
         skip();
       }
@@ -721,7 +719,7 @@ describe('<Menu.Root />', () => {
 
   describe('controlled mode', () => {
     it('should remove the popup when and there is no exit animation defined', async ({ skip }) => {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         skip();
       }
 
@@ -753,7 +751,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('should remove the popup when the animation finishes', async ({ skip }) => {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         skip();
       }
 

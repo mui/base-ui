@@ -4,7 +4,7 @@ import { spy } from 'sinon';
 import { MemoryRouter, Route, Routes, Link, useLocation } from 'react-router-dom';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
-import { describeConformance, createRenderer } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Menu.Item />', () => {
   const { render, clock } = createRenderer({
@@ -45,7 +45,7 @@ describe('<Menu.Item />', () => {
   });
 
   it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
-    if (/jsdom/.test(window.navigator.userAgent)) {
+    if (isJSDOM) {
       skip();
     }
 

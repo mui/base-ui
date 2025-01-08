@@ -3,10 +3,8 @@ import { Tooltip } from '@base-ui-components/react/tooltip';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 function Root(props: Tooltip.Root.Props) {
   return <Tooltip.Root {...props} />;

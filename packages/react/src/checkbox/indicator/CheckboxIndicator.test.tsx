@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { Checkbox } from '@base-ui-components/react/checkbox';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { CheckboxRootContext } from '../root/CheckboxRootContext';
 
@@ -98,7 +98,7 @@ describe('<Checkbox.Indicator />', () => {
   });
 
   it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
-    if (/jsdom/.test(window.navigator.userAgent)) {
+    if (isJSDOM) {
       skip();
     }
 
@@ -128,7 +128,7 @@ describe('<Checkbox.Indicator />', () => {
   });
 
   it('should remove the indicator when the animation finishes', async ({ skip }) => {
-    if (/jsdom/.test(window.navigator.userAgent)) {
+    if (isJSDOM) {
       skip();
     }
 

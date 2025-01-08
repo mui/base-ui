@@ -4,7 +4,7 @@ import { spy } from 'sinon';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui-components/react/switch';
 import { userEvent } from '@testing-library/user-event';
-import { describeConformance, createRenderer } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Switch.Root />', () => {
   const { render } = createRenderer();
@@ -208,7 +208,7 @@ describe('<Switch.Root />', () => {
     });
 
     it('should include the switch value in the form submission', async ({ skip }) => {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         // FormData is not available in JSDOM
         skip();
       }

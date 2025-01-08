@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { Radio } from '@base-ui-components/react/radio';
 import { expect } from 'chai';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
@@ -20,7 +20,7 @@ describe('<Radio.Indicator />', () => {
   }));
 
   it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
-    if (/jsdom/.test(window.navigator.userAgent)) {
+    if (isJSDOM) {
       skip();
     }
 
@@ -59,7 +59,7 @@ describe('<Radio.Indicator />', () => {
   });
 
   it('should remove the indicator when the animation finishes', async ({ skip }) => {
-    if (/jsdom/.test(window.navigator.userAgent)) {
+    if (isJSDOM) {
       skip();
     }
 

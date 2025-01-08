@@ -7,10 +7,9 @@ import {
 } from '@base-ui-components/react/direction-provider';
 import { expect } from 'chai';
 import { spy } from 'sinon';
+import { isJSDOM } from '#test-utils';
 import { createRenderer, act, screen, fireEvent } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<RadioGroup />', () => {
   const { render } = createRenderer();

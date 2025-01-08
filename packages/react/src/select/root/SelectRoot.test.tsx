@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<Select.Root />', () => {
   beforeEach(() => {
@@ -216,7 +214,7 @@ describe('<Select.Root />', () => {
     it('when `false`, should remove the popup when there is no exit animation defined', async ({
       skip,
     }) => {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         skip();
       }
 
@@ -248,7 +246,7 @@ describe('<Select.Root />', () => {
     });
 
     it('when `false`, should remove the popup when the animation finishes', async ({ skip }) => {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+      if (isJSDOM) {
         skip();
       }
 
