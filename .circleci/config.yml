@@ -335,9 +335,6 @@ jobs:
     steps:
       - checkout
       - install_js
-      - run:
-          name: Run danger on PRs
-          command: pnpm danger ci --fail-on-errors
       # TODO test bundle size https://github.com/mui/base-ui/issues/201
   test_package:
     <<: *default-job

@@ -100,7 +100,6 @@
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
-    "danger": "^12.3.3",
     "docs": "workspace:^",
     "eslint": "^8.57.1",
     "eslint-config-airbnb": "^19.0.4",
