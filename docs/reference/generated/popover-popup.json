@@ -27,7 +27,7 @@
       "description": "Present when the popup is closed."
     },
     "data-instant": {
-      "description": "Indicates the instant type of the popover popup.",
+      "description": "Present if animations should be instant.",
       "type": "'click' | 'dismiss'"
     },
     "data-side": {

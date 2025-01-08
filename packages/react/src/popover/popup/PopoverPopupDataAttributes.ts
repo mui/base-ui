@@ -21,7 +21,7 @@ export enum PopoverPopupDataAttributes {
    */
   side = 'data-side',
   /**
-   * Indicates the instant type of the popover popup.
+   * Present if animations should be instant.
    * @type {'click' | 'dismiss'}
    */
   instant = 'data-instant',

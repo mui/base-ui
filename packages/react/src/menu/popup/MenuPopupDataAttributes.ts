@@ -21,7 +21,7 @@ export enum MenuPopupDataAttributes {
    */
   side = 'data-side',
   /**
-   * Indicates the instant type of the menu popup.
+   * Present if animations should be instant.
    * @type {'click' | 'dismiss'}
    */
   instant = 'data-instant',
