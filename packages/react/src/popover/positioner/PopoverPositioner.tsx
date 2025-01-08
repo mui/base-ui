@@ -6,10 +6,10 @@ import { useForkRef } from '../../utils/useForkRef';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositioner } from './usePopoverPositioner';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
-import { HTMLElementType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { HTMLElementType, refType } from '../../utils/proptypes';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 
 /**
@@ -35,11 +35,11 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
+    trackAnchor = true,
     ...otherProps
   } = props;
 
-  const { floatingRootContext, open, mounted, setPositionerElement, popupRef, openMethod } =
-    usePopoverRootContext();
+  const { floatingRootContext, open, mounted, setPositionerElement } = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
 
   const positioner = usePopoverPositioner({
@@ -56,8 +56,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    popupRef,
-    openMethod,
+    trackAnchor,
     keepMounted,
   });
 
@@ -127,6 +126,7 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
+    refType,
     PropTypes.object,
     PropTypes.func,
   ]),
@@ -199,10 +199,15 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
   sideOffset: PropTypes.number,
   /**
    * Whether to maintain the popup in the viewport after
-   * the anchor element is scrolled out of view.
+   * the anchor element was scrolled out of view.
    * @default false
    */
   sticky: PropTypes.bool,
+  /**
+   * Whether the popup tracks any layout shift of its positioning anchor.
+   * @default true
+   */
+  trackAnchor: PropTypes.bool,
 } as any;
 
 export { PopoverPositioner };
