@@ -14,10 +14,6 @@
     "onOpenChange": {
       "type": "(open, event, reason) => void",
       "description": "Event handler called when the dialog is opened or closed."
-    },
-    "onCloseComplete": {
-      "type": "function",
-      "description": "Event handler called after any exit animations finish when the dialog is closed."
     }
   },
   "dataAttributes": {},

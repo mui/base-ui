@@ -34,7 +34,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     open: openParam,
     defaultOpen,
     onOpenChange,
-    onCloseComplete,
     orientation,
     direction,
     disabled,
@@ -98,7 +97,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       setOpenReason(null);
       setHoverEnabled(true);
       setStickIfOpen(true);
-      onCloseComplete?.();
     },
   });
 
@@ -301,10 +299,6 @@ export namespace useMenuRoot {
      * Event handler called when the menu is opened or closed.
      */
     onOpenChange: ((open: boolean, event?: Event, reason?: OpenChangeReason) => void) | undefined;
-    /**
-     * Event handler called after any exit animations finish when the menu is closed.
-     */
-    onCloseComplete: (() => void) | undefined;
     /**
      * Whether the menu is initially open.
      *
