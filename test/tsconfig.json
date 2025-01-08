@@ -2,9 +2,9 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "module": "es2022",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "types": ["vite/client", "vitest/globals"]
   },
-  "include": ["e2e/**/*", "regressions/**/*"],
+  "include": ["e2e/**/*", "regressions/**/*", "./*.ts"],
   "exclude": ["node_modules", "build"]
 }

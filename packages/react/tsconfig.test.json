@@ -11,6 +11,6 @@
     "outDir": "build-tests",
     "types": ["vitest/globals", "@types/chai", "@types/chai-dom"]
   },
-  "include": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "src/index.test.js", "test"],
+  "include": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "src/index.test.js", "test", "src/global.d.ts"],
   "references": [{ "path": "./tsconfig.build.json" }]
 }

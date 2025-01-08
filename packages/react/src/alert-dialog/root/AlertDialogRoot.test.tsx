@@ -169,7 +169,7 @@ describe('<AlertDialog.Root />', () => {
     });
 
     it('is called on close when the exit animation finishes', async () => {
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let onCloseCompleteCalled = false;
       function notifyonCloseComplete() {

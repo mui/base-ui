@@ -14,7 +14,7 @@ function Root(props: Tooltip.Root.Props) {
 
 describe('<Tooltip.Root />', () => {
   beforeEach(() => {
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   const { render, clock } = createRenderer();
@@ -433,7 +433,7 @@ describe('<Tooltip.Root />', () => {
     });
 
     it('is called on close when the exit animation finishes', async () => {
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let onCloseCompleteCalled = false;
       function notifyonCloseComplete() {

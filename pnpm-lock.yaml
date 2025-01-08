@@ -689,6 +689,9 @@ importers:
       '@types/chai':
         specifier: ^4.3.20
         version: 4.3.20
+      '@types/chai-dom':
+        specifier: ^1.11.3
+        version: 1.11.3
       '@types/react':
         specifier: ^19.0.2
         version: 19.0.2
