@@ -12,24 +12,16 @@ import { useSliderRoot } from './useSliderRoot';
 import { SliderRootContext } from './SliderRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
-type SliderRootType = {
-  <Value extends number | readonly number[]>(
-    props: SliderRoot.Props<Value> & {
-      ref?: React.RefObject<HTMLDivElement>;
-    },
-  ): React.JSX.Element;
-  propTypes?: any;
-};
-
 /**
  * Groups all parts of the slider.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-export const SliderRoot = React.forwardRef(function SliderRoot<
-  Value extends number | readonly number[],
->(props: SliderRoot.Props<Value>, forwardedRef: React.ForwardedRef<HTMLDivElement>) {
+const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | readonly number[]>(
+  props: SliderRoot.Props<Value>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
   const {
     'aria-labelledby': ariaLabelledby,
     className,
@@ -127,7 +119,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       <CompositeList elementsRef={slider.thumbRefs}>{renderElement()}</CompositeList>
     </SliderRootContext.Provider>
   );
-}) as SliderRootType;
+}) as {
+  <Value extends number | readonly number[]>(
+    props: SliderRoot.Props<Value> & {
+      ref?: React.RefObject<HTMLDivElement>;
+    },
+  ): React.JSX.Element;
+  propTypes?: any;
+};
 
 export namespace SliderRoot {
   export interface State extends FieldRoot.State {
@@ -224,6 +223,7 @@ export namespace SliderRoot {
     onValueCommitted?: (value: Value, event: Event) => void;
   }
 }
+export { SliderRoot };
 
 SliderRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
