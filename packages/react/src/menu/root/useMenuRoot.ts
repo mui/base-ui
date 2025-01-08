@@ -19,7 +19,7 @@ import { useTransitionStatus, type TransitionStatus } from '../../utils/useTrans
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useControlled } from '../../utils/useControlled';
 import { PATIENT_CLICK_THRESHOLD, TYPEAHEAD_RESET_MS } from '../../utils/constants';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import {
@@ -34,7 +34,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     open: openParam,
     defaultOpen,
     onOpenChange,
-    onCloseComplete,
+    onOpenChangeComplete,
     orientation,
     direction,
     disabled,
@@ -90,15 +90,19 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
   );
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open,
-    animatedElementRef: popupRef,
-    onFinished() {
-      setMounted(false);
-      setOpenReason(null);
-      setHoverEnabled(true);
-      setStickIfOpen(true);
-      onCloseComplete?.();
+    ref: popupRef,
+    onComplete() {
+      onOpenChangeComplete?.(open);
+
+      if (!open) {
+        setMounted(false);
+        setOpenReason(null);
+        setHoverEnabled(true);
+        setStickIfOpen(true);
+        onOpenChangeComplete?.(false);
+      }
     },
   });
 
@@ -302,9 +306,9 @@ export namespace useMenuRoot {
      */
     onOpenChange: ((open: boolean, event?: Event, reason?: OpenChangeReason) => void) | undefined;
     /**
-     * Event handler called after any exit animations finish when the menu is closed.
+     * Event handler called after any animations complete when the menu is opened or closed.
      */
-    onCloseComplete: (() => void) | undefined;
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
     /**
      * Whether the menu is initially open.
      *

@@ -431,11 +431,11 @@ describe('<Select.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('prop: onCloseComplete', () => {
+  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
-      let onCloseCompleteCalled = false;
-      function notifyonCloseComplete() {
-        onCloseCompleteCalled = true;
+      let onOpenChangeCompleteCalled = false;
+      function notifyonOpenChangeComplete() {
+        onOpenChangeCompleteCalled = true;
       }
 
       function Test() {
@@ -443,7 +443,7 @@ describe('<Select.Root />', () => {
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <Select.Root open={open} onCloseComplete={notifyonCloseComplete}>
+            <Select.Root open={open} onOpenChangeComplete={notifyonOpenChangeComplete}>
               <Select.Portal>
                 <Select.Positioner data-testid="positioner">
                   <Select.Popup />
@@ -463,15 +463,15 @@ describe('<Select.Root />', () => {
         expect(screen.queryByTestId('positioner')).to.have.attribute('hidden', '');
       });
 
-      expect(onCloseCompleteCalled).to.equal(true);
+      expect(onOpenChangeCompleteCalled).to.equal(true);
     });
 
     it('is called on close when the exit animation finishes', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-      let onCloseCompleteCalled = false;
-      function notifyonCloseComplete() {
-        onCloseCompleteCalled = true;
+      let onOpenChangeCompleteCalled = false;
+      function notifyonOpenChangeComplete() {
+        onOpenChangeCompleteCalled = true;
       }
 
       function Test() {
@@ -494,7 +494,7 @@ describe('<Select.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
-            <Select.Root open={open} onCloseComplete={notifyonCloseComplete}>
+            <Select.Root open={open} onOpenChangeComplete={notifyonOpenChangeComplete}>
               <Select.Portal>
                 <Select.Positioner data-testid="positioner">
                   <Select.Popup className="animation-test-indicator" />
@@ -516,7 +516,7 @@ describe('<Select.Root />', () => {
         expect(screen.queryByTestId('positioner')).to.have.attribute('hidden', '');
       });
 
-      expect(onCloseCompleteCalled).to.equal(true);
+      expect(onOpenChangeCompleteCalled).to.equal(true);
     });
   });
 });

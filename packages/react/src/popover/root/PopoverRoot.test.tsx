@@ -536,11 +536,11 @@ describe('<Popover.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('prop: onCloseComplete', () => {
+  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
-      let onCloseCompleteCalled = false;
-      function notifyonCloseComplete() {
-        onCloseCompleteCalled = true;
+      let onOpenChangeCompleteCalled = false;
+      function notifyonOpenChangeComplete() {
+        onOpenChangeCompleteCalled = true;
       }
 
       function Test() {
@@ -548,7 +548,7 @@ describe('<Popover.Root />', () => {
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <Popover.Root open={open} onCloseComplete={notifyonCloseComplete}>
+            <Popover.Root open={open} onOpenChangeComplete={notifyonOpenChangeComplete}>
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup data-testid="popup" />
@@ -568,15 +568,15 @@ describe('<Popover.Root />', () => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
 
-      expect(onCloseCompleteCalled).to.equal(true);
+      expect(onOpenChangeCompleteCalled).to.equal(true);
     });
 
     it('is called on close when the exit animation finishes', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-      let onCloseCompleteCalled = false;
-      function notifyonCloseComplete() {
-        onCloseCompleteCalled = true;
+      let onOpenChangeCompleteCalled = false;
+      function notifyonOpenChangeComplete() {
+        onOpenChangeCompleteCalled = true;
       }
 
       function Test() {
@@ -599,7 +599,7 @@ describe('<Popover.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
-            <Popover.Root open={open} onCloseComplete={notifyonCloseComplete}>
+            <Popover.Root open={open} onOpenChangeComplete={notifyonOpenChangeComplete}>
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup className="animation-test-indicator" data-testid="popup" />
@@ -621,7 +621,7 @@ describe('<Popover.Root />', () => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
 
-      expect(onCloseCompleteCalled).to.equal(true);
+      expect(onOpenChangeCompleteCalled).to.equal(true);
     });
   });
 });

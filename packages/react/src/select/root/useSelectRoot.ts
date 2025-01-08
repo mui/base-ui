@@ -18,7 +18,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
@@ -28,7 +28,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     required = false,
     alignItemToTrigger: alignItemToTriggerParam = true,
     modal = false,
-    onCloseComplete,
+    onOpenChangeComplete,
   } = params;
 
   const { setDirty, validityData, validationMode, setControlId } = useFieldRootContext();
@@ -117,13 +117,16 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }
   });
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open,
-    animatedElementRef: popupRef,
-    onFinished() {
-      setMounted(false);
-      setActiveIndex(null);
-      onCloseComplete?.();
+    ref: popupRef,
+    onComplete() {
+      onOpenChangeComplete?.(open);
+
+      if (!open) {
+        setMounted(false);
+        setActiveIndex(null);
+      }
     },
   });
 
@@ -379,9 +382,9 @@ export namespace useSelectRoot {
      */
     onOpenChange?: (open: boolean, event: Event | undefined) => void;
     /**
-     * Event handler called after any exit animations finish when the select menu is closed.
+     * Event handler called after any animations complete when the select menu is opened or closed.
      */
-    onCloseComplete?: () => void;
+    onOpenChangeComplete?: (open: boolean) => void;
     /**
      * Whether the select menu is currently open.
      */

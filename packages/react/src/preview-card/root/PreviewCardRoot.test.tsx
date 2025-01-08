@@ -496,11 +496,11 @@ describe('<PreviewCard.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('prop: onCloseComplete', () => {
+  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
-      let onCloseCompleteCalled = false;
-      function notifyonCloseComplete() {
-        onCloseCompleteCalled = true;
+      let onOpenChangeCompleteCalled = false;
+      function notifyonOpenChangeComplete() {
+        onOpenChangeCompleteCalled = true;
       }
 
       function Test() {
@@ -508,7 +508,7 @@ describe('<PreviewCard.Root />', () => {
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <PreviewCard.Root open={open} onCloseComplete={notifyonCloseComplete}>
+            <PreviewCard.Root open={open} onOpenChangeComplete={notifyonOpenChangeComplete}>
               <PreviewCard.Portal>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup data-testid="popup" />
@@ -528,15 +528,15 @@ describe('<PreviewCard.Root />', () => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
 
-      expect(onCloseCompleteCalled).to.equal(true);
+      expect(onOpenChangeCompleteCalled).to.equal(true);
     });
 
     it('is called on close when the exit animation finishes', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-      let onCloseCompleteCalled = false;
-      function notifyonCloseComplete() {
-        onCloseCompleteCalled = true;
+      let onOpenChangeCompleteCalled = false;
+      function notifyonOpenChangeComplete() {
+        onOpenChangeCompleteCalled = true;
       }
 
       function Test() {
@@ -559,7 +559,7 @@ describe('<PreviewCard.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
-            <PreviewCard.Root open={open} onCloseComplete={notifyonCloseComplete}>
+            <PreviewCard.Root open={open} onOpenChangeComplete={notifyonOpenChangeComplete}>
               <PreviewCard.Portal>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup className="animation-test-indicator" data-testid="popup" />
@@ -581,7 +581,7 @@ describe('<PreviewCard.Root />', () => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
 
-      expect(onCloseCompleteCalled).to.equal(true);
+      expect(onOpenChangeCompleteCalled).to.equal(true);
     });
   });
 });
