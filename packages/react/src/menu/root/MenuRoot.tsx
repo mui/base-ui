@@ -196,7 +196,7 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   modal: PropTypes.bool,
   /**
-   * Event handler called after any animations complete when the menu is closed.
+   * Event handler called after any animations complete when the menu is opened or closed.
    */
   onOpenChangeComplete: PropTypes.func,
   /**
