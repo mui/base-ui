@@ -5,6 +5,7 @@ import { useMenuItem } from '../item/useMenuItem';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useDirection } from '../../direction-provider/DirectionContext';
 
 type MenuKeyboardEvent = {
   key: 'ArrowRight' | 'ArrowLeft' | 'ArrowUp' | 'ArrowDown';
@@ -38,13 +39,17 @@ export function useMenuSubmenuTrigger(
 
   const menuTriggerRef = useForkRef(menuItemRef, setTriggerElement);
 
+  const direction = useDirection();
+
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps) => {
+      const openKey = direction === 'rtl' ? 'ArrowLeft' : 'ArrowRight';
+
       return mergeReactProps(externalProps, {
         ...getMenuItemProps({
           'aria-haspopup': 'menu' as const,
           onKeyDown: (event: MenuKeyboardEvent) => {
-            if (event.key === 'ArrowRight' && highlighted) {
+            if (event.key === openKey && highlighted) {
               // Clear parent menu's highlight state when entering submenu
               // This prevents multiple highlighted items across menu levels
               setActiveIndex(null);
@@ -55,7 +60,7 @@ export function useMenuSubmenuTrigger(
         ref: menuTriggerRef,
       });
     },
-    [getMenuItemProps, menuTriggerRef, highlighted, setActiveIndex],
+    [getMenuItemProps, menuTriggerRef, highlighted, setActiveIndex, direction],
   );
 
   return React.useMemo(
