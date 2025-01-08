@@ -112,7 +112,7 @@ namespace MenuRoot {
     /**
      * Event handler called after any animations complete when the menu is closed.
      */
-    onOpenChangeComplete?: () => void;
+    onOpenChangeComplete?: (open: boolean) => void;
     /**
      * Whether the menu is currently open.
      */

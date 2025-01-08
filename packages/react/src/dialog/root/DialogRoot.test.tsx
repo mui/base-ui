@@ -587,9 +587,9 @@ describe('<Dialog.Root />', () => {
 
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
-      let onOpenChangeCompleteCalled = false;
-      function notifyonOpenChangeComplete() {
-        onOpenChangeCompleteCalled = true;
+      let onOpenChangeCompleteValue: boolean | null = null;
+      function notifyOnOpenChangeComplete(open: boolean) {
+        onOpenChangeCompleteValue = open;
       }
 
       function Test() {
@@ -597,7 +597,7 @@ describe('<Dialog.Root />', () => {
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <Dialog.Root open={open} onOpenChangeComplete={notifyonOpenChangeComplete}>
+            <Dialog.Root open={open} onOpenChangeComplete={notifyOnOpenChangeComplete}>
               <Dialog.Portal>
                 <Dialog.Popup data-testid="popup" />
               </Dialog.Portal>
@@ -615,15 +615,15 @@ describe('<Dialog.Root />', () => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
 
-      expect(onOpenChangeCompleteCalled).to.equal(true);
+      expect(onOpenChangeCompleteValue).to.equal(false);
     });
 
     it('is called on close when the exit animation finishes', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-      let onOpenChangeCompleteCalled = false;
-      function notifyonOpenChangeComplete() {
-        onOpenChangeCompleteCalled = true;
+      let onOpenChangeCompleteValue: boolean | null = null;
+      function notifyOnOpenChangeComplete(open: boolean) {
+        onOpenChangeCompleteValue = open;
       }
 
       function Test() {
@@ -646,7 +646,7 @@ describe('<Dialog.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
-            <Dialog.Root open={open} onOpenChangeComplete={notifyonOpenChangeComplete}>
+            <Dialog.Root open={open} onOpenChangeComplete={notifyOnOpenChangeComplete}>
               <Dialog.Portal>
                 <Dialog.Popup className="animation-test-indicator" data-testid="popup" />
               </Dialog.Portal>
@@ -666,7 +666,7 @@ describe('<Dialog.Root />', () => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
 
-      expect(onOpenChangeCompleteCalled).to.equal(true);
+      expect(onOpenChangeCompleteValue).to.equal(false);
     });
   });
 });
