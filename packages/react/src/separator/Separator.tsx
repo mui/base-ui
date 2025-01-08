@@ -2,9 +2,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../utils/types';
+import { mergeReactProps } from '../utils/mergeReactProps';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
-
-const EMPTY_OBJECT = {};
 
 /**
  * A separator element accessible to screen readers.
@@ -16,18 +15,50 @@ const Separator = React.forwardRef(function SeparatorComponent(
   props: Separator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...other } = props;
+  const { className, render, orientation = 'horizontal', ...other } = props;
+
+  const state: Separator.State = React.useMemo(() => ({ orientation }), [orientation]);
+
+  const getSeparatorProps = React.useCallback(
+    (externalProps = {}) =>
+      mergeReactProps(externalProps, {
+        'aria-orientation': orientation,
+      }),
+    [orientation],
+  );
 
   const { renderElement } = useComponentRenderer({
+    propGetter: getSeparatorProps,
     render: render ?? 'div',
     className,
-    state: EMPTY_OBJECT,
+    state,
     extraProps: { role: 'separator', ...other },
     ref: forwardedRef,
   });
 
   return renderElement();
 });
+
+type Orientation = 'horizontal' | 'vertical';
+
+namespace Separator {
+  export interface Props extends BaseUIComponentProps<'div', State> {
+    /**
+     * The component orientation.
+     * @default 'horizontal'
+     */
+    orientation?: Orientation;
+  }
+
+  export interface State {
+    /**
+     * The component orientation.
+     */
+    orientation: Orientation;
+  }
+}
+
+export { Separator };
 
 Separator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -44,6 +75,11 @@ Separator.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * The component orientation.
+   * @default 'horizontal'
+   */
+  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
+  /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
    *
@@ -51,11 +87,3 @@ Separator.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-namespace Separator {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
-
-  export interface State {}
-}
-
-export { Separator };
