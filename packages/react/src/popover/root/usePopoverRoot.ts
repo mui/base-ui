@@ -86,7 +86,6 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       if (!open) {
         setMounted(false);
         setOpenReason(null);
-        onOpenChangeComplete?.(false);
       }
     },
   });

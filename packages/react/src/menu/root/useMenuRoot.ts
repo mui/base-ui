@@ -101,7 +101,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         setOpenReason(null);
         setHoverEnabled(true);
         setStickIfOpen(true);
-        onOpenChangeComplete?.(false);
       }
     },
   });
