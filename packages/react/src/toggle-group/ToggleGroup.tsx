@@ -6,6 +6,7 @@ import { useComponentRenderer } from '../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../utils/types';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useDirection } from '../direction-provider/DirectionContext';
+import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { useToggleGroup, type UseToggleGroup } from './useToggleGroup';
 import { ToggleGroupContext } from './ToggleGroupContext';
 
@@ -41,6 +42,8 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
   } = props;
 
   const direction = useDirection();
+
+  const toolbarContext = useToolbarRootContext(true);
 
   const defaultValue = React.useMemo(() => {
     if (valueProp === undefined) {
@@ -90,7 +93,11 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
 
   return (
     <ToggleGroupContext.Provider value={contextValue}>
-      <CompositeRoot direction={direction} loop={loop} render={renderElement()} />
+      {toolbarContext ? (
+        renderElement()
+      ) : (
+        <CompositeRoot direction={direction} loop={loop} render={renderElement()} />
+      )}
     </ToggleGroupContext.Provider>
   );
 });
