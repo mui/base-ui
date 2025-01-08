@@ -1,35 +1,9 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
-import { MenuRootContext } from '../root/MenuRootContext';
-
-const testRootContext: MenuRootContext = {
-  floatingRootContext: undefined as unknown as FloatingRootContext,
-  getPopupProps: (p) => ({ ...p }),
-  getTriggerProps: (p) => ({ ...p }),
-  getItemProps: (p) => ({ ...p }),
-  parentContext: undefined,
-  nested: false,
-  setTriggerElement: () => {},
-  setPositionerElement: () => {},
-  activeIndex: null,
-  disabled: false,
-  itemDomElements: { current: [] },
-  itemLabels: { current: [] },
-  open: true,
-  setOpen: () => {},
-  popupRef: { current: null },
-  mounted: true,
-  transitionStatus: undefined,
-  typingRef: { current: false },
-  modal: false,
-  positionerRef: { current: null },
-  allowMouseUpTriggerRef: { current: false },
-};
 
 describe('<Menu.Positioner />', () => {
   const { render } = createRenderer();
@@ -37,11 +11,9 @@ describe('<Menu.Positioner />', () => {
   describeConformance(<Menu.Positioner />, () => ({
     render: (node) => {
       return render(
-        <FloatingTree>
-          <MenuRootContext.Provider value={testRootContext}>
-            <Menu.Portal>{node}</Menu.Portal>
-          </MenuRootContext.Provider>
-        </FloatingTree>,
+        <Menu.Root open>
+          <Menu.Portal>{node}</Menu.Portal>
+        </Menu.Root>,
       );
     },
     refInstanceof: window.HTMLDivElement,
