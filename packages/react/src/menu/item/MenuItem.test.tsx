@@ -13,6 +13,7 @@ const testRootContext: MenuRootContext = {
   getPopupProps: (p) => ({ ...p }),
   getTriggerProps: (p) => ({ ...p }),
   getItemProps: (p) => ({ ...p }),
+  setActiveIndex: () => {},
   parentContext: undefined,
   nested: false,
   setTriggerElement: () => {},

@@ -181,6 +181,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     () => ({
       activeIndex,
       allowMouseUpTriggerRef,
+      setActiveIndex,
       floatingRootContext,
       getItemProps,
       getPopupProps,
@@ -198,6 +199,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     }),
     [
       activeIndex,
+      setActiveIndex,
       floatingRootContext,
       getItemProps,
       getPopupProps,
@@ -282,6 +284,7 @@ export namespace useMenuRoot {
 
   export interface ReturnValue {
     activeIndex: number | null;
+    setActiveIndex: (index: number | null) => void;
     floatingRootContext: FloatingRootContext;
     getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
