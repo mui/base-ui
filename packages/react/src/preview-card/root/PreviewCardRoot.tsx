@@ -12,7 +12,7 @@ import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(props) {
-  const { delay, closeDelay, onCloseComplete } = props;
+  const { delay, closeDelay } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
@@ -20,7 +20,6 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
   const previewCardRoot = usePreviewCardRoot({
     delay,
     closeDelay,
-    onCloseComplete,
     open: props.open,
     onOpenChange: props.onOpenChange,
     defaultOpen: props.defaultOpen,
@@ -76,10 +75,6 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    * @default 600
    */
   delay: PropTypes.number,
-  /**
-   * Event handler called after any exit animations finish when the preview card is closed.
-   */
-  onCloseComplete: PropTypes.func,
   /**
    * Event handler called when the preview card is opened or closed.
    */

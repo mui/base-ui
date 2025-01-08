@@ -32,7 +32,6 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     trackCursorAxis = 'none',
     delay,
     closeDelay,
-    onCloseComplete,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -68,7 +67,6 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     animatedElementRef: popupRef,
     onFinished() {
       setMounted(false);
-      onCloseComplete?.();
     },
   });
 
@@ -185,10 +183,6 @@ export namespace useTooltipRoot {
      * Event handler called when the tooltip is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
-    /**
-     * Event handler called after any exit animations finish when the tooltip is closed.
-     */
-    onCloseComplete?: () => void;
     /**
      * Whether the tooltip contents can be hovered without closing the tooltip.
      * @default true

@@ -25,10 +25,6 @@
       "default": "true",
       "description": "Whether the menu should prevent outside clicks and lock page scroll when open."
     },
-    "onCloseComplete": {
-      "type": "function",
-      "description": "Event handler called after any exit animations finish when the menu is closed."
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
