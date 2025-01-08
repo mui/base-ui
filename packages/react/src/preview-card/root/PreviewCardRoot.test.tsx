@@ -1,10 +1,19 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui-components/react/preview-card';
-import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  screen,
+  flushMicrotasks,
+  waitFor,
+  describeSkipIf,
+} from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
+
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 function Root(props: PreviewCard.Root.Props) {
   return <PreviewCard.Root {...props} />;
@@ -32,9 +41,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -55,9 +66,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -87,9 +100,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -108,9 +123,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -131,9 +148,11 @@ describe('<PreviewCard.Root />', () => {
     it('should open when controlled open is true', async () => {
       await render(
         <Root open>
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -143,9 +162,11 @@ describe('<PreviewCard.Root />', () => {
     it('should close when controlled open is false', async () => {
       await render(
         <Root open={false}>
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -164,9 +185,11 @@ describe('<PreviewCard.Root />', () => {
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
             <PreviewCard.Root open={open}>
-              <PreviewCard.Positioner>
-                <PreviewCard.Popup>Content</PreviewCard.Popup>
-              </PreviewCard.Positioner>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup>Content</PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
             </PreviewCard.Root>
           </div>
         );
@@ -219,14 +242,16 @@ describe('<PreviewCard.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <PreviewCard.Root open={open}>
-              <PreviewCard.Positioner keepMounted data-testid="positioner">
-                <PreviewCard.Popup
-                  className="animation-test-popup"
-                  onAnimationEnd={notifyAnimationFinished}
-                >
-                  Content
-                </PreviewCard.Popup>
-              </PreviewCard.Positioner>
+              <PreviewCard.Portal keepMounted>
+                <PreviewCard.Positioner data-testid="positioner">
+                  <PreviewCard.Popup
+                    className="animation-test-popup"
+                    onAnimationEnd={notifyAnimationFinished}
+                  >
+                    Content
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
             </PreviewCard.Root>
           </div>
         );
@@ -263,9 +288,11 @@ describe('<PreviewCard.Root />', () => {
             }}
           >
             <Trigger />
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner>
+                <PreviewCard.Popup>Content</PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
           </Root>
         );
       }
@@ -310,9 +337,11 @@ describe('<PreviewCard.Root />', () => {
             }}
           >
             <Trigger />
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner>
+                <PreviewCard.Popup>Content</PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
           </Root>
         );
       }
@@ -343,9 +372,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root defaultOpen>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -356,9 +387,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root defaultOpen open={false}>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -369,9 +402,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root defaultOpen open>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -382,9 +417,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root defaultOpen>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -407,9 +444,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root delay={100}>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -437,9 +476,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root closeDelay={100}>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -461,6 +502,95 @@ describe('<PreviewCard.Root />', () => {
       clock.tick(100);
 
       expect(screen.queryByText('Content')).to.equal(null);
+    });
+  });
+
+  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <PreviewCard.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="popup" />
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 50ms;
+        }
+      `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <PreviewCard.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup className="animation-test-indicator" data-testid="popup" />
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.to.equal(null);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
     });
   });
 });

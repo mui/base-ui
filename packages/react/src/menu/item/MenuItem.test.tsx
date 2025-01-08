@@ -3,34 +3,8 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { MemoryRouter, Route, Routes, Link, useLocation } from 'react-router-dom';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
-import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
-import { MenuRootContext } from '../root/MenuRootContext';
-
-const testRootContext: MenuRootContext = {
-  floatingRootContext: {} as FloatingRootContext,
-  getPopupProps: (p) => ({ ...p }),
-  getTriggerProps: (p) => ({ ...p }),
-  getItemProps: (p) => ({ ...p }),
-  parentContext: undefined,
-  nested: false,
-  setTriggerElement: () => {},
-  setPositionerElement: () => {},
-  activeIndex: null,
-  disabled: false,
-  itemDomElements: { current: [] },
-  itemLabels: { current: [] },
-  open: true,
-  setOpen: () => {},
-  popupRef: { current: null },
-  mounted: true,
-  transitionStatus: undefined,
-  typingRef: { current: false },
-  modal: false,
-  positionerRef: { current: null },
-  allowMouseUpTriggerRef: { current: false },
-};
 
 describe('<Menu.Item />', () => {
   const { render, clock } = createRenderer({
@@ -43,11 +17,7 @@ describe('<Menu.Item />', () => {
 
   describeConformance(<Menu.Item />, () => ({
     render: (node) => {
-      return render(
-        <FloatingTree>
-          <MenuRootContext.Provider value={testRootContext}>{node}</MenuRootContext.Provider>
-        </FloatingTree>,
-      );
+      return render(<Menu.Root open>{node}</Menu.Root>);
     },
     refInstanceof: window.HTMLDivElement,
   }));
@@ -56,13 +26,15 @@ describe('<Menu.Item />', () => {
     const onClick = spy();
     const { user } = await render(
       <Menu.Root open>
-        <Menu.Positioner>
-          <Menu.Popup>
-            <Menu.Item onClick={onClick} id="item">
-              Item
-            </Menu.Item>
-          </Menu.Popup>
-        </Menu.Positioner>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item onClick={onClick} id="item">
+                Item
+              </Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
       </Menu.Root>,
     );
 
@@ -93,22 +65,24 @@ describe('<Menu.Item />', () => {
 
     const { getAllByRole, user } = await render(
       <Menu.Root open>
-        <Menu.Positioner>
-          <Menu.Popup>
-            <Menu.Item render={<LoggingRoot renderSpy={renderItem1Spy} />} id="item-1">
-              1
-            </Menu.Item>
-            <Menu.Item render={<LoggingRoot renderSpy={renderItem2Spy} />} id="item-2">
-              2
-            </Menu.Item>
-            <Menu.Item render={<LoggingRoot renderSpy={renderItem3Spy} />} id="item-3">
-              3
-            </Menu.Item>
-            <Menu.Item render={<LoggingRoot renderSpy={renderItem4Spy} />} id="item-4">
-              4
-            </Menu.Item>
-          </Menu.Popup>
-        </Menu.Positioner>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item render={<LoggingRoot renderSpy={renderItem1Spy} />} id="item-1">
+                1
+              </Menu.Item>
+              <Menu.Item render={<LoggingRoot renderSpy={renderItem2Spy} />} id="item-2">
+                2
+              </Menu.Item>
+              <Menu.Item render={<LoggingRoot renderSpy={renderItem3Spy} />} id="item-3">
+                3
+              </Menu.Item>
+              <Menu.Item render={<LoggingRoot renderSpy={renderItem4Spy} />} id="item-4">
+                4
+              </Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
       </Menu.Root>,
     );
 
@@ -152,11 +126,13 @@ describe('<Menu.Item />', () => {
       const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item>Item</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -173,11 +149,13 @@ describe('<Menu.Item />', () => {
       const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item closeOnClick={false}>Item</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item closeOnClick={false}>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -214,12 +192,14 @@ describe('<Menu.Item />', () => {
           <LocationDisplay />
 
           <Menu.Root open>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item render={<Link to="/" />}>link 1</Menu.Item>
-                <Menu.Item render={<Link to="/two" />}>link 2</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item render={<Link to="/" />}>link 1</Menu.Item>
+                  <Menu.Item render={<Link to="/two" />}>link 2</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
         </MemoryRouter>,
       );

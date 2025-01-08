@@ -17,9 +17,11 @@ describe('<AlertDialog.Root />', () => {
       const { user } = await render(
         <AlertDialog.Root onOpenChange={handleOpenChange}>
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-          <AlertDialog.Popup>
-            <AlertDialog.Close>Close</AlertDialog.Close>
-          </AlertDialog.Popup>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
 
@@ -44,9 +46,11 @@ describe('<AlertDialog.Root />', () => {
       const { user } = await render(
         <AlertDialog.Root onOpenChange={handleOpenChange}>
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-          <AlertDialog.Popup>
-            <AlertDialog.Close>Close</AlertDialog.Close>
-          </AlertDialog.Popup>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
 
@@ -69,9 +73,11 @@ describe('<AlertDialog.Root />', () => {
       const { user } = await render(
         <AlertDialog.Root defaultOpen onOpenChange={handleOpenChange}>
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-          <AlertDialog.Popup>
-            <AlertDialog.Close>Close</AlertDialog.Close>
-          </AlertDialog.Popup>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
 
@@ -91,9 +97,11 @@ describe('<AlertDialog.Root />', () => {
 
           <AlertDialog.Root>
             <AlertDialog.Trigger>Open Dialog</AlertDialog.Trigger>
-            <AlertDialog.Popup>
-              <AlertDialog.Close>Close Dialog</AlertDialog.Close>
-            </AlertDialog.Popup>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup>
+                <AlertDialog.Close>Close Dialog</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
           </AlertDialog.Root>
 
           <button type="button">Another Button</button>
@@ -124,6 +132,91 @@ describe('<AlertDialog.Root />', () => {
           expect(element.closest('[inert]')).to.equal(null);
         });
       });
+    });
+  });
+
+  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <AlertDialog.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="popup" />
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const style = `
+            @keyframes test-anim {
+              to {
+                opacity: 0;
+              }
+            }
+    
+            .animation-test-indicator[data-ending-style] {
+              animation: test-anim 50ms;
+            }
+          `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <AlertDialog.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup className="animation-test-indicator" data-testid="popup" />
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.to.equal(null);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
     });
   });
 });

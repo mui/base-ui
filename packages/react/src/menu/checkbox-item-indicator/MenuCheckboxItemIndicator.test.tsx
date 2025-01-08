@@ -16,11 +16,13 @@ describe('<Menu.CheckboxItemIndicator />', () => {
     render(node) {
       return render(
         <Menu.Root open>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem>{node}</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>{node}</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
     },
@@ -37,13 +39,15 @@ describe('<Menu.CheckboxItemIndicator />', () => {
         <div>
           <button onClick={() => setChecked(false)}>Close</button>
           <Menu.Root open modal={false}>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.CheckboxItem checked={checked}>
-                  <Menu.CheckboxItemIndicator data-testid="indicator" keepMounted />
-                </Menu.CheckboxItem>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.CheckboxItem checked={checked}>
+                    <Menu.CheckboxItemIndicator data-testid="indicator" keepMounted />
+                  </Menu.CheckboxItem>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
         </div>
       );
@@ -94,18 +98,20 @@ describe('<Menu.CheckboxItemIndicator />', () => {
           <style dangerouslySetInnerHTML={{ __html: style }} />
           <button onClick={() => setChecked(false)}>Close</button>
           <Menu.Root open modal={false}>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.CheckboxItem checked={checked}>
-                  <Menu.CheckboxItemIndicator
-                    className="animation-test-indicator"
-                    data-testid="indicator"
-                    keepMounted
-                    onAnimationEnd={notifyAnimationFinished}
-                  />
-                </Menu.CheckboxItem>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.CheckboxItem checked={checked}>
+                    <Menu.CheckboxItemIndicator
+                      className="animation-test-indicator"
+                      data-testid="indicator"
+                      keepMounted
+                      onAnimationEnd={notifyAnimationFinished}
+                    />
+                  </Menu.CheckboxItem>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
         </div>
       );

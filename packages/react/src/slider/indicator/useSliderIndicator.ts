@@ -71,10 +71,7 @@ export function useSliderIndicator(
 
 export namespace useSliderIndicator {
   export interface Parameters
-    extends Pick<
-      useSliderRoot.ReturnValue,
-      'direction' | 'disabled' | 'orientation' | 'percentageValues'
-    > {}
+    extends Pick<useSliderRoot.ReturnValue, 'disabled' | 'orientation' | 'percentageValues'> {}
 
   export interface ReturnValue {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;

@@ -1,10 +1,19 @@
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  describeSkipIf,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
+
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 function Root(props: Popover.Root.Props) {
   return <Popover.Root {...props} />;
@@ -32,9 +41,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -51,9 +62,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -75,9 +88,11 @@ describe('<Popover.Root />', () => {
     it('should open when controlled open is true', async () => {
       await render(
         <Root open>
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -87,9 +102,11 @@ describe('<Popover.Root />', () => {
     it('should close when controlled open is false', async () => {
       await render(
         <Root open={false}>
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -111,9 +128,11 @@ describe('<Popover.Root />', () => {
             }}
           >
             <Popover.Trigger />
-            <Popover.Positioner>
-              <Popover.Popup>Content</Popover.Popup>
-            </Popover.Positioner>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
           </Root>
         );
       }
@@ -153,9 +172,11 @@ describe('<Popover.Root />', () => {
             }}
           >
             <Popover.Trigger />
-            <Popover.Positioner>
-              <Popover.Popup>Content</Popover.Popup>
-            </Popover.Positioner>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
           </Root>
         );
       }
@@ -187,9 +208,11 @@ describe('<Popover.Root />', () => {
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
             <Popover.Root open={open}>
-              <Popover.Positioner keepMounted>
-                <Popover.Popup />
-              </Popover.Positioner>
+              <Popover.Portal keepMounted>
+                <Popover.Positioner>
+                  <Popover.Popup />
+                </Popover.Positioner>
+              </Popover.Portal>
             </Popover.Root>
           </div>
         );
@@ -243,12 +266,14 @@ describe('<Popover.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <Popover.Root open={open}>
-              <Popover.Positioner keepMounted data-testid="positioner">
-                <Popover.Popup
-                  className="animation-test-popup"
-                  onAnimationEnd={notifyAnimationFinished}
-                />
-              </Popover.Positioner>
+              <Popover.Portal keepMounted>
+                <Popover.Positioner data-testid="positioner">
+                  <Popover.Popup
+                    className="animation-test-popup"
+                    onAnimationEnd={notifyAnimationFinished}
+                  />
+                </Popover.Positioner>
+              </Popover.Portal>
             </Popover.Root>
           </div>
         );
@@ -272,9 +297,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root defaultOpen>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -285,9 +312,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root defaultOpen open={false}>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -298,9 +327,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root defaultOpen open>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -311,9 +342,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root defaultOpen>
           <Popover.Trigger data-testid="trigger" />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -334,9 +367,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root openOnHover delay={100}>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -364,9 +399,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root openOnHover closeDelay={100}>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -400,11 +437,13 @@ describe('<Popover.Root />', () => {
           <input type="text" />
           <Popover.Root>
             <Popover.Trigger>Toggle</Popover.Trigger>
-            <Popover.Positioner keepMounted>
-              <Popover.Popup>
-                <Popover.Close>Close</Popover.Close>
-              </Popover.Popup>
-            </Popover.Positioner>
+            <Popover.Portal keepMounted>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <Popover.Close>Close</Popover.Close>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
           </Popover.Root>
           <input type="text" />
         </div>,
@@ -431,11 +470,13 @@ describe('<Popover.Root />', () => {
       const { user } = await render(
         <Popover.Root openOnHover delay={0}>
           <Popover.Trigger>Toggle</Popover.Trigger>
-          <Popover.Positioner>
-            <Popover.Popup>
-              <Popover.Close>Close</Popover.Close>
-            </Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Close>Close</Popover.Close>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Popover.Root>,
       );
 
@@ -474,9 +515,11 @@ describe('<Popover.Root />', () => {
           <input type="text" data-testid="first-input" />
           <Popover.Root openOnHover delay={0} closeDelay={0}>
             <Popover.Trigger>Toggle</Popover.Trigger>
-            <Popover.Positioner>
-              <Popover.Popup className="popup" />
-            </Popover.Positioner>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup className="popup" />
+              </Popover.Positioner>
+            </Popover.Portal>
           </Popover.Root>
           <input type="text" data-testid="last-input" />
         </div>,
@@ -499,6 +542,95 @@ describe('<Popover.Root />', () => {
       });
 
       expect(lastInput).toHaveFocus();
+    });
+  });
+
+  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Popover.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup" />
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 50ms;
+        }
+      `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Popover.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup className="animation-test-indicator" data-testid="popup" />
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.to.equal(null);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
     });
   });
 });

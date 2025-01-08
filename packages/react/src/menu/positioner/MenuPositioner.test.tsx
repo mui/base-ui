@@ -1,35 +1,9 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
-import { MenuRootContext } from '../root/MenuRootContext';
-
-const testRootContext: MenuRootContext = {
-  floatingRootContext: undefined as unknown as FloatingRootContext,
-  getPopupProps: (p) => ({ ...p }),
-  getTriggerProps: (p) => ({ ...p }),
-  getItemProps: (p) => ({ ...p }),
-  parentContext: undefined,
-  nested: false,
-  setTriggerElement: () => {},
-  setPositionerElement: () => {},
-  activeIndex: null,
-  disabled: false,
-  itemDomElements: { current: [] },
-  itemLabels: { current: [] },
-  open: true,
-  setOpen: () => {},
-  popupRef: { current: null },
-  mounted: true,
-  transitionStatus: undefined,
-  typingRef: { current: false },
-  modal: false,
-  positionerRef: { current: null },
-  allowMouseUpTriggerRef: { current: false },
-};
 
 describe('<Menu.Positioner />', () => {
   const { render } = createRenderer();
@@ -37,9 +11,9 @@ describe('<Menu.Positioner />', () => {
   describeConformance(<Menu.Positioner />, () => ({
     render: (node) => {
       return render(
-        <FloatingTree>
-          <MenuRootContext.Provider value={testRootContext}>{node}</MenuRootContext.Provider>
-        </FloatingTree>,
+        <Menu.Root open>
+          <Menu.Portal>{node}</Menu.Portal>
+        </Menu.Root>,
       );
     },
     refInstanceof: window.HTMLDivElement,
@@ -57,18 +31,20 @@ describe('<Menu.Positioner />', () => {
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>
-              <Menu.Positioner
-                side="bottom"
-                align="start"
-                anchor={anchor}
-                arrowPadding={0}
-                data-testid="positioner"
-              >
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                  <Menu.Item>2</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={anchor}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
             </Menu.Root>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={anchor} />
           </div>
@@ -105,18 +81,20 @@ describe('<Menu.Positioner />', () => {
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>
-              <Menu.Positioner
-                side="bottom"
-                align="start"
-                anchor={anchor}
-                arrowPadding={0}
-                data-testid="positioner"
-              >
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                  <Menu.Item>2</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={anchor}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
             </Menu.Root>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={handleRef} />
           </div>
@@ -155,18 +133,20 @@ describe('<Menu.Positioner />', () => {
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>
-              <Menu.Positioner
-                side="bottom"
-                align="start"
-                anchor={getAnchor}
-                arrowPadding={0}
-                data-testid="positioner"
-              >
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                  <Menu.Item>2</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={getAnchor}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
             </Menu.Root>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={handleRef} />
           </div>
@@ -208,18 +188,20 @@ describe('<Menu.Positioner />', () => {
 
       const { getByTestId } = await render(
         <Menu.Root open>
-          <Menu.Positioner
-            side="bottom"
-            align="start"
-            anchor={virtualElement}
-            arrowPadding={0}
-            data-testid="positioner"
-          >
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Item>2</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="bottom"
+              align="start"
+              anchor={virtualElement}
+              arrowPadding={0}
+              data-testid="positioner"
+            >
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Item>2</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -235,12 +217,14 @@ describe('<Menu.Positioner />', () => {
       const { getByRole, queryByRole } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner keepMounted>
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Item>2</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal keepMounted>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Item>2</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -263,12 +247,14 @@ describe('<Menu.Positioner />', () => {
       const { getByRole, queryByRole } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner keepMounted={false}>
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Item>2</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal keepMounted={false}>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Item>2</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 

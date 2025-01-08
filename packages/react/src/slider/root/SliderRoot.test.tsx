@@ -1286,6 +1286,44 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         value: 4,
       });
     });
+
+    it('onValueCommitted is called with the same value as the latest onValueChange when pointerUp occurs at a different location than onValueChange', async () => {
+      const handleValueChange = spy();
+      const handleValueCommitted = spy();
+
+      await render(
+        <TestSlider
+          onValueChange={handleValueChange}
+          onValueCommitted={handleValueCommitted}
+          defaultValue={0}
+        />,
+      );
+
+      const sliderControl = screen.getByTestId('control');
+
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
+        () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
+      );
+
+      fireEvent.pointerDown(sliderControl, {
+        buttons: 1,
+        clientX: 10,
+      });
+      fireEvent.pointerMove(sliderControl, {
+        buttons: 1,
+        clientX: 15,
+      });
+      fireEvent.pointerUp(sliderControl, {
+        buttons: 1,
+        clientX: 20,
+      });
+
+      expect(handleValueChange.callCount).to.equal(2);
+      expect(handleValueChange.args[0][0]).to.equal(10);
+      expect(handleValueChange.args[1][0]).to.equal(15);
+      expect(handleValueCommitted.callCount).to.equal(1);
+      expect(handleValueCommitted.args[0][0]).to.equal(15);
+    });
   });
 
   describe('keyboard interactions', () => {

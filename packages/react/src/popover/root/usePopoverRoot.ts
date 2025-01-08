@@ -13,7 +13,7 @@ import {
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { PATIENT_CLICK_THRESHOLD, OPEN_DELAY } from '../utils/constants';
+import { OPEN_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
@@ -24,6 +24,7 @@ import {
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -33,6 +34,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     delay,
     closeDelay,
     openOnHover = false,
+    onCloseComplete,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -78,9 +80,10 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   useAfterExitAnimation({
     open,
     animatedElementRef: popupRef,
-    onFinished: () => {
+    onFinished() {
       setMounted(false);
       setOpenReason(null);
+      onCloseComplete?.();
     },
   });
 
@@ -209,6 +212,10 @@ export namespace usePopoverRoot {
      * Event handler called when the popover is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    /**
+     * Event handler called after any exit animations finish when the popover is closed.
+     */
+    onCloseComplete?: () => void;
     /**
      * Whether the popover should also open when the trigger is hovered.
      * @default false

@@ -1,11 +1,13 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, flushMicrotasks, waitFor, screen } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, waitFor, screen, describeSkipIf } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
+
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<Menu.Root />', () => {
   beforeEach(() => {
@@ -20,13 +22,15 @@ describe('<Menu.Root />', () => {
       const { getByRole, getByTestId } = await render(
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item data-testid="item-1">1</Menu.Item>
-              <Menu.Item data-testid="item-2">2</Menu.Item>
-              <Menu.Item data-testid="item-3">3</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item data-testid="item-1">1</Menu.Item>
+                <Menu.Item data-testid="item-2">2</Menu.Item>
+                <Menu.Item data-testid="item-3">3</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -65,13 +69,15 @@ describe('<Menu.Root />', () => {
       const { getByRole, getByTestId } = await render(
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item data-testid="item-1">1</Menu.Item>
-              <Menu.Item data-testid="item-2">2</Menu.Item>
-              <Menu.Item data-testid="item-3">3</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item data-testid="item-1">1</Menu.Item>
+                <Menu.Item data-testid="item-2">2</Menu.Item>
+                <Menu.Item data-testid="item-3">3</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -103,14 +109,16 @@ describe('<Menu.Root />', () => {
       const { getByRole, getByTestId } = await render(
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item data-testid="item-1">1</Menu.Item>
-              <Menu.Item disabled data-testid="item-2">
-                2
-              </Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item data-testid="item-1">1</Menu.Item>
+                <Menu.Item disabled data-testid="item-2">
+                  2
+                </Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -128,7 +136,7 @@ describe('<Menu.Root />', () => {
         expect(item1).toHaveFocus();
       });
 
-      await userEvent.keyboard('[ArrowDown]');
+      await userEvent.keyboard('{ArrowDown}');
 
       await waitFor(() => {
         expect(item2).toHaveFocus();
@@ -147,16 +155,18 @@ describe('<Menu.Root />', () => {
 
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Aa</Menu.Item>
-                <Menu.Item>Ba</Menu.Item>
-                <Menu.Item>Bb</Menu.Item>
-                <Menu.Item>Ca</Menu.Item>
-                <Menu.Item>Cb</Menu.Item>
-                <Menu.Item>Cd</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Aa</Menu.Item>
+                  <Menu.Item>Ba</Menu.Item>
+                  <Menu.Item>Bb</Menu.Item>
+                  <Menu.Item>Ca</Menu.Item>
+                  <Menu.Item>Cb</Menu.Item>
+                  <Menu.Item>Cd</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -190,14 +200,16 @@ describe('<Menu.Root />', () => {
         const { getByRole, getAllByRole } = await render(
           <Menu.Root>
             <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item label="Aa">1</Menu.Item>
-                <Menu.Item label="Ba">2</Menu.Item>
-                <Menu.Item label="Bb">3</Menu.Item>
-                <Menu.Item label="Ca">4</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item label="Aa">1</Menu.Item>
+                  <Menu.Item label="Ba">2</Menu.Item>
+                  <Menu.Item label="Bb">3</Menu.Item>
+                  <Menu.Item label="Ca">4</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -243,19 +255,21 @@ describe('<Menu.Root />', () => {
 
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Aa</Menu.Item>
-                <Menu.Item>Ba</Menu.Item>
-                <Menu.Item />
-                <Menu.Item>
-                  <div>Nested Content</div>
-                </Menu.Item>
-                <Menu.Item>{undefined}</Menu.Item>
-                <Menu.Item>{null}</Menu.Item>
-                <Menu.Item>Bc</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Aa</Menu.Item>
+                  <Menu.Item>Ba</Menu.Item>
+                  <Menu.Item />
+                  <Menu.Item>
+                    <div>Nested Content</div>
+                  </Menu.Item>
+                  <Menu.Item>{undefined}</Menu.Item>
+                  <Menu.Item>{null}</Menu.Item>
+                  <Menu.Item>Bc</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -287,14 +301,16 @@ describe('<Menu.Root />', () => {
 
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Aa</Menu.Item>
-                <Menu.Item>Ba</Menu.Item>
-                <Menu.Item>Bb</Menu.Item>
-                <Menu.Item>Bą</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Aa</Menu.Item>
+                  <Menu.Item>Ba</Menu.Item>
+                  <Menu.Item>Bb</Menu.Item>
+                  <Menu.Item>Bą</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -326,14 +342,16 @@ describe('<Menu.Root />', () => {
 
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Aa</Menu.Item>
-                <Menu.Item>ąa</Menu.Item>
-                <Menu.Item>ąb</Menu.Item>
-                <Menu.Item>ąc</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Aa</Menu.Item>
+                  <Menu.Item>ąa</Menu.Item>
+                  <Menu.Item>ąb</Menu.Item>
+                  <Menu.Item>ąc</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -363,13 +381,15 @@ describe('<Menu.Root />', () => {
 
         const { getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item onClick={() => handleClick()}>Item One</Menu.Item>
-                <Menu.Item onClick={() => handleClick()}>Item Two</Menu.Item>
-                <Menu.Item onClick={() => handleClick()}>Item Three</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item onClick={() => handleClick()}>Item One</Menu.Item>
+                  <Menu.Item onClick={() => handleClick()}>Item Two</Menu.Item>
+                  <Menu.Item onClick={() => handleClick()}>Item Three</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -403,20 +423,24 @@ describe('<Menu.Root />', () => {
         const { getByTestId, queryByTestId } = await render(
           <DirectionProvider direction={direction}>
             <Menu.Root open orientation={orientation}>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                  <Menu.Root orientation={orientation}>
-                    <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
-                    <Menu.Positioner>
-                      <Menu.Popup data-testid="submenu">
-                        <Menu.Item data-testid="submenu-item-1">2.1</Menu.Item>
-                        <Menu.Item>2.2</Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Root>
-                </Menu.Popup>
-              </Menu.Positioner>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Root orientation={orientation}>
+                      <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup data-testid="submenu">
+                            <Menu.Item data-testid="submenu-item-1">2.1</Menu.Item>
+                            <Menu.Item>2.2</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.Root>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
             </Menu.Root>
           </DirectionProvider>,
         );
@@ -453,13 +477,15 @@ describe('<Menu.Root />', () => {
       return (
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Item>2</Menu.Item>
-              <Menu.Item>3</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Item>2</Menu.Item>
+                <Menu.Item>3</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>
       );
     }
@@ -529,11 +555,13 @@ describe('<Menu.Root />', () => {
           <input type="text" />
           <Menu.Root>
             <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Close</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Close</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
           <input type="text" />
         </div>,
@@ -559,11 +587,13 @@ describe('<Menu.Root />', () => {
           <input type="text" />
           <Menu.Root>
             <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Positioner keepMounted>
-              <Menu.Popup>
-                <Menu.Item>Close</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal keepMounted>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Close</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
           <input type="text" />
         </div>,
@@ -586,20 +616,24 @@ describe('<Menu.Root />', () => {
       const { getByRole, queryByRole } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Root>
-                <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.Item>2.1</Menu.Item>
-                    <Menu.Item>2.2</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Root>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Root>
+                  <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>2.1</Menu.Item>
+                        <Menu.Item>2.2</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -633,20 +667,24 @@ describe('<Menu.Root />', () => {
       const { getByRole, queryAllByRole } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup id="parent-menu">
-              <Menu.Item>1</Menu.Item>
-              <Menu.Root closeParentOnEsc={false}>
-                <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
-                <Menu.Positioner>
-                  <Menu.Popup id="submenu">
-                    <Menu.Item>2.1</Menu.Item>
-                    <Menu.Item>2.2</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Root>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup id="parent-menu">
+                <Menu.Item>1</Menu.Item>
+                <Menu.Root closeParentOnEsc={false}>
+                  <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup id="submenu">
+                        <Menu.Item>2.1</Menu.Item>
+                        <Menu.Item>2.2</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -694,9 +732,11 @@ describe('<Menu.Root />', () => {
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
             <Menu.Root open={open} modal={false}>
-              <Menu.Positioner>
-                <Menu.Popup />
-              </Menu.Positioner>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup />
+                </Menu.Positioner>
+              </Menu.Portal>
             </Menu.Root>
           </div>
         );
@@ -749,12 +789,14 @@ describe('<Menu.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <Menu.Root open={open} modal={false}>
-              <Menu.Positioner keepMounted>
-                <Menu.Popup
-                  className="animation-test-popup"
-                  onAnimationEnd={notifyAnimationFinished}
-                />
-              </Menu.Positioner>
+              <Menu.Portal keepMounted>
+                <Menu.Positioner>
+                  <Menu.Popup
+                    className="animation-test-popup"
+                    onAnimationEnd={notifyAnimationFinished}
+                  />
+                </Menu.Positioner>
+              </Menu.Portal>
             </Menu.Root>
           </div>
         );
@@ -834,6 +876,95 @@ describe('<Menu.Root />', () => {
 
       // eslint-disable-next-line testing-library/no-node-access
       expect(positioner.previousElementSibling).to.equal(null);
+    });
+  });
+
+  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Menu.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup" />
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 50ms;
+        }
+      `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Menu.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="animation-test-indicator" data-testid="popup" />
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.to.equal(null);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
     });
   });
 });

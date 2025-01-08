@@ -2,35 +2,9 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
-import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
 import { MenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
-import { MenuRootContext } from '../root/MenuRootContext';
-
-const testRootContext: MenuRootContext = {
-  floatingRootContext: {} as FloatingRootContext,
-  getPopupProps: (p) => ({ ...p }),
-  getTriggerProps: (p) => ({ ...p }),
-  getItemProps: (p) => ({ ...p }),
-  parentContext: undefined,
-  nested: false,
-  setTriggerElement: () => {},
-  setPositionerElement: () => {},
-  activeIndex: null,
-  disabled: false,
-  itemDomElements: { current: [] },
-  itemLabels: { current: [] },
-  open: true,
-  setOpen: () => {},
-  popupRef: { current: null },
-  mounted: true,
-  transitionStatus: undefined,
-  typingRef: { current: false },
-  modal: false,
-  positionerRef: { current: null },
-  allowMouseUpTriggerRef: { current: false },
-};
 
 const testRadioGroupContext = {
   value: '0',
@@ -49,13 +23,11 @@ describe('<Menu.RadioItem />', () => {
   describeConformance(<Menu.RadioItem value="0" />, () => ({
     render: (node) => {
       return render(
-        <FloatingTree>
-          <MenuRootContext.Provider value={testRootContext}>
-            <MenuRadioGroupContext.Provider value={testRadioGroupContext}>
-              {node}
-            </MenuRadioGroupContext.Provider>
-          </MenuRootContext.Provider>
-        </FloatingTree>,
+        <Menu.Root open>
+          <MenuRadioGroupContext.Provider value={testRadioGroupContext}>
+            {node}
+          </MenuRadioGroupContext.Provider>
+        </Menu.Root>,
       );
     },
     refInstanceof: window.HTMLDivElement,
@@ -82,40 +54,42 @@ describe('<Menu.RadioItem />', () => {
 
     const { getAllByRole } = await render(
       <Menu.Root open>
-        <Menu.Positioner>
-          <Menu.Popup>
-            <Menu.RadioGroup>
-              <Menu.RadioItem
-                value={1}
-                render={<LoggingRoot renderSpy={renderItem1Spy} />}
-                id="item-1"
-              >
-                1
-              </Menu.RadioItem>
-              <Menu.RadioItem
-                value={2}
-                render={<LoggingRoot renderSpy={renderItem2Spy} />}
-                id="item-2"
-              >
-                2
-              </Menu.RadioItem>
-              <Menu.RadioItem
-                value={3}
-                render={<LoggingRoot renderSpy={renderItem3Spy} />}
-                id="item-3"
-              >
-                3
-              </Menu.RadioItem>
-              <Menu.RadioItem
-                value={4}
-                render={<LoggingRoot renderSpy={renderItem4Spy} />}
-                id="item-4"
-              >
-                4
-              </Menu.RadioItem>
-            </Menu.RadioGroup>
-          </Menu.Popup>
-        </Menu.Positioner>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.RadioGroup>
+                <Menu.RadioItem
+                  value={1}
+                  render={<LoggingRoot renderSpy={renderItem1Spy} />}
+                  id="item-1"
+                >
+                  1
+                </Menu.RadioItem>
+                <Menu.RadioItem
+                  value={2}
+                  render={<LoggingRoot renderSpy={renderItem2Spy} />}
+                  id="item-2"
+                >
+                  2
+                </Menu.RadioItem>
+                <Menu.RadioItem
+                  value={3}
+                  render={<LoggingRoot renderSpy={renderItem3Spy} />}
+                  id="item-3"
+                >
+                  3
+                </Menu.RadioItem>
+                <Menu.RadioItem
+                  value={4}
+                  render={<LoggingRoot renderSpy={renderItem4Spy} />}
+                  id="item-4"
+                >
+                  4
+                </Menu.RadioItem>
+              </Menu.RadioGroup>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
       </Menu.Root>,
     );
 
@@ -160,13 +134,15 @@ describe('<Menu.RadioItem />', () => {
       const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.RadioGroup defaultValue={0}>
-                <Menu.RadioItem value={1}>Item</Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0}>
+                  <Menu.RadioItem value={1}>Item</Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -185,11 +161,13 @@ describe('<Menu.RadioItem />', () => {
         const { getByRole, user } = await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
-            <Menu.Positioner>
-              <Menu.RadioGroup defaultValue={0}>
-                <Menu.RadioItem value={1}>Item</Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.RadioGroup defaultValue={0}>
+                  <Menu.RadioItem value={1}>Item</Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -214,13 +192,15 @@ describe('<Menu.RadioItem />', () => {
       const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.RadioGroup defaultValue={0} onValueChange={onValueChange}>
-                <Menu.RadioItem value={1}>Item</Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0} onValueChange={onValueChange}>
+                  <Menu.RadioItem value={1}>Item</Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -238,13 +218,15 @@ describe('<Menu.RadioItem />', () => {
       const { getByRole, user } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner keepMounted>
-            <Menu.Popup>
-              <Menu.RadioGroup defaultValue={0}>
-                <Menu.RadioItem value={1}>Item</Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal keepMounted>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0}>
+                  <Menu.RadioItem value={1}>Item</Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -269,15 +251,17 @@ describe('<Menu.RadioItem />', () => {
       const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.RadioGroup defaultValue={0}>
-                <Menu.RadioItem closeOnClick value={1}>
-                  Item
-                </Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0}>
+                  <Menu.RadioItem closeOnClick value={1}>
+                    Item
+                  </Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -294,13 +278,15 @@ describe('<Menu.RadioItem />', () => {
       const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.RadioGroup defaultValue={0}>
-                <Menu.RadioItem value={1}>Item</Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0}>
+                  <Menu.RadioItem value={1}>Item</Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 

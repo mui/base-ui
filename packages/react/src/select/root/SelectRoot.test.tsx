@@ -1,11 +1,23 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
-import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  describeSkipIf,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
+const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+
 describe('<Select.Root />', () => {
+  beforeEach(() => {
+    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
   const { render } = createRenderer();
 
   describe('prop: defaultValue', () => {
@@ -15,12 +27,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -44,12 +58,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -71,12 +87,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -120,12 +138,14 @@ describe('<Select.Root />', () => {
             <Select.Trigger data-testid="trigger">
               <Select.Value />
             </Select.Trigger>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="a">a</Select.Item>
-                <Select.Item value="b">b</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
           </Select.Root>
         );
       }
@@ -153,12 +173,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -174,12 +196,14 @@ describe('<Select.Root />', () => {
             <Select.Trigger data-testid="trigger">
               <Select.Value />
             </Select.Trigger>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="a">a</Select.Item>
-                <Select.Item value="b">b</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
           </Select.Root>
         );
       }
@@ -209,9 +233,11 @@ describe('<Select.Root />', () => {
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
             <Select.Root open={open} modal={false}>
-              <Select.Positioner>
-                <Select.Popup />
-              </Select.Positioner>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup />
+                </Select.Positioner>
+              </Select.Portal>
             </Select.Root>
           </div>
         );
@@ -264,12 +290,14 @@ describe('<Select.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <Select.Root open={open} modal={false}>
-              <Select.Positioner>
-                <Select.Popup
-                  className="animation-test-popup"
-                  onAnimationEnd={notifyAnimationFinished}
-                />
-              </Select.Positioner>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup
+                    className="animation-test-popup"
+                    onAnimationEnd={notifyAnimationFinished}
+                  />
+                </Select.Positioner>
+              </Select.Portal>
             </Select.Root>
           </div>
         );
@@ -285,8 +313,6 @@ describe('<Select.Root />', () => {
       });
 
       expect(animationFinished).to.equal(true);
-
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 
@@ -299,12 +325,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -322,12 +350,14 @@ describe('<Select.Root />', () => {
         <Select.Trigger data-testid="trigger">
           <Select.Value />
         </Select.Trigger>
-        <Select.Positioner>
-          <Select.Popup>
-            <Select.Item value="a">a</Select.Item>
-            <Select.Item value="b">b</Select.Item>
-          </Select.Popup>
-        </Select.Positioner>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
       </Select.Root>,
     );
 
@@ -406,6 +436,95 @@ describe('<Select.Root />', () => {
       const positioner = screen.getByTestId('positioner');
 
       expect(positioner.previousElementSibling).to.equal(null);
+    });
+  });
+
+  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Select.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner">
+                  <Select.Popup />
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).to.have.attribute('hidden', '');
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const style = `
+            @keyframes test-anim {
+              to {
+                opacity: 0;
+              }
+            }
+    
+            .animation-test-indicator[data-ending-style] {
+              animation: test-anim 50ms;
+            }
+          `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Select.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner">
+                  <Select.Popup className="animation-test-indicator" />
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('positioner')).not.to.have.attribute('hidden');
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).to.have.attribute('hidden', '');
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
     });
   });
 });
