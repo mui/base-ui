@@ -10,7 +10,11 @@ describe('<Menu.Positioner />', () => {
 
   describeConformance(<Menu.Positioner />, () => ({
     render: (node) => {
-      return render(<Menu.Root open>{node}</Menu.Root>);
+      return render(
+        <Menu.Root open>
+          <Menu.Portal>{node}</Menu.Portal>
+        </Menu.Root>,
+      );
     },
     refInstanceof: window.HTMLDivElement,
   }));
