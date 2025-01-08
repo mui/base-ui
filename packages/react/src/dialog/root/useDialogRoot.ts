@@ -10,6 +10,7 @@ import {
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
@@ -67,6 +68,8 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       onCloseComplete?.();
     },
   });
+
+  useScrollLock(open && modal, popupElement);
 
   const handleFloatingUIOpenChange = (
     nextOpen: boolean,

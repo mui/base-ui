@@ -77,8 +77,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.26.0",
-    "@floating-ui/react": "^0.27.2",
-    "@floating-ui/utils": "^0.2.8",
+    "@floating-ui/react": "^0.27.3",
+    "@floating-ui/utils": "^0.2.9",
     "@react-aria/overlays": "^3.24.0",
     "prop-types": "^15.8.1",
     "use-sync-external-store": "^1.4.0"
