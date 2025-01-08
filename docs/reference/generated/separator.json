@@ -5,7 +5,7 @@
     "orientation": {
       "type": "'horizontal' | 'vertical'",
       "default": "'horizontal'",
-      "description": "The component orientation."
+      "description": "The orientation of the separator."
     },
     "className": {
       "type": "string | (state) => string",

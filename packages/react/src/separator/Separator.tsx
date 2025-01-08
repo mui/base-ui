@@ -44,7 +44,7 @@ type Orientation = 'horizontal' | 'vertical';
 namespace Separator {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * The component orientation.
+     * The orientation of the separator.
      * @default 'horizontal'
      */
     orientation?: Orientation;
@@ -52,7 +52,7 @@ namespace Separator {
 
   export interface State {
     /**
-     * The component orientation.
+     * The orientation of the separator.
      */
     orientation: Orientation;
   }
@@ -75,7 +75,7 @@ Separator.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The component orientation.
+   * The orientation of the separator.
    * @default 'horizontal'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
