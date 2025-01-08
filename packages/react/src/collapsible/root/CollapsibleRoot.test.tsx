@@ -36,7 +36,7 @@ describe('<Collapsible.Root />', () => {
   });
 
   describe('open state', () => {
-    it('controlled mode', async function test() {
+    it('controlled mode', async () => {
       const { queryByText, getByRole, setProps } = await render(
         <Collapsible.Root open={false}>
           <Collapsible.Trigger />

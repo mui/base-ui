@@ -1,13 +1,6 @@
 import * as React from 'react';
 import { Tooltip } from '@base-ui-components/react/tooltip';
-import {
-  act,
-  describeSkipIf,
-  fireEvent,
-  flushMicrotasks,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
@@ -404,7 +397,7 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
+  describe.skipIf(isJSDOM)('prop: onCloseComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       let onCloseCompleteCalled = false;
       function notifyonCloseComplete() {

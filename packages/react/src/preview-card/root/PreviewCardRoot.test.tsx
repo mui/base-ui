@@ -1,13 +1,6 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui-components/react/preview-card';
-import {
-  act,
-  fireEvent,
-  screen,
-  flushMicrotasks,
-  waitFor,
-  describeSkipIf,
-} from '@mui/internal-test-utils';
+import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
@@ -505,7 +498,7 @@ describe('<PreviewCard.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
+  describe.skipIf(isJSDOM)('prop: onCloseComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       let onCloseCompleteCalled = false;
       function notifyonCloseComplete() {

@@ -88,7 +88,7 @@ describe('<Collapsible.Panel />', () => {
 
   // we test firefox in browserstack which does not support this yet
   describe.skipIf(!('onbeforematch' in window) || isJSDOM)('prop: hiddenUntilFound', () => {
-    it('uses `hidden="until-found" to hide panel when true', async function test() {
+    it('uses `hidden="until-found" to hide panel when true', async () => {
       const handleOpenChange = spy();
 
       const { queryByText } = await render(

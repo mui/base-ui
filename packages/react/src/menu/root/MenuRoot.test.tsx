@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, flushMicrotasks, waitFor, screen, describeSkipIf } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, waitFor, screen } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
@@ -879,7 +879,7 @@ describe('<Menu.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
+  describe.skipIf(isJSDOM)('prop: onCloseComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       let onCloseCompleteCalled = false;
       function notifyonCloseComplete() {

@@ -587,7 +587,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
+  describe.skipIf(isJSDOM)('prop: onCloseComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       let onCloseCompleteCalled = false;
       function notifyonCloseComplete() {

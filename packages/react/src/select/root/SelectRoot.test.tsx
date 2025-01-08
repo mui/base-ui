@@ -1,12 +1,6 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
-import {
-  describeSkipIf,
-  fireEvent,
-  flushMicrotasks,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -121,7 +115,7 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
-    it('should call onValueChange when an item is selected', async function test() {
+    it('should call onValueChange when an item is selected', async () => {
       const handleValueChange = spy();
 
       function App() {
@@ -439,7 +433,7 @@ describe('<Select.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: onCloseComplete', () => {
+  describe.skipIf(isJSDOM)('prop: onCloseComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       let onCloseCompleteCalled = false;
       function notifyonCloseComplete() {
