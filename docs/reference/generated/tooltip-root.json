@@ -15,6 +15,10 @@
       "type": "(open, event, reason) => void",
       "description": "Event handler called when the tooltip is opened or closed."
     },
+    "onCloseComplete": {
+      "type": "function",
+      "description": "Event handler called after any exit animations finish when the tooltip is closed."
+    },
     "trackCursorAxis": {
       "type": "'none' | 'x' | 'y' | 'both'",
       "default": "'none'",

@@ -19,6 +19,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     openOnHover = false,
     delay,
     closeDelay = 0,
+    onCloseComplete,
   } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -29,6 +30,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     onOpenChange,
     open,
     openOnHover,
+    onCloseComplete,
     delay: delayWithDefault,
     closeDelay,
   });
@@ -87,6 +89,10 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    * @default 300
    */
   delay: PropTypes.number,
+  /**
+   * Event handler called after any exit animations finish when the popover is closed.
+   */
+  onCloseComplete: PropTypes.func,
   /**
    * Event handler called when the popover is opened or closed.
    */
