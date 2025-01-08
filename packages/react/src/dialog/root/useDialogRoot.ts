@@ -21,7 +21,7 @@ import {
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 
-export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
+export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
     defaultOpen,
     dismissible,
@@ -31,7 +31,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     onOpenChange: onOpenChangeParameter,
     open: openParam,
     onCloseComplete,
-  } = parameters;
+  } = params;
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
@@ -106,10 +106,6 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
       if (onNestedDialogClose && open) {
         onNestedDialogClose();
       }
-
-      if (onNestedDialogOpen && !open) {
-        onNestedDialogOpen(ownNestedOpenDialogs);
-      }
     };
   }, [open, onNestedDialogClose, onNestedDialogOpen, ownNestedOpenDialogs]);
 
@@ -171,7 +167,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   ]);
 }
 
-export interface CommonParameters {
+export interface SharedParameters {
   /**
    * Whether the dialog is currently open.
    */
@@ -208,8 +204,7 @@ export interface CommonParameters {
 }
 
 export namespace useDialogRoot {
-  export interface Parameters
-    extends RequiredExcept<CommonParameters, 'open' | 'onOpenChange' | 'onCloseComplete'> {
+  export interface Parameters extends RequiredExcept<SharedParameters, 'open' | 'onOpenChange' | 'onCloseComplete'> {
     /**
      * Callback to invoke when a nested dialog is opened.
      */

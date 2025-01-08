@@ -17,9 +17,11 @@ describe('<AlertDialog.Root />', () => {
       const { user } = await render(
         <AlertDialog.Root onOpenChange={handleOpenChange}>
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-          <AlertDialog.Popup>
-            <AlertDialog.Close>Close</AlertDialog.Close>
-          </AlertDialog.Popup>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
 
@@ -44,9 +46,11 @@ describe('<AlertDialog.Root />', () => {
       const { user } = await render(
         <AlertDialog.Root onOpenChange={handleOpenChange}>
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-          <AlertDialog.Popup>
-            <AlertDialog.Close>Close</AlertDialog.Close>
-          </AlertDialog.Popup>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
 
@@ -69,9 +73,11 @@ describe('<AlertDialog.Root />', () => {
       const { user } = await render(
         <AlertDialog.Root defaultOpen onOpenChange={handleOpenChange}>
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-          <AlertDialog.Popup>
-            <AlertDialog.Close>Close</AlertDialog.Close>
-          </AlertDialog.Popup>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
 
@@ -91,9 +97,11 @@ describe('<AlertDialog.Root />', () => {
 
           <AlertDialog.Root>
             <AlertDialog.Trigger>Open Dialog</AlertDialog.Trigger>
-            <AlertDialog.Popup>
-              <AlertDialog.Close>Close Dialog</AlertDialog.Close>
-            </AlertDialog.Popup>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup>
+                <AlertDialog.Close>Close Dialog</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
           </AlertDialog.Root>
 
           <button type="button">Another Button</button>

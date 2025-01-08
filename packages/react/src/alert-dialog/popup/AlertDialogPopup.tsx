@@ -15,6 +15,7 @@ import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
   ...baseMapping,
@@ -34,7 +35,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   props: AlertDialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, id, keepMounted = false, render, initialFocus, finalFocus, ...other } = props;
+  const { className, id, render, initialFocus, finalFocus, ...other } = props;
 
   const {
     descriptionElementId,
@@ -53,6 +54,8 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     transitionStatus,
     modal,
   } = useAlertDialogRootContext();
+
+  useAlertDialogPortalContext();
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
@@ -98,10 +101,6 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     customStyleHookMapping,
   });
 
-  if (!keepMounted && !mounted) {
-    return null;
-  }
-
   return (
     <React.Fragment>
       {mounted && modal && <InternalBackdrop inert={!open} />}
@@ -121,11 +120,6 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 
 namespace AlertDialogPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to keep the element in the DOM while the alert dialog is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
     /**
      * Determines the element to focus when the dialog is opened.
      * By default, the first focusable element is focused.
@@ -188,11 +182,6 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
     PropTypes.func,
     refType,
   ]),
-  /**
-   * Whether to keep the element in the DOM while the alert dialog is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

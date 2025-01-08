@@ -6,8 +6,11 @@ import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
+import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
+  const BOUNDARY_OFFSET = 2;
+
   const {
     disabled = false,
     rootRef: externalRef,
@@ -71,18 +74,21 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
               const mouseUpTarget = mouseEvent.target as Element | null;
 
-              const triggerRect = triggerRef.current.getBoundingClientRect();
+              if (
+                contains(triggerRef.current, mouseUpTarget) ||
+                contains(positionerRef.current, mouseUpTarget) ||
+                mouseUpTarget === triggerRef.current
+              ) {
+                return;
+              }
 
-              const isInsideTrigger =
-                mouseEvent.clientX >= triggerRect.left &&
-                mouseEvent.clientX <= triggerRect.right &&
-                mouseEvent.clientY >= triggerRect.top &&
-                mouseEvent.clientY <= triggerRect.bottom;
+              const bounds = getPseudoElementBounds(triggerRef.current);
 
               if (
-                isInsideTrigger ||
-                contains(positionerRef.current, mouseUpTarget) ||
-                contains(triggerRef.current, mouseUpTarget)
+                mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
+                mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
+                mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
+                mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
               ) {
                 return;
               }

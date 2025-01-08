@@ -41,9 +41,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -64,9 +66,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -96,9 +100,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -117,9 +123,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -140,9 +148,11 @@ describe('<PreviewCard.Root />', () => {
     it('should open when controlled open is true', async () => {
       await render(
         <Root open>
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -152,9 +162,11 @@ describe('<PreviewCard.Root />', () => {
     it('should close when controlled open is false', async () => {
       await render(
         <Root open={false}>
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -175,9 +187,11 @@ describe('<PreviewCard.Root />', () => {
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
             <PreviewCard.Root open={open}>
-              <PreviewCard.Positioner>
-                <PreviewCard.Popup>Content</PreviewCard.Popup>
-              </PreviewCard.Positioner>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup>Content</PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
             </PreviewCard.Root>
           </div>
         );
@@ -232,14 +246,16 @@ describe('<PreviewCard.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <PreviewCard.Root open={open}>
-              <PreviewCard.Positioner keepMounted data-testid="positioner">
-                <PreviewCard.Popup
-                  className="animation-test-popup"
-                  onAnimationEnd={notifyAnimationFinished}
-                >
-                  Content
-                </PreviewCard.Popup>
-              </PreviewCard.Positioner>
+              <PreviewCard.Portal keepMounted>
+                <PreviewCard.Positioner data-testid="positioner">
+                  <PreviewCard.Popup
+                    className="animation-test-popup"
+                    onAnimationEnd={notifyAnimationFinished}
+                  >
+                    Content
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
             </PreviewCard.Root>
           </div>
         );
@@ -276,9 +292,11 @@ describe('<PreviewCard.Root />', () => {
             }}
           >
             <Trigger />
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner>
+                <PreviewCard.Popup>Content</PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
           </Root>
         );
       }
@@ -323,9 +341,11 @@ describe('<PreviewCard.Root />', () => {
             }}
           >
             <Trigger />
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner>
+                <PreviewCard.Popup>Content</PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
           </Root>
         );
       }
@@ -356,9 +376,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root defaultOpen>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -369,9 +391,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root defaultOpen open={false}>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -382,9 +406,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root defaultOpen open>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -395,9 +421,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root defaultOpen>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -420,9 +448,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root delay={100}>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 
@@ -450,9 +480,11 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <Root closeDelay={100}>
           <Trigger />
-          <PreviewCard.Positioner>
-            <PreviewCard.Popup>Content</PreviewCard.Popup>
-          </PreviewCard.Positioner>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
         </Root>,
       );
 

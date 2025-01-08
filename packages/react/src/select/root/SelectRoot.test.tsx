@@ -14,6 +14,10 @@ import { spy } from 'sinon';
 const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<Select.Root />', () => {
+  beforeEach(() => {
+    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
   const { render } = createRenderer();
 
   describe('prop: defaultValue', () => {
@@ -23,12 +27,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -52,12 +58,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -79,12 +87,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -128,12 +138,14 @@ describe('<Select.Root />', () => {
             <Select.Trigger data-testid="trigger">
               <Select.Value />
             </Select.Trigger>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="a">a</Select.Item>
-                <Select.Item value="b">b</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
           </Select.Root>
         );
       }
@@ -161,12 +173,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -182,12 +196,14 @@ describe('<Select.Root />', () => {
             <Select.Trigger data-testid="trigger">
               <Select.Value />
             </Select.Trigger>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="a">a</Select.Item>
-                <Select.Item value="b">b</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
           </Select.Root>
         );
       }
@@ -217,9 +233,11 @@ describe('<Select.Root />', () => {
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
             <Select.Root open={open} modal={false}>
-              <Select.Positioner>
-                <Select.Popup />
-              </Select.Positioner>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup />
+                </Select.Positioner>
+              </Select.Portal>
             </Select.Root>
           </div>
         );
@@ -274,12 +292,14 @@ describe('<Select.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <Select.Root open={open} modal={false}>
-              <Select.Positioner>
-                <Select.Popup
-                  className="animation-test-popup"
-                  onAnimationEnd={notifyAnimationFinished}
-                />
-              </Select.Positioner>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup
+                    className="animation-test-popup"
+                    onAnimationEnd={notifyAnimationFinished}
+                  />
+                </Select.Positioner>
+              </Select.Portal>
             </Select.Root>
           </div>
         );
@@ -295,8 +315,6 @@ describe('<Select.Root />', () => {
       });
 
       expect(animationFinished).to.equal(true);
-
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 
@@ -309,12 +327,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -332,12 +352,14 @@ describe('<Select.Root />', () => {
         <Select.Trigger data-testid="trigger">
           <Select.Value />
         </Select.Trigger>
-        <Select.Positioner>
-          <Select.Popup>
-            <Select.Item value="a">a</Select.Item>
-            <Select.Item value="b">b</Select.Item>
-          </Select.Popup>
-        </Select.Positioner>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
       </Select.Root>,
     );
 

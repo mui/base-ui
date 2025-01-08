@@ -5,7 +5,6 @@ import { FloatingTree } from '@floating-ui/react';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot } from './useMenuRoot';
-import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the menu.
@@ -76,18 +75,12 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     // set up a FloatingTree to provide the context to nested menus
     return (
       <FloatingTree>
-        <MenuRootContext.Provider value={context}>
-          <PortalContext.Provider value={context.mounted}>{children}</PortalContext.Provider>
-        </MenuRootContext.Provider>
+        <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>
       </FloatingTree>
     );
   }
 
-  return (
-    <MenuRootContext.Provider value={context}>
-      <PortalContext.Provider value={context.mounted}>{children}</PortalContext.Provider>
-    </MenuRootContext.Provider>
-  );
+  return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
 };
 
 namespace MenuRoot {
