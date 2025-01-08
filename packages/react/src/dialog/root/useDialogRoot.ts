@@ -10,6 +10,7 @@ import {
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
@@ -21,7 +22,7 @@ import {
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 
-export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
+export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
     defaultOpen,
     dismissible,
@@ -30,7 +31,8 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     onNestedDialogOpen,
     onOpenChange: onOpenChangeParameter,
     open: openParam,
-  } = parameters;
+    onCloseComplete,
+  } = params;
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
@@ -61,8 +63,13 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   useAfterExitAnimation({
     open,
     animatedElementRef: popupRef,
-    onFinished: () => setMounted(false),
+    onFinished() {
+      setMounted(false);
+      onCloseComplete?.();
+    },
   });
+
+  useScrollLock(open && modal, popupElement);
 
   const handleFloatingUIOpenChange = (
     nextOpen: boolean,
@@ -101,10 +108,6 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     return () => {
       if (onNestedDialogClose && open) {
         onNestedDialogClose();
-      }
-
-      if (onNestedDialogOpen && !open) {
-        onNestedDialogOpen(ownNestedOpenDialogs);
       }
     };
   }, [open, onNestedDialogClose, onNestedDialogOpen, ownNestedOpenDialogs]);
@@ -167,7 +170,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   ]);
 }
 
-export interface CommonParameters {
+export interface SharedParameters {
   /**
    * Whether the dialog is currently open.
    */
@@ -193,6 +196,10 @@ export interface CommonParameters {
     reason: OpenChangeReason | undefined,
   ) => void;
   /**
+   * Event handler called after any exit animations finish when the dialog is closed.
+   */
+  onCloseComplete?: () => void;
+  /**
    * Determines whether the dialog should close on outside clicks.
    * @default true
    */
@@ -200,7 +207,8 @@ export interface CommonParameters {
 }
 
 export namespace useDialogRoot {
-  export interface Parameters extends RequiredExcept<CommonParameters, 'open' | 'onOpenChange'> {
+  export interface Parameters
+    extends RequiredExcept<SharedParameters, 'open' | 'onOpenChange' | 'onCloseComplete'> {
     /**
      * Callback to invoke when a nested dialog is opened.
      */

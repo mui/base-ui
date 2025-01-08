@@ -51,13 +51,15 @@ describe('<Select.Item />', () => {
         <Select.Trigger data-testid="trigger">
           <Select.Value />
         </Select.Trigger>
-        <Select.Positioner>
-          <Select.Popup>
-            <Select.Item value="one">one</Select.Item>
-            <Select.Item value="two">two</Select.Item>
-            <Select.Item value="three">three</Select.Item>
-          </Select.Popup>
-        </Select.Positioner>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="one">one</Select.Item>
+              <Select.Item value="two">two</Select.Item>
+              <Select.Item value="three">three</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
       </Select.Root>,
     );
 
@@ -78,11 +80,9 @@ describe('<Select.Item />', () => {
     });
   });
 
-  it('should select item when Enter key is pressed', async function test(t = {}) {
+  it('should select item when Enter key is pressed', async ({ skip }) => {
     if (!isJSDOM) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
     }
 
     const { user } = await render(
@@ -90,12 +90,14 @@ describe('<Select.Item />', () => {
         <Select.Trigger data-testid="trigger">
           <Select.Value placeholder="null" data-testid="value" />
         </Select.Trigger>
-        <Select.Positioner>
-          <Select.Popup>
-            <Select.Item value="one">one</Select.Item>
-            <Select.Item value="two">two</Select.Item>
-          </Select.Popup>
-        </Select.Positioner>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="one">one</Select.Item>
+              <Select.Item value="two">two</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
       </Select.Root>,
     );
 
@@ -121,14 +123,16 @@ describe('<Select.Item />', () => {
         <Select.Trigger data-testid="trigger">
           <Select.Value data-testid="value" />
         </Select.Trigger>
-        <Select.Positioner>
-          <Select.Popup>
-            <Select.Item value="one">one</Select.Item>
-            <Select.Item value="two" disabled>
-              two
-            </Select.Item>
-          </Select.Popup>
-        </Select.Positioner>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="one">one</Select.Item>
+              <Select.Item value="two" disabled>
+                two
+              </Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
       </Select.Root>,
     );
 
@@ -150,13 +154,15 @@ describe('<Select.Item />', () => {
         <Select.Trigger data-testid="trigger">
           <Select.Value data-testid="value" />
         </Select.Trigger>
-        <Select.Positioner>
-          <Select.Popup>
-            <Select.Item value="one">one</Select.Item>
-            <Select.Item value="two">two</Select.Item>
-            <Select.Item value="three">three</Select.Item>
-          </Select.Popup>
-        </Select.Positioner>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="one">one</Select.Item>
+              <Select.Item value="two">two</Select.Item>
+              <Select.Item value="three">three</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
       </Select.Root>,
     );
 
@@ -177,22 +183,22 @@ describe('<Select.Item />', () => {
   });
 
   describe('style hooks', () => {
-    it('should apply data-highlighted attribute when item is highlighted', async function test(t = {}) {
+    it('should apply data-highlighted attribute when item is highlighted', async ({ skip }) => {
       if (!isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       const { user } = await render(
         <Select.Root defaultValue="a">
           <Select.Trigger data-testid="trigger" />
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -217,12 +223,14 @@ describe('<Select.Item />', () => {
       await render(
         <Select.Root>
           <Select.Trigger data-testid="trigger" />
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 

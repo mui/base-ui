@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, flushMicrotasks, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, fireEvent, screen } from '@mui/internal-test-utils';
 import {
   DirectionProvider,
   type TextDirection,
@@ -12,7 +12,7 @@ import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 describe('<Tabs.Root />', () => {
   const { render } = createRenderer();
 
-  before(function beforeHook() {
+  beforeEach(function beforeHook({ skip }) {
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
     // The test fails on Safari with just:
@@ -20,9 +20,7 @@ describe('<Tabs.Root />', () => {
     // container.scrollLeft = 200;
     // expect(container.scrollLeft).to.equal(200); 💥
     if (isSafari) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
     }
   });
 
@@ -279,7 +277,7 @@ describe('<Tabs.Root />', () => {
     ].forEach((entry) => {
       const [orientation, direction, previousItemKey, nextItemKey] = entry;
 
-      describeSkipIf(isJSDOM && direction === 'rtl')(
+      describe.skipIf(isJSDOM && direction === 'rtl')(
         `when focus is on a tab element in a ${orientation} ${direction ?? ''} tablist`,
         () => {
           describe(previousItemKey ?? '', () => {
@@ -802,7 +800,7 @@ describe('<Tabs.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('activation direction', () => {
+  describe.skipIf(isJSDOM)('activation direction', () => {
     it('should set the `data-activation-direction` attribute on the tabs root with orientation=horizontal', async () => {
       const { getAllByRole, getByTestId } = await render(
         <Tabs.Root data-testid="root">

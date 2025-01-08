@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen, waitFor, describeSkipIf } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { Menu } from '@base-ui-components/react/menu';
@@ -9,7 +9,7 @@ import { Select } from '@base-ui-components/react/select';
 
 describe('<Dialog.Root />', () => {
   beforeEach(() => {
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   const { render } = createRenderer();
@@ -19,7 +19,9 @@ describe('<Dialog.Root />', () => {
       const { queryByRole, getByRole } = await render(
         <Dialog.Root modal={false}>
           <Dialog.Trigger />
-          <Dialog.Popup />
+          <Dialog.Portal>
+            <Dialog.Popup />
+          </Dialog.Portal>
         </Dialog.Root>,
       );
 
@@ -38,7 +40,9 @@ describe('<Dialog.Root />', () => {
     it('should open and close the dialog with the `open` prop', async () => {
       const { queryByRole, setProps } = await render(
         <Dialog.Root open={false} modal={false}>
-          <Dialog.Popup />
+          <Dialog.Portal>
+            <Dialog.Popup />
+          </Dialog.Portal>
         </Dialog.Root>,
       );
 
@@ -51,11 +55,9 @@ describe('<Dialog.Root />', () => {
       expect(queryByRole('dialog')).to.equal(null);
     });
 
-    it('should remove the popup when there is no exit animation defined', async function test(t = {}) {
+    it('should remove the popup when there is no exit animation defined', async ({ skip }) => {
       if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       function Test() {
@@ -65,7 +67,9 @@ describe('<Dialog.Root />', () => {
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
             <Dialog.Root open={open}>
-              <Dialog.Popup />
+              <Dialog.Portal>
+                <Dialog.Popup />
+              </Dialog.Portal>
             </Dialog.Root>
           </div>
         );
@@ -81,14 +85,12 @@ describe('<Dialog.Root />', () => {
       });
     });
 
-    it('should remove the popup when the animation finishes', async function test(t = {}) {
+    it('should remove the popup when the animation finishes', async ({ skip }) => {
       if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let animationFinished = false;
       const notifyAnimationFinished = () => {
@@ -120,12 +122,13 @@ describe('<Dialog.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <Dialog.Root open={open}>
-              <Dialog.Popup
-                className="animation-test-popup"
-                data-testid="popup"
-                onAnimationEnd={notifyAnimationFinished}
-                keepMounted
-              />
+              <Dialog.Portal keepMounted>
+                <Dialog.Popup
+                  className="animation-test-popup"
+                  data-testid="popup"
+                  onAnimationEnd={notifyAnimationFinished}
+                />
+              </Dialog.Portal>
             </Dialog.Root>
           </div>
         );
@@ -151,9 +154,11 @@ describe('<Dialog.Root />', () => {
       const { user } = await render(
         <Dialog.Root onOpenChange={handleOpenChange}>
           <Dialog.Trigger>Open</Dialog.Trigger>
-          <Dialog.Popup>
-            <Dialog.Close>Close</Dialog.Close>
-          </Dialog.Popup>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Dialog.Close>Close</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
         </Dialog.Root>,
       );
 
@@ -178,9 +183,11 @@ describe('<Dialog.Root />', () => {
       const { user } = await render(
         <Dialog.Root onOpenChange={handleOpenChange}>
           <Dialog.Trigger>Open</Dialog.Trigger>
-          <Dialog.Popup>
-            <Dialog.Close>Close</Dialog.Close>
-          </Dialog.Popup>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Dialog.Close>Close</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
         </Dialog.Root>,
       );
 
@@ -203,9 +210,11 @@ describe('<Dialog.Root />', () => {
       const { user } = await render(
         <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
           <Dialog.Trigger>Open</Dialog.Trigger>
-          <Dialog.Popup>
-            <Dialog.Close>Close</Dialog.Close>
-          </Dialog.Popup>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Dialog.Close>Close</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
         </Dialog.Root>,
       );
 
@@ -221,9 +230,11 @@ describe('<Dialog.Root />', () => {
       const { user } = await render(
         <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
           <Dialog.Trigger>Open</Dialog.Trigger>
-          <Dialog.Popup>
-            <Dialog.Close>Close</Dialog.Close>
-          </Dialog.Popup>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Dialog.Close>Close</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
         </Dialog.Root>,
       );
 
@@ -234,7 +245,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: modal', () => {
+  describe.skipIf(isJSDOM)('prop: modal', () => {
     it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
       const { user } = await render(
         <div>
@@ -243,9 +254,11 @@ describe('<Dialog.Root />', () => {
 
           <Dialog.Root modal>
             <Dialog.Trigger>Open Dialog</Dialog.Trigger>
-            <Dialog.Popup>
-              <Dialog.Close>Close Dialog</Dialog.Close>
-            </Dialog.Popup>
+            <Dialog.Portal>
+              <Dialog.Popup>
+                <Dialog.Close>Close Dialog</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
           </Dialog.Root>
 
           <button type="button">Another Button</button>
@@ -286,9 +299,11 @@ describe('<Dialog.Root />', () => {
 
           <Dialog.Root modal={false}>
             <Dialog.Trigger>Open Dialog</Dialog.Trigger>
-            <Dialog.Popup>
-              <Dialog.Close>Close Dialog</Dialog.Close>
-            </Dialog.Popup>
+            <Dialog.Portal>
+              <Dialog.Popup>
+                <Dialog.Close>Close Dialog</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
           </Dialog.Root>
 
           <button type="button">Another Button</button>
@@ -331,7 +346,9 @@ describe('<Dialog.Root />', () => {
               dismissible={dismissible}
               modal={false}
             >
-              <Dialog.Popup />
+              <Dialog.Portal>
+                <Dialog.Popup />
+              </Dialog.Portal>
             </Dialog.Root>
           </div>,
         );
@@ -350,7 +367,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  it('waits for the exit transition to finish before unmounting', async function test(t = {}) {
+  it('waits for the exit transition to finish before unmounting', async ({ skip }) => {
     const css = `
     .dialog {
       opacity: 0;
@@ -362,12 +379,10 @@ describe('<Dialog.Root />', () => {
   `;
 
     if (isJSDOM) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
     }
 
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
     const notifyTransitionEnd = spy();
 
@@ -375,7 +390,9 @@ describe('<Dialog.Root />', () => {
       <Dialog.Root open modal={false}>
         {/* eslint-disable-next-line react/no-danger */}
         <style dangerouslySetInnerHTML={{ __html: css }} />
-        <Dialog.Popup className="dialog" onTransitionEnd={notifyTransitionEnd} keepMounted />
+        <Dialog.Portal keepMounted>
+          <Dialog.Popup className="dialog" onTransitionEnd={notifyTransitionEnd} />
+        </Dialog.Portal>
       </Dialog.Root>,
     );
 
@@ -448,7 +465,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('nested popups', () => {
+  describe.skipIf(isJSDOM)('nested popups', () => {
     it('should not dismiss the dialog when dismissing outside a nested modal menu', async () => {
       const { user } = await render(
         <Dialog.Root>
@@ -565,6 +582,91 @@ describe('<Dialog.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('dialog')).to.equal(null);
       });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('prop: onCloseComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Dialog.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="popup" />
+              </Dialog.Portal>
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            to {
+              opacity: 0;
+            }
+          }
+  
+          .animation-test-indicator[data-ending-style] {
+            animation: test-anim 50ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Dialog.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <Dialog.Portal>
+                <Dialog.Popup className="animation-test-indicator" data-testid="popup" />
+              </Dialog.Portal>
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.to.equal(null);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
     });
   });
 });

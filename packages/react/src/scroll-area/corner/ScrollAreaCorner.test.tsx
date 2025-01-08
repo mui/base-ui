@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { expect } from 'chai';
-import { screen, describeSkipIf } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { describeConformance } from '../../../test/describeConformance';
 
@@ -15,7 +15,7 @@ describe('<ScrollArea.Corner />', () => {
     },
   }));
 
-  describeSkipIf(isJSDOM)('interactions', () => {
+  describe.skipIf(isJSDOM)('interactions', () => {
     it('should apply correct corner size when both scrollbars are present', async () => {
       await render(
         <ScrollArea.Root style={{ width: 200, height: 200 }}>

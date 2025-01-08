@@ -30,6 +30,7 @@ export function usePreviewCardRoot(
     defaultOpen = false,
     delay,
     closeDelay,
+    onCloseComplete,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -62,7 +63,10 @@ export function usePreviewCardRoot(
   useAfterExitAnimation({
     open,
     animatedElementRef: popupRef,
-    onFinished: () => setMounted(false),
+    onFinished() {
+      setMounted(false);
+      onCloseComplete?.();
+    },
   });
 
   const context = useFloatingRootContext({
@@ -160,6 +164,10 @@ export namespace usePreviewCardRoot {
      * Event handler called when the preview card is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    /**
+     * Event handler called after any exit animations finish when the preview card is closed.
+     */
+    onCloseComplete?: () => void;
     /**
      * How long to wait before the preview card opens. Specified in milliseconds.
      * @default 600

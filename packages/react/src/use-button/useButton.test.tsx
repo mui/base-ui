@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, fireEvent } from '@mui/internal-test-utils';
+import { act, fireEvent } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useButton } from '.';
 
@@ -115,7 +115,7 @@ describe('useButton', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('server-side rendering', () => {
+  describe.skipIf(isJSDOM)('server-side rendering', () => {
     it('should server-side render', async () => {
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { disabled, type, ...otherProps } = props;

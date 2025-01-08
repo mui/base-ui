@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
+import { flushMicrotasks } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Accordion } from '@base-ui-components/react/accordion';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -44,11 +44,9 @@ describe('<Accordion.Root />', () => {
   });
 
   describe('uncontrolled', () => {
-    it('open state', async function test(t = {}) {
+    it('open state', async ({ skip }) => {
       if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       const { getByRole, queryByText, user } = await render(
@@ -282,7 +280,7 @@ describe('<Accordion.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('keyboard interactions', () => {
+  describe.skipIf(isJSDOM)('keyboard interactions', () => {
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} toggles the Accordion open state`, async () => {
         const { getByRole, queryByText, user } = await render(
@@ -504,7 +502,7 @@ describe('<Accordion.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: openMultiple', () => {
+  describe.skipIf(isJSDOM)('prop: openMultiple', () => {
     it('multiple items can be open by default', async () => {
       const { getAllByRole, queryByText, user } = await render(
         <Accordion.Root>
@@ -578,7 +576,7 @@ describe('<Accordion.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('horizontal orientation', () => {
+  describe.skipIf(isJSDOM)('horizontal orientation', () => {
     it('ArrowLeft/Right moves focus in horizontal orientation', async () => {
       const { getAllByRole, user } = await render(
         <Accordion.Root orientation="horizontal">
@@ -615,7 +613,7 @@ describe('<Accordion.Root />', () => {
       expect(trigger1).toHaveFocus();
     });
 
-    describeSkipIf(isJSDOM)('RTL', () => {
+    describe.skipIf(isJSDOM)('RTL', () => {
       it('ArrowLeft/Right is reversed for horizontal accordions in RTL mode', async () => {
         const { getAllByRole, user } = await render(
           <DirectionProvider direction="rtl">
@@ -656,7 +654,7 @@ describe('<Accordion.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: onValueChange', () => {
+  describe.skipIf(isJSDOM)('prop: onValueChange', () => {
     it('default item value', async () => {
       const onValueChange = spy();
 

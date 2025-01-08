@@ -259,12 +259,10 @@ describe('<Checkbox.Root />', () => {
     });
   });
 
-  it('should include the checkbox value in the form submission', async function test(t = {}) {
+  it('should include the checkbox value in the form submission', async ({ skip }) => {
     if (isJSDOM) {
       // FormData is not available in JSDOM
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
     }
 
     let stringifiedFormData = '';
@@ -298,12 +296,10 @@ describe('<Checkbox.Root />', () => {
     expect(stringifiedFormData).to.equal('test-checkbox=on');
   });
 
-  it('should include the custom checkbox value in the form submission', async function test(t = {}) {
+  it('should include the custom checkbox value in the form submission', async ({ skip }) => {
     if (isJSDOM) {
       // FormData is not available in JSDOM
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
     }
 
     let stringifiedFormData = '';

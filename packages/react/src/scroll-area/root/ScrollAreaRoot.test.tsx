@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
-import { screen, describeSkipIf } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';
@@ -18,7 +18,7 @@ describe('<ScrollArea.Root />', () => {
     render,
   }));
 
-  describeSkipIf(isJSDOM)('interactions', () => {
+  describe.skipIf(isJSDOM)('interactions', () => {
     it('should correctly set thumb height and width based on scrollable content', async () => {
       await render(
         <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>

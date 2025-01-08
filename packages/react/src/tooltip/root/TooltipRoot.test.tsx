@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Tooltip } from '@base-ui-components/react/tooltip';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM } from '#test-utils';
@@ -11,6 +11,10 @@ function Root(props: Tooltip.Root.Props) {
 }
 
 describe('<Tooltip.Root />', () => {
+  beforeEach(() => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
   const { render, clock } = createRenderer();
 
   describe('uncontrolled open', () => {
@@ -20,9 +24,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -43,9 +49,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -64,19 +72,19 @@ describe('<Tooltip.Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
 
-    it('should open when the trigger is focused', async function test(t = {}) {
+    it('should open when the trigger is focused', async ({ skip }) => {
       if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       await render(
         <Root>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -93,9 +101,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -124,9 +134,11 @@ describe('<Tooltip.Root />', () => {
     it('should open when controlled open is true', async () => {
       await render(
         <Root open>
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -136,9 +148,11 @@ describe('<Tooltip.Root />', () => {
     it('should close when controlled open is false', async () => {
       await render(
         <Root open={false}>
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -160,9 +174,11 @@ describe('<Tooltip.Root />', () => {
             }}
           >
             <Tooltip.Trigger />
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Root>
         );
       }
@@ -205,9 +221,11 @@ describe('<Tooltip.Root />', () => {
             }}
           >
             <Tooltip.Trigger />
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Root>
         );
       }
@@ -236,9 +254,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root defaultOpen>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -251,9 +271,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root defaultOpen open={false}>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -266,9 +288,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root defaultOpen open>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -281,9 +305,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root defaultOpen>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -308,9 +334,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root delay={100}>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -338,9 +366,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root closeDelay={100}>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -362,6 +392,95 @@ describe('<Tooltip.Root />', () => {
       clock.tick(100);
 
       expect(screen.queryByText('Content')).to.equal(null);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('prop: onCloseComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Tooltip.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup data-testid="popup" />
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let onCloseCompleteCalled = false;
+      function notifyonCloseComplete() {
+        onCloseCompleteCalled = true;
+      }
+
+      function Test() {
+        const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 50ms;
+        }
+      `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Tooltip.Root open={open} onCloseComplete={notifyonCloseComplete}>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup className="animation-test-indicator" data-testid="popup" />
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.to.equal(null);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onCloseCompleteCalled).to.equal(true);
     });
   });
 });
