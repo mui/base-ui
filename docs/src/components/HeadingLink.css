@@ -5,8 +5,10 @@
     border-radius: var(--radius-sm);
   }
 
-  & svg {
-    visibility: hidden;
+  @media (pointer: fine) {
+    & svg {
+      visibility: hidden;
+    }
   }
 
   @media (hover: hover) {
