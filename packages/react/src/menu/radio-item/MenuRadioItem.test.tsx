@@ -299,4 +299,44 @@ describe('<Menu.RadioItem />', () => {
       expect(queryByRole('menu')).not.to.equal(null);
     });
   });
+
+  describe('focusableWhenDisabled', () => {
+    it('can be focused but not interacted with when a radio group is disabled', async () => {
+      const handleKeyDown = spy();
+      const handleClick = spy();
+      const handleValueChange = spy();
+
+      const { getAllByRole } = await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0} disabled onValueChange={handleValueChange}>
+                  <Menu.RadioItem value="one" onClick={handleClick} onKeyDown={handleKeyDown}>
+                    one
+                  </Menu.RadioItem>
+                  <Menu.RadioItem value="two" onClick={handleClick} onKeyDown={handleKeyDown}>
+                    two
+                  </Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const [item1, item2] = getAllByRole('menuitemradio');
+
+      expect(item1).to.have.attribute('data-disabled');
+      expect(item2).to.have.attribute('data-disabled');
+
+      await act(() => item1.focus());
+      expect(item1).toHaveFocus();
+
+      fireEvent.keyDown(item1, { key: 'Enter' });
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+    });
+  });
 });
