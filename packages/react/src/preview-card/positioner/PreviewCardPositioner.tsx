@@ -133,7 +133,14 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    */
   align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * Additional offset along the alignment axis of the element.
+   * Additional offset along the alignment axis in pixels.
+   * Also accepts a function that returns the offset to read the dimensions of the anchor
+   * and positioner elements, along with its side and alignment.
+   *
+   * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
+   * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
+   * - `data.side`: which side of the anchor element the positioner is aligned against.
+   * - `data.align`: how the positioner is aligned relative to the specified side.
    * @default 0
    */
   alignOffset: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
@@ -210,7 +217,14 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    */
   side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
-   * Distance between the anchor and the popup.
+   * Distance between the anchor and the popup in pixels.
+   * Also accepts a function that returns the distance to read the dimensions of the anchor
+   * and positioner elements, along with its side and alignment.
+   *
+   * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
+   * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
+   * - `data.side`: which side of the anchor element the positioner is aligned against.
+   * - `data.align`: how the positioner is aligned relative to the specified side.
    * @default 0
    */
   sideOffset: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),

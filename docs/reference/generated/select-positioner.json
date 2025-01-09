@@ -10,7 +10,7 @@
     "alignOffset": {
       "type": "number | (data) => number",
       "default": "0",
-      "description": "Additional offset along the alignment axis of the element."
+      "description": "Additional offset along the alignment axis in pixels.\nAlso accepts a function that returns the offset to read the dimensions of the anchor\nand positioner elements, along with its side and alignment.\n\n- `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n- `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.\n- `data.side`: which side of the anchor element the positioner is aligned against.\n- `data.align`: how the positioner is aligned relative to the specified side."
     },
     "side": {
       "type": "'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
@@ -20,7 +20,7 @@
     "sideOffset": {
       "type": "number | (data) => number",
       "default": "0",
-      "description": "Distance between the anchor and the popup."
+      "description": "Distance between the anchor and the popup in pixels.\nAlso accepts a function that returns the distance to read the dimensions of the anchor\nand positioner elements, along with its side and alignment.\n\n- `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n- `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.\n- `data.side`: which side of the anchor element the positioner is aligned against.\n- `data.align`: how the positioner is aligned relative to the specified side."
     },
     "arrowPadding": {
       "type": "number",
