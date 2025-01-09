@@ -6,6 +6,22 @@ _Jan 9, 2025_
 
 A big thanks to the 11 contributors who made this release possible.
 
+### Breaking changes
+
+- [popups] Require `Portal` part (#1222) @atomiks
+
+  All the popup-based components (Dialog, AlertDialog, Popover, Menu, Select, Preview Card, and Tooltip) must explicitly include the Portal part wrapping the Positioner (or Popup in case of Dialog and AlertDialog).
+  The `keepMounted` prop was moved from the Positioner to the Portal part.
+
+  ```diff
+   <Popover.Root>
+  +  <Popover.Portal keepMounted>
+  -  <Popover.Positioner keepMounted>
+  +    <Popover.Positioner>
+  ```
+
+### Changes
+
 - [Dialog, AlertDialog] Fix the nesting of different dialogs (#1167) @mnajdova
 - [Dialog, Menu, Select] Set `pointer-events` on `InternalBackdrop` based on `open` state (#1221) @atomiks
 - [Dialog] Don't call `onNestedDialogOpen` when unmounting a closed nested dialog (#1280) @mj12albert
@@ -16,7 +32,6 @@ A big thanks to the 11 contributors who made this release possible.
 - [NumberField] Correctly handle quick touches (#1294) @atomiks
 - [Popover, Tooltip] Fix PopoverTrigger and TooltipTrigger prop types (#1209) @okmr-d
 - [popups] Apply `aria-hidden` to `Arrow` parts (#1196) @atomiks
-- [popups] Require `Portal` part (#1222) @atomiks
 - [Progress] Set zero width when value is zero (#1204) @mj12albert
 - [ScrollArea] Differentiate `x`/`y` orientation `data-scrolling` (#1188) @atomiks
 - [ScrollArea] Read `DirectionProvider` and use logical positioning CSS props (#1194) @mj12albert
