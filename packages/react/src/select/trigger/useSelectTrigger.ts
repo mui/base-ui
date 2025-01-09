@@ -77,7 +77,7 @@ export function useSelectTrigger(
         mergeReactProps<'button'>(fieldControlValidation.getValidationProps(externalProps), {
           'aria-labelledby': labelId,
           'aria-readonly': readOnly || undefined,
-          tabIndex: 0, // this is needed to make the button focused after click in Safari
+          tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onFocus() {
             // The popup element shouldn't obscure the focused trigger.
@@ -141,18 +141,19 @@ export function useSelectTrigger(
       );
     },
     [
-      fieldControlValidation,
-      labelId,
-      readOnly,
-      handleRef,
-      getButtonProps,
-      open,
       alignItemToTrigger,
+      disabled,
+      fieldControlValidation,
+      getButtonProps,
+      handleRef,
+      labelId,
+      open,
+      positionerElement,
+      readOnly,
       setOpen,
       setTouched,
-      value,
       setTouchModality,
-      positionerElement,
+      value,
     ],
   );
 
