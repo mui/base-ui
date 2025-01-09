@@ -73,9 +73,8 @@ export function useSelectTrigger(
 
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps<'button'>(
-        fieldControlValidation.getValidationProps(externalProps),
-        {
+      return getButtonProps(
+        mergeReactProps<'button'>(fieldControlValidation.getValidationProps(externalProps), {
           'aria-labelledby': labelId,
           'aria-readonly': readOnly || undefined,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
@@ -138,8 +137,7 @@ export function useSelectTrigger(
               doc.addEventListener('mouseup', handleMouseUp, { once: true });
             });
           },
-        },
-        getButtonProps(),
+        }),
       );
     },
     [
