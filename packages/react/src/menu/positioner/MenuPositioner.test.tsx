@@ -1,37 +1,9 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import userEvent from '@testing-library/user-event';
 import { describeSkipIf, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
-import { describeConformance, createRenderer } from '#test-utils';
-import { MenuRootContext } from '../root/MenuRootContext';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
-
-const testRootContext: MenuRootContext = {
-  floatingRootContext: undefined as unknown as FloatingRootContext,
-  getPopupProps: (p) => ({ ...p }),
-  getTriggerProps: (p) => ({ ...p }),
-  getItemProps: (p) => ({ ...p }),
-  parentContext: undefined,
-  nested: false,
-  setTriggerElement: () => {},
-  setPositionerElement: () => {},
-  activeIndex: null,
-  disabled: false,
-  itemDomElements: { current: [] },
-  itemLabels: { current: [] },
-  open: true,
-  setOpen: () => {},
-  popupRef: { current: null },
-  mounted: true,
-  transitionStatus: undefined,
-  typingRef: { current: false },
-  modal: false,
-  positionerRef: { current: null },
-  allowMouseUpTriggerRef: { current: false },
-};
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Menu.Trigger.Props,
@@ -46,22 +18,18 @@ describe('<Menu.Positioner />', () => {
   describeConformance(<Menu.Positioner />, () => ({
     render: (node) => {
       return render(
-        <FloatingTree>
-          <MenuRootContext.Provider value={testRootContext}>
-            <Menu.Portal>{node}</Menu.Portal>
-          </MenuRootContext.Provider>
-        </FloatingTree>,
+        <Menu.Root open>
+          <Menu.Portal>{node}</Menu.Portal>
+        </Menu.Root>,
       );
     },
     refInstanceof: window.HTMLDivElement,
   }));
 
   describe('prop: anchor', () => {
-    it('should be placed near the specified element when a ref is passed', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should be placed near the specified element when a ref is passed', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       function TestComponent() {
@@ -104,11 +72,11 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed near the specified element when an element is passed', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should be placed near the specified element when an element is passed', async ({
+      skip,
+    }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       function TestComponent() {
@@ -154,11 +122,11 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed near the specified element when a function returning an element is passed', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should be placed near the specified element when a function returning an element is passed', async ({
+      skip,
+    }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       function TestComponent() {
@@ -206,11 +174,9 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed at the specified position', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should be placed at the specified position', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       const boundingRect = {

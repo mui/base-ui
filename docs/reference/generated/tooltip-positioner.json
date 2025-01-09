@@ -51,6 +51,11 @@
       "default": "'absolute'",
       "description": "Determines which CSS `position` property to use."
     },
+    "trackAnchor": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the popup tracks any layout shift of its positioning anchor."
+    },
     "className": {
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

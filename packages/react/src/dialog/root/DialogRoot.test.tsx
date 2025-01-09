@@ -1,17 +1,15 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen, waitFor, describeSkipIf } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui-components/react/dialog';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { Select } from '@base-ui-components/react/select';
 
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
-
 describe('<Dialog.Root />', () => {
   beforeEach(() => {
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   const { render } = createRenderer();
@@ -57,11 +55,9 @@ describe('<Dialog.Root />', () => {
       expect(queryByRole('dialog')).to.equal(null);
     });
 
-    it('should remove the popup when there is no exit animation defined', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should remove the popup when there is no exit animation defined', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       function Test() {
@@ -89,14 +85,12 @@ describe('<Dialog.Root />', () => {
       });
     });
 
-    it('should remove the popup when the animation finishes', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should remove the popup when the animation finishes', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let animationFinished = false;
       const notifyAnimationFinished = () => {
@@ -251,7 +245,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: modal', () => {
+  describe.skipIf(isJSDOM)('prop: modal', () => {
     it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
       const { user } = await render(
         <div>
@@ -373,7 +367,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  it('waits for the exit transition to finish before unmounting', async function test(t = {}) {
+  it('waits for the exit transition to finish before unmounting', async ({ skip }) => {
     const css = `
     .dialog {
       opacity: 0;
@@ -384,13 +378,11 @@ describe('<Dialog.Root />', () => {
     }
   `;
 
-    if (/jsdom/.test(window.navigator.userAgent)) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+    if (isJSDOM) {
+      skip();
     }
 
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
     const notifyTransitionEnd = spy();
 
@@ -473,7 +465,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('nested popups', () => {
+  describe.skipIf(isJSDOM)('nested popups', () => {
     it('should not dismiss the dialog when dismissing outside a nested modal menu', async () => {
       const { user } = await render(
         <Dialog.Root>

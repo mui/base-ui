@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
 import { DialogContext } from '../utils/DialogContext';
-import { type CommonParameters, useDialogRoot } from './useDialogRoot';
+import { type SharedParameters, useDialogRoot } from './useDialogRoot';
 
 /**
  * Groups all parts of the dialog.
@@ -48,7 +48,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
 };
 
 namespace DialogRoot {
-  export interface Props extends CommonParameters {
+  export interface Props extends SharedParameters {
     children?: React.ReactNode;
   }
 }

@@ -2,10 +2,8 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
-import { act, describeSkipIf, waitFor, screen } from '@mui/internal-test-utils';
-import { describeConformance, createRenderer } from '#test-utils';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+import { act, waitFor, screen } from '@mui/internal-test-utils';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Dialog.Popup />', () => {
   const { render } = createRenderer();
@@ -217,7 +215,7 @@ describe('<Dialog.Popup />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('nested dialog count', () => {
+  describe.skipIf(isJSDOM)('nested dialog count', () => {
     it('provides the number of open nested dialogs as a CSS variable', async () => {
       const { user } = await render(
         <Dialog.Root>

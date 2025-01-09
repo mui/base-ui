@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 import { PreviewCardPortalContext } from './PreviewCardPortalContext';
+import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -24,7 +24,7 @@ function PreviewCardPortal(props: PreviewCardPortal.Props) {
 
   return (
     <PreviewCardPortalContext.Provider value={keepMounted}>
-      <FloatingPortal root={container}>{children}</FloatingPortal>
+      <FloatingPortalLite root={container}>{children}</FloatingPortalLite>
     </PreviewCardPortalContext.Provider>
   );
 }

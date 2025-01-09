@@ -2,7 +2,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { HTMLElementType } from '../../utils/proptypes';
 import { useForkRef } from '../../utils/useForkRef';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
@@ -10,6 +9,7 @@ import { useTooltipPositioner } from './useTooltipPositioner';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { HTMLElementType, refType } from '../../utils/proptypes';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 
 /**
@@ -35,18 +35,18 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
+    trackAnchor = true,
     ...otherProps
   } = props;
 
-  const { open, setPositionerElement, mounted, floatingRootContext, trackCursorAxis } =
-    useTooltipRootContext();
+  const { open, setPositionerElement, mounted, floatingRootContext } = useTooltipRootContext();
   const keepMounted = useTooltipPortalContext();
 
   const positioner = useTooltipPositioner({
     anchor,
-    floatingRootContext,
     positionMethod,
-    open,
+    floatingRootContext,
+    trackAnchor,
     mounted,
     side,
     sideOffset,
@@ -55,7 +55,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackCursorAxis,
     arrowPadding,
     keepMounted,
   });
@@ -136,6 +135,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
+    refType,
     PropTypes.object,
     PropTypes.func,
   ]),
@@ -219,6 +219,11 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    * @default false
    */
   sticky: PropTypes.bool,
+  /**
+   * Whether the popup tracks any layout shift of its positioning anchor.
+   * @default true
+   */
+  trackAnchor: PropTypes.bool,
 } as any;
 
 export { TooltipPositioner };

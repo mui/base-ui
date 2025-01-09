@@ -11,6 +11,7 @@ import { useSelectPositioner } from './useSelectPositioner';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
  * Positions the select menu popup against the trigger.
@@ -28,7 +29,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     className,
     render,
     side = 'bottom',
-    align = 'start',
+    align = 'center',
     sideOffset = 0,
     alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
@@ -42,7 +43,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   const { open, mounted, setPositionerElement, listRef, labelsRef, floatingRootContext, modal } =
     useSelectRootContext();
 
-  const { getPositionerProps, positioner } = useSelectPositioner({
+  const positioner = useSelectPositioner({
     anchor,
     floatingRootContext,
     positionMethod,
@@ -56,7 +57,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     sticky,
     trackAnchor,
-    allowAxisFlip: false,
+    keepMounted: true,
   });
 
   const mergedRef = useForkRef(ref, setPositionerElement);
@@ -72,7 +73,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getPositionerProps,
+    propGetter: positioner.getPositionerProps,
     render: render ?? 'div',
     ref: mergedRef,
     className,
@@ -111,7 +112,7 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
   // └─────────────────────────────────────────────────────────────────────┘
   /**
    * How to align the popup relative to the specified side.
-   * @default 'start'
+   * @default 'center'
    */
   align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
@@ -123,41 +124,11 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    * An element to position the popup against.
    * By default, the popup will be positioned against the trigger.
    */
-  anchor: PropTypes.oneOfType([
-    (props, propName) => {
-      if (props[propName] == null) {
-        return new Error(`Prop '${propName}' is required but wasn't specified`);
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
+  anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    HTMLElementType,
+    refType,
+    PropTypes.object,
     PropTypes.func,
-    PropTypes.shape({
-      contextElement: (props, propName) => {
-        if (props[propName] == null) {
-          return null;
-        }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop '${propName}' to be of type Element`);
-        }
-        return null;
-      },
-      getBoundingClientRect: PropTypes.func.isRequired,
-      getClientRects: PropTypes.func,
-    }),
-    PropTypes.shape({
-      current: (props, propName) => {
-        if (props[propName] == null) {
-          return null;
-        }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop '${propName}' to be of type Element`);
-        }
-        return null;
-      },
-    }),
   ]),
   /**
    * Minimum distance to maintain between the arrow and the edges of the popup.
@@ -179,31 +150,15 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    * An element or a rectangle that delimits the area that the popup is confined to.
    * @default 'clipping-ancestors'
    */
-  collisionBoundary: PropTypes.oneOfType([
-    PropTypes.oneOf(['clipping-ancestors']),
-    PropTypes.arrayOf((props, propName) => {
-      if (props[propName] == null) {
-        return new Error(`Prop '${propName}' is required but wasn't specified`);
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    }),
-    (props, propName) => {
-      if (props[propName] == null) {
-        return new Error(`Prop '${propName}' is required but wasn't specified`);
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
+  collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    HTMLElementType,
+    PropTypes.arrayOf(HTMLElementType),
+    PropTypes.string,
     PropTypes.shape({
-      height: PropTypes.number.isRequired,
-      width: PropTypes.number.isRequired,
-      x: PropTypes.number.isRequired,
-      y: PropTypes.number.isRequired,
+      height: PropTypes.number,
+      width: PropTypes.number,
+      x: PropTypes.number,
+      y: PropTypes.number,
     }),
   ]),
   /**
@@ -220,7 +175,7 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The CSS position method for positioning the Select popup element.
+   * Determines which CSS `position` property to use.
    * @default 'absolute'
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
@@ -250,13 +205,13 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    */
   sideOffset: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
   /**
-   * Whether to maintain the select menu in the viewport after
-   * the anchor element is scrolled out of view.
+   * Whether to maintain the popup in the viewport after
+   * the anchor element was scrolled out of view.
    * @default false
    */
   sticky: PropTypes.bool,
   /**
-   * Whether the select popup continuously tracks its anchor after the initial positioning upon mount.
+   * Whether the popup tracks any layout shift of its positioning anchor.
    * @default true
    */
   trackAnchor: PropTypes.bool,

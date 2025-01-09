@@ -59,16 +59,14 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const { getRootProps, floatingContext, resolvedInitialFocus } = useDialogPopup({
+  const { getRootProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
-    floatingRootContext,
     getPopupProps,
     id,
     initialFocus,
     modal: true,
     mounted,
     setOpen,
-    open,
     openMethod,
     ref: mergedRef,
     setPopupElement,
@@ -105,7 +103,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     <React.Fragment>
       {mounted && modal && <InternalBackdrop inert={!open} />}
       <FloatingFocusManager
-        context={floatingContext}
+        context={floatingRootContext}
         modal={open}
         disabled={!mounted}
         initialFocus={resolvedInitialFocus}

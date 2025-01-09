@@ -16,7 +16,7 @@
     "strict": true,
     "jsx": "react",
 
-    "types": ["node", "mocha"],
+    "types": ["node"],
     "paths": {
       "@mui-internal/api-docs-builder": [
         "../../node_modules/@mui/monorepo/packages/api-docs-builder"

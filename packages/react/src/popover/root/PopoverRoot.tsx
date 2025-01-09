@@ -12,88 +12,35 @@ import { OPEN_DELAY } from '../utils/constants';
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
-  const { openOnHover = false, delay, closeDelay = 0 } = props;
+  const {
+    defaultOpen = false,
+    onOpenChange,
+    open,
+    openOnHover = false,
+    delay,
+    closeDelay = 0,
+  } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
 
-  const {
+  const popoverRoot = usePopoverRoot({
+    ...props,
+    defaultOpen,
+    onOpenChange,
     open,
-    setOpen,
-    mounted,
-    setMounted,
-    setTriggerElement,
-    positionerElement,
-    setPositionerElement,
-    popupRef,
-    instantType,
-    transitionStatus,
-    floatingRootContext,
-    getRootTriggerProps,
-    getRootPopupProps,
-    titleId,
-    setTitleId,
-    descriptionId,
-    setDescriptionId,
-    openMethod,
-    openReason,
-  } = usePopoverRoot({
     openOnHover,
     delay: delayWithDefault,
     closeDelay,
-    open: props.open,
-    onOpenChange: props.onOpenChange,
-    defaultOpen: props.defaultOpen,
   });
 
   const contextValue: PopoverRootContext = React.useMemo(
     () => ({
+      ...popoverRoot,
       openOnHover,
       delay: delayWithDefault,
       closeDelay,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      transitionStatus,
-      titleId,
-      setTitleId,
-      descriptionId,
-      setDescriptionId,
-      floatingRootContext,
-      getRootPopupProps,
-      getRootTriggerProps,
-      openMethod,
-      openReason,
     }),
-    [
-      openOnHover,
-      delayWithDefault,
-      closeDelay,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      transitionStatus,
-      titleId,
-      setTitleId,
-      descriptionId,
-      setDescriptionId,
-      floatingRootContext,
-      getRootPopupProps,
-      getRootTriggerProps,
-      openMethod,
-      openReason,
-    ],
+    [popoverRoot, openOnHover, delayWithDefault, closeDelay],
   );
 
   return (

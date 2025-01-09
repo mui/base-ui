@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingPortal } from '@floating-ui/react';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 import { TooltipPortalContext } from './TooltipPortalContext';
+import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -24,7 +24,7 @@ function TooltipPortal(props: TooltipPortal.Props) {
 
   return (
     <TooltipPortalContext.Provider value={keepMounted}>
-      <FloatingPortal root={container}>{children}</FloatingPortal>
+      <FloatingPortalLite root={container}>{children}</FloatingPortalLite>
     </TooltipPortalContext.Provider>
   );
 }
