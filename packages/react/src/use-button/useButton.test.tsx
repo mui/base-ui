@@ -18,13 +18,14 @@ describe('useButton', () => {
       }
       const { getByRole } = await render(<TestButton disabled />);
       const button = getByRole('button');
-      act(() => button.focus());
+      await act(() => button.focus());
       expect(button).toHaveFocus();
     });
 
     it('prevents interactions with the button', async () => {
-      const handleKeyDown = spy();
       const handleClick = spy();
+      const handleKeyDown = spy();
+      const handleKeyUp = spy();
 
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { disabled, ...otherProps } = props;
@@ -34,23 +35,29 @@ describe('useButton', () => {
       }
 
       const { getByRole } = await render(
-        <TestButton disabled onKeyDown={handleKeyDown} onClick={handleClick} />,
+        <TestButton
+          disabled
+          onClick={handleClick}
+          onKeyDown={handleKeyDown}
+          onKeyUp={handleKeyUp}
+        />,
       );
       const button = getByRole('button');
 
-      act(() => button.focus());
+      await act(() => button.focus());
       expect(button).toHaveFocus();
 
       fireEvent.keyDown(button, { key: 'Enter' });
       expect(handleKeyDown.callCount).to.equal(1);
       expect(handleClick.callCount).to.equal(0);
 
-      fireEvent.keyDown(button, { key: 'Space' });
-      expect(handleKeyDown.callCount).to.equal(2);
+      fireEvent.keyUp(button, { key: 'Space' });
+      expect(handleKeyUp.callCount).to.equal(1);
       expect(handleClick.callCount).to.equal(0);
 
       fireEvent.click(button);
-      expect(handleKeyDown.callCount).to.equal(2);
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleKeyUp.callCount).to.equal(1);
       expect(handleClick.callCount).to.equal(0);
     });
   });
@@ -152,7 +159,7 @@ describe('useButton', () => {
 
       const button = getByRole('button');
 
-      act(() => button.focus());
+      await act(() => button.focus());
       expect(button).toHaveFocus();
 
       expect(handleKeyDown.callCount).to.equal(0);

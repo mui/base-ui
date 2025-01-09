@@ -136,7 +136,7 @@ describe('<Select.Item />', () => {
     );
 
     const item = screen.getByText('two');
-    act(() => item.focus());
+    await act(() => item.focus());
     expect(item).toHaveFocus();
   });
 

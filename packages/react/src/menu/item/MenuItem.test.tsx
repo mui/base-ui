@@ -240,15 +240,21 @@ describe('<Menu.Item />', () => {
 
   describe('disabled state', () => {
     it('can be focused but not interacted with when disabled', async () => {
-      const handleKeyDown = spy();
       const handleClick = spy();
+      const handleKeyDown = spy();
+      const handleKeyUp = spy();
 
       const { getByRole } = await render(
         <Menu.Root open>
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.Item disabled onClick={handleClick} onKeyDown={handleKeyDown}>
+                <Menu.Item
+                  disabled
+                  onClick={handleClick}
+                  onKeyDown={handleKeyDown}
+                  onKeyUp={handleKeyUp}
+                >
                   Item
                 </Menu.Item>
               </Menu.Popup>
@@ -258,19 +264,20 @@ describe('<Menu.Item />', () => {
       );
 
       const item = getByRole('menuitem');
-      act(() => item.focus());
+      await act(() => item.focus());
       expect(item).toHaveFocus();
 
       fireEvent.keyDown(item, { key: 'Enter' });
       expect(handleKeyDown.callCount).to.equal(1);
       expect(handleClick.callCount).to.equal(0);
 
-      fireEvent.keyDown(item, { key: 'Space' });
-      expect(handleKeyDown.callCount).to.equal(2);
+      fireEvent.keyUp(item, { key: 'Space' });
+      expect(handleKeyUp.callCount).to.equal(1);
       expect(handleClick.callCount).to.equal(0);
 
       fireEvent.click(item);
-      expect(handleKeyDown.callCount).to.equal(2);
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleKeyUp.callCount).to.equal(1);
       expect(handleClick.callCount).to.equal(0);
     });
   });
