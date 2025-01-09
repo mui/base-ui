@@ -11,13 +11,21 @@ A big thanks to the 11 contributors who made this release possible.
 - [popups] Require `Portal` part (#1222) @atomiks
 
   All the popup-based components (Dialog, AlertDialog, Popover, Menu, Select, Preview Card, and Tooltip) must explicitly include the Portal part wrapping the Positioner (or Popup in case of Dialog and AlertDialog).
-  The `keepMounted` prop was moved from the Positioner to the Portal part.
+
+  The `keepMounted` prop was removed from the Positioner and Popup parts.
+  It's only present on Portal parts.
 
   ```diff
    <Popover.Root>
   +  <Popover.Portal keepMounted>
   -  <Popover.Positioner keepMounted>
   +    <Popover.Positioner>
+  ```
+
+  ```diff
+   <Dialog.Root>
+  +  <Dialog.Portal>
+       <Dialog.Popup>
   ```
 
 ### Changes
