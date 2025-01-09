@@ -20,7 +20,7 @@
     "sideOffset": {
       "type": "number | (data) => number",
       "default": "0",
-      "description": "Distance between the anchor and the popup in pixels.\nAlso accepts a function that returns a number to read the dimensions of the anchor and popup,\nalong with its side and alignment.\n\n- `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n- `data.popup`: the dimensions of the popup element with properties `width` and `height`.\n- `data.side`: which side of the anchor element the popup is aligned against.\n- `data.align`: how the popup is aligned relative to the specified side."
+      "description": "Distance between the anchor and the popup."
     },
     "arrowPadding": {
       "type": "number",

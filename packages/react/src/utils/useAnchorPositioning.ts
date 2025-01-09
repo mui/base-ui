@@ -44,7 +44,7 @@ export type OffsetFunction = (data: {
   side: Side;
   align: Align;
   anchor: { width: number; height: number };
-  popup: { width: number; height: number };
+  positioner: { width: number; height: number };
 }) => number;
 
 /**
@@ -114,7 +114,7 @@ export function useAnchorPositioning(
           side: getLogicalSide(sideParam, getSide(currentPlacement), isRtl),
           align: getAlignment(currentPlacement) || 'center',
           anchor: { width: rects.reference.width, height: rects.reference.height },
-          popup: { width: rects.floating.width, height: rects.floating.height },
+          positioner: { width: rects.floating.width, height: rects.floating.height },
         } as const;
 
         const sideAxis =
