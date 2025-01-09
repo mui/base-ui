@@ -62,7 +62,7 @@ describe('<Popover.Positioner />', () => {
           <Popover.Portal>
             <Popover.Positioner
               data-testid="positioner"
-              sideOffset={(data) => data.popup.width + data.anchor.width}
+              sideOffset={(data) => data.positioner.width + data.anchor.width}
             >
               <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
             </Popover.Positioner>
@@ -173,7 +173,10 @@ describe('<Popover.Positioner />', () => {
         <Popover.Root open>
           <Trigger style={triggerStyle}>Trigger</Trigger>
           <Popover.Portal>
-            <Popover.Positioner data-testid="positioner" alignOffset={(data) => data.popup.width}>
+            <Popover.Positioner
+              data-testid="positioner"
+              alignOffset={(data) => data.positioner.width}
+            >
               <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>

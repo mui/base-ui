@@ -62,7 +62,7 @@ describe('<Tooltip.Positioner />', () => {
           <Tooltip.Portal>
             <Tooltip.Positioner
               data-testid="positioner"
-              sideOffset={(data) => data.popup.width + data.anchor.width}
+              sideOffset={(data) => data.positioner.width + data.anchor.width}
             >
               <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
             </Tooltip.Positioner>
@@ -173,7 +173,10 @@ describe('<Tooltip.Positioner />', () => {
         <Tooltip.Root open>
           <Trigger style={triggerStyle}>Trigger</Trigger>
           <Tooltip.Portal>
-            <Tooltip.Positioner data-testid="positioner" alignOffset={(data) => data.popup.width}>
+            <Tooltip.Positioner
+              data-testid="positioner"
+              alignOffset={(data) => data.positioner.width}
+            >
               <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
             </Tooltip.Positioner>
           </Tooltip.Portal>

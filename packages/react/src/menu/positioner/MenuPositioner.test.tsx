@@ -314,7 +314,7 @@ describe('<Menu.Positioner />', () => {
           <Menu.Portal>
             <Menu.Positioner
               data-testid="positioner"
-              sideOffset={(data) => data.popup.width + data.anchor.width}
+              sideOffset={(data) => data.positioner.width + data.anchor.width}
             >
               <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
             </Menu.Positioner>
@@ -425,7 +425,7 @@ describe('<Menu.Positioner />', () => {
         <Menu.Root open>
           <Trigger style={triggerStyle}>Trigger</Trigger>
           <Menu.Portal>
-            <Menu.Positioner data-testid="positioner" alignOffset={(data) => data.popup.width}>
+            <Menu.Positioner data-testid="positioner" alignOffset={(data) => data.positioner.width}>
               <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>

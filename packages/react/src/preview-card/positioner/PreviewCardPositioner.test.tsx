@@ -62,7 +62,7 @@ describe('<PreviewCard.Positioner />', () => {
           <PreviewCard.Portal>
             <PreviewCard.Positioner
               data-testid="positioner"
-              sideOffset={(data) => data.popup.width + data.anchor.width}
+              sideOffset={(data) => data.positioner.width + data.anchor.width}
             >
               <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
             </PreviewCard.Positioner>
@@ -175,7 +175,7 @@ describe('<PreviewCard.Positioner />', () => {
           <PreviewCard.Portal>
             <PreviewCard.Positioner
               data-testid="positioner"
-              alignOffset={(data) => data.popup.width}
+              alignOffset={(data) => data.positioner.width}
             >
               <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
             </PreviewCard.Positioner>

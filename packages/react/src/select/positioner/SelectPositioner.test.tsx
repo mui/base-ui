@@ -63,7 +63,7 @@ describe('<Select.Positioner />', () => {
             <Select.Positioner
               data-testid="positioner"
               align="center"
-              sideOffset={(data) => data.popup.width + data.anchor.width}
+              sideOffset={(data) => data.positioner.width + data.anchor.width}
             >
               <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
@@ -178,7 +178,7 @@ describe('<Select.Positioner />', () => {
             <Select.Positioner
               data-testid="positioner"
               align="center"
-              alignOffset={(data) => data.popup.width}
+              alignOffset={(data) => data.positioner.width}
             >
               <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
