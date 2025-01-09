@@ -171,13 +171,16 @@ describe('<PreviewCard.Root />', () => {
 
       function Test() {
         const [open, setOpen] = React.useState(true);
+        const anchor = React.useRef<HTMLButtonElement>(null);
 
         return (
           <div>
-            <button onClick={() => setOpen(false)}>Close</button>
+            <button onClick={() => setOpen(false)} ref={anchor}>
+              Close
+            </button>
             <PreviewCard.Root open={open}>
               <PreviewCard.Portal>
-                <PreviewCard.Positioner>
+                <PreviewCard.Positioner anchor={anchor}>
                   <PreviewCard.Popup>Content</PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
@@ -226,15 +229,18 @@ describe('<PreviewCard.Root />', () => {
         `;
 
         const [open, setOpen] = React.useState(true);
+        const anchor = React.useRef<HTMLButtonElement>(null);
 
         return (
           <div>
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
+            <button onClick={() => setOpen(false)} ref={anchor}>
+              Close
+            </button>
             <PreviewCard.Root open={open}>
               <PreviewCard.Portal keepMounted>
-                <PreviewCard.Positioner data-testid="positioner">
+                <PreviewCard.Positioner data-testid="positioner" anchor={anchor}>
                   <PreviewCard.Popup
                     className="animation-test-popup"
                     onAnimationEnd={notifyAnimationFinished}

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
@@ -211,10 +210,8 @@ describe('<Menu.Positioner />', () => {
   });
 
   describe('prop: keepMounted', () => {
-    const user = userEvent.setup();
-
     it('when keepMounted=true, should keep the content mounted when closed', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { getByRole, queryByRole, user } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted>
@@ -244,7 +241,7 @@ describe('<Menu.Positioner />', () => {
     });
 
     it('when keepMounted=false, should unmount the content when closed', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { getByRole, queryByRole, user } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted={false}>

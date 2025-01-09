@@ -128,7 +128,7 @@ describe('<Select.Root />', () => {
             }}
           >
             <Select.Trigger data-testid="trigger">
-              <Select.Value />
+              <Select.Value placeholder="Select a value" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -315,7 +315,7 @@ describe('<Select.Root />', () => {
       const { user } = await render(
         <Select.Root onOpenChange={handleOpenChange}>
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value placeholder="Select" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
