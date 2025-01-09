@@ -247,7 +247,6 @@ describe('<Field.Root />', () => {
           </Field.Root>,
         );
 
-        // eslint-disable-next-line testing-library/no-node-access
         const input = container.querySelector<HTMLInputElement>('input')!;
         const thumb = screen.getByTestId('thumb');
 
@@ -648,7 +647,6 @@ describe('<Field.Root />', () => {
         );
 
         const root = screen.getByTestId('root');
-        // eslint-disable-next-line testing-library/no-node-access
         const input = container.querySelector<HTMLInputElement>('input')!;
 
         expect(root).not.to.have.attribute('data-dirty');
