@@ -42,13 +42,13 @@ describe('<ToggleGroup />', () => {
       expect(button1).to.have.attribute('aria-pressed', 'false');
       expect(button2).to.have.attribute('aria-pressed', 'false');
 
-      await user.pointer({ keys: '[MouseLeft]', target: button1 });
+      await user.click(button1);
 
       expect(button1).to.have.attribute('aria-pressed', 'true');
       expect(button1).to.have.attribute('data-pressed');
       expect(button2).to.have.attribute('aria-pressed', 'false');
 
-      await user.pointer({ keys: '[MouseLeft]', target: button2 });
+      await user.click(button2);
 
       expect(button2).to.have.attribute('aria-pressed', 'true');
       expect(button2).to.have.attribute('data-pressed');
@@ -69,7 +69,7 @@ describe('<ToggleGroup />', () => {
       expect(button2).to.have.attribute('data-pressed');
       expect(button1).to.have.attribute('aria-pressed', 'false');
 
-      await user.pointer({ keys: '[MouseLeft]', target: button1 });
+      await user.click(button1);
 
       expect(button1).to.have.attribute('aria-pressed', 'true');
       expect(button1).to.have.attribute('data-pressed');
@@ -192,7 +192,7 @@ describe('<ToggleGroup />', () => {
       expect(button1).to.have.attribute('aria-pressed', 'true');
       expect(button2).to.have.attribute('aria-pressed', 'false');
 
-      await user.pointer({ keys: '[MouseLeft]', target: button2 });
+      await user.click(button2);
 
       expect(button1).to.have.attribute('aria-pressed', 'true');
       expect(button2).to.have.attribute('aria-pressed', 'true');
@@ -211,7 +211,7 @@ describe('<ToggleGroup />', () => {
       expect(button1).to.have.attribute('aria-pressed', 'true');
       expect(button2).to.have.attribute('aria-pressed', 'false');
 
-      await user.pointer({ keys: '[MouseLeft]', target: button2 });
+      await user.click(button2);
 
       expect(button1).to.have.attribute('aria-pressed', 'false');
       expect(button2).to.have.attribute('aria-pressed', 'true');
@@ -326,12 +326,12 @@ describe('<ToggleGroup />', () => {
 
       expect(onValueChange.callCount).to.equal(0);
 
-      await user.pointer({ keys: '[MouseLeft]', target: button1 });
+      await user.click(button1);
 
       expect(onValueChange.callCount).to.equal(1);
       expect(onValueChange.args[0][0]).to.deep.equal(['one']);
 
-      await user.pointer({ keys: '[MouseLeft]', target: button2 });
+      await user.click(button2);
 
       expect(onValueChange.callCount).to.equal(2);
       expect(onValueChange.args[1][0]).to.deep.equal(['two']);

@@ -66,7 +66,7 @@ describe('<Dialog.Root />', () => {
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <Dialog.Root open={open}>
+            <Dialog.Root open={open} modal={false}>
               <Dialog.Portal>
                 <Dialog.Popup />
               </Dialog.Portal>
@@ -120,14 +120,15 @@ describe('<Dialog.Root />', () => {
           <div>
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
             <Dialog.Root open={open}>
               <Dialog.Portal keepMounted>
                 <Dialog.Popup
                   className="animation-test-popup"
                   data-testid="popup"
                   onAnimationEnd={notifyAnimationFinished}
-                />
+                >
+                  <button onClick={() => setOpen(false)}>Close</button>
+                </Dialog.Popup>
               </Dialog.Portal>
             </Dialog.Root>
           </div>
@@ -514,11 +515,7 @@ describe('<Dialog.Root />', () => {
         expect(screen.queryByRole('dialog')).not.to.equal(null);
       });
 
-      const dialogPopup = screen.getByTestId('dialog-popup');
-      const dialogInternalBackdrop = dialogPopup.previousElementSibling
-        ?.previousElementSibling as HTMLElement;
-
-      await user.click(dialogInternalBackdrop);
+      await user.click(document.body);
 
       await waitFor(() => {
         expect(screen.queryByRole('dialog')).to.equal(null);
@@ -561,10 +558,7 @@ describe('<Dialog.Root />', () => {
         expect(screen.queryByRole('listbox')).not.to.equal(null);
       });
 
-      const selectPositioner = screen.getByTestId('select-positioner');
-      const selectInternalBackdrop = selectPositioner.previousElementSibling as HTMLElement;
-
-      await user.click(selectInternalBackdrop);
+      await user.click(document.body);
 
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).to.equal(null);
@@ -573,11 +567,7 @@ describe('<Dialog.Root />', () => {
         expect(screen.queryByRole('dialog')).not.to.equal(null);
       });
 
-      const dialogPopup = screen.getByTestId('dialog-popup');
-      const dialogInternalBackdrop = dialogPopup.previousElementSibling
-        ?.previousElementSibling as HTMLElement;
-
-      await user.click(dialogInternalBackdrop);
+      await user.click(document.body);
 
       await waitFor(() => {
         expect(screen.queryByRole('dialog')).to.equal(null);

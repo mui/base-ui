@@ -175,7 +175,7 @@ describe('<Select.Item />', () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" />
+          <Select.Value data-testid="value" placeholder="Select" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>

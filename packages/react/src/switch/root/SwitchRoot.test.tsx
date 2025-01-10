@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui-components/react/switch';
-import { userEvent } from '@testing-library/user-event';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Switch.Root />', () => {
@@ -167,10 +166,8 @@ describe('<Switch.Root />', () => {
   });
 
   describe('form handling', () => {
-    const user = userEvent.setup();
-
     it('should toggle the switch when a parent label is clicked', async () => {
-      const { getByTestId, getByRole } = await render(
+      const { getByTestId, getByRole, user } = await render(
         <label data-testid="label">
           <Switch.Root />
           Toggle
@@ -188,7 +185,7 @@ describe('<Switch.Root />', () => {
     });
 
     it('should toggle the switch when a linked label is clicked', async () => {
-      const { getByTestId, getByRole } = await render(
+      const { getByTestId, getByRole, user } = await render(
         <div>
           <label htmlFor="test-switch" data-testid="label">
             Toggle

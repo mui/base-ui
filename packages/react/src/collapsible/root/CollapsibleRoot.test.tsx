@@ -83,7 +83,7 @@ describe('<Collapsible.Root />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT)).to.equal(null);
 
-      await user.pointer({ keys: '[MouseLeft]', target: trigger });
+      await user.click(trigger);
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(queryByText(PANEL_CONTENT)).to.not.equal(null);
@@ -91,7 +91,7 @@ describe('<Collapsible.Root />', () => {
       expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
       expect(trigger).to.have.attribute('data-panel-open');
 
-      await user.pointer({ keys: '[MouseLeft]', target: trigger });
+      await user.click(trigger);
 
       expect(trigger).to.not.have.attribute('aria-controls');
       expect(trigger).to.have.attribute('aria-expanded', 'false');

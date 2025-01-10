@@ -65,7 +65,7 @@ describe('<Accordion.Root />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT_1)).to.equal(null);
 
-      await user.pointer({ keys: '[MouseLeft]', target: trigger });
+      await user.click(trigger);
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(trigger).to.have.attribute('data-panel-open');
@@ -73,7 +73,7 @@ describe('<Accordion.Root />', () => {
       expect(queryByText(PANEL_CONTENT_1)).toBeVisible();
       expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
 
-      await user.pointer({ keys: '[MouseLeft]', target: trigger });
+      await user.click(trigger);
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT_1)).to.equal(null);
@@ -461,7 +461,7 @@ describe('<Accordion.Root />', () => {
 
         const [trigger1, , , trigger4] = getAllByRole('button');
 
-        await user.pointer({ keys: '[MouseLeft]', target: trigger4 });
+        await user.click(trigger4);
         expect(trigger4).toHaveFocus();
 
         await user.keyboard('[Home]');
@@ -528,8 +528,8 @@ describe('<Accordion.Root />', () => {
       expect(queryByText(PANEL_CONTENT_1)).to.equal(null);
       expect(queryByText(PANEL_CONTENT_2)).to.equal(null);
 
-      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
-      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
+      await user.click(trigger1);
+      await user.click(trigger2);
 
       expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
       expect(queryByText(PANEL_CONTENT_2)).to.have.attribute('data-open');
@@ -562,12 +562,12 @@ describe('<Accordion.Root />', () => {
       expect(trigger1).to.not.have.attribute('data-panel-open');
       expect(trigger2).to.not.have.attribute('data-panel-open');
 
-      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
+      await user.click(trigger1);
 
       expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
       expect(trigger1).to.have.attribute('data-panel-open');
 
-      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
+      await user.click(trigger2);
 
       expect(queryByText(PANEL_CONTENT_2)).to.have.attribute('data-open');
       expect(trigger2).to.have.attribute('data-panel-open');
@@ -679,12 +679,12 @@ describe('<Accordion.Root />', () => {
 
       expect(onValueChange.callCount).to.equal(0);
 
-      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
+      await user.click(trigger1);
 
       expect(onValueChange.callCount).to.equal(1);
       expect(onValueChange.args[0][0]).to.deep.equal([0]);
 
-      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
+      await user.click(trigger2);
 
       expect(onValueChange.callCount).to.equal(2);
       expect(onValueChange.args[1][0]).to.deep.equal([0, 1]);
@@ -714,12 +714,12 @@ describe('<Accordion.Root />', () => {
 
       expect(onValueChange.callCount).to.equal(0);
 
-      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
+      await user.click(trigger2);
 
       expect(onValueChange.callCount).to.equal(1);
       expect(onValueChange.args[0][0]).to.deep.equal(['two']);
 
-      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
+      await user.click(trigger1);
 
       expect(onValueChange.callCount).to.equal(2);
       expect(onValueChange.args[1][0]).to.deep.equal(['two', 'one']);
@@ -749,12 +749,12 @@ describe('<Accordion.Root />', () => {
 
       expect(onValueChange.callCount).to.equal(0);
 
-      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
+      await user.click(trigger1);
 
       expect(onValueChange.callCount).to.equal(1);
       expect(onValueChange.args[0][0]).to.deep.equal(['one']);
 
-      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
+      await user.click(trigger2);
 
       expect(onValueChange.callCount).to.equal(2);
       expect(onValueChange.args[1][0]).to.deep.equal(['two']);

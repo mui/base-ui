@@ -282,27 +282,25 @@ describe('<Dialog.Popup />', () => {
       function App() {
         const [showNested, setShowNested] = React.useState(true);
         return (
-          <React.Fragment>
-            <button onClick={() => setShowNested(!showNested)}>toggle</button>
-            <Dialog.Root>
-              <Dialog.Trigger>Trigger 0</Dialog.Trigger>
-              <Dialog.Portal>
-                <Dialog.Popup data-testid="popup0">
-                  {showNested && (
-                    <Dialog.Root>
-                      <Dialog.Trigger>Trigger 1</Dialog.Trigger>
-                      <Dialog.Portal>
-                        <Dialog.Popup data-testid="popup1">
-                          <Dialog.Close>Close 1</Dialog.Close>
-                        </Dialog.Popup>
-                      </Dialog.Portal>
-                    </Dialog.Root>
-                  )}
-                  <Dialog.Close>Close 0</Dialog.Close>
-                </Dialog.Popup>
-              </Dialog.Portal>
-            </Dialog.Root>
-          </React.Fragment>
+          <Dialog.Root modal={false}>
+            <Dialog.Trigger>Trigger 0</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="popup0">
+                {showNested && (
+                  <Dialog.Root modal={false}>
+                    <Dialog.Trigger>Trigger 1</Dialog.Trigger>
+                    <Dialog.Portal>
+                      <Dialog.Popup data-testid="popup1">
+                        <button onClick={() => setShowNested(!showNested)}>toggle</button>
+                        <Dialog.Close>Close 1</Dialog.Close>
+                      </Dialog.Popup>
+                    </Dialog.Portal>
+                  </Dialog.Root>
+                )}
+                <Dialog.Close>Close 0</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
         );
       }
 

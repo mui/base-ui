@@ -7,12 +7,9 @@ import { Slider } from '@base-ui-components/react/slider';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
 import { Radio } from '@base-ui-components/react/radio';
 import { Select } from '@base-ui-components/react/select';
-import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
-
-const user = userEvent.setup();
 
 describe('<Field.Root />', () => {
   const { render } = createRenderer();
@@ -250,7 +247,6 @@ describe('<Field.Root />', () => {
           </Field.Root>,
         );
 
-        // eslint-disable-next-line testing-library/no-node-access
         const input = container.querySelector<HTMLInputElement>('input')!;
         const thumb = screen.getByTestId('thumb');
 
@@ -530,7 +526,7 @@ describe('<Field.Root />', () => {
       });
 
       it('supports RadioGroup (blur)', async () => {
-        await render(
+        const { user } = await render(
           <Field.Root>
             <RadioGroup data-testid="group">
               <Radio.Root value="1" data-testid="control">
@@ -545,8 +541,8 @@ describe('<Field.Root />', () => {
         const group = screen.getByTestId('group');
         const control = screen.getByTestId('control');
 
-        await userEvent.tab(); // onto control
-        await userEvent.tab(); // onto last button
+        await user.tab(); // onto control
+        await user.tab(); // onto last button
 
         expect(group).to.have.attribute('data-touched', '');
         expect(control).to.have.attribute('data-touched', '');
@@ -651,7 +647,6 @@ describe('<Field.Root />', () => {
         );
 
         const root = screen.getByTestId('root');
-        // eslint-disable-next-line testing-library/no-node-access
         const input = container.querySelector<HTMLInputElement>('input')!;
 
         expect(root).not.to.have.attribute('data-dirty');
@@ -681,10 +676,12 @@ describe('<Field.Root />', () => {
       });
 
       it('supports Select', async () => {
-        await render(
+        const { user } = await render(
           <Field.Root>
             <Select.Root>
-              <Select.Trigger data-testid="trigger" />
+              <Select.Trigger data-testid="trigger">
+                <Select.Value placeholder="Select" />
+              </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner>
                   <Select.Popup>
@@ -701,7 +698,7 @@ describe('<Field.Root />', () => {
 
         expect(trigger).not.to.have.attribute('data-dirty');
 
-        await userEvent.click(trigger);
+        await user.click(trigger);
 
         await flushMicrotasks();
 
@@ -710,7 +707,7 @@ describe('<Field.Root />', () => {
         // Arrow Down to focus the Option 1
         await user.keyboard('{ArrowDown}');
 
-        await userEvent.click(option);
+        await user.click(option);
 
         await flushMicrotasks();
 

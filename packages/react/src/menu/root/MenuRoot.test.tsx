@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, flushMicrotasks, waitFor, screen } from '@mui/internal-test-utils';
+import userEvent from '@testing-library/user-event';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Menu } from '@base-ui-components/react/menu';
-import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM } from '#test-utils';
 
@@ -13,11 +13,10 @@ describe('<Menu.Root />', () => {
   });
 
   const { render } = createRenderer();
-  const user = userEvent.setup();
 
   describe('keyboard navigation', () => {
     it('changes the highlighted item using the arrow keys', async () => {
-      const { getByRole, getByTestId } = await render(
+      const { getByRole, getByTestId, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal>
@@ -37,7 +36,7 @@ describe('<Menu.Root />', () => {
         trigger.focus();
       });
 
-      await userEvent.keyboard('[Enter]');
+      await user.keyboard('[Enter]');
 
       const item1 = getByTestId('item-1');
       const item2 = getByTestId('item-2');
@@ -47,24 +46,24 @@ describe('<Menu.Root />', () => {
         expect(item1).toHaveFocus();
       });
 
-      await userEvent.keyboard('{ArrowDown}');
+      await user.keyboard('{ArrowDown}');
       await waitFor(() => {
         expect(item2).toHaveFocus();
       });
 
-      await userEvent.keyboard('{ArrowDown}');
+      await user.keyboard('{ArrowDown}');
       await waitFor(() => {
         expect(item3).toHaveFocus();
       });
 
-      await userEvent.keyboard('{ArrowUp}');
+      await user.keyboard('{ArrowUp}');
       await waitFor(() => {
         expect(item2).toHaveFocus();
       });
     });
 
     it('changes the highlighted item using the Home and End keys', async () => {
-      const { getByRole, getByTestId } = await render(
+      const { getByRole, getByTestId, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal>
@@ -84,7 +83,7 @@ describe('<Menu.Root />', () => {
         trigger.focus();
       });
 
-      await userEvent.keyboard('[Enter]');
+      await user.keyboard('[Enter]');
       const item1 = getByTestId('item-1');
       const item3 = getByTestId('item-3');
 
@@ -92,19 +91,19 @@ describe('<Menu.Root />', () => {
         expect(item1).toHaveFocus();
       });
 
-      await userEvent.keyboard('{End}');
+      await user.keyboard('{End}');
       await waitFor(() => {
         expect(item3).toHaveFocus();
       });
 
-      await userEvent.keyboard('{Home}');
+      await user.keyboard('{Home}');
       await waitFor(() => {
         expect(item1).toHaveFocus();
       });
     });
 
     it('includes disabled items during keyboard navigation', async () => {
-      const { getByRole, getByTestId } = await render(
+      const { getByRole, getByTestId, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal>
@@ -125,7 +124,7 @@ describe('<Menu.Root />', () => {
         trigger.focus();
       });
 
-      await userEvent.keyboard('[Enter]');
+      await user.keyboard('[Enter]');
 
       const item1 = getByTestId('item-1');
       const item2 = getByTestId('item-2');
@@ -134,7 +133,7 @@ describe('<Menu.Root />', () => {
         expect(item1).toHaveFocus();
       });
 
-      await userEvent.keyboard('{ArrowDown}');
+      await user.keyboard('{ArrowDown}');
 
       await waitFor(() => {
         expect(item2).toHaveFocus();
@@ -151,7 +150,7 @@ describe('<Menu.Root />', () => {
           skip();
         }
 
-        const { getByText, getAllByRole } = await render(
+        const { getByText, getAllByRole, user } = await render(
           <Menu.Root open>
             <Menu.Portal>
               <Menu.Positioner>
@@ -195,7 +194,7 @@ describe('<Menu.Root />', () => {
           skip();
         }
 
-        const { getByRole, getAllByRole } = await render(
+        const { getByRole, getAllByRole, user } = await render(
           <Menu.Root>
             <Menu.Trigger>Toggle</Menu.Trigger>
             <Menu.Portal>
@@ -251,7 +250,7 @@ describe('<Menu.Root />', () => {
           skip();
         }
 
-        const { getByText, getAllByRole } = await render(
+        const { getByText, getAllByRole, user } = await render(
           <Menu.Root open>
             <Menu.Portal>
               <Menu.Positioner>
@@ -297,6 +296,9 @@ describe('<Menu.Root />', () => {
           skip();
         }
 
+        // can't use vitest userEvent type method because inputting diacritic characters depend on the keyboard layout
+        const user = userEvent.setup();
+
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
             <Menu.Portal>
@@ -338,6 +340,9 @@ describe('<Menu.Root />', () => {
           skip();
         }
 
+        // can't use vitest userEvent type method because inputting diacritic characters depend on the keyboard layout
+        const user = userEvent.setup();
+
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
             <Menu.Portal>
@@ -377,7 +382,7 @@ describe('<Menu.Root />', () => {
 
         const handleClick = spy();
 
-        const { getAllByRole } = await render(
+        const { getAllByRole, user } = await render(
           <Menu.Root open>
             <Menu.Portal>
               <Menu.Positioner>
@@ -418,7 +423,7 @@ describe('<Menu.Root />', () => {
       ] as const
     ).forEach(([orientation, direction, openKey, closeKey]) => {
       it(`opens a nested menu of a ${orientation} ${direction.toUpperCase()} menu with ${openKey} key and closes it with ${closeKey}`, async () => {
-        const { getByTestId, queryByTestId } = await render(
+        const { getByTestId, queryByTestId, user } = await render(
           <DirectionProvider direction={direction}>
             <Menu.Root open orientation={orientation}>
               <Menu.Portal>
@@ -489,14 +494,14 @@ describe('<Menu.Root />', () => {
     }
 
     it('focuses the first item after the menu is opened by keyboard', async () => {
-      const { getAllByRole, getByRole } = await render(<Test />);
+      const { getAllByRole, getByRole, user } = await render(<Test />);
 
       const trigger = getByRole('button', { name: 'Toggle' });
       await act(async () => {
         trigger.focus();
       });
 
-      await userEvent.keyboard('[Enter]');
+      await user.keyboard('[Enter]');
 
       const [firstItem, ...otherItems] = getAllByRole('menuitem');
       await waitFor(() => {
@@ -508,7 +513,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('focuses the first item when down arrow key opens the menu', async () => {
-      const { getByRole, getAllByRole } = await render(<Test />);
+      const { getByRole, getAllByRole, user } = await render(<Test />);
 
       const trigger = getByRole('button', { name: 'Toggle' });
       await act(async () => {
@@ -526,7 +531,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('focuses the last item when up arrow key opens the menu', async () => {
-      const { getByRole, getAllByRole } = await render(<Test />);
+      const { getByRole, getAllByRole, user } = await render(<Test />);
 
       const trigger = getByRole('button', { name: 'Toggle' });
 
@@ -548,7 +553,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('focuses the trigger after the menu is closed', async () => {
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <div>
           <input type="text" />
           <Menu.Root>
@@ -580,7 +585,7 @@ describe('<Menu.Root />', () => {
         skip();
       }
 
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <div>
           <input type="text" />
           <Menu.Root>
@@ -611,7 +616,7 @@ describe('<Menu.Root />', () => {
 
   describe('prop: closeParentOnEsc', () => {
     it('closes the parent menu when the Escape key is pressed by default', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -662,7 +667,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('does not close the parent menu when the Escape key is pressed if `closeParentOnEsc=false`', async () => {
-      const { getByRole, queryAllByRole } = await render(
+      const { getByRole, queryAllByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -740,7 +745,7 @@ describe('<Menu.Root />', () => {
         );
       }
 
-      await render(<Test />);
+      const { user } = await render(<Test />);
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
@@ -800,7 +805,7 @@ describe('<Menu.Root />', () => {
         );
       }
 
-      await render(<Test />);
+      const { user } = await render(<Test />);
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
@@ -815,7 +820,7 @@ describe('<Menu.Root />', () => {
 
   describe('prop: modal', () => {
     it('should render an internal backdrop when `true`', async () => {
-      await render(
+      const { user } = await render(
         <div>
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
@@ -846,7 +851,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('should not render an internal backdrop when `false`', async () => {
-      await render(
+      const { user } = await render(
         <div>
           <Menu.Root modal={false}>
             <Menu.Trigger>Open</Menu.Trigger>
