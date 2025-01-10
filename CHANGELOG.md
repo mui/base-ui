@@ -2,7 +2,7 @@
 
 ## v1.0.0-alpha.5
 
-_Jan 9, 2025_
+_Jan 10, 2025_
 
 A big thanks to the 11 contributors who made this release possible.
 
@@ -54,6 +54,7 @@ A big thanks to the 11 contributors who made this release possible.
 - [Slider] Use un-rounded values to position thumbs (#1219) @mj12albert
 - [Tabs] Expose width/height state in tabs indicator (#1288) @aarongarciah
 - [Tooltip, PreviewCard] Use `FloatingPortalLite` (#1278) @atomiks
+- [useButton] Fix `focusableWhenDisabled` components (#1313) @mj12albert
 - [useButton] Fix Enter key preventDefault when rendering links (#1251) @mj12albert
 - [useButton] Modernize implementation (#1177) @mj12albert
 - [useScrollLock] New implementation (#1159) @atomiks
