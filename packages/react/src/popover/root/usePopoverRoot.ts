@@ -77,8 +77,10 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   );
 
   const handleUnmount = useEventCallback(() => {
-    setMounted(false);
-    setOpenReason(null);
+    if (!open) {
+      setMounted(false);
+      setOpenReason(null);
+    }
   });
 
   useAfterExitAnimation({
@@ -236,7 +238,7 @@ export namespace usePopoverRoot {
      */
     closeDelay?: number;
     /**
-     * A ref to manually unmount the popover.
+     * A ref to imperative actions.
      */
     action?: React.RefObject<{ unmount: () => void }>;
   }
