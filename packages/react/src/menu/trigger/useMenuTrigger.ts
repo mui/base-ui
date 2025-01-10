@@ -40,9 +40,8 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps(
-        externalProps,
-        {
+      return getButtonProps(
+        mergeReactProps(externalProps, {
           'aria-haspopup': 'menu' as const,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
@@ -95,8 +94,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
             doc.addEventListener('mouseup', handleMouseUp, { once: true });
           },
-        },
-        getButtonProps(),
+        }),
       );
     },
     [getButtonProps, handleRef, open, setOpen, positionerRef, allowMouseUpTriggerRef],
