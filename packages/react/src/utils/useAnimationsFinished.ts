@@ -5,22 +5,26 @@ import { useEventCallback } from './useEventCallback';
 
 /**
  * Executes a function once all animations have finished on the provided element.
+ * @param ref - The element to watch for animations.
+ * @param waitForNextTick - Whether to wait for the next tick before checking for animations.
  * @ignore - internal hook.
  */
 export function useAnimationsFinished(
   ref: React.RefObject<HTMLElement | null>,
-  extraFrame: boolean,
+  waitForNextTick = false,
 ) {
   const frameRef = React.useRef(-1);
+  const timeoutRef = React.useRef(-1);
 
-  const cancelFrames = useEventCallback(() => {
+  const cancelTasks = useEventCallback(() => {
     cancelAnimationFrame(frameRef.current);
+    clearTimeout(timeoutRef.current);
   });
 
-  React.useEffect(() => cancelFrames, [cancelFrames]);
+  React.useEffect(() => cancelTasks, [cancelTasks]);
 
   return useEventCallback((fnToExecute: () => void) => {
-    cancelFrames();
+    cancelTasks();
 
     const element = ref.current;
 
@@ -44,9 +48,9 @@ export function useAnimationsFinished(
           });
         }
 
-        // `open` animations needs to wait 2 frames for the animations to be detected.
-        if (extraFrame) {
-          frameRef.current = requestAnimationFrame(exec);
+        // `open: true` animations need to wait for the next tick to be detected
+        if (waitForNextTick) {
+          timeoutRef.current = window.setTimeout(exec);
         } else {
           exec();
         }
