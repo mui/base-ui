@@ -3,7 +3,7 @@ import { PreviewCard } from '@base-ui-components/react/preview-card';
 import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
 function Root(props: PreviewCard.Root.Props) {
@@ -20,7 +20,7 @@ function Trigger(props: PreviewCard.Trigger.Props) {
 
 describe('<PreviewCard.Root />', () => {
   beforeEach(() => {
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   const { render, clock } = createRenderer();
@@ -83,7 +83,7 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('should open when the trigger is focused', async () => {
-      if (!/jsdom/.test(window.navigator.userAgent)) {
+      if (!isJSDOM) {
         // Ignore due to `:focus-visible` being required in the browser.
         return;
       }
@@ -164,11 +164,9 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
 
-    it('should remove the popup when there is no exit animation defined', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should remove the popup when there is no exit animation defined', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       function Test() {
@@ -198,11 +196,9 @@ describe('<PreviewCard.Root />', () => {
       });
     });
 
-    it('should remove the popup when the animation finishes', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should remove the popup when the animation finishes', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       let animationFinished = false;
@@ -210,7 +206,7 @@ describe('<PreviewCard.Root />', () => {
         animationFinished = true;
       };
 
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       function Test() {
         const style = `

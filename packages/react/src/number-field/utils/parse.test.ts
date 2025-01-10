@@ -23,11 +23,9 @@ describe('NumberField parse', () => {
       expect(parseNumber('12%')).to.equal(0.12);
     });
 
-    it('parses a number with Arabic numerals', function test(t = {}) {
+    it('parses a number with Arabic numerals', ({ skip }) => {
       // Skip in browser as it doesn't support Arabic numerals.
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
       expect(parseNumber('١٬٢٣٤٫٥٦')).to.equal(1234.56);
     });
 

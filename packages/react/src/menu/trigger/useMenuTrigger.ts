@@ -33,20 +33,9 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
   const handleRef = useForkRef(buttonRef, setTriggerElement);
 
   React.useEffect(() => {
-    if (open) {
-      // mousedown -> mouseup on menu item should not trigger it within 200ms.
-      allowMouseUpTriggerTimeoutRef.current = window.setTimeout(() => {
-        allowMouseUpTriggerRef.current = true;
-      }, 200);
-
-      return () => {
-        clearTimeout(allowMouseUpTriggerTimeoutRef.current);
-      };
+    if (!open) {
+      allowMouseUpTriggerRef.current = false;
     }
-
-    allowMouseUpTriggerRef.current = false;
-
-    return undefined;
   }, [allowMouseUpTriggerRef, open]);
 
   const getTriggerProps = React.useCallback(
@@ -62,6 +51,11 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
               return;
             }
 
+            // mousedown -> mouseup on menu item should not trigger it within 200ms.
+            allowMouseUpTriggerTimeoutRef.current = window.setTimeout(() => {
+              allowMouseUpTriggerRef.current = true;
+            }, 200);
+
             const doc = ownerDocument(event.currentTarget);
 
             function handleMouseUp(mouseEvent: MouseEvent) {
@@ -69,7 +63,10 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
                 return;
               }
 
-              clearTimeout(allowMouseUpTriggerTimeoutRef.current);
+              if (allowMouseUpTriggerTimeoutRef.current !== -1) {
+                clearTimeout(allowMouseUpTriggerTimeoutRef.current);
+                allowMouseUpTriggerTimeoutRef.current = -1;
+              }
               allowMouseUpTriggerRef.current = false;
 
               const mouseUpTarget = mouseEvent.target as Element | null;

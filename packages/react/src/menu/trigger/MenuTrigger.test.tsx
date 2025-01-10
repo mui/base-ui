@@ -1,35 +1,10 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import userEvent from '@testing-library/user-event';
-import { act, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
-import { MenuRootContext } from '../root/MenuRootContext';
-
-const testRootContext: MenuRootContext = {
-  floatingRootContext: {} as FloatingRootContext,
-  getPopupProps: (p) => ({ ...p }),
-  getTriggerProps: (p) => ({ ...p }),
-  getItemProps: (p) => ({ ...p }),
-  parentContext: undefined,
-  nested: false,
-  setTriggerElement: () => {},
-  setPositionerElement: () => {},
-  activeIndex: null,
-  disabled: false,
-  itemDomElements: { current: [] },
-  itemLabels: { current: [] },
-  open: true,
-  setOpen: () => {},
-  popupRef: { current: null },
-  mounted: true,
-  transitionStatus: undefined,
-  typingRef: { current: false },
-  modal: false,
-  positionerRef: { current: null },
-  allowMouseUpTriggerRef: { current: false },
-};
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 describe('<Menu.Trigger />', () => {
   const { render } = createRenderer();
@@ -37,11 +12,7 @@ describe('<Menu.Trigger />', () => {
 
   describeConformance(<Menu.Trigger />, () => ({
     render: (node) => {
-      return render(
-        <FloatingTree>
-          <MenuRootContext.Provider value={testRootContext}>{node}</MenuRootContext.Provider>
-        </FloatingTree>,
-      );
+      return render(<Menu.Root open>{node}</Menu.Root>);
     },
     refInstanceof: window.HTMLButtonElement,
   }));
@@ -188,6 +159,90 @@ describe('<Menu.Trigger />', () => {
 
       expect(trigger).to.have.attribute('data-popup-open');
       expect(trigger).to.have.attribute('data-pressed');
+    });
+  });
+
+  describe('impatient clicks with `openOnHover=true`', () => {
+    const { clock, render: renderFakeTimers } = createRenderer();
+
+    clock.withFakeTimers();
+
+    it('does not close the menu if the user clicks too quickly', async () => {
+      await renderFakeTimers(
+        <Menu.Root delay={0} openOnHover>
+          <Menu.Trigger />
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+
+      fireEvent.click(trigger);
+
+      expect(trigger).to.have.attribute('data-popup-open');
+    });
+
+    it('closes the menu if the user clicks patiently', async () => {
+      await renderFakeTimers(
+        <Menu.Root delay={0} openOnHover>
+          <Menu.Trigger />
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD);
+
+      fireEvent.click(trigger);
+
+      expect(trigger).not.to.have.attribute('data-popup-open');
+    });
+
+    it('sticks if the user clicks impatiently', async () => {
+      await renderFakeTimers(
+        <Menu.Root delay={0} openOnHover>
+          <Menu.Trigger />
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+
+      fireEvent.click(trigger);
+      fireEvent.mouseLeave(trigger);
+
+      expect(trigger).to.have.attribute('data-popup-open');
+
+      clock.tick(1);
+
+      expect(trigger).to.have.attribute('data-popup-open');
+    });
+
+    it('does not stick if the user clicks patiently', async () => {
+      await renderFakeTimers(
+        <Menu.Root delay={0} openOnHover>
+          <Menu.Trigger />
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD);
+
+      fireEvent.click(trigger);
+      fireEvent.mouseLeave(trigger);
+
+      expect(trigger).not.to.have.attribute('data-popup-open');
     });
   });
 });

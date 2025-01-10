@@ -15,4 +15,15 @@ describe('<Separator />', () => {
     const { getByRole } = await render(<Separator />);
     expect(getByRole('separator')).toBeVisible();
   });
+
+  describe('prop: orientation', () => {
+    ['horizontal', 'vertical'].forEach((orientation) => {
+      it(orientation, async () => {
+        const { getByRole } = await render(
+          <Separator orientation={orientation as Separator.Props['orientation']} />,
+        );
+        expect(getByRole('separator')).to.have.attribute('aria-orientation', orientation);
+      });
+    });
+  });
 });

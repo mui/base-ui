@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
 describe('<Select.Root />', () => {
   beforeEach(() => {
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   const { render } = createRenderer();
@@ -113,7 +113,7 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
-    it('should call onValueChange when an item is selected', async function test() {
+    it('should call onValueChange when an item is selected', async () => {
       const handleValueChange = spy();
 
       function App() {
@@ -211,11 +211,11 @@ describe('<Select.Root />', () => {
       expect(screen.queryByRole('listbox')).not.to.equal(null);
     });
 
-    it('when `false`, should remove the popup when there is no exit animation defined', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('when `false`, should remove the popup when there is no exit animation defined', async ({
+      skip,
+    }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       function Test() {
@@ -245,14 +245,12 @@ describe('<Select.Root />', () => {
       });
     });
 
-    it('when `false`, should remove the popup when the animation finishes', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('when `false`, should remove the popup when the animation finishes', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let animationFinished = false;
       const notifyAnimationFinished = () => {
