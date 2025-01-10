@@ -237,8 +237,8 @@ importers:
         specifier: ^8.1.1
         version: 8.1.1(postcss@8.4.49)(typescript@5.7.2)(webpack@5.97.1)
       postcss-styled-syntax:
-        specifier: ^0.6.4
-        version: 0.6.4(postcss@8.4.49)
+        specifier: ^0.7.0
+        version: 0.7.0(postcss@8.4.49)
       prettier:
         specifier: ^3.4.2
         version: 3.4.2
@@ -7441,8 +7441,8 @@ packages:
     resolution: {integrity: sha512-9RbEr1Y7FFfptd/1eEdntyjMwLeghW1bHX9GWjXo19vx4ytPQhANltvVxDggzJl7mnWM+dX28kb6cyS/4iQjlQ==}
     engines: {node: '>=4'}
 
-  postcss-styled-syntax@0.6.4:
-    resolution: {integrity: sha512-uWiLn+9rKgIghUYmTHvXMR6MnyPULMe9Gv3bV537Fg4FH6CA6cn21WMjKss2Qb98LUhT847tKfnRGG3FhSOgUQ==}
+  postcss-styled-syntax@0.7.0:
+    resolution: {integrity: sha512-OeStzPkHJ1/WDGRKm/JuVK8UdJbjt3U7AFC+zUc9omJ79SaXSxWoy+PXxJz7t8vOO8HcUgCLndNEQfLvZ74TuQ==}
     engines: {node: '>=14.17'}
     peerDependencies:
       postcss: ^8.4.21
@@ -17243,7 +17243,7 @@ snapshots:
       cssesc: 3.0.0
       util-deprecate: 1.0.2
 
-  postcss-styled-syntax@0.6.4(postcss@8.4.49):
+  postcss-styled-syntax@0.7.0(postcss@8.4.49):
     dependencies:
       postcss: 8.4.49
       typescript: 5.7.2
