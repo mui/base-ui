@@ -361,37 +361,37 @@ workflows:
           <<: *default-context
           name: 'JSDOM tests'
           requires:
-            - checkout
+            - Checkout
       - test_lint:
           <<: *default-context
           name: 'Linting'
           requires:
-            - checkout
+            - Checkout
       - test_static:
           <<: *default-context
           name: 'Generated files verification'
           requires:
-            - checkout
+            - Checkout
       - test_types:
           <<: *default-context
           name: 'Typechecking'
           requires:
-            - checkout
+            - Checkout
       - test_browser:
           <<: *default-context
           name: 'Browser tests'
           requires:
-            - checkout
+            - Checkout
       - test_regressions:
           <<: *default-context
           name: 'Regression tests'
           requires:
-            - checkout
+            - Checkout
       - test_e2e:
           <<: *default-context
           name: 'E2E tests'
           requires:
-            - checkout
+            - Checkout
       # - test_bundle_size_monitor:
       #    <<: *default-context
       #    name: 'Bundle size monitor'
@@ -401,7 +401,7 @@ workflows:
           <<: *default-context
           name: 'Package verification'
           requires:
-            - checkout
+            - Checkout
   react-18:
     when:
       equal: [pipeline, << pipeline.parameters.workflow >>]
