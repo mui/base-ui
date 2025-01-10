@@ -495,4 +495,93 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
   });
+
+  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      let onOpenChangeCompleteValue: boolean | null = null;
+      function notifyOnOpenChangeComplete(open: boolean) {
+        onOpenChangeCompleteValue = open;
+      }
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <PreviewCard.Root open={open} onOpenChangeComplete={notifyOnOpenChangeComplete}>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="popup" />
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onOpenChangeCompleteValue).to.equal(false);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let onOpenChangeCompleteValue: boolean | null = null;
+      function notifyOnOpenChangeComplete(open: boolean) {
+        onOpenChangeCompleteValue = open;
+      }
+
+      function Test() {
+        const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 50ms;
+        }
+      `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <PreviewCard.Root open={open} onOpenChangeComplete={notifyOnOpenChangeComplete}>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup className="animation-test-indicator" data-testid="popup" />
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.to.equal(null);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onOpenChangeCompleteValue).to.equal(false);
+    });
+  });
 });

@@ -5,19 +5,26 @@ import { useEventCallback } from './useEventCallback';
 
 /**
  * Executes a function once all animations have finished on the provided element.
+ * @param ref - The element to watch for animations.
+ * @param waitForNextTick - Whether to wait for the next tick before checking for animations.
  * @ignore - internal hook.
  */
-export function useAnimationsFinished(ref: React.RefObject<HTMLElement | null>) {
+export function useAnimationsFinished(
+  ref: React.RefObject<HTMLElement | null>,
+  waitForNextTick = false,
+) {
   const frameRef = React.useRef(-1);
+  const timeoutRef = React.useRef(-1);
 
-  const cancelFrames = useEventCallback(() => {
+  const cancelTasks = useEventCallback(() => {
     cancelAnimationFrame(frameRef.current);
+    clearTimeout(timeoutRef.current);
   });
 
-  React.useEffect(() => cancelFrames, [cancelFrames]);
+  React.useEffect(() => cancelTasks, [cancelTasks]);
 
   return useEventCallback((fnToExecute: () => void) => {
-    cancelFrames();
+    cancelTasks();
 
     const element = ref.current;
 
@@ -29,11 +36,24 @@ export function useAnimationsFinished(ref: React.RefObject<HTMLElement | null>) 
       fnToExecute();
     } else {
       frameRef.current = requestAnimationFrame(() => {
-        Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(() => {
-          // Synchronously flush the unmounting of the component so that the browser doesn't
-          // paint: https://github.com/mui/base-ui/issues/979
-          ReactDOM.flushSync(fnToExecute);
-        });
+        function exec() {
+          if (!element) {
+            return;
+          }
+
+          Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(() => {
+            // Synchronously flush the unmounting of the component so that the browser doesn't
+            // paint: https://github.com/mui/base-ui/issues/979
+            ReactDOM.flushSync(fnToExecute);
+          });
+        }
+
+        // `open: true` animations need to wait for the next tick to be detected
+        if (waitForNextTick) {
+          timeoutRef.current = window.setTimeout(exec);
+        } else {
+          exec();
+        }
       });
     }
   });

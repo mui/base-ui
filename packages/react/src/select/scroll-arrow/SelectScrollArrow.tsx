@@ -9,7 +9,7 @@ import { useSelectPositionerContext } from '../positioner/SelectPositionerContex
 import { Side } from '../../utils/useAnchorPositioning';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useForkRef } from '../../utils/useForkRef';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 /**
  * @ignore - internal component.
@@ -38,11 +38,13 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open: visible,
-    animatedElementRef: scrollArrowRef,
-    onFinished() {
-      setMounted(false);
+    ref: scrollArrowRef,
+    onComplete() {
+      if (!visible) {
+        setMounted(false);
+      }
     },
   });
 

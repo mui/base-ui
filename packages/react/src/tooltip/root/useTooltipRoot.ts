@@ -21,7 +21,7 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
@@ -32,6 +32,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     trackCursorAxis = 'none',
     delay,
     closeDelay,
+    onOpenChangeComplete,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -62,11 +63,15 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open,
-    animatedElementRef: popupRef,
-    onFinished() {
-      setMounted(false);
+    ref: popupRef,
+    onComplete() {
+      onOpenChangeComplete?.(open);
+
+      if (!open) {
+        setMounted(false);
+      }
     },
   });
 
@@ -183,6 +188,10 @@ export namespace useTooltipRoot {
      * Event handler called when the tooltip is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    /**
+     * Event handler called after any animations complete when the tooltip is opened or closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
     /**
      * Whether the tooltip contents can be hovered without closing the tooltip.
      * @default true

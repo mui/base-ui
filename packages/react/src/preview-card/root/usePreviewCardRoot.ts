@@ -19,7 +19,7 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,
@@ -30,6 +30,7 @@ export function usePreviewCardRoot(
     defaultOpen = false,
     delay,
     closeDelay,
+    onOpenChangeComplete,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -59,11 +60,15 @@ export function usePreviewCardRoot(
     },
   );
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open,
-    animatedElementRef: popupRef,
-    onFinished() {
-      setMounted(false);
+    ref: popupRef,
+    onComplete() {
+      onOpenChangeComplete?.(open);
+
+      if (!open) {
+        setMounted(false);
+      }
     },
   });
 
@@ -162,6 +167,10 @@ export namespace usePreviewCardRoot {
      * Event handler called when the preview card is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    /**
+     * Event handler called after any animations complete when the preview card is opened or closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
     /**
      * How long to wait before the preview card opens. Specified in milliseconds.
      * @default 600

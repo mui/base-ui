@@ -7,7 +7,7 @@ import { useSelectItemContext } from '../item/SelectItemContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useForkRef } from '../../utils/useForkRef';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 /**
  * Indicates whether the select item is selected.
@@ -57,11 +57,13 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
     },
   });
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open: selected,
-    animatedElementRef: indicatorRef,
-    onFinished() {
-      setMounted(false);
+    ref: indicatorRef,
+    onComplete() {
+      if (!selected) {
+        setMounted(false);
+      }
     },
   });
 
