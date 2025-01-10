@@ -1,7 +1,4 @@
 version: 2.1
-orbs:
-  aws-cli: circleci/aws-cli@4.2.3
-  aws-s3: circleci/aws-s3@4.1.0
 
 parameters:
   browserstack-force:
@@ -16,10 +13,6 @@ parameters:
     description: The name of the workflow to run
     type: string
     default: pipeline
-  e2e-base-url:
-    description: The base url for running end-to-end test
-    type: string
-    default: ''
 
 default-job: &default-job
   parameters:
@@ -27,20 +20,10 @@ default-job: &default-job
       description: The version of react to be used
       type: string
       default: << pipeline.parameters.react-version >>
-    test-gate:
-      description: A particular type of tests that should be run
-      type: string
-      default: undefined
-    e2e-base-url:
-      description: The base url for running end-to-end test
-      type: string
-      default: << pipeline.parameters.e2e-base-url >>
   environment:
     # expose it globally otherwise we have to thread it from each job to the install command
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
     REACT_VERSION: << parameters.react-version >>
-    TEST_GATE: << parameters.test-gate >>
-    AWS_REGION_ARTIFACTS: eu-central-1
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
   working_directory: /tmp/base-ui
   docker:
