@@ -45,10 +45,11 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
-  const [clickEnabled, setClickEnabled] = React.useState(true);
+  const [hoverEnabled, setHoverEnabled] = React.useState(false);
+  const [stickIfOpen, setStickIfOpen] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
-  const clickEnabledTimeoutRef = React.useRef(-1);
+  const stickIfOpenTimeoutRef = React.useRef(-1);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -57,8 +58,14 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     state: 'open',
   });
 
-  if (!open && !clickEnabled) {
-    setClickEnabled(true);
+  if (!open) {
+    if (!stickIfOpen) {
+      setStickIfOpen(true);
+    }
+
+    if (!hoverEnabled) {
+      setHoverEnabled(true);
+    }
   }
 
   const onOpenChange = useEventCallback(onOpenChangeProp);
@@ -87,7 +94,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   React.useEffect(() => {
     return () => {
-      clearTimeout(clickEnabledTimeoutRef.current);
+      clearTimeout(stickIfOpenTimeoutRef.current);
     };
   }, []);
 
@@ -104,11 +111,11 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       }
 
       if (isHover) {
-        // Prevent impatient clicks from unexpectedly closing the popover.
-        setClickEnabled(false);
-        clearTimeout(clickEnabledTimeoutRef.current);
-        clickEnabledTimeoutRef.current = window.setTimeout(() => {
-          setClickEnabled(true);
+        // Only allow "patient" clicks to close the popover if it's open.
+        // If they clicked within 500ms of the popover opening, keep it open.
+        clearTimeout(stickIfOpenTimeoutRef.current);
+        stickIfOpenTimeoutRef.current = window.setTimeout(() => {
+          setStickIfOpen(false);
         }, PATIENT_CLICK_THRESHOLD);
 
         ReactDOM.flushSync(changeState);
@@ -127,7 +134,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const computedRestMs = delayWithDefault;
 
   const hover = useHover(context, {
-    enabled: openOnHover,
+    enabled: openOnHover && hoverEnabled,
     mouseOnly: true,
     move: false,
     handleClose: safePolygon(),
@@ -138,8 +145,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   });
 
   const click = useClick(context, {
-    enabled: clickEnabled,
-    stickIfOpen: false,
+    stickIfOpen,
   });
 
   const dismiss = useDismiss(context);
@@ -149,6 +155,24 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
 
   const { openMethod, triggerProps } = useOpenInteractionType(open);
+
+  const getTriggerProps = React.useCallback(
+    (externalProps?: GenericHTMLProps) =>
+      getReferenceProps(mergeReactProps(externalProps, triggerProps)),
+    [getReferenceProps, triggerProps],
+  );
+
+  const getPopupProps = React.useCallback(
+    (externalProps?: GenericHTMLProps) =>
+      getFloatingProps(
+        mergeReactProps(externalProps, {
+          onPointerDown() {
+            setHoverEnabled(false);
+          },
+        }),
+      ),
+    [getFloatingProps],
+  );
 
   return React.useMemo(
     () => ({
@@ -165,29 +189,27 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       setTitleId,
       descriptionId,
       setDescriptionId,
-      getRootTriggerProps: (externalProps?: React.HTMLProps<Element>) =>
-        getReferenceProps(mergeReactProps(externalProps, triggerProps)),
-      getRootPopupProps: getFloatingProps,
+      getRootTriggerProps: getTriggerProps,
+      getRootPopupProps: getPopupProps,
       floatingRootContext: context,
       instantType,
       openMethod,
       openReason,
     }),
     [
-      mounted,
       open,
-      setMounted,
       setOpen,
+      mounted,
+      setMounted,
       transitionStatus,
       positionerElement,
       titleId,
       descriptionId,
-      getReferenceProps,
-      getFloatingProps,
+      getTriggerProps,
+      getPopupProps,
       context,
       instantType,
       openMethod,
-      triggerProps,
       openReason,
     ],
   );
