@@ -16,19 +16,6 @@
   The `keepMounted` prop was removed from the Positioner and Popup parts.
   It's only present on Portal parts.
 
-  ```diff
-   <Popover.Root>
-  +  <Popover.Portal keepMounted>
-  -  <Popover.Positioner keepMounted>
-  +    <Popover.Positioner>
-  ```
-
-  ```diff
-   <Dialog.Root>
-  +  <Dialog.Portal>
-       <Dialog.Popup>
-  ```
-
 ### Changes
 
 - [Dialog, AlertDialog] Fix the nesting of different dialogs [#1167](https://github.com/mui/base-ui/pull/1167)

@@ -9,8 +9,6 @@
   --syntax-string: var(--color-navy);
   --syntax-variable: var(--color-red);
   --syntax-invalid: var(--color-red);
-  --syntax-inserted-foreground: var(--color-green);
-  --syntax-deleted-foreground: var(--color-red);
 }
 
 [data-language='css'] {
