@@ -117,10 +117,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
 
   const handleUnmount = useEventCallback(() => {
-    if (!open) {
-      setMounted(false);
-      setActiveIndex(null);
-    }
+    setMounted(false);
+    setActiveIndex(null);
   });
 
   useAfterExitAnimation({

@@ -90,12 +90,10 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   );
 
   const handleUnmount = useEventCallback(() => {
-    if (!open) {
-      setMounted(false);
-      setOpenReason(null);
-      setHoverEnabled(true);
-      setStickIfOpen(true);
-    }
+    setMounted(false);
+    setOpenReason(null);
+    setHoverEnabled(true);
+    setStickIfOpen(true);
   });
 
   useAfterExitAnimation({

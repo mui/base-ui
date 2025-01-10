@@ -60,9 +60,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   );
 
   const handleUnmount = useEventCallback(() => {
-    if (!open) {
-      setMounted(false);
-    }
+    setMounted(false);
   });
 
   useAfterExitAnimation({

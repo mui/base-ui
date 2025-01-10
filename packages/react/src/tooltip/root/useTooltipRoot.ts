@@ -63,9 +63,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const handleUnmount = useEventCallback(() => {
-    if (!open) {
-      setMounted(false);
-    }
+    setMounted(false);
   });
 
   useAfterExitAnimation({

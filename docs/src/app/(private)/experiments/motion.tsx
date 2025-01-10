@@ -75,7 +75,9 @@ function NoOpacity() {
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
                     onAnimationComplete={() => {
-                      actionRef.current.unmount();
+                      if (!open) {
+                        actionRef.current.unmount();
+                      }
                     }}
                   />
                 }

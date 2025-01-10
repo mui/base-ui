@@ -77,10 +77,8 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   );
 
   const handleUnmount = useEventCallback(() => {
-    if (!open) {
-      setMounted(false);
-      setOpenReason(null);
-    }
+    setMounted(false);
+    setOpenReason(null);
   });
 
   useAfterExitAnimation({
