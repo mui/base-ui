@@ -20,6 +20,14 @@ import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 
+const EMPTY_ARRAY: never[] = [];
+
+function isDisabled(element: HTMLElement | null) {
+  return (
+    element == null || element.hasAttribute('disabled') || element.hasAttribute('data-disabled')
+  );
+}
+
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
     id: idProp,
@@ -175,8 +183,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     },
   });
 
+  const triggerDisabled = isDisabled(triggerElement);
+
   const click = useClick(floatingRootContext, {
-    enabled: !readOnly,
+    enabled: !readOnly && !disabled && !triggerDisabled,
     event: 'mousedown',
   });
 
@@ -190,10 +200,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
 
   const listNavigation = useListNavigation(floatingRootContext, {
-    enabled: !readOnly,
+    enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
     selectedIndex,
+    disabledIndices: EMPTY_ARRAY,
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
@@ -207,8 +218,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     focusItemOnHover: false,
   });
 
-  const typehaead = useTypeahead(floatingRootContext, {
-    enabled: !readOnly,
+  const typeahead = useTypeahead(floatingRootContext, {
+    enabled: !readOnly && !disabled,
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
@@ -230,7 +241,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     getReferenceProps: getRootTriggerProps,
     getFloatingProps: getRootPositionerProps,
     getItemProps,
-  } = useInteractions([click, dismiss, role, listNavigation, typehaead]);
+  } = useInteractions([click, dismiss, role, listNavigation, typeahead]);
 
   const rootContext = React.useMemo(
     () => ({
