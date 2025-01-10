@@ -876,7 +876,6 @@ describe('<Menu.Root />', () => {
       expect(positioner.previousElementSibling).to.equal(null);
     });
   });
-<<<<<<< HEAD
 
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
@@ -966,6 +965,4 @@ describe('<Menu.Root />', () => {
       expect(onOpenChangeCompleteValue).to.equal(false);
     });
   });
-=======
->>>>>>> upstream/master
 });

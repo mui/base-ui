@@ -19,10 +19,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     modal = true,
     onOpenChange,
     open,
-<<<<<<< HEAD
     onOpenChangeComplete,
-=======
->>>>>>> upstream/master
   } = props;
 
   const parentDialogRootContext = useOptionalDialogRootContext();
@@ -33,10 +30,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     onOpenChange,
     modal,
     dismissible,
-<<<<<<< HEAD
     onOpenChangeComplete,
-=======
->>>>>>> upstream/master
     onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
     onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,
   });
