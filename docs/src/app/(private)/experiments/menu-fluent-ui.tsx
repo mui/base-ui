@@ -65,7 +65,7 @@ export default function ExampleMenu() {
               <Menu.Root>
                 <Menu.Item className={styles.SplitButtonRoot} id="split-button">
                   Share w/ split
-                  <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
+                  <Menu.SubmenuTrigger className={styles.SubmenuTrigger} aria-label="Open submenu">
                     <ChevronRightIcon />
                   </Menu.SubmenuTrigger>
                 </Menu.Item>
@@ -91,7 +91,7 @@ export default function ExampleMenu() {
                 Share w/ split
               </Menu.Item>
               <Menu.Root>
-                <Menu.SubmenuTrigger className={styles.SplitButtonSubemnuTrigger}>
+                <Menu.SubmenuTrigger className={styles.SplitButtonSubemnuTrigger} aria-label="Open submenu">
                   <ChevronRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
