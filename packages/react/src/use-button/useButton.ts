@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { NOOP } from '../utils/noop';
 import { useForkRef } from '../utils/useForkRef';
 import { mergeReactProps } from '../utils/mergeReactProps';
 import { useEventCallback } from '../utils/useEventCallback';
@@ -65,9 +66,18 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   }, [disabled, elementName, focusableWhenDisabled, tabIndex]);
 
   const getButtonProps = React.useCallback(
-    (externalProps: GenericButtonProps): GenericButtonProps => {
-      return mergeReactProps(externalProps, buttonProps, {
+    (externalProps: GenericButtonProps = {}): GenericButtonProps => {
+      const onClickProp = externalProps?.onClick ?? NOOP;
+
+      const otherExternalProps = { ...externalProps };
+      delete otherExternalProps.onClick;
+      return mergeReactProps(otherExternalProps, buttonProps, {
         type,
+        onClick(event: React.MouseEvent) {
+          if (!disabled) {
+            onClickProp(event);
+          }
+        },
         onKeyDown(event: React.KeyboardEvent) {
           if (event.target === event.currentTarget && !isNativeButton() && event.key === ' ') {
             event.preventDefault();
@@ -81,7 +91,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             event.key === 'Enter' &&
             !disabled
           ) {
-            externalProps?.onClick?.(event);
+            onClickProp(event);
             event.preventDefault();
           }
         },
@@ -95,7 +105,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             !disabled &&
             event.key === ' '
           ) {
-            externalProps.onClick?.(event);
+            onClickProp(event);
           }
         },
         ref: mergedRef,

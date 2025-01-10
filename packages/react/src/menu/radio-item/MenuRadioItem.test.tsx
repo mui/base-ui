@@ -9,6 +9,7 @@ import { MenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 const testRadioGroupContext = {
   value: '0',
   setValue: () => {},
+  disabled: false,
 };
 
 describe('<Menu.RadioItem />', () => {
@@ -298,5 +299,155 @@ describe('<Menu.RadioItem />', () => {
 
       expect(queryByRole('menu')).not.to.equal(null);
     });
+  });
+
+  describe('focusableWhenDisabled', () => {
+    it('can be focused but not interacted with when a radio group is disabled', async () => {
+      const handleClick = spy();
+      const handleKeyDown = spy();
+      const handleKeyUp = spy();
+      const handleValueChange = spy();
+
+      const { getAllByRole } = await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0} disabled onValueChange={handleValueChange}>
+                  <Menu.RadioItem
+                    value="one"
+                    onClick={handleClick}
+                    onKeyDown={handleKeyDown}
+                    onKeyUp={handleKeyUp}
+                  >
+                    one
+                  </Menu.RadioItem>
+                  <Menu.RadioItem
+                    value="two"
+                    onClick={handleClick}
+                    onKeyDown={handleKeyDown}
+                    onKeyUp={handleKeyUp}
+                  >
+                    two
+                  </Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const [item1, item2] = getAllByRole('menuitemradio');
+
+      expect(item1).to.have.attribute('data-disabled');
+      expect(item2).to.have.attribute('data-disabled');
+
+      await act(() => item1.focus());
+      expect(item1).toHaveFocus();
+
+      fireEvent.keyDown(item1, { key: 'Enter' });
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.keyUp(item1, { key: 'Space' });
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.click(item1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      expect(handleKeyDown.callCount).to.equal(2);
+      expect(item2).toHaveFocus();
+
+      fireEvent.keyDown(item2, { key: 'Enter' });
+      expect(handleKeyDown.callCount).to.equal(3);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.keyUp(item2, { key: 'Space' });
+      expect(handleKeyDown.callCount).to.equal(3);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.click(item2);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+    });
+  });
+
+  it('can be focused but not interacted with when individual items are disabled', async () => {
+    const handleClick = spy();
+    const handleKeyDown = spy();
+    const handleKeyUp = spy();
+    const handleValueChange = spy();
+
+    const { getAllByRole } = await render(
+      <Menu.Root open>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.RadioGroup defaultValue={0} onValueChange={handleValueChange}>
+                <Menu.RadioItem
+                  value="one"
+                  onClick={handleClick}
+                  onKeyDown={handleKeyDown}
+                  onKeyUp={handleKeyUp}
+                  disabled
+                >
+                  one
+                </Menu.RadioItem>
+                <Menu.RadioItem
+                  value="two"
+                  onClick={handleClick}
+                  onKeyDown={handleKeyDown}
+                  onKeyUp={handleKeyUp}
+                >
+                  two
+                </Menu.RadioItem>
+              </Menu.RadioGroup>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const [item1, item2] = getAllByRole('menuitemradio');
+
+    expect(item1).to.have.attribute('data-disabled');
+    expect(item2).to.not.have.attribute('data-disabled');
+
+    await act(() => item1.focus());
+    expect(item1).toHaveFocus();
+
+    fireEvent.keyDown(item1, { key: 'Enter' });
+    expect(handleKeyDown.callCount).to.equal(1);
+    expect(handleClick.callCount).to.equal(0);
+    expect(handleValueChange.callCount).to.equal(0);
+
+    fireEvent.keyUp(item1, { key: 'Space' });
+    expect(handleKeyDown.callCount).to.equal(1);
+    expect(handleClick.callCount).to.equal(0);
+    expect(handleValueChange.callCount).to.equal(0);
+
+    fireEvent.click(item1);
+    expect(handleClick.callCount).to.equal(0);
+    expect(handleValueChange.callCount).to.equal(0);
+
+    fireEvent.keyDown(item1, { key: 'ArrowDown' });
+    expect(handleKeyDown.callCount).to.equal(2);
+    expect(item2).toHaveFocus();
+
+    fireEvent.keyDown(item2, { key: 'Enter' });
+    expect(handleKeyDown.callCount).to.equal(3);
+    expect(handleClick.callCount).to.equal(1);
+    expect(handleValueChange.callCount).to.equal(1);
+    expect(handleValueChange.args[0][0]).to.equal('two');
+
+    fireEvent.keyDown(item2, { key: 'ArrowDown' });
+    expect(item1).toHaveFocus();
   });
 });
