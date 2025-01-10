@@ -245,18 +245,13 @@ jobs:
       - run:
           name: Resolve typescript version
           command: |
-            pnpm add typescript@next -d -w
+            pnpm install typescript@next -d -w
+            pnpm install typescript@next -d --filter @base-ui-components/react
             # log a patch for maintainers who want to check out this change
             git --no-pager diff HEAD
       - run:
           name: Tests TypeScript definitions
-          command: |
-            # ignore build failures
-            # it's expected that typescript@next fails since the lines of the errors
-            # change frequently. This build is monitored regardless of its status
-            set +e
-            pnpm typescript
-            exit 0
+          command: pnpm typescript
       - restore_cache:
           name: Restore generated declaration files
           keys:
@@ -397,24 +392,6 @@ workflows:
           <<: *default-context
           requires:
             - checkout
-  react-17:
-    triggers:
-      - schedule:
-          cron: '0 0 * * *'
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - test_unit:
-          <<: *default-context
-          react-version: ^17.0.0
-      - test_browser:
-          <<: *default-context
-          react-version: ^17.0.0
-      - test_regressions:
-          <<: *default-context
-          react-version: ^17.0.0
   react-18:
     when:
       equal: [pipeline, << pipeline.parameters.workflow >>]
