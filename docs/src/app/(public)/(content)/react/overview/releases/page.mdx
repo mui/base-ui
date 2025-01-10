@@ -18,34 +18,81 @@
 
 ### Changes
 
-- [Dialog, AlertDialog] Fix the nesting of different dialogs [#1167](https://github.com/mui/base-ui/pull/1167)
-- [Dialog, Menu, Select] Set `pointer-events` on `InternalBackdrop` based on `open` state [#1221](https://github.com/mui/base-ui/pull/1221)
-- [Dialog] Don't call `onNestedDialogOpen` when unmounting a closed nested dialog [#1280](https://github.com/mui/base-ui/pull/1280)
-- [Dialog] Remove `useFloating` call from the Popup [#1300](https://github.com/mui/base-ui/pull/1300)
-- [Menu, Select, Dialog] Use internal backdrop for pointer modality [#1161](https://github.com/mui/base-ui/pull/1161)
-- [Menu] Fix `openOnHover` issues [#1191](https://github.com/mui/base-ui/pull/1191)
-- [Menu] Fix closing the menu when clicking on checkboxitem/radioitem [#1301](https://github.com/mui/base-ui/pull/1301)
-- [NumberField] Correctly handle quick touches [#1294](https://github.com/mui/base-ui/pull/1294)
-- [Popover, Tooltip] Fix PopoverTrigger and TooltipTrigger prop types [#1209](https://github.com/mui/base-ui/pull/1209)
-- [popups] Apply `aria-hidden` to `Arrow` parts [#1196](https://github.com/mui/base-ui/pull/1196)
-- [Progress] Set zero width when value is zero [#1204](https://github.com/mui/base-ui/pull/1204)
-- [ScrollArea] Differentiate `x`/`y` orientation `data-scrolling` [#1188](https://github.com/mui/base-ui/pull/1188)
-- [ScrollArea] Read `DirectionProvider` and use logical positioning CSS props [#1194](https://github.com/mui/base-ui/pull/1194)
-- [Select, Menu] Handle pseudo-element bounds in mouseup detection [#1250](https://github.com/mui/base-ui/pull/1250)
-- [Select] Allow `id` to be passed to trigger [#1174](https://github.com/mui/base-ui/pull/1174)
-- [Select] Fallback to standard positioning when pinch-zoomed in Safari [#1139](https://github.com/mui/base-ui/pull/1139)
-- [Select] Fix highlight flash on Safari [#1233](https://github.com/mui/base-ui/pull/1233)
-- [Separator] Support vertical orientation [#1304](https://github.com/mui/base-ui/pull/1304)
-- [Slider] Ensure `onValueCommitted` is called with the same value as latest `onValueChange` [#1296](https://github.com/mui/base-ui/pull/1296)
-- [Slider] Replace internal map with `Composite` metadata [#1082](https://github.com/mui/base-ui/pull/1082)
-- [Slider] Set `position: relative` on range slider indicator [#1175](https://github.com/mui/base-ui/pull/1175)
-- [Slider] Use un-rounded values to position thumbs [#1219](https://github.com/mui/base-ui/pull/1219)
-- [Tabs] Expose width/height state in tabs indicator [#1288](https://github.com/mui/base-ui/pull/1288)
-- [Tooltip, PreviewCard] Use `FloatingPortalLite` [#1278](https://github.com/mui/base-ui/pull/1278)
-- [useButton] Fix `focusableWhenDisabled` components [#1313](https://github.com/mui/base-ui/pull/1313)
-- [useButton] Fix Enter key preventDefault when rendering links [#1251](https://github.com/mui/base-ui/pull/1251)
-- [useButton] Modernize implementation [#1177](https://github.com/mui/base-ui/pull/1177)
-- [useScrollLock] New implementation [#1159](https://github.com/mui/base-ui/pull/1159)
+#### AlertDialog
+
+- Fix the nesting of different dialogs [#1167](https://github.com/mui/base-ui/pull/1167)
+
+#### Dialog
+
+- Fix the nesting of different dialogs [#1167](https://github.com/mui/base-ui/pull/1167)
+- Set `pointer-events` on `InternalBackdrop` based on `open` state [#1221](https://github.com/mui/base-ui/pull/1221)
+- Don't call `onNestedDialogOpen` when unmounting a closed nested dialog [#1280](https://github.com/mui/base-ui/pull/1280)
+- Remove `useFloating` call from the Popup [#1300](https://github.com/mui/base-ui/pull/1300)
+- Use internal backdrop for pointer modality [#1161](https://github.com/mui/base-ui/pull/1161)
+
+#### Menu
+
+- Set `pointer-events` on `InternalBackdrop` based on `open` state [#1221](https://github.com/mui/base-ui/pull/1221)
+- Use internal backdrop for pointer modality [#1161](https://github.com/mui/base-ui/pull/1161)
+- Fix `openOnHover` issues [#1191](https://github.com/mui/base-ui/pull/1191)
+- Fix closing the menu when clicking on checkboxitem/radioitem [#1301](https://github.com/mui/base-ui/pull/1301)
+- Apply `aria-hidden` to `Arrow` parts [#1196](https://github.com/mui/base-ui/pull/1196)
+- Handle pseudo-element bounds in mouseup detection [#1250](https://github.com/mui/base-ui/pull/1250)
+- Fix `focusableWhenDisabled` components [#1313](https://github.com/mui/base-ui/pull/1313)
+- Fix Enter key preventDefault when rendering links [#1251](https://github.com/mui/base-ui/pull/1251)
+
+#### NumberField
+
+- Correctly handle quick touches [#1294](https://github.com/mui/base-ui/pull/1294)
+
+#### Popover
+
+- Fix PopoverTrigger and TooltipTrigger prop types [#1209](https://github.com/mui/base-ui/pull/1209)
+- Apply `aria-hidden` to `Arrow` parts [#1196](https://github.com/mui/base-ui/pull/1196)
+
+#### PreviewCard
+
+- Apply `aria-hidden` to `Arrow` parts [#1196](https://github.com/mui/base-ui/pull/1196)
+- Use `FloatingPortalLite` [#1278](https://github.com/mui/base-ui/pull/1278)
+
+#### Progress
+
+- Set zero width when value is zero [#1204](https://github.com/mui/base-ui/pull/1204)
+
+#### ScrollArea
+
+- Differentiate `x`/`y` orientation `data-scrolling` [#1188](https://github.com/mui/base-ui/pull/1188)
+- Read `DirectionProvider` and use logical positioning CSS props [#1194](https://github.com/mui/base-ui/pull/1194)
+
+#### Select
+
+- Use internal backdrop for pointer modality [#1161](https://github.com/mui/base-ui/pull/1161)
+- Handle pseudo-element bounds in mouseup detection [#1250](https://github.com/mui/base-ui/pull/1250)
+- Allow `id` to be passed to trigger [#1174](https://github.com/mui/base-ui/pull/1174)
+- Fallback to standard positioning when pinch-zoomed in Safari [#1139](https://github.com/mui/base-ui/pull/1139)
+- Fix highlight flash on Safari [#1233](https://github.com/mui/base-ui/pull/1233)
+- Fix `focusableWhenDisabled` components [#1313](https://github.com/mui/base-ui/pull/1313)
+
+#### Separator
+
+- Support vertical orientation [#1304](https://github.com/mui/base-ui/pull/1304)
+
+#### Slider
+
+- Ensure `onValueCommitted` is called with the same value as latest `onValueChange` [#1296](https://github.com/mui/base-ui/pull/1296)
+- Replace internal map with `Composite` metadata [#1082](https://github.com/mui/base-ui/pull/1082)
+- Set `position: relative` on range slider indicator [#1175](https://github.com/mui/base-ui/pull/1175)
+- Use un-rounded values to position thumbs [#1219](https://github.com/mui/base-ui/pull/1219)
+
+#### Tabs
+
+- Expose width/height state in tabs indicator [#1288](https://github.com/mui/base-ui/pull/1288)
+
+#### Tooltip
+
+- Fix PopoverTrigger and TooltipTrigger prop types [#1209](https://github.com/mui/base-ui/pull/1209)
+- Apply `aria-hidden` to `Arrow` parts [#1196](https://github.com/mui/base-ui/pull/1196)
+- Use `FloatingPortalLite` [#1278](https://github.com/mui/base-ui/pull/1278)
 
 ## 1.0.0-alpha.4
 
