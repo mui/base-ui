@@ -62,13 +62,20 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
+  const handleUnmount = useEventCallback(() => {
+    if (!open) {
+      setMounted(false);
+    }
+  });
+
   useAfterExitAnimation({
+    enabled: !params.action,
     open,
     animatedElementRef: popupRef,
-    onFinished() {
-      setMounted(false);
-    },
+    onFinished: handleUnmount,
   });
+
+  React.useImperativeHandle(params.action, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -203,6 +210,10 @@ export namespace useTooltipRoot {
      * @default 0
      */
     closeDelay?: number;
+    /**
+     * A ref to imperative actions.
+     */
+    action?: React.RefObject<{ unmount: () => void }>;
   }
 
   export interface ReturnValue {

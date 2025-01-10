@@ -26,6 +26,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     orientation = 'vertical',
     delay = 100,
     openOnHover: openOnHoverProp,
+    action,
   } = props;
 
   const direction = useDirection();
@@ -54,6 +55,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     delay,
     onTypingChange,
     modal,
+    action,
   });
 
   const context: MenuRootContext = React.useMemo(
@@ -141,6 +143,10 @@ namespace MenuRoot {
      * Defaults to `true` for nested menus.
      */
     openOnHover?: boolean;
+    /**
+     * A ref to imperative actions.
+     */
+    action?: React.RefObject<{ unmount: () => void }>;
   }
 }
 

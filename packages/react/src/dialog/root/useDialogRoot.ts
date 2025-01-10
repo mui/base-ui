@@ -59,13 +59,20 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     },
   );
 
+  const handleUnmount = useEventCallback(() => {
+    if (!open) {
+      setMounted(false);
+    }
+  });
+
   useAfterExitAnimation({
+    enabled: !params.action,
     open,
     animatedElementRef: popupRef,
-    onFinished() {
-      setMounted(false);
-    },
+    onFinished: handleUnmount,
   });
+
+  React.useImperativeHandle(params.action, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   useScrollLock(open && modal, popupElement);
 
@@ -210,6 +217,10 @@ export namespace useDialogRoot {
      * Callback to invoke when a nested dialog is closed.
      */
     onNestedDialogClose?: () => void;
+    /**
+     * A ref to imperative actions.
+     */
+    action?: React.RefObject<{ unmount: () => void }>;
   }
 
   export interface ReturnValue {
