@@ -19,6 +19,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     openOnHover = false,
     delay,
     closeDelay = 0,
+    action,
   } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -31,6 +32,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     openOnHover,
     delay: delayWithDefault,
     closeDelay,
+    action,
   });
 
   const contextValue: PopoverRootContext = React.useMemo(
@@ -100,6 +102,14 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   openOnHover: PropTypes.bool,
+  /**
+   * A ref to manually unmount the popover.
+   */
+  action: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
 } as any;
 
 export { PopoverRoot };

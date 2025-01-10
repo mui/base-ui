@@ -59,13 +59,18 @@ export function usePreviewCardRoot(
     },
   );
 
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+  });
+
   useAfterExitAnimation({
+    enabled: !params.action,
     open,
     animatedElementRef: popupRef,
-    onFinished() {
-      setMounted(false);
-    },
+    onFinished: handleUnmount,
   });
+
+  React.useImperativeHandle(params.action, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -172,6 +177,10 @@ export namespace usePreviewCardRoot {
      * @default 300
      */
     closeDelay?: number;
+    /**
+     * A ref to imperative actions.
+     */
+    action?: React.RefObject<{ unmount: () => void }>;
   }
 
   export interface ReturnValue {
