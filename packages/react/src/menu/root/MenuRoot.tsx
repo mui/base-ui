@@ -61,6 +61,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       ...menuRoot,
       nested,
       parentContext,
+      setActiveIndex: menuRoot.setActiveIndex,
       disabled,
       allowMouseUpTriggerRef:
         parentContext?.allowMouseUpTriggerRef ?? menuRoot.allowMouseUpTriggerRef,
