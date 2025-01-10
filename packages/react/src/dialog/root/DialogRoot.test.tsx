@@ -584,6 +584,7 @@ describe('<Dialog.Root />', () => {
       });
     });
   });
+<<<<<<< HEAD
 
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
@@ -669,4 +670,6 @@ describe('<Dialog.Root />', () => {
       expect(onOpenChangeCompleteValue).to.equal(false);
     });
   });
+=======
+>>>>>>> upstream/master
 });

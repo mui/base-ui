@@ -189,10 +189,13 @@ export namespace useTooltipRoot {
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
+<<<<<<< HEAD
      * Event handler called after any animations complete when the tooltip is opened or closed.
      */
     onOpenChangeComplete?: (open: boolean) => void;
     /**
+=======
+>>>>>>> upstream/master
      * Whether the tooltip contents can be hovered without closing the tooltip.
      * @default true
      */
