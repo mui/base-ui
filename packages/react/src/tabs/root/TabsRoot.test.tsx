@@ -184,6 +184,21 @@ describe('<Tabs.Root />', () => {
       expect(handleChange.firstCall.args[0]).to.equal(1);
     });
 
+    it('should not call onValueChange on non-primary button clicks', async () => {
+      const handleChange = spy();
+      const { getAllByRole } = await render(
+        <Tabs.Root value={0} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      fireEvent.click(getAllByRole('tab')[1], { button: 2 });
+      expect(handleChange.callCount).to.equal(0);
+    });
+
     it('should not call onValueChange when already selected', async () => {
       const handleChange = spy();
       const { getAllByRole } = await render(
