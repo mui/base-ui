@@ -14,6 +14,32 @@ describe('<Dialog.Root />', () => {
 
   const { render } = createRenderer();
 
+  it('ARIA attributes', async () => {
+    const { queryByRole, getByText } = await render(
+      <Dialog.Root modal={false} open>
+        <Dialog.Trigger />
+        <Dialog.Portal>
+          <Dialog.Backdrop />
+          <Dialog.Popup>
+            <Dialog.Title>title text</Dialog.Title>
+            <Dialog.Description>description text</Dialog.Description>
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>,
+    );
+
+    const popup = queryByRole('dialog');
+    expect(popup).not.to.equal(null);
+    expect(popup).to.not.have.attribute('aria-modal');
+
+    expect(getByText('title text').getAttribute('id')).to.equal(
+      popup.getAttribute('aria-labelledby'),
+    );
+    expect(getByText('description text').getAttribute('id')).to.equal(
+      popup.getAttribute('aria-describedby'),
+    );
+  });
+
   describe('uncontrolled mode', () => {
     it('should open the dialog with the trigger', async () => {
       const { queryByRole, getByRole } = await render(
