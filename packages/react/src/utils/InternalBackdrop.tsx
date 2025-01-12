@@ -4,10 +4,15 @@ import PropTypes from 'prop-types';
 /**
  * @ignore - internal component.
  */
-function InternalBackdrop(props: InternalBackdrop.Props) {
+const InternalBackdrop = React.forwardRef(function InternalBackdrop(
+  props: InternalBackdrop.Props,
+  ref: React.ForwardedRef<HTMLDivElement>,
+) {
   const { inert = false } = props;
   return (
     <div
+      ref={ref}
+      data-base-ui-backdrop
       role="presentation"
       style={{
         position: 'fixed',
@@ -25,7 +30,7 @@ function InternalBackdrop(props: InternalBackdrop.Props) {
       }}
     />
   );
-}
+});
 
 namespace InternalBackdrop {
   export interface Props {

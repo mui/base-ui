@@ -8,6 +8,7 @@ import {
   useInteractions,
   type OpenChangeReason as FloatingUIOpenChangeReason,
 } from '@floating-ui/react';
+import { getTarget } from '@floating-ui/react/utils';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useScrollLock } from '../../utils/useScrollLock';
@@ -40,7 +41,9 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     state: 'open',
   });
 
-  const popupRef = React.useRef<HTMLElement>(null);
+  const popupRef = React.useRef<HTMLElement | null>(null);
+  const backdropRef = React.useRef<HTMLDivElement | null>(null);
+  const internalBackdropRef = React.useRef<HTMLDivElement | null>(null);
 
   const [titleElementId, setTitleElementId] = React.useState<string | undefined>(undefined);
   const [descriptionElementId, setDescriptionElementId] = React.useState<string | undefined>(
@@ -88,7 +91,22 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const click = useClick(context);
   const dismiss = useDismiss(context, {
     outsidePressEvent: 'mousedown',
-    outsidePress: isTopmost && dismissible,
+    outsidePress(event) {
+      const target = getTarget(event) as Element | null;
+      if (isTopmost && dismissible && target) {
+        const backdrop = target.closest('[data-base-ui-backdrop]') as HTMLDivElement | null;
+        // Only close if the click occurred on the dialog's owning backdrop.
+        // This supports nested modal dialogs that aren't nested in the React tree:
+        // https://github.com/mui/base-ui/issues/1320
+        if (modal) {
+          return backdrop
+            ? [internalBackdropRef.current, backdropRef.current].includes(backdrop)
+            : false;
+        }
+        return true;
+      }
+      return false;
+    },
     escapeKey: isTopmost,
   });
 
@@ -143,6 +161,8 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       setTriggerElement,
       setPopupElement,
       popupRef,
+      backdropRef,
+      internalBackdropRef,
       floatingRootContext: context,
     } satisfies useDialogRoot.ReturnValue;
   }, [
@@ -297,6 +317,14 @@ export namespace useDialogRoot {
      * The ref to the Popup element.
      */
     popupRef: React.RefObject<HTMLElement | null>;
+    /**
+     * A ref to the backdrop element.
+     */
+    backdropRef: React.RefObject<HTMLDivElement | null>;
+    /**
+     * A ref to the internal backdrop element.
+     */
+    internalBackdropRef: React.RefObject<HTMLDivElement | null>;
     /**
      * The Floating UI root context.
      */
