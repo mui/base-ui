@@ -8,6 +8,32 @@ import { spy } from 'sinon';
 describe('<AlertDialog.Root />', () => {
   const { render } = createRenderer();
 
+  it('ARIA attributes', async () => {
+    const { queryByRole, getByText } = await render(
+      <AlertDialog.Root open>
+        <AlertDialog.Trigger />
+        <AlertDialog.Portal>
+          <AlertDialog.Backdrop />
+          <AlertDialog.Popup>
+            <AlertDialog.Title>title text</AlertDialog.Title>
+            <AlertDialog.Description>description text</AlertDialog.Description>
+          </AlertDialog.Popup>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>,
+    );
+
+    const popup = queryByRole('alertdialog');
+    expect(popup).not.to.equal(null);
+    expect(popup).to.have.attribute('aria-modal', 'true');
+
+    expect(getByText('title text').getAttribute('id')).to.equal(
+      popup.getAttribute('aria-labelledby'),
+    );
+    expect(getByText('description text').getAttribute('id')).to.equal(
+      popup.getAttribute('aria-describedby'),
+    );
+  });
+
   describe('prop: onOpenChange', () => {
     it('calls onOpenChange with the new open state', async () => {
       const handleOpenChange = spy();
