@@ -33,10 +33,10 @@ describe('<Dialog.Root />', () => {
     expect(popup).to.not.have.attribute('aria-modal');
 
     expect(getByText('title text').getAttribute('id')).to.equal(
-      popup.getAttribute('aria-labelledby'),
+      popup?.getAttribute('aria-labelledby'),
     );
     expect(getByText('description text').getAttribute('id')).to.equal(
-      popup.getAttribute('aria-describedby'),
+      popup?.getAttribute('aria-describedby'),
     );
   });
 
