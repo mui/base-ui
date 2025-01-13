@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { spy } from 'sinon';
