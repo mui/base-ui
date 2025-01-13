@@ -16,7 +16,7 @@
       "description": "Event handler called when the preview card is opened or closed."
     },
     "onOpenChangeComplete": {
-      "type": "function",
+      "type": "(open) => void",
       "description": "Event handler called after any animations complete when the preview card is opened or closed."
     },
     "delay": {
