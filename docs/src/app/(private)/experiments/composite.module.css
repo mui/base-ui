@@ -1,0 +1,46 @@
+.Grid {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding-block: 0.25rem;
+  background-color: canvas;
+  color: oklch(12% 5% 264 / 90%);
+  transform-origin: var(--transform-origin);
+  transition:
+    transform 150ms,
+    opacity 150ms;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  outline: 1px solid oklch(12% 9% 264 / 8%);
+  box-shadow:
+    0px 4px 6px -3px oklch(12% 9% 264 / 8%),
+    0px 4px 6px -4px oklch(12% 9% 264 / 8%);
+}
+
+.GridRow {
+  display: flex;
+}
+
+.GridItem {
+  outline: 0;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  &:hover {
+    background: oklch(12% 9.5% 264 / 5%);
+  }
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+    background: oklch(12% 9.5% 264 / 5%);
+  }
+}

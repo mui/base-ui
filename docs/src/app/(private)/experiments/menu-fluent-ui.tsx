@@ -4,8 +4,8 @@ import styles from './menu-fluent-ui.module.css';
 
 export default function ExampleMenu() {
   return (
-    <div>
-      <div style={{ marginBottom: '10px' }}>
+    <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
+      <div>
         Reference:{' '}
         <a href="https://developer.microsoft.com/en-us/fluentui#/controls/web/contextualmenu">
           ContextualMenu with subemnus
@@ -64,6 +64,44 @@ export default function ExampleMenu() {
                   aria-label="Open submenu"
                 >
                   <ChevronRightIcon />
+                </Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner className={styles.Positioner}>
+                    <Menu.Popup className={styles.Popup}>
+                      <Menu.Item className={styles.Item}>Share to Twitter</Menu.Item>
+                      <Menu.Item className={styles.Item}>
+                        Share to Facebook
+                      </Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+      <div>
+        Reference:{' '}
+        <a href="https://developer.microsoft.com/en-us/fluentui#/controls/web/contextualmenu">
+          ContextualMenu with customized submenus and noWrap attributes
+        </a>
+      </div>
+      <Menu.Root>
+        <Menu.Trigger className={styles.Button}>
+          Contextual menu <ChevronDownIcon className={styles.ButtonIcon} />
+        </Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner align="start" className={styles.Positioner}>
+            <Menu.Popup className={styles.Popup}>
+              <Menu.Item className={styles.Item}>New</Menu.Item>
+              <Menu.Item className={styles.Item}>Upload</Menu.Item>
+              <Menu.Separator className={styles.Separator} />
+              <Menu.Root>
+                <Menu.SubmenuTrigger className={styles.ItemWithSubmenu}>
+                  Categorized
+                  <span className={styles.SubmenuTrigger}>
+                    <ChevronRightIcon />
+                  </span>
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner className={styles.Positioner}>
