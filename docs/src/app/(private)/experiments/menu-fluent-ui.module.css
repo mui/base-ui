@@ -150,3 +150,32 @@
   padding-bottom: 0.75rem;
   display: inline-flex;
 }
+
+.Grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.25rem;
+}
+
+.GridRow {
+  display: flex;
+}
+
+.GridItem {
+  outline: 0;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  &:hover {
+    background: oklch(12% 9.5% 264 / 5%);
+  }
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+    background: oklch(12% 9.5% 264 / 5%);
+  }
+}
