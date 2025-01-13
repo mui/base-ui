@@ -55,43 +55,14 @@ export default function ExampleMenu() {
                   </Menu.Positioner>
                 </Menu.Portal>
               </Menu.Root>
-
-              {/*
-               * First try, using MenuItem as the wrapper of the SubmenuTrigger
-               * Issues:
-               * ❌ MenuItem is never highlighted, we assume that only SubmenuTrigger can be used, as triggers and there never be a MenuItem added here (which kind of makes sense)
-               * ❌ There are two navigation stops for both the MenuItem and the SubmenuTrigger
-               */}
-              <Menu.Root>
-                <Menu.Item className={styles.SplitButtonRoot} id="split-button">
-                  Share w/ split
-                  <Menu.SubmenuTrigger className={styles.SubmenuTrigger} aria-label="Open submenu">
-                    <ChevronRightIcon />
-                  </Menu.SubmenuTrigger>
-                </Menu.Item>
-                <Menu.Portal>
-                  <Menu.Positioner className={styles.Positioner}>
-                    <Menu.Popup className={styles.Popup}>
-                      <Menu.Item className={styles.Item}>Share to Twitter</Menu.Item>
-                      <Menu.Item className={styles.Item}>
-                        Share to Facebook
-                      </Menu.Item>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Portal>
-              </Menu.Root>
-
-              {/*
-               * Second try, using MenuItem independently, style them as one element
-               * Issues:
-               * ✅ MenuItem is never highlighted, we assume that only SubmenuTrigger can be used, as triggers and there never be a MenuItem added here (which kind of makes sense)
-               * ❌ There are two navigation stops for both the MenuItem and the SubmenuTrigger
-               */}
               <Menu.Item className={styles.SplitButtonItem}>
                 Share w/ split
               </Menu.Item>
               <Menu.Root>
-                <Menu.SubmenuTrigger className={styles.SplitButtonSubemnuTrigger} aria-label="Open submenu">
+                <Menu.SubmenuTrigger
+                  className={styles.SplitButtonSubemnuTrigger}
+                  aria-label="Open submenu"
+                >
                   <ChevronRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>

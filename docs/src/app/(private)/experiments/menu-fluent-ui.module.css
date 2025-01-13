@@ -96,7 +96,6 @@
 .ItemWithSubmenu,
 .SubmenuTrigger,
 .SubmenuTriggerInsideItem,
-.SplitButtonRoot,
 .SplitButtonItem,
 .SplitButtonSubemnuTrigger {
   outline: 0;
@@ -127,11 +126,6 @@
 .ItemWithSubmenu {
   padding-right: 0;
   padding-block: 0;
-}
-
-.SplitButtonRoot {
-  padding: 0;
-  padding-left: 1rem;
 }
 
 .SubmenuTrigger {
