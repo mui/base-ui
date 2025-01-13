@@ -33,9 +33,9 @@ const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndi
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         'aria-hidden': true,
-        hidden: !mounted,
+        hidden: !keepMounted && !mounted,
       }),
-    [mounted],
+    [keepMounted, mounted],
   );
 
   useAfterExitAnimation({

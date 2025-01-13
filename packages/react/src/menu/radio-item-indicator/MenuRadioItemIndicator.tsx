@@ -33,9 +33,9 @@ const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicator(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         'aria-hidden': true,
-        hidden: !mounted,
+        hidden: !keepMounted && !mounted,
       }),
-    [mounted],
+    [keepMounted, mounted],
   );
 
   useAfterExitAnimation({

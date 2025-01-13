@@ -66,7 +66,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     className,
     customStyleHookMapping,
     extraProps: {
-      hidden: !mounted,
+      hidden: !keepMounted && !mounted,
       ...otherProps,
     },
   });
