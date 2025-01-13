@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 
@@ -12,23 +12,23 @@ describe('<Menu.RadioItemIndicator />', () => {
     render(node) {
       return render(
         <Menu.Root open>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.RadioGroup>
-                <Menu.RadioItem value="">{node}</Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup>
+                  <Menu.RadioItem value="">{node}</Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
     },
   }));
 
-  it('should remove the indicator when there is no exit animation defined', async function test(t = {}) {
-    if (/jsdom/.test(window.navigator.userAgent)) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+  it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
+    if (isJSDOM) {
+      skip();
     }
 
     function Test() {
@@ -37,20 +37,22 @@ describe('<Menu.RadioItemIndicator />', () => {
         <div>
           <button onClick={() => setValue('b')}>Close</button>
           <Menu.Root open modal={false}>
-            <Menu.Positioner>
-              <Menu.Popup>
+            <Menu.Portal>
+              <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.RadioGroup value={value}>
-                    <Menu.RadioItem value="a">
-                      <Menu.RadioItemIndicator data-testid="indicator" keepMounted />
-                    </Menu.RadioItem>
-                    <Menu.RadioItem value="b">
-                      <Menu.RadioItemIndicator keepMounted />
-                    </Menu.RadioItem>
-                  </Menu.RadioGroup>
+                  <Menu.Popup>
+                    <Menu.RadioGroup value={value}>
+                      <Menu.RadioItem value="a">
+                        <Menu.RadioItemIndicator data-testid="indicator" keepMounted />
+                      </Menu.RadioItem>
+                      <Menu.RadioItem value="b">
+                        <Menu.RadioItemIndicator keepMounted />
+                      </Menu.RadioItem>
+                    </Menu.RadioGroup>
+                  </Menu.Popup>
                 </Menu.Popup>
-              </Menu.Popup>
-            </Menu.Positioner>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
         </div>
       );
@@ -69,14 +71,12 @@ describe('<Menu.RadioItemIndicator />', () => {
     });
   });
 
-  it('should remove the indicator when the animation finishes', async function test(t = {}) {
-    if (/jsdom/.test(window.navigator.userAgent)) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+  it('should remove the indicator when the animation finishes', async ({ skip }) => {
+    if (isJSDOM) {
+      skip();
     }
 
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
     let animationFinished = false;
     const notifyAnimationFinished = () => {
@@ -103,23 +103,25 @@ describe('<Menu.RadioItemIndicator />', () => {
           <style dangerouslySetInnerHTML={{ __html: style }} />
           <button onClick={() => setValue('b')}>Close</button>
           <Menu.Root open modal={false}>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.RadioGroup value={value}>
-                  <Menu.RadioItem value="a">
-                    <Menu.RadioItemIndicator
-                      className="animation-test-indicator"
-                      data-testid="indicator"
-                      keepMounted
-                      onAnimationEnd={notifyAnimationFinished}
-                    />
-                  </Menu.RadioItem>
-                  <Menu.RadioItem value="b">
-                    <Menu.RadioItemIndicator keepMounted />
-                  </Menu.RadioItem>
-                </Menu.RadioGroup>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.RadioGroup value={value}>
+                    <Menu.RadioItem value="a">
+                      <Menu.RadioItemIndicator
+                        className="animation-test-indicator"
+                        data-testid="indicator"
+                        keepMounted
+                        onAnimationEnd={notifyAnimationFinished}
+                      />
+                    </Menu.RadioItem>
+                    <Menu.RadioItem value="b">
+                      <Menu.RadioItemIndicator keepMounted />
+                    </Menu.RadioItem>
+                  </Menu.RadioGroup>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
         </div>
       );

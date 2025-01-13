@@ -159,7 +159,14 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   props: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, value, label, disabled = false, closeOnClick = false, ...other } = props;
+  const {
+    id: idProp,
+    value,
+    label,
+    disabled: disabledProp = false,
+    closeOnClick = false,
+    ...other
+  } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
@@ -171,7 +178,13 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const highlighted = listItem.index === activeIndex;
   const { events: menuEvents } = useFloatingTree()!;
 
-  const { value: selectedValue, setValue: setSelectedValue } = useMenuRadioGroupContext();
+  const {
+    value: selectedValue,
+    setValue: setSelectedValue,
+    disabled: groupDisabled,
+  } = useMenuRadioGroupContext();
+
+  const disabled = groupDisabled || disabledProp;
 
   // This wrapper component is used as a performance optimization.
   // MenuRadioItem reads the context and re-renders the actual MenuRadioItem
@@ -197,6 +210,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
         {...other}
         id={id}
         ref={mergedRef}
+        disabled={disabled}
         highlighted={highlighted}
         menuEvents={menuEvents}
         propGetter={getItemProps}
@@ -276,6 +290,11 @@ MenuRadioItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
    * Whether to close the menu when the item is clicked.
    * @default false
    */
@@ -297,6 +316,13 @@ MenuRadioItem.propTypes /* remove-proptypes */ = {
    * The click handler for the menu item.
    */
   onClick: PropTypes.func,
+  /**
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * Value of the radio item.
    * This is the value that will be set in the MenuRadioGroup when the item is selected.

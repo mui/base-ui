@@ -13,16 +13,20 @@ export default function AnchorSideAnimations() {
       </p>
       <Popover.Root>
         <Popover.Trigger>transition</Popover.Trigger>
-        <Popover.Positioner side="top">
-          <Popover.Popup className={classes.Popup} data-type="transition" />
-        </Popover.Positioner>
+        <Popover.Portal>
+          <Popover.Positioner side="top">
+            <Popover.Popup className={classes.Popup} data-type="transition" />
+          </Popover.Positioner>
+        </Popover.Portal>
       </Popover.Root>
 
       <Popover.Root>
         <Popover.Trigger>animation</Popover.Trigger>
-        <Popover.Positioner side="top">
-          <Popover.Popup className={classes.Popup} data-type="animation" />
-        </Popover.Positioner>
+        <Popover.Portal>
+          <Popover.Positioner side="top">
+            <Popover.Popup className={classes.Popup} data-type="animation" />
+          </Popover.Positioner>
+        </Popover.Portal>
       </Popover.Root>
     </div>
   );

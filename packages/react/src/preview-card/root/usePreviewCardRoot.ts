@@ -62,7 +62,9 @@ export function usePreviewCardRoot(
   useAfterExitAnimation({
     open,
     animatedElementRef: popupRef,
-    onFinished: () => setMounted(false),
+    onFinished() {
+      setMounted(false);
+    },
   });
 
   const context = useFloatingRootContext({
