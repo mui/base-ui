@@ -77,7 +77,7 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
   const tabPanelId = index > -1 ? getTabPanelIdByTabValueOrIndex(valueParam, index) : undefined;
 
   const isPressingRef = React.useRef(false);
-  const isPrimaryButtonRef = React.useRef(false);
+  const isMainButtonRef = React.useRef(false);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
@@ -101,7 +101,7 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
               return;
             }
 
-            if (!isPressingRef.current || (isPressingRef.current && isPrimaryButtonRef.current)) {
+            if (!isPressingRef.current || (isPressingRef.current && isMainButtonRef.current)) {
               onTabActivation(tabValue, event.nativeEvent);
             }
           },
@@ -114,11 +114,11 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
 
             function handlePointerUp() {
               isPressingRef.current = false;
-              isPrimaryButtonRef.current = false;
+              isMainButtonRef.current = false;
             }
 
-            if (!event.button || event.button === 0) {
-              isPrimaryButtonRef.current = true;
+            if (event.button === 0) {
+              isMainButtonRef.current = true;
 
               const doc = ownerDocument(event.currentTarget);
               doc.addEventListener('pointerup', handlePointerUp, { once: true });

@@ -445,9 +445,8 @@ export function useNumberFieldRoot(
           incrementValue(amount, isIncrement ? 1 : -1, undefined, event.nativeEvent);
         },
         onPointerDown(event) {
-          const isMainButton = !event.button || event.button === 0;
           const isDisabled = disabled || (isIncrement ? isMax : isMin);
-          if (event.defaultPrevented || readOnly || !isMainButton || isDisabled) {
+          if (event.defaultPrevented || readOnly || event.button !== 0 || isDisabled) {
             return;
           }
 
