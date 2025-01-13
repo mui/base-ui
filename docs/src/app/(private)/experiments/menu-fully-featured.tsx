@@ -1,41 +1,28 @@
 'use client';
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
-import { OptionsPanel } from './infra/OptionsPanel';
+import { SettingsPanel } from './infra/SettingsPanel';
 import '../../../demo-theme.css';
 import classes from './menu.module.css';
 
-type Options = Partial<Record<'customAnchor' | 'modal' | 'openOnHover', boolean>>;
-
-const settings: OptionsPanel.Props['settings'] = [
-  {
-    type: 'boolean',
-    key: 'customAnchor',
-    label: 'Custom anchor',
-    initialValue: false,
-  },
-  {
-    type: 'boolean',
-    key: 'modal',
-    label: 'Modal',
-    initialValue: true,
-  },
-  {
-    type: 'boolean',
-    key: 'openOnHover',
-    label: 'Open on hover',
-    initialValue: false,
-  },
-];
+interface Settings {
+  customAnchor: boolean;
+  modal: boolean;
+  openOnHover: boolean;
+}
 
 export default function MenuFullyFeatured() {
-  const [options, setOptions] = React.useState<Options>({});
+  const [settings, setSettings] = React.useState<Settings>({
+    customAnchor: false,
+    modal: true,
+    openOnHover: false,
+  });
 
   const anchorRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <div>
-      <Menu.Root openOnHover={options.openOnHover} modal={options.modal}>
+      <Menu.Root openOnHover={settings.openOnHover} modal={settings.modal}>
         <Menu.Trigger className={classes.Button}>
           Menu <ChevronDownIcon className={classes.ButtonIcon} />
         </Menu.Trigger>
@@ -43,7 +30,7 @@ export default function MenuFullyFeatured() {
           <Menu.Positioner
             className={classes.Positioner}
             sideOffset={8}
-            anchor={options.customAnchor ? anchorRef : undefined}
+            anchor={settings.customAnchor ? anchorRef : undefined}
           >
             <Menu.Popup className={classes.Popup}>
               <Menu.Arrow className={classes.Arrow}>
@@ -191,13 +178,13 @@ export default function MenuFullyFeatured() {
         </Menu.Portal>
       </Menu.Root>
 
-      {options.customAnchor && (
+      {settings.customAnchor && (
         <div className={classes.CustomAnchor} ref={anchorRef}>
           Menu will be anchored here
         </div>
       )}
 
-      <OptionsPanel settings={settings} onChange={setOptions} />
+      <SettingsPanel settings={settings} onChange={setSettings} />
     </div>
   );
 }

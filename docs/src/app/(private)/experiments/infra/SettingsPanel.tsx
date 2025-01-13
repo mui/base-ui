@@ -1,34 +1,26 @@
+/* eslint-disable no-restricted-imports */
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
+import { useLatestRef } from '@base-ui-components/react/utils/useLatestRef';
+import { useEventCallback } from '@base-ui-components/react/utils/useEventCallback';
 import { Switch } from './Switch';
-import classes from './OptionsPanel.module.css';
+import classes from './SettingsPanel.module.css';
 
-export function OptionsPanel(props: OptionsPanel.Props) {
-  const [data, setData] = React.useState<Record<string, boolean | number | string>>(
-    {},
-  );
+export function SettingsPanel<Settings>(props: SettingsPanel.Props<Settings>) {
+  const { settings, onChange: onChangeProp } = props;
 
-  React.useEffect(() => {
-    const initialData: Record<string, boolean | number | string> = {};
-    for (const setting of props.settings) {
-      initialData[setting.key] = setting.initialValue;
-    }
-    setData(initialData);
-  }, [props.settings]);
+  const lastSettings = useLatestRef(settings);
+  const onChange = useEventCallback(onChangeProp);
 
   const createChangeHandler = React.useCallback(
-    (key: string) => (value: boolean | number | string) => {
-      setData((prevData) => ({
-        ...prevData,
+    (key: string) => (value: unknown) => {
+      onChange?.({
+        ...lastSettings.current,
         [key]: value,
-      }));
+      });
     },
-    [],
+    [lastSettings, onChange],
   );
-
-  React.useEffect(() => {
-    props.onChange(data as any);
-  }, [data, props]);
 
   return (
     <Popover.Root>
@@ -44,25 +36,26 @@ export function OptionsPanel(props: OptionsPanel.Props) {
           positionMethod="fixed"
         >
           <Popover.Popup className={classes.Popup}>
-            {props.settings.map((setting) => {
-              switch (setting.type) {
+            {Object.keys(settings as Record<string, any>).map((key) => {
+              const value = (settings as Record<string, unknown>)[key];
+              switch (typeof value) {
                 case 'boolean':
                   return renderSwitch(
-                    setting,
-                    data[setting.key] as boolean,
-                    createChangeHandler(setting.key),
+                    key,
+                    value as boolean,
+                    createChangeHandler(key),
                   );
                 case 'number':
                   return renderNumberInput(
-                    setting,
-                    data[setting.key] as number,
-                    createChangeHandler(setting.key),
+                    key,
+                    value as number,
+                    createChangeHandler(key),
                   );
                 case 'string':
                   return renderTextInput(
-                    setting,
-                    data[setting.key] as string,
-                    createChangeHandler(setting.key),
+                    key,
+                    value as string,
+                    createChangeHandler(key),
                   );
                 default:
                   return null;
@@ -75,68 +68,68 @@ export function OptionsPanel(props: OptionsPanel.Props) {
   );
 }
 
-export namespace OptionsPanel {
-  export interface Props {
+export namespace SettingsPanel {
+  export interface Props<Settings> {
     children?: React.ReactNode;
-    settings: SettingDefinition[];
-    onChange: (newSettings: Record<string, SettingDefinition>) => void;
+    settings: Settings;
+    onChange: (newSettings: Settings) => void;
   }
 }
 
-interface SettingDefinition {
-  key: string;
-  label?: string;
-  type: 'boolean' | 'number' | 'string';
-  initialValue: boolean | number | string;
-}
-
 function renderSwitch(
-  setting: SettingDefinition,
+  key: string,
   value: boolean,
   onChange: (value: boolean) => void,
 ) {
   return (
     <Switch
-      key={setting.key}
+      key={key}
       checked={value}
       onCheckedChange={onChange}
-      label={setting.label}
+      label={camelToSentenceCase(key)}
     />
   );
 }
 
 function renderTextInput(
-  setting: SettingDefinition,
+  key: string,
   value: string,
   onChange: (value: string) => void,
 ) {
   return (
-    <label key={setting.key}>
+    <label key={key}>
       <input
         type="text"
         value={value}
         onChange={(event) => onChange(event.currentTarget.value)}
       />
-      {setting.label}
+      {camelToSentenceCase(key)}
     </label>
   );
 }
 
 function renderNumberInput(
-  setting: SettingDefinition,
+  key: string,
   value: number,
   onChange: (value: number) => void,
 ) {
   return (
-    <label key={setting.key}>
+    <label key={key}>
       <input
         type="number"
         value={value}
         onChange={(event) => onChange(event.currentTarget.valueAsNumber)}
       />
-      {setting.label}
+      {camelToSentenceCase(key)}
     </label>
   );
+}
+
+function camelToSentenceCase(camel: string) {
+  return camel
+    .replace(/([A-Z])/g, ' $1')
+    .toLowerCase()
+    .replace(/^./, (str) => str.toUpperCase());
 }
 
 function SettingsIcon(props: React.ComponentProps<'svg'>) {
