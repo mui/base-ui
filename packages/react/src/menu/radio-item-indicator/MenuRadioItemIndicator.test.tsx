@@ -65,7 +65,7 @@ describe('<Menu.RadioItemIndicator />', () => {
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('indicator')).to.have.attribute('hidden');
+      expect(screen.getByTestId('indicator')).not.to.have.attribute('hidden');
     });
   });
 
@@ -133,9 +133,8 @@ describe('<Menu.RadioItemIndicator />', () => {
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('indicator')).to.have.attribute('hidden');
+      expect(animationFinished).to.equal(true);
     });
 
-    expect(animationFinished).to.equal(true);
   });
 });

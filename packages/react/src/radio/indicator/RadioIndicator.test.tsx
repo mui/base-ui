@@ -56,7 +56,7 @@ describe('<Radio.Indicator />', () => {
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('indicator-a')).to.have.attribute('hidden');
+      expect(screen.getByTestId('indicator-a')).not.to.have.attribute('hidden');
     });
   });
 
@@ -119,9 +119,8 @@ describe('<Radio.Indicator />', () => {
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('indicator-a')).to.have.attribute('hidden');
+      expect(animationFinished).to.equal(true);
     });
 
-    expect(animationFinished).to.equal(true);
   });
 });

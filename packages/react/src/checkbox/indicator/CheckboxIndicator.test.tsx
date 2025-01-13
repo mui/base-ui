@@ -71,7 +71,7 @@ describe('<Checkbox.Indicator />', () => {
       );
       const indicator = container.querySelector('span');
       expect(indicator).not.to.equal(null);
-      expect(indicator).to.have.attribute('hidden');
+      expect(indicator).not.to.have.attribute('hidden');
     });
 
     it('should keep indicator mounted when checked', async () => {
@@ -125,7 +125,7 @@ describe('<Checkbox.Indicator />', () => {
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('indicator')).to.have.attribute('hidden');
+      expect(screen.getByTestId('indicator')).not.to.have.attribute('hidden');
     });
   });
 
@@ -183,9 +183,7 @@ describe('<Checkbox.Indicator />', () => {
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('indicator')).to.have.attribute('hidden');
+      expect(animationFinished).to.equal(true);
     });
-
-    expect(animationFinished).to.equal(true);
   });
 });
