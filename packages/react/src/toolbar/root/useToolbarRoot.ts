@@ -2,13 +2,29 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
+import type { ToolbarButtonMetadata } from '../button/ToolbarButton';
+import type { CompositeMetadata } from '../../composite/list/CompositeList';
 
 function useToolbarRoot(parameters: useToolbarRoot.Parameters): useToolbarRoot.ReturnValue {
   const { orientation } = parameters;
 
+  const [itemMap, setItemMap] = React.useState(
+    () => new Map<Node, CompositeMetadata<ToolbarButtonMetadata> | null>(),
+  );
+
+  const disabledIndices = React.useMemo(() => {
+    const output: number[] = [];
+    for (const itemMetadata of itemMap.values()) {
+      if (itemMetadata?.index && !itemMetadata.focusableWhenDisabled) {
+        output.push(itemMetadata.index);
+      }
+    }
+    return output;
+  }, [itemMap]);
+
   const getRootProps = React.useCallback(
-    (otherProps = {}): React.ComponentPropsWithRef<'div'> => {
-      return mergeReactProps(otherProps, {
+    (externalProps = {}): React.ComponentPropsWithRef<'div'> => {
+      return mergeReactProps(externalProps, {
         'aria-orientation': orientation,
         role: 'toolbar',
       });
@@ -19,13 +35,16 @@ function useToolbarRoot(parameters: useToolbarRoot.Parameters): useToolbarRoot.R
   return React.useMemo(
     () => ({
       getRootProps,
+      disabledIndices,
+      setItemMap,
     }),
-    [getRootProps],
+    [getRootProps, disabledIndices, setItemMap],
   );
 }
 
 namespace useToolbarRoot {
   export interface Parameters {
+    disabled: boolean;
     /**
      * The component orientation (layout flow direction).
      */
@@ -39,6 +58,10 @@ namespace useToolbarRoot {
      * @returns props that should be spread on Toolbar.Root
      */
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    disabledIndices: number[];
+    setItemMap: React.Dispatch<
+      React.SetStateAction<Map<Node, CompositeMetadata<ToolbarButtonMetadata> | null>>
+    >;
   }
 }
 

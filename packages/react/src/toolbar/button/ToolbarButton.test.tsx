@@ -15,7 +15,9 @@ const testCompositeContext = {
 };
 
 const testToolbarContext: ToolbarRootContext = {
+  disabled: false,
   orientation: 'horizontal',
+  setItemMap: NOOP,
 };
 
 describe('<Toolbar.Button />', () => {
