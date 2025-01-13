@@ -458,6 +458,112 @@ describe('<Dialog.Root />', () => {
     });
   });
 
+  it('does not dismiss previous modal dialog when clicking new modal dialog', async () => {
+    function App() {
+      const [openNested, setOpenNested] = React.useState(false);
+      const [openNested2, setOpenNested2] = React.useState(false);
+
+      return (
+        <>
+          <Dialog.Root>
+            <Dialog.Trigger>Trigger</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Backdrop />
+              <Dialog.Popup>
+                <button onClick={() => setOpenNested(true)}>Open nested 1</button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <Dialog.Root open={openNested} onOpenChange={setOpenNested}>
+            <Dialog.Portal>
+              <Dialog.Backdrop />
+              <Dialog.Popup>
+                <button onClick={() => setOpenNested2(true)}>Open nested 2</button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <Dialog.Root open={openNested2} onOpenChange={setOpenNested2}>
+            <Dialog.Portal>
+              <Dialog.Backdrop />
+              <Dialog.Popup>Final nested</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    await user.click(trigger);
+
+    const nestedButton1 = screen.getByRole('button', { name: 'Open nested 1' });
+    await user.click(nestedButton1);
+
+    const nestedButton2 = screen.getByRole('button', { name: 'Open nested 2' });
+    await user.click(nestedButton2);
+
+    const finalDialog = screen.getByText('Final nested');
+
+    expect(finalDialog).not.to.equal(null);
+  });
+
+  it('dismisses non-nested dialogs one by one', async () => {
+    function App() {
+      const [openNested, setOpenNested] = React.useState(false);
+      const [openNested2, setOpenNested2] = React.useState(false);
+
+      return (
+        <>
+          <Dialog.Root>
+            <Dialog.Trigger>Trigger</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="level-1">
+                <button onClick={() => setOpenNested(true)}>Open nested 1</button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <Dialog.Root open={openNested} onOpenChange={setOpenNested}>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="level-2">
+                <button onClick={() => setOpenNested2(true)}>Open nested 2</button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <Dialog.Root open={openNested2} onOpenChange={setOpenNested2}>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="level-3">Final nested</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    await user.click(trigger);
+
+    const nestedButton1 = screen.getByRole('button', { name: 'Open nested 1' });
+    await user.click(nestedButton1);
+
+    const nestedButton2 = screen.getByRole('button', { name: 'Open nested 2' });
+    await user.click(nestedButton2);
+
+    const backdrops = Array.from(document.querySelectorAll('[data-base-ui-backdrop]'));
+    await user.click(backdrops[backdrops.length - 1]);
+
+    expect(screen.queryByTestId('level-3')).to.equal(null);
+
+    await user.click(backdrops[backdrops.length - 2]);
+
+    expect(screen.queryByTestId('level-2')).to.equal(null);
+
+    await user.click(backdrops[backdrops.length - 3]);
+
+    expect(screen.queryByTestId('level-1')).to.equal(null);
+  });
+
   describe.skipIf(isJSDOM)('nested popups', () => {
     it('should not dismiss the dialog when dismissing outside a nested modal menu', async () => {
       const { user } = await render(
