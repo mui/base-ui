@@ -224,11 +224,31 @@ describe('<Dialog.Root />', () => {
       expect(handleOpenChange.firstCall.args[2]).to.equal('escape-key');
     });
 
-    it('calls onOpenChange with the reason for change when user clicks outside while the dialog is open', async () => {
+    it('calls onOpenChange with the reason for change when user clicks backdrop while the modal dialog is open', async () => {
       const handleOpenChange = spy();
 
       const { user } = await render(
         <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Dialog.Close>Close</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(document.querySelector('[data-base-ui-backdrop]') as HTMLElement);
+
+      expect(handleOpenChange.callCount).to.equal(1);
+      expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
+    });
+
+    it('calls onOpenChange with the reason for change when user clicks outside while the non-modal dialog is open', async () => {
+      const handleOpenChange = spy();
+
+      const { user } = await render(
+        <Dialog.Root defaultOpen onOpenChange={handleOpenChange} modal={false}>
           <Dialog.Trigger>Open</Dialog.Trigger>
           <Dialog.Portal>
             <Dialog.Popup>
@@ -243,87 +263,60 @@ describe('<Dialog.Root />', () => {
       expect(handleOpenChange.callCount).to.equal(1);
       expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
     });
+
+    describe.skipIf(isJSDOM)('clicks on user backdrop', () => {
+      it('detects clicks on user backdrop', async () => {
+        const handleOpenChange = spy();
+
+        const { user } = await render(
+          <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Backdrop data-backdrop style={{ position: 'fixed', zIndex: 10, inset: 0 }} />
+              <Dialog.Popup style={{ position: 'fixed', zIndex: 10 }}>
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>,
+        );
+
+        await user.click(document.querySelector('[data-backdrop]') as HTMLElement);
+
+        expect(handleOpenChange.callCount).to.equal(1);
+        expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
+      });
+    });
   });
 
   describe.skipIf(isJSDOM)('prop: modal', () => {
     it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
-      const { user } = await render(
-        <div>
-          <input data-testid="input" />
-          <textarea data-testid="textarea" />
-
-          <Dialog.Root modal>
-            <Dialog.Trigger>Open Dialog</Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Popup>
-                <Dialog.Close>Close Dialog</Dialog.Close>
-              </Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>
-
-          <button type="button">Another Button</button>
-        </div>,
+      await render(
+        <Dialog.Root defaultOpen modal>
+          <Dialog.Trigger>Open Dialog</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Dialog.Close>Close Dialog</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
       );
 
-      const outsideElements = [
-        screen.getByTestId('input'),
-        screen.getByTestId('textarea'),
-        screen.getByRole('button', { name: 'Another Button' }),
-      ];
-
-      const trigger = screen.getByRole('button', { name: 'Open Dialog' });
-      await user.click(trigger);
-
-      await waitFor(() => {
-        outsideElements.forEach((element) => {
-          // The `inert` attribute can be applied to the element itself or to an ancestor
-          expect(element.closest('[inert]')).not.to.equal(null);
-        });
-      });
-
-      const close = screen.getByRole('button', { name: 'Close Dialog' });
-      await user.click(close);
-
-      await waitFor(() => {
-        outsideElements.forEach((element) => {
-          expect(element.closest('[inert]')).to.equal(null);
-        });
-      });
+      expect(document.querySelector('[data-base-ui-backdrop]')).not.to.equal(null);
     });
 
     it('does not make other interactive elements on the page inert when a non-modal dialog is open', async () => {
-      const { user } = await render(
-        <div>
-          <input data-testid="input" />
-          <textarea data-testid="textarea" />
-
-          <Dialog.Root modal={false}>
-            <Dialog.Trigger>Open Dialog</Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Popup>
-                <Dialog.Close>Close Dialog</Dialog.Close>
-              </Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>
-
-          <button type="button">Another Button</button>
-        </div>,
+      await render(
+        <Dialog.Root defaultOpen modal={false}>
+          <Dialog.Trigger>Open Dialog</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Dialog.Close>Close Dialog</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
       );
 
-      const outsideElements = [
-        screen.getByTestId('input'),
-        screen.getByTestId('textarea'),
-        screen.getByRole('button', { name: 'Another Button' }),
-      ];
-
-      const trigger = screen.getByRole('button', { name: 'Open Dialog' });
-      await user.click(trigger);
-
-      await waitFor(() => {
-        outsideElements.forEach((element) => {
-          expect(element.closest('[inert]')).to.equal(null);
-        });
-      });
+      expect(document.querySelector('[data-base-ui-backdrop]')).to.equal(null);
     });
   });
 

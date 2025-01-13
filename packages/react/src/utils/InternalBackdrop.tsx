@@ -12,7 +12,7 @@ const InternalBackdrop = React.forwardRef(function InternalBackdrop(
   return (
     <div
       ref={ref}
-      data-base-ui-backdrop
+      data-base-ui-backdrop=""
       role="presentation"
       style={{
         position: 'fixed',
