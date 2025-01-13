@@ -21,7 +21,7 @@ export enum TooltipPopupDataAttributes {
    */
   side = 'data-side',
   /**
-   * Indicates the instant type of the tooltip popup.
+   * Present if animations should be instant.
    * @type {'delay' | 'dismiss' | 'focus'}
    */
   instant = 'data-instant',
