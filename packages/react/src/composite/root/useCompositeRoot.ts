@@ -52,10 +52,8 @@ export interface UseCompositeRootParameters {
    * @default false
    */
   stopEventPropagation?: boolean;
+  disabledIndices?: number[];
 }
-
-// Advanced options of Composite, to be implemented later if needed.
-const disabledIndices = undefined;
 
 /**
  * @ignore - internal hook.
@@ -73,6 +71,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     rootRef: externalRef,
     enableHomeAndEndKeys = false,
     stopEventPropagation = false,
+    disabledIndices,
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
@@ -238,7 +237,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             if (preventedKeys.includes(event.key)) {
               event.preventDefault();
             }
-
             onHighlightedIndexChange(nextIndex);
 
             // Wait for FocusManager `returnFocus` to execute.
@@ -261,6 +259,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       onHighlightedIndexChange,
       orientation,
       enableHomeAndEndKeys,
+      disabledIndices,
     ],
   );
 

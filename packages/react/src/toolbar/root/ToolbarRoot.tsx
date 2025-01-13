@@ -17,20 +17,30 @@ const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   props: ToolbarRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { loop = true, orientation = 'horizontal', className, render, ...otherProps } = props;
+  const {
+    disabled = false,
+    loop = true,
+    orientation = 'horizontal',
+    className,
+    render,
+    ...otherProps
+  } = props;
 
-  const { getRootProps } = useToolbarRoot({
+  const { getRootProps, disabledIndices, setItemMap } = useToolbarRoot({
+    disabled,
     orientation,
   });
 
   const toolbarRootContext = React.useMemo(
     () => ({
+      disabled,
       orientation,
+      setItemMap,
     }),
-    [orientation],
+    [disabled, orientation, setItemMap],
   );
 
-  const state = React.useMemo(() => ({ orientation }), [orientation]);
+  const state = React.useMemo(() => ({ disabled, orientation }), [disabled, orientation]);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
@@ -43,7 +53,12 @@ const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 
   return (
     <ToolbarRootContext.Provider value={toolbarRootContext}>
-      <CompositeRoot loop={loop} render={renderElement()} />
+      <CompositeRoot
+        disabledIndices={disabledIndices}
+        loop={loop}
+        onMapChange={setItemMap}
+        render={renderElement()}
+      />
     </ToolbarRootContext.Provider>
   );
 });
@@ -52,10 +67,12 @@ export type ToolbarOrientation = 'horizontal' | 'vertical';
 
 namespace ToolbarRoot {
   export type State = {
+    disabled: boolean;
     orientation: ToolbarOrientation;
   };
 
   export interface Props extends BaseUIComponentProps<'div', State> {
+    disabled?: boolean;
     /**
      * The component orientation (layout flow direction).
      * @default 'horizontal'
@@ -86,6 +103,10 @@ ToolbarRoot.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  disabled: PropTypes.bool,
   /**
    * If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.
    *
