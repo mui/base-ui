@@ -168,6 +168,23 @@ describe('<Tabs.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
+    it('should call onValueChange on pointerdown', async () => {
+      const handleChange = spy();
+      const handlePointerDown = spy();
+      const { getAllByRole, user } = await render(
+        <Tabs.Root value={0} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} onPointerDown={handlePointerDown} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      await user.pointer({ keys: '[MouseLeft>]', target: getAllByRole('tab')[1] });
+      expect(handleChange.callCount).to.equal(1);
+      expect(handlePointerDown.callCount).to.equal(1);
+    });
+
     it('should call onValueChange when clicking', async () => {
       const handleChange = spy();
       const { getAllByRole } = await render(
@@ -184,7 +201,7 @@ describe('<Tabs.Root />', () => {
       expect(handleChange.firstCall.args[0]).to.equal(1);
     });
 
-    it('should not call onValueChange on non-primary button clicks', async () => {
+    it('should not call onValueChange on non-main button clicks', async () => {
       const handleChange = spy();
       const { getAllByRole } = await render(
         <Tabs.Root value={0} onValueChange={handleChange}>
