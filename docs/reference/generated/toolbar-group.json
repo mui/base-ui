@@ -1,16 +1,11 @@
 {
-  "name": "ToolbarButton",
-  "description": "A button that can be used as-is or as a trigger for other components.\nRenders a `<button>` element.",
+  "name": "ToolbarGroup",
+  "description": "",
   "props": {
-    "focusableWhenDisabled": {
-      "type": "boolean",
-      "default": "true",
-      "description": "When `true` the item remains focuseable when disabled."
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "When `true` the item is disabled."
+      "description": "When `true` all toolbar items in the group are disabled."
     },
     "className": {
       "type": "string | (state) => string",

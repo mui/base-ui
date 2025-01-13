@@ -10,11 +10,17 @@ import selectClasses from '../../(public)/(content)/react/components/select/demo
 import menuClasses from '../../(public)/(content)/react/components/menu/demos/hero/css-modules/index.module.css';
 import '../../../demo-theme.css';
 
+const DISABLED = false;
+
 export default function App() {
   return (
     <Toolbar.Root className={s.Root}>
       <Select.Root defaultValue="sans">
-        <Toolbar.Button render={<Select.Trigger />} className={selectClasses.Select}>
+        <Toolbar.Button
+          disabled={DISABLED}
+          render={<Select.Trigger />}
+          className={selectClasses.Select}
+        >
           <Select.Value placeholder="Sans-serif" />
           <Select.Icon className={selectClasses.SelectIcon}>
             <ChevronUpDownIcon />
@@ -22,7 +28,10 @@ export default function App() {
         </Toolbar.Button>
         <Select.Portal>
           <Select.Positioner className={selectClasses.Positioner} sideOffset={8}>
-            <Select.Popup className={selectClasses.Popup}>
+            <Select.Popup
+              className={selectClasses.Popup}
+              style={{ backgroundColor: 'var(--color-gray-50)' }}
+            >
               <Select.Arrow className={selectClasses.Arrow}>
                 <ArrowSvg />
               </Select.Arrow>
@@ -65,52 +74,102 @@ export default function App() {
 
       <Toolbar.Separator className={s.Separator} />
 
-      <ToggleGroup defaultValue={[]} className={s.ToggleGroup}>
-        <Toggle aria-label="Bold" value="bold" className={s.Toggle}>
+      <Toolbar.Group
+        render={<ToggleGroup />}
+        defaultValue={[]}
+        className={s.ToggleGroup}
+      >
+        <Toolbar.Button
+          render={<Toggle />}
+          aria-label="Bold"
+          value="bold"
+          className={s.Toggle}
+          disabled={DISABLED}
+        >
           <BoldIcon className={s.Icon} />
-        </Toggle>
-        <Toggle aria-label="Italics" value="italics" className={s.Toggle}>
+        </Toolbar.Button>
+        <Toolbar.Button
+          render={<Toggle />}
+          aria-label="Italics"
+          value="italics"
+          className={s.Toggle}
+          disabled={DISABLED}
+        >
           <ItalicsIcon className={s.Icon} />
-        </Toggle>
-        <Toggle aria-label="Underline" value="underline" className={s.Toggle}>
+        </Toolbar.Button>
+        <Toolbar.Button
+          render={<Toggle />}
+          aria-label="Underline"
+          value="underline"
+          className={s.Toggle}
+          disabled={DISABLED}
+        >
           <UnderlineIcon className={s.Icon} />
-        </Toggle>
-      </ToggleGroup>
+        </Toolbar.Button>
+      </Toolbar.Group>
 
       <Toolbar.Separator className={s.Separator} />
 
-      <ToggleGroup defaultValue={['left']} className={s.ToggleGroup}>
-        <Toggle aria-label="Align left" value="left" className={s.Toggle}>
+      <Toolbar.Group
+        render={<ToggleGroup />}
+        defaultValue={['left']}
+        className={s.ToggleGroup}
+        disabled={DISABLED}
+      >
+        <Toolbar.Button
+          render={<Toggle />}
+          aria-label="Align left"
+          value="left"
+          className={s.Toggle}
+        >
           <AlignLeftIcon className={s.Icon} />
-        </Toggle>
-        <Toggle aria-label="Align center" value="center" className={s.Toggle}>
+        </Toolbar.Button>
+        <Toolbar.Button
+          render={<Toggle />}
+          aria-label="Align center"
+          value="center"
+          className={s.Toggle}
+        >
           <AlignCenterIcon className={s.Icon} />
-        </Toggle>
-        <Toggle aria-label="Align right" value="right" className={s.Toggle}>
+        </Toolbar.Button>
+        <Toolbar.Button
+          render={<Toggle />}
+          aria-label="Align right"
+          value="right"
+          className={s.Toggle}
+        >
           <AlignRightIcon className={s.Icon} />
-        </Toggle>
-      </ToggleGroup>
+        </Toolbar.Button>
+      </Toolbar.Group>
 
       <Toolbar.Separator className={s.Separator} />
 
       <Menu.Root>
-        <Toolbar.Button render={<Menu.Trigger />} className={s.More}>
+        <Toolbar.Button
+          disabled={DISABLED}
+          render={<Menu.Trigger />}
+          className={s.More}
+        >
           <MoreHorizontalIcon className={s.Icon} />
         </Toolbar.Button>
         <Menu.Portal>
           <Menu.Positioner className={menuClasses.Positioner} sideOffset={8}>
-            <Menu.Popup className={menuClasses.Popup}>
-              <Menu.Arrow className={menuClasses.Arrow}>
+            <Menu.Popup
+              className={menuClasses.Popup}
+              style={{ backgroundColor: 'var(--color-gray-50)' }}
+            >
+              <Menu.Arrow
+                className={menuClasses.Arrow}
+                style={{ color: 'var(--color-gray-50)' }}
+              >
                 <ArrowSvg />
               </Menu.Arrow>
-              <Menu.Item className={menuClasses.Item}>Add to Library</Menu.Item>
-              <Menu.Item className={menuClasses.Item}>Add to Playlist</Menu.Item>
+              <Menu.Item className={menuClasses.Item}>Zoom in</Menu.Item>
+              <Menu.Item className={menuClasses.Item}>Zoom out</Menu.Item>
+              <Menu.Item className={menuClasses.Item}>Reset zoom</Menu.Item>
               <Menu.Separator className={menuClasses.Separator} />
-              <Menu.Item className={menuClasses.Item}>Play Next</Menu.Item>
-              <Menu.Item className={menuClasses.Item}>Play Last</Menu.Item>
-              <Menu.Separator className={menuClasses.Separator} />
-              <Menu.Item className={menuClasses.Item}>Favorite</Menu.Item>
-              <Menu.Item className={menuClasses.Item}>Share</Menu.Item>
+              <Menu.Item className={menuClasses.Item}>Minimize</Menu.Item>
+              <Menu.Item className={menuClasses.Item}>Maximize</Menu.Item>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
@@ -221,7 +280,7 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
     <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
       <path
         d="M9.66437 2.60207L4.80758 6.97318C4.07308 7.63423 3.11989 8 2.13172 8H0V10H20V8H18.5349C17.5468 8 16.5936 7.63423 15.8591 6.97318L11.0023 2.60207C10.622 2.2598 10.0447 2.25979 9.66437 2.60207Z"
-        className={selectClasses.ArrowFill}
+        fill={props.fill ?? 'currentColor'}
       />
       <path
         d="M8.99542 1.85876C9.75604 1.17425 10.9106 1.17422 11.6713 1.85878L16.5281 6.22989C17.0789 6.72568 17.7938 7.00001 18.5349 7.00001L15.89 7L11.0023 2.60207C10.622 2.2598 10.0447 2.2598 9.66436 2.60207L4.77734 7L2.13171 7.00001C2.87284 7.00001 3.58774 6.72568 4.13861 6.22989L8.99542 1.85876Z"
@@ -260,14 +319,6 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
-      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
 function MoreHorizontalIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
@@ -275,6 +326,7 @@ function MoreHorizontalIcon(props: React.ComponentProps<'svg'>) {
       width="24"
       height="24"
       viewBox="0 0 24 24"
+      {...props}
     >
       <circle cx="12" cy="12" r="1" />
       <circle cx="19" cy="12" r="1" />
