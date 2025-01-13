@@ -133,6 +133,7 @@ export default function ExampleMenu() {
                                   },
                                 }
                               : {})}
+                            render={(props) => <Menu.Item {...props} />}
                           >
                             {i + 1}
                           </Composite.Item>
