@@ -117,6 +117,5 @@ describe('<Radio.Indicator />', () => {
     await waitFor(() => {
       expect(animationFinished).to.equal(true);
     });
-
   });
 });

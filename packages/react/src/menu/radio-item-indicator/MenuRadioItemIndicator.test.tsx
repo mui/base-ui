@@ -137,6 +137,5 @@ describe('<Menu.RadioItemIndicator />', () => {
     await waitFor(() => {
       expect(animationFinished).to.equal(true);
     });
-
   });
 });

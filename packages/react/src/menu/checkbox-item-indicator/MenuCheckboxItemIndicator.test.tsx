@@ -127,6 +127,5 @@ describe('<Menu.CheckboxItemIndicator />', () => {
     await waitFor(() => {
       expect(animationFinished).to.equal(true);
     });
-
   });
 });
