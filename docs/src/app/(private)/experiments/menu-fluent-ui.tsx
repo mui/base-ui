@@ -127,9 +127,10 @@ export default function ExampleMenu() {
                             key={i}
                             {...(i === 0
                               ? {
-                                  onKeyDown: (e) => {
-                                    if (e.key === 'ArrowLeft')
+                                  onKeyDown: (event) => {
+                                    if (event.key === 'ArrowLeft') {
                                       setComplexMenuOpen(false);
+                                    }
                                   },
                                 }
                               : {})}
