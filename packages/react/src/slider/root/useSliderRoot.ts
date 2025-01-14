@@ -286,7 +286,7 @@ export function useSliderRoot<Value>(
        * the center of the thumb scaled down to fit the range [0, 1]
        */
       offset: number = 0,
-    ): FingerState<Value> | null => {
+    ): FingerState | null => {
       if (fingerPosition == null) {
         return null;
       }
@@ -445,8 +445,8 @@ export interface FingerPosition {
   y: number;
 }
 
-interface FingerState<Value> {
-  value: SliderValue<Value>;
+interface FingerState {
+  value: number | number[];
   valueRescaled: number;
   percentageValues: number[];
   thumbIndex: number;
@@ -561,7 +561,7 @@ export namespace useSliderRoot {
       fingerPosition: FingerPosition | null,
       shouldCaptureThumbIndex?: boolean,
       offset?: number,
-    ) => FingerState<Value> | null;
+    ) => FingerState | null;
     /**
      * Callback to invoke change handlers after internal value state is updated.
      */

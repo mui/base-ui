@@ -7,6 +7,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import {
   focusThumb,
+  SliderValue,
   validateMinimumDistance,
   type FingerPosition,
   type useSliderRoot,
@@ -107,7 +108,12 @@ export function useSliderControl<Value extends number | readonly number[]>(
         setDragging(true);
       }
 
-      setValue(finger.value, finger.percentageValues, finger.thumbIndex, nativeEvent);
+      setValue(
+        finger.value as SliderValue<Value>,
+        finger.percentageValues,
+        finger.thumbIndex,
+        nativeEvent,
+      );
     }
   });
 
@@ -129,7 +135,10 @@ export function useSliderControl<Value extends number | readonly number[]>(
 
     commitValidation(lastChangedValueRef.current ?? finger.value);
 
-    onValueCommitted(lastChangedValueRef.current ?? finger.value, nativeEvent);
+    onValueCommitted(
+      lastChangedValueRef.current ?? (finger.value as SliderValue<Value>),
+      nativeEvent,
+    );
 
     touchIdRef.current = null;
 
@@ -159,7 +168,12 @@ export function useSliderControl<Value extends number | readonly number[]>(
 
       focusThumb(finger.thumbIndex, controlRef, setActive);
 
-      setValue(finger.value, finger.percentageValues, finger.thumbIndex, nativeEvent);
+      setValue(
+        finger.value as SliderValue<Value>,
+        finger.percentageValues,
+        finger.thumbIndex,
+        nativeEvent,
+      );
     }
 
     moveCountRef.current = 0;
@@ -238,7 +252,12 @@ export function useSliderControl<Value extends number | readonly number[]>(
             if (thumbRefs.current.includes(event.target as HTMLElement)) {
               offsetRef.current = percentageValues[finger.thumbIndex] / 100 - finger.valueRescaled;
             } else {
-              setValue(finger.value, finger.percentageValues, finger.thumbIndex, event.nativeEvent);
+              setValue(
+                finger.value as SliderValue<Value>,
+                finger.percentageValues,
+                finger.thumbIndex,
+                event.nativeEvent,
+              );
             }
           }
 
