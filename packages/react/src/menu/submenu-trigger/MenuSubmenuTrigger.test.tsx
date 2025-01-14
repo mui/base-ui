@@ -59,9 +59,9 @@ describe('<Menu.SubmenuTrigger />', () => {
 
       submenuItems.forEach((item) => {
         if (item === submenuItem1) {
-          expect(item).to.have.attribute('tabindex', '0');
+          expect(item).to.have.attribute('data-highlighted');
         } else {
-          expect(item).to.have.attribute('tabindex', '-1');
+          expect(item).not.to.have.attribute('data-highlighted');
         }
       });
 
@@ -70,7 +70,7 @@ describe('<Menu.SubmenuTrigger />', () => {
         .getAllByRole('menuitem')
         .filter((item) => item.textContent !== '2.1' && item.textContent !== '2.2');
       parentMenuItems.forEach((item) => {
-        expect(item).not.to.have.attribute('tabindex', '0');
+        expect(item).not.to.have.attribute('data-highlighted');
       });
     });
   });
