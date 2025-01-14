@@ -576,16 +576,16 @@ describe('<Popover.Root />', () => {
 
       function Test() {
         const style = `
-        @keyframes test-anim {
-          to {
-            opacity: 0;
+          @keyframes test-anim {
+            to {
+              opacity: 0;
+            }
           }
-        }
 
-        .animation-test-indicator[data-ending-style] {
-          animation: test-anim 1ms;
-        }
-      `;
+          .animation-test-indicator[data-ending-style] {
+            animation: test-anim 1ms;
+          }
+        `;
 
         const [open, setOpen] = React.useState(true);
 
@@ -663,16 +663,16 @@ describe('<Popover.Root />', () => {
 
       function Test() {
         const style = `
-            @keyframes test-anim {
-              from {
-                opacity: 0;
-              }
+          @keyframes test-anim {
+            from {
+              opacity: 0;
             }
-    
-            .animation-test-indicator[data-starting-style] {
-              animation: test-anim 1ms;
-            }
-          `;
+          }
+  
+          .animation-test-indicator[data-starting-style] {
+            animation: test-anim 1ms;
+          }
+        `;
 
         const [open, setOpen] = React.useState(false);
 
