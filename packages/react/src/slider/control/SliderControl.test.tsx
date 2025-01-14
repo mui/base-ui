@@ -4,7 +4,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 import { SliderRootContext } from '../root/SliderRootContext';
 import { NOOP } from '../../utils/noop';
 
-const testRootContext: SliderRootContext = {
+const testRootContext: SliderRootContext<any> = {
   active: -1,
   handleInputChange: NOOP,
   dragging: false,

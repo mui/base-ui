@@ -8,7 +8,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { sliderStyleHookMapping } from './styleHooks';
-import { useSliderRoot } from './useSliderRoot';
+import { useSliderRoot, type SliderValue } from './useSliderRoot';
 import { SliderRootContext } from './SliderRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
@@ -59,9 +59,8 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     min,
     minStepsBetweenValues,
     name: nameProp ?? '',
-    onValueChange: (onValueChangeProp as useSliderRoot.Parameters['onValueChange']) ?? NOOP,
-    onValueCommitted:
-      (onValueCommittedProp as useSliderRoot.Parameters['onValueCommitted']) ?? NOOP,
+    onValueChange: onValueChangeProp ?? NOOP,
+    onValueCommitted: onValueCommittedProp ?? NOOP,
     orientation,
     rootRef: forwardedRef,
     step,
@@ -95,7 +94,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     ],
   );
 
-  const contextValue = React.useMemo(
+  const contextValue: SliderRootContext<Value> = React.useMemo(
     () => ({
       ...slider,
       format,
@@ -168,7 +167,7 @@ export namespace SliderRoot {
   export interface Props<Value extends number | readonly number[] = number | readonly number[]>
     extends Partial<
         Pick<
-          useSliderRoot.Parameters,
+          useSliderRoot.Parameters<Value>,
           | 'disabled'
           | 'max'
           | 'min'
@@ -185,7 +184,7 @@ export namespace SliderRoot {
      *
      * To render a controlled slider, use the `value` prop instead.
      */
-    defaultValue?: Value;
+    defaultValue?: SliderValue<Value>;
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -203,7 +202,7 @@ export namespace SliderRoot {
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
      */
-    value?: Value;
+    value?: SliderValue<Value>;
     /**
      * Callback function that is fired when the slider's value changed.
      *
@@ -212,7 +211,7 @@ export namespace SliderRoot {
      * You can pull out the new value by accessing `event.target.value` (any).
      * @param {number} activeThumbIndex Index of the currently moved thumb.
      */
-    onValueChange?: (value: Value, event: Event, activeThumbIndex: number) => void;
+    onValueChange?: (value: SliderValue<Value>, event: Event, activeThumbIndex: number) => void;
     /**
      * Callback function that is fired when the `pointerup` is triggered.
      *
@@ -220,7 +219,7 @@ export namespace SliderRoot {
      * @param {Event} event The corresponding event that initiated the change.
      * **Warning**: This is a generic event not a change event.
      */
-    onValueCommitted?: (value: Value, event: Event) => void;
+    onValueCommitted?: (value: SliderValue<Value>, event: Event) => void;
   }
 }
 export { SliderRoot };

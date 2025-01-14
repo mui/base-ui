@@ -24,8 +24,8 @@ function getRangeStyles(orientation: useSliderRoot.Orientation, offset: number, 
 
 /**
  */
-export function useSliderIndicator(
-  parameters: useSliderIndicator.Parameters,
+export function useSliderIndicator<Value>(
+  parameters: useSliderIndicator.Parameters<Value>,
 ): useSliderIndicator.ReturnValue {
   const { orientation, percentageValues } = parameters;
 
@@ -70,8 +70,11 @@ export function useSliderIndicator(
 }
 
 export namespace useSliderIndicator {
-  export interface Parameters
-    extends Pick<useSliderRoot.ReturnValue, 'disabled' | 'orientation' | 'percentageValues'> {}
+  export interface Parameters<Value>
+    extends Pick<
+      useSliderRoot.ReturnValue<Value>,
+      'disabled' | 'orientation' | 'percentageValues'
+    > {}
 
   export interface ReturnValue {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;

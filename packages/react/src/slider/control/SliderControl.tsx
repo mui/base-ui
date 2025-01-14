@@ -14,10 +14,9 @@ import { useSliderControl } from './useSliderControl';
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderControl = React.forwardRef(function SliderControl(
-  props: SliderControl.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
+const SliderControl = React.forwardRef(function SliderControl<
+  Value extends number | readonly number[],
+>(props: SliderControl.Props, forwardedRef: React.ForwardedRef<HTMLDivElement>) {
   const { render: renderProp, className, ...otherProps } = props;
 
   const {
@@ -35,7 +34,7 @@ const SliderControl = React.forwardRef(function SliderControl(
     state,
     step,
     thumbRefs,
-  } = useSliderRootContext();
+  } = useSliderRootContext<Value>();
 
   const { getRootProps } = useSliderControl({
     disabled,

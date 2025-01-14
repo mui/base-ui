@@ -42,8 +42,8 @@ function trackFinger(
   };
 }
 
-export function useSliderControl(
-  parameters: useSliderControl.Parameters,
+export function useSliderControl<Value extends number | readonly number[]>(
+  parameters: useSliderControl.Parameters<Value>,
 ): useSliderControl.ReturnValue {
   const {
     disabled,
@@ -272,9 +272,9 @@ export function useSliderControl(
 }
 
 export namespace useSliderControl {
-  export interface Parameters
+  export interface Parameters<Value>
     extends Pick<
-      useSliderRoot.ReturnValue,
+      useSliderRoot.ReturnValue<Value>,
       | 'disabled'
       | 'dragging'
       | 'getFingerState'

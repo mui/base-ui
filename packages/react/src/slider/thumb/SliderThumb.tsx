@@ -32,8 +32,8 @@ function defaultRender(
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderThumb = React.forwardRef(function SliderThumb(
-  props: SliderThumb.Props,
+const SliderThumb = React.forwardRef(function SliderThumb<Value extends number | readonly number[]>(
+  props: SliderThumb.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -153,9 +153,9 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 export namespace SliderThumb {
   export interface State extends SliderRoot.State {}
 
-  export interface Props
-    extends Partial<Omit<useSliderThumb.Parameters, 'rootRef'>>,
-      Omit<BaseUIComponentProps<'div', State>, 'render' | 'tabIndex'> {
+  export interface Props<Value>
+    extends Partial<Omit<useSliderThumb.Parameters<Value>, 'rootRef'>>,
+      Omit<BaseUIComponentProps<'div', State>, 'render' | 'tabIndex' | 'aria-labelledby'> {
     onPointerLeave?: React.PointerEventHandler;
     onPointerOver?: React.PointerEventHandler;
     onBlur?: React.FocusEventHandler;

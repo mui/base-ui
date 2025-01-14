@@ -57,7 +57,7 @@ function findClosest(values: readonly number[], currentValue: number) {
 export function focusThumb(
   thumbIndex: number,
   sliderRef: React.RefObject<HTMLElement | null>,
-  setActive?: useSliderRoot.ReturnValue['setActive'],
+  setActive?: React.Dispatch<React.SetStateAction<number>>,
 ) {
   if (!sliderRef.current) {
     return;
@@ -105,7 +105,9 @@ export function validateMinimumDistance(
 
 /**
  */
-export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRoot.ReturnValue {
+export function useSliderRoot<Value>(
+  parameters: useSliderRoot.Parameters<Value>,
+): useSliderRoot.ReturnValue<Value> {
   const {
     'aria-labelledby': ariaLabelledby,
     defaultValue,
@@ -135,9 +137,9 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   // The internal value is potentially unsorted, e.g. to support frozen arrays
   // https://github.com/mui/material-ui/pull/28472
-  const [valueUnwrapped, setValueUnwrapped] = useControlled({
+  const [valueUnwrapped, setValueUnwrapped] = useControlled<SliderValue<Value>>({
     controlled: valueProp,
-    default: defaultValue ?? min,
+    default: defaultValue ?? (min as SliderValue<Value>),
     name: 'Slider',
   });
 
@@ -145,7 +147,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   const controlRef: React.RefObject<HTMLElement | null> = React.useRef(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
 
-  const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
+  const lastChangedValueRef = React.useRef<SliderValue<Value> | null>(null);
 
   const [thumbMap, setThumbMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
@@ -205,7 +207,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const setValue = useEventCallback(
     (
-      newValue: number | number[],
+      newValue: SliderValue<Value>,
       newPercentageValues: readonly number[],
       thumbIndex: number,
       event: Event,
@@ -237,7 +239,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const handleInputChange = useEventCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
-      const newValue = getSliderValue(valueInput, index, min, max, range, values);
+      const newValue = getSliderValue<Value>(valueInput, index, min, max, range, values);
 
       if (range) {
         focusThumb(index, sliderRef);
@@ -255,7 +257,10 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
             index,
             event.nativeEvent,
           );
-        } else {
+        } else if (
+          // appease TS
+          typeof newValue === 'number'
+        ) {
           setValue(newValue, [valueToPercent(newValue, min, max)], index, event.nativeEvent);
         }
         setDirty(newValue !== validityData.initialValue);
@@ -281,7 +286,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
        * the center of the thumb scaled down to fit the range [0, 1]
        */
       offset: number = 0,
-    ): FingerState | null => {
+    ): FingerState<Value> | null => {
       if (fingerPosition == null) {
         return null;
       }
@@ -362,7 +367,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     setActive(-1);
   }
 
-  const getRootProps: useSliderRoot.ReturnValue['getRootProps'] = React.useCallback(
+  const getRootProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(getValidationProps(externalProps), {
         'aria-labelledby': ariaLabelledby,
@@ -440,17 +445,19 @@ export interface FingerPosition {
   y: number;
 }
 
-interface FingerState {
-  value: number | number[];
+interface FingerState<Value> {
+  value: SliderValue<Value>;
   valueRescaled: number;
   percentageValues: number[];
   thumbIndex: number;
 }
 
+export type SliderValue<Value> = Value extends number ? number : readonly number[];
+
 export namespace useSliderRoot {
   export type Orientation = 'horizontal' | 'vertical';
 
-  export interface Parameters {
+  export interface Parameters<Value> {
     /**
      * The id of the slider element.
      */
@@ -462,7 +469,7 @@ export namespace useSliderRoot {
     /**
      * The default value. Use when the component is not controlled.
      */
-    defaultValue?: number | readonly number[];
+    defaultValue?: SliderValue<Value>;
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -497,7 +504,7 @@ export namespace useSliderRoot {
      * You can pull out the new value by accessing `event.target.value` (any).
      * @param {number} activeThumbIndex Index of the currently moved thumb.
      */
-    onValueChange: (value: number | number[], event: Event, activeThumbIndex: number) => void;
+    onValueChange: (value: SliderValue<Value>, event: Event, activeThumbIndex: number) => void;
     /**
      * Callback function that is fired when the `pointerup` is triggered.
      *
@@ -505,7 +512,7 @@ export namespace useSliderRoot {
      * @param {Event} event The corresponding event that initiated the change.
      * **Warning**: This is a generic event not a change event.
      */
-    onValueCommitted: (value: number | readonly number[], event: Event) => void;
+    onValueCommitted: (value: SliderValue<Value>, event: Event) => void;
     /**
      * The component orientation.
      * @default 'horizontal'
@@ -531,10 +538,10 @@ export namespace useSliderRoot {
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
      */
-    value?: number | readonly number[];
+    value?: SliderValue<Value>;
   }
 
-  export interface ReturnValue {
+  export interface ReturnValue<Value> {
     getRootProps: (
       externalProps?: React.ComponentPropsWithRef<'div'>,
     ) => React.ComponentPropsWithRef<'div'>;
@@ -554,12 +561,12 @@ export namespace useSliderRoot {
       fingerPosition: FingerPosition | null,
       shouldCaptureThumbIndex?: boolean,
       offset?: number,
-    ) => FingerState | null;
+    ) => FingerState<Value> | null;
     /**
      * Callback to invoke change handlers after internal value state is updated.
      */
     setValue: (
-      newValue: number | number[],
+      newValue: SliderValue<Value>,
       newPercentageValues: readonly number[],
       activeThumb: number,
       event: Event,
@@ -570,7 +577,7 @@ export namespace useSliderRoot {
      * @default 10
      */
     largeStep: number;
-    lastChangedValueRef: React.RefObject<number | readonly number[] | null>;
+    lastChangedValueRef: React.RefObject<SliderValue<Value> | null>;
     /**
      * The maximum allowed value of the slider.
      */
@@ -584,7 +591,7 @@ export namespace useSliderRoot {
      */
     minStepsBetweenValues: number;
     name: string;
-    onValueCommitted: (value: number | readonly number[], event: Event) => void;
+    onValueCommitted: (value: SliderValue<Value>, event: Event) => void;
     /**
      * The component orientation.
      * @default 'horizontal'

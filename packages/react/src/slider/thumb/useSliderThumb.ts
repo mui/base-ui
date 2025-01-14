@@ -54,7 +54,9 @@ function getDefaultAriaValueText(
   return format ? formatNumber(values[index], [], format) : undefined;
 }
 
-export function useSliderThumb(parameters: useSliderThumb.Parameters): useSliderThumb.ReturnValue {
+export function useSliderThumb<Value>(
+  parameters: useSliderThumb.Parameters<Value>,
+): useSliderThumb.ReturnValue {
   const {
     active: activeIndex,
     'aria-label': ariaLabel,
@@ -311,9 +313,9 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
 }
 
 export namespace useSliderThumb {
-  export interface Parameters
+  export interface Parameters<Value>
     extends Pick<
-      useSliderRoot.ReturnValue,
+      useSliderRoot.ReturnValue<Value>,
       | 'active'
       | 'aria-labelledby'
       | 'handleInputChange'

@@ -1,14 +1,15 @@
 import { clamp } from '../../utils/clamp';
 import { replaceArrayItemAtIndex } from './replaceArrayItemAtIndex';
+import type { SliderValue } from '../root/useSliderRoot';
 
-export function getSliderValue(
+export function getSliderValue<Value>(
   valueInput: number,
   index: number,
   min: number,
   max: number,
   range: boolean,
   values: readonly number[],
-) {
+): SliderValue<Value> {
   let newValue: number | number[] = valueInput;
 
   newValue = clamp(newValue, min, max);
@@ -22,5 +23,5 @@ export function getSliderValue(
     );
   }
 
-  return newValue;
+  return newValue as SliderValue<Value>;
 }

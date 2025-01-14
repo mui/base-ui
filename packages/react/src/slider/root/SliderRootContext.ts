@@ -3,19 +3,22 @@ import * as React from 'react';
 import type { SliderRoot } from './SliderRoot';
 import type { useSliderRoot } from './useSliderRoot';
 
-export interface SliderRootContext extends Omit<useSliderRoot.ReturnValue, 'getRootProps'> {
+export interface SliderRootContext<Value>
+  extends Omit<useSliderRoot.ReturnValue<Value>, 'getRootProps'> {
   format?: Intl.NumberFormatOptions;
   state: SliderRoot.State;
   tabIndex: number | null;
 }
 
-export const SliderRootContext = React.createContext<SliderRootContext | undefined>(undefined);
+export const SliderRootContext = React.createContext<SliderRootContext<unknown> | undefined>(
+  undefined,
+);
 
 if (process.env.NODE_ENV !== 'production') {
   SliderRootContext.displayName = 'SliderRootContext';
 }
 
-export function useSliderRootContext() {
+export function useSliderRootContext<Value>(): SliderRootContext<Value> {
   const context = React.useContext(SliderRootContext);
   if (context === undefined) {
     throw new Error(
