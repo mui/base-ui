@@ -331,4 +331,53 @@ describe('<Menu.CheckboxItem />', () => {
       expect(queryByRole('menu')).not.to.equal(null);
     });
   });
+
+  describe('focusableWhenDisabled', () => {
+    it('can be focused but not interacted with when disabled', async () => {
+      const handleCheckedChange = spy();
+      const handleClick = spy();
+      const handleKeyDown = spy();
+      const handleKeyUp = spy();
+
+      const { getByRole } = await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem
+                  disabled
+                  onCheckedChange={handleCheckedChange}
+                  onClick={handleClick}
+                  onKeyDown={handleKeyDown}
+                  onKeyUp={handleKeyUp}
+                >
+                  Item
+                </Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const item = getByRole('menuitemcheckbox');
+      await act(() => item.focus());
+      expect(item).toHaveFocus();
+
+      fireEvent.keyDown(item, { key: 'Enter' });
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleCheckedChange.callCount).to.equal(0);
+
+      fireEvent.keyUp(item, { key: 'Space' });
+      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleCheckedChange.callCount).to.equal(0);
+
+      fireEvent.click(item);
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleCheckedChange.callCount).to.equal(0);
+    });
+  });
 });
