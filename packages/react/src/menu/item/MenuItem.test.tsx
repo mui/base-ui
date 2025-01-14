@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { MemoryRouter, Route, Routes, Link, useLocation } from 'react-router-dom';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
@@ -235,6 +235,50 @@ describe('<Menu.Item />', () => {
       expect(screen.getByText(/page one/i)).not.to.equal(null);
 
       expect(locationDisplay).to.have.text('/');
+    });
+  });
+
+  describe('disabled state', () => {
+    it('can be focused but not interacted with when disabled', async () => {
+      const handleClick = spy();
+      const handleKeyDown = spy();
+      const handleKeyUp = spy();
+
+      const { getByRole } = await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item
+                  disabled
+                  onClick={handleClick}
+                  onKeyDown={handleKeyDown}
+                  onKeyUp={handleKeyUp}
+                >
+                  Item
+                </Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const item = getByRole('menuitem');
+      await act(() => item.focus());
+      expect(item).toHaveFocus();
+
+      fireEvent.keyDown(item, { key: 'Enter' });
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+
+      fireEvent.keyUp(item, { key: 'Space' });
+      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+
+      fireEvent.click(item);
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
     });
   });
 });

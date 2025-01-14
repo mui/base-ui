@@ -50,9 +50,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
         mergeReactProps<'div'>(externalProps, {
           'aria-disabled': disabled || undefined,
           tabIndex: highlighted ? 0 : -1,
-          style: {
-            pointerEvents: disabled ? 'none' : undefined,
-          },
           onFocus() {
             if (allowFocusSyncRef.current) {
               setActiveIndex(indexRef.current);
@@ -112,6 +109,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           },
           onClick(event) {
             if (
+              disabled ||
               (lastKeyRef.current === ' ' && typingRef.current) ||
               (pointerTypeRef.current !== 'touch' && !highlighted)
             ) {
@@ -130,6 +128,9 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
             pointerTypeRef.current = event.pointerType;
           },
           onMouseUp(event) {
+            if (disabled) {
+              return;
+            }
             const disallowSelectedMouseUp = !selectionRef.current.allowSelectedMouseUp && selected;
             const disallowUnselectedMouseUp =
               !selectionRef.current.allowUnselectedMouseUp && !selected;

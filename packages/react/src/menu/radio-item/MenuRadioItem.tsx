@@ -159,7 +159,14 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   props: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, value, label, disabled = false, closeOnClick = false, ...other } = props;
+  const {
+    id: idProp,
+    value,
+    label,
+    disabled: disabledProp = false,
+    closeOnClick = false,
+    ...other
+  } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
@@ -171,7 +178,13 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const highlighted = listItem.index === activeIndex;
   const { events: menuEvents } = useFloatingTree()!;
 
-  const { value: selectedValue, setValue: setSelectedValue } = useMenuRadioGroupContext();
+  const {
+    value: selectedValue,
+    setValue: setSelectedValue,
+    disabled: groupDisabled,
+  } = useMenuRadioGroupContext();
+
+  const disabled = groupDisabled || disabledProp;
 
   // This wrapper component is used as a performance optimization.
   // MenuRadioItem reads the context and re-renders the actual MenuRadioItem
@@ -197,6 +210,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
         {...other}
         id={id}
         ref={mergedRef}
+        disabled={disabled}
         highlighted={highlighted}
         menuEvents={menuEvents}
         propGetter={getItemProps}
