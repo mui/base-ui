@@ -14,6 +14,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -32,10 +33,26 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { id, open, popupRef, transitionStatus, alignItemToTrigger, mounted, modal } =
-    useSelectRootContext();
-
+  const {
+    id,
+    open,
+    popupRef,
+    transitionStatus,
+    alignItemToTrigger,
+    mounted,
+    modal,
+    onOpenChangeComplete,
+  } = useSelectRootContext();
   const positioner = useSelectPositionerContext();
+
+  useOpenChangeComplete({
+    open,
+    ref: popupRef,
+    change: 'open',
+    onComplete() {
+      onOpenChangeComplete?.(true);
+    },
+  });
 
   const { getPopupProps } = useSelectPopup();
 

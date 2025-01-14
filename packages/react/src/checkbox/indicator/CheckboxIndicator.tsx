@@ -45,9 +45,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     open: rendered,
     ref: indicatorRef,
     onComplete() {
-      if (!rendered) {
-        setMounted(false);
-      }
+      setMounted(false);
     },
   });
 

@@ -13,6 +13,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.State> = {
   ...baseMapping,
@@ -31,8 +32,18 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, transitionStatus, getRootPopupProps, popupRef } = usePreviewCardRootContext();
+  const { open, transitionStatus, getRootPopupProps, popupRef, onOpenChangeComplete } =
+    usePreviewCardRootContext();
   const { side, align } = usePreviewCardPositionerContext();
+
+  useOpenChangeComplete({
+    open,
+    ref: popupRef,
+    change: 'open',
+    onComplete() {
+      onOpenChangeComplete?.(true);
+    },
+  });
 
   const { getPopupProps } = usePreviewCardPopup({
     getProps: getRootPopupProps,

@@ -16,6 +16,7 @@ import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
   ...baseMapping,
@@ -53,9 +54,19 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     titleElementId,
     transitionStatus,
     modal,
+    onOpenChangeComplete,
   } = useAlertDialogRootContext();
 
   useAlertDialogPortalContext();
+
+  useOpenChangeComplete({
+    open,
+    ref: popupRef,
+    change: 'open',
+    onComplete() {
+      onOpenChangeComplete?.(true);
+    },
+  });
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 

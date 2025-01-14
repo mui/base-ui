@@ -94,14 +94,11 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     open,
     ref: popupRef,
     onComplete() {
-      onOpenChangeComplete?.(open);
-
-      if (!open) {
-        setMounted(false);
-        setOpenReason(null);
-        setHoverEnabled(true);
-        setStickIfOpen(true);
-      }
+      onOpenChangeComplete?.(false);
+      setMounted(false);
+      setOpenReason(null);
+      setHoverEnabled(true);
+      setStickIfOpen(true);
     },
   });
 
@@ -271,6 +268,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       transitionStatus,
       openReason,
       instantType,
+      onOpenChangeComplete,
     }),
     [
       activeIndex,
@@ -288,6 +286,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       setPositionerElement,
       openReason,
       instantType,
+      onOpenChangeComplete,
     ],
   );
 }
@@ -377,5 +376,6 @@ export namespace useMenuRoot {
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     openReason: OpenChangeReason | null;
     instantType: 'dismiss' | 'click' | undefined;
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
   }
 }

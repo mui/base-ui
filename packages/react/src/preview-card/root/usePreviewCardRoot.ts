@@ -64,11 +64,8 @@ export function usePreviewCardRoot(
     open,
     ref: popupRef,
     onComplete() {
-      onOpenChangeComplete?.(open);
-
-      if (!open) {
-        setMounted(false);
-      }
+      onOpenChangeComplete?.(false);
+      setMounted(false);
     },
   });
 
@@ -134,6 +131,7 @@ export function usePreviewCardRoot(
       floatingRootContext: context,
       instantType,
       transitionStatus,
+      onOpenChangeComplete,
     }),
     [
       mounted,
@@ -146,6 +144,7 @@ export function usePreviewCardRoot(
       context,
       instantType,
       transitionStatus,
+      onOpenChangeComplete,
     ],
   );
 }
@@ -197,5 +196,6 @@ export namespace usePreviewCardRoot {
     positionerElement: HTMLElement | null;
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLDivElement | null>;
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
   }
 }

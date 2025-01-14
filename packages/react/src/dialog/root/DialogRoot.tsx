@@ -37,7 +37,14 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
 
   const nested = Boolean(parentDialogRootContext);
 
-  const dialogContextValue = React.useMemo(() => ({ ...dialogRoot, nested }), [dialogRoot, nested]);
+  const dialogContextValue = React.useMemo(
+    () => ({
+      ...dialogRoot,
+      nested,
+      onOpenChangeComplete,
+    }),
+    [dialogRoot, nested, onOpenChangeComplete],
+  );
   const dialogRootContextValue = React.useMemo(() => ({ dismissible }), [dismissible]);
 
   return (

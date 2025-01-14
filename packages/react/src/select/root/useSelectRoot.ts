@@ -129,12 +129,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     open,
     ref: popupRef,
     onComplete() {
-      onOpenChangeComplete?.(open);
-
-      if (!open) {
-        setMounted(false);
-        setActiveIndex(null);
-      }
+      onOpenChangeComplete?.(false);
+      setMounted(false);
+      setActiveIndex(null);
     },
   });
 
@@ -291,6 +288,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       fieldControlValidation,
       modal,
       registerSelectedItem,
+      onOpenChangeComplete,
     }),
     [
       id,
@@ -319,6 +317,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       fieldControlValidation,
       modal,
       registerSelectedItem,
+      onOpenChangeComplete,
     ],
   );
 

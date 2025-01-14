@@ -775,7 +775,7 @@ describe('<Menu.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: test-anim 50ms;
+            animation: test-anim 1ms;
           }
         `;
 
@@ -879,17 +879,14 @@ describe('<Menu.Root />', () => {
 
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
-      let onOpenChangeCompleteValue: boolean | null = null;
-      function notifyOnOpenChangeComplete(open: boolean) {
-        onOpenChangeCompleteValue = open;
-      }
+      const onOpenChangeComplete = spy();
 
       function Test() {
         const [open, setOpen] = React.useState(true);
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <Menu.Root open={open} onOpenChangeComplete={notifyOnOpenChangeComplete}>
+            <Menu.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup data-testid="popup" />
@@ -909,16 +906,14 @@ describe('<Menu.Root />', () => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
 
-      expect(onOpenChangeCompleteValue).to.equal(false);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
     });
 
     it('is called on close when the exit animation finishes', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-      let onOpenChangeCompleteValue: boolean | null = null;
-      function notifyOnOpenChangeComplete(open: boolean) {
-        onOpenChangeCompleteValue = open;
-      }
+      const onOpenChangeComplete = spy();
 
       function Test() {
         const style = `
@@ -929,7 +924,7 @@ describe('<Menu.Root />', () => {
         }
 
         .animation-test-indicator[data-ending-style] {
-          animation: test-anim 50ms;
+          animation: test-anim 1ms;
         }
       `;
 
@@ -940,7 +935,7 @@ describe('<Menu.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
-            <Menu.Root open={open} onOpenChangeComplete={notifyOnOpenChangeComplete}>
+            <Menu.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup className="animation-test-indicator" data-testid="popup" />
@@ -955,6 +950,11 @@ describe('<Menu.Root />', () => {
 
       expect(screen.getByTestId('popup')).not.to.equal(null);
 
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
+
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
@@ -962,7 +962,92 @@ describe('<Menu.Root />', () => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
 
-      expect(onOpenChangeCompleteValue).to.equal(false);
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+    });
+
+    it('is called on open when there is no enter animation defined', async () => {
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Menu.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup" />
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.callCount).to.equal(2);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+    });
+
+    it('is called on open when the enter animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const style = `
+            @keyframes test-anim {
+              from {
+                opacity: 0;
+              }
+            }
+    
+            .animation-test-indicator[data-starting-style] {
+              animation: test-anim 1ms;
+            }
+          `;
+
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Menu.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="animation-test-indicator" data-testid="popup" />
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
+
+      expect(screen.queryByTestId('popup')).not.to.equal(null);
     });
   });
 });

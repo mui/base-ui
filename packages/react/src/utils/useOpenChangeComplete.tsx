@@ -1,28 +1,56 @@
+import * as React from 'react';
 import { useAnimationsFinished } from './useAnimationsFinished';
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useEventCallback } from './useEventCallback';
+import { useLatestRef } from './useLatestRef';
 
 /**
  * Calls the provided function when the CSS open animation or transition completes.
  */
 export function useOpenChangeComplete(parameters: useOpenChangeComplete.Parameters) {
-  const { open, ref, onComplete: onCompleteParam } = parameters;
+  const { open, change = 'close', ref, onComplete: onCompleteParam } = parameters;
 
+  const openRef = useLatestRef(open);
   const onComplete = useEventCallback(onCompleteParam);
-  const runOnceAnimationsFinish = useAnimationsFinished(ref, open);
+  const runOnceAnimationsFinish = useAnimationsFinished(ref, change === 'open');
+
+  const hasMountedRef = React.useRef(false);
 
   useEnhancedEffect(() => {
-    runOnceAnimationsFinish(onComplete);
-  }, [open, onComplete, runOnceAnimationsFinish]);
+    if (hasMountedRef.current) {
+      hasMountedRef.current = true;
+      if (!open) {
+        return;
+      }
+    }
+
+    if (open && change === 'open') {
+      runOnceAnimationsFinish(() => {
+        if (openRef.current) {
+          onComplete();
+        }
+      });
+    } else if (!open && change === 'close') {
+      runOnceAnimationsFinish(() => {
+        if (!openRef.current) {
+          onComplete();
+        }
+      });
+    }
+  }, [open, change, onComplete, runOnceAnimationsFinish, openRef]);
 }
 
 export namespace useOpenChangeComplete {
   export interface Parameters {
     /**
-     * Determines if the component is open.
-     * The logic runs when the component goes from open to closed.
+     * Whether the element is open.
      */
-    open: boolean;
+    open?: boolean;
+    /**
+     * Determines the change of the animation to wait for.
+     * @default 'close'
+     */
+    change?: 'open' | 'close';
     /**
      * Ref to the element being closed.
      */

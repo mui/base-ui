@@ -270,7 +270,7 @@ describe('<Select.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: test-anim 50ms;
+            animation: test-anim 1ms;
           }
         `;
 
@@ -433,20 +433,17 @@ describe('<Select.Root />', () => {
 
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
-      let onOpenChangeCompleteValue: boolean | null = null;
-      function notifyOnOpenChangeComplete(open: boolean) {
-        onOpenChangeCompleteValue = open;
-      }
+      const onOpenChangeComplete = spy();
 
       function Test() {
         const [open, setOpen] = React.useState(true);
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <Select.Root open={open} onOpenChangeComplete={notifyOnOpenChangeComplete}>
+            <Select.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
               <Select.Portal>
-                <Select.Positioner data-testid="positioner">
-                  <Select.Popup />
+                <Select.Positioner>
+                  <Select.Popup data-testid="popup" />
                 </Select.Positioner>
               </Select.Portal>
             </Select.Root>
@@ -460,32 +457,30 @@ describe('<Select.Root />', () => {
       await user.click(closeButton);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('positioner')).to.have.attribute('hidden', '');
+        expect(screen.queryByRole('listbox')).to.equal(null);
       });
 
-      expect(onOpenChangeCompleteValue).to.equal(false);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
     });
 
     it('is called on close when the exit animation finishes', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-      let onOpenChangeCompleteValue: boolean | null = null;
-      function notifyOnOpenChangeComplete(open: boolean) {
-        onOpenChangeCompleteValue = open;
-      }
+      const onOpenChangeComplete = spy();
 
       function Test() {
         const style = `
-            @keyframes test-anim {
-              to {
-                opacity: 0;
-              }
-            }
-    
-            .animation-test-indicator[data-ending-style] {
-              animation: test-anim 50ms;
-            }
-          `;
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 1ms;
+        }
+      `;
 
         const [open, setOpen] = React.useState(true);
 
@@ -494,10 +489,10 @@ describe('<Select.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
-            <Select.Root open={open} onOpenChangeComplete={notifyOnOpenChangeComplete}>
+            <Select.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
               <Select.Portal>
-                <Select.Positioner data-testid="positioner">
-                  <Select.Popup className="animation-test-indicator" />
+                <Select.Positioner>
+                  <Select.Popup className="animation-test-indicator" data-testid="popup" />
                 </Select.Positioner>
               </Select.Portal>
             </Select.Root>
@@ -507,16 +502,106 @@ describe('<Select.Root />', () => {
 
       const { user } = await render(<Test />);
 
-      expect(screen.getByTestId('positioner')).not.to.have.attribute('hidden');
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('positioner')).to.have.attribute('hidden', '');
+        expect(screen.queryByRole('listbox')).to.equal(null);
       });
 
-      expect(onOpenChangeCompleteValue).to.equal(false);
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+    });
+
+    it('is called on open when there is no enter animation defined', async () => {
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Select.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup data-testid="popup" />
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.callCount).to.equal(1);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+    });
+
+    it('is called on open when the enter animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const style = `
+            @keyframes test-anim {
+              from {
+                opacity: 0;
+              }
+            }
+    
+            .animation-test-indicator[data-starting-style] {
+              animation: test-anim 1ms;
+            }
+          `;
+
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Select.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup className="animation-test-indicator" data-testid="popup" />
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
+
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
     });
   });
 });

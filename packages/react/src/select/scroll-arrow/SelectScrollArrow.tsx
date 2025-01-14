@@ -42,9 +42,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     open: visible,
     ref: scrollArrowRef,
     onComplete() {
-      if (!visible) {
-        setMounted(false);
-      }
+      setMounted(false);
     },
   });
 

@@ -66,12 +66,10 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   useOpenChangeComplete({
     open,
     ref: popupRef,
+    change: 'close',
     onComplete() {
-      onOpenChangeComplete?.(open);
-
-      if (!open) {
-        setMounted(false);
-      }
+      onOpenChangeComplete?.(false);
+      setMounted(false);
     },
   });
 
@@ -155,6 +153,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       floatingRootContext: context,
       instantType,
       transitionStatus,
+      onOpenChangeComplete,
     }),
     [
       mounted,
@@ -167,6 +166,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       context,
       instantType,
       transitionStatus,
+      onOpenChangeComplete,
     ],
   );
 }
@@ -228,5 +228,6 @@ export namespace useTooltipRoot {
     setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLElement | null>;
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
   }
 }

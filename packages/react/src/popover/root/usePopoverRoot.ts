@@ -81,12 +81,9 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     open,
     ref: popupRef,
     onComplete() {
-      onOpenChangeComplete?.(open);
-
-      if (!open) {
-        setMounted(false);
-        setOpenReason(null);
-      }
+      onOpenChangeComplete?.(false);
+      setMounted(false);
+      setOpenReason(null);
     },
   });
 
@@ -177,6 +174,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       instantType,
       openMethod,
       openReason,
+      onOpenChangeComplete,
     }),
     [
       mounted,
@@ -194,6 +192,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       openMethod,
       triggerProps,
       openReason,
+      onOpenChangeComplete,
     ],
   );
 }
@@ -261,5 +260,6 @@ export namespace usePopoverRoot {
     popupRef: React.RefObject<HTMLElement | null>;
     openMethod: InteractionType | null;
     openReason: OpenChangeReason | null;
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
   }
 }
