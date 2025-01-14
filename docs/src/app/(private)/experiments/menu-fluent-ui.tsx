@@ -64,7 +64,7 @@ export default function ExampleMenu() {
               </Menu.Item>
               <Menu.Root>
                 <Menu.SubmenuTrigger
-                  className={styles.SplitButtonSubemnuTrigger}
+                  className={styles.SplitButtonSubmenuTrigger}
                   aria-label="Open submenu"
                 >
                   <ChevronRightIcon />

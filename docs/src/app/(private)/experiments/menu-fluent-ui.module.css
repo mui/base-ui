@@ -101,10 +101,9 @@
 
 .Item,
 .ItemWithSubmenu,
-.SubmenuTrigger,
 .SubmenuTriggerInsideItem,
 .SplitButtonItem,
-.SplitButtonSubemnuTrigger {
+.SplitButtonSubmenuTrigger {
   outline: 0;
   cursor: default;
   user-select: none;
@@ -145,7 +144,7 @@
   padding-left: 1rem;
 }
 
-.SplitButtonSubemnuTrigger {
+.SplitButtonSubmenuTrigger {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   display: inline-flex;
