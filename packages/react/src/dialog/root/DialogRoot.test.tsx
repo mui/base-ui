@@ -490,7 +490,7 @@ describe('<Dialog.Root />', () => {
       const [openNested2, setOpenNested2] = React.useState(false);
 
       return (
-        <>
+        <div>
           <Dialog.Root>
             <Dialog.Trigger>Trigger</Dialog.Trigger>
             <Dialog.Portal>
@@ -514,7 +514,7 @@ describe('<Dialog.Root />', () => {
               <Dialog.Popup>Final nested</Dialog.Popup>
             </Dialog.Portal>
           </Dialog.Root>
-        </>
+        </div>
       );
     }
 
@@ -540,7 +540,7 @@ describe('<Dialog.Root />', () => {
       const [openNested2, setOpenNested2] = React.useState(false);
 
       return (
-        <>
+        <div>
           <Dialog.Root>
             <Dialog.Trigger>Trigger</Dialog.Trigger>
             <Dialog.Portal>
@@ -561,7 +561,7 @@ describe('<Dialog.Root />', () => {
               <Dialog.Popup data-testid="level-3">Final nested</Dialog.Popup>
             </Dialog.Portal>
           </Dialog.Root>
-        </>
+        </div>
       );
     }
 
