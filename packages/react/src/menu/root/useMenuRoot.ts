@@ -289,7 +289,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   );
 }
 
-export type MenuOrientation = 'horizontal' | 'vertical';
+export type MenuOrientation = 'horizontal' | 'vertical' | 'both';
 
 export namespace useMenuRoot {
   export interface Parameters {
