@@ -56,7 +56,7 @@ export function useMenuPositioner(
     return () => {
       menuEvents.off('openchange', onMenuOpenChange);
     };
-  }, [menuEvents, nodeId, parentNodeId, setOpen]);
+  }, [menuEvents, nodeId, parentNodeId, setOpen, setHoverEnabled]);
 
   React.useEffect(() => {
     menuEvents.emit('openchange', { open, nodeId, parentNodeId });
