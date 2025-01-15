@@ -6,7 +6,6 @@ import {
   useClick,
   useDismiss,
   useFloatingRootContext,
-  useFloatingTree,
   useHover,
   useInteractions,
   useListNavigation,
