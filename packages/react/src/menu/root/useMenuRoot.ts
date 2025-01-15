@@ -44,6 +44,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     openOnHover,
     onTypingChange,
     modal,
+    cols,
   } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -192,6 +193,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     onNavigate: setActiveIndex,
+    cols,
   });
 
   const typeahead = useTypeahead(floatingRootContext, {
@@ -347,6 +349,7 @@ export namespace useMenuRoot {
      */
     onTypingChange: (typing: boolean) => void;
     modal: boolean;
+    cols?: number;
   }
 
   export interface ReturnValue {

@@ -42,7 +42,8 @@
   outline: 0;
 }
 
-.Popup {
+.Popup,
+.Grid {
   box-sizing: border-box;
   padding-block: 0.25rem;
   background-color: canvas;
@@ -118,10 +119,6 @@
   gap: 1rem;
   padding-right: 1rem;
 
-  &:hover {
-    background: oklch(12% 9.5% 264 / 5%);
-  }
-
   &[data-highlighted] {
     z-index: 0;
     position: relative;
@@ -168,9 +165,6 @@
   justify-content: center;
   width: 48px;
   height: 48px;
-  &:hover {
-    background: oklch(12% 9.5% 264 / 5%);
-  }
 
   &[data-highlighted] {
     z-index: 0;

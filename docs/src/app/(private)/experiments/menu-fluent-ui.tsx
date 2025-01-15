@@ -1,12 +1,9 @@
 'use client';
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
-import { Composite } from '@base-ui-components/react/composite';
 import styles from './menu-fluent-ui.module.css';
 
 export default function ExampleMenu() {
-  const [complexMenuOpen, setComplexMenuOpen] = React.useState(false);
-
   return (
     <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
       <div>
@@ -100,12 +97,7 @@ export default function ExampleMenu() {
               <Menu.Item className={styles.Item}>New</Menu.Item>
               <Menu.Item className={styles.Item}>Upload</Menu.Item>
               <Menu.Separator className={styles.Separator} />
-              <Menu.Root
-                open={complexMenuOpen}
-                onOpenChange={(open) => {
-                  setComplexMenuOpen(open);
-                }}
-              >
+              <Menu.Root cols={4} orientation="both">
                 <Menu.SubmenuTrigger className={styles.ItemWithSubmenu}>
                   Charm
                   <span className={styles.SubmenuTrigger}>
@@ -114,32 +106,12 @@ export default function ExampleMenu() {
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner className={styles.Positioner}>
-                    <Menu.Popup className={styles.Popup}>
-                      <Composite.Root
-                        cols={4}
-                        orientation="both"
-                        className={styles.Grid}
-                        stopEventPropagation
-                      >
-                        {[...Array(16).keys()].map((i) => (
-                          <Composite.Item
-                            className={styles.GridItem}
-                            key={i}
-                            {...(i === 0
-                              ? {
-                                  onKeyDown: (event) => {
-                                    if (event.key === 'ArrowLeft') {
-                                      setComplexMenuOpen(false);
-                                    }
-                                  },
-                                }
-                              : {})}
-                            render={(props) => <Menu.Item {...props} />}
-                          >
-                            {i + 1}
-                          </Composite.Item>
-                        ))}
-                      </Composite.Root>
+                    <Menu.Popup className={styles.Grid}>
+                      {[...Array(16).keys()].map((i) => (
+                        <Menu.Item className={styles.GridItem} key={i}>
+                          {i + 1}
+                        </Menu.Item>
+                      ))}
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
