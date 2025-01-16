@@ -1,14 +1,38 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { describeSkipIf, screen, waitFor } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { spy } from 'sinon';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<AlertDialog.Root />', () => {
   const { render } = createRenderer();
+
+  it('ARIA attributes', async () => {
+    const { queryByRole, getByText } = await render(
+      <AlertDialog.Root open>
+        <AlertDialog.Trigger />
+        <AlertDialog.Portal>
+          <AlertDialog.Backdrop />
+          <AlertDialog.Popup>
+            <AlertDialog.Title>title text</AlertDialog.Title>
+            <AlertDialog.Description>description text</AlertDialog.Description>
+          </AlertDialog.Popup>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>,
+    );
+
+    const popup = queryByRole('alertdialog');
+    expect(popup).not.to.equal(null);
+    expect(popup).to.have.attribute('aria-modal', 'true');
+
+    expect(getByText('title text').getAttribute('id')).to.equal(
+      popup?.getAttribute('aria-labelledby'),
+    );
+    expect(getByText('description text').getAttribute('id')).to.equal(
+      popup?.getAttribute('aria-describedby'),
+    );
+  });
 
   describe('prop: onOpenChange', () => {
     it('calls onOpenChange with the new open state', async () => {
@@ -17,9 +41,11 @@ describe('<AlertDialog.Root />', () => {
       const { user } = await render(
         <AlertDialog.Root onOpenChange={handleOpenChange}>
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-          <AlertDialog.Popup>
-            <AlertDialog.Close>Close</AlertDialog.Close>
-          </AlertDialog.Popup>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
 
@@ -44,9 +70,11 @@ describe('<AlertDialog.Root />', () => {
       const { user } = await render(
         <AlertDialog.Root onOpenChange={handleOpenChange}>
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-          <AlertDialog.Popup>
-            <AlertDialog.Close>Close</AlertDialog.Close>
-          </AlertDialog.Popup>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
 
@@ -69,9 +97,11 @@ describe('<AlertDialog.Root />', () => {
       const { user } = await render(
         <AlertDialog.Root defaultOpen onOpenChange={handleOpenChange}>
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-          <AlertDialog.Popup>
-            <AlertDialog.Close>Close</AlertDialog.Close>
-          </AlertDialog.Popup>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
 
@@ -82,7 +112,7 @@ describe('<AlertDialog.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('modality', () => {
+  describe.skipIf(isJSDOM)('modality', () => {
     it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
       const { user } = await render(
         <div>
@@ -91,9 +121,11 @@ describe('<AlertDialog.Root />', () => {
 
           <AlertDialog.Root>
             <AlertDialog.Trigger>Open Dialog</AlertDialog.Trigger>
-            <AlertDialog.Popup>
-              <AlertDialog.Close>Close Dialog</AlertDialog.Close>
-            </AlertDialog.Popup>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup>
+                <AlertDialog.Close>Close Dialog</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
           </AlertDialog.Root>
 
           <button type="button">Another Button</button>

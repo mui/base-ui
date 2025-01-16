@@ -35,8 +35,9 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
     () => ({
       ...fieldState,
       open,
+      disabled,
     }),
-    [fieldState, open],
+    [fieldState, open, disabled],
   );
 
   const { renderElement } = useComponentRenderer({

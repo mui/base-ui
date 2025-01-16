@@ -16,6 +16,7 @@ import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { DialogPopupCssVars } from './DialogPopupCssVars';
 import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { useDialogPortalContext } from '../portal/DialogPortalContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
   ...baseMapping,
@@ -35,7 +36,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, finalFocus, id, initialFocus, keepMounted = false, render, ...other } = props;
+  const { className, finalFocus, id, initialFocus, render, ...other } = props;
 
   const {
     descriptionElementId,
@@ -56,18 +57,18 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     transitionStatus,
   } = useDialogRootContext();
 
+  useDialogPortalContext();
+
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const { getRootProps, floatingContext, resolvedInitialFocus } = useDialogPopup({
+  const { getRootProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
-    floatingRootContext,
     getPopupProps,
     id,
     initialFocus,
     modal,
     mounted,
     setOpen,
-    open,
     openMethod,
     ref: mergedRef,
     setPopupElement,
@@ -94,15 +95,11 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     customStyleHookMapping,
   });
 
-  if (!keepMounted && !mounted) {
-    return null;
-  }
-
   return (
     <React.Fragment>
       {mounted && modal && <InternalBackdrop inert={!open} />}
       <FloatingFocusManager
-        context={floatingContext}
+        context={floatingRootContext}
         modal={open}
         disabled={!mounted}
         closeOnFocusOut={dismissible}
@@ -118,11 +115,6 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 
 namespace DialogPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to keep the HTML element in the DOM while the dialog is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
     /**
      * Determines the element to focus when the dialog is opened.
      * By default, the first focusable element is focused.
@@ -185,11 +177,6 @@ DialogPopup.propTypes /* remove-proptypes */ = {
     PropTypes.func,
     refType,
   ]),
-  /**
-   * Whether to keep the HTML element in the DOM while the dialog is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

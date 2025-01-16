@@ -143,7 +143,10 @@ export function DemoVariantSelector({
 
       {renderVariantSelector && (
         <Select.Root value={selectedLocalVariant.name} onValueChange={handleVariantChange}>
-          <Select.Trigger ssrFallback={translations.variants[selectedLocalVariant.name]} />
+          <Select.Trigger
+            ssrFallback={translations.variants[selectedLocalVariant.name]}
+            aria-label="Styling method"
+          />
           <Select.Popup>
             {Object.keys(variantsMap).map((variantName) => (
               <Select.Item key={variantName} value={variantName}>

@@ -26,69 +26,31 @@ export type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-
 export type Align = 'start' | 'center' | 'end';
 export type Boundary = 'clipping-ancestors' | Element | Element[] | Rect;
 
-interface UseAnchorPositioningParameters {
-  anchor?:
-    | Element
-    | VirtualElement
-    | (() => Element | VirtualElement | null)
-    | React.MutableRefObject<Element | null>
-    | null;
-  positionMethod?: 'absolute' | 'fixed';
-  side?: Side;
-  sideOffset?: number;
-  align?: Align;
-  alignOffset?: number;
-  fallbackAxisSideDirection?: 'start' | 'end' | 'none';
-  collisionBoundary?: Boundary;
-  collisionPadding?: Padding;
-  sticky?: boolean;
-  keepMounted?: boolean;
-  arrowPadding?: number;
-  floatingRootContext?: FloatingRootContext;
-  mounted: boolean;
-  trackAnchor?: boolean;
-  nodeId?: string;
-  allowAxisFlip?: boolean;
-}
-
-interface UseAnchorPositioningReturnValue {
-  positionerStyles: React.CSSProperties;
-  arrowStyles: React.CSSProperties;
-  arrowRef: React.MutableRefObject<Element | null>;
-  arrowUncentered: boolean;
-  renderedSide: Side;
-  renderedAlign: Align;
-  anchorHidden: boolean;
-  refs: ReturnType<typeof useFloating>['refs'];
-  positionerContext: FloatingContext;
-  isPositioned: boolean;
-}
-
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
  * @ignore - internal hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters,
-): UseAnchorPositioningReturnValue {
+  params: useAnchorPositioning.Parameters,
+): useAnchorPositioning.ReturnValue {
   const {
+    // Public parameters
     anchor,
-    floatingRootContext,
     positionMethod = 'absolute',
-    side: sideParam = 'top',
+    side: sideParam = 'bottom',
     sideOffset = 0,
     align = 'center',
     alignOffset = 0,
     collisionBoundary,
     collisionPadding = 5,
-    fallbackAxisSideDirection = 'none',
     sticky = false,
-    keepMounted = false,
     arrowPadding = 5,
+    keepMounted = false,
+    // Private parameters
+    floatingRootContext,
     mounted,
     trackAnchor = true,
-    allowAxisFlip = true,
     nodeId,
   } = params;
 
@@ -126,10 +88,7 @@ export function useAnchorPositioning(
     }),
   ];
 
-  const flipMiddleware = flip({
-    ...commonCollisionProps,
-    fallbackAxisSideDirection: allowAxisFlip ? fallbackAxisSideDirection : 'none',
-  });
+  const flipMiddleware = flip(commonCollisionProps);
   const shiftMiddleware = shift({
     ...commonCollisionProps,
     crossAxis: sticky,
@@ -215,9 +174,6 @@ export function useAnchorPositioning(
 
   const autoUpdateOptions = React.useMemo(
     () => ({
-      // Keep `ancestorResize` for window resizing. TODO: determine the best configuration, or
-      // if we need to allow options.
-      ancestorScroll: trackAnchor,
       elementResize: trackAnchor && typeof ResizeObserver !== 'undefined',
       layoutShift: trackAnchor && typeof IntersectionObserver !== 'undefined',
     }),
@@ -231,7 +187,7 @@ export function useAnchorPositioning(
     middlewareData,
     update,
     placement: renderedPlacement,
-    context: positionerContext,
+    context,
     isPositioned,
   } = useFloating({
     rootContext,
@@ -316,11 +272,11 @@ export function useAnchorPositioning(
       arrowStyles,
       arrowRef,
       arrowUncentered,
-      renderedSide: logicalRenderedSide,
-      renderedAlign,
+      side: logicalRenderedSide,
+      align: renderedAlign,
       anchorHidden,
       refs,
-      positionerContext,
+      context,
       isPositioned,
     }),
     [
@@ -332,7 +288,7 @@ export function useAnchorPositioning(
       renderedAlign,
       anchorHidden,
       refs,
-      positionerContext,
+      context,
       isPositioned,
     ],
   );
@@ -342,4 +298,103 @@ function isRef(
   param: Element | VirtualElement | React.RefObject<any> | null | undefined,
 ): param is React.RefObject<any> {
   return param != null && 'current' in param;
+}
+
+export namespace useAnchorPositioning {
+  export interface SharedParameters {
+    /**
+     * An element to position the popup against.
+     * By default, the popup will be positioned against the trigger.
+     */
+    anchor?:
+      | Element
+      | null
+      | VirtualElement
+      | React.RefObject<Element | null>
+      | (() => Element | VirtualElement | null);
+    /**
+     * Whether the popup is currently open.
+     */
+    open?: boolean;
+    /**
+     * Determines which CSS `position` property to use.
+     * @default 'absolute'
+     */
+    positionMethod?: 'absolute' | 'fixed';
+    /**
+     * Which side of the anchor element to align the popup against.
+     * May automatically change to avoid collisions.
+     * @default 'bottom'
+     */
+    side?: Side;
+    /**
+     * Distance between the anchor and the popup.
+     * @default 0
+     */
+    sideOffset?: number;
+    /**
+     * How to align the popup relative to the specified side.
+     * @default 'center'
+     */
+    align?: 'start' | 'end' | 'center';
+    /**
+     * Additional offset along the alignment axis of the element.
+     * @default 0
+     */
+    alignOffset?: number;
+    /**
+     * An element or a rectangle that delimits the area that the popup is confined to.
+     * @default 'clipping-ancestors'
+     */
+    collisionBoundary?: Boundary;
+    /**
+     * Additional space to maintain from the edge of the collision boundary.
+     * @default 5
+     */
+    collisionPadding?: Padding;
+    /**
+     * Whether to maintain the popup in the viewport after
+     * the anchor element was scrolled out of view.
+     * @default false
+     */
+    sticky?: boolean;
+    /**
+     * Minimum distance to maintain between the arrow and the edges of the popup.
+     *
+     * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
+     * @default 5
+     */
+    arrowPadding?: number;
+    /**
+     * Whether the popup tracks any layout shift of its positioning anchor.
+     * @default true
+     */
+    trackAnchor?: boolean;
+    /**
+     * Whether to keep the popup mounted in the DOM while it's hidden.
+     * @default false
+     */
+    keepMounted?: boolean;
+  }
+
+  export interface Parameters extends SharedParameters {
+    trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
+    floatingRootContext?: FloatingRootContext;
+    mounted: boolean;
+    trackAnchor: boolean;
+    nodeId?: string;
+  }
+
+  export interface ReturnValue {
+    positionerStyles: React.CSSProperties;
+    arrowStyles: React.CSSProperties;
+    arrowRef: React.RefObject<Element | null>;
+    arrowUncentered: boolean;
+    side: Side;
+    align: Align;
+    anchorHidden: boolean;
+    refs: ReturnType<typeof useFloating>['refs'];
+    context: FloatingContext;
+    isPositioned: boolean;
+  }
 }
