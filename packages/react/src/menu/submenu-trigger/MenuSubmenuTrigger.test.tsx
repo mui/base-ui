@@ -74,4 +74,16 @@ describe('<Menu.SubmenuTrigger />', () => {
       });
     });
   });
+
+  it('sets tabIndex to 0 on the submenu trigger after opening the submenu with a keydown event', async () => {
+    await render(<TestComponent direction="ltr" />);
+    const submenuTrigger = screen.getByText('2');
+
+    fireEvent.focus(submenuTrigger);
+    fireEvent.keyDown(submenuTrigger, { key: 'ArrowRight' });
+
+    await waitFor(() => {
+      expect(submenuTrigger).to.have.attribute('tabIndex', '0');
+    });
+  });
 });

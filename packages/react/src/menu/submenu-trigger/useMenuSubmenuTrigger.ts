@@ -7,8 +7,10 @@ import { GenericHTMLProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useDirection } from '../../direction-provider/DirectionContext';
 
+const { useState } = React;
+
 type MenuKeyboardEvent = {
-  key: 'ArrowRight' | 'ArrowLeft' | 'ArrowUp' | 'ArrowDown';
+  key: 'ArrowRight' | 'ArrowLeft' | 'ArrowUp' | 'ArrowDown' | 'Tab';
 } & React.KeyboardEvent;
 
 export function useMenuSubmenuTrigger(
@@ -41,26 +43,35 @@ export function useMenuSubmenuTrigger(
 
   const direction = useDirection();
 
+  const [isSubmenuOpen, setIsSubmenuOpen] = useState(false);
+
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps) => {
       const openKey = direction === 'rtl' ? 'ArrowLeft' : 'ArrowRight';
-
+      const handleOpenSubmenu = () => {
+        if (highlighted) {
+          setActiveIndex(null);
+          setIsSubmenuOpen(true);
+        }
+      };
       return mergeReactProps(externalProps, {
         ...getMenuItemProps({
+          // Once the submenu is opened, retain the tab index of the trigger element
+          tabIndex: highlighted || isSubmenuOpen ? 0 : -1,
           'aria-haspopup': 'menu' as const,
           onKeyDown: (event: MenuKeyboardEvent) => {
-            if (event.key === openKey && highlighted) {
-              // Clear parent menu's highlight state when entering submenu
-              // This prevents multiple highlighted items across menu levels
+            if (event.key === openKey) {
+              handleOpenSubmenu();
+            } else if (event.key === 'Tab') {
               setActiveIndex(null);
             }
           },
-          onClick: () => highlighted && setActiveIndex(null),
+          onClick: handleOpenSubmenu,
         }),
         ref: menuTriggerRef,
       });
     },
-    [getMenuItemProps, menuTriggerRef, highlighted, setActiveIndex, direction],
+    [getMenuItemProps, menuTriggerRef, highlighted, setActiveIndex, direction, isSubmenuOpen],
   );
 
   return React.useMemo(
