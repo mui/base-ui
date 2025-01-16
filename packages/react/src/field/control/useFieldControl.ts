@@ -34,7 +34,7 @@ export function useFieldControl(params: useFieldControl.Parameters) {
     if (inputRef.current?.value) {
       setFilled(true);
     }
-  }, [setFilled]);
+  }, [inputRef, setFilled]);
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
@@ -105,11 +105,13 @@ export function useFieldControl(params: useFieldControl.Parameters) {
       inputRef,
       labelId,
       value,
-      setValue,
       setDirty,
       validityData.initialValue,
+      setFilled,
       errors,
+      setValue,
       onClearErrors,
+      setFocused,
       setTouched,
       commitValidation,
     ],
