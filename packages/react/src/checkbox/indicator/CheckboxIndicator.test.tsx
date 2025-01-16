@@ -71,7 +71,6 @@ describe('<Checkbox.Indicator />', () => {
       );
       const indicator = container.querySelector('span');
       expect(indicator).not.to.equal(null);
-      expect(indicator).not.to.have.attribute('hidden');
     });
 
     it('should keep indicator mounted when checked', async () => {
@@ -82,7 +81,6 @@ describe('<Checkbox.Indicator />', () => {
       );
       const indicator = container.querySelector('span');
       expect(indicator).not.to.equal(null);
-      expect(indicator).not.to.have.attribute('hidden');
     });
 
     it('should keep indicator mounted when indeterminate', async () => {
@@ -93,37 +91,6 @@ describe('<Checkbox.Indicator />', () => {
       );
       const indicator = container.querySelector('span');
       expect(indicator).not.to.equal(null);
-      expect(indicator).not.to.have.attribute('hidden');
-    });
-  });
-
-  it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
-    if (isJSDOM) {
-      skip();
-    }
-
-    function Test() {
-      const [checked, setChecked] = React.useState(true);
-      return (
-        <div>
-          <button onClick={() => setChecked(false)}>Close</button>
-          <Checkbox.Root checked={checked}>
-            <Checkbox.Indicator data-testid="indicator" keepMounted />
-          </Checkbox.Root>
-        </div>
-      );
-    }
-
-    const { user } = await render(<Test />);
-
-    expect(screen.getByTestId('indicator')).not.to.have.attribute('hidden');
-
-    const closeButton = screen.getByText('Close');
-
-    await user.click(closeButton);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('indicator')).not.to.have.attribute('hidden');
     });
   });
 
@@ -172,8 +139,6 @@ describe('<Checkbox.Indicator />', () => {
     }
 
     const { user } = await render(<Test />);
-
-    expect(screen.getByTestId('indicator')).not.to.have.attribute('hidden');
 
     const closeButton = screen.getByText('Close');
     await user.click(closeButton);

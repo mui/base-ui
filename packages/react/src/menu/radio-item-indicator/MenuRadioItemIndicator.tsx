@@ -27,15 +27,14 @@ const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicator(
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
   const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(item.checked);
+  const { transitionStatus, setMounted } = useTransitionStatus(item.checked);
 
   const getItemProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         'aria-hidden': true,
-        hidden: !keepMounted && !mounted,
       }),
-    [keepMounted, mounted],
+    [],
   );
 
   useAfterExitAnimation({

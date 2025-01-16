@@ -25,7 +25,7 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
 
   const rendered = rootState.checked;
 
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
+  const { transitionStatus, setMounted } = useTransitionStatus(rendered);
 
   const state: RadioIndicator.State = React.useMemo(
     () => ({
@@ -43,10 +43,7 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
     ref: mergedRef,
     className,
     state,
-    extraProps: {
-      hidden: !keepMounted && !mounted,
-      ...otherProps,
-    },
+    extraProps: otherProps,
     customStyleHookMapping,
   });
 

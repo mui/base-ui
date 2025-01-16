@@ -6,11 +6,11 @@ export default function ExampleCheckbox() {
   return (
     <label className={styles.Label}>
       <Checkbox.Root defaultChecked className={styles.Checkbox}>
-        <Checkbox.Indicator className={styles.Indicator}>
+        <Checkbox.Indicator keepMounted className={styles.Indicator}>
           <CheckIcon className={styles.Icon} />
         </Checkbox.Indicator>
       </Checkbox.Root>
-      Enable notifications
+      Enable notifications aa
     </label>
   );
 }

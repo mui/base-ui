@@ -28,44 +28,6 @@ describe('<Menu.CheckboxItemIndicator />', () => {
     },
   }));
 
-  it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
-    if (isJSDOM) {
-      skip();
-    }
-
-    function Test() {
-      const [checked, setChecked] = React.useState(true);
-      return (
-        <div>
-          <button onClick={() => setChecked(false)}>Close</button>
-          <Menu.Root open modal={false}>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.CheckboxItem checked={checked}>
-                    <Menu.CheckboxItemIndicator data-testid="indicator" keepMounted />
-                  </Menu.CheckboxItem>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-        </div>
-      );
-    }
-
-    const { user } = await render(<Test />);
-
-    expect(screen.getByTestId('indicator')).not.to.have.attribute('hidden');
-
-    const closeButton = screen.getByText('Close');
-
-    await user.click(closeButton);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('indicator')).not.to.have.attribute('hidden');
-    });
-  });
-
   it('should remove the indicator when the animation finishes', async ({ skip }) => {
     if (isJSDOM) {
       skip();

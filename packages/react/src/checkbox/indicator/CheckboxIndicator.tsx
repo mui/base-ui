@@ -28,7 +28,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
   const rendered = rootState.checked || rootState.indeterminate;
 
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
+  const { transitionStatus, setMounted } = useTransitionStatus(rendered);
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
   const mergedRef = useForkRef(forwardedRef, indicatorRef);
@@ -65,10 +65,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     state,
     className,
     customStyleHookMapping,
-    extraProps: {
-      hidden: !keepMounted && !mounted,
-      ...otherProps,
-    },
+    extraProps: otherProps,
   });
 
   const shouldRender = keepMounted || rendered;

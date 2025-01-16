@@ -19,45 +19,6 @@ describe('<Radio.Indicator />', () => {
     },
   }));
 
-  it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
-    if (isJSDOM) {
-      skip();
-    }
-
-    function Test() {
-      const [value, setValue] = React.useState('a');
-      return (
-        <div>
-          <button onClick={() => setValue('b')}>Close</button>
-          <RadioGroup value={value}>
-            <Radio.Root value="a">
-              <Radio.Indicator
-                className="animation-test-indicator"
-                keepMounted
-                data-testid="indicator-a"
-              />
-            </Radio.Root>
-            <Radio.Root value="a">
-              <Radio.Indicator className="animation-test-indicator" keepMounted />
-            </Radio.Root>
-          </RadioGroup>
-        </div>
-      );
-    }
-
-    const { user } = await render(<Test />);
-
-    expect(screen.getByTestId('indicator-a')).not.to.have.attribute('hidden');
-
-    const closeButton = screen.getByText('Close');
-
-    await user.click(closeButton);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('indicator-a')).not.to.have.attribute('hidden');
-    });
-  });
-
   it('should remove the indicator when the animation finishes', async ({ skip }) => {
     if (isJSDOM) {
       skip();
@@ -108,8 +69,6 @@ describe('<Radio.Indicator />', () => {
     }
 
     const { user } = await render(<Test />);
-
-    expect(screen.getByTestId('indicator-a')).not.to.have.attribute('hidden');
 
     const closeButton = screen.getByText('Close');
     await user.click(closeButton);
