@@ -40,7 +40,10 @@ const FieldControl = React.forwardRef(function FieldControl(
   const name = fieldName ?? nameProp;
 
   const state: FieldControl.State = React.useMemo(
-    () => ({ ...fieldState, disabled }),
+    () => ({
+      ...fieldState,
+      disabled,
+    }),
     [fieldState, disabled],
   );
 

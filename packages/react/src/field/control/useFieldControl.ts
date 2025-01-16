@@ -13,7 +13,8 @@ import { useEventCallback } from '../../utils/useEventCallback';
 export function useFieldControl(params: useFieldControl.Parameters) {
   const { id: idProp, name, value: valueProp, defaultValue, onValueChange, disabled } = params;
 
-  const { setControlId, labelId, setTouched, setDirty, validityData } = useFieldRootContext();
+  const { setControlId, labelId, setTouched, setDirty, validityData, setFocused, setFilled } =
+    useFieldRootContext();
 
   const { errors, onClearErrors } = useFormContext();
 
@@ -28,6 +29,12 @@ export function useFieldControl(params: useFieldControl.Parameters) {
       setControlId(undefined);
     };
   }, [id, setControlId]);
+
+  useEnhancedEffect(() => {
+    if (inputRef.current?.value) {
+      setFilled(true);
+    }
+  }, [setFilled]);
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
@@ -64,15 +71,22 @@ export function useFieldControl(params: useFieldControl.Parameters) {
           if (value != null) {
             setValue(event.currentTarget.value, event.nativeEvent);
           }
+
           setDirty(event.currentTarget.value !== validityData.initialValue);
+          setFilled(event.currentTarget.value !== '');
+
           if (name && {}.hasOwnProperty.call(errors, name)) {
             const nextErrors = { ...errors };
             delete nextErrors[name];
             onClearErrors(nextErrors);
           }
         },
+        onFocus() {
+          setFocused(true);
+        },
         onBlur(event) {
           setTouched(true);
+          setFocused(false);
           commitValidation(event.currentTarget.value);
         },
         onKeyDown(event) {

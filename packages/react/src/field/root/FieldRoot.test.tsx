@@ -717,5 +717,79 @@ describe('<Field.Root />', () => {
         expect(trigger).to.have.attribute('data-dirty', '');
       });
     });
+
+    describe('filled', async () => {
+      it('should apply [data-filled] style hook to all components when filled', async () => {
+        await render(
+          <Field.Root data-testid="root">
+            <Field.Control data-testid="control" />
+            <Field.Label data-testid="label" />
+            <Field.Description data-testid="description" />
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+        const label = screen.getByTestId('label');
+        const description = screen.getByTestId('description');
+
+        expect(root).not.to.have.attribute('data-filled');
+        expect(control).not.to.have.attribute('data-filled');
+        expect(label).not.to.have.attribute('data-filled');
+        expect(description).not.to.have.attribute('data-filled');
+
+        fireEvent.change(control, { target: { value: 'value' } });
+
+        expect(root).to.have.attribute('data-filled', '');
+        expect(control).to.have.attribute('data-filled', '');
+        expect(label).to.have.attribute('data-filled', '');
+        expect(description).to.have.attribute('data-filled', '');
+
+        fireEvent.change(control, { target: { value: '' } });
+
+        expect(root).not.to.have.attribute('data-filled');
+        expect(control).not.to.have.attribute('data-filled');
+        expect(label).not.to.have.attribute('data-filled');
+        expect(description).not.to.have.attribute('data-filled');
+      });
+    });
+
+    describe('focused', () => {
+      it('should apply [data-focused] style hook to all components when focused', async () => {
+        await render(
+          <Field.Root data-testid="root">
+            <Field.Control data-testid="control" />
+            <Field.Label data-testid="label" />
+            <Field.Description data-testid="description" />
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+        const label = screen.getByTestId('label');
+        const description = screen.getByTestId('description');
+
+        expect(root).not.to.have.attribute('data-focused');
+        expect(control).not.to.have.attribute('data-focused');
+        expect(label).not.to.have.attribute('data-focused');
+        expect(description).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(control);
+
+        expect(root).to.have.attribute('data-focused', '');
+        expect(control).to.have.attribute('data-focused', '');
+        expect(label).to.have.attribute('data-focused', '');
+        expect(description).to.have.attribute('data-focused', '');
+
+        fireEvent.blur(control);
+
+        expect(root).not.to.have.attribute('data-focused');
+        expect(control).not.to.have.attribute('data-focused');
+        expect(label).not.to.have.attribute('data-focused');
+        expect(description).not.to.have.attribute('data-focused');
+      });
+    });
   });
 });
