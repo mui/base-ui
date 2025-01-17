@@ -10,7 +10,9 @@ describe('<Dialog.Description />', () => {
     render: (node) => {
       return render(
         <Dialog.Root open modal={false}>
-          <Dialog.Popup>{node}</Dialog.Popup>
+          <Dialog.Portal>
+            <Dialog.Popup>{node}</Dialog.Popup>
+          </Dialog.Portal>
         </Dialog.Root>,
       );
     },

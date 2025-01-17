@@ -2,34 +2,8 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
-import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base-ui-components/react/menu';
-import { describeConformance, createRenderer } from '../../../test';
-import { MenuRootContext } from '../root/MenuRootContext';
-
-const testRootContext: MenuRootContext = {
-  floatingRootContext: {} as FloatingRootContext,
-  getPopupProps: (p) => ({ ...p }),
-  getTriggerProps: (p) => ({ ...p }),
-  getItemProps: (p) => ({ ...p }),
-  parentContext: undefined,
-  nested: false,
-  setTriggerElement: () => {},
-  setPositionerElement: () => {},
-  activeIndex: null,
-  disabled: false,
-  itemDomElements: { current: [] },
-  itemLabels: { current: [] },
-  open: true,
-  setOpen: () => {},
-  popupRef: { current: null },
-  mounted: true,
-  transitionStatus: undefined,
-  typingRef: { current: false },
-  modal: false,
-  positionerRef: { current: null },
-  allowMouseUpTriggerRef: { current: false },
-};
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Menu.CheckboxItem />', () => {
   const { render, clock } = createRenderer({
@@ -42,20 +16,14 @@ describe('<Menu.CheckboxItem />', () => {
 
   describeConformance(<Menu.CheckboxItem />, () => ({
     render: (node) => {
-      return render(
-        <FloatingTree>
-          <MenuRootContext.Provider value={testRootContext}>{node}</MenuRootContext.Provider>
-        </FloatingTree>,
-      );
+      return render(<Menu.Root open>{node}</Menu.Root>);
     },
     refInstanceof: window.HTMLDivElement,
   }));
 
-  it('perf: does not rerender menu items unnecessarily', async function test(t = {}) {
-    if (/jsdom/.test(window.navigator.userAgent)) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+  it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
+    if (isJSDOM) {
+      skip();
     }
 
     const renderItem1Spy = spy();
@@ -74,22 +42,24 @@ describe('<Menu.CheckboxItem />', () => {
 
     const { getAllByRole } = await render(
       <Menu.Root open>
-        <Menu.Positioner>
-          <Menu.Popup>
-            <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem1Spy} />} id="item-1">
-              1
-            </Menu.CheckboxItem>
-            <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem2Spy} />} id="item-2">
-              2
-            </Menu.CheckboxItem>
-            <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem3Spy} />} id="item-3">
-              3
-            </Menu.CheckboxItem>
-            <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem4Spy} />} id="item-4">
-              4
-            </Menu.CheckboxItem>
-          </Menu.Popup>
-        </Menu.Positioner>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem1Spy} />} id="item-1">
+                1
+              </Menu.CheckboxItem>
+              <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem2Spy} />} id="item-2">
+                2
+              </Menu.CheckboxItem>
+              <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem3Spy} />} id="item-3">
+                3
+              </Menu.CheckboxItem>
+              <Menu.CheckboxItem render={<LoggingRoot renderSpy={renderItem4Spy} />} id="item-4">
+                4
+              </Menu.CheckboxItem>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
       </Menu.Root>,
     );
 
@@ -140,11 +110,13 @@ describe('<Menu.CheckboxItem />', () => {
         const { getByRole, user } = await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.CheckboxItem checked={checked}>Item</Menu.CheckboxItem>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.CheckboxItem checked={checked}>Item</Menu.CheckboxItem>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -161,11 +133,13 @@ describe('<Menu.CheckboxItem />', () => {
       const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -188,11 +162,13 @@ describe('<Menu.CheckboxItem />', () => {
       const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -214,21 +190,21 @@ describe('<Menu.CheckboxItem />', () => {
       expect(item).to.have.attribute('data-unchecked', '');
     });
 
-    it(`toggles the checked state when Enter is pressed`, async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it(`toggles the checked state when Enter is pressed`, async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -253,11 +229,13 @@ describe('<Menu.CheckboxItem />', () => {
       const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem onCheckedChange={onCheckedChange}>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem onCheckedChange={onCheckedChange}>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -280,11 +258,13 @@ describe('<Menu.CheckboxItem />', () => {
       const { getByRole, user } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner keepMounted>
-            <Menu.Popup>
-              <Menu.CheckboxItem>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal keepMounted>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -309,11 +289,13 @@ describe('<Menu.CheckboxItem />', () => {
       const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem closeOnClick>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem closeOnClick>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -330,11 +312,13 @@ describe('<Menu.CheckboxItem />', () => {
       const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem>Item</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>Item</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -345,6 +329,55 @@ describe('<Menu.CheckboxItem />', () => {
       await user.click(item);
 
       expect(queryByRole('menu')).not.to.equal(null);
+    });
+  });
+
+  describe('focusableWhenDisabled', () => {
+    it('can be focused but not interacted with when disabled', async () => {
+      const handleCheckedChange = spy();
+      const handleClick = spy();
+      const handleKeyDown = spy();
+      const handleKeyUp = spy();
+
+      const { getByRole } = await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem
+                  disabled
+                  onCheckedChange={handleCheckedChange}
+                  onClick={handleClick}
+                  onKeyDown={handleKeyDown}
+                  onKeyUp={handleKeyUp}
+                >
+                  Item
+                </Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const item = getByRole('menuitemcheckbox');
+      await act(() => item.focus());
+      expect(item).toHaveFocus();
+
+      fireEvent.keyDown(item, { key: 'Enter' });
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleCheckedChange.callCount).to.equal(0);
+
+      fireEvent.keyUp(item, { key: 'Space' });
+      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleCheckedChange.callCount).to.equal(0);
+
+      fireEvent.click(item);
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleCheckedChange.callCount).to.equal(0);
     });
   });
 });

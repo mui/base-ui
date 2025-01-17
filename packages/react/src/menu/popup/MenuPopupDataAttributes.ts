@@ -20,4 +20,9 @@ export enum MenuPopupDataAttributes {
    * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
   side = 'data-side',
+  /**
+   * Present if animations should be instant.
+   * @type {'click' | 'dismiss'}
+   */
+  instant = 'data-instant',
 }

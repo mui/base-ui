@@ -14,7 +14,7 @@ type TransformedExports = Record<
 
 export async function createPackageManifest() {
   const packageData = await fse.readFile(path.resolve(PROJECT_ROOT, './package.json'), 'utf8');
-  const { imports, exports, nyc, scripts, devDependencies, workspaces, ...otherPackageData } =
+  const { imports, exports, scripts, devDependencies, workspaces, ...otherPackageData } =
     JSON.parse(packageData);
 
   const newPackageData = {

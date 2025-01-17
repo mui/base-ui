@@ -5,7 +5,7 @@ import { FloatingTree } from '@floating-ui/react';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot } from './useMenuRoot';
-import { PortalContext } from '../../portal/PortalContext';
+import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 /**
  * Groups all parts of the menu.
@@ -74,18 +74,12 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     // set up a FloatingTree to provide the context to nested menus
     return (
       <FloatingTree>
-        <MenuRootContext.Provider value={context}>
-          <PortalContext.Provider value={context.mounted}>{children}</PortalContext.Provider>
-        </MenuRootContext.Provider>
+        <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>
       </FloatingTree>
     );
   }
 
-  return (
-    <MenuRootContext.Provider value={context}>
-      <PortalContext.Provider value={context.mounted}>{children}</PortalContext.Provider>
-    </MenuRootContext.Provider>
-  );
+  return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
 };
 
 namespace MenuRoot {
@@ -112,7 +106,7 @@ namespace MenuRoot {
     /**
      * Event handler called when the menu is opened or closed.
      */
-    onOpenChange?: (open: boolean, event?: Event) => void;
+    onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
      * Whether the menu is currently open.
      */

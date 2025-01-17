@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 
 describe('<Menu.CheckboxItemIndicator />', () => {
   beforeEach(() => {
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   const { render } = createRenderer();
@@ -16,21 +16,21 @@ describe('<Menu.CheckboxItemIndicator />', () => {
     render(node) {
       return render(
         <Menu.Root open>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.CheckboxItem>{node}</Menu.CheckboxItem>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>{node}</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
     },
   }));
 
-  it('should remove the indicator when there is no exit animation defined', async function test(t = {}) {
-    if (/jsdom/.test(window.navigator.userAgent)) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+  it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
+    if (isJSDOM) {
+      skip();
     }
 
     function Test() {
@@ -39,13 +39,15 @@ describe('<Menu.CheckboxItemIndicator />', () => {
         <div>
           <button onClick={() => setChecked(false)}>Close</button>
           <Menu.Root open modal={false}>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.CheckboxItem checked={checked}>
-                  <Menu.CheckboxItemIndicator data-testid="indicator" keepMounted />
-                </Menu.CheckboxItem>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.CheckboxItem checked={checked}>
+                    <Menu.CheckboxItemIndicator data-testid="indicator" keepMounted />
+                  </Menu.CheckboxItem>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
         </div>
       );
@@ -64,14 +66,12 @@ describe('<Menu.CheckboxItemIndicator />', () => {
     });
   });
 
-  it('should remove the indicator when the animation finishes', async function test(t = {}) {
-    if (/jsdom/.test(window.navigator.userAgent)) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+  it('should remove the indicator when the animation finishes', async ({ skip }) => {
+    if (isJSDOM) {
+      skip();
     }
 
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
     let animationFinished = false;
     const notifyAnimationFinished = () => {
@@ -98,18 +98,20 @@ describe('<Menu.CheckboxItemIndicator />', () => {
           <style dangerouslySetInnerHTML={{ __html: style }} />
           <button onClick={() => setChecked(false)}>Close</button>
           <Menu.Root open modal={false}>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.CheckboxItem checked={checked}>
-                  <Menu.CheckboxItemIndicator
-                    className="animation-test-indicator"
-                    data-testid="indicator"
-                    keepMounted
-                    onAnimationEnd={notifyAnimationFinished}
-                  />
-                </Menu.CheckboxItem>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.CheckboxItem checked={checked}>
+                    <Menu.CheckboxItemIndicator
+                      className="animation-test-indicator"
+                      data-testid="indicator"
+                      keepMounted
+                      onAnimationEnd={notifyAnimationFinished}
+                    />
+                  </Menu.CheckboxItem>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
         </div>
       );

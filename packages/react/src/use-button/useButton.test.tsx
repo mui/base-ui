@@ -1,16 +1,68 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, fireEvent } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
-import { useButton } from '.';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+import { act, fireEvent } from '@mui/internal-test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
+import { useButton } from './useButton';
 
 describe('useButton', () => {
   const { render, renderToString } = createRenderer();
 
-  describe('tabIndex', () => {
+  describe('param: focusableWhenDisabled', () => {
+    it('allows disabled buttons to be focused', async () => {
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { disabled, ...otherProps } = props;
+        const { getButtonProps } = useButton({ disabled, focusableWhenDisabled: true });
+
+        return <button {...getButtonProps(otherProps)} />;
+      }
+      const { getByRole } = await render(<TestButton disabled />);
+      const button = getByRole('button');
+      await act(() => button.focus());
+      expect(button).toHaveFocus();
+    });
+
+    it('prevents interactions with the button', async () => {
+      const handleClick = spy();
+      const handleKeyDown = spy();
+      const handleKeyUp = spy();
+
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { disabled, ...otherProps } = props;
+        const { getButtonProps } = useButton({ disabled, focusableWhenDisabled: true });
+
+        return <span {...getButtonProps(otherProps)} />;
+      }
+
+      const { getByRole } = await render(
+        <TestButton
+          disabled
+          onClick={handleClick}
+          onKeyDown={handleKeyDown}
+          onKeyUp={handleKeyUp}
+        />,
+      );
+      const button = getByRole('button');
+
+      await act(() => button.focus());
+      expect(button).toHaveFocus();
+
+      fireEvent.keyDown(button, { key: 'Enter' });
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+
+      fireEvent.keyUp(button, { key: 'Space' });
+      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+
+      fireEvent.click(button);
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+    });
+  });
+
+  describe('param: tabIndex', () => {
     it('does not return tabIndex in getButtonProps when host component is BUTTON', async () => {
       function TestButton() {
         const { getButtonProps } = useButton();
@@ -107,7 +159,7 @@ describe('useButton', () => {
 
       const button = getByRole('button');
 
-      act(() => button.focus());
+      await act(() => button.focus());
       expect(button).toHaveFocus();
 
       expect(handleKeyDown.callCount).to.equal(0);
@@ -117,7 +169,7 @@ describe('useButton', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('server-side rendering', () => {
+  describe.skipIf(isJSDOM)('server-side rendering', () => {
     it('should server-side render', async () => {
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { disabled, type, ...otherProps } = props;
