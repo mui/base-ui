@@ -1131,14 +1131,15 @@ describe('<Field.Root />', () => {
         );
 
         const group = screen.getByTestId('group');
+        const radio = screen.getByText('One');
 
         expect(group).not.to.have.attribute('data-focused');
 
-        fireEvent.focus(group);
+        fireEvent.focus(radio);
 
         expect(group).to.have.attribute('data-focused', '');
 
-        fireEvent.blur(group);
+        fireEvent.blur(radio);
 
         expect(group).not.to.have.attribute('data-focused');
       });
