@@ -4,8 +4,9 @@ import { isFirefox, isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
-let originalHtmlStyles = {};
-let originalBodyStyles = {};
+let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
+let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
+let originalHtmlScrollBehavior = '';
 let preventScrollCount = 0;
 let restore: () => void = () => {};
 
@@ -52,6 +53,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
       overflowY: html.style.overflowY,
       overflowX: html.style.overflowX,
     };
+    originalHtmlScrollBehavior = html.style.scrollBehavior;
 
     originalBodyStyles = {
       position: body.style.position,
@@ -100,6 +102,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
     body.scrollTop = scrollTop;
     body.scrollLeft = scrollLeft;
     html.setAttribute('data-base-ui-scroll-locked', '');
+    html.style.scrollBehavior = 'unset';
   }
 
   function cleanup() {
@@ -108,6 +111,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
     html.scrollTop = scrollTop;
     html.scrollLeft = scrollLeft;
     html.removeAttribute('data-base-ui-scroll-locked');
+    html.style.scrollBehavior = originalHtmlScrollBehavior;
   }
 
   function handleResize() {
