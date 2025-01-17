@@ -11,7 +11,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
   const { checkedValue, setCheckedValue, onValueChange, touched, setTouched } =
     useRadioGroupContext();
 
-  const { setDirty, validityData, setTouched: setFieldTouched } = useFieldRootContext();
+  const { setDirty, validityData, setTouched: setFieldTouched, setFilled } = useFieldRootContext();
 
   const checked = checkedValue === value;
 
@@ -79,6 +79,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
           setFieldTouched(true);
           setDirty(value !== validityData.initialValue);
           setCheckedValue(value);
+          setFilled(true);
           onValueChange?.(value, event.nativeEvent);
         },
       }),
@@ -92,6 +93,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
       setDirty,
       validityData.initialValue,
       setCheckedValue,
+      setFilled,
       onValueChange,
     ],
   );
