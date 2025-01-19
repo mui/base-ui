@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Tabs } from '@base-ui-components/react/tabs';
 
-export default function ExampleScrollArea() {
+export default function ExampleTabs() {
   return (
     <Tabs.Root className="rounded-md border border-gray-200" defaultValue="overview">
       <Tabs.List className="relative z-0 flex gap-1 px-1 shadow-[inset_0_-1px] shadow-gray-200">
