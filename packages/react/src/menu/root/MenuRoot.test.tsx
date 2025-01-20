@@ -885,7 +885,7 @@ describe('<Menu.Root />', () => {
         },
       };
 
-      const { user } = await render(
+      await render(
         <Menu.Root action={actionRef}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
