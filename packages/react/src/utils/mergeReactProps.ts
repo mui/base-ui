@@ -49,9 +49,12 @@ function merge<T extends React.ElementType>(
 
           const baseUIEvent = event as BaseUIEvent<typeof event>;
 
-          baseUIEvent.preventBaseUIHandler = () => {
-            isPrevented = true;
-          };
+          // The event is a real React event, not e.g. a `motion` event
+          if (baseUIEvent.nativeEvent) {
+            baseUIEvent.preventBaseUIHandler = () => {
+              isPrevented = true;
+            };
+          }
 
           const result = theirHandler(baseUIEvent);
 
