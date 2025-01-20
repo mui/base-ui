@@ -15,9 +15,9 @@ describe('mergeReactProps', () => {
     };
     const mergedProps = mergeReactProps<'button'>(theirProps, ourProps);
 
-    mergedProps.onClick?.({} as any);
-    mergedProps.onKeyDown?.({} as any);
-    mergedProps.onPaste?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: {} } as any);
+    mergedProps.onKeyDown?.({ nativeEvent: {} } as any);
+    mergedProps.onPaste?.({ nativeEvent: {} } as any);
 
     expect(theirProps.onClick.calledBefore(ourProps.onClick)).to.equal(true);
     expect(theirProps.onClick.callCount).to.equal(1);
@@ -47,7 +47,7 @@ describe('mergeReactProps', () => {
       },
     );
 
-    mergedProps.onClick?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: {} } as any);
     expect(log).to.deep.equal(['1', '2', '3']);
   });
 
@@ -106,7 +106,7 @@ describe('mergeReactProps', () => {
       },
     );
 
-    mergedProps.onClick?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: {} } as any);
 
     expect(ran).to.equal(true);
   });
@@ -132,7 +132,7 @@ describe('mergeReactProps', () => {
       },
     );
 
-    mergedProps.onClick?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: {} } as any);
 
     expect(ran).to.equal(false);
   });
@@ -159,7 +159,7 @@ describe('mergeReactProps', () => {
       },
     );
 
-    mergedProps.onClick?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: {} } as any);
 
     expect(log).to.deep.equal(['0', '1']);
   });
