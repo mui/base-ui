@@ -19,7 +19,7 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
   props: RadioIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = true, ...otherProps } = props;
+  const { render, className, keepMounted = false, ...otherProps } = props;
 
   const rootState = useRadioRootContext();
 

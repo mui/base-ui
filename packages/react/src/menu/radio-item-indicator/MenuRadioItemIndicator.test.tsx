@@ -26,6 +26,51 @@ describe('<Menu.RadioItemIndicator />', () => {
     },
   }));
 
+  it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
+    if (isJSDOM) {
+      skip();
+    }
+
+    function Test() {
+      const [value, setValue] = React.useState('a');
+      return (
+        <div>
+          <button onClick={() => setValue('b')}>Close</button>
+          <Menu.Root open modal={false}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Popup>
+                    <Menu.RadioGroup value={value}>
+                      <Menu.RadioItem value="a">
+                        <Menu.RadioItemIndicator data-testid="indicator" />
+                      </Menu.RadioItem>
+                      <Menu.RadioItem value="b">
+                        <Menu.RadioItemIndicator keepMounted />
+                      </Menu.RadioItem>
+                    </Menu.RadioGroup>
+                  </Menu.Popup>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<Test />);
+
+    expect(screen.queryByTestId('indicator')).not.to.equal(null);
+
+    const closeButton = screen.getByText('Close');
+
+    await user.click(closeButton);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('indicator')).to.equal(null);
+    });
+  });
+
   it('should remove the indicator when the animation finishes', async ({ skip }) => {
     if (isJSDOM) {
       skip();
@@ -83,6 +128,8 @@ describe('<Menu.RadioItemIndicator />', () => {
     }
 
     const { user } = await render(<Test />);
+
+    expect(screen.getByTestId('indicator')).not.to.equal(null);
 
     const closeButton = screen.getByText('Close');
     await user.click(closeButton);

@@ -94,6 +94,36 @@ describe('<Checkbox.Indicator />', () => {
     });
   });
 
+  it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
+    if (isJSDOM) {
+      skip();
+    }
+
+    function Test() {
+      const [checked, setChecked] = React.useState(true);
+      return (
+        <div>
+          <button onClick={() => setChecked(false)}>Close</button>
+          <Checkbox.Root checked={checked}>
+            <Checkbox.Indicator data-testid="indicator" />
+          </Checkbox.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<Test />);
+
+    expect(screen.getByTestId('indicator')).not.to.equal(null);
+
+    const closeButton = screen.getByText('Close');
+
+    await user.click(closeButton);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('indicator')).to.equal(null);
+    });
+  });
+
   it('should remove the indicator when the animation finishes', async ({ skip }) => {
     if (isJSDOM) {
       skip();
@@ -139,6 +169,7 @@ describe('<Checkbox.Indicator />', () => {
     }
 
     const { user } = await render(<Test />);
+    expect(screen.getByTestId('indicator')).not.to.equal(null);
 
     const closeButton = screen.getByText('Close');
     await user.click(closeButton);
