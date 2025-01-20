@@ -97,7 +97,7 @@ RadioIndicator.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * Whether to keep the HTML element in the DOM when the radio button is inactive.
-   * @default true
+   * @default false
    */
   keepMounted: PropTypes.bool,
   /**
