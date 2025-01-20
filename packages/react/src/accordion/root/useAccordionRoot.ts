@@ -28,9 +28,7 @@ function getActiveTriggers(accordionItemRefs: {
 
 function isDisabled(element: HTMLElement | null) {
   return (
-    element === null ||
-    element.hasAttribute('disabled') ||
-    element.getAttribute('data-disabled') === 'true'
+    element === null || element.hasAttribute('disabled') || element.hasAttribute('data-disabled')
   );
 }
 
