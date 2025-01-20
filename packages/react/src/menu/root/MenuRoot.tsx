@@ -13,7 +13,7 @@ import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
+const MenuRoot = function MenuRoot(props: MenuRoot.Props) {
   const {
     children,
     defaultOpen = false,
@@ -155,6 +155,14 @@ MenuRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  action: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * @ignore
    */

@@ -203,10 +203,15 @@ export interface SharedParameters {
    * @default true
    */
   dismissible?: boolean;
+  /**
+   * A ref to imperative actions.
+   */
+  action?: React.RefObject<{ unmount: () => void }>;
 }
 
 export namespace useDialogRoot {
-  export interface Parameters extends RequiredExcept<SharedParameters, 'open' | 'onOpenChange'> {
+  export interface Parameters
+    extends RequiredExcept<SharedParameters, 'open' | 'onOpenChange' | 'action'> {
     /**
      * Callback to invoke when a nested dialog is opened.
      */

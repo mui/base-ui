@@ -495,4 +495,44 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
   });
+
+  describe('prop: action', () => {
+    it('unmounts the preview card when the `unmount` method is called', async () => {
+      const actionRef = {
+        current: {
+          unmount: spy(),
+        },
+      };
+
+      const { user } = await render(
+        <Root action={actionRef} delay={0} closeDelay={0}>
+          <Trigger>Open</Trigger>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner data-testid="positioner">
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('link');
+      await user.hover(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).not.to.equal(null);
+      });
+
+      await user.unhover(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).not.to.equal(null);
+      });
+
+      act(() => actionRef.current.unmount());
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).to.equal(null);
+      });
+    });
+  });
 });

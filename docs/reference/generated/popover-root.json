@@ -17,7 +17,7 @@
     },
     "action": {
       "type": "{ current: { unmount: func } }",
-      "description": "A ref to manually unmount the popover."
+      "description": "A ref to imperative actions."
     },
     "openOnHover": {
       "type": "boolean",

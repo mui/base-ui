@@ -876,4 +876,46 @@ describe('<Menu.Root />', () => {
       expect(positioner.previousElementSibling).to.equal(null);
     });
   });
+
+  describe('prop: action', () => {
+    it('unmounts the menu when the `unmount` method is called', async () => {
+      const actionRef = {
+        current: {
+          unmount: spy(),
+        },
+      };
+
+      const { user } = await render(
+        <Menu.Root action={actionRef}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      act(() => actionRef.current.unmount());
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).to.equal(null);
+      });
+    });
+  });
 });

@@ -11,7 +11,7 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
+const PopoverRoot = function PopoverRoot(props: PopoverRoot.Props) {
   const {
     defaultOpen = false,
     onOpenChange,
@@ -53,7 +53,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
 namespace PopoverRoot {
   export interface State {}
 
-  export interface Props extends Omit<usePopoverRoot.Parameters, 'floatingRootContext'> {
+  export interface Props extends usePopoverRoot.Parameters {
     children?: React.ReactNode;
   }
 }
@@ -63,6 +63,14 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  action: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * @ignore
    */
@@ -102,14 +110,6 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   openOnHover: PropTypes.bool,
-  /**
-   * A ref to manually unmount the popover.
-   */
-  action: PropTypes.shape({
-    current: PropTypes.shape({
-      unmount: PropTypes.func.isRequired,
-    }).isRequired,
-  }),
 } as any;
 
 export { PopoverRoot };

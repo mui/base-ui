@@ -11,8 +11,8 @@ import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(props) {
-  const { delay, closeDelay } = props;
+const PreviewCardRoot = function PreviewCardRoot(props: PreviewCardRoot.Props) {
+  const { delay, closeDelay, action } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
@@ -20,6 +20,7 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
   const previewCardRoot = usePreviewCardRoot({
     delay,
     closeDelay,
+    action,
     open: props.open,
     onOpenChange: props.onOpenChange,
     defaultOpen: props.defaultOpen,
@@ -54,6 +55,14 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  action: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * @ignore
    */

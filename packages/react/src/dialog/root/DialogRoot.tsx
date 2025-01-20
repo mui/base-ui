@@ -19,6 +19,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     modal = true,
     onOpenChange,
     open,
+    action,
   } = props;
 
   const parentDialogRootContext = useOptionalDialogRootContext();
@@ -29,6 +30,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     onOpenChange,
     modal,
     dismissible,
+    action,
     onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
     onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,
   });
@@ -58,6 +60,14 @@ DialogRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  action: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * @ignore
    */

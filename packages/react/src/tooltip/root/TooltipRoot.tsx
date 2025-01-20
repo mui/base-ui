@@ -11,7 +11,7 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
+const TooltipRoot = function TooltipRoot(props: TooltipRoot.Props) {
   const {
     defaultOpen = false,
     onOpenChange,
@@ -20,6 +20,7 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
     closeDelay,
     hoverable = true,
     trackCursorAxis = 'none',
+    action,
   } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -34,6 +35,7 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
     trackCursorAxis,
     delay,
     closeDelay,
+    action,
   });
 
   const contextValue: TooltipRootContext = React.useMemo(
@@ -64,6 +66,14 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  action: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * @ignore
    */

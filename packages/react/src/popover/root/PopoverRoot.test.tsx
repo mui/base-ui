@@ -535,4 +535,44 @@ describe('<Popover.Root />', () => {
       expect(lastInput).toHaveFocus();
     });
   });
+
+  describe('prop: action', () => {
+    it('unmounts the popover when the `unmount` method is called', async () => {
+      const actionRef = {
+        current: {
+          unmount: spy(),
+        },
+      };
+
+      const { user } = await render(
+        <Popover.Root action={actionRef}>
+          <Popover.Trigger>Open</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      act(() => actionRef.current.unmount());
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+    });
+  });
 });

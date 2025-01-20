@@ -14,6 +14,10 @@
     "onOpenChange": {
       "type": "(open, event, reason) => void",
       "description": "Event handler called when the dialog is opened or closed."
+    },
+    "action": {
+      "type": "{ current: { unmount: func } }",
+      "description": "A ref to imperative actions."
     }
   },
   "dataAttributes": {},
