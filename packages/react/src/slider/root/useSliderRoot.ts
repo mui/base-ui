@@ -7,7 +7,6 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
 import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import { valueToPercent } from '../../utils/valueToPercent';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
@@ -235,19 +234,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   );
 
   const handleRootRef = useForkRef(rootRef, sliderRef);
-
-  const areValuesEqual = React.useCallback(
-    (newValue: number | ReadonlyArray<number>): boolean => {
-      if (typeof newValue === 'number' && typeof valueState === 'number') {
-        return newValue === valueState;
-      }
-      if (typeof newValue === 'object' && typeof valueState === 'object') {
-        return areArraysEqual(newValue, valueState);
-      }
-      return false;
-    },
-    [valueState],
-  );
 
   const handleInputChange = useEventCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
