@@ -30,11 +30,6 @@
       display: none;
     }
 
-    /* iOS Safari appears to flicker the scroll containers during tasking animations */
-    [data-mobile-nav-open] & {
-      overflow: hidden;
-    }
-
     /* Scroll containers may be focusable */
     &:focus-visible {
       position: relative;
@@ -45,8 +40,9 @@
   }
 
   .CodeBlockPanelTitle {
-    color: var(--color-foreground);
-    font-weight: 500;
+    @apply text-sm;
+    color: var(--color-gray-700);
+    font-weight: 400;
   }
 
   .CodeBlockPre {
@@ -54,28 +50,15 @@
     cursor: text;
     color: var(--color-foreground);
     background-color: var(--color-content);
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0;
     border-radius: var(--radius-md);
     outline: 0;
 
     /* Scroll */
     display: flex;
     overflow: auto;
+    /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
     overscroll-behavior-x: contain;
-    scrollbar-width: thin;
-
-    /* iOS Safari appears to flicker the scroll containers during tasking animations */
-    [data-mobile-nav-open] & {
-      overflow: hidden;
-    }
-
-    /* Scroll containers may be focusable */
-    &:focus-visible {
-      position: relative;
-      outline: 2px solid var(--color-blue);
-      outline-offset: -1px;
-      z-index: 1;
-    }
 
     & code {
       /* Different fonts may introduce vertical align issues */

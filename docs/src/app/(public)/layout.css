@@ -9,7 +9,7 @@
   }
 
   body {
-    min-width: 360px;
+    min-width: 320px;
     line-height: 1.5;
     background-color: var(--color-background);
     color: var(--color-foreground);

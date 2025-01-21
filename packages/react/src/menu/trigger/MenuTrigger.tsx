@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useFloatingTree } from '@floating-ui/react';
 import { useMenuTrigger } from './useMenuTrigger';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -18,27 +17,26 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
   props: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled = false, label, ...other } = props;
+  const { render, className, disabled = false, ...other } = props;
 
   const {
-    getTriggerProps,
+    getTriggerProps: getRootTriggerProps,
     disabled: menuDisabled,
     setTriggerElement,
     open,
     setOpen,
-    setClickAndDragEnabled,
+    allowMouseUpTriggerRef,
+    positionerRef,
   } = useMenuRootContext();
 
-  const { events: menuEvents } = useFloatingTree()!;
-
-  const { getRootProps } = useMenuTrigger({
+  const { getTriggerProps } = useMenuTrigger({
     disabled: disabled || menuDisabled,
     rootRef: forwardedRef,
-    menuEvents,
     setTriggerElement,
     open,
     setOpen,
-    setClickAndDragEnabled,
+    allowMouseUpTriggerRef,
+    positionerRef,
   });
 
   const state: MenuTrigger.State = React.useMemo(() => ({ open }), [open]);
@@ -47,7 +45,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     render: render || 'button',
     className,
     state,
-    propGetter: (externalProps) => getTriggerProps(getRootProps(externalProps)),
+    propGetter: (externalProps) => getRootTriggerProps(getTriggerProps(externalProps)),
     customStyleHookMapping: pressableTriggerOpenStateMapping,
     extraProps: other,
   });
@@ -59,14 +57,10 @@ namespace MenuTrigger {
   export interface Props extends BaseUIComponentProps<'button', State> {
     children?: React.ReactNode;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
-    /**
-     * Label of the button
-     */
-    label?: string;
   }
 
   export type State = {
@@ -92,14 +86,10 @@ MenuTrigger.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
-  /**
-   * Label of the button
-   */
-  label: PropTypes.string,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

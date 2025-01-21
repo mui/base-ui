@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 export interface ScrollAreaRootContext {
-  dir: string | undefined;
   cornerSize: { width: number; height: number };
   setCornerSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>;
   thumbSize: { width: number; height: number };
@@ -9,8 +8,10 @@ export interface ScrollAreaRootContext {
   touchModality: boolean;
   hovering: boolean;
   setHovering: React.Dispatch<React.SetStateAction<boolean>>;
-  scrolling: boolean;
-  setScrolling: React.Dispatch<React.SetStateAction<boolean>>;
+  scrollingX: boolean;
+  setScrollingX: React.Dispatch<React.SetStateAction<boolean>>;
+  scrollingY: boolean;
+  setScrollingY: React.Dispatch<React.SetStateAction<boolean>>;
   viewportRef: React.RefObject<HTMLDivElement | null>;
   scrollbarYRef: React.RefObject<HTMLDivElement | null>;
   thumbYRef: React.RefObject<HTMLDivElement | null>;
@@ -20,7 +21,7 @@ export interface ScrollAreaRootContext {
   handlePointerDown: (event: React.PointerEvent) => void;
   handlePointerMove: (event: React.PointerEvent) => void;
   handlePointerUp: (event: React.PointerEvent) => void;
-  handleScroll: () => void;
+  handleScroll: (scrollPosition: { x: number; y: number }) => void;
   rootId: string | undefined;
   hiddenState: {
     scrollbarYHidden: boolean;

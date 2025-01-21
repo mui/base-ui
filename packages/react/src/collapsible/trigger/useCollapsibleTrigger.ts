@@ -20,21 +20,17 @@ export function useCollapsibleTrigger(
 
   const getRootProps: useCollapsibleTrigger.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps: GenericHTMLProps = {}) =>
-      mergeReactProps(
-        externalProps,
-        mergeReactProps(
-          {
-            type: 'button',
-            'aria-controls': panelId,
-            'aria-expanded': open,
-            disabled,
-            onClick() {
-              setOpen(!open);
-            },
-            ref: handleRef,
+      getButtonProps(
+        mergeReactProps(externalProps, {
+          type: 'button',
+          'aria-controls': panelId,
+          'aria-expanded': open,
+          disabled,
+          onClick() {
+            setOpen(!open);
           },
-          getButtonProps(),
-        ),
+          ref: handleRef,
+        }),
       ),
     [panelId, disabled, getButtonProps, handleRef, open, setOpen],
   );
@@ -51,11 +47,12 @@ export namespace useCollapsibleTrigger {
      */
     panelId: React.HTMLAttributes<Element>['id'];
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
      * Whether the collapsible panel is currently open.
+     *
      * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
      */
     open: boolean;

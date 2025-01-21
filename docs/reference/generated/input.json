@@ -12,20 +12,21 @@
     }
   },
   "dataAttributes": {
-    "data-dirty": {
-      "description": "Present when the input's value has changed."
-    },
     "data-disabled": {
       "description": "Present when the input is disabled."
+    },
+    "data-valid": {
+      "description": "Present when the input is in valid state."
     },
     "data-invalid": {
       "description": "Present when the input is in invalid state."
     },
-    "data-touched": {
-      "description": "Present when the input has been thouched."
+    "data-dirty": {
+      "description": "Present when the input's value has changed."
     },
-    "data-valid": {
-      "description": "Present when the input is in valid state."
+    "data-touched": {
+      "description": "Present when the input has been touched."
     }
-  }
+  },
+  "cssVariables": {}
 }

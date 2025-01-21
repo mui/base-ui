@@ -3,7 +3,7 @@ import { Tooltip } from '@base-ui-components/react/tooltip';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 function Root(props: Tooltip.Root.Props) {
@@ -11,6 +11,10 @@ function Root(props: Tooltip.Root.Props) {
 }
 
 describe('<Tooltip.Root />', () => {
+  beforeEach(() => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
   const { render, clock } = createRenderer();
 
   describe('uncontrolled open', () => {
@@ -20,9 +24,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -43,9 +49,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -64,18 +72,19 @@ describe('<Tooltip.Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
 
-    it('should open when the trigger is focused', async () => {
-      if (!/jsdom/.test(window.navigator.userAgent)) {
-        // Ignore due to `:focus-visible` being required in the browser.
-        return;
+    it('should open when the trigger is focused', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       await render(
         <Root>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -92,9 +101,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -123,9 +134,11 @@ describe('<Tooltip.Root />', () => {
     it('should open when controlled open is true', async () => {
       await render(
         <Root open>
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -135,9 +148,11 @@ describe('<Tooltip.Root />', () => {
     it('should close when controlled open is false', async () => {
       await render(
         <Root open={false}>
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -159,9 +174,11 @@ describe('<Tooltip.Root />', () => {
             }}
           >
             <Tooltip.Trigger />
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Root>
         );
       }
@@ -204,9 +221,11 @@ describe('<Tooltip.Root />', () => {
             }}
           >
             <Tooltip.Trigger />
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Root>
         );
       }
@@ -235,9 +254,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root defaultOpen>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -250,9 +271,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root defaultOpen open={false}>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -265,9 +288,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root defaultOpen open>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -280,9 +305,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root defaultOpen>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -307,9 +334,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root delay={100}>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 
@@ -337,9 +366,11 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root closeDelay={100}>
           <Tooltip.Trigger />
-          <Tooltip.Positioner>
-            <Tooltip.Popup>Content</Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
         </Root>,
       );
 

@@ -1,66 +1,42 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import userEvent from '@testing-library/user-event';
 import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
-import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import { Menu } from '@base-ui-components/react/menu';
-import { describeConformance, createRenderer } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { MenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
-import { MenuRootContext } from '../root/MenuRootContext';
-
-const testRootContext: MenuRootContext = {
-  floatingRootContext: {} as FloatingRootContext,
-  getPopupProps: (p) => ({ ...p }),
-  getTriggerProps: (p) => ({ ...p }),
-  getItemProps: (p) => ({ ...p }),
-  parentContext: undefined,
-  nested: false,
-  setTriggerElement: () => {},
-  setPositionerElement: () => {},
-  activeIndex: null,
-  disabled: false,
-  itemDomElements: { current: [] },
-  itemLabels: { current: [] },
-  open: true,
-  setOpen: () => {},
-  clickAndDragEnabled: false,
-  setClickAndDragEnabled: () => {},
-  popupRef: { current: null },
-  mounted: true,
-  transitionStatus: undefined,
-  typingRef: { current: false },
-};
 
 const testRadioGroupContext = {
   value: '0',
   setValue: () => {},
+  disabled: false,
 };
 
 describe('<Menu.RadioItem />', () => {
-  const { render } = createRenderer();
-  const user = userEvent.setup();
+  const { render, clock } = createRenderer({
+    clockOptions: {
+      shouldAdvanceTime: true,
+    },
+  });
+
+  clock.withFakeTimers();
 
   describeConformance(<Menu.RadioItem value="0" />, () => ({
     render: (node) => {
       return render(
-        <FloatingTree>
-          <MenuRootContext.Provider value={testRootContext}>
-            <MenuRadioGroupContext.Provider value={testRadioGroupContext}>
-              {node}
-            </MenuRadioGroupContext.Provider>
-          </MenuRootContext.Provider>
-        </FloatingTree>,
+        <Menu.Root open>
+          <MenuRadioGroupContext.Provider value={testRadioGroupContext}>
+            {node}
+          </MenuRadioGroupContext.Provider>
+        </Menu.Root>,
       );
     },
     refInstanceof: window.HTMLDivElement,
   }));
 
-  it('perf: does not rerender menu items unnecessarily', async function test(t = {}) {
-    if (/jsdom/.test(window.navigator.userAgent)) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+  it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
+    if (isJSDOM) {
+      skip();
     }
 
     const renderItem1Spy = spy();
@@ -79,40 +55,42 @@ describe('<Menu.RadioItem />', () => {
 
     const { getAllByRole } = await render(
       <Menu.Root open>
-        <Menu.Positioner>
-          <Menu.Popup>
-            <Menu.RadioGroup>
-              <Menu.RadioItem
-                value={1}
-                render={<LoggingRoot renderSpy={renderItem1Spy} />}
-                id="item-1"
-              >
-                1
-              </Menu.RadioItem>
-              <Menu.RadioItem
-                value={2}
-                render={<LoggingRoot renderSpy={renderItem2Spy} />}
-                id="item-2"
-              >
-                2
-              </Menu.RadioItem>
-              <Menu.RadioItem
-                value={3}
-                render={<LoggingRoot renderSpy={renderItem3Spy} />}
-                id="item-3"
-              >
-                3
-              </Menu.RadioItem>
-              <Menu.RadioItem
-                value={4}
-                render={<LoggingRoot renderSpy={renderItem4Spy} />}
-                id="item-4"
-              >
-                4
-              </Menu.RadioItem>
-            </Menu.RadioGroup>
-          </Menu.Popup>
-        </Menu.Positioner>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.RadioGroup>
+                <Menu.RadioItem
+                  value={1}
+                  render={<LoggingRoot renderSpy={renderItem1Spy} />}
+                  id="item-1"
+                >
+                  1
+                </Menu.RadioItem>
+                <Menu.RadioItem
+                  value={2}
+                  render={<LoggingRoot renderSpy={renderItem2Spy} />}
+                  id="item-2"
+                >
+                  2
+                </Menu.RadioItem>
+                <Menu.RadioItem
+                  value={3}
+                  render={<LoggingRoot renderSpy={renderItem3Spy} />}
+                  id="item-3"
+                >
+                  3
+                </Menu.RadioItem>
+                <Menu.RadioItem
+                  value={4}
+                  render={<LoggingRoot renderSpy={renderItem4Spy} />}
+                  id="item-4"
+                >
+                  4
+                </Menu.RadioItem>
+              </Menu.RadioGroup>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
       </Menu.Root>,
     );
 
@@ -154,16 +132,18 @@ describe('<Menu.RadioItem />', () => {
 
   describe('state management', () => {
     it('adds the state and ARIA attributes when selected', async () => {
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.RadioGroup defaultValue={0}>
-                <Menu.RadioItem value={1}>Item</Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0}>
+                  <Menu.RadioItem value={1}>Item</Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -179,14 +159,16 @@ describe('<Menu.RadioItem />', () => {
 
     ['Space', 'Enter'].forEach((key) => {
       it(`selects the item when ${key} is pressed`, async () => {
-        const { getByRole } = await render(
+        const { getByRole, user } = await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
-            <Menu.Positioner>
-              <Menu.RadioGroup defaultValue={0}>
-                <Menu.RadioItem value={1}>Item</Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.RadioGroup defaultValue={0}>
+                  <Menu.RadioItem value={1}>Item</Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -208,16 +190,18 @@ describe('<Menu.RadioItem />', () => {
 
     it('calls `onValueChange` when the item is clicked', async () => {
       const onValueChange = spy();
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.RadioGroup defaultValue={0} onValueChange={onValueChange}>
-                <Menu.RadioItem value={1}>Item</Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0} onValueChange={onValueChange}>
+                  <Menu.RadioItem value={1}>Item</Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -232,16 +216,18 @@ describe('<Menu.RadioItem />', () => {
     });
 
     it('keeps the state when closed and reopened', async () => {
-      const { getByRole } = await render(
-        <Menu.Root>
+      const { getByRole, user } = await render(
+        <Menu.Root modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner keepMounted>
-            <Menu.Popup>
-              <Menu.RadioGroup defaultValue={0}>
-                <Menu.RadioItem value={1}>Item</Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal keepMounted>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0}>
+                  <Menu.RadioItem value={1}>Item</Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -263,18 +249,20 @@ describe('<Menu.RadioItem />', () => {
 
   describe('prop: closeOnClick', () => {
     it('when `closeOnClick=true`, closes the menu when the item is clicked', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.RadioGroup defaultValue={0}>
-                <Menu.RadioItem closeOnClick value={1}>
-                  Item
-                </Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0}>
+                  <Menu.RadioItem closeOnClick value={1}>
+                    Item
+                  </Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -288,16 +276,18 @@ describe('<Menu.RadioItem />', () => {
     });
 
     it('does not close the menu when the item is clicked by default', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { getByRole, queryByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.RadioGroup defaultValue={0}>
-                <Menu.RadioItem value={1}>Item</Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0}>
+                  <Menu.RadioItem value={1}>Item</Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -309,5 +299,155 @@ describe('<Menu.RadioItem />', () => {
 
       expect(queryByRole('menu')).not.to.equal(null);
     });
+  });
+
+  describe('focusableWhenDisabled', () => {
+    it('can be focused but not interacted with when a radio group is disabled', async () => {
+      const handleClick = spy();
+      const handleKeyDown = spy();
+      const handleKeyUp = spy();
+      const handleValueChange = spy();
+
+      const { getAllByRole } = await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0} disabled onValueChange={handleValueChange}>
+                  <Menu.RadioItem
+                    value="one"
+                    onClick={handleClick}
+                    onKeyDown={handleKeyDown}
+                    onKeyUp={handleKeyUp}
+                  >
+                    one
+                  </Menu.RadioItem>
+                  <Menu.RadioItem
+                    value="two"
+                    onClick={handleClick}
+                    onKeyDown={handleKeyDown}
+                    onKeyUp={handleKeyUp}
+                  >
+                    two
+                  </Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const [item1, item2] = getAllByRole('menuitemradio');
+
+      expect(item1).to.have.attribute('data-disabled');
+      expect(item2).to.have.attribute('data-disabled');
+
+      await act(() => item1.focus());
+      expect(item1).toHaveFocus();
+
+      fireEvent.keyDown(item1, { key: 'Enter' });
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.keyUp(item1, { key: 'Space' });
+      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.click(item1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      expect(handleKeyDown.callCount).to.equal(2);
+      expect(item2).toHaveFocus();
+
+      fireEvent.keyDown(item2, { key: 'Enter' });
+      expect(handleKeyDown.callCount).to.equal(3);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.keyUp(item2, { key: 'Space' });
+      expect(handleKeyDown.callCount).to.equal(3);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.click(item2);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+    });
+  });
+
+  it('can be focused but not interacted with when individual items are disabled', async () => {
+    const handleClick = spy();
+    const handleKeyDown = spy();
+    const handleKeyUp = spy();
+    const handleValueChange = spy();
+
+    const { getAllByRole } = await render(
+      <Menu.Root open>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.RadioGroup defaultValue={0} onValueChange={handleValueChange}>
+                <Menu.RadioItem
+                  value="one"
+                  onClick={handleClick}
+                  onKeyDown={handleKeyDown}
+                  onKeyUp={handleKeyUp}
+                  disabled
+                >
+                  one
+                </Menu.RadioItem>
+                <Menu.RadioItem
+                  value="two"
+                  onClick={handleClick}
+                  onKeyDown={handleKeyDown}
+                  onKeyUp={handleKeyUp}
+                >
+                  two
+                </Menu.RadioItem>
+              </Menu.RadioGroup>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const [item1, item2] = getAllByRole('menuitemradio');
+
+    expect(item1).to.have.attribute('data-disabled');
+    expect(item2).to.not.have.attribute('data-disabled');
+
+    await act(() => item1.focus());
+    expect(item1).toHaveFocus();
+
+    fireEvent.keyDown(item1, { key: 'Enter' });
+    expect(handleKeyDown.callCount).to.equal(1);
+    expect(handleClick.callCount).to.equal(0);
+    expect(handleValueChange.callCount).to.equal(0);
+
+    fireEvent.keyUp(item1, { key: 'Space' });
+    expect(handleKeyDown.callCount).to.equal(1);
+    expect(handleClick.callCount).to.equal(0);
+    expect(handleValueChange.callCount).to.equal(0);
+
+    fireEvent.click(item1);
+    expect(handleClick.callCount).to.equal(0);
+    expect(handleValueChange.callCount).to.equal(0);
+
+    fireEvent.keyDown(item1, { key: 'ArrowDown' });
+    expect(handleKeyDown.callCount).to.equal(2);
+    expect(item2).toHaveFocus();
+
+    fireEvent.keyDown(item2, { key: 'Enter' });
+    expect(handleKeyDown.callCount).to.equal(3);
+    expect(handleClick.callCount).to.equal(1);
+    expect(handleValueChange.callCount).to.equal(1);
+    expect(handleValueChange.args[0][0]).to.equal('two');
+
+    fireEvent.keyDown(item2, { key: 'ArrowDown' });
+    expect(item1).toHaveFocus();
   });
 });

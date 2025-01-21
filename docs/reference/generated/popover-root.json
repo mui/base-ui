@@ -2,33 +2,35 @@
   "name": "PopoverRoot",
   "description": "Groups all parts of the popover.\nDoesn’t render its own HTML element.",
   "props": {
-    "closeDelay": {
-      "type": "number",
-      "default": "0",
-      "description": "The delay in milliseconds until the popover popup is closed when `openOnHover` is `true`."
-    },
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
       "description": "Whether the popover is initially open.\n\nTo render a controlled popover, use the `open` prop instead."
     },
-    "delay": {
-      "type": "number",
-      "default": "300",
-      "description": "The delay in milliseconds until the popover popup is opened when `openOnHover` is `true`."
+    "open": {
+      "type": "boolean",
+      "description": "Whether the popover is currently open."
     },
     "onOpenChange": {
       "type": "(open, event, reason) => void",
       "description": "Event handler called when the popover is opened or closed."
     },
-    "open": {
-      "type": "boolean",
-      "description": "Whether the popover is currently open."
-    },
     "openOnHover": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the popover popup opens when the trigger is hovered after the provided `delay`."
+      "description": "Whether the popover should also open when the trigger is hovered."
+    },
+    "delay": {
+      "type": "number",
+      "default": "300",
+      "description": "How long to wait before the popover may be opened on hover. Specified in milliseconds.\n\nRequires the `openOnHover` prop."
+    },
+    "closeDelay": {
+      "type": "number",
+      "default": "0",
+      "description": "How long to wait before closing the popover that was opened on hover.\nSpecified in milliseconds.\n\nRequires the `openOnHover` prop."
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }

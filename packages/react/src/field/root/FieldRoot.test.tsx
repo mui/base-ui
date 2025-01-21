@@ -42,6 +42,36 @@ describe('<Field.Root />', () => {
       expect(label).to.have.attribute('data-disabled', '');
       expect(message).to.have.attribute('data-disabled', '');
     });
+
+    describe('NumberField', () => {
+      it('disables the input when `disabled` is true', async () => {
+        await render(
+          <Field.Root disabled>
+            <NumberField.Root>
+              <NumberField.Input />
+            </NumberField.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByRole<HTMLInputElement>('textbox');
+
+        expect(input).to.have.attribute('disabled', '');
+      });
+
+      it('does not disable the input when `disabled` is false', async () => {
+        await render(
+          <Field.Root disabled={false}>
+            <NumberField.Root>
+              <NumberField.Input />
+            </NumberField.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByRole<HTMLInputElement>('textbox');
+
+        expect(input).not.to.have.attribute('disabled');
+      });
+    });
   });
 
   describe('prop: validate', () => {
@@ -487,12 +517,14 @@ describe('<Field.Root />', () => {
           <Field.Root>
             <Select.Root>
               <Select.Trigger data-testid="trigger" />
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.Item value="">Select</Select.Item>
-                  <Select.Item value="1">Option 1</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
             </Select.Root>
           </Field.Root>,
         );
@@ -686,12 +718,14 @@ describe('<Field.Root />', () => {
           <Field.Root>
             <Select.Root>
               <Select.Trigger data-testid="trigger" />
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.Item value="">Select</Select.Item>
-                  <Select.Item value="1">Option 1</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
             </Select.Root>
           </Field.Root>,
         );

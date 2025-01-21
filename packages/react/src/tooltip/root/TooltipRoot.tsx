@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useTooltipRoot } from './useTooltipRoot';
 import { OPEN_DELAY } from '../utils/constants';
-import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the tooltip.
@@ -13,78 +12,42 @@ import { PortalContext } from '../../portal/PortalContext';
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
-  const { delay, closeDelay, hoverable = true, trackCursorAxis = 'none' } = props;
+  const {
+    defaultOpen = false,
+    onOpenChange,
+    open,
+    delay,
+    closeDelay,
+    hoverable = true,
+    trackCursorAxis = 'none',
+  } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
 
-  const {
+  const tooltipRoot = useTooltipRoot({
+    ...props,
+    defaultOpen,
+    onOpenChange,
     open,
-    setOpen,
-    mounted,
-    setMounted,
-    setTriggerElement,
-    positionerElement,
-    setPositionerElement,
-    popupRef,
-    instantType,
-    getRootTriggerProps,
-    getRootPopupProps,
-    floatingRootContext,
-    transitionStatus,
-  } = useTooltipRoot({
     hoverable,
     trackCursorAxis,
     delay,
     closeDelay,
-    open: props.open,
-    onOpenChange: props.onOpenChange,
-    defaultOpen: props.defaultOpen,
   });
 
-  const contextValue = React.useMemo(
+  const contextValue: TooltipRootContext = React.useMemo(
     () => ({
+      ...tooltipRoot,
       delay: delayWithDefault,
       closeDelay: closeDelayWithDefault,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      getRootTriggerProps,
-      getRootPopupProps,
-      floatingRootContext,
       trackCursorAxis,
-      transitionStatus,
     }),
-    [
-      delayWithDefault,
-      closeDelayWithDefault,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      getRootTriggerProps,
-      getRootPopupProps,
-      floatingRootContext,
-      trackCursorAxis,
-      transitionStatus,
-    ],
+    [tooltipRoot, delayWithDefault, closeDelayWithDefault, trackCursorAxis],
   );
 
   return (
-    <TooltipRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
-    </TooltipRootContext.Provider>
+    <TooltipRootContext.Provider value={contextValue}>{props.children}</TooltipRootContext.Provider>
   );
 };
 
@@ -106,7 +69,7 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The delay in milliseconds until the tooltip popup is closed.
+   * How long to wait before closing the tooltip. Specified in milliseconds.
    * @default 0
    */
   closeDelay: PropTypes.number,
@@ -118,13 +81,12 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The delay in milliseconds until the tooltip popup is opened.
+   * How long to wait before opening the tooltip. Specified in milliseconds.
    * @default 600
    */
   delay: PropTypes.number,
   /**
-   * Whether the user can move their cursor from the trigger element toward the tooltip popup element
-   * without it closing using a "safe polygon" technique.
+   * Whether the tooltip contents can be hovered without closing the tooltip.
    * @default true
    */
   hoverable: PropTypes.bool,

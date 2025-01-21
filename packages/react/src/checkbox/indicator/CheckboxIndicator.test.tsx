@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { Checkbox } from '@base-ui-components/react/checkbox';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { CheckboxRootContext } from '../root/CheckboxRootContext';
 
 const testContext = {
@@ -16,6 +17,10 @@ const testContext = {
 };
 
 describe('<Checkbox.Indicator />', () => {
+  beforeEach(() => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
   const { render } = createRenderer();
 
   describeConformance(<Checkbox.Indicator />, () => ({
@@ -90,5 +95,93 @@ describe('<Checkbox.Indicator />', () => {
       expect(indicator).not.to.equal(null);
       expect(indicator).not.to.have.attribute('hidden');
     });
+  });
+
+  it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
+    if (isJSDOM) {
+      skip();
+    }
+
+    function Test() {
+      const [checked, setChecked] = React.useState(true);
+      return (
+        <div>
+          <button onClick={() => setChecked(false)}>Close</button>
+          <Checkbox.Root checked={checked}>
+            <Checkbox.Indicator data-testid="indicator" keepMounted />
+          </Checkbox.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<Test />);
+
+    expect(screen.getByTestId('indicator')).not.to.have.attribute('hidden');
+
+    const closeButton = screen.getByText('Close');
+
+    await user.click(closeButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('indicator')).to.have.attribute('hidden');
+    });
+  });
+
+  it('should remove the indicator when the animation finishes', async ({ skip }) => {
+    if (isJSDOM) {
+      skip();
+    }
+
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    let animationFinished = false;
+    const notifyAnimationFinished = () => {
+      animationFinished = true;
+    };
+
+    function Test() {
+      const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 50ms;
+        }
+      `;
+
+      const [checked, setChecked] = React.useState(true);
+
+      return (
+        <div>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <button onClick={() => setChecked(false)}>Close</button>
+          <Checkbox.Root checked={checked}>
+            <Checkbox.Indicator
+              className="animation-test-indicator"
+              data-testid="indicator"
+              onAnimationEnd={notifyAnimationFinished}
+              keepMounted
+            />
+          </Checkbox.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<Test />);
+
+    expect(screen.getByTestId('indicator')).not.to.have.attribute('hidden');
+
+    const closeButton = screen.getByText('Close');
+    await user.click(closeButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('indicator')).to.have.attribute('hidden');
+    });
+
+    expect(animationFinished).to.equal(true);
   });
 });

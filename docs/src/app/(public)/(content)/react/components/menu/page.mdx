@@ -10,7 +10,7 @@
 
 ## API reference
 
-Import the component and place its parts the following way:
+Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
 import { Menu } from '@base-ui-components/react/menu';
@@ -31,16 +31,6 @@ import { Menu } from '@base-ui-components/react/menu';
           <Menu.RadioItem />
         </Menu.RadioGroup>
         <Menu.CheckboxItem />
-
-        {/* Submenu */}
-        <Menu.Root>
-          <Menu.SubmenuTrigger />
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>...</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
       </Menu.Popup>
     </Menu.Positioner>
   </Menu.Portal>
@@ -51,3 +41,129 @@ import { Menu } from '@base-ui-components/react/menu';
   component="Menu"
   parts="Root, Trigger, Portal, Positioner, Popup, Arrow, Item,  Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator, SubmenuTrigger, Separator"
 />
+
+## Examples
+
+### Open on hover
+
+To create a menu that opens on hover, add the `openOnHover` prop to the Root part. You can additionally configure how quickly the menu opens on hover using the `delay` prop.
+
+<Demo compact path="./demos/open-on-hover" />
+
+### Checkbox items
+
+Use the `<Menu.CheckboxItem>` part to create a menu item that can toggle a setting on or off.
+
+<Demo compact path="./demos/checkbox-items" />
+
+### Radio items
+
+Use the `<Menu.RadioGroup>` and `<Menu.RadioItem>` parts to create menu items that work like radio buttons.
+
+<Demo compact path="./demos/radio-items" />
+
+### Close on click
+
+Use the `closeOnClick` prop to change whether the menu closes when an item is clicked.
+
+```jsx title="Control whether the menu closes on click"
+// Close the menu when a checkbox item is clicked
+<Menu.CheckboxItem closeOnClick />
+
+// Keep the menu open when an item is clicked
+<Menu.Item closeOnClick={false} />
+```
+
+### Group labels
+
+Use the `<Menu.GroupLabel>` part to add a label to a `<Menu.Group>`
+
+<Demo compact path="./demos/group-labels" />
+
+### Nested menu
+
+To create a submenu, nest another menu inside the parent menu. Use the `<Menu.SubmenuTrigger>` part for the menu item that opens the nested menu.
+
+```jsx {11-21} {12}#strong title="Adding a submenu"
+<Menu.Root>
+  <Menu.Trigger />
+  <Menu.Portal>
+    <Menu.Backdrop />
+    <Menu.Positioner>
+      <Menu.Popup>
+        <Menu.Arrow />
+        <Menu.Item />
+
+        {/* Submenu */}
+        <Menu.Root>
+          <Menu.SubmenuTrigger />
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                {/* prettier-ignore */}
+                {/* Submenu items  */}
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.Popup>
+    </Menu.Positioner>
+  </Menu.Portal>
+</Menu.Root>
+```
+
+<Demo compact path="./demos/submenu" />
+
+### Navigate to another page
+
+Use the `render` prop to compose a menu item with an anchor element.
+
+```jsx title="A menu item that opens a link"
+<Menu.Item render={<a href="/projects">Go to Projects</a>} />
+```
+
+### Open a dialog
+
+In order to open a dialog using a menu, control the dialog state and open it imperatively using the `onClick` handler on the menu item.
+
+Make sure to also use the dialog's `finalFocus` prop to return focus back to the menu trigger.
+
+```tsx {12-13,17-18,24-25,28-29} title="Connecting a dialog to a menu"
+import * as React from 'react';
+import { Dialog } from '@base-ui/components/dialog';
+import { Menu } from '@base-ui/components/menu';
+
+function ExampleMenu() {
+  const menuTriggerRef = React.useRef<HTMLButtonElement>(null);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+
+  return (
+    <React.Fragment>
+      <Menu.Root>
+        {/* Set the trigger ref */}
+        <Menu.Trigger ref={menuTriggerRef}>Open menu</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              {/* Open the dialog when the menu item is clicked */}
+              <Menu.Item onClick={() => setDialogOpen(true)}>Open dialog</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+
+      {/* Control the dialog state */}
+      <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog.Portal>
+          <Dialog.Backdrop />
+          {/* Return focus to the menu trigger when the dialog is closed */}
+          <Dialog.Popup finalFocus={menuTriggerRef}>
+            {/* prettier-ignore */}
+            {/* Rest of the dialog */}
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </React.Fragment>
+  );
+}
+```

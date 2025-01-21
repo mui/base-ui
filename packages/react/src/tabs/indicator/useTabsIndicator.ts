@@ -83,6 +83,17 @@ export function useTabsIndicator(
     [left, right, top, bottom, isTabSelected],
   );
 
+  const activeTabSize = React.useMemo(
+    () =>
+      isTabSelected
+        ? {
+            width,
+            height,
+          }
+        : null,
+    [width, height, isTabSelected],
+  );
+
   const style = React.useMemo(() => {
     if (!isTabSelected) {
       return undefined;
@@ -98,19 +109,23 @@ export function useTabsIndicator(
     } as React.CSSProperties;
   }, [left, right, top, bottom, width, height, isTabSelected]);
 
+  const displayIndicator = isTabSelected && width > 0 && height > 0;
+
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps<'span'>(externalProps, {
         role: 'presentation',
         style,
+        hidden: !displayIndicator, // do not display the indicator before the layout is settled
       });
     },
-    [style],
+    [style, displayIndicator],
   );
 
   return {
     getRootProps,
     activeTabPosition,
+    activeTabSize,
   };
 }
 
@@ -119,6 +134,11 @@ export interface ActiveTabPosition {
   right: number;
   top: number;
   bottom: number;
+}
+
+export interface ActiveTabSize {
+  width: number;
+  height: number;
 }
 
 export namespace useTabsIndicator {
@@ -134,5 +154,6 @@ export namespace useTabsIndicator {
      */
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     activeTabPosition: ActiveTabPosition | null;
+    activeTabSize: ActiveTabSize | null;
   }
 }

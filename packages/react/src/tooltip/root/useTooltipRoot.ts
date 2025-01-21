@@ -184,8 +184,7 @@ export namespace useTooltipRoot {
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
-     * Whether the user can move their cursor from the trigger element toward the tooltip popup element
-     * without it closing using a "safe polygon" technique.
+     * Whether the tooltip contents can be hovered without closing the tooltip.
      * @default true
      */
     hoverable?: boolean;
@@ -195,12 +194,12 @@ export namespace useTooltipRoot {
      */
     trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
     /**
-     * The delay in milliseconds until the tooltip popup is opened.
+     * How long to wait before opening the tooltip. Specified in milliseconds.
      * @default 600
      */
     delay?: number;
     /**
-     * The delay in milliseconds until the tooltip popup is closed.
+     * How long to wait before closing the tooltip. Specified in milliseconds.
      * @default 0
      */
     closeDelay?: number;

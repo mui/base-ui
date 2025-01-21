@@ -1,15 +1,13 @@
 import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
-import { act, describeSkipIf, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Slider } from '@base-ui-components/react/slider';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import type { SliderRoot } from './SliderRoot';
 
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 const GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL = {
   width: 100,
@@ -38,7 +36,7 @@ function createTouches(touches: Touches) {
 function TestSlider(props: SliderRoot.Props) {
   return (
     <Slider.Root data-testid="root" {...props}>
-      <Slider.Output data-testid="output" />
+      <Slider.Value data-testid="value" />
       <Slider.Control data-testid="control">
         <Slider.Track>
           <Slider.Indicator />
@@ -52,7 +50,7 @@ function TestSlider(props: SliderRoot.Props) {
 function TestRangeSlider(props: SliderRoot.Props) {
   return (
     <Slider.Root data-testid="root" {...props}>
-      <Slider.Output data-testid="output" />
+      <Slider.Value data-testid="value" />
       <Slider.Control data-testid="control">
         <Slider.Track>
           <Slider.Indicator />
@@ -64,9 +62,8 @@ function TestRangeSlider(props: SliderRoot.Props) {
   );
 }
 
-describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
-  // eslint-disable-next-line mocha/no-top-level-hooks
-  before(function beforeHook() {
+describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
+  beforeAll(function beforeHook() {
     // PointerEvent not fully implemented in jsdom, causing
     // fireEvent.pointer* to ignore options
     // https://github.com/jsdom/jsdom/issues/2527
@@ -83,7 +80,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   it('renders a slider', async () => {
     await render(
       <Slider.Root defaultValue={30}>
-        <Slider.Output />
+        <Slider.Value />
         <Slider.Control>
           <Slider.Track>
             <Slider.Indicator />
@@ -117,7 +114,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('it has the correct aria attributes', async () => {
       const { container, getByRole, getByTestId } = await render(
         <Slider.Root defaultValue={30} aria-labelledby="labelId" data-testid="root">
-          <Slider.Output />
+          <Slider.Value />
           <Slider.Control>
             <Slider.Track>
               <Slider.Indicator />
@@ -167,7 +164,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('rtl', () => {
+  describe.skipIf(isJSDOM)('rtl', () => {
     it('should handle RTL', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
@@ -305,7 +302,7 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('should render data-disabled on all subcomponents', async () => {
       const { getByTestId } = await render(
         <Slider.Root defaultValue={30} disabled data-testid="root">
-          <Slider.Output data-testid="output" />
+          <Slider.Value data-testid="value" />
           <Slider.Control data-testid="control">
             <Slider.Track data-testid="track">
               <Slider.Indicator data-testid="indicator" />
@@ -316,23 +313,21 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       );
 
       const root = getByTestId('root');
-      const output = getByTestId('output');
+      const value = getByTestId('value');
       const control = getByTestId('control');
       const track = getByTestId('track');
       const indicator = getByTestId('indicator');
       const thumb = getByTestId('thumb');
 
-      [root, output, control, track, indicator, thumb].forEach((subcomponent) => {
+      [root, value, control, track, indicator, thumb].forEach((subcomponent) => {
         expect(subcomponent).to.have.attribute('data-disabled', '');
       });
     });
 
-    it('should not respond to drag events after becoming disabled', async function test(t = {}) {
+    it('should not respond to drag events after becoming disabled', async ({ skip }) => {
       // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
       if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       const { getByRole, setProps, getByTestId } = await render(
@@ -366,12 +361,10 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(thumb).to.have.attribute('aria-valuenow', '21');
     });
 
-    it('should not respond to drag events if disabled', async function test(t = {}) {
+    it('should not respond to drag events if disabled', async ({ skip }) => {
       // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
       if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       const { getByRole, getByTestId } = await render(
@@ -419,15 +412,13 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(sliderRoot).to.have.attribute('data-orientation', 'horizontal');
       const sliderControl = getByTestId('control');
       expect(sliderControl).to.have.attribute('data-orientation', 'horizontal');
-      const sliderOutput = getByTestId('output');
+      const sliderOutput = getByTestId('value');
       expect(sliderOutput).to.have.attribute('data-orientation', 'horizontal');
     });
 
-    it('does not set the orientation via appearance for WebKit browsers', async function test(t = {}) {
+    it('does not set the orientation via appearance for WebKit browsers', async ({ skip }) => {
       if (isJSDOM || !/WebKit/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       await render(<TestSlider orientation="vertical" />);
@@ -1114,12 +1105,12 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
   describe('form submission', () => {
     // doesn't work with two `<input type="range" />` elements with the same name attribute
-    it('includes the slider value in formData when the `name` attribute is provided', async function test(t = {}) {
+    it('includes the slider value in formData when the `name` attribute is provided', async ({
+      skip,
+    }) => {
       if (isJSDOM) {
         // FormData is not available in JSDOM
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -1292,6 +1283,44 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         name: 'change-testing',
         value: 4,
       });
+    });
+
+    it('onValueCommitted is called with the same value as the latest onValueChange when pointerUp occurs at a different location than onValueChange', async () => {
+      const handleValueChange = spy();
+      const handleValueCommitted = spy();
+
+      await render(
+        <TestSlider
+          onValueChange={handleValueChange}
+          onValueCommitted={handleValueCommitted}
+          defaultValue={0}
+        />,
+      );
+
+      const sliderControl = screen.getByTestId('control');
+
+      stub(sliderControl, 'getBoundingClientRect').callsFake(
+        () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
+      );
+
+      fireEvent.pointerDown(sliderControl, {
+        buttons: 1,
+        clientX: 10,
+      });
+      fireEvent.pointerMove(sliderControl, {
+        buttons: 1,
+        clientX: 15,
+      });
+      fireEvent.pointerUp(sliderControl, {
+        buttons: 1,
+        clientX: 20,
+      });
+
+      expect(handleValueChange.callCount).to.equal(2);
+      expect(handleValueChange.args[0][0]).to.equal(10);
+      expect(handleValueChange.args[1][0]).to.equal(15);
+      expect(handleValueCommitted.callCount).to.equal(1);
+      expect(handleValueCommitted.args[0][0]).to.equal(15);
     });
   });
 
@@ -1610,6 +1639,43 @@ describeSkipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('can be removed from the tab sequence', async () => {
       await render(<TestSlider tabIndex={-1} value={30} />);
       expect(screen.getByRole('slider')).to.have.property('tabIndex', -1);
+    });
+  });
+
+  describe('prop: format', () => {
+    it('formats the value', async () => {
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'USD',
+      };
+      function formatValue(v: number) {
+        return new Intl.NumberFormat(undefined, format).format(v);
+      }
+      const { getByRole, getByTestId } = await render(
+        <TestSlider defaultValue={50} format={format} />,
+      );
+      const value = getByTestId('value');
+      const slider = getByRole('slider');
+      expect(value).to.have.text(formatValue(50));
+      expect(slider).to.have.attribute('aria-valuetext', formatValue(50));
+    });
+
+    it('formats range values', async () => {
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'USD',
+      };
+      function formatValue(v: number) {
+        return new Intl.NumberFormat(undefined, format).format(v);
+      }
+      const { getAllByRole, getByTestId } = await render(
+        <TestRangeSlider defaultValue={[50, 75]} format={format} />,
+      );
+      const value = getByTestId('value');
+      expect(value).to.have.text(`${formatValue(50)} – ${formatValue(75)}`);
+      const [slider1, slider2] = getAllByRole('slider');
+      expect(slider1).to.have.attribute('aria-valuetext', `${formatValue(50)} start range`);
+      expect(slider2).to.have.attribute('aria-valuetext', `${formatValue(75)} end range`);
     });
   });
 });

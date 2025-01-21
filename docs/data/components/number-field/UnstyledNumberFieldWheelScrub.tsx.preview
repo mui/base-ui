@@ -1,6 +1,0 @@
-<NumberField id={id} defaultValue={100} allowWheelScrub>
-  <NumberLabel htmlFor={id}>Amount</NumberLabel>
-  <NumberFieldGroup>
-    <NumberFieldInput />
-  </NumberFieldGroup>
-</NumberField>

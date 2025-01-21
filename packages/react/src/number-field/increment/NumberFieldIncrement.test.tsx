@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { screen, fireEvent } from '@mui/internal-test-utils';
+import { screen, fireEvent, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
@@ -250,5 +250,69 @@ describe('<NumberField.Increment />', () => {
     const button = screen.getByRole('button');
     fireEvent.click(button);
     expect(screen.getByRole('textbox')).to.have.value('');
+  });
+
+  it('should increment when input is dirty but not blurred (click)', async () => {
+    await render(
+      <NumberField.Root defaultValue={0}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+
+    await act(() => input.focus());
+
+    fireEvent.change(input, { target: { value: '100' } });
+    fireEvent.click(screen.getByRole('button'));
+
+    expect(input).to.have.value('101');
+  });
+
+  it('should increment when input is dirty but not blurred (pointerdown)', async () => {
+    await render(
+      <NumberField.Root defaultValue={0}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+
+    await act(() => input.focus());
+
+    fireEvent.change(input, { target: { value: '100' } });
+    fireEvent.pointerDown(screen.getByRole('button'));
+
+    expect(input).to.have.value('101');
+  });
+
+  it('always increments on quick touch (touchend that occurs before TOUCH_TIMEOUT)', async () => {
+    await render(
+      <NumberField.Root defaultValue={0}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+    const input = screen.getByRole('textbox');
+
+    fireEvent.touchStart(button);
+    fireEvent.mouseEnter(button);
+    fireEvent.pointerDown(button, { pointerType: 'touch' });
+    fireEvent.click(button, { detail: 1 });
+    fireEvent.touchEnd(button);
+
+    expect(input).to.have.value('1');
+
+    fireEvent.touchStart(button);
+    // No mouseenter occurs after the first focus
+    fireEvent.pointerDown(button, { pointerType: 'touch' });
+    fireEvent.click(button, { detail: 1 });
+    fireEvent.touchEnd(button);
+
+    expect(input).to.have.value('2');
   });
 });

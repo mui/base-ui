@@ -1,13 +1,14 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { Code } from './Code';
-import { getChildrenText } from '../getChildrenText';
+import { getChildrenText } from '../utils/getChildrenText';
 
 interface TableCodeProps extends React.ComponentProps<'code'> {
   printWidth?: number;
 }
 
 /** An inline code component that breaks long union types into multiple lines */
-export function TableCode({ children, printWidth = 40, ...props }: TableCodeProps) {
+export function TableCode({ children, className, printWidth = 40, ...props }: TableCodeProps) {
   const text = getChildrenText(children);
 
   if (text.includes('|') && text.length > printWidth) {
@@ -18,23 +19,30 @@ export function TableCode({ children, printWidth = 40, ...props }: TableCodeProp
     let groupIndex = 0;
     parts.forEach((child, index) => {
       if (index === 0) {
-        unionGroups.push([child]);
-        return;
-      }
-
-      if (getChildrenText(child).trim() === '|' && depth < 1) {
-        groupIndex += 1;
         unionGroups.push([]);
-        return;
       }
 
-      if (getChildrenText(child).trim() === '(') {
+      const str = getChildrenText(child);
+
+      // Solo function return values shouldn't be broken up, e.g. in:
+      // `(value) => string | string[] | null | Promise`
+      if (str.includes('=>') && depth < 1) {
         depth += 1;
       }
 
-      if (getChildrenText(child).trim() === ')') {
-        depth -= 1;
+      if (str.trim() === '|' && depth < 1 && index !== 0) {
+        unionGroups.push([]);
+        groupIndex += 1;
+        return;
       }
+
+      str.split('(').forEach(() => {
+        depth += 1;
+      });
+
+      str.split(')').forEach(() => {
+        depth -= 1;
+      });
 
       unionGroups[groupIndex].push(child);
     });
@@ -57,5 +65,9 @@ export function TableCode({ children, printWidth = 40, ...props }: TableCodeProp
     children = unionGroups.flat();
   }
 
-  return <Code {...props}>{children}</Code>;
+  return (
+    <Code data-table-code="" className={clsx('text-xs', className)} {...props}>
+      {children}
+    </Code>
+  );
 }

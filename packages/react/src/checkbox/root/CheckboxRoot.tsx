@@ -33,6 +33,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     render,
     className,
     inputRef,
+    value,
     ...otherProps
   } = props;
 
@@ -56,8 +57,13 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ...otherGroupProps
   } = groupProps;
 
+  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
+
+  const disabled = fieldDisabled || groupContext?.disabled || disabledProp;
+
   const { checked, getInputProps, getButtonProps } = useCheckboxRoot({
     ...props,
+    disabled,
     inputRef,
     checked: groupChecked,
     indeterminate: groupIndeterminate,
@@ -66,9 +72,6 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const computedChecked = isGrouped ? Boolean(groupChecked) : checked;
   const computedIndeterminate = isGrouped ? groupIndeterminate : indeterminate;
-
-  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
-  const disabled = fieldDisabled || disabledProp;
 
   React.useEffect(() => {
     if (parentContext && name) {
@@ -119,7 +122,7 @@ namespace CheckboxRoot {
      */
     checked: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
@@ -137,7 +140,7 @@ namespace CheckboxRoot {
   }
   export interface Props
     extends UseCheckboxRoot.Parameters,
-      Omit<BaseUIComponentProps<'button', State>, 'onChange'> {}
+      Omit<BaseUIComponentProps<'button', State>, 'onChange' | 'value'> {}
 }
 
 CheckboxRoot.propTypes /* remove-proptypes */ = {
@@ -169,7 +172,7 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   defaultChecked: PropTypes.bool,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -200,7 +203,9 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   onCheckedChange: PropTypes.func,
   /**
-   * If `true`, the checkbox is a parent checkbox for a group of child checkboxes.
+   * Whether the checkbox controls a group of child checkboxes.
+   *
+   * Must be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).
    * @default false
    */
   parent: PropTypes.bool,
@@ -221,6 +226,10 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   required: PropTypes.bool,
+  /**
+   * The value of the selected checkbox.
+   */
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 } as any;
 
 export { CheckboxRoot };

@@ -3,12 +3,12 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
-import { usePreviewCardArrow } from './usePreviewCardArrow';
 import { useForkRef } from '../../utils/useForkRef';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
  * Displays an element positioned against the preview card anchor.
@@ -25,9 +25,14 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   const { open } = usePreviewCardRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePreviewCardPositionerContext();
 
-  const { getArrowProps } = usePreviewCardArrow({
-    arrowStyles,
-  });
+  const getArrowProps = React.useCallback(
+    (externalProps = {}) =>
+      mergeReactProps<'div'>(externalProps, {
+        style: arrowStyles,
+        'aria-hidden': true,
+      }),
+    [arrowStyles],
+  );
 
   const state: PreviewCardArrow.State = React.useMemo(
     () => ({

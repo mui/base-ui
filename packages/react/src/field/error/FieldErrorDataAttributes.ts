@@ -8,7 +8,7 @@ export enum FieldErrorDataAttributes {
    */
   invalid = 'data-invalid',
   /**
-   * Present when the field has been thouched.
+   * Present when the field has been touched.
    */
   touched = 'data-touched',
   /**

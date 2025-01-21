@@ -32,8 +32,17 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 ) {
   const { render, className, ...other } = props;
 
-  const { open, setOpen, popupRef, transitionStatus, nested, mounted, getPopupProps } =
-    useMenuRootContext();
+  const {
+    open,
+    setOpen,
+    popupRef,
+    transitionStatus,
+    nested,
+    getPopupProps,
+    modal,
+    mounted,
+    instantType,
+  } = useMenuRootContext();
   const { side, align, floatingContext } = useMenuPositionerContext();
 
   const { events: menuEvents } = useFloatingTree()!;
@@ -51,8 +60,10 @@ const MenuPopup = React.forwardRef(function MenuPopup(
       side,
       align,
       open,
+      nested,
+      instant: instantType,
     }),
-    [transitionStatus, side, align, open],
+    [transitionStatus, side, align, open, nested, instantType],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -74,8 +85,8 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     <FloatingFocusManager
       context={floatingContext}
       modal={false}
-      initialFocus={nested ? -1 : 0}
       disabled={!mounted}
+      visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
     >
       {renderElement()}
     </FloatingFocusManager>
@@ -86,7 +97,7 @@ namespace MenuPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
-     * The id of the popup element.
+     * @ignore
      */
     id?: string;
   }
@@ -99,6 +110,7 @@ namespace MenuPopup {
      * Whether the menu is currently open.
      */
     open: boolean;
+    nested: boolean;
   };
 }
 
@@ -117,7 +129,7 @@ MenuPopup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The id of the popup element.
+   * @ignore
    */
   id: PropTypes.string,
   /**

@@ -36,7 +36,7 @@ export enum CheckboxIndicatorDataAttributes {
    */
   invalid = 'data-invalid',
   /**
-   * Present when the checkbox has been thouched (when wrapped in Field.Root).
+   * Present when the checkbox has been touched (when wrapped in Field.Root).
    */
   touched = 'data-touched',
   /**

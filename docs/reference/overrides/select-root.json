@@ -1,0 +1,11 @@
+{
+  "name": "SelectRoot",
+  "props": {
+    "onOpenChange": {
+      "type": "(open, event) => void"
+    },
+    "onValueChange": {
+      "type": "(value, event) => void"
+    }
+  }
+}

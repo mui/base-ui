@@ -1,16 +1,19 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingList, FloatingNode, useFloatingNodeId } from '@floating-ui/react';
+import { FloatingNode, useFloatingNodeId, useFloatingParentNodeId } from '@floating-ui/react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuPositioner } from './useMenuPositioner';
-import { HTMLElementType } from '../../utils/proptypes';
 import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { CompositeList } from '../../composite/list/CompositeList';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { HTMLElementType, refType } from '../../utils/proptypes';
+import { useMenuPortalContext } from '../portal/MenuPortalContext';
 
 /**
  * Positions the menu popup against the trigger.
@@ -27,22 +30,41 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     positionMethod = 'absolute',
     className,
     render,
-    keepMounted = false,
-    side = 'bottom',
-    align = 'center',
+    side,
+    align,
     sideOffset = 0,
     alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
+    trackAnchor = true,
     ...otherProps
   } = props;
 
-  const { open, floatingRootContext, setPositionerElement, itemDomElements, itemLabels, mounted } =
-    useMenuRootContext();
+  const {
+    open,
+    floatingRootContext,
+    setPositionerElement,
+    itemDomElements,
+    itemLabels,
+    mounted,
+    nested,
+    modal,
+  } = useMenuRootContext();
+  const keepMounted = useMenuPortalContext();
 
   const nodeId = useFloatingNodeId();
+  const parentNodeId = useFloatingParentNodeId();
+
+  let computedSide = side;
+  let computedAlign = align;
+  if (!side) {
+    computedSide = nested ? 'inline-end' : 'bottom';
+  }
+  if (!align) {
+    computedAlign = nested ? 'start' : 'center';
+  }
 
   const positioner = useMenuPositioner({
     anchor,
@@ -50,15 +72,18 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     positionMethod,
     open,
     mounted,
-    side,
+    side: computedSide,
     sideOffset,
-    align,
+    align: computedAlign,
     alignOffset,
     arrowPadding,
     collisionBoundary,
     collisionPadding,
     sticky,
     nodeId,
+    parentNodeId,
+    keepMounted,
+    trackAnchor,
   });
 
   const state: MenuPositioner.State = React.useMemo(
@@ -67,8 +92,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
       side: positioner.side,
       align: positioner.align,
       anchorHidden: positioner.anchorHidden,
+      nested,
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden],
+    [open, positioner.side, positioner.align, positioner.anchorHidden, nested],
   );
 
   const contextValue: MenuPositionerContext = React.useMemo(
@@ -78,7 +104,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
       arrowRef: positioner.arrowRef,
       arrowUncentered: positioner.arrowUncentered,
       arrowStyles: positioner.arrowStyles,
-      floatingContext: positioner.floatingContext,
+      floatingContext: positioner.context,
     }),
     [
       positioner.side,
@@ -86,7 +112,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
       positioner.arrowRef,
       positioner.arrowUncentered,
       positioner.arrowStyles,
-      positioner.floatingContext,
+      positioner.context,
     ],
   );
 
@@ -102,17 +128,13 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     extraProps: otherProps,
   });
 
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
-
   return (
     <MenuPositionerContext.Provider value={contextValue}>
+      {mounted && modal && parentNodeId === null && <InternalBackdrop inert={!open} />}
       <FloatingNode id={nodeId}>
-        <FloatingList elementsRef={itemDomElements} labelsRef={itemLabels}>
+        <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
           {renderElement()}
-        </FloatingList>
+        </CompositeList>
       </FloatingNode>
     </MenuPositionerContext.Provider>
   );
@@ -125,8 +147,9 @@ export namespace MenuPositioner {
      */
     open: boolean;
     side: Side;
-    align: 'start' | 'end' | 'center';
+    align: Align;
     anchorHidden: boolean;
+    nested: boolean;
   }
 
   export interface Props
@@ -140,26 +163,29 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The align of the Menu element to the anchor element along its cross axis.
+   * How to align the popup relative to the specified side.
    * @default 'center'
    */
   align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the Menu element along its align axis.
+   * Additional offset along the alignment axis of the element.
    * @default 0
    */
   alignOffset: PropTypes.number,
   /**
-   * The anchor element to which the Menu popup will be placed at.
+   * An element to position the popup against.
+   * By default, the popup will be positioned against the trigger.
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
+    refType,
     PropTypes.object,
     PropTypes.func,
   ]),
   /**
-   * Determines the padding between the arrow and the Menu popup's edges. Useful when the popover
-   * popup has rounded corners via `border-radius`.
+   * Minimum distance to maintain between the arrow and the edges of the popup.
+   *
+   * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
    * @default 5
    */
   arrowPadding: PropTypes.number,
@@ -173,7 +199,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The boundary that the Menu element should be constrained to.
+   * An element or a rectangle that delimits the area that the popup is confined to.
    * @default 'clipping-ancestors'
    */
   collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
@@ -188,7 +214,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The padding of the collision boundary.
+   * Additional space to maintain from the edge of the collision boundary.
    * @default 5
    */
   collisionPadding: PropTypes.oneOfType([
@@ -201,12 +227,7 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * Whether to keep the HTML element in the DOM while the menu is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * The CSS position strategy for positioning the Menu popup element.
+   * Determines which CSS `position` property to use.
    * @default 'absolute'
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
@@ -218,21 +239,27 @@ MenuPositioner.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The side of the anchor element that the Menu element should align to.
+   * Which side of the anchor element to align the popup against.
+   * May automatically change to avoid collisions.
    * @default 'bottom'
    */
   side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
-   * The gap between the anchor element and the Menu element.
+   * Distance between the anchor and the popup.
    * @default 0
    */
   sideOffset: PropTypes.number,
   /**
-   * If `true`, allow the Menu to remain in stuck view while the anchor element is scrolled out
-   * of view.
+   * Whether to maintain the popup in the viewport after
+   * the anchor element was scrolled out of view.
    * @default false
    */
   sticky: PropTypes.bool,
+  /**
+   * Whether the popup tracks any layout shift of its positioning anchor.
+   * @default true
+   */
+  trackAnchor: PropTypes.bool,
 } as any;
 
 export { MenuPositioner };

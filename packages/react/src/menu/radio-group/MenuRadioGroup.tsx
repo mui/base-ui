@@ -1,13 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
+import { NOOP } from '../../utils/noop';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
-
-const EMPTY_OBJECT = {};
-const NOOP = () => {};
 
 /**
  * Groups related radio items.
@@ -22,7 +20,8 @@ const MenuRadioGroup = React.forwardRef(function MenuRadioGroup(
     className,
     value: valueProp,
     defaultValue,
-    onValueChange: onValueChangeProp = NOOP,
+    onValueChange: onValueChangeProp,
+    disabled = false,
     ...other
   } = props;
 
@@ -32,7 +31,7 @@ const MenuRadioGroup = React.forwardRef(function MenuRadioGroup(
     name: 'MenuRadioGroup',
   });
 
-  const onValueChange = useEventCallback(onValueChangeProp);
+  const onValueChange = useEventCallback(onValueChangeProp ?? NOOP);
 
   const setValue = React.useCallback(
     (newValue: any, event: Event) => {
@@ -42,23 +41,27 @@ const MenuRadioGroup = React.forwardRef(function MenuRadioGroup(
     [onValueChange, setValueUnwrapped],
   );
 
+  const state = React.useMemo(() => ({ disabled }), [disabled]);
+
   const { renderElement } = useComponentRenderer({
     render: render || 'div',
     className,
-    state: EMPTY_OBJECT,
+    state,
     extraProps: {
       role: 'group',
+      'aria-disabled': disabled || undefined,
       ...other,
     },
     ref: forwardedRef,
   });
 
-  const context = React.useMemo(
+  const context: MenuRadioGroupContext = React.useMemo(
     () => ({
       value,
       setValue,
+      disabled,
     }),
-    [value, setValue],
+    [value, setValue, disabled],
   );
 
   return (
@@ -75,12 +78,15 @@ namespace MenuRadioGroup {
      */
     children?: React.ReactNode;
     /**
-     * The value of the selected radio button.
+     * The controlled value of the radio item that should be currently selected.
+     *
+     * To render an uncontrolled radio group, use the `defaultValue` prop instead.
      */
     value?: any;
     /**
-     * The default value of the selected radio button.
-     * This is the uncontrolled equivalent of `value`.
+     * The uncontrolled value of the radio item that should be initially selected.
+     *
+     * To render a controlled radio group, use the `value` prop instead.
      */
     defaultValue?: any;
     /**
@@ -89,9 +95,17 @@ namespace MenuRadioGroup {
      * @default () => {}
      */
     onValueChange?: (value: any, event: Event) => void;
+    /**
+     * Whether the component should ignore user interaction.
+     *
+     * @default false
+     */
+    disabled?: boolean;
   }
 
-  export type State = {};
+  export type State = {
+    disabled: boolean;
+  };
 }
 
 MenuRadioGroup.propTypes /* remove-proptypes */ = {
@@ -109,10 +123,17 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default value of the selected radio button.
-   * This is the uncontrolled equivalent of `value`.
+   * The uncontrolled value of the radio item that should be initially selected.
+   *
+   * To render a controlled radio group, use the `value` prop instead.
    */
   defaultValue: PropTypes.any,
+  /**
+   * Whether the component should ignore user interaction.
+   *
+   * @default false
+   */
+  disabled: PropTypes.bool,
   /**
    * Function called when the selected value changes.
    *
@@ -127,7 +148,9 @@ MenuRadioGroup.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The value of the selected radio button.
+   * The controlled value of the radio item that should be currently selected.
+   *
+   * To render an uncontrolled radio group, use the `defaultValue` prop instead.
    */
   value: PropTypes.any,
 } as any;

@@ -10,6 +10,8 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useSelectPositioner } from './useSelectPositioner';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
  * Positions the select menu popup against the trigger.
@@ -27,7 +29,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     className,
     render,
     side = 'bottom',
-    align = 'start',
+    align = 'center',
     sideOffset = 0,
     alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
@@ -38,10 +40,10 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     ...otherProps
   } = props;
 
-  const { open, mounted, setPositionerElement, listRef, labelsRef, floatingRootContext } =
+  const { open, mounted, setPositionerElement, listRef, labelsRef, floatingRootContext, modal } =
     useSelectRootContext();
 
-  const { getPositionerProps, positioner } = useSelectPositioner({
+  const positioner = useSelectPositioner({
     anchor,
     floatingRootContext,
     positionMethod,
@@ -55,7 +57,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     sticky,
     trackAnchor,
-    allowAxisFlip: false,
+    keepMounted: true,
   });
 
   const mergedRef = useForkRef(ref, setPositionerElement);
@@ -71,7 +73,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getPositionerProps,
+    propGetter: positioner.getPositionerProps,
     render: render ?? 'div',
     ref: mergedRef,
     className,
@@ -83,6 +85,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
       <SelectPositionerContext.Provider value={positioner}>
+        {mounted && modal && <InternalBackdrop inert={!open} />}
         {renderElement()}
       </SelectPositionerContext.Provider>
     </CompositeList>
@@ -108,57 +111,29 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The align of the Select element to the anchor element along its cross axis.
-   * @default 'start'
+   * How to align the popup relative to the specified side.
+   * @default 'center'
    */
   align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the Select element along its align axis.
+   * Additional offset along the alignment axis of the element.
    * @default 0
    */
   alignOffset: PropTypes.number,
   /**
-   * The anchor element to which the Select popup will be placed at.
+   * An element to position the popup against.
+   * By default, the popup will be positioned against the trigger.
    */
-  anchor: PropTypes.oneOfType([
-    (props, propName) => {
-      if (props[propName] == null) {
-        return new Error(`Prop '${propName}' is required but wasn't specified`);
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
+  anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    HTMLElementType,
+    refType,
+    PropTypes.object,
     PropTypes.func,
-    PropTypes.shape({
-      contextElement: (props, propName) => {
-        if (props[propName] == null) {
-          return null;
-        }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop '${propName}' to be of type Element`);
-        }
-        return null;
-      },
-      getBoundingClientRect: PropTypes.func.isRequired,
-      getClientRects: PropTypes.func,
-    }),
-    PropTypes.shape({
-      current: (props, propName) => {
-        if (props[propName] == null) {
-          return null;
-        }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop '${propName}' to be of type Element`);
-        }
-        return null;
-      },
-    }),
   ]),
   /**
-   * Determines the padding between the arrow and the Select popup's edges. Useful when the popover
-   * popup has rounded corners via `border-radius`.
+   * Minimum distance to maintain between the arrow and the edges of the popup.
+   *
+   * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
    * @default 5
    */
   arrowPadding: PropTypes.number,
@@ -172,38 +147,22 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The boundary that the Select element should be constrained to.
+   * An element or a rectangle that delimits the area that the popup is confined to.
    * @default 'clipping-ancestors'
    */
-  collisionBoundary: PropTypes.oneOfType([
-    PropTypes.oneOf(['clipping-ancestors']),
-    PropTypes.arrayOf((props, propName) => {
-      if (props[propName] == null) {
-        return new Error(`Prop '${propName}' is required but wasn't specified`);
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    }),
-    (props, propName) => {
-      if (props[propName] == null) {
-        return new Error(`Prop '${propName}' is required but wasn't specified`);
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
+  collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    HTMLElementType,
+    PropTypes.arrayOf(HTMLElementType),
+    PropTypes.string,
     PropTypes.shape({
-      height: PropTypes.number.isRequired,
-      width: PropTypes.number.isRequired,
-      x: PropTypes.number.isRequired,
-      y: PropTypes.number.isRequired,
+      height: PropTypes.number,
+      width: PropTypes.number,
+      x: PropTypes.number,
+      y: PropTypes.number,
     }),
   ]),
   /**
-   * The padding of the collision boundary.
+   * Additional space to maintain from the edge of the collision boundary.
    * @default 5
    */
   collisionPadding: PropTypes.oneOfType([
@@ -216,7 +175,7 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The CSS position method for positioning the Select popup element.
+   * Determines which CSS `position` property to use.
    * @default 'absolute'
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
@@ -228,23 +187,24 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The side of the anchor element that the Select element should align to.
+   * Which side of the anchor element to align the popup against.
+   * May automatically change to avoid collisions.
    * @default 'bottom'
    */
   side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
-   * The gap between the anchor element and the Select element.
+   * Distance between the anchor and the popup.
    * @default 0
    */
   sideOffset: PropTypes.number,
   /**
-   * If `true`, allow the Select to remain in stuck view while the anchor element is scrolled out
-   * of view.
+   * Whether to maintain the popup in the viewport after
+   * the anchor element was scrolled out of view.
    * @default false
    */
   sticky: PropTypes.bool,
   /**
-   * Whether the select popup continuously tracks its anchor after the initial positioning upon mount.
+   * Whether the popup tracks any layout shift of its positioning anchor.
    * @default true
    */
   trackAnchor: PropTypes.bool,

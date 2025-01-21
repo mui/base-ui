@@ -2,38 +2,40 @@
   "name": "TooltipRoot",
   "description": "Groups all parts of the tooltip.\nDoesn’t render its own HTML element.",
   "props": {
-    "closeDelay": {
-      "type": "number",
-      "default": "0",
-      "description": "The delay in milliseconds until the tooltip popup is closed."
-    },
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
       "description": "Whether the tooltip is initially open.\n\nTo render a controlled tooltip, use the `open` prop instead."
     },
-    "delay": {
-      "type": "number",
-      "default": "600",
-      "description": "The delay in milliseconds until the tooltip popup is opened."
-    },
-    "hoverable": {
+    "open": {
       "type": "boolean",
-      "default": "true",
-      "description": "Whether the user can move their cursor from the trigger element toward the tooltip popup element\nwithout it closing using a \"safe polygon\" technique."
+      "description": "Whether the tooltip is currently open."
     },
     "onOpenChange": {
       "type": "(open, event, reason) => void",
       "description": "Event handler called when the tooltip is opened or closed."
     },
-    "open": {
-      "type": "boolean",
-      "description": "Whether the tooltip is currently open."
-    },
     "trackCursorAxis": {
       "type": "'none' | 'x' | 'y' | 'both'",
       "default": "'none'",
       "description": "Determines which axis the tooltip should track the cursor on."
+    },
+    "delay": {
+      "type": "number",
+      "default": "600",
+      "description": "How long to wait before opening the tooltip. Specified in milliseconds."
+    },
+    "closeDelay": {
+      "type": "number",
+      "default": "0",
+      "description": "How long to wait before closing the tooltip. Specified in milliseconds."
+    },
+    "hoverable": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the tooltip contents can be hovered without closing the tooltip."
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }

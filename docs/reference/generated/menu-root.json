@@ -2,47 +2,54 @@
   "name": "MenuRoot",
   "description": "Groups all parts of the menu.\nDoesn’t render its own HTML element.",
   "props": {
-    "closeParentOnEsc": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Determines if pressing the Esc key closes the parent menus.\nThis is only applicable for nested menus.\n\nIf set to `false` pressing Esc closes only the current menu."
-    },
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
       "description": "Whether the menu is initially open.\n\nTo render a controlled menu, use the `open` prop instead."
     },
-    "delay": {
-      "type": "number",
-      "default": "100",
-      "description": "The delay in milliseconds until the menu popup is opened when `openOnHover` is `true`."
+    "open": {
+      "type": "boolean",
+      "description": "Whether the menu is currently open."
+    },
+    "onOpenChange": {
+      "type": "(open, event) => void",
+      "description": "Event handler called when the menu is opened or closed."
+    },
+    "closeParentOnEsc": {
+      "type": "boolean",
+      "default": "true",
+      "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu."
+    },
+    "modal": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the menu should prevent outside clicks and lock page scroll when open."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user actions."
+      "description": "Whether the component should ignore user interaction."
+    },
+    "openOnHover": {
+      "type": "boolean",
+      "description": "Whether the menu should also open when the trigger is hovered.\n\nDefaults to `true` for nested menus."
+    },
+    "delay": {
+      "type": "number",
+      "default": "100",
+      "description": "How long to wait before the menu may be opened on hover. Specified in milliseconds.\n\nRequires the `openOnHover` prop."
     },
     "loop": {
       "type": "boolean",
       "default": "true",
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
-    "onOpenChange": {
-      "type": "(open, event) => void",
-      "description": "Event handler called when the menu is opened or closed."
-    },
-    "open": {
-      "type": "boolean",
-      "description": "Whether the menu is currently open."
-    },
-    "openOnHover": {
-      "type": "boolean",
-      "description": "Whether the menu popup opens when the trigger is hovered after the provided `delay`.\nBy default, `openOnHover` is set to `true` for nested menus."
-    },
     "orientation": {
       "type": "'horizontal' | 'vertical'",
       "default": "'vertical'",
-      "description": "The orientation of the Menu (horizontal or vertical)."
+      "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys."
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }

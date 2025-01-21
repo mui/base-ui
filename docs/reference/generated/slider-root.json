@@ -6,42 +6,17 @@
       "type": "string",
       "description": "Identifies the element (or elements) that labels the current element."
     },
-    "className": {
-      "type": "string | (state) => string",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
-    },
-    "defaultValue": {
-      "type": "Array<number> | number",
-      "description": "The default value of the slider. Use when the component is not controlled."
-    },
-    "disabled": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the component should ignore user actions."
-    },
-    "largeStep": {
-      "type": "number",
-      "default": "10",
-      "description": "The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down."
-    },
-    "max": {
-      "type": "number",
-      "default": "100",
-      "description": "The maximum allowed value of the slider.\nShould not be equal to min."
-    },
-    "min": {
-      "type": "number",
-      "default": "0",
-      "description": "The minimum allowed value of the slider.\nShould not be equal to max."
-    },
-    "minStepsBetweenValues": {
-      "type": "number",
-      "default": "0",
-      "description": "The minimum steps between values in a range slider."
-    },
     "name": {
       "type": "string",
       "description": "Identifies the field when a form is submitted."
+    },
+    "defaultValue": {
+      "type": "Array<number> | number",
+      "description": "The uncontrolled value of the slider when it’s initially rendered.\n\nTo render a controlled slider, use the `value` prop instead."
+    },
+    "value": {
+      "type": "Array<number> | number",
+      "description": "The value of the slider.\nFor ranged sliders, provide an array with two values."
     },
     "onValueChange": {
       "type": "(value, event, activeThumbIndex) => void",
@@ -51,23 +26,87 @@
       "type": "(value, event) => void",
       "description": "Callback function that is fired when the `pointerup` is triggered."
     },
-    "orientation": {
-      "type": "'horizontal' | 'vertical'",
-      "default": "'horizontal'",
-      "description": "The component orientation."
-    },
-    "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    "tabIndex": {
+      "type": "number",
+      "description": "Optional tab index attribute for the thumb components."
     },
     "step": {
       "type": "number",
       "default": "1",
       "description": "The granularity with which the slider can step through values. (A \"discrete\" slider.)\nThe `min` prop serves as the origin for the valid values.\nWe recommend (max - min) to be evenly divisible by the step."
     },
-    "value": {
-      "type": "Array<number> | number",
-      "description": "The value of the slider.\nFor ranged sliders, provide an array with two values."
+    "largeStep": {
+      "type": "number",
+      "default": "10",
+      "description": "The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down."
+    },
+    "minStepsBetweenValues": {
+      "type": "number",
+      "default": "0",
+      "description": "The minimum steps between values in a range slider."
+    },
+    "min": {
+      "type": "number",
+      "default": "0",
+      "description": "The minimum allowed value of the slider.\nShould not be equal to max."
+    },
+    "max": {
+      "type": "number",
+      "default": "100",
+      "description": "The maximum allowed value of the slider.\nShould not be equal to min."
+    },
+    "format": {
+      "type": "Intl.NumberFormatOptions",
+      "description": "Options to format the input value."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction."
+    },
+    "orientation": {
+      "type": "'horizontal' | 'vertical'",
+      "default": "'horizontal'",
+      "description": "The component orientation."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-dragging": {
+      "description": "Present while the user is dragging."
+    },
+    "data-orientation": {
+      "description": "Indicates the orientation of the slider.",
+      "type": "'horizontal' | 'vertical'"
+    },
+    "data-disabled": {
+      "description": "Present when the slider is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the slider is readonly."
+    },
+    "data-required": {
+      "description": "Present when the slider is required."
+    },
+    "data-valid": {
+      "description": "Present when the slider is in valid state (when wrapped in Field.Root)."
+    },
+    "data-invalid": {
+      "description": "Present when the slider is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-dirty": {
+      "description": "Present when the slider's value has changed (when wrapped in Field.Root)."
+    },
+    "data-touched": {
+      "description": "Present when the slider has been touched (when wrapped in Field.Root)."
+    }
+  },
+  "cssVariables": {}
 }

@@ -14,11 +14,16 @@ import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { DialogPopupCssVars } from './DialogPopupCssVars';
+import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { useDialogPortalContext } from '../portal/DialogPortalContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
-  nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
+  hasNestedDialogs(value) {
+    return value ? { [DialogPopupDataAttributes.hasNestedDialogs]: '' } : null;
+  },
 };
 
 /**
@@ -31,7 +36,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, finalFocus, id, initialFocus, keepMounted = false, render, ...other } = props;
+  const { className, finalFocus, id, initialFocus, render, ...other } = props;
 
   const {
     descriptionElementId,
@@ -40,8 +45,9 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     getPopupProps,
     modal,
     mounted,
+    nested,
     nestedOpenDialogCount,
-    onOpenChange,
+    setOpen,
     open,
     openMethod,
     popupRef,
@@ -51,18 +57,18 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     transitionStatus,
   } = useDialogRootContext();
 
+  useDialogPortalContext();
+
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const { getRootProps, floatingContext, resolvedInitialFocus } = useDialogPopup({
+  const { getRootProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
-    floatingRootContext,
     getPopupProps,
     id,
     initialFocus,
     modal,
     mounted,
-    onOpenChange,
-    open,
+    setOpen,
     openMethod,
     ref: mergedRef,
     setPopupElement,
@@ -72,8 +78,9 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 
   const state: DialogPopup.State = {
     open,
-    nestedOpenDialogCount,
+    nested,
     transitionStatus,
+    hasNestedDialogs: nestedOpenDialogCount > 0,
   };
 
   const { renderElement } = useComponentRenderer({
@@ -88,32 +95,26 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     customStyleHookMapping,
   });
 
-  if (!keepMounted && !mounted) {
-    return null;
-  }
-
   return (
-    <FloatingFocusManager
-      context={floatingContext}
-      modal={modal}
-      disabled={!mounted}
-      closeOnFocusOut={dismissible}
-      initialFocus={resolvedInitialFocus}
-      returnFocus={finalFocus}
-      outsideElementsInert
-    >
-      {renderElement()}
-    </FloatingFocusManager>
+    <React.Fragment>
+      {mounted && modal && <InternalBackdrop inert={!open} />}
+      <FloatingFocusManager
+        context={floatingRootContext}
+        modal={open}
+        disabled={!mounted}
+        closeOnFocusOut={dismissible}
+        initialFocus={resolvedInitialFocus}
+        returnFocus={finalFocus}
+        outsideElementsInert={modal}
+      >
+        {renderElement()}
+      </FloatingFocusManager>
+    </React.Fragment>
   );
 });
 
 namespace DialogPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to keep the HTML element in the DOM while the dialog is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
     /**
      * Determines the element to focus when the dialog is opened.
      * By default, the first focusable element is focused.
@@ -123,7 +124,7 @@ namespace DialogPopup {
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
     /**
      * Determines the element to focus when the dialog is closed.
-     * By default, focus returns to trigger.
+     * By default, focus returns to the trigger.
      */
     finalFocus?: React.RefObject<HTMLElement | null>;
   }
@@ -133,8 +134,15 @@ namespace DialogPopup {
      * Whether the dialog is currently open.
      */
     open: boolean;
-    nestedOpenDialogCount: number;
     transitionStatus: TransitionStatus;
+    /**
+     * Whether the dialog is nested within a parent dialog.
+     */
+    nested: boolean;
+    /**
+     * Whether the dialog has nested dialogs open.
+     */
+    hasNestedDialogs: boolean;
   }
 }
 
@@ -154,7 +162,7 @@ DialogPopup.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * Determines the element to focus when the dialog is closed.
-   * By default, focus returns to trigger.
+   * By default, focus returns to the trigger.
    */
   finalFocus: refType,
   /**
@@ -169,11 +177,6 @@ DialogPopup.propTypes /* remove-proptypes */ = {
     PropTypes.func,
     refType,
   ]),
-  /**
-   * Whether to keep the HTML element in the DOM while the dialog is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

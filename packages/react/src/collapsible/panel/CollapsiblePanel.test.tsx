@@ -1,13 +1,11 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui-components/react/collapsible';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../utils/noop';
 import { CollapsibleRootContext } from '../root/CollapsibleRootContext';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 const PANEL_CONTENT = 'This is panel content';
 
@@ -23,7 +21,6 @@ const contextValue: CollapsibleRootContext = {
   state: {
     open: true,
     disabled: false,
-    hidden: false,
     transitionStatus: undefined,
   },
 };
@@ -88,8 +85,8 @@ describe('<Collapsible.Panel />', () => {
   });
 
   // we test firefox in browserstack which does not support this yet
-  describeSkipIf(!('onbeforematch' in window) || isJSDOM)('prop: hiddenUntilFound', () => {
-    it('uses `hidden="until-found" to hide panel when true', async function test() {
+  describe.skipIf(!('onbeforematch' in window) || isJSDOM)('prop: hiddenUntilFound', () => {
+    it('uses `hidden="until-found" to hide panel when true', async () => {
       const handleOpenChange = spy();
 
       const { queryByText } = await render(

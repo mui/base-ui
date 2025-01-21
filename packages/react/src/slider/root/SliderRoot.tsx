@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { NOOP } from '../../utils/noop';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { CompositeList } from '../../composite/list/CompositeList';
-import { useDirection } from '../../direction-provider/DirectionContext';
 import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
 import { SliderRootContext } from './SliderRootContext';
@@ -26,44 +27,43 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     className,
     defaultValue,
     disabled: disabledProp = false,
-    id,
-    largeStep,
+    id: idProp,
+    format,
+    largeStep = 10,
     render,
-    max,
-    min,
-    minStepsBetweenValues,
-    name,
-    onValueChange,
-    onValueCommitted,
+    max = 100,
+    min = 0,
+    minStepsBetweenValues = 0,
+    name: nameProp,
+    onValueChange: onValueChangeProp,
+    onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
-    step,
-    tabIndex,
+    step = 1,
+    tabIndex: externalTabIndex,
     value,
     ...otherProps
   } = props;
 
-  const direction = useDirection();
+  const id = useBaseUiId(idProp);
 
   const { labelId, state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
 
   const { getRootProps, ...slider } = useSliderRoot({
-    'aria-labelledby': ariaLabelledby ?? labelId,
+    'aria-labelledby': ariaLabelledby ?? labelId ?? '',
     defaultValue,
-    direction,
     disabled,
-    id,
+    id: id ?? '',
     largeStep,
     max,
     min,
     minStepsBetweenValues,
-    name,
-    onValueChange,
-    onValueCommitted,
+    name: nameProp ?? '',
+    onValueChange: onValueChangeProp ?? NOOP,
+    onValueCommitted: onValueCommittedProp ?? NOOP,
     orientation,
     rootRef: forwardedRef,
     step,
-    tabIndex,
     value,
   });
 
@@ -97,9 +97,11 @@ const SliderRoot = React.forwardRef(function SliderRoot(
   const contextValue = React.useMemo(
     () => ({
       ...slider,
+      format,
       state,
+      tabIndex: externalTabIndex ?? null,
     }),
-    [slider, state],
+    [slider, format, state, externalTabIndex],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -125,11 +127,11 @@ export namespace SliderRoot {
      */
     activeThumbIndex: number;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
-     * If `true`, a thumb is being dragged by a pointer.
+     * Whether the thumb is currently being dragged.
      */
     dragging: boolean;
     max: number;
@@ -152,39 +154,50 @@ export namespace SliderRoot {
     /**
      * The raw number value of the slider.
      */
-    values: ReadonlyArray<number>;
+    values: readonly number[];
   }
 
   export interface Props
-    extends Pick<
-        useSliderRoot.Parameters,
-        | 'disabled'
-        | 'max'
-        | 'min'
-        | 'minStepsBetweenValues'
-        | 'name'
-        | 'onValueChange'
-        | 'onValueCommitted'
-        | 'orientation'
-        | 'largeStep'
-        | 'step'
-        | 'value'
+    extends Partial<
+        Pick<
+          useSliderRoot.Parameters,
+          | 'disabled'
+          | 'max'
+          | 'min'
+          | 'minStepsBetweenValues'
+          | 'name'
+          | 'onValueChange'
+          | 'onValueCommitted'
+          | 'orientation'
+          | 'largeStep'
+          | 'step'
+        >
       >,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue' | 'onChange' | 'values'> {
     /**
-     * The default value of the slider. Use when the component is not controlled.
+     * The uncontrolled value of the slider when it’s initially rendered.
+     *
+     * To render a controlled slider, use the `value` prop instead.
      */
-    defaultValue?: number | ReadonlyArray<number>;
+    defaultValue?: number | readonly number[];
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
     /**
+     * Options to format the input value.
+     */
+    format?: Intl.NumberFormatOptions;
+    /**
+     * Optional tab index attribute for the thumb components.
+     */
+    tabIndex?: number;
+    /**
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
      */
-    value?: number | ReadonlyArray<number>;
+    value?: number | readonly number[];
   }
 }
 
@@ -210,14 +223,38 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default value of the slider. Use when the component is not controlled.
+   * The uncontrolled value of the slider when it’s initially rendered.
+   *
+   * To render a controlled slider, use the `value` prop instead.
    */
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.number), PropTypes.number]),
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * Options to format the input value.
+   */
+  format: PropTypes.shape({
+    compactDisplay: PropTypes.oneOf(['long', 'short']),
+    currency: PropTypes.string,
+    currencyDisplay: PropTypes.oneOf(['code', 'name', 'narrowSymbol', 'symbol']),
+    currencySign: PropTypes.oneOf(['accounting', 'standard']),
+    localeMatcher: PropTypes.oneOf(['best fit', 'lookup']),
+    maximumFractionDigits: PropTypes.number,
+    maximumSignificantDigits: PropTypes.number,
+    minimumFractionDigits: PropTypes.number,
+    minimumIntegerDigits: PropTypes.number,
+    minimumSignificantDigits: PropTypes.number,
+    notation: PropTypes.oneOf(['compact', 'engineering', 'scientific', 'standard']),
+    numberingSystem: PropTypes.string,
+    signDisplay: PropTypes.oneOf(['always', 'auto', 'exceptZero', 'never']),
+    style: PropTypes.oneOf(['currency', 'decimal', 'percent', 'unit']),
+    unit: PropTypes.string,
+    unitDisplay: PropTypes.oneOf(['long', 'narrow', 'short']),
+    useGrouping: PropTypes.bool,
+  }),
   /**
    * @ignore
    */
@@ -251,7 +288,7 @@ SliderRoot.propTypes /* remove-proptypes */ = {
   /**
    * Callback function that is fired when the slider's value changed.
    *
-   * @param {number | number[]} value The new value.
+   * @param {number | readonly number[]} value The new value.
    * @param {Event} event The corresponding event that initiated the change.
    * You can pull out the new value by accessing `event.target.value` (any).
    * @param {number} activeThumbIndex Index of the currently moved thumb.
@@ -285,7 +322,7 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   step: PropTypes.number,
   /**
-   * @ignore
+   * Optional tab index attribute for the thumb components.
    */
   tabIndex: PropTypes.number,
   /**

@@ -2,39 +2,40 @@
   "name": "CheckboxGroup",
   "description": "Provides a shared state to a series of checkboxes.",
   "props": {
+    "defaultValue": {
+      "type": "string[]",
+      "description": "Names of the checkboxes in the group that should be initially ticked.\n\nTo render a controlled checkbox group, use the `value` prop instead."
+    },
+    "value": {
+      "type": "string[]",
+      "description": "Names of the checkboxes in the group that should be ticked.\n\nTo render an uncontrolled checkbox group, use the `defaultValue` prop instead."
+    },
+    "onValueChange": {
+      "type": "(value, event) => void",
+      "description": "Event handler called when a checkbox in the group is ticked or unticked.\nProvides the new value as an argument."
+    },
     "allValues": {
       "type": "string[]",
-      "description": "All values of the checkboxes in the group."
+      "description": "Names of all checkboxes in the group. Use this when creating a parent checkbox."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction."
     },
     "className": {
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
-    "defaultValue": {
-      "type": "string[]",
-      "description": "The default checked values of the checkbox group. Use when uncontrolled."
-    },
-    "disabled": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the component should ignore user actions."
-    },
-    "onValueChange": {
-      "type": "(value, event) => void",
-      "description": "A callback function that is called when the value of the checkbox group changes.\nUse when controlled."
-    },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
-    },
-    "value": {
-      "type": "string[]",
-      "description": "The currently checked values of the checkbox group. Use when controlled."
     }
   },
   "dataAttributes": {
     "data-disabled": {
       "description": "Present when the checkbox group is disabled."
     }
-  }
+  },
+  "cssVariables": {}
 }

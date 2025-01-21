@@ -84,11 +84,13 @@ export function useComponentRenderer<
   }
 
   const renderedElementProps = propGetter(ownProps);
-  const propsWithRef = {
+  const propsWithRef: React.HTMLAttributes<any> & React.RefAttributes<any> = {
     ...renderedElementProps,
     ref: useRenderPropForkRef(resolvedRenderProp, ref as React.Ref<any>, renderedElementProps.ref),
-    className,
   };
+  if (className !== undefined) {
+    propsWithRef.className = className;
+  }
 
   const renderElement = () => evaluateRenderProp(resolvedRenderProp, propsWithRef, state);
 

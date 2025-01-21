@@ -13,11 +13,16 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
-  nestedOpenDialogCount: (value) => ({ 'data-nested-dialogs': value.toString() }),
+  hasNestedDialogs(value) {
+    return value ? { [AlertDialogPopupDataAttributes.hasNestedDialogs]: '' } : null;
+  },
 };
 
 /**
@@ -30,15 +35,16 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   props: AlertDialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, id, keepMounted = false, render, initialFocus, finalFocus, ...other } = props;
+  const { className, id, render, initialFocus, finalFocus, ...other } = props;
 
   const {
     descriptionElementId,
     floatingRootContext,
     getPopupProps,
     mounted,
+    nested,
     nestedOpenDialogCount,
-    onOpenChange,
+    setOpen,
     open,
     openMethod,
     popupRef,
@@ -46,20 +52,21 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     setPopupElementId,
     titleElementId,
     transitionStatus,
+    modal,
   } = useAlertDialogRootContext();
+
+  useAlertDialogPortalContext();
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const { getRootProps, floatingContext, resolvedInitialFocus } = useDialogPopup({
+  const { getRootProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
-    floatingRootContext,
     getPopupProps,
     id,
     initialFocus,
     modal: true,
     mounted,
-    onOpenChange,
-    open,
+    setOpen,
     openMethod,
     ref: mergedRef,
     setPopupElement,
@@ -67,13 +74,16 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     titleElementId,
   });
 
+  const hasNestedDialogs = nestedOpenDialogCount > 0;
+
   const state: AlertDialogPopup.State = React.useMemo(
     () => ({
       open,
-      nestedOpenDialogCount,
+      nested,
       transitionStatus,
+      hasNestedDialogs,
     }),
-    [open, nestedOpenDialogCount, transitionStatus],
+    [open, nested, transitionStatus, hasNestedDialogs],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -89,31 +99,25 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     customStyleHookMapping,
   });
 
-  if (!keepMounted && !mounted) {
-    return null;
-  }
-
   return (
-    <FloatingFocusManager
-      context={floatingContext}
-      modal
-      disabled={!mounted}
-      initialFocus={resolvedInitialFocus}
-      returnFocus={finalFocus}
-      outsideElementsInert
-    >
-      {renderElement()}
-    </FloatingFocusManager>
+    <React.Fragment>
+      {mounted && modal && <InternalBackdrop inert={!open} />}
+      <FloatingFocusManager
+        context={floatingRootContext}
+        modal={open}
+        disabled={!mounted}
+        initialFocus={resolvedInitialFocus}
+        returnFocus={finalFocus}
+        outsideElementsInert
+      >
+        {renderElement()}
+      </FloatingFocusManager>
+    </React.Fragment>
   );
 });
 
 namespace AlertDialogPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to keep the element in the DOM while the alert dialog is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
     /**
      * Determines the element to focus when the dialog is opened.
      * By default, the first focusable element is focused.
@@ -123,7 +127,7 @@ namespace AlertDialogPopup {
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
     /**
      * Determines the element to focus when the dialog is closed.
-     * By default, focus returns to trigger.
+     * By default, focus returns to the trigger.
      */
     finalFocus?: React.RefObject<HTMLElement | null>;
   }
@@ -133,8 +137,15 @@ namespace AlertDialogPopup {
      * Whether the dialog is currently open.
      */
     open: boolean;
-    nestedOpenDialogCount: number;
     transitionStatus: TransitionStatus;
+    /**
+     * Whether the dialog is nested within a parent dialog.
+     */
+    nested: boolean;
+    /**
+     * Whether the dialog has nested dialogs open.
+     */
+    hasNestedDialogs: boolean;
   }
 }
 
@@ -154,7 +165,7 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * Determines the element to focus when the dialog is closed.
-   * By default, focus returns to trigger.
+   * By default, focus returns to the trigger.
    */
   finalFocus: refType,
   /**
@@ -169,11 +180,6 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
     PropTypes.func,
     refType,
   ]),
-  /**
-   * Whether to keep the element in the DOM while the alert dialog is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

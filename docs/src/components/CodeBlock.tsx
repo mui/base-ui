@@ -2,8 +2,9 @@
 import * as React from 'react';
 import copy from 'clipboard-copy';
 import clsx from 'clsx';
-import { CopyIcon } from './icons/CopyIcon';
-import { CheckIcon } from './icons/CheckIcon';
+import * as ScrollArea from './ScrollArea';
+import { CopyIcon } from '../icons/CopyIcon';
+import { CheckIcon } from '../icons/CheckIcon';
 import { GhostButton } from './GhostButton';
 
 const CodeBlockContext = React.createContext({ codeId: '', titleId: '' });
@@ -34,6 +35,7 @@ export function Panel({ className, children, ...props }: React.ComponentPropsWit
         {children}
       </div>
       <GhostButton
+        className="ml-auto"
         aria-label="Copy code"
         onClick={async () => {
           const code = document.getElementById(codeId)?.textContent;
@@ -61,8 +63,7 @@ export function Panel({ className, children, ...props }: React.ComponentPropsWit
 export function Pre({ className, ...props }: React.ComponentProps<'pre'>) {
   const { codeId } = React.useContext(CodeBlockContext);
   return (
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-    <div
+    <ScrollArea.Root
       // Select code block contents on Ctrl/Cmd + A
       tabIndex={-1}
       className="CodeBlockPreContainer"
@@ -78,7 +79,11 @@ export function Pre({ className, ...props }: React.ComponentProps<'pre'>) {
         }
       }}
     >
-      <pre {...props} id={codeId} className={clsx('CodeBlockPre', className)} />
-    </div>
+      <ScrollArea.Viewport
+        style={{ overflow: undefined }}
+        render={<pre {...props} id={codeId} className={clsx('CodeBlockPre', className)} />}
+      />
+      <ScrollArea.Scrollbar orientation="horizontal" />
+    </ScrollArea.Root>
   );
 }

@@ -1,6 +1,0 @@
-<Progress value={50} aria-labelledby="ProgressLabel">
-  <Label id="ProgressLabel">Uploading files</Label>
-  <ProgressTrack>
-    <ProgressIndicator />
-  </ProgressTrack>
-</Progress>

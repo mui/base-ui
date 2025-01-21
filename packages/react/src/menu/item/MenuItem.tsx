@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingEvents, useFloatingTree, useListItem } from '@floating-ui/react';
+import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
 import { useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 
 const InnerMenuItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuItemProps,
@@ -22,7 +23,7 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
     menuEvents,
     propGetter,
     render,
-    treatMouseupAsClick,
+    allowMouseUpTriggerRef,
     typingRef,
     ...other
   } = props;
@@ -34,7 +35,7 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
     id,
     menuEvents,
     ref: forwardedRef,
-    treatMouseupAsClick,
+    allowMouseUpTriggerRef,
     typingRef,
   });
 
@@ -71,6 +72,12 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  allowMouseUpTriggerRef: PropTypes.shape({
+    current: PropTypes.bool.isRequired,
+  }).isRequired,
+  /**
+   * @ignore
+   */
   children: PropTypes.node,
   /**
    * CSS class applied to the element, or a function that
@@ -78,13 +85,13 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * If `true`, the menu will close when the menu item is clicked.
+   * Whether to close the menu when the item is clicked.
    *
    * @default true
    */
   closeOnClick: PropTypes.bool,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -93,12 +100,11 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    */
   highlighted: PropTypes.bool.isRequired,
   /**
-   * The id of the menu item.
+   * @ignore
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
@@ -127,10 +133,6 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  treatMouseupAsClick: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
   typingRef: PropTypes.shape({
     current: PropTypes.bool.isRequired,
   }).isRequired,
@@ -149,10 +151,10 @@ const MenuItem = React.forwardRef(function MenuItem(
   const { id: idProp, label, ...other } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
-  const listItem = useListItem({ label: label ?? itemRef.current?.innerText });
+  const listItem = useCompositeListItem({ label });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex, clickAndDragEnabled, typingRef } = useMenuRootContext();
+  const { getItemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
   const id = useBaseUiId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -170,7 +172,7 @@ const MenuItem = React.forwardRef(function MenuItem(
       highlighted={highlighted}
       menuEvents={menuEvents}
       propGetter={getItemProps}
-      treatMouseupAsClick={clickAndDragEnabled}
+      allowMouseUpTriggerRef={allowMouseUpTriggerRef}
       typingRef={typingRef}
     />
   );
@@ -180,14 +182,14 @@ interface InnerMenuItemProps extends MenuItem.Props {
   highlighted: boolean;
   propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   menuEvents: FloatingEvents;
-  treatMouseupAsClick: boolean;
+  allowMouseUpTriggerRef: React.RefObject<boolean>;
   typingRef: React.RefObject<boolean>;
 }
 
 namespace MenuItem {
   export type State = {
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     highlighted: boolean;
@@ -200,21 +202,20 @@ namespace MenuItem {
      */
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
     /**
-     * A text representation of the menu item's content.
-     * Used for keyboard text navigation matching.
+     * Overrides the text label to use when the item is matched during keyboard text navigation.
      */
     label?: string;
     /**
-     * The id of the menu item.
+     * @ignore
      */
     id?: string;
     /**
-     * If `true`, the menu will close when the menu item is clicked.
+     * Whether to close the menu when the item is clicked.
      *
      * @default true
      */
@@ -232,29 +233,40 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * If `true`, the menu will close when the menu item is clicked.
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * Whether to close the menu when the item is clicked.
    *
    * @default true
    */
   closeOnClick: PropTypes.bool,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
   /**
-   * The id of the menu item.
+   * @ignore
    */
   id: PropTypes.string,
   /**
-   * A text representation of the menu item's content.
-   * Used for keyboard text navigation matching.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
   /**
    * The click handler for the menu item.
    */
   onClick: PropTypes.func,
+  /**
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
 export { MenuItem };

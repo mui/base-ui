@@ -1,9 +1,0 @@
-<Slider defaultValue={[20, 40]}>
-  <SliderControl>
-    <SliderTrack>
-      <SliderIndicator />
-      <SliderThumb />
-      <SliderThumb />
-    </SliderTrack>
-  </SliderControl>
-</Slider>

@@ -1,12 +1,12 @@
 import * as React from 'react';
 import NextLink from 'next/link';
-import { GitHubIcon } from 'docs/src/components/icons/GitHub';
+import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
 import * as MobileNav from './MobileNav';
 import { nav } from '../nav';
-import { NpmIcon } from './icons/Npm';
+import { NpmIcon } from '../icons/NpmIcon';
 import { Logo } from './Logo';
 
-const VERSION = 'v1.0.0-alpha-1';
+const VERSION = process.env.LIB_VERSION;
 export const HEADER_HEIGHT = 48;
 
 export function Header() {
@@ -67,7 +67,7 @@ export function Header() {
                       <NpmIcon />
                       <span className="flex flex-grow-1 items-baseline justify-between">
                         npm package
-                        <span className="text-sm text-gray-600">{VERSION}</span>
+                        <span className="text-md text-gray-600">{VERSION}</span>
                       </span>
                     </MobileNav.Item>
                     <MobileNav.Item href="https://github.com/mui/base-ui" rel="noopener">

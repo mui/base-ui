@@ -2,17 +2,17 @@
   "name": "FieldError",
   "description": "An error message displayed if the field control fails validation.\nRenders a `<div>` element.",
   "props": {
-    "className": {
-      "type": "string | (state) => string",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    "match": {
+      "type": "'badInput' | 'customError' | 'patternMismatch' | 'rangeOverflow' | 'rangeUnderflow' | 'stepMismatch' | 'tooLong' | 'tooShort' | 'typeMismatch' | 'valid' | 'valueMissing'",
+      "description": "Determines whether to show the error message according to the field’s\n[ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState)."
     },
     "forceShow": {
       "type": "boolean",
-      "description": "Determines whether the error message should be shown regardless of the field's client validity."
+      "description": "Whether the error message should be shown regardless of the field’s validity."
     },
-    "match": {
-      "type": "'badInput' | 'customError' | 'patternMismatch' | 'rangeOverflow' | 'rangeUnderflow' | 'stepMismatch' | 'tooLong' | 'tooShort' | 'typeMismatch' | 'valid' | 'valueMissing'",
-      "description": "Determines whether the error message should be shown when it matches a given property of the\nfield's `ValidityState`."
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
@@ -20,17 +20,18 @@
     }
   },
   "dataAttributes": {
-    "data-dirty": {
-      "description": "Present when the field's value has changed."
+    "data-valid": {
+      "description": "Present when the field is in valid state."
     },
     "data-invalid": {
       "description": "Present when the field is in invalid state."
     },
-    "data-touched": {
-      "description": "Present when the field has been thouched."
+    "data-dirty": {
+      "description": "Present when the field's value has changed."
     },
-    "data-valid": {
-      "description": "Present when the field is in valid state."
+    "data-touched": {
+      "description": "Present when the field has been touched."
     }
-  }
+  },
+  "cssVariables": {}
 }

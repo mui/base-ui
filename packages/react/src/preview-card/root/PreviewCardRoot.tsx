@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { usePreviewCardRoot } from './usePreviewCardRoot';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the preview card.
@@ -18,21 +17,7 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
 
-  const {
-    open,
-    setOpen,
-    mounted,
-    setMounted,
-    setTriggerElement,
-    positionerElement,
-    setPositionerElement,
-    popupRef,
-    instantType,
-    getRootTriggerProps,
-    getRootPopupProps,
-    floatingRootContext,
-    transitionStatus,
-  } = usePreviewCardRoot({
+  const previewCardRoot = usePreviewCardRoot({
     delay,
     closeDelay,
     open: props.open,
@@ -42,44 +27,16 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
 
   const contextValue = React.useMemo(
     () => ({
+      ...previewCardRoot,
       delay: delayWithDefault,
       closeDelay: closeDelayWithDefault,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      getRootTriggerProps,
-      getRootPopupProps,
-      floatingRootContext,
-      transitionStatus,
     }),
-    [
-      delayWithDefault,
-      closeDelayWithDefault,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      getRootTriggerProps,
-      getRootPopupProps,
-      floatingRootContext,
-      transitionStatus,
-    ],
+    [closeDelayWithDefault, delayWithDefault, previewCardRoot],
   );
 
   return (
     <PreviewCardRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
+      {props.children}
     </PreviewCardRootContext.Provider>
   );
 };
@@ -102,7 +59,7 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The delay in milliseconds until the preview card popup is closed when `openOnHover` is `true`.
+   * How long to wait before closing the preview card. Specified in milliseconds.
    * @default 300
    */
   closeDelay: PropTypes.number,
@@ -114,7 +71,7 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The delay in milliseconds until the preview card popup is opened when `openOnHover` is `true`.
+   * How long to wait before the preview card opens. Specified in milliseconds.
    * @default 600
    */
   delay: PropTypes.number,

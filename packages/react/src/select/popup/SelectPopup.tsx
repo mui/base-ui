@@ -32,7 +32,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { id, open, popupRef, transitionStatus, alignItemToTrigger, mounted } =
+  const { id, open, popupRef, transitionStatus, alignItemToTrigger, mounted, modal } =
     useSelectRootContext();
 
   const positioner = useSelectPositionerContext();
@@ -84,9 +84,10 @@ const SelectPopup = React.forwardRef(function SelectPopup(
         />
       )}
       <FloatingFocusManager
-        context={positioner.positionerContext}
+        context={positioner.context}
         modal={false}
         disabled={!mounted}
+        visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
       >
         {renderElement()}
       </FloatingFocusManager>
@@ -98,7 +99,7 @@ namespace SelectPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
-     * The id of the popup element.
+     * @ignore
      */
     id?: string;
   }
@@ -126,7 +127,7 @@ SelectPopup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The id of the popup element.
+   * @ignore
    */
   id: PropTypes.string,
   /**

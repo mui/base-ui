@@ -19,6 +19,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     inputRef: externalInputRef,
     onCheckedChange: onCheckedChangeProp = () => {},
     name,
+    value,
     defaultChecked = false,
     readOnly = false,
     required = false,
@@ -80,8 +81,8 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   const getButtonProps: UseCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(externalProps), {
+        id,
         ref: buttonRef,
-        value: 'off',
         type: 'button',
         role: 'checkbox',
         disabled,
@@ -111,6 +112,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
         },
       }),
     [
+      id,
       getValidationProps,
       disabled,
       indeterminate,
@@ -126,10 +128,12 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   const getInputProps: UseCheckboxRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(getInputValidationProps(externalProps), {
-        id,
         checked,
         disabled,
         name,
+        // React <19 sets an empty value if `undefined` is passed explicitly
+        // To avoid this, we only set the value if it's defined
+        ...(value !== undefined ? { value } : {}),
         required,
         autoFocus,
         ref: mergedInputRef,
@@ -163,10 +167,10 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       }),
     [
       getInputValidationProps,
-      id,
       checked,
       disabled,
       name,
+      value,
       required,
       autoFocus,
       mergedInputRef,
@@ -217,7 +221,7 @@ export namespace UseCheckboxRoot {
      */
     defaultChecked?: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -239,8 +243,7 @@ export namespace UseCheckboxRoot {
      */
     required?: boolean;
     /**
-     * If `true`, the checkbox is focused on mount.
-     *
+     * Whether to focus the element on page load.
      * @default false
      */
     autoFocus?: boolean;
@@ -254,10 +257,16 @@ export namespace UseCheckboxRoot {
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**
-     * If `true`, the checkbox is a parent checkbox for a group of child checkboxes.
+     * Whether the checkbox controls a group of child checkboxes.
+     *
+     * Must be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).
      * @default false
      */
     parent?: boolean;
+    /**
+     * The value of the selected checkbox.
+     */
+    value?: string | number;
   }
 
   export interface ReturnValue {

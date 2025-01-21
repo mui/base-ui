@@ -16,8 +16,11 @@ export enum AlertDialogPopupDataAttributes {
    */
   endingStyle = 'data-ending-style',
   /**
-   * Indicates how many dialogs are nested within.
-   * @type {number}
+   * Present when the dialog is nested within another dialog.
    */
-  nestedDialogs = 'data-nested-dialogs',
+  nested = 'data-nested',
+  /**
+   * Present when the dialog has other open dialogs nested within it.
+   */
+  hasNestedDialogs = 'data-has-nested-dialogs',
 }

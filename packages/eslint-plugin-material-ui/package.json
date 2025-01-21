@@ -7,10 +7,7 @@
   "devDependencies": {
     "@types/eslint": "^8.56.12",
     "@typescript-eslint/experimental-utils": "^5.62.0",
-    "@typescript-eslint/parser": "^8.17.0"
-  },
-  "scripts": {
-    "test": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/eslint-plugin-material-ui/**/*.test.js' --timeout 3000"
+    "@typescript-eslint/parser": "^8.19.0"
   },
   "license": "MIT"
 }

@@ -2,7 +2,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { HTMLElementType } from '../../utils/proptypes';
 import { useForkRef } from '../../utils/useForkRef';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
@@ -10,6 +9,8 @@ import { useTooltipPositioner } from './useTooltipPositioner';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { HTMLElementType, refType } from '../../utils/proptypes';
+import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 
 /**
  * Positions the tooltip against the trigger.
@@ -25,7 +26,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     render,
     className,
     anchor,
-    keepMounted = false,
     positionMethod = 'absolute',
     side = 'top',
     align = 'center',
@@ -35,19 +35,19 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
+    trackAnchor = true,
     ...otherProps
   } = props;
 
-  const { open, setPositionerElement, mounted, floatingRootContext, trackCursorAxis } =
-    useTooltipRootContext();
+  const { open, setPositionerElement, mounted, floatingRootContext } = useTooltipRootContext();
+  const keepMounted = useTooltipPortalContext();
 
   const positioner = useTooltipPositioner({
     anchor,
-    floatingRootContext,
     positionMethod,
-    open,
+    floatingRootContext,
+    trackAnchor,
     mounted,
-    keepMounted,
     side,
     sideOffset,
     align,
@@ -55,8 +55,8 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackCursorAxis,
     arrowPadding,
+    keepMounted,
   });
 
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
@@ -91,11 +91,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     customStyleHookMapping: popupStateMapping,
   });
 
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
-
   return (
     <TooltipPositionerContext.Provider value={contextValue}>
       {renderElement()}
@@ -125,26 +120,29 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The align of the tooltip element to the anchor element along its cross axis.
+   * How to align the popup relative to the specified side.
    * @default 'center'
    */
   align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the tooltip element along its align axis.
+   * Additional offset along the alignment axis of the element.
    * @default 0
    */
   alignOffset: PropTypes.number,
   /**
-   * The element to which the tooltip element is anchored to.
+   * An element to position the popup against.
+   * By default, the popup will be positioned against the trigger.
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
+    refType,
     PropTypes.object,
     PropTypes.func,
   ]),
   /**
-   * Determines the padding between the arrow and the tooltip edges. Useful when the tooltip
-   * element has rounded corners via `border-radius`.
+   * Minimum distance to maintain between the arrow and the edges of the popup.
+   *
+   * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
    * @default 5
    */
   arrowPadding: PropTypes.number,
@@ -158,7 +156,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The boundary that the tooltip element should be constrained to.
+   * An element or a rectangle that delimits the area that the popup is confined to.
    * @default 'clipping-ancestors'
    */
   collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
@@ -173,8 +171,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The padding between the tooltip element and the edges of the collision boundary to add
-   * whitespace between them to prevent them from touching.
+   * Additional space to maintain from the edge of the collision boundary.
    * @default 5
    */
   collisionPadding: PropTypes.oneOfType([
@@ -187,12 +184,7 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * Whether to keep the HTML element in the DOM while the tooltip is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * The CSS position strategy for positioning the tooltip element.
+   * Determines which CSS `position` property to use.
    * @default 'absolute'
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
@@ -204,21 +196,27 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The side of the anchor element that the tooltip element should be placed at.
+   * Which side of the anchor element to align the popup against.
+   * May automatically change to avoid collisions.
    * @default 'top'
    */
   side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
-   * The gap between the anchor element and the tooltip element.
+   * Distance between the anchor and the popup.
    * @default 0
    */
   sideOffset: PropTypes.number,
   /**
-   * Whether to allow the tooltip to remain stuck in view while the anchor element is scrolled out
-   * of view.
+   * Whether to maintain the popup in the viewport after
+   * the anchor element was scrolled out of view.
    * @default false
    */
   sticky: PropTypes.bool,
+  /**
+   * Whether the popup tracks any layout shift of its positioning anchor.
+   * @default true
+   */
+  trackAnchor: PropTypes.bool,
 } as any;
 
 export { TooltipPositioner };

@@ -20,7 +20,7 @@ export enum CheckboxRootDataAttributes {
    */
   required = 'data-required',
   /**
-   * Present when the checkbox is in valid state (when wrapped in Field.Root)..
+   * Present when the checkbox is in valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',
   /**
@@ -28,7 +28,7 @@ export enum CheckboxRootDataAttributes {
    */
   invalid = 'data-invalid',
   /**
-   * Present when the checkbox has been thouched (when wrapped in Field.Root).
+   * Present when the checkbox has been touched (when wrapped in Field.Root).
    */
   touched = 'data-touched',
   /**

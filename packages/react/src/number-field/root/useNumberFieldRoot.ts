@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useScrub } from './useScrub';
-import { formatNumber } from '../utils/format';
+import { formatNumber } from '../../utils/formatNumber';
 import { toValidatedNumber } from '../utils/validate';
 import {
   ARABIC_RE,
@@ -45,7 +45,7 @@ export function useNumberFieldRoot(
     step,
     largeStep = 10,
     required = false,
-    disabled = false,
+    disabled: disabledProp = false,
     invalid = false,
     readOnly = false,
     autoFocus = false,
@@ -64,6 +64,7 @@ export function useNumberFieldRoot(
     setDirty,
     validityData,
     setValidityData,
+    disabled: fieldDisabled,
   } = useFieldRootContext();
 
   const {
@@ -72,6 +73,8 @@ export function useNumberFieldRoot(
     inputRef: inputValidationRef,
     commitValidation,
   } = useFieldControlValidation();
+
+  const disabled = fieldDisabled || disabledProp;
 
   const minWithDefault = min ?? Number.MIN_SAFE_INTEGER;
   const maxWithDefault = max ?? Number.MAX_SAFE_INTEGER;
@@ -124,6 +127,8 @@ export function useNumberFieldRoot(
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
   const isTouchingButtonRef = React.useRef(false);
   const hasTouchedInputRef = React.useRef(false);
+  const ignoreClickRef = React.useRef(false);
+  const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen' | ''>('');
 
   useEnhancedEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {
@@ -194,7 +199,7 @@ export function useNumberFieldRoot(
 
   const incrementValue = useEventCallback(
     (amount: number, dir: 1 | -1, currentValue?: number | null, event?: Event) => {
-      const prevValue = currentValue == null ? value : currentValue;
+      const prevValue = currentValue == null ? valueRef.current : currentValue;
       const nextValue =
         typeof prevValue === 'number' ? prevValue + amount * dir : Math.max(0, min ?? 0);
       setValue(nextValue, event);
@@ -387,8 +392,22 @@ export function useNumberFieldRoot(
   );
 
   const getCommonButtonProps = React.useCallback(
-    (isIncrement: boolean, externalProps = {}) =>
-      mergeReactProps<'button'>(externalProps, {
+    (isIncrement: boolean, externalProps = {}) => {
+      function commitValue(nativeEvent: MouseEvent) {
+        allowInputSyncRef.current = true;
+
+        // The input may be dirty but not yet blurred, so the value won't have been committed.
+        const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
+
+        if (parsedValue !== null) {
+          // The increment value function needs to know the current input value to increment it
+          // correctly.
+          valueRef.current = parsedValue;
+          setValue(parsedValue, nativeEvent);
+        }
+      }
+
+      return mergeReactProps<'button'>(externalProps, {
         disabled: disabled || (isIncrement ? isMax : isMin),
         type: 'button',
         'aria-readonly': readOnly || undefined,
@@ -414,10 +433,12 @@ export function useNumberFieldRoot(
             event.defaultPrevented ||
             isDisabled ||
             // If it's not a keyboard/virtual click, ignore.
-            event.detail !== 0
+            (pointerTypeRef.current === 'touch' ? ignoreClickRef.current : event.detail !== 0)
           ) {
             return;
           }
+
+          commitValue(event.nativeEvent);
 
           const amount = getStepAmount() ?? DEFAULT_STEP;
 
@@ -430,8 +451,12 @@ export function useNumberFieldRoot(
             return;
           }
 
+          pointerTypeRef.current = event.pointerType;
+          ignoreClickRef.current = false;
           isPressedRef.current = true;
           incrementDownCoordsRef.current = { x: event.clientX, y: event.clientY };
+
+          commitValue(event.nativeEvent);
 
           // Note: "pen" is sometimes returned for mouse usage on Linux Chrome.
           if (event.pointerType !== 'touch') {
@@ -445,6 +470,7 @@ export function useNumberFieldRoot(
               const moves = movesAfterTouchRef.current;
               movesAfterTouchRef.current = 0;
               if (moves < MAX_POINTER_MOVES_AFTER_TOUCH) {
+                ignoreClickRef.current = true;
                 startAutoChange(isIncrement);
               } else {
                 stopAutoChange();
@@ -497,17 +523,22 @@ export function useNumberFieldRoot(
 
           stopAutoChange();
         },
-      }),
+      });
+    },
     [
       disabled,
-      readOnly,
       isMax,
       isMin,
+      readOnly,
       id,
+      getStepAmount,
       incrementValue,
+      inputValue,
+      formatOptionsRef,
+      valueRef,
+      setValue,
       startAutoChange,
       stopAutoChange,
-      getStepAmount,
     ],
   );
 
@@ -799,9 +830,9 @@ export namespace UseNumberFieldRoot {
      */
     smallStep?: number;
     /**
-     * The step value of the input element when incrementing, decrementing, or scrubbing. It will snap
-     * to multiples of this value. When unspecified, decimal values are allowed, but the stepper
-     * buttons will increment or decrement by `1`.
+     * Amount to increment and decrement with the buttons and arrow keys,
+     * or to scrub with pointer movement in the scrub area.
+     * @default 1;
      */
     step?: number;
     /**
@@ -816,7 +847,7 @@ export namespace UseNumberFieldRoot {
      */
     required?: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -826,7 +857,7 @@ export namespace UseNumberFieldRoot {
      */
     invalid?: boolean;
     /**
-     * If `true`, the input element is focused on mount.
+     * Whether to focus the element on page load.
      * @default false
      */
     autoFocus?: boolean;
@@ -840,11 +871,13 @@ export namespace UseNumberFieldRoot {
      */
     name?: string;
     /**
-     * The raw number value of the input element.
+     * The raw numeric value of the field.
      */
     value?: number | null;
     /**
-     * The default value of the input element. Use when the component is not controlled.
+     * The uncontrolled value of the field when it’s initially rendered.
+     *
+     * To render a controlled number field, use the `value` prop instead.
      */
     defaultValue?: number;
     /**

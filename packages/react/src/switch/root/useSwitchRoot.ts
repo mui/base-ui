@@ -67,6 +67,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
   const getButtonProps = React.useCallback(
     (otherProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(otherProps), {
+        id,
         ref: buttonRef,
         type: 'button',
         role: 'switch',
@@ -97,6 +98,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     [
       getValidationProps,
       checked,
+      id,
       disabled,
       readOnly,
       labelId,
@@ -109,7 +111,6 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
   const getInputProps = React.useCallback(
     (otherProps = {}) =>
       mergeReactProps<'input'>(getInputValidationProps(otherProps), {
-        id,
         checked,
         disabled,
         name,
@@ -138,7 +139,6 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
       }),
     [
       getInputValidationProps,
-      id,
       checked,
       disabled,
       name,
@@ -183,7 +183,7 @@ export namespace useSwitchRoot {
      */
     defaultChecked?: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;

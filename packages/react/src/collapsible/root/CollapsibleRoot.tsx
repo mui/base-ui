@@ -40,10 +40,9 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
-      hidden: !collapsible.mounted,
       transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.open, collapsible.disabled, collapsible.mounted, collapsible.transitionStatus],
+    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
   );
 
   const contextValue: CollapsibleRootContext = React.useMemo(
@@ -82,9 +81,7 @@ export { CollapsibleRoot };
 
 export namespace CollapsibleRoot {
   export interface State
-    extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {
-    hidden: boolean;
-  }
+    extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
 
   export interface Props
     extends Partial<useCollapsibleRoot.Parameters>,
@@ -115,7 +112,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * Whether the component should ignore user actions.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -125,6 +122,7 @@ CollapsibleRoot.propTypes /* remove-proptypes */ = {
   onOpenChange: PropTypes.func,
   /**
    * Whether the collapsible panel is currently open.
+   *
    * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
    */
   open: PropTypes.bool,

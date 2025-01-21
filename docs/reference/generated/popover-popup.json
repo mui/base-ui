@@ -2,21 +2,44 @@
   "name": "PopoverPopup",
   "description": "A container for the popover contents.\nRenders a `<div>` element.",
   "props": {
-    "className": {
-      "type": "string | (state) => string",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
-    },
-    "finalFocus": {
-      "type": "React.Ref",
-      "description": "Determines the element to focus when the popover is closed.\nBy default, focus returns to trigger."
-    },
     "initialFocus": {
       "type": "React.Ref | (interactionType => HTMLElement | null)",
       "description": "Determines the element to focus when the popover is opened.\nBy default, the first focusable element is focused."
+    },
+    "finalFocus": {
+      "type": "React.Ref",
+      "description": "Determines the element to focus when the popover is closed.\nBy default, focus returns to the trigger."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
-  }
+  },
+  "dataAttributes": {
+    "data-open": {
+      "description": "Present when the popup is open."
+    },
+    "data-closed": {
+      "description": "Present when the popup is closed."
+    },
+    "data-instant": {
+      "description": "Present if animations should be instant.",
+      "type": "'click' | 'dismiss'"
+    },
+    "data-side": {
+      "description": "Indicates which side the popup is positioned relative to the trigger.",
+      "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
+    },
+    "data-starting-style": {
+      "description": "Present when the popup is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the popup is animating out."
+    }
+  },
+  "cssVariables": {}
 }

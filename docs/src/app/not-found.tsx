@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { Link } from 'docs/src/components/Link';
-import { ArrowRightIcon } from 'docs/src/components/icons/ArrowRightIcon';
+import { ArrowRightIcon } from 'docs/src/icons/ArrowRightIcon';
 import { Logo } from 'docs/src/components/Logo';
-import { ExternalLinkIcon } from 'docs/src/components/icons/ExternalLinkIcon';
 import RootLayout from './(public)/layout';
 import './not-found.css';
 
@@ -14,22 +13,19 @@ export default function NotFound() {
           <Logo className="mb-8 ml-px" aria-label="Base UI" />
           <h1 className="NotFoundHeading">404</h1>
           <p className="NotFoundCaption">
-            This page couldn’t be found. Please return to the docs or create a
+            This page couldn't be found. Please return to the docs or create a
             corresponding issue on GitHub.
           </p>
           <div className="flex flex-col items-start gap-2">
             <Link
               className="-m-1 inline-flex items-center gap-1 p-1"
-              href="/react/components/accordion"
+              href="/react/overview/quick-start"
             >
               Documentation <ArrowRightIcon />
             </Link>
 
-            <Link
-              className="-m-1 inline-flex items-center gap-1 p-1"
-              href="http://github.com/mui/base-ui"
-            >
-              GitHub <ExternalLinkIcon />
+            <Link className="-m-1 p-1" href="https://github.com/mui/base-ui">
+              GitHub
             </Link>
           </div>
         </div>

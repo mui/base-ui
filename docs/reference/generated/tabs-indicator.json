@@ -2,6 +2,11 @@
   "name": "TabsIndicator",
   "description": "A visual indicator that can be styled to match the position of the currently active tab.\nRenders a `<span>` element.",
   "props": {
+    "renderBeforeHydration": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to render itself before React hydrates.\nThis minimizes the time that the indicator isn’t visible after server-side rendering."
+    },
     "className": {
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
@@ -9,11 +14,16 @@
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-orientation": {
+      "description": "Indicates the orientation of the tabs.",
+      "type": "'horizontal' | 'vertical'"
     },
-    "renderBeforeHydration": {
-      "type": "boolean",
-      "default": "false",
-      "description": "If `true`, the indicator will include code to render itself before React hydrates.\nThis will minimize the time the indicator is not visible after the SSR-generated content is downloaded."
+    "data-activation-direction": {
+      "description": "Indicates the direction of the activation (based on the previous selected tab).",
+      "type": "'left' | 'right' | 'up' | 'down' | 'none'"
     }
   },
   "cssVariables": {

@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { AlertDialogRootContext } from './AlertDialogRootContext';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
-import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the alert dialog.
@@ -27,16 +26,16 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
     onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,
   });
 
-  const hasParentDialog = Boolean(parentDialogRootContext);
+  const nested = Boolean(parentDialogRootContext);
 
-  const contextValue = React.useMemo(
-    () => ({ ...dialogRoot, hasParentDialog }),
-    [dialogRoot, hasParentDialog],
+  const contextValue: AlertDialogRootContext = React.useMemo(
+    () => ({ ...dialogRoot, nested }),
+    [dialogRoot, nested],
   );
 
   return (
     <AlertDialogRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={dialogRoot.mounted}>{children}</PortalContext.Provider>
+      {children}
     </AlertDialogRootContext.Provider>
   );
 };

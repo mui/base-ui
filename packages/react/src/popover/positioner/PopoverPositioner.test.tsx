@@ -10,7 +10,11 @@ describe('<Popover.Positioner />', () => {
   describeConformance(<Popover.Positioner />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(<Popover.Root open>{node}</Popover.Root>);
+      return render(
+        <Popover.Root open>
+          <Popover.Portal>{node}</Popover.Portal>
+        </Popover.Root>,
+      );
     },
   }));
 
@@ -18,7 +22,9 @@ describe('<Popover.Positioner />', () => {
     it('has hidden attribute when closed', async () => {
       await render(
         <Popover.Root>
-          <Popover.Positioner keepMounted data-testid="positioner" />
+          <Popover.Portal keepMounted>
+            <Popover.Positioner data-testid="positioner" />
+          </Popover.Portal>
         </Popover.Root>,
       );
 
@@ -28,7 +34,9 @@ describe('<Popover.Positioner />', () => {
     it('does not have inert attribute when open', async () => {
       await render(
         <Popover.Root open>
-          <Popover.Positioner keepMounted data-testid="positioner" />
+          <Popover.Portal keepMounted>
+            <Popover.Positioner data-testid="positioner" />
+          </Popover.Portal>
         </Popover.Root>,
       );
 

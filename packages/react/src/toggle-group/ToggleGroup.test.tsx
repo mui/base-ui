@@ -1,16 +1,14 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, flushMicrotasks } from '@mui/internal-test-utils';
+import { act, flushMicrotasks } from '@mui/internal-test-utils';
 import {
   DirectionProvider,
   type TextDirection,
 } from '@base-ui-components/react/direction-provider';
 import { ToggleGroup } from '@base-ui-components/react/toggle-group';
 import { Toggle } from '@base-ui-components/react/toggle';
-import { createRenderer, describeConformance } from '#test-utils';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<ToggleGroup />', () => {
   const { render } = createRenderer();
@@ -27,11 +25,9 @@ describe('<ToggleGroup />', () => {
   });
 
   describe('uncontrolled', () => {
-    it('pressed state', async function test(t = {}) {
+    it('pressed state', async ({ skip }) => {
       if (isJSDOM) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       const { getAllByRole, user } = await render(
@@ -146,7 +142,9 @@ describe('<ToggleGroup />', () => {
       const [button1, button2] = getAllByRole('button');
 
       expect(button1).to.have.attribute('disabled');
+      expect(button1).to.have.attribute('data-disabled');
       expect(button2).to.have.attribute('disabled');
+      expect(button2).to.have.attribute('data-disabled');
     });
 
     it('can disable individual items', async () => {
@@ -160,7 +158,9 @@ describe('<ToggleGroup />', () => {
       const [button1, button2] = getAllByRole('button');
 
       expect(button1).to.not.have.attribute('disabled');
+      expect(button1).to.not.have.attribute('data-disabled');
       expect(button2).to.have.attribute('disabled');
+      expect(button2).to.have.attribute('data-disabled');
     });
   });
 
@@ -218,7 +218,7 @@ describe('<ToggleGroup />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('keyboard interactions', () => {
+  describe.skipIf(isJSDOM)('keyboard interactions', () => {
     [
       ['ltr', 'ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'],
       ['rtl', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 'ArrowUp'],
@@ -338,11 +338,9 @@ describe('<ToggleGroup />', () => {
     });
 
     ['Enter', 'Space'].forEach((key) => {
-      it(`fires when when the ${key} is pressed`, async function test(t = {}) {
+      it(`fires when when the ${key} is pressed`, async ({ skip }) => {
         if (isJSDOM) {
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const onValueChange = spy();

@@ -6,10 +6,11 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositioner } from './usePreviewCardPositioner';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { useForkRef } from '../../utils/useForkRef';
-import { HTMLElementType } from '../../utils/proptypes';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { HTMLElementType, refType } from '../../utils/proptypes';
+import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 
 /**
  * Positions the popup against the trigger.
@@ -34,11 +35,12 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    keepMounted = false,
+    trackAnchor = true,
     ...otherProps
   } = props;
 
   const { open, mounted, floatingRootContext, setPositionerElement } = usePreviewCardRootContext();
+  const keepMounted = usePreviewCardPortalContext();
 
   const positioner = usePreviewCardPositioner({
     anchor,
@@ -46,7 +48,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     positionMethod,
     open,
     mounted,
-    keepMounted,
     side,
     sideOffset,
     align,
@@ -55,6 +56,8 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
+    trackAnchor,
+    keepMounted,
   });
 
   const state: PreviewCardPositioner.State = React.useMemo(
@@ -96,11 +99,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     customStyleHookMapping: popupStateMapping,
   });
 
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
-
   return (
     <PreviewCardPositionerContext.Provider value={contextValue}>
       {renderElement()}
@@ -130,26 +128,29 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The align of the preview card element to the anchor element along its cross axis.
+   * How to align the popup relative to the specified side.
    * @default 'center'
    */
   align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * The offset of the preview card element along its align axis.
+   * Additional offset along the alignment axis of the element.
    * @default 0
    */
   alignOffset: PropTypes.number,
   /**
-   * The anchor element to which the preview card popup will be placed at.
+   * An element to position the popup against.
+   * By default, the popup will be positioned against the trigger.
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
+    refType,
     PropTypes.object,
     PropTypes.func,
   ]),
   /**
-   * Determines the padding between the arrow and the preview card popup's edges. Useful when the
-   * preview card popup has rounded corners via `border-radius`.
+   * Minimum distance to maintain between the arrow and the edges of the popup.
+   *
+   * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
    * @default 5
    */
   arrowPadding: PropTypes.number,
@@ -163,7 +164,7 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The boundary that the preview card element should be constrained to.
+   * An element or a rectangle that delimits the area that the popup is confined to.
    * @default 'clipping-ancestors'
    */
   collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
@@ -178,7 +179,7 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * The padding of the collision boundary.
+   * Additional space to maintain from the edge of the collision boundary.
    * @default 5
    */
   collisionPadding: PropTypes.oneOfType([
@@ -191,12 +192,7 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * Whether to keep the HTML element in the DOM while the preview card is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * The CSS position strategy for positioning the preview card popup element.
+   * Determines which CSS `position` property to use.
    * @default 'absolute'
    */
   positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
@@ -208,21 +204,27 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * The side of the anchor element that the preview card element should align to.
+   * Which side of the anchor element to align the popup against.
+   * May automatically change to avoid collisions.
    * @default 'bottom'
    */
   side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
-   * The gap between the anchor element and the preview card element.
+   * Distance between the anchor and the popup.
    * @default 0
    */
   sideOffset: PropTypes.number,
   /**
-   * If `true`, allow the preview card to remain in stuck view while the anchor element is scrolled
-   * out of view.
+   * Whether to maintain the popup in the viewport after
+   * the anchor element was scrolled out of view.
    * @default false
    */
   sticky: PropTypes.bool,
+  /**
+   * Whether the popup tracks any layout shift of its positioning anchor.
+   * @default true
+   */
+  trackAnchor: PropTypes.bool,
 } as any;
 
 export { PreviewCardPositioner };

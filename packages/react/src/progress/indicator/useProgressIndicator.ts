@@ -15,7 +15,7 @@ function useProgressIndicator(
     Number.isFinite(value) && value !== null ? valueToPercent(value, min, max) : null;
 
   const getStyles = React.useCallback(() => {
-    if (!percentageValue) {
+    if (percentageValue == null) {
       return {};
     }
 

@@ -1,11 +1,17 @@
+.Container {
+  display: flex;
+  gap: 1rem;
+  text-wrap: nowrap;
+}
+
 .Separator {
   width: 1px;
   background-color: var(--color-gray-300);
 }
 
 .Link {
-  font-size: 0.9375rem;
-  line-height: 1.375rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   color: var(--color-gray-900);
   text-decoration-color: var(--color-gray-400);
   text-decoration-thickness: 1px;

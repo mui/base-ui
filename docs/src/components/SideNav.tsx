@@ -105,7 +105,7 @@ export function Item({ children, className, href, ...props }: ItemProps) {
             // We are scrolling into view, update upstream state
             setScrollingIntoView(true);
             // Sync flag removal with ScrollArea's own scrolling state timeout
-            setTimeout(() => setScrollingIntoView(false), SCROLL_TIMEOUT);
+            setTimeout(() => setScrollingIntoView(false), SCROLL_TIMEOUT + 50);
           }
           actions.forEach(({ top }) => {
             const dir = viewport.scrollTop > top ? -1 : 1;
@@ -124,8 +124,15 @@ export function Item({ children, className, href, ...props }: ItemProps) {
         data-active={active || undefined}
         className="SideNavLink"
         href={href}
+        scroll={!active}
+        onClick={() => {
+          // Scroll to top smoothly when clicking on the currently active item
+          if (active) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }}
       >
-        {children}
+        <span className="SideNavLinkInner">{children}</span>
       </NextLink>
     </li>
   );

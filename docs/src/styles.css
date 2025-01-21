@@ -5,8 +5,8 @@
  *   - Use component name as the prefix to avoid conflicts, e.g. ".SelectTriggerIcon"
  *   - Prefix CSS variables with component name too, e.g. "--root-layout-padding-x"
  * - Use Tailwind for layout utils
- * - There is two reset layers:
- *   - "@layer all" is a truly global reset
+ * - There are two reset layers:
+ *   - "@layer all" is a truly global reset (includes all demos)
  *   - "@layer base" is Tailwind’s reset that is reverted in non-Tailwind demos
  *   - We rely on both to build the docs docs
  * - Docs and demos are built using the same theme
@@ -29,16 +29,18 @@
 @import './syntax-highlighting/index.css';
 @import './components/Code.css';
 @import './components/CodeBlock.css';
-@import './components/demo/Demo.css';
+@import './components/Demo/Demo.css';
 @import './components/GhostButton.css';
 @import './components/Header.css';
+@import './components/Kbd/Kbd.css';
 @import './components/Link.css';
 @import './components/MobileNav.css';
 @import './components/Popup.css';
-@import './components/quick-nav/QuickNav.css';
+@import './components/QuickNav/QuickNav.css';
+@import './components/ScrollArea.css';
 @import './components/Select.css';
 @import './components/SideNav.css';
-@import './components/subtitle/Subtitle.css';
+@import './components/Subtitle/Subtitle.css';
 @import './components/Table.css';
 
 /* Handy link to the default Tailwind theme:
@@ -73,8 +75,11 @@
   --color-foreground: var(--color-gray-900);
   --color-popup: white;
   --color-gridline: oklch(91.6% 1% 264);
-  --color-highlight: var(--color-blue);
   --color-selection: oklch(80% 50% 264 / 25%);
+  --color-highlight: var(--color-blue);
+  --color-line-highlight: oklch(80% 50% 264 / 10%);
+  --color-line-highlight-strong: oklch(80% 50% 264 / 25%);
+  --color-inline-highlight: oklch(80% 50% 264 / 15%);
 
   /* Text colors for the docs */
   --color-gray: var(--color-gray-600);
@@ -93,9 +98,13 @@
   --text-xs--line-height: 1.25rem;
   --text-xs--letter-spacing: 0.001em;
 
-  --text-sm: 0.9375rem;
-  --text-sm--line-height: 1.375rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
   --text-sm--letter-spacing: 0em;
+
+  --text-md: 0.9375rem;
+  --text-md--line-height: 1.375rem;
+  --text-md--letter-spacing: 0em;
 
   --text-base: 1rem;
   --text-base--line-height: 1.5rem;
@@ -158,6 +167,9 @@
     --color-gridline: oklch(24% 1% 264);
     --color-highlight: oklch(45% 40% 264);
     --color-selection: oklch(50% 50% 264 / 40%);
+    --color-line-highlight: oklch(50% 50% 264 / 20%);
+    --color-line-highlight-strong: oklch(50% 50% 264 / 35%);
+    --color-inline-highlight: oklch(50% 50% 264 / 35%);
 
     /* Text colors */
     --color-gray: var(--color-gray-600);
@@ -173,6 +185,10 @@
 /* Disable docs-specific variables in the demos. Keep this in sync with the "@theme" block above */
 @layer theme {
   [data-demo] {
+    --text-md: initial;
+    --text-md--line-height: initial;
+    --text-md--letter-spacing: initial;
+
     --color-gray: initial;
     --color-navy: initial;
     --color-green: initial;
@@ -210,6 +226,12 @@
 }
 
 @layer all {
+  html {
+    /* Stable scrollbar */
+    overflow-y: scroll;
+    word-break: break-word;
+  }
+
   body {
     font-synthesis: none;
     -webkit-font-smoothing: antialiased;

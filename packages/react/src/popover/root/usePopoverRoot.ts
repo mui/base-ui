@@ -13,7 +13,7 @@ import {
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { PATIENT_CLICK_THRESHOLD, OPEN_DELAY } from '../utils/constants';
+import { OPEN_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
@@ -24,6 +24,7 @@ import {
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -78,7 +79,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   useAfterExitAnimation({
     open,
     animatedElementRef: popupRef,
-    onFinished: () => {
+    onFinished() {
       setMounted(false);
       setOpenReason(null);
     },
@@ -210,17 +211,22 @@ export namespace usePopoverRoot {
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
-     * Whether the popover popup opens when the trigger is hovered after the provided `delay`.
+     * Whether the popover should also open when the trigger is hovered.
      * @default false
      */
     openOnHover?: boolean;
     /**
-     * The delay in milliseconds until the popover popup is opened when `openOnHover` is `true`.
+     * How long to wait before the popover may be opened on hover. Specified in milliseconds.
+     *
+     * Requires the `openOnHover` prop.
      * @default 300
      */
     delay?: number;
     /**
-     * The delay in milliseconds until the popover popup is closed when `openOnHover` is `true`.
+     * How long to wait before closing the popover that was opened on hover.
+     * Specified in milliseconds.
+     *
+     * Requires the `openOnHover` prop.
      * @default 0
      */
     closeDelay?: number;

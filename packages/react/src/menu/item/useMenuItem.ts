@@ -3,8 +3,8 @@ import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../use-button';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { GenericHTMLProps } from '../../utils/types';
-import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
+import { GenericHTMLProps, BaseUIEvent } from '../../utils/types';
+import { useForkRef } from '../../utils/useForkRef';
 
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
   const {
@@ -14,45 +14,47 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     id,
     menuEvents,
     ref: externalRef,
-    treatMouseupAsClick,
+    allowMouseUpTriggerRef,
     typingRef,
   } = params;
+
+  const itemRef = React.useRef<HTMLElement | null>(null);
 
   const { getButtonProps, buttonRef: mergedRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
-    buttonRef: externalRef,
+    buttonRef: useForkRef(externalRef, itemRef),
   });
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return getButtonProps(
         mergeReactProps(externalProps, {
-          'data-handle-mouseup': treatMouseupAsClick || undefined,
           id,
           role: 'menuitem',
           tabIndex: highlighted ? 0 : -1,
-          onKeyUp: (event: React.KeyboardEvent & MuiCancellableEvent) => {
+          onKeyUp: (event: BaseUIEvent<React.KeyboardEvent>) => {
             if (event.key === ' ' && typingRef.current) {
-              event.defaultMuiPrevented = true;
+              event.preventBaseUIHandler();
             }
           },
           onClick: (event: React.MouseEvent | React.KeyboardEvent) => {
-            if (event.type === 'keydown') {
-              if ((event as React.KeyboardEvent).key === 'Enter') {
-                menuEvents.emit('close', event);
-                return;
-              }
-            }
-
             if (closeOnClick) {
+              menuEvents.emit('close', event);
+            }
+          },
+          onMouseUp: (event: React.MouseEvent) => {
+            if (itemRef.current && allowMouseUpTriggerRef.current) {
+              // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
+              // We trigger the click and override the `closeOnClick` preference to always close the menu.
+              itemRef.current.click();
               menuEvents.emit('close', event);
             }
           },
         }),
       );
     },
-    [closeOnClick, getButtonProps, highlighted, id, menuEvents, treatMouseupAsClick, typingRef],
+    [getButtonProps, id, highlighted, typingRef, closeOnClick, menuEvents, allowMouseUpTriggerRef],
   );
 
   return React.useMemo(
@@ -67,11 +69,11 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
 export namespace useMenuItem {
   export interface Parameters {
     /**
-     * If `true`, the menu will close when the menu item is clicked.
+     * Whether to close the menu when the item is clicked.
      */
     closeOnClick: boolean;
     /**
-     * Whether the component should ignore user actions.
+     * Whether the component should ignore user interaction.
      */
     disabled: boolean;
     /**
@@ -91,9 +93,9 @@ export namespace useMenuItem {
      */
     ref?: React.Ref<Element>;
     /**
-     * If `true`, the menu item will listen for mouseup events and treat them as clicks.
+     * Whether to treat mouseup events as clicks.
      */
-    treatMouseupAsClick: boolean;
+    allowMouseUpTriggerRef: React.RefObject<boolean>;
     /**
      * A ref that is set to `true` when the user is using the typeahead feature.
      */

@@ -1,25 +1,21 @@
 'use client';
 import * as React from 'react';
-import { type FloatingRootContext, useFloating, type FloatingContext } from '@floating-ui/react';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useScrollLock } from '../../utils/useScrollLock';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { GenericHTMLProps } from '../../utils/types';
+import { type OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
     descriptionElementId,
-    floatingRootContext,
     getPopupProps,
     id: idParam,
     initialFocus,
     modal,
     mounted,
-    onOpenChange,
-    open,
     openMethod,
     ref,
     setPopupElementId,
@@ -27,18 +23,10 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     titleElementId,
   } = parameters;
 
-  const { context, elements } = useFloating({
-    open,
-    onOpenChange,
-    rootContext: floatingRootContext,
-  });
-
   const popupRef = React.useRef<HTMLElement>(null);
 
   const id = useBaseUiId(idParam);
   const handleRef = useForkRef(ref, popupRef, setPopupElement);
-
-  useScrollLock(modal && mounted, elements.floating);
 
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
@@ -74,7 +62,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     mergeReactProps<'div'>(externalProps, {
       'aria-labelledby': titleElementId ?? undefined,
       'aria-describedby': descriptionElementId ?? undefined,
-      'aria-modal': open && modal ? true : undefined,
+      'aria-modal': mounted && modal ? true : undefined,
       role: 'dialog',
       tabIndex: -1,
       ...getPopupProps(),
@@ -84,7 +72,6 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     });
 
   return {
-    floatingContext: context,
     getRootProps,
     resolvedInitialFocus,
   };
@@ -101,18 +88,18 @@ export namespace useDialogPopup {
      */
     ref: React.Ref<HTMLElement>;
     /**
-     * Determines if the dialog is modal.
+     * Whether the dialog should prevent outside clicks and lock page scroll when open.
      */
     modal: boolean;
-    /**
-     * Whether the dialog is currently open.
-     */
-    open: boolean;
     openMethod: InteractionType | null;
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    onOpenChange: (open: boolean, event?: Event) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     /**
      * The id of the title element associated with the dialog.
      */
@@ -133,10 +120,6 @@ export namespace useDialogPopup {
       | React.RefObject<HTMLElement | null>
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
     /**
-     * The Floating UI root context.
-     */
-    floatingRootContext: FloatingRootContext;
-    /**
      * Determines if the dialog should be mounted.
      */
     mounted: boolean;
@@ -151,10 +134,6 @@ export namespace useDialogPopup {
   }
 
   export interface ReturnValue {
-    /**
-     * Floating UI context for the dialog's FloatingFocusManager.
-     */
-    floatingContext: FloatingContext;
     /**
      * Resolver for the root element props.
      */

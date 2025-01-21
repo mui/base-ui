@@ -12,6 +12,9 @@
     }
   },
   "dataAttributes": {
+    "data-open": {
+      "description": "Present when the accordion item is open."
+    },
     "data-disabled": {
       "description": "Present when the accordion item is disabled."
     },
@@ -19,5 +22,6 @@
       "description": "Indicates the index of the accordion item.",
       "type": "number"
     }
-  }
+  },
+  "cssVariables": {}
 }

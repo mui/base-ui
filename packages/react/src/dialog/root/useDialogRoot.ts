@@ -6,26 +6,32 @@ import {
   useDismiss,
   useFloatingRootContext,
   useInteractions,
+  type OpenChangeReason as FloatingUIOpenChangeReason,
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import {
+  type OpenChangeReason,
+  translateOpenChangeReason,
+} from '../../utils/translateOpenChangeReason';
 
-export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
+export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
     defaultOpen,
     dismissible,
     modal,
     onNestedDialogClose,
     onNestedDialogOpen,
-    onOpenChange,
+    onOpenChange: onOpenChangeParameter,
     open: openParam,
-  } = parameters;
+  } = params;
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
@@ -46,21 +52,35 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
-    onOpenChange?.(nextOpen, event);
-    setOpenUnwrapped(nextOpen);
-  });
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+      onOpenChangeParameter?.(nextOpen, event, reason);
+      setOpenUnwrapped(nextOpen);
+    },
+  );
 
   useAfterExitAnimation({
     open,
     animatedElementRef: popupRef,
-    onFinished: () => setMounted(false),
+    onFinished() {
+      setMounted(false);
+    },
   });
+
+  useScrollLock(open && modal, popupElement);
+
+  const handleFloatingUIOpenChange = (
+    nextOpen: boolean,
+    event: Event | undefined,
+    reason: FloatingUIOpenChangeReason | undefined,
+  ) => {
+    setOpen(nextOpen, event, translateOpenChangeReason(reason));
+  };
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: popupElement },
     open,
-    onOpenChange: setOpen,
+    onOpenChange: handleFloatingUIOpenChange,
   });
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
@@ -87,10 +107,6 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
       if (onNestedDialogClose && open) {
         onNestedDialogClose();
       }
-
-      if (onNestedDialogOpen && !open) {
-        onNestedDialogOpen(ownNestedOpenDialogs);
-      }
     };
   }, [open, onNestedDialogClose, onNestedDialogOpen, ownNestedOpenDialogs]);
 
@@ -107,7 +123,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   return React.useMemo(() => {
     return {
       modal,
-      onOpenChange: setOpen,
+      setOpen,
       open,
       titleElementId,
       setTitleElementId,
@@ -152,7 +168,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   ]);
 }
 
-export interface CommonParameters {
+export interface SharedParameters {
   /**
    * Whether the dialog is currently open.
    */
@@ -165,23 +181,27 @@ export interface CommonParameters {
    */
   defaultOpen?: boolean;
   /**
-   * Determines whether the dialog is modal.
+   * Whether the dialog should prevent outside clicks and lock page scroll when open.
    * @default true
    */
   modal?: boolean;
   /**
    * Event handler called when the dialog is opened or closed.
    */
-  onOpenChange?: (open: boolean, event?: Event) => void;
+  onOpenChange?: (
+    open: boolean,
+    event: Event | undefined,
+    reason: OpenChangeReason | undefined,
+  ) => void;
   /**
-   * Determines whether the dialog should close when clicking outside of it.
+   * Determines whether the dialog should close on outside clicks.
    * @default true
    */
   dismissible?: boolean;
 }
 
 export namespace useDialogRoot {
-  export interface Parameters extends RequiredExcept<CommonParameters, 'open' | 'onOpenChange'> {
+  export interface Parameters extends RequiredExcept<SharedParameters, 'open' | 'onOpenChange'> {
     /**
      * Callback to invoke when a nested dialog is opened.
      */
@@ -198,7 +218,7 @@ export namespace useDialogRoot {
      */
     descriptionElementId: string | undefined;
     /**
-     * Determines if the dialog is modal.
+     * Whether the dialog should prevent outside clicks and lock page scroll when open.
      */
     modal: boolean;
     /**
@@ -216,7 +236,11 @@ export namespace useDialogRoot {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    onOpenChange: (open: boolean, event?: Event) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     /**
      * Whether the dialog is currently open.
      */

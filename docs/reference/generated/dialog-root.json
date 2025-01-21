@@ -7,23 +7,25 @@
       "default": "false",
       "description": "Whether the dialog is initially open.\n\nTo render a controlled dialog, use the `open` prop instead."
     },
+    "open": {
+      "type": "boolean",
+      "description": "Whether the dialog is currently open."
+    },
+    "onOpenChange": {
+      "type": "(open, event, reason) => void",
+      "description": "Event handler called when the dialog is opened or closed."
+    },
     "dismissible": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines whether the dialog should close when clicking outside of it."
+      "description": "Determines whether the dialog should close on outside clicks."
     },
     "modal": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines whether the dialog is modal."
-    },
-    "onOpenChange": {
-      "type": "(open, event) => void",
-      "description": "Event handler called when the dialog is opened or closed."
-    },
-    "open": {
-      "type": "boolean",
-      "description": "Whether the dialog is currently open."
+      "description": "Whether the dialog should prevent outside clicks and lock page scroll when open."
     }
-  }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
 }

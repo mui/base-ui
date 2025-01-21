@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { PopoverRootContext } from './PopoverRootContext';
 import { usePopoverRoot } from './usePopoverRoot';
 import { OPEN_DELAY } from '../utils/constants';
-import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the popover.
@@ -13,94 +12,39 @@ import { PortalContext } from '../../portal/PortalContext';
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
-  const { openOnHover = false, delay, closeDelay = 0 } = props;
+  const {
+    defaultOpen = false,
+    onOpenChange,
+    open,
+    openOnHover = false,
+    delay,
+    closeDelay = 0,
+  } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
 
-  const {
+  const popoverRoot = usePopoverRoot({
+    ...props,
+    defaultOpen,
+    onOpenChange,
     open,
-    setOpen,
-    mounted,
-    setMounted,
-    setTriggerElement,
-    positionerElement,
-    setPositionerElement,
-    popupRef,
-    instantType,
-    transitionStatus,
-    floatingRootContext,
-    getRootTriggerProps,
-    getRootPopupProps,
-    titleId,
-    setTitleId,
-    descriptionId,
-    setDescriptionId,
-    openMethod,
-    openReason,
-  } = usePopoverRoot({
     openOnHover,
     delay: delayWithDefault,
     closeDelay,
-    open: props.open,
-    onOpenChange: props.onOpenChange,
-    defaultOpen: props.defaultOpen,
   });
 
   const contextValue: PopoverRootContext = React.useMemo(
     () => ({
+      ...popoverRoot,
       openOnHover,
       delay: delayWithDefault,
       closeDelay,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      transitionStatus,
-      titleId,
-      setTitleId,
-      descriptionId,
-      setDescriptionId,
-      floatingRootContext,
-      getRootPopupProps,
-      getRootTriggerProps,
-      openMethod,
-      openReason,
     }),
-    [
-      openOnHover,
-      delayWithDefault,
-      closeDelay,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      transitionStatus,
-      titleId,
-      setTitleId,
-      descriptionId,
-      setDescriptionId,
-      floatingRootContext,
-      getRootPopupProps,
-      getRootTriggerProps,
-      openMethod,
-      openReason,
-    ],
+    [popoverRoot, openOnHover, delayWithDefault, closeDelay],
   );
 
   return (
-    <PopoverRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
-    </PopoverRootContext.Provider>
+    <PopoverRootContext.Provider value={contextValue}>{props.children}</PopoverRootContext.Provider>
   );
 };
 
@@ -122,7 +66,10 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * The delay in milliseconds until the popover popup is closed when `openOnHover` is `true`.
+   * How long to wait before closing the popover that was opened on hover.
+   * Specified in milliseconds.
+   *
+   * Requires the `openOnHover` prop.
    * @default 0
    */
   closeDelay: PropTypes.number,
@@ -134,7 +81,9 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * The delay in milliseconds until the popover popup is opened when `openOnHover` is `true`.
+   * How long to wait before the popover may be opened on hover. Specified in milliseconds.
+   *
+   * Requires the `openOnHover` prop.
    * @default 300
    */
   delay: PropTypes.number,
@@ -147,7 +96,7 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   open: PropTypes.bool,
   /**
-   * Whether the popover popup opens when the trigger is hovered after the provided `delay`.
+   * Whether the popover should also open when the trigger is hovered.
    * @default false
    */
   openOnHover: PropTypes.bool,
