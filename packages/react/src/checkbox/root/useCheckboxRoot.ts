@@ -75,9 +75,11 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   useEnhancedEffect(() => {
     if (inputRef.current) {
       inputRef.current.indeterminate = indeterminate;
-      setFilled(inputRef.current.checked);
+      if (checked) {
+        setFilled(true);
+      }
     }
-  }, [indeterminate, setFilled]);
+  }, [checked, indeterminate, setFilled]);
 
   const getButtonProps: UseCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
@@ -151,8 +153,11 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
 
           const nextChecked = event.target.checked;
 
+          if (!groupContext) {
+            setFilled(nextChecked);
+          }
+
           setDirty(nextChecked !== validityData.initialValue);
-          setFilled(nextChecked);
           setCheckedState(nextChecked);
           onCheckedChange?.(nextChecked, event.nativeEvent);
 
@@ -161,6 +166,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
               ? [...groupValue, name]
               : groupValue.filter((item) => item !== name);
             setGroupValue(nextGroupValue, event.nativeEvent);
+            setFilled(nextGroupValue.length > 0);
           }
         },
       }),
@@ -173,13 +179,14 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       required,
       autoFocus,
       mergedInputRef,
+      groupContext,
       setDirty,
       validityData.initialValue,
-      setFilled,
       setCheckedState,
       onCheckedChange,
       groupValue,
       setGroupValue,
+      setFilled,
     ],
   );
 

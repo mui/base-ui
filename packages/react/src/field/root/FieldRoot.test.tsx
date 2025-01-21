@@ -11,6 +11,7 @@ import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
+import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 
 const user = userEvent.setup();
 
@@ -790,6 +791,33 @@ describe('<Field.Root />', () => {
 
           expect(button).not.to.have.attribute('data-filled', '');
         });
+
+        it('adds [data-filled] attribute when any checkbox is filled when inside a group', async () => {
+          await render(
+            <Field.Root>
+              <CheckboxGroup defaultValue={['1', '2']}>
+                <Checkbox.Root name="1" data-testid="button-1" />
+                <Checkbox.Root name="2" data-testid="button-2" />
+              </CheckboxGroup>
+            </Field.Root>,
+          );
+
+          const button1 = screen.getByTestId('button-1');
+          const button2 = screen.getByTestId('button-2');
+
+          expect(button1).to.have.attribute('data-filled');
+          expect(button2).to.have.attribute('data-filled');
+
+          fireEvent.click(button1);
+
+          expect(button1).to.have.attribute('data-filled');
+          expect(button2).to.have.attribute('data-filled');
+
+          fireEvent.click(button2);
+
+          expect(button1).not.to.have.attribute('data-filled');
+          expect(button2).not.to.have.attribute('data-filled');
+        });
       });
 
       describe('Switch', () => {
@@ -962,6 +990,21 @@ describe('<Field.Root />', () => {
           fireEvent.click(screen.getByText('Two'));
 
           expect(group).to.have.attribute('data-filled', '');
+        });
+
+        it('adds [data-filled] attribute when already filled initially', async () => {
+          await render(
+            <Field.Root>
+              <RadioGroup data-testid="group" defaultValue="1">
+                <Radio.Root value="1">One</Radio.Root>
+                <Radio.Root value="2">Two</Radio.Root>
+              </RadioGroup>
+            </Field.Root>,
+          );
+
+          const group = screen.getByTestId('group');
+
+          expect(group).to.have.attribute('data-filled');
         });
       });
     });

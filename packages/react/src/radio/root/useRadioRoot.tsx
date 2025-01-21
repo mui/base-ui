@@ -4,6 +4,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 export function useRadioRoot(params: useRadioRoot.Parameters) {
   const { disabled, readOnly, value, required } = params;
@@ -16,6 +17,12 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
   const checked = checkedValue === value;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
+
+  useEnhancedEffect(() => {
+    if (inputRef.current?.checked) {
+      setFilled(true);
+    }
+  }, [setFilled]);
 
   const getRootProps: useRadioRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
