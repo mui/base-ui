@@ -67,7 +67,7 @@ namespace RadioIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * Whether to keep the HTML element in the DOM when the radio button is inactive.
-     * @default true
+     * @default false
      */
     keepMounted?: boolean;
   }
