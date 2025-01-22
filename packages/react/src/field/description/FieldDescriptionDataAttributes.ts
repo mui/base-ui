@@ -20,7 +20,7 @@ export enum FieldDescriptionDataAttributes {
    */
   dirty = 'data-dirty',
   /**
-   * Present when the field control is filled.
+   * Present when the field is filled.
    */
   filled = 'data-filled',
   /**
