@@ -125,7 +125,7 @@ describe('<AlertDialog.Root />', () => {
         </AlertDialog.Root>,
       );
 
-      expect(document.querySelector('[data-base-ui-backdrop]')).not.to.equal(null);
+      expect(screen.getByRole('presentation', { hidden: true })).not.to.equal(null);
     });
   });
 });

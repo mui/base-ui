@@ -93,10 +93,10 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     outsidePressEvent: 'mousedown',
     outsidePress(event) {
       const target = getTarget(event) as Element | null;
-      if (isTopmost && dismissible && target) {
-        const backdrop = target.closest('[data-base-ui-backdrop]') as HTMLDivElement | null;
+      if (isTopmost && dismissible) {
+        const backdrop = target as HTMLDivElement | null;
         // Only close if the click occurred on the dialog's owning backdrop.
-        // This supports nested modal dialogs that aren't nested in the React tree:
+        // This supports multiple modal dialogs that aren't nested in the React tree:
         // https://github.com/mui/base-ui/issues/1320
         if (modal) {
           return backdrop

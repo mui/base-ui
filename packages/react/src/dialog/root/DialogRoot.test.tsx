@@ -264,7 +264,7 @@ describe('<Dialog.Root />', () => {
         </Dialog.Root>,
       );
 
-      await user.click(document.querySelector('[data-base-ui-backdrop]') as HTMLElement);
+      await user.click(screen.getByRole('presentation', { hidden: true }));
 
       expect(handleOpenChange.callCount).to.equal(1);
       expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
@@ -315,7 +315,7 @@ describe('<Dialog.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('prop: modal', () => {
-    it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
+    it('makes other interactive elements on the page inert when a modal dialog is open', async () => {
       await render(
         <Dialog.Root defaultOpen modal>
           <Dialog.Trigger>Open Dialog</Dialog.Trigger>
@@ -327,7 +327,7 @@ describe('<Dialog.Root />', () => {
         </Dialog.Root>,
       );
 
-      expect(document.querySelector('[data-base-ui-backdrop]')).not.to.equal(null);
+      expect(screen.getByRole('presentation', { hidden: true })).not.to.equal(null);
     });
 
     it('does not make other interactive elements on the page inert when a non-modal dialog is open', async () => {
@@ -342,7 +342,7 @@ describe('<Dialog.Root />', () => {
         </Dialog.Root>,
       );
 
-      expect(document.querySelector('[data-base-ui-backdrop]')).to.equal(null);
+      expect(screen.queryByRole('presentation')).to.equal(null);
     });
   });
 
@@ -576,7 +576,7 @@ describe('<Dialog.Root />', () => {
     const nestedButton2 = screen.getByRole('button', { name: 'Open nested 2' });
     await user.click(nestedButton2);
 
-    const backdrops = Array.from(document.querySelectorAll('[data-base-ui-backdrop]'));
+    const backdrops = Array.from(document.querySelectorAll('[role="presentation"]'));
     await user.click(backdrops[backdrops.length - 1]);
 
     expect(screen.queryByTestId('level-3')).to.equal(null);

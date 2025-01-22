@@ -46,7 +46,6 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
     extraProps: {
       role: 'presentation',
       hidden: !mounted,
-      'data-base-ui-backdrop': '',
       ...other,
     },
     customStyleHookMapping,
