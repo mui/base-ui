@@ -1,5 +1,9 @@
 export enum FieldErrorDataAttributes {
   /**
+   * Present when the field is disabled.
+   */
+  disabled = 'data-disabled',
+  /**
    * Present when the field is in valid state.
    */
   valid = 'data-valid',

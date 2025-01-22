@@ -20,6 +20,9 @@
     }
   },
   "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the field is disabled."
+    },
     "data-valid": {
       "description": "Present when the field is in valid state."
     },
