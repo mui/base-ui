@@ -15,4 +15,12 @@ export enum FieldErrorDataAttributes {
    * Present when the field's value has changed.
    */
   dirty = 'data-dirty',
+  /**
+   * Present when the field control is filled.
+   */
+  filled = 'data-filled',
+  /**
+   * Present when the field control is focused.
+   */
+  focused = 'data-focused',
 }

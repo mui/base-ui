@@ -30,6 +30,12 @@
     },
     "data-touched": {
       "description": "Present when the field has been touched."
+    },
+    "data-filled": {
+      "description": "Present when the field control is filled."
+    },
+    "data-focused": {
+      "description": "Present when the field control is focused."
     }
   },
   "cssVariables": {}
