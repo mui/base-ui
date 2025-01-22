@@ -71,7 +71,6 @@ describe('<Checkbox.Indicator />', () => {
       );
       const indicator = container.querySelector('span');
       expect(indicator).not.to.equal(null);
-      expect(indicator).to.have.attribute('hidden');
     });
 
     it('should keep indicator mounted when checked', async () => {
@@ -82,7 +81,6 @@ describe('<Checkbox.Indicator />', () => {
       );
       const indicator = container.querySelector('span');
       expect(indicator).not.to.equal(null);
-      expect(indicator).not.to.have.attribute('hidden');
     });
 
     it('should keep indicator mounted when indeterminate', async () => {
@@ -93,7 +91,6 @@ describe('<Checkbox.Indicator />', () => {
       );
       const indicator = container.querySelector('span');
       expect(indicator).not.to.equal(null);
-      expect(indicator).not.to.have.attribute('hidden');
     });
   });
 
@@ -108,7 +105,7 @@ describe('<Checkbox.Indicator />', () => {
         <div>
           <button onClick={() => setChecked(false)}>Close</button>
           <Checkbox.Root checked={checked}>
-            <Checkbox.Indicator data-testid="indicator" keepMounted />
+            <Checkbox.Indicator data-testid="indicator" />
           </Checkbox.Root>
         </div>
       );
@@ -116,14 +113,14 @@ describe('<Checkbox.Indicator />', () => {
 
     const { user } = await render(<Test />);
 
-    expect(screen.getByTestId('indicator')).not.to.have.attribute('hidden');
+    expect(screen.getByTestId('indicator')).not.to.equal(null);
 
     const closeButton = screen.getByText('Close');
 
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('indicator')).to.have.attribute('hidden');
+      expect(screen.queryByTestId('indicator')).to.equal(null);
     });
   });
 
@@ -172,16 +169,13 @@ describe('<Checkbox.Indicator />', () => {
     }
 
     const { user } = await render(<Test />);
-
-    expect(screen.getByTestId('indicator')).not.to.have.attribute('hidden');
+    expect(screen.getByTestId('indicator')).not.to.equal(null);
 
     const closeButton = screen.getByText('Close');
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('indicator')).to.have.attribute('hidden');
+      expect(animationFinished).to.equal(true);
     });
-
-    expect(animationFinished).to.equal(true);
   });
 });

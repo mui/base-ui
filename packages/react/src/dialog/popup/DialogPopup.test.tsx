@@ -326,7 +326,7 @@ describe('<Dialog.Popup />', () => {
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('1');
 
-      await user.click(screen.getByRole('button', { name: 'toggle' }));
+      await user.click(screen.getByRole('button', { name: 'toggle', hidden: true }));
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
     });

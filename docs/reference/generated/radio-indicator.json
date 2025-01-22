@@ -8,7 +8,7 @@
     },
     "keepMounted": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "Whether to keep the HTML element in the DOM when the radio button is inactive."
     },
     "render": {

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Tabs } from '@base-ui-components/react/tabs';
 import styles from './index.module.css';
 
-export default function ExampleScrollArea() {
+export default function ExampleTabs() {
   return (
     <Tabs.Root className={styles.Tabs} defaultValue="overview">
       <Tabs.List className={styles.List}>
