@@ -67,7 +67,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     },
   });
 
-  useScrollLock(open && modal, popupElement);
+  useScrollLock(mounted && modal, popupElement);
 
   const handleFloatingUIOpenChange = (
     nextOpen: boolean,

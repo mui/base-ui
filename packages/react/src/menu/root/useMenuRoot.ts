@@ -76,7 +76,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(open && modal, triggerElement);
+  useScrollLock(mounted && modal, triggerElement);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {

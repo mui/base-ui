@@ -18,6 +18,15 @@ function supportsDvh() {
   );
 }
 
+function bodyHasScrollBehaviorSmooth(referenceElement?: Element | null) {
+  if (typeof document === 'undefined') {
+    return false;
+  }
+  const doc = ownerDocument(referenceElement);
+  const win = ownerWindow(doc);
+  return win.getComputedStyle(doc.body).scrollBehavior === 'smooth';
+}
+
 function hasInsetScrollbars(referenceElement?: Element | null) {
   if (typeof document === 'undefined') {
     return false;
@@ -135,21 +144,20 @@ function preventScrollStandard(referenceElement?: Element | null) {
  *
  * @param enabled - Whether to enable the scroll lock.
  */
-export function useScrollLock(enabled: boolean = true, referenceElement?: Element | null) {
+export function useScrollLock(enabled = true, referenceElement?: Element | null) {
   const isReactAriaHook = React.useMemo(
     () =>
       enabled &&
       (isIOS() ||
         !supportsDvh() ||
+        // Fallback when `body { scroll-behavior: smooth }` is set
+        bodyHasScrollBehaviorSmooth(referenceElement) ||
         // macOS Firefox "pops" scroll containers' scrollbars with our standard scroll lock
-        (isFirefox() && !hasInsetScrollbars())),
+        (isFirefox() && !hasInsetScrollbars(referenceElement))),
     [enabled],
   );
 
   usePreventScroll({
-    // react-aria will remove the scrollbar offset immediately upon close, since we use `open`,
-    // not `mounted`, to disable/enable the scroll lock. However since there are no inset
-    // scrollbars, no layouting issues occur.
     isDisabled: !isReactAriaHook,
   });
 
