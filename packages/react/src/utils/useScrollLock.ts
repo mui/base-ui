@@ -18,15 +18,6 @@ function supportsDvh() {
   );
 }
 
-function bodyHasScrollBehaviorSmooth(referenceElement?: Element | null) {
-  if (typeof document === 'undefined') {
-    return false;
-  }
-  const doc = ownerDocument(referenceElement);
-  const win = ownerWindow(doc);
-  return win.getComputedStyle(doc.body).scrollBehavior === 'smooth';
-}
-
 function hasInsetScrollbars(referenceElement?: Element | null) {
   if (typeof document === 'undefined') {
     return false;
@@ -71,6 +62,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
       boxSizing: body.style.boxSizing,
       overflowY: body.style.overflowY,
       overflowX: body.style.overflowX,
+      scrollBehavior: body.style.scrollBehavior,
     };
 
     // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
@@ -106,6 +98,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
       width: marginX || scrollbarWidth ? `calc(100vw - ${marginX + scrollbarWidth}px)` : '100vw',
       boxSizing: 'border-box',
       overflow: 'hidden',
+      scrollBehavior: 'unset',
     });
 
     body.scrollTop = scrollTop;
@@ -150,8 +143,6 @@ export function useScrollLock(enabled = true, referenceElement?: Element | null)
       enabled &&
       (isIOS() ||
         !supportsDvh() ||
-        // Fallback when `body { scroll-behavior: smooth }` is set
-        bodyHasScrollBehaviorSmooth(referenceElement) ||
         // macOS Firefox "pops" scroll containers' scrollbars with our standard scroll lock
         (isFirefox() && !hasInsetScrollbars(referenceElement))),
     [enabled, referenceElement],
