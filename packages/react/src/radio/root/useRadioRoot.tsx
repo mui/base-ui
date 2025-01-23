@@ -4,6 +4,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 export function useRadioRoot(params: useRadioRoot.Parameters) {
   const { disabled, readOnly, value, required } = params;
@@ -11,11 +12,17 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
   const { checkedValue, setCheckedValue, onValueChange, touched, setTouched } =
     useRadioGroupContext();
 
-  const { setDirty, validityData, setTouched: setFieldTouched } = useFieldRootContext();
+  const { setDirty, validityData, setTouched: setFieldTouched, setFilled } = useFieldRootContext();
 
   const checked = checkedValue === value;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
+
+  useEnhancedEffect(() => {
+    if (inputRef.current?.checked) {
+      setFilled(true);
+    }
+  }, [setFilled]);
 
   const getRootProps: useRadioRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
@@ -79,6 +86,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
           setFieldTouched(true);
           setDirty(value !== validityData.initialValue);
           setCheckedValue(value);
+          setFilled(true);
           onValueChange?.(value, event.nativeEvent);
         },
       }),
@@ -92,6 +100,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
       setDirty,
       validityData.initialValue,
       setCheckedValue,
+      setFilled,
       onValueChange,
     ],
   );

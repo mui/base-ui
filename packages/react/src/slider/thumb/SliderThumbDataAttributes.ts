@@ -36,4 +36,8 @@ export enum SliderThumbDataAttributes {
    * Present when the slider's value has changed (when wrapped in Field.Root).
    */
   dirty = 'data-dirty',
+  /**
+   * Present when the slider is focused (when wrapped in Field.Root).
+   */
+  focused = 'data-focused',
 }
