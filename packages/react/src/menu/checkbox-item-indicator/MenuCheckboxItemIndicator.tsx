@@ -27,15 +27,14 @@ const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndi
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
   const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(item.checked);
+  const { transitionStatus, setMounted } = useTransitionStatus(item.checked);
 
   const getItemProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         'aria-hidden': true,
-        hidden: !mounted,
       }),
-    [mounted],
+    [],
   );
 
   useOpenChangeComplete({

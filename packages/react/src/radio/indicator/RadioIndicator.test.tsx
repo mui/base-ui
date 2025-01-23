@@ -31,14 +31,10 @@ describe('<Radio.Indicator />', () => {
           <button onClick={() => setValue('b')}>Close</button>
           <RadioGroup value={value}>
             <Radio.Root value="a">
-              <Radio.Indicator
-                className="animation-test-indicator"
-                keepMounted
-                data-testid="indicator-a"
-              />
+              <Radio.Indicator className="animation-test-indicator" data-testid="indicator-a" />
             </Radio.Root>
             <Radio.Root value="a">
-              <Radio.Indicator className="animation-test-indicator" keepMounted />
+              <Radio.Indicator className="animation-test-indicator" />
             </Radio.Root>
           </RadioGroup>
         </div>
@@ -47,14 +43,14 @@ describe('<Radio.Indicator />', () => {
 
     const { user } = await render(<Test />);
 
-    expect(screen.getByTestId('indicator-a')).not.to.have.attribute('hidden');
+    expect(screen.getByTestId('indicator-a')).not.to.equal(null);
 
     const closeButton = screen.getByText('Close');
 
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('indicator-a')).to.have.attribute('hidden');
+      expect(screen.queryByTestId('indicator-a')).to.equal(null);
     });
   });
 
@@ -109,15 +105,13 @@ describe('<Radio.Indicator />', () => {
 
     const { user } = await render(<Test />);
 
-    expect(screen.getByTestId('indicator-a')).not.to.have.attribute('hidden');
+    expect(screen.getByTestId('indicator-a')).not.to.equal(null);
 
     const closeButton = screen.getByText('Close');
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('indicator-a')).to.have.attribute('hidden');
+      expect(animationFinished).to.equal(true);
     });
-
-    expect(animationFinished).to.equal(true);
   });
 });

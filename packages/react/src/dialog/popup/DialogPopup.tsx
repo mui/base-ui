@@ -57,6 +57,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     titleElementId,
     transitionStatus,
     onOpenChangeComplete,
+    internalBackdropRef,
   } = useDialogRootContext();
 
   useDialogPortalContext();
@@ -108,7 +109,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 
   return (
     <React.Fragment>
-      {mounted && modal && <InternalBackdrop inert={!open} />}
+      {mounted && modal && <InternalBackdrop ref={internalBackdropRef} inert={!open} />}
       <FloatingFocusManager
         context={floatingRootContext}
         modal={open}
@@ -116,7 +117,6 @@ const DialogPopup = React.forwardRef(function DialogPopup(
         closeOnFocusOut={dismissible}
         initialFocus={resolvedInitialFocus}
         returnFocus={finalFocus}
-        outsideElementsInert={modal}
       >
         {renderElement()}
       </FloatingFocusManager>
