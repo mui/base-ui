@@ -24,8 +24,16 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     inputRef: externalInputRef,
   } = params;
 
-  const { labelId, setControlId, setTouched, setDirty, validityData, setFilled, setFocused, validationMode } =
-    useFieldRootContext();
+  const {
+    labelId,
+    setControlId,
+    setTouched,
+    setDirty,
+    validityData,
+    setFilled,
+    setFocused,
+    validationMode,
+  } = useFieldRootContext();
 
   const {
     getValidationProps,

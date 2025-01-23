@@ -13,8 +13,16 @@ import { useEventCallback } from '../../utils/useEventCallback';
 export function useFieldControl(params: useFieldControl.Parameters) {
   const { id: idProp, name, value: valueProp, defaultValue, onValueChange, disabled } = params;
 
-  const { setControlId, labelId, setTouched, setDirty, validityData, setFocused, setFilled, validationMode } =
-    useFieldRootContext();
+  const {
+    setControlId,
+    labelId,
+    setTouched,
+    setDirty,
+    validityData,
+    setFocused,
+    setFilled,
+    validationMode,
+  } = useFieldRootContext();
 
   const { errors, onClearErrors } = useFormContext();
 

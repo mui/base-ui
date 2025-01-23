@@ -776,7 +776,6 @@ export function useNumberFieldRoot(
       formatOptionsRef,
       commitValidation,
       valueRef,
-      formatOptionsRef,
       setValue,
       getAllowedNonNumericKeys,
       getStepAmount,

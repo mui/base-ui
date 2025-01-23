@@ -40,8 +40,16 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     state: 'checked',
   });
 
-  const { labelId, setControlId, setTouched, setDirty, validityData, setFilled, setFocused, validationMode } =
-    useFieldRootContext();
+  const {
+    labelId,
+    setControlId,
+    setTouched,
+    setDirty,
+    validityData,
+    setFilled,
+    setFocused,
+    validationMode,
+  } = useFieldRootContext();
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 

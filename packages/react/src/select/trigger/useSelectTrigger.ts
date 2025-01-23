@@ -160,7 +160,6 @@ export function useSelectTrigger(
       setTouchModality,
       validationMode,
       value,
-      setTouchModality,
       positionerElement,
     ],
   );
