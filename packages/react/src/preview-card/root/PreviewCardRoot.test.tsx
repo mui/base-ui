@@ -498,17 +498,14 @@ describe('<PreviewCard.Root />', () => {
 
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
-      let onOpenChangeCompleteValue: boolean | null = null;
-      function notifyOnOpenChangeComplete(open: boolean) {
-        onOpenChangeCompleteValue = open;
-      }
+      const onOpenChangeComplete = spy();
 
       function Test() {
         const [open, setOpen] = React.useState(true);
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <PreviewCard.Root open={open} onOpenChangeComplete={notifyOnOpenChangeComplete}>
+            <PreviewCard.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
               <PreviewCard.Portal>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup data-testid="popup" />
@@ -528,7 +525,8 @@ describe('<PreviewCard.Root />', () => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
 
-      expect(onOpenChangeCompleteValue).to.equal(false);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
     });
 
     it('is called on close when the exit animation finishes', async () => {

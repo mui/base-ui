@@ -397,17 +397,14 @@ describe('<Tooltip.Root />', () => {
 
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
-      let onOpenChangeCompleteValue: boolean | null = null;
-      function notifyOnOpenChangeComplete(open: boolean) {
-        onOpenChangeCompleteValue = open;
-      }
+      const onOpenChangeComplete = spy();
 
       function Test() {
         const [open, setOpen] = React.useState(true);
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <Tooltip.Root open={open} onOpenChangeComplete={notifyOnOpenChangeComplete}>
+            <Tooltip.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
               <Tooltip.Portal>
                 <Tooltip.Positioner>
                   <Tooltip.Popup data-testid="popup" />
@@ -427,7 +424,8 @@ describe('<Tooltip.Root />', () => {
         expect(screen.queryByTestId('popup')).to.equal(null);
       });
 
-      expect(onOpenChangeCompleteValue).to.equal(false);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
     });
 
     it('is called on close when the exit animation finishes', async () => {
