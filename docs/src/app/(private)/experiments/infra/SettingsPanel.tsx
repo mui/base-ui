@@ -140,6 +140,7 @@ function SettingsIcon(props: React.ComponentProps<'svg'>) {
       height="24"
       viewBox="0 0 24 24"
       width="24"
+      fill="currentcolor"
       {...props}
     >
       <g>
