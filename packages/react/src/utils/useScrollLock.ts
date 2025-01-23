@@ -149,6 +149,9 @@ export function useScrollLock(enabled = true, referenceElement?: Element | null)
   );
 
   usePreventScroll({
+    // react-aria will remove the scrollbar offset immediately upon close, since we use `open`,
+    // not `mounted`, to disable/enable the scroll lock. However since there are no inset
+    // scrollbars, no layouting issues occur.
     isDisabled: !isReactAriaHook,
   });
 

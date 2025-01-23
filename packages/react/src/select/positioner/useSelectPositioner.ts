@@ -10,7 +10,7 @@ export function useSelectPositioner(
 ): useSelectPositioner.ReturnValue {
   const { open, alignItemToTrigger, mounted, triggerElement, modal } = useSelectRootContext();
 
-  useScrollLock((alignItemToTrigger || modal) && mounted, triggerElement);
+  useScrollLock((alignItemToTrigger || modal) && open, triggerElement);
 
   const positioning = useAnchorPositioning({
     ...params,
