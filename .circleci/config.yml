@@ -233,8 +233,7 @@ jobs:
       - run:
           name: Resolve typescript version
           command: |
-            pnpm install typescript@next -d -w
-            pnpm install typescript@next -d --filter @base-ui-components/react
+            pnpm update -r typescript@next
             # log a patch for maintainers who want to check out this change
             git --no-pager diff HEAD
       - run:
