@@ -314,10 +314,10 @@ describe('<RadioGroup />', () => {
       render(
         <RadioGroup>
           <Radio.Root value="a" data-testid="a">
-            <Radio.Indicator data-testid="indicator-a" />
+            <Radio.Indicator keepMounted data-testid="indicator-a" />
           </Radio.Root>
           <Radio.Root value="b" data-testid="b">
-            <Radio.Indicator data-testid="indicator-b" />
+            <Radio.Indicator keepMounted data-testid="indicator-b" />
           </Radio.Root>
         </RadioGroup>,
       );

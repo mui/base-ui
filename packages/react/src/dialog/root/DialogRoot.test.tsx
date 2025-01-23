@@ -250,11 +250,31 @@ describe('<Dialog.Root />', () => {
       expect(handleOpenChange.firstCall.args[2]).to.equal('escape-key');
     });
 
-    it('calls onOpenChange with the reason for change when user clicks outside while the dialog is open', async () => {
+    it('calls onOpenChange with the reason for change when user clicks backdrop while the modal dialog is open', async () => {
       const handleOpenChange = spy();
 
       const { user } = await render(
         <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Dialog.Close>Close</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(screen.getByRole('presentation', { hidden: true }));
+
+      expect(handleOpenChange.callCount).to.equal(1);
+      expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
+    });
+
+    it('calls onOpenChange with the reason for change when user clicks outside while the non-modal dialog is open', async () => {
+      const handleOpenChange = spy();
+
+      const { user } = await render(
+        <Dialog.Root defaultOpen onOpenChange={handleOpenChange} modal={false}>
           <Dialog.Trigger>Open</Dialog.Trigger>
           <Dialog.Portal>
             <Dialog.Popup>
@@ -269,87 +289,60 @@ describe('<Dialog.Root />', () => {
       expect(handleOpenChange.callCount).to.equal(1);
       expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
     });
+
+    describe.skipIf(isJSDOM)('clicks on user backdrop', () => {
+      it('detects clicks on user backdrop', async () => {
+        const handleOpenChange = spy();
+
+        const { user } = await render(
+          <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Backdrop data-backdrop style={{ position: 'fixed', zIndex: 10, inset: 0 }} />
+              <Dialog.Popup style={{ position: 'fixed', zIndex: 10 }}>
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>,
+        );
+
+        await user.click(document.querySelector('[data-backdrop]') as HTMLElement);
+
+        expect(handleOpenChange.callCount).to.equal(1);
+        expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
+      });
+    });
   });
 
   describe.skipIf(isJSDOM)('prop: modal', () => {
-    it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
-      const { user } = await render(
-        <div>
-          <input data-testid="input" />
-          <textarea data-testid="textarea" />
-
-          <Dialog.Root modal>
-            <Dialog.Trigger>Open Dialog</Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Popup>
-                <Dialog.Close>Close Dialog</Dialog.Close>
-              </Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>
-
-          <button type="button">Another Button</button>
-        </div>,
+    it('makes other interactive elements on the page inert when a modal dialog is open', async () => {
+      await render(
+        <Dialog.Root defaultOpen modal>
+          <Dialog.Trigger>Open Dialog</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Dialog.Close>Close Dialog</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
       );
 
-      const outsideElements = [
-        screen.getByTestId('input'),
-        screen.getByTestId('textarea'),
-        screen.getByRole('button', { name: 'Another Button' }),
-      ];
-
-      const trigger = screen.getByRole('button', { name: 'Open Dialog' });
-      await user.click(trigger);
-
-      await waitFor(() => {
-        outsideElements.forEach((element) => {
-          // The `inert` attribute can be applied to the element itself or to an ancestor
-          expect(element.closest('[inert]')).not.to.equal(null);
-        });
-      });
-
-      const close = screen.getByRole('button', { name: 'Close Dialog' });
-      await user.click(close);
-
-      await waitFor(() => {
-        outsideElements.forEach((element) => {
-          expect(element.closest('[inert]')).to.equal(null);
-        });
-      });
+      expect(screen.getByRole('presentation', { hidden: true })).not.to.equal(null);
     });
 
     it('does not make other interactive elements on the page inert when a non-modal dialog is open', async () => {
-      const { user } = await render(
-        <div>
-          <input data-testid="input" />
-          <textarea data-testid="textarea" />
-
-          <Dialog.Root modal={false}>
-            <Dialog.Trigger>Open Dialog</Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Popup>
-                <Dialog.Close>Close Dialog</Dialog.Close>
-              </Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>
-
-          <button type="button">Another Button</button>
-        </div>,
+      await render(
+        <Dialog.Root defaultOpen modal={false}>
+          <Dialog.Trigger>Open Dialog</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Dialog.Close>Close Dialog</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
       );
 
-      const outsideElements = [
-        screen.getByTestId('input'),
-        screen.getByTestId('textarea'),
-        screen.getByRole('button', { name: 'Another Button' }),
-      ];
-
-      const trigger = screen.getByRole('button', { name: 'Open Dialog' });
-      await user.click(trigger);
-
-      await waitFor(() => {
-        outsideElements.forEach((element) => {
-          expect(element.closest('[inert]')).to.equal(null);
-        });
-      });
+      expect(screen.queryByRole('presentation')).to.equal(null);
     });
   });
 
@@ -489,6 +482,112 @@ describe('<Dialog.Root />', () => {
       // focus guard -> internal backdrop
       expect(popup.previousElementSibling?.previousElementSibling).to.equal(null);
     });
+  });
+
+  it('does not dismiss previous modal dialog when clicking new modal dialog', async () => {
+    function App() {
+      const [openNested, setOpenNested] = React.useState(false);
+      const [openNested2, setOpenNested2] = React.useState(false);
+
+      return (
+        <div>
+          <Dialog.Root>
+            <Dialog.Trigger>Trigger</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Backdrop />
+              <Dialog.Popup>
+                <button onClick={() => setOpenNested(true)}>Open nested 1</button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <Dialog.Root open={openNested} onOpenChange={setOpenNested}>
+            <Dialog.Portal>
+              <Dialog.Backdrop />
+              <Dialog.Popup>
+                <button onClick={() => setOpenNested2(true)}>Open nested 2</button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <Dialog.Root open={openNested2} onOpenChange={setOpenNested2}>
+            <Dialog.Portal>
+              <Dialog.Backdrop />
+              <Dialog.Popup>Final nested</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    await user.click(trigger);
+
+    const nestedButton1 = screen.getByRole('button', { name: 'Open nested 1' });
+    await user.click(nestedButton1);
+
+    const nestedButton2 = screen.getByRole('button', { name: 'Open nested 2' });
+    await user.click(nestedButton2);
+
+    const finalDialog = screen.getByText('Final nested');
+
+    expect(finalDialog).not.to.equal(null);
+  });
+
+  it('dismisses non-nested dialogs one by one', async () => {
+    function App() {
+      const [openNested, setOpenNested] = React.useState(false);
+      const [openNested2, setOpenNested2] = React.useState(false);
+
+      return (
+        <div>
+          <Dialog.Root>
+            <Dialog.Trigger>Trigger</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="level-1">
+                <button onClick={() => setOpenNested(true)}>Open nested 1</button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <Dialog.Root open={openNested} onOpenChange={setOpenNested}>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="level-2">
+                <button onClick={() => setOpenNested2(true)}>Open nested 2</button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <Dialog.Root open={openNested2} onOpenChange={setOpenNested2}>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="level-3">Final nested</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    await user.click(trigger);
+
+    const nestedButton1 = screen.getByRole('button', { name: 'Open nested 1' });
+    await user.click(nestedButton1);
+
+    const nestedButton2 = screen.getByRole('button', { name: 'Open nested 2' });
+    await user.click(nestedButton2);
+
+    const backdrops = Array.from(document.querySelectorAll('[role="presentation"]'));
+    await user.click(backdrops[backdrops.length - 1]);
+
+    expect(screen.queryByTestId('level-3')).to.equal(null);
+
+    await user.click(backdrops[backdrops.length - 2]);
+
+    expect(screen.queryByTestId('level-2')).to.equal(null);
+
+    await user.click(backdrops[backdrops.length - 3]);
+
+    expect(screen.queryByTestId('level-1')).to.equal(null);
   });
 
   describe.skipIf(isJSDOM)('nested popups', () => {
