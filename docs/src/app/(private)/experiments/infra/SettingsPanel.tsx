@@ -22,8 +22,21 @@ export function SettingsPanel<Settings>(props: SettingsPanel.Props<Settings>) {
     [lastSettings, onChange],
   );
 
+  const [open, setOpen] = React.useState(false);
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: string | undefined) => {
+      console.log(nextOpen, reason);
+      if (!nextOpen && reason === 'outside-press') {
+        return;
+      }
+
+      setOpen(nextOpen);
+    },
+    [],
+  );
+
   return (
-    <Popover.Root>
+    <Popover.Root open={open} onOpenChange={handleOpenChange}>
       <Popover.Trigger className={classes.Trigger}>
         <SettingsIcon className={classes.Icon} />
       </Popover.Trigger>
