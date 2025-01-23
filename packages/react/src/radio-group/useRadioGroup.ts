@@ -11,7 +11,12 @@ import { useField } from '../field/useField';
 export function useRadioGroup(params: useRadioGroup.Parameters) {
   const { disabled = false, name, defaultValue, readOnly, value: externalValue } = params;
 
-  const { labelId, setTouched: setFieldTouched, setFocused, validationMode } = useFieldRootContext();
+  const {
+    labelId,
+    setTouched: setFieldTouched,
+    setFocused,
+    validationMode,
+  } = useFieldRootContext();
 
   const {
     getValidationProps,
