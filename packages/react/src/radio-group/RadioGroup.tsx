@@ -33,8 +33,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 
   const direction = useDirection();
 
-  const { getRootProps, getInputProps, checkedValue, setCheckedValue, touched, setTouched } =
-    useRadioGroup(props);
+  const radioGroup = useRadioGroup(props);
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
 
@@ -54,29 +53,17 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 
   const contextValue: RadioGroupContext = React.useMemo(
     () => ({
-      checkedValue,
-      setCheckedValue,
+      ...radioGroup,
       onValueChange,
       disabled,
       readOnly,
       required,
-      touched,
-      setTouched,
     }),
-    [
-      checkedValue,
-      setCheckedValue,
-      onValueChange,
-      disabled,
-      readOnly,
-      required,
-      touched,
-      setTouched,
-    ],
+    [disabled, onValueChange, radioGroup, readOnly, required],
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
+    propGetter: radioGroup.getRootProps,
     render: render ?? 'div',
     ref: forwardedRef,
     className,
@@ -87,7 +74,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
   return (
     <RadioGroupContext.Provider value={contextValue}>
       <CompositeRoot direction={direction} enableHomeAndEndKeys={false} render={renderElement()} />
-      <input {...getInputProps()} />
+      <input {...radioGroup.getInputProps()} />
     </RadioGroupContext.Provider>
   );
 });

@@ -11,6 +11,7 @@ import { type TransitionStatus, useTransitionStatus } from '../../utils/useTrans
 import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { fieldValidityMapping } from '../../field/utils/constants';
 
 /**
  * Indicates whether the checkbox is ticked.
@@ -55,6 +56,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     () => ({
       ...baseStyleHookMapping,
       ...transitionStatusMapping,
+      ...fieldValidityMapping,
     }),
     [baseStyleHookMapping],
   );

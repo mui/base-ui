@@ -1,6 +1,9 @@
+'use client';
 import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
 import { Checkbox } from '@base-ui-components/react/checkbox';
+import { Radio } from '@base-ui-components/react/radio';
+import { RadioGroup } from '@base-ui-components/react/radio-group';
 
 function CheckboxDemo() {
   return (
@@ -18,6 +21,18 @@ export default function FieldControls() {
   return (
     <div>
       <CheckboxDemo />
+
+      <Field.Root
+        validationMode="onChange"
+        validate={(value) => {
+          return value === '1' ? 'error' : null;
+        }}
+      >
+        <RadioGroup data-testid="group">
+          <Radio.Root value="1">One</Radio.Root>
+          <Radio.Root value="2">Two</Radio.Root>
+        </RadioGroup>
+      </Field.Root>
     </div>
   );
 }

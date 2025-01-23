@@ -125,7 +125,8 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   } = parameters;
 
   const direction = useDirection();
-  const { setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
+  const { setControlId, setTouched, setDirty, validityData, validationMode } =
+    useFieldRootContext();
 
   const {
     getValidationProps,
@@ -260,8 +261,11 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         }
         setDirty(newValue !== validityData.initialValue);
         setTouched(true);
-        commitValidation(lastChangedValueRef.current ?? newValue);
         onValueCommitted(lastChangedValueRef.current ?? newValue, event.nativeEvent);
+
+        if (validationMode === 'onChange') {
+          commitValidation(lastChangedValueRef.current ?? newValue);
+        }
       }
     },
   );

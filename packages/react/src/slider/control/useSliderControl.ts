@@ -128,7 +128,6 @@ export function useSliderControl(
     setActive(-1);
 
     commitValidation(lastChangedValueRef.current ?? finger.value);
-
     onValueCommitted(lastChangedValueRef.current ?? finger.value, nativeEvent);
 
     touchIdRef.current = null;
