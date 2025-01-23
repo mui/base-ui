@@ -11,6 +11,7 @@ import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
+import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 
 const user = userEvent.setup();
 
@@ -748,6 +749,475 @@ describe('<Field.Root />', () => {
         await flushMicrotasks();
 
         expect(trigger).to.have.attribute('data-dirty', '');
+      });
+    });
+
+    describe('filled', async () => {
+      it('should apply [data-filled] style hook to all components when filled', async () => {
+        await render(
+          <Field.Root data-testid="root">
+            <Field.Control data-testid="control" />
+            <Field.Label data-testid="label" />
+            <Field.Description data-testid="description" />
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+        const label = screen.getByTestId('label');
+        const description = screen.getByTestId('description');
+
+        expect(root).not.to.have.attribute('data-filled');
+        expect(control).not.to.have.attribute('data-filled');
+        expect(label).not.to.have.attribute('data-filled');
+        expect(description).not.to.have.attribute('data-filled');
+
+        fireEvent.change(control, { target: { value: 'value' } });
+
+        expect(root).to.have.attribute('data-filled', '');
+        expect(control).to.have.attribute('data-filled', '');
+        expect(label).to.have.attribute('data-filled', '');
+        expect(description).to.have.attribute('data-filled', '');
+
+        fireEvent.change(control, { target: { value: '' } });
+
+        expect(root).not.to.have.attribute('data-filled');
+        expect(control).not.to.have.attribute('data-filled');
+        expect(label).not.to.have.attribute('data-filled');
+        expect(description).not.to.have.attribute('data-filled');
+      });
+
+      describe('Checkbox', () => {
+        it('adds [data-filled] attribute when checked after being initially unchecked', async () => {
+          await render(
+            <Field.Root>
+              <Checkbox.Root data-testid="button" />
+            </Field.Root>,
+          );
+
+          const button = screen.getByTestId('button');
+
+          expect(button).not.to.have.attribute('data-filled');
+
+          fireEvent.click(button);
+
+          expect(button).to.have.attribute('data-filled', '');
+
+          fireEvent.click(button);
+
+          expect(button).not.to.have.attribute('data-filled');
+        });
+
+        it('removes [data-filled] attribute when unchecked after being initially checked', async () => {
+          await render(
+            <Field.Root>
+              <Checkbox.Root data-testid="button" defaultChecked />
+            </Field.Root>,
+          );
+
+          const button = screen.getByTestId('button');
+
+          expect(button).to.have.attribute('data-filled');
+
+          fireEvent.click(button);
+
+          expect(button).not.to.have.attribute('data-filled', '');
+        });
+
+        it('adds [data-filled] attribute when any checkbox is filled when inside a group', async () => {
+          await render(
+            <Field.Root>
+              <CheckboxGroup defaultValue={['1', '2']}>
+                <Checkbox.Root name="1" data-testid="button-1" />
+                <Checkbox.Root name="2" data-testid="button-2" />
+              </CheckboxGroup>
+            </Field.Root>,
+          );
+
+          const button1 = screen.getByTestId('button-1');
+          const button2 = screen.getByTestId('button-2');
+
+          expect(button1).to.have.attribute('data-filled');
+          expect(button2).to.have.attribute('data-filled');
+
+          fireEvent.click(button1);
+
+          expect(button1).to.have.attribute('data-filled');
+          expect(button2).to.have.attribute('data-filled');
+
+          fireEvent.click(button2);
+
+          expect(button1).not.to.have.attribute('data-filled');
+          expect(button2).not.to.have.attribute('data-filled');
+        });
+      });
+
+      describe('Switch', () => {
+        it('adds [data-filled] attribute when checked after being initially unchecked', async () => {
+          await render(
+            <Field.Root>
+              <Switch.Root data-testid="button" />
+            </Field.Root>,
+          );
+
+          const button = screen.getByTestId('button');
+
+          expect(button).not.to.have.attribute('data-filled');
+
+          fireEvent.click(button);
+
+          expect(button).to.have.attribute('data-filled', '');
+
+          fireEvent.click(button);
+
+          expect(button).not.to.have.attribute('data-filled');
+        });
+
+        it('removes [data-filled] attribute when unchecked after being initially checked', async () => {
+          await render(
+            <Field.Root>
+              <Switch.Root data-testid="button" defaultChecked />
+            </Field.Root>,
+          );
+
+          const button = screen.getByTestId('button');
+
+          expect(button).to.have.attribute('data-filled');
+
+          fireEvent.click(button);
+
+          expect(button).not.to.have.attribute('data-filled', '');
+        });
+      });
+
+      describe('NumberField', () => {
+        it('adds [data-filled] attribute when filled', async () => {
+          await render(
+            <Field.Root>
+              <NumberField.Root>
+                <NumberField.Input data-testid="input" />
+              </NumberField.Root>
+            </Field.Root>,
+          );
+
+          const input = screen.getByTestId('input');
+
+          expect(input).not.to.have.attribute('data-filled');
+
+          fireEvent.change(input, { target: { value: '1' } });
+
+          expect(input).to.have.attribute('data-filled', '');
+
+          fireEvent.change(input, { target: { value: '' } });
+
+          expect(input).not.to.have.attribute('data-filled');
+        });
+
+        it('has [data-filled] attribute when already filled', async () => {
+          await render(
+            <Field.Root>
+              <NumberField.Root defaultValue={1}>
+                <NumberField.Input data-testid="input" />
+              </NumberField.Root>
+            </Field.Root>,
+          );
+
+          const input = screen.getByTestId('input');
+
+          expect(input).to.have.attribute('data-filled');
+
+          fireEvent.change(input, { target: { value: '' } });
+
+          expect(input).not.to.have.attribute('data-filled');
+        });
+      });
+
+      describe('Select', () => {
+        it('adds [data-filled] attribute when filled', async () => {
+          await render(
+            <Field.Root>
+              <Select.Root>
+                <Select.Trigger data-testid="trigger" />
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.Item value="">Select</Select.Item>
+                      <Select.Item value="1">Option 1</Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </Field.Root>,
+          );
+
+          const trigger = screen.getByTestId('trigger');
+
+          expect(trigger).not.to.have.attribute('data-filled');
+
+          await userEvent.click(trigger);
+
+          await flushMicrotasks();
+
+          const option = screen.getByRole('option', { name: 'Option 1' });
+
+          // Arrow Down to focus the Option 1
+          await user.keyboard('{ArrowDown}');
+
+          await userEvent.click(option);
+
+          await flushMicrotasks();
+
+          expect(trigger).to.have.attribute('data-filled', '');
+
+          await userEvent.click(trigger);
+
+          await flushMicrotasks();
+
+          const select = screen.getByRole('listbox');
+
+          expect(select).not.to.have.attribute('data-filled');
+        });
+
+        it('adds [data-filled] attribute when already filled', async () => {
+          await render(
+            <Field.Root>
+              <Select.Root defaultValue="1">
+                <Select.Trigger data-testid="trigger" />
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.Item value="1">Option 1</Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </Field.Root>,
+          );
+
+          const trigger = screen.getByTestId('trigger');
+
+          expect(trigger).to.have.attribute('data-filled');
+        });
+      });
+
+      describe('RadioGroup', () => {
+        it('adds [data-filled] attribute when filled', async () => {
+          await render(
+            <Field.Root>
+              <RadioGroup data-testid="group">
+                <Radio.Root value="1">One</Radio.Root>
+                <Radio.Root value="2">Two</Radio.Root>
+              </RadioGroup>
+            </Field.Root>,
+          );
+
+          const group = screen.getByTestId('group');
+
+          expect(group).not.to.have.attribute('data-filled');
+
+          fireEvent.click(screen.getByText('One'));
+
+          expect(group).to.have.attribute('data-filled', '');
+
+          fireEvent.click(screen.getByText('Two'));
+
+          expect(group).to.have.attribute('data-filled', '');
+        });
+
+        it('adds [data-filled] attribute when already filled initially', async () => {
+          await render(
+            <Field.Root>
+              <RadioGroup data-testid="group" defaultValue="1">
+                <Radio.Root value="1">One</Radio.Root>
+                <Radio.Root value="2">Two</Radio.Root>
+              </RadioGroup>
+            </Field.Root>,
+          );
+
+          const group = screen.getByTestId('group');
+
+          expect(group).to.have.attribute('data-filled');
+        });
+      });
+    });
+
+    describe('focused', () => {
+      it('should apply [data-focused] style hook to all components when focused', async () => {
+        await render(
+          <Field.Root data-testid="root">
+            <Field.Control data-testid="control" />
+            <Field.Label data-testid="label" />
+            <Field.Description data-testid="description" />
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+        const label = screen.getByTestId('label');
+        const description = screen.getByTestId('description');
+
+        expect(root).not.to.have.attribute('data-focused');
+        expect(control).not.to.have.attribute('data-focused');
+        expect(label).not.to.have.attribute('data-focused');
+        expect(description).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(control);
+
+        expect(root).to.have.attribute('data-focused', '');
+        expect(control).to.have.attribute('data-focused', '');
+        expect(label).to.have.attribute('data-focused', '');
+        expect(description).to.have.attribute('data-focused', '');
+
+        fireEvent.blur(control);
+
+        expect(root).not.to.have.attribute('data-focused');
+        expect(control).not.to.have.attribute('data-focused');
+        expect(label).not.to.have.attribute('data-focused');
+        expect(description).not.to.have.attribute('data-focused');
+      });
+
+      it('supports Checkbox', async () => {
+        await render(
+          <Field.Root>
+            <Checkbox.Root data-testid="button" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(button);
+
+        expect(button).to.have.attribute('data-focused', '');
+
+        fireEvent.blur(button);
+
+        expect(button).not.to.have.attribute('data-focused');
+      });
+
+      it('supports Switch', async () => {
+        await render(
+          <Field.Root>
+            <Switch.Root data-testid="button" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(button);
+
+        expect(button).to.have.attribute('data-focused', '');
+
+        fireEvent.blur(button);
+
+        expect(button).not.to.have.attribute('data-focused');
+      });
+
+      it('supports NumberField', async () => {
+        await render(
+          <Field.Root>
+            <NumberField.Root>
+              <NumberField.Input data-testid="input" />
+            </NumberField.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        expect(input).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(input);
+
+        expect(input).to.have.attribute('data-focused', '');
+
+        fireEvent.blur(input);
+
+        expect(input).not.to.have.attribute('data-focused');
+      });
+
+      it('supports Slider', async () => {
+        const { container } = await render(
+          <Field.Root>
+            <Slider.Root data-testid="root">
+              <Slider.Control>
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>,
+        );
+
+        const root = screen.getByTestId('root');
+        // eslint-disable-next-line testing-library/no-node-access
+        const input = container.querySelector<HTMLInputElement>('input')!;
+
+        expect(root).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(input);
+
+        expect(root).to.have.attribute('data-focused', '');
+
+        fireEvent.blur(input);
+
+        expect(root).not.to.have.attribute('data-focused');
+      });
+
+      it('supports Select', async () => {
+        await render(
+          <Field.Root>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(trigger);
+
+        expect(trigger).to.have.attribute('data-focused', '');
+
+        fireEvent.blur(trigger);
+
+        expect(trigger).not.to.have.attribute('data-focused');
+      });
+
+      it('supports RadioGroup', async () => {
+        await render(
+          <Field.Root>
+            <RadioGroup data-testid="group">
+              <Radio.Root value="1">One</Radio.Root>
+              <Radio.Root value="2">Two</Radio.Root>
+            </RadioGroup>
+          </Field.Root>,
+        );
+
+        const group = screen.getByTestId('group');
+        const radio = screen.getByText('One');
+
+        expect(group).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(radio);
+
+        expect(group).to.have.attribute('data-focused', '');
+
+        fireEvent.blur(radio);
+
+        expect(group).not.to.have.attribute('data-focused');
       });
     });
   });

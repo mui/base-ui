@@ -81,7 +81,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
   } = parameters;
 
   const direction = useDirection();
-  const { setTouched, validationMode } = useFieldRootContext();
+  const { setTouched, setFocused, validationMode } = useFieldRootContext();
   const {
     getInputValidationProps,
     inputRef: inputValidationRef,
@@ -138,12 +138,16 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       return mergeReactProps(externalProps, {
         'data-index': index,
         id: thumbId,
+        onFocus() {
+          setFocused(true);
+        },
         onBlur() {
           if (!thumbRef.current) {
             return;
           }
 
           setTouched(true);
+          setFocused(false);
 
           if (validationMode === 'onBlur') {
             commitValidation(
@@ -230,6 +234,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       mergedThumbRef,
       min,
       minStepsBetweenValues,
+      setFocused,
       setTouched,
       sliderValues,
       step,

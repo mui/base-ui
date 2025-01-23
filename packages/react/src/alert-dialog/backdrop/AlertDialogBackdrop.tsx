@@ -8,6 +8,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useForkRef } from '../../utils/useForkRef';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> = {
   ...baseMapping,
@@ -25,7 +26,7 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...other } = props;
-  const { open, nested, mounted, transitionStatus } = useAlertDialogRootContext();
+  const { open, nested, mounted, transitionStatus, backdropRef } = useAlertDialogRootContext();
 
   const state: AlertDialogBackdrop.State = React.useMemo(
     () => ({
@@ -35,12 +36,18 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
     [open, transitionStatus],
   );
 
+  const mergedRef = useForkRef(backdropRef, forwardedRef);
+
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
     state,
-    ref: forwardedRef,
-    extraProps: { role: 'presentation', hidden: !mounted, ...other },
+    ref: mergedRef,
+    extraProps: {
+      role: 'presentation',
+      hidden: !mounted,
+      ...other,
+    },
     customStyleHookMapping,
   });
 

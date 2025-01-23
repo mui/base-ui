@@ -24,7 +24,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     inputRef: externalInputRef,
   } = params;
 
-  const { labelId, setControlId, setTouched, setDirty, validityData, validationMode } =
+  const { labelId, setControlId, setTouched, setDirty, validityData, setFilled, setFocused, validationMode } =
     useFieldRootContext();
 
   const {
@@ -64,6 +64,12 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     controlRef: buttonRef,
   });
 
+  useEnhancedEffect(() => {
+    if (inputRef.current) {
+      setFilled(inputRef.current.checked);
+    }
+  }, [setFilled]);
+
   const getButtonProps = React.useCallback(
     (otherProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(otherProps), {
@@ -75,6 +81,9 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
         'aria-checked': checked,
         'aria-readonly': readOnly,
         'aria-labelledby': labelId,
+        onFocus() {
+          setFocused(true);
+        },
         onBlur() {
           const element = inputRef.current;
           if (!element) {
@@ -82,6 +91,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
           }
 
           setTouched(true);
+          setFocused(false);
 
           if (validationMode === 'onBlur') {
             commitValidation(element.checked);
@@ -97,11 +107,12 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
       }),
     [
       getValidationProps,
-      checked,
       id,
       disabled,
+      checked,
       readOnly,
       labelId,
+      setFocused,
       setTouched,
       commitValidation,
       validationMode,
@@ -129,6 +140,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
           const nextChecked = event.target.checked;
 
           setDirty(nextChecked !== validityData.initialValue);
+          setFilled(nextChecked);
           setCheckedState(nextChecked);
           onCheckedChange?.(nextChecked, event.nativeEvent);
 
@@ -146,6 +158,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
       handleInputRef,
       setDirty,
       validityData.initialValue,
+      setFilled,
       setCheckedState,
       onCheckedChange,
       validationMode,

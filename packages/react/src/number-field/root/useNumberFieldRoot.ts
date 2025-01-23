@@ -65,6 +65,8 @@ export function useNumberFieldRoot(
     validityData,
     setValidityData,
     disabled: fieldDisabled,
+    setFocused,
+    setFilled,
   } = useFieldRootContext();
 
   const {
@@ -102,6 +104,10 @@ export function useNumberFieldRoot(
 
   const value = valueUnwrapped ?? null;
   const valueRef = useLatestRef(value);
+
+  useEnhancedEffect(() => {
+    setFilled(value !== null);
+  }, [setFilled, value]);
 
   useField({
     id,
@@ -582,6 +588,7 @@ export function useNumberFieldRoot(
           }
 
           hasTouchedInputRef.current = true;
+          setFocused(true);
 
           // Browsers set selection at the start of the input field by default. We want to set it at
           // the end for the first focus.
@@ -595,6 +602,7 @@ export function useNumberFieldRoot(
           }
 
           setTouched(true);
+          setFocused(false);
 
           if (validationMode === 'onBlur') {
             commitValidation(valueRef.current);
@@ -762,11 +770,13 @@ export function useNumberFieldRoot(
       mergedRef,
       invalid,
       labelId,
+      setFocused,
       setTouched,
       validationMode,
       formatOptionsRef,
       commitValidation,
       valueRef,
+      formatOptionsRef,
       setValue,
       getAllowedNonNumericKeys,
       getStepAmount,
