@@ -25,8 +25,7 @@ export function SettingsPanel<Settings>(props: SettingsPanel.Props<Settings>) {
   const [open, setOpen] = React.useState(false);
   const handleOpenChange = React.useCallback(
     (nextOpen: boolean, event: Event | undefined, reason: string | undefined) => {
-      console.log(nextOpen, reason);
-      if (!nextOpen && reason === 'outside-press') {
+      if (!nextOpen && (reason === 'outside-press' || reason === 'focus-out')) {
         return;
       }
 
