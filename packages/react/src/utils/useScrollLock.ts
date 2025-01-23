@@ -154,7 +154,7 @@ export function useScrollLock(enabled = true, referenceElement?: Element | null)
         bodyHasScrollBehaviorSmooth(referenceElement) ||
         // macOS Firefox "pops" scroll containers' scrollbars with our standard scroll lock
         (isFirefox() && !hasInsetScrollbars(referenceElement))),
-    [enabled],
+    [enabled, referenceElement],
   );
 
   usePreventScroll({
