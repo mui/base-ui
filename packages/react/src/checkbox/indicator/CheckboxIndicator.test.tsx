@@ -14,6 +14,8 @@ const testContext = {
   dirty: false,
   touched: false,
   valid: null,
+  filled: false,
+  focused: false,
 };
 
 describe('<Checkbox.Indicator />', () => {
