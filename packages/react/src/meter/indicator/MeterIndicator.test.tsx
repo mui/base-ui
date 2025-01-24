@@ -9,6 +9,7 @@ const contextValue: MeterRootContext = {
   min: 0,
   value: 30,
   percentageValue: 30,
+  formattedValue: '30',
   state: {
     max: 100,
     min: 0,

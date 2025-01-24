@@ -1,13 +1,24 @@
 'use client';
 import * as React from 'react';
+import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
+import { useLatestRef } from '../../utils/useLatestRef';
 import { valueToPercent } from '../../utils/valueToPercent';
+
+function formatValue(value: number, format?: Intl.NumberFormatOptions): string {
+  if (!format) {
+    return formatNumber(value / 100, [], { style: 'percent' });
+  }
+
+  return formatNumber(value, [], format);
+}
 
 function useMeterRoot(parameters: useMeterRoot.Parameters): useMeterRoot.ReturnValue {
   const {
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
+    format,
     getAriaLabel,
     getAriaValueText,
     max = 100,
@@ -15,7 +26,11 @@ function useMeterRoot(parameters: useMeterRoot.Parameters): useMeterRoot.ReturnV
     value,
   } = parameters;
 
+  const formatOptionsRef = useLatestRef(format);
+
   const percentageValue = valueToPercent(value, min, max);
+
+  const formattedValue = formatValue(value, formatOptionsRef.current);
 
   const getRootProps: useMeterRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
@@ -49,6 +64,7 @@ function useMeterRoot(parameters: useMeterRoot.Parameters): useMeterRoot.ReturnV
     min,
     value,
     percentageValue,
+    formattedValue,
   };
 }
 
@@ -66,6 +82,10 @@ namespace useMeterRoot {
      * A string value that provides a human-readable text alternative for the current value of the meter indicator.
      */
     'aria-valuetext'?: string;
+    /**
+     * Options to format the value.
+     */
+    format?: Intl.NumberFormatOptions;
     /**
      * Accepts a function which returns a string value that provides an accessible name for the Indicator component
      * @param {number} value The component's value
@@ -114,6 +134,10 @@ namespace useMeterRoot {
      * Value represented as a percentage of the range between `min` and `max`.
      */
     percentageValue: number;
+    /**
+     * Formatted value of the component.
+     */
+    formattedValue: string;
   }
 }
 
