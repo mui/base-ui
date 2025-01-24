@@ -9,6 +9,8 @@ import { useDirection } from '../direction-provider/DirectionContext';
 import { useRadioGroup } from './useRadioGroup';
 import { RadioGroupContext } from './RadioGroupContext';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
+import { fieldValidityMapping } from '../field/utils/constants';
+import type { FieldRoot } from '../field/root/FieldRoot';
 
 /**
  * Provides a shared state to a series of radio buttons.
@@ -53,13 +55,14 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 
   const contextValue: RadioGroupContext = React.useMemo(
     () => ({
+      ...fieldState,
       ...radioGroup,
       onValueChange,
       disabled,
       readOnly,
       required,
     }),
-    [disabled, onValueChange, radioGroup, readOnly, required],
+    [fieldState, disabled, onValueChange, radioGroup, readOnly, required],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -69,6 +72,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
     className,
     state,
     extraProps: otherProps,
+    customStyleHookMapping: fieldValidityMapping,
   });
 
   return (
@@ -80,11 +84,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 });
 
 namespace RadioGroup {
-  export interface State {
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean | undefined;
+  export interface State extends FieldRoot.State {
     /**
      * Whether the user should be unable to select a different radio button in the group.
      */

@@ -113,7 +113,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
           setFocused(false);
 
           if (validationMode === 'onBlur') {
-            commitValidation(element.checked);
+            commitValidation(groupContext ? groupValue : element.checked);
           }
         },
         onClick(event) {
@@ -165,24 +165,29 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
 
           const nextChecked = event.target.checked;
 
-          if (!groupContext) {
-            setFilled(nextChecked);
-          }
-
           setDirty(nextChecked !== validityData.initialValue);
           setCheckedState(nextChecked);
           onCheckedChange?.(nextChecked, event.nativeEvent);
 
-          if (validationMode === 'onChange') {
-            commitValidation(nextChecked);
+          if (!groupContext) {
+            setFilled(nextChecked);
+
+            if (validationMode === 'onChange') {
+              commitValidation(nextChecked);
+            }
           }
 
           if (name && groupValue && setGroupValue) {
             const nextGroupValue = nextChecked
               ? [...groupValue, name]
               : groupValue.filter((item) => item !== name);
+
             setGroupValue(nextGroupValue, event.nativeEvent);
             setFilled(nextGroupValue.length > 0);
+
+            if (validationMode === 'onChange') {
+              commitValidation(nextGroupValue);
+            }
           }
         },
       }),
