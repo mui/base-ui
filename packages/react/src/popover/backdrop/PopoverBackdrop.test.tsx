@@ -13,7 +13,7 @@ describe('<Popover.Backdrop />', () => {
     },
   }));
 
-  it.only('sets `pointer-events: none` style on backdrop if opened by hover', async () => {
+  it('sets `pointer-events: none` style on backdrop if opened by hover', async () => {
     const { user } = await render(
       <Popover.Root delay={0} closeDelay={0} openOnHover>
         <Popover.Trigger>Open</Popover.Trigger>
