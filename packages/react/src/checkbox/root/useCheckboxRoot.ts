@@ -138,6 +138,8 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       setTouched,
       validationMode,
       commitValidation,
+      groupContext,
+      groupValue,
     ],
   );
 
