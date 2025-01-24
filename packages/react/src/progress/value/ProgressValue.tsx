@@ -23,6 +23,7 @@ const ProgressValue = React.forwardRef(function ProgressValue(
   const getValueProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
+        'aria-hidden': true,
         children:
           typeof children === 'function'
             ? children(formattedValue, value)
