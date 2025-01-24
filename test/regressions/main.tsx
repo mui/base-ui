@@ -170,14 +170,7 @@ function App(props: { fixtures: Fixture[] }) {
   }
 
   return (
-    <Router
-      future={{
-        // we don't use or need these features but this removes console warnings
-        // https://github.com/remix-run/react-router/issues/12250
-        v7_relativeSplatPath: true,
-        v7_startTransition: true,
-      }}
-    >
+    <Router>
       <Routes>
         {fixtures.map((fixture) => {
           const path = computePath(fixture);
