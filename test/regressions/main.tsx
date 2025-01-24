@@ -5,7 +5,7 @@ import TestViewer from './TestViewer';
 import 'docs/src/styles.css';
 
 interface Fixture {
-  Component: React.LazyExoticComponent<React.ComponentType<any>>;
+  Component: React.ComponentType<unknown>;
   name: string;
   path: string;
   suite: string;
@@ -14,7 +14,9 @@ interface Fixture {
 // Get all the fixtures specifically written for preventing visual regressions.
 const globbedRegressionFixtures = import.meta.glob<{ default: React.ComponentType<unknown> }>(
   './fixtures/**/*.tsx',
+  { eager: true },
 );
+
 const regressionFixtures: Fixture[] = [];
 
 for (const path in globbedRegressionFixtures) {
@@ -23,11 +25,12 @@ for (const path in globbedRegressionFixtures) {
     .replace('./', '')
     .replace(/\.\w+$/, '')
     .split('/');
+
   regressionFixtures.push({
     path,
     suite: `regression-${suite}`,
     name,
-    Component: React.lazy(() => globbedRegressionFixtures[path]()),
+    Component: globbedRegressionFixtures[path].default,
   });
 }
 
@@ -76,6 +79,7 @@ function excludeDemoFixture(suite: string, name: string, path: string) {
 const globbedDemos = import.meta.glob<{ default: React.ComponentType<unknown> }>(
   // technically it should be 'docs/src/app/\\(public\\)/\\(content\\)/react/**/*.tsx' but tinyglobby doesn't resolve this on Windows
   'docs/src/app/?public?/?content?/react/**/*.tsx',
+  { eager: true },
 );
 
 const demoFixtures: Fixture[] = [];
@@ -92,7 +96,7 @@ for (const path in globbedDemos) {
       path,
       suite,
       name,
-      Component: React.lazy(() => globbedDemos[path]()),
+      Component: globbedDemos[path].default,
     });
   }
 }
