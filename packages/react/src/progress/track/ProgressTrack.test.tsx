@@ -25,6 +25,6 @@ describe('<Progress.Track />', () => {
         <ProgressRootContext.Provider value={contextValue}>{node}</ProgressRootContext.Provider>,
       );
     },
-    refInstanceof: window.HTMLSpanElement,
+    refInstanceof: window.HTMLDivElement,
   }));
 });

@@ -26,7 +26,7 @@ describe('<Progress.Indicator />', () => {
         <ProgressRootContext.Provider value={contextValue}>{node}</ProgressRootContext.Provider>,
       );
     },
-    refInstanceof: window.HTMLSpanElement,
+    refInstanceof: window.HTMLDivElement,
   }));
 
   describe.skipIf(isJSDOM)('internal styles', () => {
@@ -34,7 +34,7 @@ describe('<Progress.Indicator />', () => {
       const { getByTestId } = await render(
         <Progress.Root value={33}>
           <Progress.Track>
-            <Progress.Indicator data-testid="indicator" />
+            <Progress.Indicator data-testid="indicator" render={<span />} />
           </Progress.Track>
         </Progress.Root>,
       );
@@ -60,7 +60,7 @@ describe('<Progress.Indicator />', () => {
 
       expect(indicator).toHaveComputedStyle({
         insetInlineStart: '0px',
-        width: '0%',
+        width: '0px',
       });
     });
 
