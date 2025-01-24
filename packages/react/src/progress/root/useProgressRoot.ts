@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useLatestRef } from '../../utils/useLatestRef';
 
 export type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 
@@ -38,11 +39,13 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
     value,
   } = parameters;
 
+  const formatOptionsRef = useLatestRef(format);
+
   let status: ProgressStatus = 'indeterminate';
   if (Number.isFinite(value)) {
     status = value === max ? 'complete' : 'progressing';
   }
-  const formattedValue = formatValue(value, format);
+  const formattedValue = formatValue(value, formatOptionsRef.current);
 
   const getRootProps: useProgressRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
