@@ -8,11 +8,15 @@ import {
   act,
 } from '@mui/internal-test-utils';
 
+type BaseUIRenderResult = Omit<MuiRenderResult, 'rerender'> & {
+  rerender: (newElement: React.ReactElement<DataAttributes>) => Promise<void>;
+};
+
 type BaseUITestRenderer = Omit<Renderer, 'render'> & {
   render: (
     element: React.ReactElement<DataAttributes>,
     options?: RenderOptions,
-  ) => Promise<MuiRenderResult>;
+  ) => Promise<BaseUIRenderResult>;
 };
 
 interface DataAttributes {
@@ -27,7 +31,13 @@ export function createRenderer(globalOptions?: CreateRendererOptions): BaseUITes
     act(async () => {
       const result = await originalRender(element, options);
       await flushMicrotasks();
-      return result;
+      return {
+        ...result,
+        rerender: async (newElement: React.ReactElement<DataAttributes>) => {
+          await act(async () => result.rerender(newElement));
+          await flushMicrotasks();
+        },
+      };
     });
 
   return {
