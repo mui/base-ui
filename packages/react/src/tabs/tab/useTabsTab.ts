@@ -97,7 +97,7 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
             onTabActivation(tabValue, event.nativeEvent);
           },
           onFocus(event) {
-            if (!activateOnFocus || selected) {
+            if (!activateOnFocus || selected || disabled) {
               return;
             }
 
