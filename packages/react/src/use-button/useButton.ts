@@ -54,7 +54,9 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         additionalProps.disabled = disabled;
       }
     } else if (elementName !== '') {
-      additionalProps.role = 'button';
+      if (elementName !== 'A') {
+        additionalProps.role = 'button';
+      }
       additionalProps.tabIndex = tabIndex ?? 0;
       if (disabled) {
         additionalProps['aria-disabled'] = disabled as boolean;

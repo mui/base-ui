@@ -25,6 +25,9 @@ export default function App() {
         >
           A regular button
         </Toolbar.Button>
+        <Toolbar.Link className={s.Button} href="https://base-ui.com">
+          Visit base-ui.com
+        </Toolbar.Link>
         <Select.Root defaultValue="sans">
           <Toolbar.Button
             disabled={DISABLED}
