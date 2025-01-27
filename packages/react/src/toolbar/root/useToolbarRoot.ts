@@ -2,14 +2,14 @@
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
-import type { ToolbarButtonMetadata } from '../button/ToolbarButton';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
+import type { ToolbarItemMetadata } from './ToolbarRoot';
 
 function useToolbarRoot(parameters: useToolbarRoot.Parameters): useToolbarRoot.ReturnValue {
   const { orientation } = parameters;
 
   const [itemMap, setItemMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<ToolbarButtonMetadata> | null>(),
+    () => new Map<Node, CompositeMetadata<ToolbarItemMetadata> | null>(),
   );
 
   const disabledIndices = React.useMemo(() => {
@@ -60,7 +60,7 @@ namespace useToolbarRoot {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     disabledIndices: number[];
     setItemMap: React.Dispatch<
-      React.SetStateAction<Map<Node, CompositeMetadata<ToolbarButtonMetadata> | null>>
+      React.SetStateAction<Map<Node, CompositeMetadata<ToolbarItemMetadata> | null>>
     >;
   }
 }

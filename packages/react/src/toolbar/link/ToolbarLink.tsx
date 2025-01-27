@@ -5,8 +5,12 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import type { ToolbarOrientation } from '../root/ToolbarRoot';
+import type { ToolbarOrientation, ToolbarItemMetadata } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
+
+const TOOLBAR_LINK_METADATA = {
+  focusableWhenDisabled: true,
+};
 
 const ToolbarLink = React.forwardRef(function ToolbarLink(
   props: ToolbarLink.Props,
@@ -36,7 +40,9 @@ const ToolbarLink = React.forwardRef(function ToolbarLink(
     extraProps: otherProps,
   });
 
-  return <CompositeItem render={renderElement()} />;
+  return (
+    <CompositeItem<ToolbarItemMetadata> metadata={TOOLBAR_LINK_METADATA} render={renderElement()} />
+  );
 });
 
 export namespace ToolbarLink {

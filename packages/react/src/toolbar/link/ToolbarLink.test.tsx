@@ -40,11 +40,11 @@ describe('<Toolbar.Link />', () => {
     it('renders an anchor', async () => {
       const { getByTestId } = await render(
         <Toolbar.Root>
-          <Toolbar.Link data-testid="link" />
+          <Toolbar.Link data-testid="link" href="https://base-ui.com" />
         </Toolbar.Root>,
       );
 
-      expect(getByTestId('button')).to.equal(screen.getByRole('button'));
+      expect(getByTestId('link')).to.equal(screen.getByRole('link'));
     });
   });
 });
