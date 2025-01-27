@@ -54,6 +54,18 @@ const ToolbarGroup = React.forwardRef(function ToolbarGroup(
   );
 });
 
+export namespace ToolbarGroup {
+  export interface Props extends BaseUIComponentProps<'div', ToolbarRoot.State> {
+    /**
+     * When `true` all toolbar items in the group are disabled.
+     * @default false
+     */
+    disabled?: boolean;
+  }
+}
+
+export { ToolbarGroup };
+
 ToolbarGroup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -81,15 +93,3 @@ ToolbarGroup.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export namespace ToolbarGroup {
-  export interface Props extends BaseUIComponentProps<'div', ToolbarRoot.State> {
-    /**
-     * When `true` all toolbar items in the group are disabled.
-     * @default false
-     */
-    disabled?: boolean;
-  }
-}
-
-export { ToolbarGroup };

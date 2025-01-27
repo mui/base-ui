@@ -9,6 +9,12 @@
   text-wrap: nowrap;
 }
 
+.Grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0.5rem;
+}
+
 /* disabled buttons + focusableWhenDisabled */
 .Root [type='button'][data-disabled],
 .Root button[data-disabled] {

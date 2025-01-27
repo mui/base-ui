@@ -18,6 +18,7 @@ const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
+    cols = 1,
     disabled = false,
     loop = true,
     orientation = 'horizontal',
@@ -54,6 +55,7 @@ const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   return (
     <ToolbarRootContext.Provider value={toolbarRootContext}>
       <CompositeRoot
+        cols={cols}
         disabledIndices={disabledIndices}
         loop={loop}
         onMapChange={setItemMap}
@@ -72,9 +74,15 @@ namespace ToolbarRoot {
   };
 
   export interface Props extends BaseUIComponentProps<'div', State> {
+    /**
+     * The number of columns. When greater than 1, the toolbar is arranged into
+     * a grid.
+     * @default 1
+     */
+    cols?: number;
     disabled?: boolean;
     /**
-     * The component orientation (layout flow direction).
+     * The orientation of the toolbar.
      * @default 'horizontal'
      */
     orientation?: ToolbarOrientation;
@@ -104,6 +112,12 @@ ToolbarRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * The number of columns. When greater than 1, the toolbar is arranged into
+   * a grid.
+   * @default 1
+   */
+  cols: PropTypes.number,
+  /**
    * @ignore
    */
   disabled: PropTypes.bool,
@@ -114,7 +128,7 @@ ToolbarRoot.propTypes /* remove-proptypes */ = {
    */
   loop: PropTypes.bool,
   /**
-   * The component orientation (layout flow direction).
+   * The orientation of the toolbar.
    * @default 'horizontal'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
