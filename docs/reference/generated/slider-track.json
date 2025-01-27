@@ -39,6 +39,9 @@
     },
     "data-touched": {
       "description": "Present when the slider has been touched (when wrapped in Field.Root)."
+    },
+    "data-focused": {
+      "description": "Present when the slider is focused (when wrapped in Field.Root)."
     }
   },
   "cssVariables": {}

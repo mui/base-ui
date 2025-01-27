@@ -38,7 +38,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     modal = false,
   } = params;
 
-  const { setDirty, validityData, validationMode, setControlId } = useFieldRootContext();
+  const { setDirty, validityData, validationMode, setControlId, setFilled } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId(idProp);
@@ -63,6 +63,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     name: 'Select',
     state: 'open',
   });
+
+  useEnhancedEffect(() => {
+    setFilled(value !== null);
+  }, [setFilled, value]);
 
   const [controlledAlignItemToTrigger, setcontrolledAlignItemToTrigger] =
     React.useState(alignItemToTriggerParam);

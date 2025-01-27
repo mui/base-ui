@@ -110,6 +110,12 @@
     "data-touched": {
       "description": "Present when the number field has been touched (when wrapped in Field.Root)."
     },
+    "data-filled": {
+      "description": "Present when the number field is filled (when wrapped in Field.Root)."
+    },
+    "data-focused": {
+      "description": "Present when the number field is focused (when wrapped in Field.Root)."
+    },
     "data-scrubbing": {
       "description": "Present while scrubbing."
     }
