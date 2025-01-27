@@ -59,7 +59,7 @@ AvatarFallback.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Time in milliseconds to wait before showing the fallback.
+   * How long to wait before showing the fallback. Specified in milliseconds.
    */
   delay: PropTypes.number,
   /**

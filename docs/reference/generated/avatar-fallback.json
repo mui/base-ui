@@ -2,9 +2,9 @@
   "name": "AvatarFallback",
   "description": "Rendered when the image fails to load or when no image is provided.\nRenders a `<span>` element.",
   "props": {
-    "delayMs": {
+    "delay": {
       "type": "number",
-      "description": "Time in milliseconds to wait before showing the fallback."
+      "description": "How long to wait before showing the fallback. Specified in milliseconds."
     },
     "className": {
       "type": "string | (state) => string",
