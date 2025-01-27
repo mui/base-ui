@@ -13,22 +13,22 @@ import { useAvatarRootContext } from '../root/AvatarRootContext';
  */
 const AvatarFallback = React.forwardRef<HTMLSpanElement, AvatarFallback.Props>(
   function AvatarFallback(props: AvatarFallback.Props, forwardedRef) {
-    const { className, render, delayMs, ...otherProps } = props;
+    const { className, render, delay, ...otherProps } = props;
 
     const context = useAvatarRootContext();
-    const [canRender, setCanRender] = React.useState(delayMs === undefined);
+    const [delayPassed, setDelayPassed] = React.useState(delay === undefined);
 
     React.useEffect(() => {
       let timerId: number | undefined;
 
-      if (delayMs !== undefined) {
-        timerId = window.setTimeout(() => setCanRender(true), delayMs);
+      if (delay !== undefined) {
+        timerId = window.setTimeout(() => setDelayPassed(true), delay);
       }
 
       return () => {
         window.clearTimeout(timerId);
       };
-    }, [delayMs]);
+    }, [delay]);
 
     const { renderElement } = useComponentRenderer({
       render: render ?? 'span',
@@ -38,7 +38,9 @@ const AvatarFallback = React.forwardRef<HTMLSpanElement, AvatarFallback.Props>(
       extraProps: otherProps,
     });
 
-    return canRender && context.imageLoadingStatus !== 'loaded' ? renderElement() : null;
+    const shouldRender = context.imageLoadingStatus !== 'loaded' && delayPassed;
+
+    return shouldRender ? renderElement() : null;
   },
 );
 
@@ -59,7 +61,7 @@ AvatarFallback.propTypes /* remove-proptypes */ = {
   /**
    * Time in milliseconds to wait before showing the fallback.
    */
-  delayMs: PropTypes.number,
+  delay: PropTypes.number,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
@@ -72,12 +74,12 @@ AvatarFallback.propTypes /* remove-proptypes */ = {
 export namespace AvatarFallback {
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
-     * Time in milliseconds to wait before showing the fallback.
+     * How long to wait before showing the fallback. Specified in milliseconds.
      */
-    delayMs?: number;
+    delay?: number;
   }
 
-  export interface State { }
+  export interface State {}
 }
 
 export { AvatarFallback };

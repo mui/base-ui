@@ -7,12 +7,23 @@ describe('<Avatar.Fallback />', () => {
 
   describeConformance(<Avatar.Fallback />, () => ({
     render: (node) => {
-      return render(
-        <Avatar.Root>
-          {node}
-        </Avatar.Root>
-      )
+      return render(<Avatar.Root>{node}</Avatar.Root>);
     },
     refInstanceof: window.HTMLSpanElement,
   }));
+
+  it('should not render the children if the image loaded', async () => {
+    vi.mock('../image/useImageLoadingStatus', () => ({
+      useImageLoadingStatus: () => 'loaded',
+    }));
+
+    const { queryAllByTestId } = await render(
+      <Avatar.Root>
+        <Avatar.Image />
+        <Avatar.Fallback data-testid="fallback" />
+      </Avatar.Root>,
+    );
+
+    expect(queryAllByTestId('fallback').length).toEqual(0);
+  });
 });

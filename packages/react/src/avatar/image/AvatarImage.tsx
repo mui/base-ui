@@ -6,7 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
-import { useImageLoadingStatus } from './useImageLoadingStatus';
+import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStatus';
 
 /**
  * The image to be displayed in the avatar.
@@ -23,12 +23,10 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
   const context = useAvatarRootContext();
   const imageLoadingStatus = useImageLoadingStatus(src);
 
-  const handleLoadingStatusChange = useEventCallback(
-    (status: 'idle' | 'loading' | 'loaded' | 'error') => {
-      onLoadingStatusChange(status);
-      context.onImageLoadingStatusChange(status);
-    },
-  );
+  const handleLoadingStatusChange = useEventCallback((status: ImageLoadingStatus) => {
+    onLoadingStatusChange(status);
+    context.onImageLoadingStatusChange(status);
+  });
 
   useEnhancedEffect(() => {
     if (imageLoadingStatus !== 'idle') {
@@ -83,7 +81,7 @@ AvatarImage.propTypes /* remove-proptypes */ = {
 
 export namespace AvatarImage {
   export interface Props extends BaseUIComponentProps<'img', State> {
-    onLoadingStatusChange?: (status: 'idle' | 'loading' | 'loaded' | 'error') => void;
+    onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
   }
 
   export interface State {}

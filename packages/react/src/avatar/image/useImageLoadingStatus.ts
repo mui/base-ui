@@ -1,15 +1,18 @@
 'use client';
 import * as React from 'react';
 
-type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
+export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
-export function useImageLoadingStatus(src?: string, referrerPolicy?: React.HTMLAttributeReferrerPolicy): ImageLoadingStatus {
+export function useImageLoadingStatus(
+  src?: string,
+  referrerPolicy?: React.HTMLAttributeReferrerPolicy,
+): ImageLoadingStatus {
   const [loadingStatus, setLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 
   React.useLayoutEffect(() => {
     if (!src) {
       setLoadingStatus('error');
-      return () => { };
+      return () => {};
     }
 
     let isMounted = true;

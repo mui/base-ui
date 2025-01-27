@@ -3,14 +3,13 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 export function useAvatarRoot(): useAvatarRoot.ReturnValue {
-  const [imageLoadingStatus, setImageLoadingStatus] = React.useState<'idle' | 'loading' | 'loaded' | 'error'>('idle');
+  const [imageLoadingStatus, setImageLoadingStatus] = React.useState<
+    'idle' | 'loading' | 'loaded' | 'error'
+  >('idle');
 
-  const getRootProps = React.useCallback(
-    (externalProps = {}) => {
-      return mergeReactProps(externalProps, {});
-    },
-    [],
-  );
+  const getRootProps = React.useCallback((externalProps = {}) => {
+    return mergeReactProps(externalProps, {});
+  }, []);
 
   return React.useMemo(
     () => ({
