@@ -65,6 +65,8 @@ export function useNumberFieldRoot(
     validityData,
     setValidityData,
     disabled: fieldDisabled,
+    setFocused,
+    setFilled,
   } = useFieldRootContext();
 
   const {
@@ -103,6 +105,10 @@ export function useNumberFieldRoot(
   const value = valueUnwrapped ?? null;
   const valueRef = useLatestRef(value);
 
+  useEnhancedEffect(() => {
+    setFilled(value !== null);
+  }, [setFilled, value]);
+
   useField({
     id,
     commitValidation,
@@ -127,6 +133,8 @@ export function useNumberFieldRoot(
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
   const isTouchingButtonRef = React.useRef(false);
   const hasTouchedInputRef = React.useRef(false);
+  const ignoreClickRef = React.useRef(false);
+  const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen' | ''>('');
 
   useEnhancedEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {
@@ -431,7 +439,7 @@ export function useNumberFieldRoot(
             event.defaultPrevented ||
             isDisabled ||
             // If it's not a keyboard/virtual click, ignore.
-            event.detail !== 0
+            (pointerTypeRef.current === 'touch' ? ignoreClickRef.current : event.detail !== 0)
           ) {
             return;
           }
@@ -449,6 +457,8 @@ export function useNumberFieldRoot(
             return;
           }
 
+          pointerTypeRef.current = event.pointerType;
+          ignoreClickRef.current = false;
           isPressedRef.current = true;
           incrementDownCoordsRef.current = { x: event.clientX, y: event.clientY };
 
@@ -466,6 +476,7 @@ export function useNumberFieldRoot(
               const moves = movesAfterTouchRef.current;
               movesAfterTouchRef.current = 0;
               if (moves < MAX_POINTER_MOVES_AFTER_TOUCH) {
+                ignoreClickRef.current = true;
                 startAutoChange(isIncrement);
               } else {
                 stopAutoChange();
@@ -577,6 +588,7 @@ export function useNumberFieldRoot(
           }
 
           hasTouchedInputRef.current = true;
+          setFocused(true);
 
           // Browsers set selection at the start of the input field by default. We want to set it at
           // the end for the first focus.
@@ -590,6 +602,7 @@ export function useNumberFieldRoot(
           }
 
           setTouched(true);
+          setFocused(false);
           commitValidation(valueRef.current);
 
           allowInputSyncRef.current = true;
@@ -754,10 +767,11 @@ export function useNumberFieldRoot(
       mergedRef,
       invalid,
       labelId,
+      setFocused,
       setTouched,
-      formatOptionsRef,
       commitValidation,
       valueRef,
+      formatOptionsRef,
       setValue,
       getAllowedNonNumericKeys,
       getStepAmount,

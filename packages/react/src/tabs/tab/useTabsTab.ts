@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { ownerDocument } from '../../utils/owner';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -75,32 +76,56 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
 
   const tabPanelId = index > -1 ? getTabPanelIdByTabValueOrIndex(valueParam, index) : undefined;
 
+  const isPressingRef = React.useRef(false);
+  const isMainButtonRef = React.useRef(false);
+
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps<'button'>(
         externalProps,
-        mergeReactProps<'button'>(
-          {
-            role: 'tab',
-            'aria-controls': tabPanelId,
-            'aria-selected': selected,
-            id,
-            ref: handleRef,
-            onClick(event) {
-              onTabActivation(tabValue, event.nativeEvent);
-            },
-            onFocus(event) {
-              if (!activateOnFocus) {
-                return;
-              }
+        {
+          role: 'tab',
+          'aria-controls': tabPanelId,
+          'aria-selected': selected,
+          id,
+          ref: handleRef,
+          onClick(event) {
+            if (selected) {
+              return;
+            }
 
-              if (selectedTabValue !== tabValue) {
-                onTabActivation(tabValue, event.nativeEvent);
-              }
-            },
+            onTabActivation(tabValue, event.nativeEvent);
           },
-          mergeReactProps(getItemProps(), getButtonProps()),
-        ),
+          onFocus(event) {
+            if (!activateOnFocus || selected) {
+              return;
+            }
+
+            if (!isPressingRef.current || (isPressingRef.current && isMainButtonRef.current)) {
+              onTabActivation(tabValue, event.nativeEvent);
+            }
+          },
+          onPointerDown(event) {
+            if (selected) {
+              return;
+            }
+
+            isPressingRef.current = true;
+
+            function handlePointerUp() {
+              isPressingRef.current = false;
+              isMainButtonRef.current = false;
+            }
+
+            if (!event.button || event.button === 0) {
+              isMainButtonRef.current = true;
+
+              const doc = ownerDocument(event.currentTarget);
+              doc.addEventListener('pointerup', handlePointerUp, { once: true });
+            }
+          },
+        },
+        mergeReactProps(getItemProps(), getButtonProps()),
       );
     },
     [
@@ -111,7 +136,6 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
       id,
       onTabActivation,
       selected,
-      selectedTabValue,
       tabPanelId,
       tabValue,
     ],

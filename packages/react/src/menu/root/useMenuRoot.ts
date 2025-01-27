@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {
   safePolygon,
   useClick,
@@ -10,17 +11,21 @@ import {
   useListNavigation,
   useRole,
   useTypeahead,
-  FloatingRootContext,
+  type FloatingRootContext,
 } from '@floating-ui/react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useControlled } from '../../utils/useControlled';
-import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
+import { PATIENT_CLICK_THRESHOLD, TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
+import {
+  type OpenChangeReason,
+  translateOpenChangeReason,
+} from '../../utils/translateOpenChangeReason';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -45,10 +50,15 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const [positionerElement, setPositionerElementUnwrapped] = React.useState<HTMLElement | null>(
     null,
   );
-  const popupRef = React.useRef<HTMLElement>(null);
-  const positionerRef = React.useRef<HTMLElement | null>(null);
+  const [instantType, setInstantType] = React.useState<'dismiss' | 'click'>();
   const [hoverEnabled, setHoverEnabled] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+  const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
+  const [stickIfOpen, setStickIfOpen] = React.useState(true);
+
+  const popupRef = React.useRef<HTMLElement>(null);
+  const positionerRef = React.useRef<HTMLElement | null>(null);
+  const stickIfOpenTimeoutRef = React.useRef(-1);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
@@ -64,20 +74,47 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const allowMouseUpTriggerRef = React.useRef(false);
 
-  useScrollLock(modal && open, triggerElement);
-
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
-    onOpenChange?.(nextOpen, event);
-    setOpenUnwrapped(nextOpen);
-  });
+  useScrollLock(open && modal, triggerElement);
+
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
+      onOpenChange?.(nextOpen, event);
+      setOpenUnwrapped(nextOpen);
+
+      if (nextOpen) {
+        setOpenReason(reason ?? null);
+      }
+    },
+  );
 
   useAfterExitAnimation({
     open,
     animatedElementRef: popupRef,
-    onFinished: () => setMounted(false),
+    onFinished() {
+      setMounted(false);
+      setOpenReason(null);
+      setHoverEnabled(true);
+      setStickIfOpen(true);
+    },
   });
+
+  const clearStickIfOpenTimeout = useEventCallback(() => {
+    clearTimeout(stickIfOpenTimeoutRef.current);
+  });
+
+  React.useEffect(() => {
+    if (!open) {
+      clearStickIfOpenTimeout();
+    }
+  }, [clearStickIfOpenTimeout, open]);
+
+  React.useEffect(() => {
+    return () => {
+      clearStickIfOpenTimeout();
+    };
+  }, [clearStickIfOpenTimeout]);
 
   const floatingRootContext = useFloatingRootContext({
     elements: {
@@ -85,13 +122,41 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       floating: positionerElement,
     },
     open,
-    onOpenChange: setOpen,
+    onOpenChange(openValue, eventValue, reasonValue) {
+      const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
+      const isKeyboardClick = reasonValue === 'click' && (eventValue as MouseEvent).detail === 0;
+      const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
+
+      function changeState() {
+        setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+      }
+
+      if (isHover) {
+        // Only allow "patient" clicks to close the popover if it's open.
+        // If they clicked within 500ms of the popover opening, keep it open.
+        clearStickIfOpenTimeout();
+        stickIfOpenTimeoutRef.current = window.setTimeout(() => {
+          setStickIfOpen(false);
+        }, PATIENT_CLICK_THRESHOLD);
+
+        ReactDOM.flushSync(changeState);
+      } else {
+        changeState();
+      }
+
+      if (isKeyboardClick || isDismissClose) {
+        setInstantType(isKeyboardClick ? 'click' : 'dismiss');
+      } else {
+        setInstantType(undefined);
+      }
+    },
   });
 
   const hover = useHover(floatingRootContext, {
-    enabled: hoverEnabled && openOnHover && !disabled,
+    enabled: hoverEnabled && openOnHover && !disabled && openReason !== 'click',
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
+    move: false,
     delay: {
       open: delay,
     },
@@ -102,6 +167,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     event: 'mousedown',
     toggle: !nested,
     ignoreMouse: nested,
+    stickIfOpen,
   });
 
   const dismiss = useDismiss(floatingRootContext, {
@@ -153,7 +219,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     (externalProps?: GenericHTMLProps) =>
       getReferenceProps(
         mergeReactProps(externalProps, {
-          onMouseEnter: () => {
+          onMouseEnter() {
             setHoverEnabled(true);
           },
         }),
@@ -165,12 +231,19 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     (externalProps?: GenericHTMLProps) =>
       getFloatingProps(
         mergeReactProps(externalProps, {
-          onMouseEnter: () => {
-            setHoverEnabled(false);
+          onMouseEnter() {
+            if (!openOnHover || nested) {
+              setHoverEnabled(false);
+            }
+          },
+          onClick() {
+            if (openOnHover) {
+              setHoverEnabled(false);
+            }
           },
         }),
       ),
-    [getFloatingProps],
+    [getFloatingProps, openOnHover, nested],
   );
 
   return React.useMemo(
@@ -191,6 +264,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       setPositionerElement,
       setTriggerElement,
       transitionStatus,
+      openReason,
+      instantType,
     }),
     [
       activeIndex,
@@ -206,6 +281,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       setOpen,
       transitionStatus,
       setPositionerElement,
+      openReason,
+      instantType,
     ],
   );
 }
@@ -221,7 +298,7 @@ export namespace useMenuRoot {
     /**
      * Event handler called when the menu is opened or closed.
      */
-    onOpenChange: ((open: boolean, event?: Event) => void) | undefined;
+    onOpenChange: ((open: boolean, event?: Event, reason?: OpenChangeReason) => void) | undefined;
     /**
      * Whether the menu is initially open.
      *
@@ -289,5 +366,7 @@ export namespace useMenuRoot {
     setTriggerElement: (element: HTMLElement | null) => void;
     transitionStatus: TransitionStatus;
     allowMouseUpTriggerRef: React.RefObject<boolean>;
+    openReason: OpenChangeReason | null;
+    instantType: 'dismiss' | 'click' | undefined;
   }
 }

@@ -4,8 +4,9 @@ import { isFirefox, isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
-let originalHtmlStyles = {};
-let originalBodyStyles = {};
+let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
+let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
+let originalHtmlScrollBehavior = '';
 let preventScrollCount = 0;
 let restore: () => void = () => {};
 
@@ -52,6 +53,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
       overflowY: html.style.overflowY,
       overflowX: html.style.overflowX,
     };
+    originalHtmlScrollBehavior = html.style.scrollBehavior;
 
     originalBodyStyles = {
       position: body.style.position,
@@ -60,6 +62,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
       boxSizing: body.style.boxSizing,
       overflowY: body.style.overflowY,
       overflowX: body.style.overflowX,
+      scrollBehavior: body.style.scrollBehavior,
     };
 
     // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
@@ -95,11 +98,13 @@ function preventScrollStandard(referenceElement?: Element | null) {
       width: marginX || scrollbarWidth ? `calc(100vw - ${marginX + scrollbarWidth}px)` : '100vw',
       boxSizing: 'border-box',
       overflow: 'hidden',
+      scrollBehavior: 'unset',
     });
 
     body.scrollTop = scrollTop;
     body.scrollLeft = scrollLeft;
     html.setAttribute('data-base-ui-scroll-locked', '');
+    html.style.scrollBehavior = 'unset';
   }
 
   function cleanup() {
@@ -108,6 +113,7 @@ function preventScrollStandard(referenceElement?: Element | null) {
     html.scrollTop = scrollTop;
     html.scrollLeft = scrollLeft;
     html.removeAttribute('data-base-ui-scroll-locked');
+    html.style.scrollBehavior = originalHtmlScrollBehavior;
   }
 
   function handleResize() {
@@ -131,15 +137,15 @@ function preventScrollStandard(referenceElement?: Element | null) {
  *
  * @param enabled - Whether to enable the scroll lock.
  */
-export function useScrollLock(enabled: boolean = true, referenceElement?: Element | null) {
+export function useScrollLock(enabled = true, referenceElement?: Element | null) {
   const isReactAriaHook = React.useMemo(
     () =>
       enabled &&
       (isIOS() ||
         !supportsDvh() ||
         // macOS Firefox "pops" scroll containers' scrollbars with our standard scroll lock
-        (isFirefox() && !hasInsetScrollbars())),
-    [enabled],
+        (isFirefox() && !hasInsetScrollbars(referenceElement))),
+    [enabled, referenceElement],
   );
 
   usePreventScroll({

@@ -19,4 +19,12 @@ export enum InputDataAttributes {
    * Present when the input's value has changed.
    */
   dirty = 'data-dirty',
+  /**
+   * Present when the input is filled.
+   */
+  filled = 'data-filled',
+  /**
+   * Present when the input is focused.
+   */
+  focused = 'data-focused',
 }

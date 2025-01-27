@@ -7,7 +7,6 @@ export type TransitionStatus = 'starting' | 'ending' | undefined;
 /**
  * Provides a status string for CSS animations.
  * @param open - a boolean that determines if the element is open.
- * @param enabled - a boolean that determines if the logic is enabled.
  * @param delayStartingStatus - a boolean that set the `starting` status one
  *     tick later. Example use-case: collapsible needs an extra frame in order
  *     to measure the panel contents.

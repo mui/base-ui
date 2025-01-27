@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 export interface ScrollAreaRootContext {
-  dir: string | undefined;
   cornerSize: { width: number; height: number };
   setCornerSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>;
   thumbSize: { width: number; height: number };

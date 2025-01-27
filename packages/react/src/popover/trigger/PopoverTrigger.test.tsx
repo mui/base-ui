@@ -3,7 +3,7 @@ import { Popover } from '@base-ui-components/react/popover';
 import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { PATIENT_CLICK_THRESHOLD } from '../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 describe('<Popover.Trigger />', () => {
   const { render } = createRenderer();
@@ -99,13 +99,11 @@ describe('<Popover.Trigger />', () => {
 
       const trigger = screen.getByRole('button');
 
-      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
 
       clock.tick(PATIENT_CLICK_THRESHOLD - 1);
 
-      await act(async () => {
-        trigger.click();
-      });
+      fireEvent.click(trigger);
 
       expect(trigger).to.have.attribute('data-popup-open');
     });
@@ -123,9 +121,26 @@ describe('<Popover.Trigger />', () => {
 
       clock.tick(PATIENT_CLICK_THRESHOLD);
 
-      await act(async () => {
-        trigger.click();
-      });
+      fireEvent.click(trigger);
+
+      expect(trigger).not.to.have.attribute('data-popup-open');
+    });
+
+    it('does not stick if the user clicks patiently', async () => {
+      await renderFakeTimers(
+        <Popover.Root delay={0} openOnHover>
+          <Popover.Trigger />
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD);
+
+      fireEvent.click(trigger);
+      fireEvent.mouseLeave(trigger);
 
       expect(trigger).not.to.have.attribute('data-popup-open');
     });

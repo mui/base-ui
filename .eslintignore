@@ -1,5 +1,4 @@
 .git
-.nyc_output
 /coverage
 /docs/.next
 /docs/export

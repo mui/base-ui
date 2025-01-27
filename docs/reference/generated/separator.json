@@ -2,6 +2,11 @@
   "name": "Separator",
   "description": "A separator element accessible to screen readers.\nRenders a `<div>` element.",
   "props": {
+    "orientation": {
+      "type": "'horizontal' | 'vertical'",
+      "default": "'horizontal'",
+      "description": "The orientation of the separator."
+    },
     "className": {
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

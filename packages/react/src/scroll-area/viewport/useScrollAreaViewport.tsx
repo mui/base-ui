@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { clamp } from '../../utils/clamp';
+import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { MIN_THUMB_SIZE } from '../constants';
 import { getOffset } from '../utils/getOffset';
 
@@ -17,7 +18,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     thumbYRef,
     thumbXRef,
     cornerRef,
-    dir,
     setCornerSize,
     setThumbSize,
     rootId,
@@ -26,6 +26,8 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     handleScroll,
     setHovering,
   } = useScrollAreaRootContext();
+
+  const direction = useDirection();
 
   const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -102,7 +104,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       // In Safari, don't allow it to go negative or too far as `scrollLeft` considers the rubber
       // band effect.
       const thumbOffsetX =
-        dir === 'rtl'
+        direction === 'rtl'
           ? clamp(scrollRatioX * maxThumbOffsetX, -maxThumbOffsetX, 0)
           : clamp(scrollRatioX * maxThumbOffsetX, 0, maxThumbOffsetX);
 
@@ -146,7 +148,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
   useEnhancedEffect(() => {
     computeThumb();
-  }, [computeThumb, hiddenState, dir]);
+  }, [computeThumb, hiddenState, direction]);
 
   useEnhancedEffect(() => {
     // `onMouseEnter` doesn't fire upon load, so we need to check if the viewport is already

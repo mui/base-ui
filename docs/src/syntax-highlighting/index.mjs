@@ -1,6 +1,5 @@
 import { createHighlighter } from 'shiki';
 import rehypePrettyCode from 'rehype-pretty-code';
-import { rehypeEmptyLines } from './rehypeEmptyLines.mjs';
 import { rehypeInlineCode } from './rehypeInlineCode.mjs';
 import { rehypePrettierIgnore } from './rehypePrettierIgnore.mjs';
 import { rehypeJsxExpressions } from './rehypeJsxExpressions.mjs';
@@ -349,7 +348,6 @@ export const rehypeSyntaxHighlighting = [
       defaultLang: 'tsx',
     },
   ],
-  rehypeEmptyLines,
   rehypePrettierIgnore,
   rehypeJsxExpressions,
   rehypeInlineCode,

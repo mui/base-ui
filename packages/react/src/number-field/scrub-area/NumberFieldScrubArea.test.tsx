@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { screen, waitFor, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '../../utils/detectBrowser';
 import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
 
@@ -49,7 +49,7 @@ describe('<NumberField.ScrubArea />', () => {
   });
 
   // Only run the following tests in Chromium/Firefox.
-  if (/jsdom/.test(window.navigator.userAgent) || isWebKit()) {
+  if (isJSDOM || isWebKit()) {
     return;
   }
 

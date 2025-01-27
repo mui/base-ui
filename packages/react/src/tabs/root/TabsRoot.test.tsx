@@ -1,20 +1,18 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, describeSkipIf, flushMicrotasks, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, fireEvent, screen } from '@mui/internal-test-utils';
 import {
   DirectionProvider,
   type TextDirection,
 } from '@base-ui-components/react/direction-provider';
 import { Tabs } from '@base-ui-components/react/tabs';
-import { createRenderer, describeConformance } from '#test-utils';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Tabs.Root />', () => {
   const { render } = createRenderer();
 
-  before(function beforeHook() {
+  beforeEach(function beforeHook({ skip }) {
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
     // The test fails on Safari with just:
@@ -22,9 +20,7 @@ describe('<Tabs.Root />', () => {
     // container.scrollLeft = 200;
     // expect(container.scrollLeft).to.equal(200); 💥
     if (isSafari) {
-      // @ts-expect-error to support mocha and vitest
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this?.skip?.() || t?.skip();
+      skip();
     }
   });
 
@@ -172,6 +168,23 @@ describe('<Tabs.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
+    it('should call onValueChange on pointerdown', async () => {
+      const handleChange = spy();
+      const handlePointerDown = spy();
+      const { getAllByRole, user } = await render(
+        <Tabs.Root value={0} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} onPointerDown={handlePointerDown} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      await user.pointer({ keys: '[MouseLeft>]', target: getAllByRole('tab')[1] });
+      expect(handleChange.callCount).to.equal(1);
+      expect(handlePointerDown.callCount).to.equal(1);
+    });
+
     it('should call onValueChange when clicking', async () => {
       const handleChange = spy();
       const { getAllByRole } = await render(
@@ -186,6 +199,21 @@ describe('<Tabs.Root />', () => {
       fireEvent.click(getAllByRole('tab')[1]);
       expect(handleChange.callCount).to.equal(1);
       expect(handleChange.firstCall.args[0]).to.equal(1);
+    });
+
+    it('should not call onValueChange on non-main button clicks', async () => {
+      const handleChange = spy();
+      const { getAllByRole } = await render(
+        <Tabs.Root value={0} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      fireEvent.click(getAllByRole('tab')[1], { button: 2 });
+      expect(handleChange.callCount).to.equal(0);
     });
 
     it('should not call onValueChange when already selected', async () => {
@@ -281,7 +309,7 @@ describe('<Tabs.Root />', () => {
     ].forEach((entry) => {
       const [orientation, direction, previousItemKey, nextItemKey] = entry;
 
-      describeSkipIf(isJSDOM && direction === 'rtl')(
+      describe.skipIf(isJSDOM && direction === 'rtl')(
         `when focus is on a tab element in a ${orientation} ${direction ?? ''} tablist`,
         () => {
           describe(previousItemKey ?? '', () => {
@@ -804,7 +832,7 @@ describe('<Tabs.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('activation direction', () => {
+  describe.skipIf(isJSDOM)('activation direction', () => {
     it('should set the `data-activation-direction` attribute on the tabs root with orientation=horizontal', async () => {
       const { getAllByRole, getByTestId } = await render(
         <Tabs.Root data-testid="root">

@@ -71,7 +71,6 @@ async function generateProptypes(project: TypeScriptProject, sourceFile: string)
 
   const sourceContent = await fse.readFile(sourceFile, 'utf8');
   const isTsFile = /(\.(ts|tsx))/.test(sourceFile);
-  const propsFile = sourceFile.replace(/(\.d\.ts|\.tsx|\.ts)/g, '.types.ts');
 
   const result = injectPropTypesInFile({
     components,
@@ -117,7 +116,7 @@ async function generateProptypes(project: TypeScriptProject, sourceFile: string)
         return generated;
       },
       shouldInclude: ({ prop }) => {
-        if (prop.name === 'children') {
+        if (prop.name === 'children' || prop.name === 'className' || prop.name === 'render') {
           return true;
         }
         let shouldDocument;
@@ -125,8 +124,7 @@ async function generateProptypes(project: TypeScriptProject, sourceFile: string)
         prop.filenames.forEach((filename) => {
           const isExternal = filename !== sourceFile;
 
-          const implementedBySelfPropsFile = filename === propsFile;
-          if (!isExternal || implementedBySelfPropsFile) {
+          if (!isExternal) {
             shouldDocument = true;
           }
         });
