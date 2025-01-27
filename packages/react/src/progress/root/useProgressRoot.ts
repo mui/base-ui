@@ -150,7 +150,7 @@ namespace useProgressRoot {
     /**
      * Formatted value of the component.
      */
-    formattedValue: string | null;
+    formattedValue: string;
     status: ProgressStatus;
   }
 }

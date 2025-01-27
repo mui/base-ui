@@ -58,22 +58,39 @@ describe('<Progress.Value />', () => {
       expect(value).to.have.text(formatValue(30));
     });
 
-    it('accepts a render function', async () => {
-      const renderSpy = spy();
-      const format: Intl.NumberFormatOptions = {
-        style: 'currency',
-        currency: 'USD',
-      };
-      function formatValue(v: number) {
-        return new Intl.NumberFormat(undefined, format).format(v);
-      }
-      await render(
-        <Progress.Root value={30} format={format}>
-          <Progress.Value data-testid="value">{renderSpy}</Progress.Value>
-        </Progress.Root>,
-      );
-      expect(renderSpy.lastCall.args[0]).to.deep.equal(formatValue(30));
-      expect(renderSpy.lastCall.args[1]).to.deep.equal(30);
+    describe('it accepts a render function', () => {
+      it('numerical value', async () => {
+        const renderSpy = spy();
+        const format: Intl.NumberFormatOptions = {
+          style: 'currency',
+          currency: 'USD',
+        };
+        function formatValue(v: number) {
+          return new Intl.NumberFormat(undefined, format).format(v);
+        }
+        await render(
+          <Progress.Root value={30} format={format}>
+            <Progress.Value data-testid="value">{renderSpy}</Progress.Value>
+          </Progress.Root>,
+        );
+        expect(renderSpy.lastCall.args[0]).to.deep.equal(formatValue(30));
+        expect(renderSpy.lastCall.args[1]).to.deep.equal(30);
+      });
+
+      it('indeterminate value', async () => {
+        const renderSpy = spy();
+        const format: Intl.NumberFormatOptions = {
+          style: 'currency',
+          currency: 'USD',
+        };
+        await render(
+          <Progress.Root value={null} format={format}>
+            <Progress.Value data-testid="value">{renderSpy}</Progress.Value>
+          </Progress.Root>,
+        );
+        expect(renderSpy.lastCall.args[0]).to.deep.equal('indeterminate');
+        expect(renderSpy.lastCall.args[1]).to.deep.equal(null);
+      });
     });
   });
 });

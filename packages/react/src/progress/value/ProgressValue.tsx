@@ -6,8 +6,9 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import type { ProgressRoot } from '../root/ProgressRoot';
+import { progressStyleHookMapping } from '../root/styleHooks';
 /**
- * A text element displaying the current value.
+ * A text label displaying the current value.
  * Renders a `<span>` element.
  *
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
@@ -21,14 +22,17 @@ const ProgressValue = React.forwardRef(function ProgressValue(
   const { value, formattedValue, state } = useProgressRootContext();
 
   const getValueProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeReactProps(externalProps, {
+    (externalProps = {}) => {
+      const formattedValueArg = value == null ? 'indeterminate' : formattedValue;
+      const formattedValueDisplay = value == null ? null : formattedValue;
+      return mergeReactProps(externalProps, {
         'aria-hidden': true,
         children:
           typeof children === 'function'
-            ? children(formattedValue, value)
-            : ((formattedValue || value) ?? ''),
-      }),
+            ? children(formattedValueArg, value)
+            : formattedValueDisplay,
+      });
+    },
     [children, value, formattedValue],
   );
 
@@ -39,6 +43,7 @@ const ProgressValue = React.forwardRef(function ProgressValue(
     state,
     ref: forwardedRef,
     extraProps: otherProps,
+    customStyleHookMapping: progressStyleHookMapping,
   });
 
   return renderElement();
