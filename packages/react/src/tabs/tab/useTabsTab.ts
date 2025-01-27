@@ -90,7 +90,7 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
           id,
           ref: handleRef,
           onClick(event) {
-            if (selected) {
+            if (selected || disabled) {
               return;
             }
 
@@ -106,7 +106,7 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
             }
           },
           onPointerDown(event) {
-            if (selected) {
+            if (selected || disabled) {
               return;
             }
 
@@ -138,6 +138,7 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
       selected,
       tabPanelId,
       tabValue,
+      disabled,
     ],
   );
 
