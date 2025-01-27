@@ -88,9 +88,10 @@ Most components like Popover are unmounted from the DOM when they are closed. To
 - Specify `keepMounted` on the `Portal` part
 - Use the `render` prop to compose the `Popup` with `motion.div`
 
-```jsx title="animated-popover.tsx" {11-17} "keepMounted"
+```jsx title="animated-popover.tsx" {12-18} "keepMounted"
 function App() {
   const [open, setOpen] = React.useState(false);
+
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger>Trigger</Popover.Trigger>
@@ -127,9 +128,10 @@ different approach is needed to animate it with Motion.
 - Use the `render` prop to compose the `Popup` with `motion.div`
 - Animate the properties based on the `open` state, avoiding `AnimatePresence`
 
-```jsx title="animated-select.tsx" {11-19}
+```jsx title="animated-select.tsx" {12-20}
 function App() {
   const [open, setOpen] = React.useState(false);
+
   return (
     <Select.Root open={open} onOpenChange={setOpen}>
       <Select.Trigger>
@@ -159,9 +161,9 @@ function App() {
 
 ### Manual unmounting
 
-For full control, you can manually unmount the component when it's closed once animations have finished using an `action` passed to the `Root`:
+For full control, you can manually unmount the component when it's closed once animations have finished using an `actionRef` passed to the `Root`:
 
-```jsx title="manual-unmount.tsx" "action"
+```jsx title="manual-unmount.tsx" "actionRef"
 function App() {
   const [open, setOpen] = React.useState(false);
   const actionRef = React.useRef({ unmount: () => {} });
