@@ -56,8 +56,10 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     } else if (elementName !== '') {
       if (elementName !== 'A') {
         additionalProps.role = 'button';
+        additionalProps.tabIndex = tabIndex ?? 0;
+      } else if (tabIndex) {
+        additionalProps.tabIndex = tabIndex;
       }
-      additionalProps.tabIndex = tabIndex ?? 0;
       if (disabled) {
         additionalProps['aria-disabled'] = disabled as boolean;
         additionalProps.tabIndex = focusableWhenDisabled ? (tabIndex ?? 0) : -1;

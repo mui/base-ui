@@ -67,6 +67,10 @@ const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 
 export type ToolbarOrientation = 'horizontal' | 'vertical';
 
+export interface ToolbarItemMetadata {
+  focusableWhenDisabled: boolean;
+}
+
 namespace ToolbarRoot {
   export type State = {
     disabled: boolean;

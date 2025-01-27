@@ -5,13 +5,9 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import type { ToolbarRoot } from '../root/ToolbarRoot';
+import type { ToolbarRoot, ToolbarItemMetadata } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
-
-export interface ToolbarButtonMetadata {
-  focusableWhenDisabled: boolean;
-}
 
 /**
  * A button that can be used as-is or as a trigger for other components.
@@ -63,7 +59,7 @@ const ToolbarButton = React.forwardRef(function ToolbarButton(
     extraProps: otherProps,
   });
 
-  return <CompositeItem<ToolbarButtonMetadata> metadata={itemMetadata} render={renderElement()} />;
+  return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={renderElement()} />;
 });
 
 export namespace ToolbarButton {
