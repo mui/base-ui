@@ -27,8 +27,8 @@ describe('<Select.Root />', () => {
         </Select.Portal>
       </Select.Root>
     ),
-    triggerMouseAction: 'click',
     render,
+    triggerMouseAction: 'click',
     expectedPopupRole: 'listbox',
     alwaysMounted: true,
   });

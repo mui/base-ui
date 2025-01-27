@@ -28,8 +28,8 @@ describe('<Tooltip.Root />', () => {
         </Tooltip.Portal>
       </Tooltip.Root>
     ),
-    triggerMouseAction: 'hover',
     render,
+    triggerMouseAction: 'hover',
     expectedPopupRole: 'presentation',
   });
 

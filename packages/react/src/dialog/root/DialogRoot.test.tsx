@@ -45,8 +45,8 @@ describe('<Dialog.Root />', () => {
         </Dialog.Portal>
       </Dialog.Root>
     ),
-    triggerMouseAction: 'click',
     render,
+    triggerMouseAction: 'click',
     expectedPopupRole: 'dialog',
   });
 

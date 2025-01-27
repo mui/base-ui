@@ -36,8 +36,8 @@ describe('<PreviewCard.Root />', () => {
         </PreviewCard.Portal>
       </PreviewCard.Root>
     ),
-    triggerMouseAction: 'hover',
     render,
+    triggerMouseAction: 'hover',
     expectedPopupRole: 'presentation',
   });
 

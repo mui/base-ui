@@ -28,8 +28,8 @@ describe('<Popover.Root />', () => {
         </Popover.Portal>
       </Popover.Root>
     ),
-    triggerMouseAction: 'click',
     render,
+    triggerMouseAction: 'click',
     expectedPopupRole: 'dialog',
   });
 

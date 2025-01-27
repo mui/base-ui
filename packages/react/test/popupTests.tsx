@@ -110,12 +110,14 @@ export function popupConformanceTests(config: PopupTestConfig) {
         expect(popup).to.have.attribute('role', expectedPopupRole);
       });
 
-      it.todo('has the `aria-controls` attribute on the trigger', async () => {
-        await render(prepareComponent({ root: { open: true } }));
-        const trigger = getTrigger();
-        const popup = getPopup();
-        expect(trigger).to.have.attribute('aria-controls', popup?.id);
-      });
+      if (triggerMouseAction === 'click') {
+        it('has the `aria-controls` attribute on the trigger', async () => {
+          await render(prepareComponent({ root: { open: true } }));
+          const trigger = getTrigger();
+          const popup = getPopup();
+          expect(trigger).to.have.attribute('aria-controls', popup?.id);
+        });
+      }
     });
 
     describe('animations', () => {

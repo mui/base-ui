@@ -28,8 +28,8 @@ describe('<Menu.Root />', () => {
         </Menu.Portal>
       </Menu.Root>
     ),
-    triggerMouseAction: 'click',
     render,
+    triggerMouseAction: 'click',
     expectedPopupRole: 'menu',
   });
 

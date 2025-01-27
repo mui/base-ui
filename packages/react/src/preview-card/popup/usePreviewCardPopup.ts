@@ -11,7 +11,6 @@ export function usePreviewCardPopup(
     (externalProps = {}) => {
       return mergeReactProps<'div'>(getProps(externalProps), {
         role: 'presentation',
-
         style: {
           // <Popover.Arrow> must be relative to the <Popover.Popup> element.
           position: 'relative',

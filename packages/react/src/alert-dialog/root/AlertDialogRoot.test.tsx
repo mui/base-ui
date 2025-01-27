@@ -17,8 +17,8 @@ describe('<AlertDialog.Root />', () => {
         </AlertDialog.Portal>
       </AlertDialog.Root>
     ),
-    triggerMouseAction: 'click',
     render,
+    triggerMouseAction: 'click',
     expectedPopupRole: 'alertdialog',
   });
 
