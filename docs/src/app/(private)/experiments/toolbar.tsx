@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { Separator } from '@base-ui-components/react/separator';
 import { Toolbar } from '@base-ui-components/react/toolbar';
 import { Toggle } from '@base-ui-components/react/toggle';
 import { ToggleGroup } from '@base-ui-components/react/toggle-group';
@@ -14,168 +15,184 @@ const DISABLED = false;
 
 export default function App() {
   return (
-    <Toolbar.Root className={s.Root}>
-      <Select.Root defaultValue="sans">
+    <React.Fragment>
+      <a href="https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/">toolbar pattern</a>
+      <Toolbar.Root className={s.Root}>
         <Toolbar.Button
           disabled={DISABLED}
-          render={<Select.Trigger />}
-          className={selectClasses.Select}
+          className={s.Button}
+          onClick={() => console.log('clicked a regular toolbar button')}
         >
-          <Select.Value placeholder="Sans-serif" />
-          <Select.Icon className={selectClasses.SelectIcon}>
-            <ChevronUpDownIcon />
-          </Select.Icon>
+          A regular button
         </Toolbar.Button>
-        <Select.Portal>
-          <Select.Positioner className={selectClasses.Positioner} sideOffset={8}>
-            <Select.Popup
-              className={selectClasses.Popup}
-              style={{ backgroundColor: 'var(--color-gray-50)' }}
-            >
-              <Select.Arrow className={selectClasses.Arrow}>
-                <ArrowSvg />
-              </Select.Arrow>
-              <Select.Item className={selectClasses.Item} value="sans">
-                <Select.ItemIndicator className={selectClasses.ItemIndicator}>
-                  <CheckIcon className={selectClasses.ItemIndicatorIcon} />
-                </Select.ItemIndicator>
-                <Select.ItemText className={selectClasses.ItemText}>
-                  Sans-serif
-                </Select.ItemText>
-              </Select.Item>
-              <Select.Item className={selectClasses.Item} value="serif">
-                <Select.ItemIndicator className={selectClasses.ItemIndicator}>
-                  <CheckIcon className={selectClasses.ItemIndicatorIcon} />
-                </Select.ItemIndicator>
-                <Select.ItemText className={selectClasses.ItemText}>
-                  Serif
-                </Select.ItemText>
-              </Select.Item>
-              <Select.Item className={selectClasses.Item} value="mono">
-                <Select.ItemIndicator className={selectClasses.ItemIndicator}>
-                  <CheckIcon className={selectClasses.ItemIndicatorIcon} />
-                </Select.ItemIndicator>
-                <Select.ItemText className={selectClasses.ItemText}>
-                  Monospace
-                </Select.ItemText>
-              </Select.Item>
-              <Select.Item className={selectClasses.Item} value="cursive">
-                <Select.ItemIndicator className={selectClasses.ItemIndicator}>
-                  <CheckIcon className={selectClasses.ItemIndicatorIcon} />
-                </Select.ItemIndicator>
-                <Select.ItemText className={selectClasses.ItemText}>
-                  Cursive
-                </Select.ItemText>
-              </Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>
-
-      <Toolbar.Separator className={s.Separator} />
-
-      <Toolbar.Group
-        render={<ToggleGroup />}
-        defaultValue={[]}
-        className={s.ToggleGroup}
-      >
-        <Toolbar.Button
-          render={<Toggle />}
-          aria-label="Bold"
-          value="bold"
-          className={s.Toggle}
-          disabled={DISABLED}
-        >
-          <BoldIcon className={s.Icon} />
-        </Toolbar.Button>
-        <Toolbar.Button
-          render={<Toggle />}
-          aria-label="Italics"
-          value="italics"
-          className={s.Toggle}
-          disabled={DISABLED}
-        >
-          <ItalicsIcon className={s.Icon} />
-        </Toolbar.Button>
-        <Toolbar.Button
-          render={<Toggle />}
-          aria-label="Underline"
-          value="underline"
-          className={s.Toggle}
-          disabled={DISABLED}
-        >
-          <UnderlineIcon className={s.Icon} />
-        </Toolbar.Button>
-      </Toolbar.Group>
-
-      <Toolbar.Separator className={s.Separator} />
-
-      <Toolbar.Group
-        render={<ToggleGroup />}
-        defaultValue={['left']}
-        className={s.ToggleGroup}
-        disabled={DISABLED}
-      >
-        <Toolbar.Button
-          render={<Toggle />}
-          aria-label="Align left"
-          value="left"
-          className={s.Toggle}
-        >
-          <AlignLeftIcon className={s.Icon} />
-        </Toolbar.Button>
-        <Toolbar.Button
-          render={<Toggle />}
-          aria-label="Align center"
-          value="center"
-          className={s.Toggle}
-        >
-          <AlignCenterIcon className={s.Icon} />
-        </Toolbar.Button>
-        <Toolbar.Button
-          render={<Toggle />}
-          aria-label="Align right"
-          value="right"
-          className={s.Toggle}
-        >
-          <AlignRightIcon className={s.Icon} />
-        </Toolbar.Button>
-      </Toolbar.Group>
-
-      <Toolbar.Separator className={s.Separator} />
-
-      <Menu.Root>
-        <Toolbar.Button
-          disabled={DISABLED}
-          render={<Menu.Trigger />}
-          className={s.More}
-        >
-          <MoreHorizontalIcon className={s.Icon} />
-        </Toolbar.Button>
-        <Menu.Portal>
-          <Menu.Positioner className={menuClasses.Positioner} sideOffset={8}>
-            <Menu.Popup
-              className={menuClasses.Popup}
-              style={{ backgroundColor: 'var(--color-gray-50)' }}
-            >
-              <Menu.Arrow
-                className={menuClasses.Arrow}
-                style={{ color: 'var(--color-gray-50)' }}
+        <Select.Root defaultValue="sans">
+          <Toolbar.Button
+            disabled={DISABLED}
+            render={<Select.Trigger />}
+            className={selectClasses.Select}
+          >
+            <Select.Value placeholder="Sans-serif" />
+            <Select.Icon className={selectClasses.SelectIcon}>
+              <ChevronUpDownIcon />
+            </Select.Icon>
+          </Toolbar.Button>
+          <Select.Portal>
+            <Select.Positioner className={selectClasses.Positioner} sideOffset={8}>
+              <Select.Popup
+                className={selectClasses.Popup}
+                style={{ backgroundColor: 'var(--color-gray-50)' }}
               >
-                <ArrowSvg />
-              </Menu.Arrow>
-              <Menu.Item className={menuClasses.Item}>Zoom in</Menu.Item>
-              <Menu.Item className={menuClasses.Item}>Zoom out</Menu.Item>
-              <Menu.Item className={menuClasses.Item}>Reset zoom</Menu.Item>
-              <Menu.Separator className={menuClasses.Separator} />
-              <Menu.Item className={menuClasses.Item}>Minimize</Menu.Item>
-              <Menu.Item className={menuClasses.Item}>Maximize</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>
-    </Toolbar.Root>
+                <Select.Arrow className={selectClasses.Arrow}>
+                  <ArrowSvg />
+                </Select.Arrow>
+                <Select.Item className={selectClasses.Item} value="sans">
+                  <Select.ItemIndicator className={selectClasses.ItemIndicator}>
+                    <CheckIcon className={selectClasses.ItemIndicatorIcon} />
+                  </Select.ItemIndicator>
+                  <Select.ItemText className={selectClasses.ItemText}>
+                    Sans-serif
+                  </Select.ItemText>
+                </Select.Item>
+                <Select.Item className={selectClasses.Item} value="serif">
+                  <Select.ItemIndicator className={selectClasses.ItemIndicator}>
+                    <CheckIcon className={selectClasses.ItemIndicatorIcon} />
+                  </Select.ItemIndicator>
+                  <Select.ItemText className={selectClasses.ItemText}>
+                    Serif
+                  </Select.ItemText>
+                </Select.Item>
+                <Select.Item className={selectClasses.Item} value="mono">
+                  <Select.ItemIndicator className={selectClasses.ItemIndicator}>
+                    <CheckIcon className={selectClasses.ItemIndicatorIcon} />
+                  </Select.ItemIndicator>
+                  <Select.ItemText className={selectClasses.ItemText}>
+                    Monospace
+                  </Select.ItemText>
+                </Select.Item>
+                <Select.Item className={selectClasses.Item} value="cursive">
+                  <Select.ItemIndicator className={selectClasses.ItemIndicator}>
+                    <CheckIcon className={selectClasses.ItemIndicatorIcon} />
+                  </Select.ItemIndicator>
+                  <Select.ItemText className={selectClasses.ItemText}>
+                    Cursive
+                  </Select.ItemText>
+                </Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+
+        <Toolbar.Separator className={s.Separator} />
+
+        <Toolbar.Group
+          render={<ToggleGroup toggleMultiple />}
+          defaultValue={[]}
+          className={s.ToggleGroup}
+        >
+          <Toolbar.Button
+            render={<Toggle />}
+            aria-label="Bold"
+            value="bold"
+            className={s.Toggle}
+            disabled={DISABLED}
+          >
+            <BoldIcon className={s.Icon} />
+          </Toolbar.Button>
+          <Toolbar.Button
+            render={<Toggle />}
+            aria-label="Italics"
+            value="italics"
+            className={s.Toggle}
+            disabled={DISABLED}
+          >
+            <ItalicsIcon className={s.Icon} />
+          </Toolbar.Button>
+          <Toolbar.Button
+            render={<Toggle />}
+            aria-label="Underline"
+            value="underline"
+            className={s.Toggle}
+            disabled={DISABLED}
+          >
+            <UnderlineIcon className={s.Icon} />
+          </Toolbar.Button>
+        </Toolbar.Group>
+
+        <Toolbar.Separator className={s.Separator} />
+
+        <Toolbar.Group
+          render={<ToggleGroup />}
+          defaultValue={['left']}
+          className={s.ToggleGroup}
+          disabled={DISABLED}
+        >
+          <Toolbar.Button
+            render={<Toggle />}
+            aria-label="Align left"
+            value="left"
+            className={s.Toggle}
+          >
+            <AlignLeftIcon className={s.Icon} />
+          </Toolbar.Button>
+          <Toolbar.Button
+            render={<Toggle />}
+            aria-label="Align center"
+            value="center"
+            className={s.Toggle}
+          >
+            <AlignCenterIcon className={s.Icon} />
+          </Toolbar.Button>
+          <Toolbar.Button
+            render={<Toggle />}
+            aria-label="Align right"
+            value="right"
+            className={s.Toggle}
+          >
+            <AlignRightIcon className={s.Icon} />
+          </Toolbar.Button>
+        </Toolbar.Group>
+
+        <Toolbar.Separator className={s.Separator} />
+
+        <Menu.Root>
+          <Toolbar.Button
+            disabled={DISABLED}
+            render={<Menu.Trigger />}
+            className={s.More}
+          >
+            <MoreHorizontalIcon className={s.Icon} />
+          </Toolbar.Button>
+          <Menu.Portal>
+            <Menu.Positioner className={menuClasses.Positioner} sideOffset={8}>
+              <Menu.Popup
+                className={menuClasses.Popup}
+                style={{ backgroundColor: 'var(--color-gray-50)' }}
+              >
+                <Menu.Arrow
+                  className={menuClasses.Arrow}
+                  style={{ color: 'var(--color-gray-50)' }}
+                >
+                  <ArrowSvg />
+                </Menu.Arrow>
+                <Menu.Item className={menuClasses.Item}>Zoom in</Menu.Item>
+                <Menu.Item className={menuClasses.Item}>Zoom out</Menu.Item>
+                <Menu.Item className={menuClasses.Item}>Reset zoom</Menu.Item>
+                <Menu.Separator className={menuClasses.Separator} />
+                <Menu.Item className={menuClasses.Item}>Minimize</Menu.Item>
+                <Menu.Item className={menuClasses.Item}>Maximize</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Toolbar.Root>
+      <textarea name="" id="" />
+      <MySeparator />
+    </React.Fragment>
   );
+}
+
+function MySeparator(props: React.ComponentProps<'div'>) {
+  return <Separator className={s.Separator} {...props} />;
 }
 
 function AlignLeftIcon(props: React.ComponentProps<'svg'>) {
