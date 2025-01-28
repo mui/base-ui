@@ -10,6 +10,7 @@
     "dev": "next dev --port 3005",
     "deploy": "git push -f material-ui-docs master:latest",
     "serve": "serve ./export -l 3010",
+    "create-playground": "cpy --cwd=scripts playground.template.tsx \"../../src/app/(private)/playground\" --rename=index.tsx",
     "typescript": "tsc -b tsconfig.json",
     "link-check": "tsx ./scripts/reportBrokenLinks.mts"
   },
