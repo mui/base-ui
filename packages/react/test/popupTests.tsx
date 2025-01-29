@@ -157,7 +157,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
         }
 
         const handleAnimationFinished = vi.fn();
-        const animationName = 'anim-' + randomStringValue();
+        const animationName = `anim-${randomStringValue()}`;
 
         function Test(props: { open: boolean }) {
           const style = `
@@ -178,6 +178,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
 
           return (
             <div>
+              {/* eslint-disable-next-line react/no-danger */}
               <style dangerouslySetInnerHTML={{ __html: style }} />
               {prepareComponent({
                 root: { open: props.open },
@@ -202,7 +203,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
         });
 
         await waitFor(() => {
-          expect(handleAnimationFinished).toHaveBeenCalledOnce();
+          expect(handleAnimationFinished.mock.calls.length).to.equal(1);
         });
       });
     });

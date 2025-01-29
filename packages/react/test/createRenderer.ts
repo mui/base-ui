@@ -8,7 +8,7 @@ import {
   act,
 } from '@mui/internal-test-utils';
 
-type BaseUIRenderResult = Omit<MuiRenderResult, 'rerender'> & {
+export type BaseUIRenderResult = Omit<MuiRenderResult, 'rerender'> & {
   rerender: (newElement: React.ReactElement<DataAttributes>) => Promise<void>;
 };
 

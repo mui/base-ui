@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui-components/react/preview-card';
-import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, flushMicrotasks } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';

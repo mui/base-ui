@@ -3,7 +3,7 @@ import { Popover } from '@base-ui-components/react/popover';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { createRenderer, popupConformanceTests } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 function Root(props: Popover.Root.Props) {
