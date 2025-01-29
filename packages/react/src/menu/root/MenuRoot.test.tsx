@@ -876,4 +876,130 @@ describe('<Menu.Root />', () => {
       expect(positioner.previousElementSibling).to.equal(null);
     });
   });
+
+  describe('prop: openOnHover', () => {
+    it('should open the menu when the trigger is hovered', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root openOnHover delay={0}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await userEvent.hover(trigger);
+
+      await waitFor(() => {
+        expect(queryByRole('menu')).not.to.equal(null);
+      });
+    });
+
+    it('should close the menu when the trigger is no longer hovered', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root openOnHover delay={0}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await userEvent.hover(trigger);
+
+      await waitFor(() => {
+        expect(queryByRole('menu')).not.to.equal(null);
+      });
+
+      await userEvent.unhover(trigger);
+
+      await waitFor(() => {
+        expect(queryByRole('menu')).to.equal(null);
+      });
+    });
+
+    it('should not close when submenu is hovered after root menu is hovered', async () => {
+      const { getByRole, getByTestId } = await render(
+        <Menu.Root openOnHover delay={0}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="menu">
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Root delay={0}>
+                  <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner data-testid="submenu">
+                      <Menu.Popup>
+                        <Menu.Item>2.1</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await userEvent.hover(trigger);
+
+      await waitFor(() => {
+        expect(getByTestId('menu')).not.to.equal(null);
+      });
+
+      const menu = getByTestId('menu');
+
+      await userEvent.hover(menu);
+
+      const submenuTrigger = getByRole('menuitem', { name: '2' });
+
+      await userEvent.hover(submenuTrigger);
+
+      await waitFor(() => {
+        expect(getByTestId('menu')).not.to.equal(null);
+      });
+      await waitFor(() => {
+        expect(getByTestId('submenu')).not.to.equal(null);
+      });
+
+      const submenu = getByTestId('submenu');
+
+      await userEvent.unhover(menu);
+      await userEvent.hover(submenu);
+
+      await waitFor(() => {
+        expect(getByTestId('menu')).not.to.equal(null);
+      });
+      await waitFor(() => {
+        expect(getByTestId('submenu')).not.to.equal(null);
+      });
+    });
+  });
 });
