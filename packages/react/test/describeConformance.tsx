@@ -1,14 +1,10 @@
 import * as React from 'react';
-import {
-  ConformanceOptions,
-  MuiRenderResult,
-  RenderOptions,
-  createDescribe,
-} from '@mui/internal-test-utils';
+import { ConformanceOptions, RenderOptions, createDescribe } from '@mui/internal-test-utils';
 import { testPropForwarding } from './conformanceTests/propForwarding';
 import { testRefForwarding } from './conformanceTests/refForwarding';
 import { testRenderProp } from './conformanceTests/renderProp';
 import { testClassName } from './conformanceTests/className';
+import { BaseUIRenderResult } from './createRenderer';
 
 export type ConformantComponentProps = {
   render?: React.ReactElement<unknown> | ((props: Record<string, unknown>) => React.ReactNode);
@@ -26,7 +22,7 @@ export interface BaseUiConformanceTestsOptions
       string | React.JSXElementConstructor<any>
     >,
     options?: RenderOptions | undefined,
-  ) => Promise<MuiRenderResult> | MuiRenderResult;
+  ) => Promise<BaseUIRenderResult> | BaseUIRenderResult;
   skip?: (keyof typeof fullSuite)[];
   testRenderPropWith?: keyof React.JSX.IntrinsicElements;
 }
