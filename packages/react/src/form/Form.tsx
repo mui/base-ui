@@ -127,10 +127,6 @@ Form.propTypes /* remove-proptypes */ = {
    */
   onClearErrors: PropTypes.func,
   /**
-   * @ignore
-   */
-  onSubmit: PropTypes.func,
-  /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
    *
