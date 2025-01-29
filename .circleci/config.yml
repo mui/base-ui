@@ -60,17 +60,12 @@ default-context: &default-context
 #     key: v1-repo-{{ .Branch }}-{{ .Revision }}
 
 commands:
-  install_js:
+  install_pnpm:
     parameters:
       browsers:
         type: boolean
         default: false
         description: 'Set to true if you intend to any browser (for example with playwright).'
-      react-version:
-        description: The version of react to be used
-        type: string
-        default: stable
-
     steps:
       - when:
           condition: << parameters.browsers >>
@@ -90,6 +85,21 @@ commands:
                 command: |
                   corepack enable --install-directory ~/bin
                   pnpm config set store-dir /mnt/ramdisk/.pnpm-store
+
+  install_js:
+    parameters:
+      browsers:
+        type: boolean
+        default: false
+        description: 'Set to true if you intend to any browser (for example with playwright).'
+      react-version:
+        description: The version of react to be used
+        type: string
+        default: stable
+
+    steps:
+      - install_pnpm:
+          browsers: << parameters.browsers >>
 
       - run:
           name: Resolve React version
@@ -156,9 +166,8 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run:
-          name: Install pnpm package manager
-          command: corepack enable --install-directory ~/bin
+      - install_pnpm:
+          browsers: false
       - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom:coverage
@@ -178,9 +187,10 @@ jobs:
   test_lint:
     <<: *default-job
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
+          browsers: false
       - run:
           name: Eslint
           command: pnpm eslint:ci
@@ -196,9 +206,10 @@ jobs:
   test_static:
     <<: *default-job
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
+          browsers: false
       - run:
           name: '`pnpm prettier` changes committed?'
           command: pnpm prettier --check
@@ -228,9 +239,10 @@ jobs:
     <<: *default-job
     resource_class: 'medium+'
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
+          browsers: false
       - run:
           name: Tests TypeScript definitions
           command: pnpm typescript
@@ -249,9 +261,10 @@ jobs:
     <<: *default-job
     resource_class: 'medium+'
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
+          browsers: false
       - run:
           name: Resolve typescript version
           command: |
@@ -294,9 +307,9 @@ jobs:
     docker:
       - image: mcr.microsoft.com/playwright:v1.50.0-noble
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
           browsers: true
       - run:
           name: Run tests on headless Chromium
@@ -319,9 +332,9 @@ jobs:
     docker:
       - image: mcr.microsoft.com/playwright:v1.50.0-noble
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
           browsers: true
       - run:
           name: Run visual regression tests
@@ -334,8 +347,9 @@ jobs:
     docker:
       - image: mcr.microsoft.com/playwright:v1.50.0-noble
     steps:
-      - checkout
-      - install_js:
+      - attach_workspace:
+          at: .
+      - install_pnpm:
           browsers: true
       - run:
           name: pnpm test:e2e
@@ -349,9 +363,10 @@ jobs:
   test_package:
     <<: *default-job
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
+          browsers: false
       - run:
           name: Build packages
           command: pnpm release:build
