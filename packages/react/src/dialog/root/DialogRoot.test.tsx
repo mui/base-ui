@@ -456,15 +456,21 @@ describe('<Dialog.Root />', () => {
     const backdrops = Array.from(document.querySelectorAll('[role="presentation"]'));
     await user.click(backdrops[backdrops.length - 1]);
 
-    expect(screen.queryByTestId('level-3')).to.equal(null);
+    await waitFor(() => {
+      expect(screen.queryByTestId('level-3')).to.equal(null);
+    });
 
     await user.click(backdrops[backdrops.length - 2]);
 
-    expect(screen.queryByTestId('level-2')).to.equal(null);
+    await waitFor(() => {
+      expect(screen.queryByTestId('level-2')).to.equal(null);
+    });
 
     await user.click(backdrops[backdrops.length - 3]);
 
-    expect(screen.queryByTestId('level-1')).to.equal(null);
+    await waitFor(() => {
+      expect(screen.queryByTestId('level-1')).to.equal(null);
+    });
   });
 
   describe.skipIf(isJSDOM)('nested popups', () => {
