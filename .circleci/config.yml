@@ -42,7 +42,7 @@ default-job: &default-job
     TEST_GATE: << parameters.test-gate >>
     AWS_REGION_ARTIFACTS: eu-central-1
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
-  working_directory: /mnt/ramdisk
+  working_directory: /mnt/ramdisk/base-ui
   docker:
     - image: cimg/node:18.20
 
@@ -77,7 +77,9 @@ commands:
           steps:
             - run:
                 name: Install pnpm package manager
-                command: corepack enable
+                command: |
+                  corepack enable
+                  pnpm config set store-dir /mnt/ramdisk/.pnpm-store
       - when:
           condition:
             not: << parameters.browsers >>
@@ -85,7 +87,9 @@ commands:
             - run:
                 name: Install pnpm package manager
                 # See https://stackoverflow.com/a/73411601
-                command: corepack enable --install-directory ~/bin
+                command: |
+                  corepack enable --install-directory ~/bin
+                  pnpm config set store-dir /mnt/ramdisk/.pnpm-store
 
       - run:
           name: Resolve React version
