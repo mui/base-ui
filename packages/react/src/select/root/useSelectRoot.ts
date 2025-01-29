@@ -133,9 +133,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     open,
     ref: popupRef,
     onComplete() {
-      onOpenChangeComplete?.(false);
-      setMounted(false);
-      setActiveIndex(null);
+      if (!open) {
+        onOpenChangeComplete?.(false);
+        setMounted(false);
+        setActiveIndex(null);
+      }
     },
   });
 

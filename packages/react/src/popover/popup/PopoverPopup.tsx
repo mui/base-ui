@@ -52,9 +52,10 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
   useOpenChangeComplete({
     open,
     ref: popupRef,
-    change: 'open',
     onComplete() {
-      onOpenChangeComplete?.(true);
+      if (open) {
+        onOpenChangeComplete?.(true);
+      }
     },
   });
 

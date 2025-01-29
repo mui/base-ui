@@ -8,11 +8,11 @@ import { useLatestRef } from './useLatestRef';
  * Calls the provided function when the CSS open/close animation or transition completes.
  */
 export function useOpenChangeComplete(parameters: useOpenChangeComplete.Parameters) {
-  const { open, change = 'close', ref, onComplete: onCompleteParam } = parameters;
+  const { open, ref, onComplete: onCompleteParam } = parameters;
 
   const openRef = useLatestRef(open);
   const onComplete = useEventCallback(onCompleteParam);
-  const runOnceAnimationsFinish = useAnimationsFinished(ref, change === 'open');
+  const runOnceAnimationsFinish = useAnimationsFinished(ref, open);
 
   const hasMountedRef = React.useRef(false);
 
@@ -24,20 +24,12 @@ export function useOpenChangeComplete(parameters: useOpenChangeComplete.Paramete
       }
     }
 
-    if (open && change === 'open') {
-      runOnceAnimationsFinish(() => {
-        if (openRef.current) {
-          onComplete();
-        }
-      });
-    } else if (!open && change === 'close') {
-      runOnceAnimationsFinish(() => {
-        if (!openRef.current) {
-          onComplete();
-        }
-      });
-    }
-  }, [open, change, onComplete, runOnceAnimationsFinish, openRef]);
+    runOnceAnimationsFinish(() => {
+      if (open === openRef.current) {
+        onComplete();
+      }
+    });
+  }, [open, onComplete, runOnceAnimationsFinish, openRef]);
 }
 
 export namespace useOpenChangeComplete {
@@ -46,11 +38,6 @@ export namespace useOpenChangeComplete {
      * Whether the element is open.
      */
     open?: boolean;
-    /**
-     * Determines the change of the animation to wait for.
-     * @default 'close'
-     */
-    change?: 'open' | 'close';
     /**
      * Ref to the element being closed.
      */

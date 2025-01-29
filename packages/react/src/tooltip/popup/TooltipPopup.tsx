@@ -38,9 +38,10 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   useOpenChangeComplete({
     open,
     ref: popupRef,
-    change: 'open',
     onComplete() {
-      onOpenChangeComplete?.(true);
+      if (open) {
+        onOpenChangeComplete?.(true);
+      }
     },
   });
 

@@ -61,7 +61,9 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
     open: selected,
     ref: indicatorRef,
     onComplete() {
-      setMounted(false);
+      if (!selected) {
+        setMounted(false);
+      }
     },
   });
 

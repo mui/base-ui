@@ -39,9 +39,10 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   useOpenChangeComplete({
     open,
     ref: popupRef,
-    change: 'open',
     onComplete() {
-      onOpenChangeComplete?.(true);
+      if (open) {
+        onOpenChangeComplete?.(true);
+      }
     },
   });
 

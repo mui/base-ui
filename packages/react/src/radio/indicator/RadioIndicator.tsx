@@ -51,7 +51,9 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
     open: rendered,
     ref: indicatorRef,
     onComplete() {
-      setMounted(false);
+      if (!rendered) {
+        setMounted(false);
+      }
     },
   });
 

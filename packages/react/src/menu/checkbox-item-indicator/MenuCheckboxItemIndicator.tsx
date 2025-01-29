@@ -41,7 +41,9 @@ const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndi
     open: item.checked,
     ref: indicatorRef,
     onComplete() {
-      setMounted(false);
+      if (!item.checked) {
+        setMounted(false);
+      }
     },
   });
 

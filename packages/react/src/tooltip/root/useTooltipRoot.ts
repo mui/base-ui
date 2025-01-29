@@ -66,10 +66,11 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   useOpenChangeComplete({
     open,
     ref: popupRef,
-    change: 'close',
     onComplete() {
-      onOpenChangeComplete?.(false);
-      setMounted(false);
+      if (!open) {
+        onOpenChangeComplete?.(false);
+        setMounted(false);
+      }
     },
   });
 
