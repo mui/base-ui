@@ -168,6 +168,23 @@ describe('<Tabs.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
+    it('should call onValueChange on pointerdown', async () => {
+      const handleChange = spy();
+      const handlePointerDown = spy();
+      const { getAllByRole, user } = await render(
+        <Tabs.Root value={0} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} onPointerDown={handlePointerDown} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      await user.pointer({ keys: '[MouseLeft>]', target: getAllByRole('tab')[1] });
+      expect(handleChange.callCount).to.equal(1);
+      expect(handlePointerDown.callCount).to.equal(1);
+    });
+
     it('should call onValueChange when clicking', async () => {
       const handleChange = spy();
       const { getAllByRole } = await render(
@@ -182,6 +199,21 @@ describe('<Tabs.Root />', () => {
       fireEvent.click(getAllByRole('tab')[1]);
       expect(handleChange.callCount).to.equal(1);
       expect(handleChange.firstCall.args[0]).to.equal(1);
+    });
+
+    it('should not call onValueChange on non-main button clicks', async () => {
+      const handleChange = spy();
+      const { getAllByRole } = await render(
+        <Tabs.Root value={0} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      fireEvent.click(getAllByRole('tab')[1], { button: 2 });
+      expect(handleChange.callCount).to.equal(0);
     });
 
     it('should not call onValueChange when already selected', async () => {
@@ -266,6 +298,58 @@ describe('<Tabs.Root />', () => {
       );
 
       expect(screen.getByRole('tablist')).to.have.attribute('aria-orientation', 'vertical');
+    });
+  });
+
+  describe('pointer navigation', () => {
+    it('activates the clicked tab', async () => {
+      const { user } = await render(
+        <Tabs.Root defaultValue={0}>
+          <Tabs.List activateOnFocus={false}>
+            <Tabs.Tab value={0}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 2</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 3</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel>Panel 1</Tabs.Panel>
+          <Tabs.Panel>Panel 2</Tabs.Panel>
+          <Tabs.Panel>Panel 3</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tab2 = screen.getByRole('tab', { name: 'Tab 2' });
+      await user.click(tab2);
+
+      const panels = screen.getAllByRole('tabpanel', { hidden: true });
+
+      expect(panels[0]).to.have.attribute('hidden');
+      expect(panels[1]).not.to.have.attribute('hidden');
+      expect(panels[2]).to.have.attribute('hidden');
+    });
+
+    it('does not activate the clicked disabled tab', async () => {
+      const { user } = await render(
+        <Tabs.Root defaultValue={0}>
+          <Tabs.List activateOnFocus={false}>
+            <Tabs.Tab value={0}>Tab 1</Tabs.Tab>
+            <Tabs.Tab disabled value={1}>
+              Tab 2
+            </Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 3</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel>Panel 1</Tabs.Panel>
+          <Tabs.Panel>Panel 2</Tabs.Panel>
+          <Tabs.Panel>Panel 3</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tab2 = screen.getByRole('tab', { name: 'Tab 2' });
+      await user.click(tab2);
+
+      const panels = screen.getAllByRole('tabpanel', { hidden: true });
+
+      expect(panels[0]).not.to.have.attribute('hidden');
+      expect(panels[1]).to.have.attribute('hidden');
+      expect(panels[2]).to.have.attribute('hidden');
     });
   });
 

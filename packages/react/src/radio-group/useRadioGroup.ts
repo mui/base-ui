@@ -11,7 +11,7 @@ import { useField } from '../field/useField';
 export function useRadioGroup(params: useRadioGroup.Parameters) {
   const { disabled = false, name, defaultValue, readOnly, value: externalValue } = params;
 
-  const { labelId, setTouched: setFieldTouched } = useFieldRootContext();
+  const { labelId, setTouched: setFieldTouched, setFocused } = useFieldRootContext();
 
   const {
     getValidationProps,
@@ -45,9 +45,13 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
+        onFocus() {
+          setFocused(true);
+        },
         onBlur(event) {
           if (!contains(event.currentTarget, event.relatedTarget)) {
             setFieldTouched(true);
+            setFocused(false);
             commitValidation(checkedValue);
           }
         },
@@ -55,6 +59,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
           if (event.key.startsWith('Arrow')) {
             setFieldTouched(true);
             setTouched(true);
+            setFocused(true);
           }
         },
       }),
@@ -66,6 +71,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
       labelId,
       readOnly,
       setFieldTouched,
+      setFocused,
     ],
   );
 

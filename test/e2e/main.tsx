@@ -6,7 +6,7 @@ import TestViewer from './TestViewer';
 import 'docs/src/styles.css';
 
 interface Fixture {
-  Component: React.LazyExoticComponent<React.ComponentType<any>>;
+  Component: React.ComponentType<any>;
   name: string;
   path: string;
   suite: string;
@@ -14,7 +14,11 @@ interface Fixture {
 
 const globbedFixtures = import.meta.glob<{ default: React.ComponentType<unknown> }>(
   './fixtures/**/*.{js,jsx,ts,tsx}',
+  {
+    eager: true,
+  },
 );
+
 const fixtures: Fixture[] = [];
 
 for (const path in globbedFixtures) {
@@ -22,11 +26,12 @@ for (const path in globbedFixtures) {
     .replace('./', '')
     .replace(/\.\w+$/, '')
     .split('/');
+
   fixtures.push({
     path,
     suite: `e2e-${suite}`,
     name,
-    Component: React.lazy(() => globbedFixtures[path]()),
+    Component: globbedFixtures[path].default,
   });
 }
 

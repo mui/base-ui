@@ -21,6 +21,10 @@ export interface FieldRootContext {
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
   dirty: boolean;
   setDirty: React.Dispatch<React.SetStateAction<boolean>>;
+  filled: boolean;
+  setFilled: React.Dispatch<React.SetStateAction<boolean>>;
+  focused: boolean;
+  setFocused: React.Dispatch<React.SetStateAction<boolean>>;
   validate: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
   validationMode: 'onBlur' | 'onChange';
   validationDebounceTime: number;
@@ -50,6 +54,10 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
   setTouched: NOOP,
   dirty: false,
   setDirty: NOOP,
+  filled: false,
+  setFilled: NOOP,
+  focused: false,
+  setFocused: NOOP,
   validate: () => null,
   validationMode: 'onBlur',
   validationDebounceTime: 0,
@@ -58,6 +66,8 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
     valid: null,
     touched: false,
     dirty: false,
+    filled: false,
+    focused: false,
   },
   markedDirtyRef: { current: false },
 });

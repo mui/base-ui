@@ -35,4 +35,12 @@ export enum SelectTriggerDataAttributes {
    * Present when the select's value has changed (when wrapped in Field.Root).
    */
   dirty = 'data-dirty',
+  /**
+   * Present when the select has a value (when wrapped in Field.Root).
+   */
+  filled = 'data-filled',
+  /**
+   * Present when the select trigger is focused (when wrapped in Field.Root).
+   */
+  focused = 'data-focused',
 }

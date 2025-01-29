@@ -10,6 +10,8 @@ const testContext: SwitchRootContext = {
   required: false,
   dirty: false,
   touched: false,
+  filled: false,
+  focused: false,
   valid: null,
 };
 
