@@ -156,6 +156,8 @@ export function popupConformanceTests(config: PopupTestConfig) {
           skip();
         }
 
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
         let animationFinished = false;
         const notifyAnimationFinished = () => {
           animationFinished = true;
