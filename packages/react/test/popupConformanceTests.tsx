@@ -4,48 +4,6 @@ import { expect } from 'chai';
 import { randomStringValue, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 
-interface RootProps {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-}
-
-interface TriggerProps {
-  'data-testid'?: string;
-}
-
-interface PopupProps {
-  className?: string;
-  'data-testid'?: string;
-  onAnimationEnd?: () => void;
-}
-
-interface PortalProps {
-  keepMounted?: boolean;
-}
-
-interface TestedComponentProps {
-  root?: RootProps;
-  popup?: PopupProps;
-  trigger?: TriggerProps;
-  portal?: PortalProps;
-}
-
-interface PopupTestConfig {
-  createComponent: (props: TestedComponentProps) => React.JSX.Element;
-  triggerMouseAction: 'click' | 'hover';
-  render: ReturnType<typeof createRenderer>['render'];
-  expectedPopupRole: string;
-  alwaysMounted?: boolean;
-}
-
-function getTrigger() {
-  return screen.getByTestId('trigger');
-}
-
-function getPopup() {
-  return screen.queryByTestId('popup');
-}
-
 export function popupConformanceTests(config: PopupTestConfig) {
   const {
     createComponent,
@@ -122,6 +80,10 @@ export function popupConformanceTests(config: PopupTestConfig) {
     });
 
     describe('animations', () => {
+      beforeEach(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      });
+
       afterEach(() => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
       });
@@ -130,8 +92,6 @@ export function popupConformanceTests(config: PopupTestConfig) {
         if (isJSDOM) {
           skip();
         }
-
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
         const { rerender } = await render(prepareComponent({ root: { open: true } }));
 
@@ -154,10 +114,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
           skip();
         }
 
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
         const handleAnimationEnd = spy();
-
         const animationName = `anim-${randomStringValue()}`;
 
         function Test(props: { open: boolean }) {
@@ -194,7 +151,6 @@ export function popupConformanceTests(config: PopupTestConfig) {
         }
 
         const { setProps } = await render(<Test open />);
-
         await setProps({ open: false });
 
         await waitFor(() => {
@@ -209,4 +165,62 @@ export function popupConformanceTests(config: PopupTestConfig) {
       });
     });
   });
+}
+
+function getTrigger() {
+  return screen.getByTestId('trigger');
+}
+
+function getPopup() {
+  return screen.queryByTestId('popup');
+}
+
+export interface PopupTestConfig {
+  /**
+   * A function that returns a JSX tree with a component to test.
+   * Its parameters contain props to be spread on the component's parts.
+   */
+  createComponent: (props: TestedComponentProps) => React.JSX.Element;
+  /**
+   * How the popup is triggered.
+   */
+  triggerMouseAction: 'click' | 'hover';
+  /**
+   * Render function returned from `createRenderer`.
+   */
+  render: ReturnType<typeof createRenderer>['render'];
+  /**
+   * Expected `role` attribute of the popup element.
+   */
+  expectedPopupRole: string;
+  /**
+   * Whether the popup contents are always present in the DOM.
+   */
+  alwaysMounted?: boolean;
+}
+
+interface RootProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+interface TriggerProps {
+  'data-testid'?: string;
+}
+
+interface PopupProps {
+  className?: string;
+  'data-testid'?: string;
+  onAnimationEnd?: () => void;
+}
+
+interface PortalProps {
+  keepMounted?: boolean;
+}
+
+interface TestedComponentProps {
+  root?: RootProps;
+  popup?: PopupProps;
+  trigger?: TriggerProps;
+  portal?: PortalProps;
 }
