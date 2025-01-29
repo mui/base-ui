@@ -130,6 +130,10 @@ jobs:
           condition:
             equal: [<< parameters.react-version >>, stable]
           steps:
+            - persist_to_workspace:
+                root: .
+                paths:
+                  - ./node_modules
             - run:
                 name: Should not have any git not staged
                 command: git add -A && git diff --exit-code --staged
@@ -147,6 +151,8 @@ jobs:
     <<: *default-job
     steps:
       - checkout
+      - attach_workspace:
+          at: ./node_modules
       - install_js:
           react-version: << parameters.react-version >>
       - run:
