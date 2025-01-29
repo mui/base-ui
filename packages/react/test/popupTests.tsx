@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { vi } from 'vitest';
+import { spy } from 'sinon';
 import { expect } from 'chai';
 import { randomStringValue, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
@@ -156,7 +156,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
           skip();
         }
 
-        const handleAnimationFinished = vi.fn();
+        const handleAnimationFinished = spy();
         const animationName = `anim-${randomStringValue()}`;
 
         function Test(props: { open: boolean }) {
@@ -203,7 +203,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
         });
 
         await waitFor(() => {
-          expect(handleAnimationFinished.mock.calls.length).to.equal(1);
+          expect(handleAnimationFinished.calledOnce).to.equal(true);
         });
       });
     });
