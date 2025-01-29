@@ -48,8 +48,7 @@ describe('<Collapsible.Root />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT)).to.equal(null);
 
-      setProps({ open: true });
-      await flushMicrotasks();
+      await setProps({ open: true });
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
 
@@ -58,8 +57,7 @@ describe('<Collapsible.Root />', () => {
       expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
       expect(trigger).to.have.attribute('data-panel-open');
 
-      setProps({ open: false });
-      await flushMicrotasks();
+      await setProps({ open: false });
 
       expect(trigger).to.not.have.attribute('aria-controls');
       expect(trigger).to.have.attribute('aria-expanded', 'false');

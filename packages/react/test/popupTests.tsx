@@ -194,7 +194,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
 
         const { setProps } = await render(<Test open />);
 
-        setProps({ open: false });
+        await setProps({ open: false });
 
         await waitFor(() => {
           const popup = getPopup();

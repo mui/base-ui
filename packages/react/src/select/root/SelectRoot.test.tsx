@@ -122,9 +122,7 @@ describe('<Select.Root />', () => {
         '',
       );
 
-      setProps({ value: 'b' });
-
-      await flushMicrotasks();
+      await setProps({ value: 'b' });
 
       expect(screen.getByRole('option', { name: 'b', hidden: false })).to.have.attribute(
         'data-selected',

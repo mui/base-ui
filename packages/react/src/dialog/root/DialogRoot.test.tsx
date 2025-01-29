@@ -292,7 +292,7 @@ describe('<Dialog.Root />', () => {
       </Dialog.Root>,
     );
 
-    setProps({ open: false });
+    await setProps({ open: false });
     expect(queryByRole('dialog')).not.to.equal(null);
 
     await waitFor(() => {

@@ -92,15 +92,13 @@ describe('<ToggleGroup />', () => {
       expect(button2).to.have.attribute('aria-pressed', 'true');
       expect(button2).to.have.attribute('data-pressed');
 
-      setProps({ value: ['one'] });
-      await flushMicrotasks();
+      await setProps({ value: ['one'] });
 
       expect(button1).to.have.attribute('aria-pressed', 'true');
       expect(button1).to.have.attribute('data-pressed');
       expect(button2).to.have.attribute('aria-pressed', 'false');
 
-      setProps({ value: ['two'] });
-      await flushMicrotasks();
+      await setProps({ value: ['two'] });
 
       expect(button2).to.have.attribute('aria-pressed', 'true');
       expect(button2).to.have.attribute('data-pressed');
@@ -121,8 +119,7 @@ describe('<ToggleGroup />', () => {
       expect(button2).to.have.attribute('data-pressed');
       expect(button1).to.have.attribute('aria-pressed', 'false');
 
-      setProps({ value: ['one'] });
-      await flushMicrotasks();
+      await setProps({ value: ['one'] });
 
       expect(button1).to.have.attribute('aria-pressed', 'true');
       expect(button1).to.have.attribute('data-pressed');

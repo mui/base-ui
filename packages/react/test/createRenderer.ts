@@ -8,8 +8,9 @@ import {
   act,
 } from '@mui/internal-test-utils';
 
-export type BaseUIRenderResult = Omit<MuiRenderResult, 'rerender'> & {
+export type BaseUIRenderResult = Omit<MuiRenderResult, 'rerender' | 'setProps'> & {
   rerender: (newElement: React.ReactElement<DataAttributes>) => Promise<void>;
+  setProps: (newProps: object) => Promise<void>;
 };
 
 type BaseUITestRenderer = Omit<Renderer, 'render'> & {
@@ -35,6 +36,10 @@ export function createRenderer(globalOptions?: CreateRendererOptions): BaseUITes
         ...result,
         rerender: async (newElement: React.ReactElement<DataAttributes>) => {
           await act(async () => result.rerender(newElement));
+          await flushMicrotasks();
+        },
+        setProps: async (newProps: object) => {
+          await act(async () => result.setProps(newProps));
           await flushMicrotasks();
         },
       };
