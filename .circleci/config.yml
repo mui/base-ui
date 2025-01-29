@@ -153,6 +153,9 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          name: Install pnpm package manager
+          command: corepack enable --install-directory ~/bin
+      - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom:coverage
       - run:
