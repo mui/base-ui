@@ -26,7 +26,7 @@ const globalCss = `
 `;
 
 const tailwindSetup = `
-    <!-- Check out the Tailwind CSS' installation guide for setting it up: https://tailwindcss.com/docs/installation -->
+    <!-- Check out the Tailwind CSS' installation guide for setting it up: https://tailwindcss.com/docs/installation/framework-guides -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
