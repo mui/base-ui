@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Form } from '@base-ui-components/react/form';
 import { Field } from '@base-ui-components/react/field';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
@@ -12,6 +13,27 @@ describe('<Form />', () => {
     refInstanceof: window.HTMLFormElement,
     render,
   }));
+
+  it('does not submit if there are errors', async () => {
+    const onSubmit = spy();
+
+    const { user } = render(
+      <Form onSubmit={onSubmit}>
+        <Field.Root>
+          <Field.Control required />
+          <Field.Error data-testid="error" />
+        </Field.Root>
+        <button>Submit</button>
+      </Form>,
+    );
+
+    const submit = screen.getByRole('button');
+
+    await user.click(submit);
+
+    expect(screen.getByTestId('error')).not.to.equal(null);
+    expect(onSubmit.called).to.equal(false);
+  });
 
   describe('prop: errors', () => {
     function App() {
