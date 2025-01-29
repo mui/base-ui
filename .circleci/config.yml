@@ -306,6 +306,7 @@ jobs:
     resource_class: 'medium+'
     docker:
       - image: mcr.microsoft.com/playwright:v1.50.0-noble
+    working_directory: /tmp/base-ui
     steps:
       - attach_workspace:
           at: .
