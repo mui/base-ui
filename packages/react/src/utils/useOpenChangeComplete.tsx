@@ -5,7 +5,7 @@ import { useEventCallback } from './useEventCallback';
 import { useLatestRef } from './useLatestRef';
 
 /**
- * Calls the provided function when the CSS open animation or transition completes.
+ * Calls the provided function when the CSS open/close animation or transition completes.
  */
 export function useOpenChangeComplete(parameters: useOpenChangeComplete.Parameters) {
   const { open, change = 'close', ref, onComplete: onCompleteParam } = parameters;
