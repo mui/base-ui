@@ -17,20 +17,13 @@ const Form = React.forwardRef(function Form(
   props: Form.Props,
   forwardedRef: React.ForwardedRef<HTMLFormElement>,
 ) {
-  const {
-    render,
-    className,
-    errors,
-    onClearErrors: onClearErrorsProp,
-    onSubmit: onSubmitProp,
-    ...otherProps
-  } = props;
+  const { render, className, errors, onClearErrors: onClearErrorsProp, ...otherProps } = props;
 
   const formRef = React.useRef<FormContext['formRef']['current']>({
     fields: new Map(),
   });
+  const submittedRef = React.useRef(false);
 
-  const onSubmit = useEventCallback(onSubmitProp || (() => {}));
   const onClearErrors = useEventCallback(onClearErrorsProp || (() => {}));
 
   const getFormProps = React.useCallback(
@@ -38,6 +31,8 @@ const Form = React.forwardRef(function Form(
       mergeReactProps<'form'>(externalProps, {
         noValidate: true,
         onSubmit(event) {
+          submittedRef.current = true;
+
           let values = Array.from(formRef.current.fields.values());
 
           // Async validation isn't supported to stop the submit event.
@@ -52,15 +47,19 @@ const Form = React.forwardRef(function Form(
           if (invalidFields.length) {
             event.preventDefault();
             invalidFields[0]?.controlRef.current?.focus();
-          } else {
-            onSubmit(event as any);
           }
         },
       }),
-    [onSubmit],
+    [],
   );
 
   React.useEffect(() => {
+    if (!submittedRef.current) {
+      return;
+    }
+
+    submittedRef.current = false;
+
     const invalidFields = Array.from(formRef.current.fields.values()).filter(
       (field) => field.validityData.state.valid === false,
     );
