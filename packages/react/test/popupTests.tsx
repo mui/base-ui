@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { describe, it, beforeAll, afterAll, vi, expect } from 'vitest';
+import { vi } from 'vitest';
+import { expect } from 'chai';
 import { randomStringValue, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 
