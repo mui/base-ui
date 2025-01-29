@@ -173,7 +173,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
             }
 
             .animation-test-popup-${animationName}[data-ending-style] {
-              animation: ${animationName} 50ms;
+              animation: ${animationName} 150ms;
             }
           `;
 
