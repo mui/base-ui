@@ -42,7 +42,7 @@ default-job: &default-job
     TEST_GATE: << parameters.test-gate >>
     AWS_REGION_ARTIFACTS: eu-central-1
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
-  working_directory: /tmp/base-ui
+  working_directory: /mnt/ramdisk
   docker:
     - image: cimg/node:18.20
 
