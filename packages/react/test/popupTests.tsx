@@ -122,10 +122,6 @@ export function popupConformanceTests(config: PopupTestConfig) {
     });
 
     describe('animations', () => {
-      beforeEach(() => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-      });
-
       afterEach(() => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
       });
@@ -134,6 +130,8 @@ export function popupConformanceTests(config: PopupTestConfig) {
         if (isJSDOM) {
           skip();
         }
+
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
         const { rerender } = await render(prepareComponent({ root: { open: true } }));
 
@@ -158,10 +156,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
 
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-        let animationFinished = false;
-        const notifyAnimationFinished = () => {
-          animationFinished = true;
-        };
+        const handleAnimationEnd = spy();
 
         const animationName = `anim-${randomStringValue()}`;
 
@@ -191,7 +186,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
                 portal: { keepMounted: true },
                 popup: {
                   className: `animation-test-popup-${animationName}`,
-                  onAnimationEnd: notifyAnimationFinished,
+                  onAnimationEnd: handleAnimationEnd,
                 },
               })}
             </div>
@@ -208,7 +203,9 @@ export function popupConformanceTests(config: PopupTestConfig) {
           expect(popup).toBeInaccessible();
         });
 
-        expect(animationFinished).to.equal(true);
+        await waitFor(() => {
+          expect(handleAnimationEnd.callCount).to.equal(1);
+        });
       });
     });
   });

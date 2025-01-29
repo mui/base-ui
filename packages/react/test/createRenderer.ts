@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {
   CreateRendererOptions,
   RenderOptions,
@@ -32,16 +33,21 @@ export function createRenderer(globalOptions?: CreateRendererOptions): BaseUITes
     act(async () => {
       const result = await originalRender(element, options);
       await flushMicrotasks();
+
+      async function rerender(newElement: React.ReactElement<DataAttributes>) {
+        await act(async () => result.rerender(newElement));
+        await flushMicrotasks();
+      }
+
+      async function setProps(newProps: object) {
+        await rerender(React.cloneElement(element, newProps));
+        await flushMicrotasks();
+      }
+
       return {
         ...result,
-        rerender: async (newElement: React.ReactElement<DataAttributes>) => {
-          await act(async () => result.rerender(newElement));
-          await flushMicrotasks();
-        },
-        setProps: async (newProps: object) => {
-          await act(async () => result.setProps(newProps));
-          await flushMicrotasks();
-        },
+        rerender,
+        setProps,
       };
     });
 
