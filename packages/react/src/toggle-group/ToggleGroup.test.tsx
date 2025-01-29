@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, flushMicrotasks } from '@mui/internal-test-utils';
+import { act } from '@mui/internal-test-utils';
 import {
   DirectionProvider,
   type TextDirection,
