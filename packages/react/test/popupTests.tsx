@@ -156,7 +156,11 @@ export function popupConformanceTests(config: PopupTestConfig) {
           skip();
         }
 
-        const handleAnimationFinished = spy();
+        let animationFinished = false;
+        const notifyAnimationFinished = () => {
+          animationFinished = true;
+        };
+
         const animationName = `anim-${randomStringValue()}`;
 
         function Test(props: { open: boolean }) {
@@ -185,7 +189,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
                 portal: { keepMounted: true },
                 popup: {
                   className: `animation-test-popup-${animationName}`,
-                  onAnimationEnd: handleAnimationFinished,
+                  onAnimationEnd: notifyAnimationFinished,
                 },
               })}
             </div>
@@ -202,9 +206,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
           expect(popup).toBeInaccessible();
         });
 
-        await waitFor(() => {
-          expect(handleAnimationFinished.calledOnce).to.equal(true);
-        });
+        expect(animationFinished).to.equal(true);
       });
     });
   });
