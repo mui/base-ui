@@ -1049,7 +1049,7 @@ describe('<Menu.Root />', () => {
 
       expect(screen.queryByTestId('popup')).not.to.equal(null);
     });
-   });
+  });
 
   describe('prop: openOnHover', () => {
     it('should open the menu when the trigger is hovered', async () => {
