@@ -32,8 +32,6 @@ for (const key of allExperimentFiles) {
       segments[1].length > group.length
         ? segments[1].slice(group.length + 1).trim()
         : segments[1].trim();
-
-    console.log(name);
   }
 
   if (!groups[group]) {

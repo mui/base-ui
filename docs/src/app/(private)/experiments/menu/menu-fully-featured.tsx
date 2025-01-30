@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
-import { SettingsPanel } from './infra/SettingsPanel';
-import '../../../demo-theme.css';
+import { SettingsPanel } from '../infra/SettingsPanel';
+import '../../../../demo-theme.css';
 import classes from './menu.module.css';
 
 interface Settings {

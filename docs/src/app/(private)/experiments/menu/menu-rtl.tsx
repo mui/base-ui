@@ -3,7 +3,7 @@ import * as React from 'react';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Popover } from '@base-ui-components/react/popover';
 import { Menu } from '@base-ui-components/react/menu';
-import s from './rtl.module.css';
+import s from '../rtl.module.css';
 
 const DIR = 'rtl';
 
