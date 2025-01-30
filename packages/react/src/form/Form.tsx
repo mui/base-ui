@@ -39,8 +39,6 @@ const Form = React.forwardRef(function Form(
       mergeReactProps<'form'>(externalProps, {
         noValidate: true,
         onSubmit(event) {
-          submittedRef.current = true;
-
           let values = Array.from(formRef.current.fields.values());
 
           // Async validation isn't supported to stop the submit event.
@@ -56,6 +54,7 @@ const Form = React.forwardRef(function Form(
             event.preventDefault();
             invalidFields[0]?.controlRef.current?.focus();
           } else {
+            submittedRef.current = true;
             onSubmit(event as any);
           }
         },

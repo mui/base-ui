@@ -124,6 +124,24 @@ describe('<Form />', () => {
       expect(age).not.toHaveFocus();
     });
 
+    it('does not swap focus immediately on change after two submissions', async () => {
+      const { user } = render(<App />);
+
+      const submit = screen.getByRole('button');
+      const name = screen.getByTestId('name');
+      const age = screen.getByTestId('age');
+
+      await user.click(submit);
+
+      expect(name).toHaveFocus();
+
+      await user.click(submit);
+
+      fireEvent.change(name, { target: { value: 'John' } });
+
+      expect(age).not.toHaveFocus();
+    });
+
     it('removes errors upon change', async () => {
       render(<App />);
 
