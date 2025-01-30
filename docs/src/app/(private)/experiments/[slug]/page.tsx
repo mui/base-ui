@@ -2,8 +2,13 @@ import * as React from 'react';
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { type Dirent } from 'node:fs';
-import { basename, extname } from 'node:path';
+import { dirname, basename, extname, resolve } from 'node:path';
 import { readdir } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { Sidebar } from '../infra/Sidebar';
+import classes from './page.module.css';
+
+const currentDirectory = dirname(fileURLToPath(import.meta.url));
 
 interface Props {
   params: Promise<{
@@ -14,9 +19,18 @@ interface Props {
 export default async function Page(props: Props) {
   const { slug } = await props.params;
 
+  const fullPath = resolve(currentDirectory, `../${slug}.tsx`);
+
   try {
     const Experiment = (await import(`../${slug}.tsx`)).default;
-    return <Experiment />;
+    return (
+      <React.Fragment>
+        <Sidebar experimentPath={fullPath} />
+        <main className={classes.main}>
+          <Experiment />
+        </main>
+      </React.Fragment>
+    );
   } catch (error) {
     notFound();
   }

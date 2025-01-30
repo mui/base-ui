@@ -1,9 +1,4 @@
-.Popup {
-  font-size: 0.875rem;
-  font-family: system-ui;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.popup {
   box-sizing: border-box;
   padding: 1rem 1.5rem;
   border-radius: 0.5rem;
@@ -33,7 +28,14 @@
   }
 }
 
-.Trigger {
+.settings {
+  font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.trigger {
   position: fixed;
   top: 20px;
   right: 20px;

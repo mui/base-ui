@@ -1,0 +1,15 @@
+.linkButton {
+  all: unset;
+  display: block;
+  width: calc(100% + 8px);
+  box-sizing: border-box;
+  color: var(--color-foreground);
+  padding: 4px 8px;
+  border-radius: var(--radius-md);
+  margin-left: -8px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--color-gray-100);
+  }
+}

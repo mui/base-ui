@@ -1,0 +1,18 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  & a {
+    display: block;
+    text-decoration: none;
+    color: var(--color-foreground);
+    padding: 4px 8px;
+    border-radius: var(--radius-md);
+    margin-left: -8px;
+
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+}

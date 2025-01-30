@@ -46,7 +46,7 @@ export function packDemo(demoFiles: DemoFile[]) {
 }
 
 function extractImports(code: string) {
-  return [...code.matchAll(/import\s+.*\s+from\s+['"](.*)['"]/g)].map((match) => match[1]);
+  return [...code.matchAll(/import\s+(?:.*\s+from\s+)?['"](.*)['"]/g)].map((match) => match[1]);
 }
 
 function getPackageName(importPath: string) {

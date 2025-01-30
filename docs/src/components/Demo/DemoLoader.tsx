@@ -167,9 +167,14 @@ async function getDemoFromFile(
  * @param baseDirectory Directory the file is located in.
  */
 function getLocalImports(content: string, baseDirectory: string): string[] {
-  return (
-    content.match(/from ['"]\.\.?\/[^'"]+['"]/g)?.map((match) => match.slice(6, -1)) ?? []
-  ).map((file) => resolve(baseDirectory, file));
+  const localPaths = [
+    // import { foo } from './foo'
+    ...(content.match(/from ['"]\.\.?\/[^'"]+['"]/g)?.map((match) => match.slice(6, -1)) ?? []),
+    // import './foo'
+    ...(content.match(/import ['"]\.\.?\/[^'"]+['"]/g)?.map((match) => match.slice(8, -1)) ?? []),
+  ];
+
+  return localPaths.map((file) => resolve(baseDirectory, file));
 }
 
 /**
@@ -178,7 +183,7 @@ function getLocalImports(content: string, baseDirectory: string): string[] {
  * @param paths Paths to the files to read.
  * @param preferTs Whether to prefer TS files over JS files when resolving extensionless imports.
  */
-async function getDependencyFiles(paths: string[], preferTs: boolean): Promise<DemoFile[]> {
+export async function getDependencyFiles(paths: string[], preferTs: boolean): Promise<DemoFile[]> {
   const files = await Promise.all(
     paths.map(async (path) => {
       let extension = extname(path);

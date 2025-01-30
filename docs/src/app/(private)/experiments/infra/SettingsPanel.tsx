@@ -1,13 +1,13 @@
 /* eslint-disable no-restricted-imports */
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Popover } from '@base-ui-components/react/popover';
-import { useLatestRef } from '@base-ui-components/react/utils/useLatestRef';
-import { useEventCallback } from '@base-ui-components/react/utils/useEventCallback';
+import { useEnhancedEffect } from '@base-ui-components/react/utils';
 import { Switch } from './Switch';
 import classes from './SettingsPanel.module.css';
 
 export function SettingsPanel<Settings>(props: SettingsPanel.Props<Settings>) {
-  const { settings, onChange: onChangeProp } = props;
+  const { settings, onChange: onChangeProp, renderAsPopup = false } = props;
 
   const lastSettings = useLatestRef(settings);
   const onChange = useEventCallback(onChangeProp);
@@ -22,6 +22,56 @@ export function SettingsPanel<Settings>(props: SettingsPanel.Props<Settings>) {
     [lastSettings, onChange],
   );
 
+  const controls = (
+    <div className={classes.settings}>
+      <h2>Settings</h2>
+      {Object.keys(settings as Record<string, any>).map((key) => {
+        const value = (settings as Record<string, unknown>)[key];
+        switch (typeof value) {
+          case 'boolean':
+            return renderSwitch(key, value as boolean, createChangeHandler(key));
+          case 'number':
+            return renderNumberInput(key, value as number, createChangeHandler(key));
+          case 'string':
+            return renderTextInput(key, value as string, createChangeHandler(key));
+          default:
+            return null;
+        }
+      })}
+    </div>
+  );
+
+  const [container, setContainer] = React.useState<HTMLElement | null | undefined>(
+    undefined,
+  );
+
+  useEnhancedEffect(() => {
+    setContainer(document.getElementById('experiments-settings'));
+  }, []);
+
+  if (container === null || renderAsPopup) {
+    // portal container not found (possible when rendering in codesandbox)
+    return <SettingsPopup>{controls}</SettingsPopup>;
+  }
+
+  if (container === undefined) {
+    // hasn't been initialized yet
+    return null;
+  }
+
+  return ReactDOM.createPortal(controls, container);
+}
+
+export namespace SettingsPanel {
+  export interface Props<Settings> {
+    children?: React.ReactNode;
+    settings: Settings;
+    onChange: (newSettings: Settings) => void;
+    renderAsPopup?: boolean;
+  }
+}
+
+function SettingsPopup(props: React.PropsWithChildren<{}>) {
   const [open, setOpen] = React.useState(false);
   const handleOpenChange = React.useCallback(
     (nextOpen: boolean, event: Event | undefined, reason: string | undefined) => {
@@ -36,8 +86,8 @@ export function SettingsPanel<Settings>(props: SettingsPanel.Props<Settings>) {
 
   return (
     <Popover.Root open={open} onOpenChange={handleOpenChange}>
-      <Popover.Trigger className={classes.Trigger}>
-        <SettingsIcon className={classes.Icon} />
+      <Popover.Trigger className={classes.trigger}>
+        <SettingsIcon className={classes.icon} />
       </Popover.Trigger>
 
       <Popover.Portal>
@@ -47,45 +97,11 @@ export function SettingsPanel<Settings>(props: SettingsPanel.Props<Settings>) {
           sideOffset={8}
           positionMethod="fixed"
         >
-          <Popover.Popup className={classes.Popup}>
-            {Object.keys(settings as Record<string, any>).map((key) => {
-              const value = (settings as Record<string, unknown>)[key];
-              switch (typeof value) {
-                case 'boolean':
-                  return renderSwitch(
-                    key,
-                    value as boolean,
-                    createChangeHandler(key),
-                  );
-                case 'number':
-                  return renderNumberInput(
-                    key,
-                    value as number,
-                    createChangeHandler(key),
-                  );
-                case 'string':
-                  return renderTextInput(
-                    key,
-                    value as string,
-                    createChangeHandler(key),
-                  );
-                default:
-                  return null;
-              }
-            })}
-          </Popover.Popup>
+          <Popover.Popup className={classes.popup}>{props.children}</Popover.Popup>
         </Popover.Positioner>
       </Popover.Portal>
     </Popover.Root>
   );
-}
-
-export namespace SettingsPanel {
-  export interface Props<Settings> {
-    children?: React.ReactNode;
-    settings: Settings;
-    onChange: (newSettings: Settings) => void;
-  }
 }
 
 function renderSwitch(
@@ -161,4 +177,33 @@ function SettingsIcon(props: React.ComponentProps<'svg'>) {
       </g>
     </svg>
   );
+}
+
+// TODO: export from Base UI
+function useLatestRef<T>(value: T) {
+  const ref = React.useRef(value);
+  useEnhancedEffect(() => {
+    ref.current = value;
+  });
+  return ref;
+}
+
+// TODO: export from Base UI
+function useEventCallback<
+  Fn extends (...args: any[]) => any = (...args: unknown[]) => unknown,
+>(fn: Fn): Fn;
+function useEventCallback<Args extends unknown[], Return>(
+  fn: (...args: Args) => Return,
+): (...args: Args) => Return;
+function useEventCallback<Args extends unknown[], Return>(
+  fn: (...args: Args) => Return,
+): (...args: Args) => Return {
+  const ref = React.useRef(fn);
+  useEnhancedEffect(() => {
+    ref.current = fn;
+  });
+  return React.useRef((...args: Args) =>
+    // @ts-expect-error hide `this`
+    (0, ref.current!)(...args),
+  ).current;
 }
