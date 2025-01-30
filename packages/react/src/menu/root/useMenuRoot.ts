@@ -266,6 +266,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       transitionStatus,
       openReason,
       instantType,
+      setHoverEnabled,
     }),
     [
       activeIndex,
@@ -368,5 +369,6 @@ export namespace useMenuRoot {
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     openReason: OpenChangeReason | null;
     instantType: 'dismiss' | 'click' | undefined;
+    setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
   }
 }
