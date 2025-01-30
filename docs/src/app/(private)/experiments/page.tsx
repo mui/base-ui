@@ -1,6 +1,11 @@
 import * as React from 'react';
-import classes from './experiments.module.css';
+import { ExperimentsList } from './infra/ExperimentsList';
 
 export default async function Experiments() {
-  return <h1 className={classes.h1}>Base UI Experiments</h1>;
+  return (
+    <div>
+      <h1>Base UI Experiments</h1>
+      <ExperimentsList />
+    </div>
+  );
 }
