@@ -6,7 +6,7 @@ import { dirname, basename, extname, resolve } from 'node:path';
 import { readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { Sidebar } from '../infra/Sidebar';
-import classes from './page.module.css';
+import classes from '../page.module.css';
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 

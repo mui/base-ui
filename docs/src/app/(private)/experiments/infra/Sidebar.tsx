@@ -7,13 +7,17 @@ export function Sidebar(props: SidebarProps) {
   const { experimentPath } = props;
   return (
     <div className={classes.root}>
-      <div id="experiments-settings" className={classes.panel} />
-      <EditPanel className={classes.panel} experimentPath={experimentPath} />
+      {experimentPath && (
+        <React.Fragment>
+          <div id="experiments-settings" className={classes.panel} />
+          <EditPanel className={classes.panel} experimentPath={experimentPath} />
+        </React.Fragment>
+      )}
       <ExperimentsList className={classes.panel} />
     </div>
   );
 }
 
 interface SidebarProps {
-  experimentPath: string;
+  experimentPath?: string;
 }

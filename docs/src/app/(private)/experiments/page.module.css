@@ -7,3 +7,7 @@
   padding: 20px;
   background-color: var(--color-background);
 }
+
+.landing {
+  padding-top: 30vh;
+}

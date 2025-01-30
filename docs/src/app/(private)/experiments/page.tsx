@@ -1,11 +1,16 @@
 import * as React from 'react';
-import { ExperimentsList } from './infra/ExperimentsList';
+import clsx from 'clsx';
+import classes from './page.module.css';
+import { Sidebar } from './infra/Sidebar';
 
 export default async function Experiments() {
   return (
-    <div>
-      <h1>Base UI Experiments</h1>
-      <ExperimentsList />
-    </div>
+    <React.Fragment>
+      <Sidebar />
+      <main className={clsx(classes.main, classes.landing)}>
+        <h1>Base UI experiments</h1>
+        <p>← Choose an experiment from the list</p>
+      </main>
+    </React.Fragment>
   );
 }
