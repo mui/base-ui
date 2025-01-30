@@ -30,8 +30,8 @@ const Form = React.forwardRef(function Form(
     fields: new Map(),
   });
 
-  const onSubmit = useEventCallback(onSubmitProp || (() => {}));
-  const onClearErrors = useEventCallback(onClearErrorsProp || (() => {}));
+  const onSubmit = useEventCallback(onSubmitProp);
+  const onClearErrors = useEventCallback(onClearErrorsProp);
 
   const getFormProps = React.useCallback(
     (externalProps = {}) =>

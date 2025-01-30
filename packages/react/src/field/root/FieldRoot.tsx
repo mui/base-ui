@@ -35,7 +35,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
 
   const { errors } = useFormContext();
 
-  const validate = useEventCallback(validateProp || (() => null));
+  const validate = useEventCallback(validateProp);
 
   const disabled = disabledFieldset || disabledProp;
 
