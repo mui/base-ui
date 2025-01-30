@@ -56,13 +56,15 @@ export function ExperimentsList(props: React.HTMLAttributes<HTMLDivElement>) {
             <div key={group}>
               <h3>{group}</h3>
               <ul className={classes.groupItems}>
-                {groups[group].map((experiment) => (
-                  <li key={experiment.path}>
-                    <Link href={`/experiments/${experiment.path}`}>
-                      {experiment.name}
-                    </Link>
-                  </li>
-                ))}
+                {groups[group]
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((experiment) => (
+                    <li key={experiment.path}>
+                      <Link href={`/experiments/${experiment.path}`}>
+                        {experiment.name}
+                      </Link>
+                    </li>
+                  ))}
               </ul>
             </div>
           );
@@ -71,13 +73,15 @@ export function ExperimentsList(props: React.HTMLAttributes<HTMLDivElement>) {
         <div>
           <h3>Other</h3>
           <ul className={classes.groupItems}>
-            {groups['*'].map((experiment) => (
-              <li key={experiment.path}>
-                <Link href={`/experiments/${experiment.path}`}>
-                  {experiment.name}
-                </Link>
-              </li>
-            ))}
+            {groups['*']
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((experiment) => (
+                <li key={experiment.path}>
+                  <Link href={`/experiments/${experiment.path}`}>
+                    {experiment.name}
+                  </Link>
+                </li>
+              ))}
           </ul>
         </div>
       )}
