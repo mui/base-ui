@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-imports */
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Popover } from '@base-ui-components/react/popover';

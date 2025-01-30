@@ -177,6 +177,11 @@ function getLocalImports(content: string, baseDirectory: string): string[] {
   return localPaths.map((file) => resolve(baseDirectory, file));
 }
 
+const shikiLanguageMapping = {
+  jsx: 'js',
+  ts: 'tsx',
+} as Record<string, string>;
+
 /**
  * Lists all the dependencies of the provided files, including transitive dependencies (only in case of JS/TS files).
  *
@@ -204,7 +209,7 @@ export async function getDependencyFiles(paths: string[], preferTs: boolean): Pr
 
       const content = await readFile(path, 'utf-8');
       const prettyContent = highlighter.codeToHtml(content, {
-        lang: extension.slice(1),
+        lang: shikiLanguageMapping[extension.slice(1)] ?? extension.slice(1),
         theme: 'base-ui',
       });
 
