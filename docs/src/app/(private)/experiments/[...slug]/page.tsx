@@ -1,28 +1,28 @@
 import * as React from 'react';
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { type Dirent } from 'node:fs';
 import { dirname, basename, extname, resolve } from 'node:path';
-import { readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import glob from 'fast-glob';
 import { Sidebar } from '../infra/Sidebar';
 import classes from '../page.module.css';
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
+const experimentsRootDirectory = resolve(currentDirectory, '..');
 
 interface Props {
   params: Promise<{
-    slug: string;
+    slug: string[];
   }>;
 }
 
 export default async function Page(props: Props) {
   const { slug } = await props.params;
 
-  const fullPath = resolve(currentDirectory, `../${slug}.tsx`);
+  const fullPath = resolve(currentDirectory, `../${slug.join('/')}.tsx`);
 
   try {
-    const Experiment = (await import(`../${slug}.tsx`)).default;
+    const Experiment = (await import(`../${slug.join('/')}.tsx`)).default;
     return (
       <React.Fragment>
         <Sidebar experimentPath={fullPath} />
@@ -37,15 +37,14 @@ export default async function Page(props: Props) {
 }
 
 export async function generateStaticParams() {
-  return (await readdir('src/app/(private)/experiments', { withFileTypes: true }))
-    .filter(
-      (entry: Dirent) =>
-        entry.name.endsWith('.tsx') &&
-        entry.name !== 'page.tsx' &&
-        entry.name !== 'layout.tsx' &&
-        entry.isFile(),
-    )
-    .map((entry: Dirent) => ({ slug: basename(entry.name, extname(entry.name)) }));
+  const files = glob.globSync(
+    ['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'],
+    { cwd: experimentsRootDirectory },
+  );
+
+  return files.map((file) => ({
+    slug: [basename(file, extname(file))],
+  }));
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {

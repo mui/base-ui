@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Popover } from '@base-ui-components/react/popover';
 import { useEnhancedEffect } from '@base-ui-components/react/utils';
+import { camelToSentenceCase } from 'docs/src/utils/camelToSentenceCase';
 import { Switch } from './Switch';
 import classes from './SettingsPanel.module.css';
 
@@ -150,13 +151,6 @@ function renderNumberInput(
       {camelToSentenceCase(key)}
     </label>
   );
-}
-
-function camelToSentenceCase(camel: string) {
-  return camel
-    .replace(/([A-Z])/g, ' $1')
-    .toLowerCase()
-    .replace(/^./, (str) => str.toUpperCase());
 }
 
 function SettingsIcon(props: React.ComponentProps<'svg'>) {
