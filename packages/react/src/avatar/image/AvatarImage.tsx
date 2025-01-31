@@ -20,13 +20,19 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
   props: AvatarImage.Props,
   forwardedRef,
 ) {
-  const { className, render, onLoadingStatusChange = NOOP, referrerPolicy, ...otherProps } = props;
+  const {
+    className,
+    render,
+    onLoadingStatusChange: onLoadingStatusChangeProp,
+    referrerPolicy,
+    ...otherProps
+  } = props;
 
   const context = useAvatarRootContext();
   const imageLoadingStatus = useImageLoadingStatus(props.src, referrerPolicy);
 
   const handleLoadingStatusChange = useEventCallback((status: ImageLoadingStatus) => {
-    onLoadingStatusChange(status);
+    onLoadingStatusChangeProp?.(status);
     context.setImageLoadingStatus(status);
   });
 
@@ -56,6 +62,9 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
 
 export namespace AvatarImage {
   export interface Props extends BaseUIComponentProps<'img', AvatarRoot.State> {
+    /**
+     * Callback fired when the loading status changes.
+     */
     onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
   }
 }
@@ -77,7 +86,7 @@ AvatarImage.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * @ignore
+   * Callback fired when the loading status changes.
    */
   onLoadingStatusChange: PropTypes.func,
   /**
