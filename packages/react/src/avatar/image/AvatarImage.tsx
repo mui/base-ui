@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { NOOP } from '../../utils/noop';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
