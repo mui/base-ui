@@ -19,10 +19,17 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
   props: AvatarImage.Props,
   forwardedRef,
 ) {
-  const { className, render, src, onLoadingStatusChange = NOOP, ...otherProps } = props;
+  const {
+    className,
+    render,
+    src,
+    onLoadingStatusChange = NOOP,
+    referrerPolicy,
+    ...otherProps
+  } = props;
 
   const context = useAvatarRootContext();
-  const imageLoadingStatus = useImageLoadingStatus(src);
+  const imageLoadingStatus = useImageLoadingStatus(src, referrerPolicy);
 
   const handleLoadingStatusChange = useEventCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChange(status);
@@ -77,6 +84,20 @@ AvatarImage.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   onLoadingStatusChange: PropTypes.func,
+  /**
+   * @ignore
+   */
+  referrerPolicy: PropTypes.oneOf([
+    '',
+    'no-referrer-when-downgrade',
+    'no-referrer',
+    'origin-when-cross-origin',
+    'origin',
+    'same-origin',
+    'strict-origin-when-cross-origin',
+    'strict-origin',
+    'unsafe-url',
+  ]),
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
