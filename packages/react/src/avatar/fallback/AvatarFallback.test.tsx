@@ -44,4 +44,25 @@ describe('<Avatar.Fallback />', () => {
 
     expect(queryByText('AC')).to.not.equal(null);
   });
+
+  describe('prop: delay', () => {
+    const { clock, render: renderFakeTimers } = createRenderer();
+
+    clock.withFakeTimers();
+
+    it('shows the fallback when the delay has elapsed', async () => {
+      const { queryByText } = await renderFakeTimers(
+        <Avatar.Root>
+          <Avatar.Image />
+          <Avatar.Fallback delay={100}>AC</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      expect(queryByText('AC')).to.equal(null);
+
+      clock.tick(100);
+
+      expect(queryByText('AC')).to.not.equal(null);
+    });
+  });
 });
