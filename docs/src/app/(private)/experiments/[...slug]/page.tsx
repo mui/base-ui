@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { dirname, basename, extname, resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import glob from 'fast-glob';
 import { Sidebar } from '../infra/Sidebar';
