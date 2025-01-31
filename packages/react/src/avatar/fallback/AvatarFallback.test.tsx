@@ -1,9 +1,16 @@
 import * as React from 'react';
 import { Avatar } from '@base-ui-components/react/avatar';
 import { describeConformance, createRenderer } from '#test-utils';
+import { useImageLoadingStatus } from '../image/useImageLoadingStatus';
+
+vi.mock('../image/useImageLoadingStatus');
 
 describe('<Avatar.Fallback />', () => {
   const { render } = createRenderer();
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
   describeConformance(<Avatar.Fallback />, () => ({
     render: (node) => {
@@ -13,17 +20,28 @@ describe('<Avatar.Fallback />', () => {
   }));
 
   it('should not render the children if the image loaded', async () => {
-    vi.mock('../image/useImageLoadingStatus', () => ({
-      useImageLoadingStatus: () => 'loaded',
-    }));
+    useImageLoadingStatus.mockReturnValue('loaded');
 
-    const { queryAllByTestId } = await render(
+    const { queryByTestId } = await render(
       <Avatar.Root>
         <Avatar.Image />
         <Avatar.Fallback data-testid="fallback" />
       </Avatar.Root>,
     );
 
-    expect(queryAllByTestId('fallback').length).toEqual(0);
+    expect(queryByTestId('fallback')).to.equal(null);
+  });
+
+  it('should render the fallback if the image fails to load', async () => {
+    useImageLoadingStatus.mockReturnValue('error');
+
+    const { queryByText } = await render(
+      <Avatar.Root>
+        <Avatar.Image />
+        <Avatar.Fallback>AC</Avatar.Fallback>
+      </Avatar.Root>,
+    );
+
+    expect(queryByText('AC')).to.not.equal(null);
   });
 });

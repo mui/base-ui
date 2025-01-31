@@ -44,6 +44,19 @@ const AvatarFallback = React.forwardRef<HTMLSpanElement, AvatarFallback.Props>(
   },
 );
 
+export namespace AvatarFallback {
+  export interface Props extends BaseUIComponentProps<'span', State> {
+    /**
+     * How long to wait before showing the fallback. Specified in milliseconds.
+     */
+    delay?: number;
+  }
+
+  export interface State {}
+}
+
+export { AvatarFallback };
+
 AvatarFallback.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -70,16 +83,3 @@ AvatarFallback.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export namespace AvatarFallback {
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    /**
-     * How long to wait before showing the fallback. Specified in milliseconds.
-     */
-    delay?: number;
-  }
-
-  export interface State {}
-}
-
-export { AvatarFallback };

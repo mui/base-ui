@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
@@ -9,7 +10,7 @@ export function useImageLoadingStatus(
 ): ImageLoadingStatus {
   const [loadingStatus, setLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 
-  React.useLayoutEffect(() => {
+  useEnhancedEffect(() => {
     if (!src) {
       setLoadingStatus('error');
       return () => {};

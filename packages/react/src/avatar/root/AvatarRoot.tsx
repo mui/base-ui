@@ -54,6 +54,16 @@ const AvatarRoot = React.forwardRef<HTMLSpanElement, AvatarRoot.Props>(function 
   );
 });
 
+export namespace AvatarRoot {
+  export interface Props extends BaseUIComponentProps<'span', {}> {}
+
+  export interface State {
+    imageLoadingStatus: 'idle' | 'loading' | 'loaded' | 'error';
+  }
+}
+
+export { AvatarRoot };
+
 AvatarRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -76,13 +86,3 @@ AvatarRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export namespace AvatarRoot {
-  export interface Props extends BaseUIComponentProps<'span', {}> {}
-
-  export interface State {
-    imageLoadingStatus: 'idle' | 'loading' | 'loaded' | 'error';
-  }
-}
-
-export { AvatarRoot };

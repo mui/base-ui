@@ -48,6 +48,16 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
   return imageLoadingStatus === 'loaded' ? renderElement() : null;
 });
 
+export namespace AvatarImage {
+  export interface Props extends BaseUIComponentProps<'img', State> {
+    onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
+  }
+
+  export interface State {}
+}
+
+export { AvatarImage };
+
 AvatarImage.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -78,13 +88,3 @@ AvatarImage.propTypes /* remove-proptypes */ = {
    */
   src: PropTypes.string,
 } as any;
-
-export namespace AvatarImage {
-  export interface Props extends BaseUIComponentProps<'img', State> {
-    onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
-  }
-
-  export interface State {}
-}
-
-export { AvatarImage };
