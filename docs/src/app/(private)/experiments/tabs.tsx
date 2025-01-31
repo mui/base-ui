@@ -1,103 +1,75 @@
 'use client';
 /* eslint-disable react/no-danger */
 import * as React from 'react';
-import { css, styled } from '@mui/system';
-import { Tabs as BaseTabs } from '@base-ui-components/react/tabs';
+import { Tabs } from '@base-ui-components/react/tabs';
+import classes from './tabs.module.css';
+import { SettingsPanel } from './infra/SettingsPanel';
 
-export default function UnstyledTabsIntroduction() {
-  const [v, sv] = React.useState<string | number | null>(0);
+interface Settings {
+  vertical: boolean;
+  activateOnFocus: boolean;
+}
+
+export default function TabsExperiment() {
+  const [value, setValue] = React.useState<string | number | null>(0);
+  const [settings, setSettings] = React.useState<Settings>({
+    vertical: false,
+    activateOnFocus: true,
+  });
 
   return (
-    <div style={{ margin: '30px auto', maxWidth: '1800px', display: 'block' }}>
-      <style
-        dangerouslySetInnerHTML={{ __html: 'body { display: block !important;' }}
-      />
+    <div>
       <h1>Tabs</h1>
-      <h2>Horizontal</h2>
-      <Tabs value={v} onValueChange={(val) => sv(val)}>
-        <TabsList>
-          <Tab value={0}>Code</Tab>
-          <Tab value={1}>Issues</Tab>
-          <Tab value={2}>Pull Requests</Tab>
-          <Tab value={3}>Discussions</Tab>
-          <Tab value={4}>Actions</Tab>
-          <Indicator />
-        </TabsList>
-        <TabPanel value={0} keepMounted>
+      <Tabs.Root
+        className={classes.tabs}
+        value={value}
+        onValueChange={(val) => setValue(val)}
+        orientation={settings.vertical ? 'vertical' : 'horizontal'}
+      >
+        <Tabs.List
+          className={classes.list}
+          activateOnFocus={settings.activateOnFocus}
+        >
+          <Tabs.Tab className={classes.tab} value={0}>
+            Code
+          </Tabs.Tab>
+          <Tabs.Tab className={classes.tab} value={1}>
+            Issues
+          </Tabs.Tab>
+          <Tabs.Tab className={classes.tab} value={2}>
+            Pull Requests
+          </Tabs.Tab>
+          <Tabs.Tab className={classes.tab} value={3} disabled>
+            Discussions
+          </Tabs.Tab>
+          <Tabs.Tab className={classes.tab} value={4}>
+            Actions
+          </Tabs.Tab>
+          <Tabs.Indicator className={classes.indicator} />
+        </Tabs.List>
+        <Tabs.Panel className={classes.panel} value={0} keepMounted>
           Code panel
-        </TabPanel>
-        <TabPanel value={1} keepMounted>
+        </Tabs.Panel>
+        <Tabs.Panel className={classes.panel} value={1} keepMounted>
           Issues panel
-        </TabPanel>
-        <TabPanel value={2} keepMounted>
+        </Tabs.Panel>
+        <Tabs.Panel className={classes.panel} value={2} keepMounted>
           Pull Requests panel
-        </TabPanel>
-        <TabPanel value={3} keepMounted>
+        </Tabs.Panel>
+        <Tabs.Panel className={classes.panel} value={3} keepMounted>
           Discussions panel
-        </TabPanel>
-        <TabPanel value={4} keepMounted>
+        </Tabs.Panel>
+        <Tabs.Panel className={classes.panel} value={4} keepMounted>
           Actions panel
-        </TabPanel>
-      </Tabs>
+        </Tabs.Panel>
+      </Tabs.Root>
 
-      <h2>Vertical</h2>
-      <Tabs value={v} onValueChange={(val) => sv(val)} orientation="vertical">
-        <TabsList>
-          <Tab value={0}>Code</Tab>
-          <Tab value={1}>Issues</Tab>
-          <Tab value={2}>Pull Requests</Tab>
-          <Tab value={3}>Discussions</Tab>
-          <Tab value={4}>Actions</Tab>
-          <Indicator />
-        </TabsList>
-        <TabPanel value={0}>Code panel</TabPanel>
-        <TabPanel value={1}>Issues panel</TabPanel>
-        <TabPanel value={2}>Pull Requests panel</TabPanel>
-        <TabPanel value={3}>Discussions panel</TabPanel>
-        <TabPanel value={4}>Actions panel</TabPanel>
-      </Tabs>
+      <SettingsPanel settings={settings} onChange={setSettings} />
     </div>
   );
 }
 
-const blue = {
-  50: '#F0F7FF',
-  100: '#C2E0FF',
-  200: '#80BFFF',
-  300: '#66B2FF',
-  400: '#3399FF',
-  500: '#007FFF',
-  600: '#0072E5',
-  700: '#0059B2',
-  800: '#004C99',
-  900: '#003A75',
-};
-
-const grey = {
-  50: '#F3F6F9',
-  100: '#E5EAF2',
-  200: '#DAE2ED',
-  300: '#C7D0DD',
-  400: '#B0B8C4',
-  500: '#9DA8B7',
-  600: '#6B7A90',
-  700: '#434D5B',
-  800: '#303740',
-  900: '#1C2025',
-};
-
-const Tabs = styled(BaseTabs.Root)`
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  &[data-orientation='vertical'] {
-    flex-direction: row;
-    justify-content: center;
-    align-items: stretch;
-  }
-`;
+/*
 
 const TabsList = styled(BaseTabs.List)(
   ({ theme }) => css`
@@ -212,3 +184,5 @@ const TabPanel = styled(BaseTabs.Panel)(
     box-sizing: border-box;
   `,
 );
+
+*/
