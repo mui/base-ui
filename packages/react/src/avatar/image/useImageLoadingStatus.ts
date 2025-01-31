@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { NOOP } from '../../utils/noop';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
@@ -13,7 +14,7 @@ export function useImageLoadingStatus(
   useEnhancedEffect(() => {
     if (!src) {
       setLoadingStatus('error');
-      return () => {};
+      return NOOP;
     }
 
     let isMounted = true;

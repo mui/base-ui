@@ -55,7 +55,7 @@ const AvatarRoot = React.forwardRef<HTMLSpanElement, AvatarRoot.Props>(function 
 });
 
 export namespace AvatarRoot {
-  export interface Props extends BaseUIComponentProps<'span', {}> {}
+  export interface Props extends BaseUIComponentProps<'span', State> {}
 
   export interface State {
     imageLoadingStatus: 'idle' | 'loading' | 'loaded' | 'error';

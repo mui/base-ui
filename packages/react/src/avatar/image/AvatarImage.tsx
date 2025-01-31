@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { NOOP } from '../../utils/noop';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -18,7 +19,7 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
   props: AvatarImage.Props,
   forwardedRef,
 ) {
-  const { className, render, src, onLoadingStatusChange = () => {}, ...otherProps } = props;
+  const { className, render, src, onLoadingStatusChange = NOOP, ...otherProps } = props;
 
   const context = useAvatarRootContext();
   const imageLoadingStatus = useImageLoadingStatus(src);
