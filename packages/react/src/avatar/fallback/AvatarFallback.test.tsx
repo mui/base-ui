@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Mock } from 'vitest';
 import { Avatar } from '@base-ui-components/react/avatar';
 import { describeConformance, createRenderer } from '#test-utils';
 import { useImageLoadingStatus } from '../image/useImageLoadingStatus';
@@ -20,7 +21,7 @@ describe('<Avatar.Fallback />', () => {
   }));
 
   it('should not render the children if the image loaded', async () => {
-    useImageLoadingStatus.mockReturnValue('loaded');
+    (useImageLoadingStatus as Mock).mockReturnValue('loaded');
 
     const { queryByTestId } = await render(
       <Avatar.Root>
@@ -33,7 +34,7 @@ describe('<Avatar.Fallback />', () => {
   });
 
   it('should render the fallback if the image fails to load', async () => {
-    useImageLoadingStatus.mockReturnValue('error');
+    (useImageLoadingStatus as Mock).mockReturnValue('error');
 
     const { queryByText } = await render(
       <Avatar.Root>
