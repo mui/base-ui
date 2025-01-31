@@ -7,6 +7,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
+import type { AvatarRoot } from '../root/AvatarRoot';
 import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStatus';
 
 /**
@@ -19,21 +20,14 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
   props: AvatarImage.Props,
   forwardedRef,
 ) {
-  const {
-    className,
-    render,
-    src,
-    onLoadingStatusChange = NOOP,
-    referrerPolicy,
-    ...otherProps
-  } = props;
+  const { className, render, onLoadingStatusChange = NOOP, referrerPolicy, ...otherProps } = props;
 
   const context = useAvatarRootContext();
-  const imageLoadingStatus = useImageLoadingStatus(src, referrerPolicy);
+  const imageLoadingStatus = useImageLoadingStatus(props.src, referrerPolicy);
 
   const handleLoadingStatusChange = useEventCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChange(status);
-    context.onImageLoadingStatusChange(status);
+    context.setImageLoadingStatus(status);
   });
 
   useEnhancedEffect(() => {
@@ -42,26 +36,28 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
     }
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
+  const state: AvatarRoot.State = React.useMemo(
+    () => ({
+      imageLoadingStatus,
+    }),
+    [imageLoadingStatus],
+  );
+
   const { renderElement } = useComponentRenderer({
     render: render ?? 'img',
-    state: context.state,
+    state,
     className,
     ref: forwardedRef,
-    extraProps: {
-      ...otherProps,
-      src,
-    },
+    extraProps: otherProps,
   });
 
   return imageLoadingStatus === 'loaded' ? renderElement() : null;
 });
 
 export namespace AvatarImage {
-  export interface Props extends BaseUIComponentProps<'img', State> {
+  export interface Props extends BaseUIComponentProps<'img', AvatarRoot.State> {
     onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
   }
-
-  export interface State {}
 }
 
 export { AvatarImage };

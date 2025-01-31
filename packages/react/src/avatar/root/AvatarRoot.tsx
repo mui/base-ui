@@ -3,7 +3,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useAvatarRoot } from './useAvatarRoot';
 import { AvatarRootContext } from './AvatarRootContext';
 
 const rootStyleHookMapping = {
@@ -22,25 +21,24 @@ const AvatarRoot = React.forwardRef<HTMLSpanElement, AvatarRoot.Props>(function 
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { getRootProps, ...avatar } = useAvatarRoot();
+  const [imageLoadingStatus, setImageLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 
   const state: AvatarRoot.State = React.useMemo(
     () => ({
-      imageLoadingStatus: avatar.imageLoadingStatus,
+      imageLoadingStatus,
     }),
-    [avatar.imageLoadingStatus],
+    [imageLoadingStatus],
   );
 
   const contextValue = React.useMemo(
     () => ({
-      ...avatar,
-      state,
+      imageLoadingStatus,
+      setImageLoadingStatus,
     }),
-    [avatar, state],
+    [imageLoadingStatus, setImageLoadingStatus],
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
     render: render ?? 'span',
     state,
     className,
@@ -54,11 +52,13 @@ const AvatarRoot = React.forwardRef<HTMLSpanElement, AvatarRoot.Props>(function 
   );
 });
 
+export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
+
 export namespace AvatarRoot {
   export interface Props extends BaseUIComponentProps<'span', State> {}
 
   export interface State {
-    imageLoadingStatus: 'idle' | 'loading' | 'loaded' | 'error';
+    imageLoadingStatus: ImageLoadingStatus;
   }
 }
 

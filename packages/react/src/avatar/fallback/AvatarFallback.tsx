@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
+import type { AvatarRoot } from '../root/AvatarRoot';
 
 /**
  * Rendered when the image fails to load or when no image is provided.
@@ -15,7 +16,7 @@ const AvatarFallback = React.forwardRef<HTMLSpanElement, AvatarFallback.Props>(
   function AvatarFallback(props: AvatarFallback.Props, forwardedRef) {
     const { className, render, delay, ...otherProps } = props;
 
-    const context = useAvatarRootContext();
+    const { imageLoadingStatus } = useAvatarRootContext();
     const [delayPassed, setDelayPassed] = React.useState(delay === undefined);
 
     React.useEffect(() => {
@@ -30,29 +31,34 @@ const AvatarFallback = React.forwardRef<HTMLSpanElement, AvatarFallback.Props>(
       };
     }, [delay]);
 
+    const state: AvatarRoot.State = React.useMemo(
+      () => ({
+        imageLoadingStatus,
+      }),
+      [imageLoadingStatus],
+    );
+
     const { renderElement } = useComponentRenderer({
       render: render ?? 'span',
-      state: context.state,
+      state,
       className,
       ref: forwardedRef,
       extraProps: otherProps,
     });
 
-    const shouldRender = context.imageLoadingStatus !== 'loaded' && delayPassed;
+    const shouldRender = imageLoadingStatus !== 'loaded' && delayPassed;
 
     return shouldRender ? renderElement() : null;
   },
 );
 
 export namespace AvatarFallback {
-  export interface Props extends BaseUIComponentProps<'span', State> {
+  export interface Props extends BaseUIComponentProps<'span', AvatarRoot.State> {
     /**
      * How long to wait before showing the fallback. Specified in milliseconds.
      */
     delay?: number;
   }
-
-  export interface State {}
 }
 
 export { AvatarFallback };

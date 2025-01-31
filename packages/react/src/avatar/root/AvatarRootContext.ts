@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import type { AvatarRoot } from './AvatarRoot';
-import type { useAvatarRoot } from './useAvatarRoot';
+import type { ImageLoadingStatus } from './AvatarRoot';
 
-export interface AvatarRootContext extends Omit<useAvatarRoot.ReturnValue, 'getRootProps'> {
-  state: AvatarRoot.State;
+export interface AvatarRootContext {
+  imageLoadingStatus: ImageLoadingStatus;
+  setImageLoadingStatus: React.Dispatch<React.SetStateAction<ImageLoadingStatus>>;
 }
 
 export const AvatarRootContext = React.createContext<AvatarRootContext | undefined>(undefined);
