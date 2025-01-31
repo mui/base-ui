@@ -54,6 +54,6 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const { slug } = params;
 
   return {
-    title: `${slug} - Experiments`,
+    title: `${slug[slug.length - 1]} - Experiments`,
   };
 }
