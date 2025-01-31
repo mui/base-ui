@@ -25,7 +25,7 @@ default-job: &default-job
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
     REACT_VERSION: << parameters.react-version >>
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
-  working_directory: /tmp/base-ui
+  working_directory: /mnt/ramdisk/base-ui
   docker:
     - image: cimg/node:18.20
 
@@ -43,6 +43,32 @@ default-context: &default-context
 #     key: v1-repo-{{ .Branch }}-{{ .Revision }}
 
 commands:
+  install_pnpm:
+    parameters:
+      browsers:
+        type: boolean
+        default: false
+        description: 'Set to true if you intend to any browser (for example with playwright).'
+    steps:
+      - when:
+          condition: << parameters.browsers >>
+          steps:
+            - run:
+                name: Install pnpm package manager
+                command: |
+                  corepack enable
+                  pnpm config set store-dir /mnt/ramdisk/.pnpm-store
+      - when:
+          condition:
+            not: << parameters.browsers >>
+          steps:
+            - run:
+                name: Install pnpm package manager
+                # See https://stackoverflow.com/a/73411601
+                command: |
+                  corepack enable --install-directory ~/bin
+                  pnpm config set store-dir /mnt/ramdisk/.pnpm-store
+
   install_js:
     parameters:
       browsers:
@@ -55,20 +81,8 @@ commands:
         default: stable
 
     steps:
-      - when:
-          condition: << parameters.browsers >>
-          steps:
-            - run:
-                name: Install pnpm package manager
-                command: corepack enable
-      - when:
-          condition:
-            not: << parameters.browsers >>
-          steps:
-            - run:
-                name: Install pnpm package manager
-                # See https://stackoverflow.com/a/73411601
-                command: corepack enable --install-directory ~/bin
+      - install_pnpm:
+          browsers: << parameters.browsers >>
 
       - run:
           name: Resolve React version
@@ -113,6 +127,10 @@ jobs:
           condition:
             equal: [<< parameters.react-version >>, stable]
           steps:
+            - persist_to_workspace:
+                root: .
+                paths:
+                  - .
             - run:
                 name: Should not have any git not staged
                 command: git add -A && git diff --exit-code --staged
@@ -129,9 +147,10 @@ jobs:
   test_unit:
     <<: *default-job
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
+          browsers: false
       - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom:coverage
@@ -151,9 +170,10 @@ jobs:
   test_lint:
     <<: *default-job
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
+          browsers: false
       - run:
           name: 'Prettier'
           command: pnpm prettier --check
@@ -172,9 +192,10 @@ jobs:
   test_static:
     <<: *default-job
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
+          browsers: false
       - run:
           name: Generate PropTypes
           command: pnpm proptypes
@@ -206,9 +227,10 @@ jobs:
     <<: *default-job
     resource_class: 'medium+'
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
+          browsers: false
       - run:
           name: Tests TypeScript definitions
           command: pnpm typescript
@@ -227,9 +249,10 @@ jobs:
     <<: *default-job
     resource_class: 'medium+'
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
+          browsers: false
       - run:
           name: Resolve typescript version
           command: |
@@ -265,10 +288,11 @@ jobs:
     resource_class: 'medium+'
     docker:
       - image: mcr.microsoft.com/playwright:v1.50.0-noble
+    working_directory: /tmp/base-ui
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
           browsers: true
       - run:
           name: Run tests on headless Chromium
@@ -291,9 +315,9 @@ jobs:
     docker:
       - image: mcr.microsoft.com/playwright:v1.50.0-noble
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
           browsers: true
       - run:
           name: Run visual regression tests
@@ -306,8 +330,9 @@ jobs:
     docker:
       - image: mcr.microsoft.com/playwright:v1.50.0-noble
     steps:
-      - checkout
-      - install_js:
+      - attach_workspace:
+          at: .
+      - install_pnpm:
           browsers: true
       - run:
           name: pnpm test:e2e
@@ -321,9 +346,10 @@ jobs:
   test_package:
     <<: *default-job
     steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - attach_workspace:
+          at: .
+      - install_pnpm:
+          browsers: false
       - run:
           name: Build packages
           command: pnpm release:build
