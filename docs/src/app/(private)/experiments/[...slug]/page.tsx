@@ -42,9 +42,11 @@ export async function generateStaticParams() {
     { cwd: experimentsRootDirectory },
   );
 
-  return files.map((file) => ({
-    slug: [basename(file, extname(file))],
-  }));
+  return files.map((file) => {
+    return {
+      slug: file.replace(/\.tsx$/, '').split('/'),
+    };
+  });
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
