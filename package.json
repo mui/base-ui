@@ -122,7 +122,7 @@
     "jsonc-parser": "^3.3.1",
     "lerna": "^8.1.9",
     "lodash": "^4.17.21",
-    "markdownlint-cli2": "^0.17.1",
+    "markdownlint-cli2": "^0.17.2",
     "nx": "^18.3.5",
     "piscina": "^4.8.0",
     "postcss": "^8.4.49",
