@@ -1,12 +1,7 @@
 {
-  "name": "ToolbarGroup",
-  "description": "Groups several toolbar items or toggles.\nRenders a `<div>` element.",
+  "name": "ToolbarLink",
+  "description": "A link component.\nRenders a `<a>` element.",
   "props": {
-    "disabled": {
-      "type": "boolean",
-      "default": "false",
-      "description": "When `true` all toolbar items in the group are disabled."
-    },
     "className": {
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
