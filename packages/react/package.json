@@ -91,7 +91,7 @@
     "@types/chai": "^4.3.20",
     "@types/chai-dom": "^1.11.3",
     "@types/prop-types": "^15.7.14",
-    "@types/react": "^19.0.2",
+    "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.2",
     "@types/sinon": "^17.0.3",
     "@types/use-sync-external-store": "^0.0.6",
