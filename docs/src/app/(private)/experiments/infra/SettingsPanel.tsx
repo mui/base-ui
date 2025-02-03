@@ -1,13 +1,21 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Popover } from '@base-ui-components/react/popover';
+import { Field } from '@base-ui-components/react/field';
 import { useEnhancedEffect } from '@base-ui-components/react/utils';
 import { camelToSentenceCase } from 'docs/src/utils/camelToSentenceCase';
 import { Switch } from './Switch';
 import classes from './SettingsPanel.module.css';
+import { Input } from './Input';
+import { Select } from './Select';
 
 export function SettingsPanel<Settings>(props: SettingsPanel.Props<Settings>) {
-  const { settings, onChange: onChangeProp, renderAsPopup = false } = props;
+  const {
+    settings,
+    settingsMetadata = {} as Record<keyof Settings, SettingsPanel.FieldMetadata>,
+    onChange: onChangeProp,
+    renderAsPopup = false,
+  } = props;
 
   const lastSettings = useLatestRef(settings);
   const onChange = useEventCallback(onChangeProp);
@@ -27,12 +35,22 @@ export function SettingsPanel<Settings>(props: SettingsPanel.Props<Settings>) {
       <h2>Settings</h2>
       {Object.keys(settings as Record<string, any>).map((key) => {
         const value = (settings as Record<string, unknown>)[key];
+        const metadata: SettingsPanel.FieldMetadata =
+          settingsMetadata[key as keyof Settings] || {};
         switch (typeof value) {
           case 'boolean':
             return renderSwitch(key, value as boolean, createChangeHandler(key));
           case 'number':
             return renderNumberInput(key, value as number, createChangeHandler(key));
           case 'string':
+            if (metadata.options) {
+              return renderSelect(
+                key,
+                value as string,
+                metadata.options,
+                createChangeHandler(key),
+              );
+            }
             return renderTextInput(key, value as string, createChangeHandler(key));
           default:
             return null;
@@ -63,9 +81,14 @@ export function SettingsPanel<Settings>(props: SettingsPanel.Props<Settings>) {
 }
 
 export namespace SettingsPanel {
+  export interface FieldMetadata {
+    options?: string[];
+  }
+
   export interface Props<Settings> {
     children?: React.ReactNode;
     settings: Settings;
+    settingsMetadata?: Partial<Record<keyof Settings, FieldMetadata>>;
     onChange: (newSettings: Settings) => void;
     renderAsPopup?: boolean;
   }
@@ -115,6 +138,7 @@ function renderSwitch(
       checked={value}
       onCheckedChange={onChange}
       label={camelToSentenceCase(key)}
+      className={classes.singleLineField}
     />
   );
 }
@@ -125,14 +149,17 @@ function renderTextInput(
   onChange: (value: string) => void,
 ) {
   return (
-    <label key={key}>
-      <input
+    <Field.Root key={key} className={classes.multiLineField}>
+      <Field.Label className={classes.fieldLabel}>
+        {camelToSentenceCase(key)}
+      </Field.Label>
+      <Input
         type="text"
         value={value}
         onChange={(event) => onChange(event.currentTarget.value)}
+        className={classes.input}
       />
-      {camelToSentenceCase(key)}
-    </label>
+    </Field.Root>
   );
 }
 
@@ -142,14 +169,36 @@ function renderNumberInput(
   onChange: (value: number) => void,
 ) {
   return (
-    <label key={key}>
-      <input
+    <Field.Root key={key} className={classes.singleLineField}>
+      <Field.Label className={classes.fieldLabel}>
+        {camelToSentenceCase(key)}
+      </Field.Label>
+      <Input
         type="number"
         value={value}
         onChange={(event) => onChange(event.currentTarget.valueAsNumber)}
+        className={classes.numberInput}
       />
-      {camelToSentenceCase(key)}
-    </label>
+    </Field.Root>
+  );
+}
+
+function renderSelect(
+  key: string,
+  value: string,
+  options: string[],
+  onChange: (value: string) => void,
+) {
+  return (
+    <Field.Root key={key} className={classes.multiLineField}>
+      <Field.Label>{camelToSentenceCase(key)}</Field.Label>
+      <Select
+        value={value}
+        onChange={(newValue) => onChange(newValue)}
+        options={options}
+        className={classes.select}
+      />
+    </Field.Root>
   );
 }
 

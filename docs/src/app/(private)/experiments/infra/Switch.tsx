@@ -5,10 +5,10 @@ import { Switch as BaseSwitch } from '@base-ui-components/react/switch';
 import classes from './Switch.module.css';
 
 export function Switch(props: Switch.Props) {
-  const { label, checked, onCheckedChange, defaultChecked } = props;
+  const { label, checked, onCheckedChange, defaultChecked, ...otherProps } = props;
 
   return (
-    <Field.Root className={classes.FieldRoot}>
+    <Field.Root {...otherProps}>
       {label && <Field.Label className={classes.Label}>{label}</Field.Label>}
       <BaseSwitch.Root
         className={classes.Switch}
@@ -23,7 +23,7 @@ export function Switch(props: Switch.Props) {
 }
 
 export namespace Switch {
-  export interface Props {
+  export interface Props extends React.HTMLAttributes<HTMLDivElement> {
     label?: string;
     checked?: boolean;
     onCheckedChange: (checked: boolean) => void;

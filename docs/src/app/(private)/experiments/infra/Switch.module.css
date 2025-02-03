@@ -35,12 +35,12 @@
   }
 
   @media (prefers-color-scheme: light) {
-    box-shadow: var(--color-gray-200) 0px 1.5px 2px inset;
+    box-shadow: var(--color-gray-200) 0 1.5px 2px inset;
     outline-color: var(--color-gray-200);
   }
 
   @media (prefers-color-scheme: dark) {
-    box-shadow: rgb(0 0 0 / 75%) 0px 1.5px 2px inset;
+    box-shadow: rgb(0 0 0 / 75%) 0 1.5px 2px inset;
     outline-color: rgb(255 255 255 / 15%);
     background-image: linear-gradient(
       to right,
@@ -89,11 +89,4 @@
       0 1px 1px rgb(0 0 0 / 25%),
       1px 2px 4px -1px rgb(0 0 0 / 25%);
   }
-}
-
-.FieldRoot {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
 }

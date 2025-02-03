@@ -77,3 +77,34 @@
     outline-offset: -1px;
   }
 }
+
+.singleLineField {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 1.75rem;
+}
+
+.multiLineField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fieldLabel {
+  flex: 0 1 max-content;
+}
+
+.input {
+  width: 100%;
+}
+
+.numberInput {
+  flex: 0 1 60%;
+  max-width: 60%;
+}
+
+.select {
+  width: 100%;
+}
