@@ -189,25 +189,6 @@ export default function App() {
         </Menu.Root>
       </Toolbar.Root>
       <textarea name="" id="" />
-      <MySeparator />
-      <a href="#two-column">two-column toolbar</a>
-      <Toolbar.Root className={classNames(s.Root, s.Grid)} cols={2}>
-        <Toolbar.Button disabled={DISABLED} className={s.Button}>
-          <MoveIcon className={s.Icon} />
-        </Toolbar.Button>
-
-        <Toolbar.Button disabled={DISABLED} className={s.Button}>
-          <MarqueeIcon className={s.Icon} />
-        </Toolbar.Button>
-
-        <Toolbar.Button disabled={DISABLED} className={s.Button}>
-          <LassoIcon className={s.Icon} />
-        </Toolbar.Button>
-
-        <Toolbar.Button disabled={DISABLED} className={s.Button}>
-          <CropIcon className={s.Icon} />
-        </Toolbar.Button>
-      </Toolbar.Root>
     </React.Fragment>
   );
 }
