@@ -6,6 +6,7 @@ import { mergeReactProps } from '../utils/mergeReactProps';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRootElementName } from '../utils/useRootElementName';
 import { GenericHTMLProps } from '../utils/types';
+import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
   const {
@@ -21,6 +22,8 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   const { rootElementName: elementName, updateRootElementName } = useRootElementName({
     rootElementName: elementNameProp,
   });
+
+  const isCompositeItem = useCompositeRootContext(true) !== undefined;
 
   const isNativeButton = useEventCallback(() => {
     const element = buttonRef.current;
@@ -43,7 +46,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   const buttonProps = React.useMemo(() => {
     const additionalProps: AdditionalButtonProps = {};
 
-    if (tabIndex !== undefined) {
+    if (tabIndex !== undefined && !isCompositeItem) {
       additionalProps.tabIndex = tabIndex;
     }
 
@@ -56,18 +59,22 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     } else if (elementName !== '') {
       if (elementName !== 'A') {
         additionalProps.role = 'button';
-        additionalProps.tabIndex = tabIndex ?? 0;
-      } else if (tabIndex) {
+        if (!isCompositeItem) {
+          additionalProps.tabIndex = tabIndex ?? 0;
+        }
+      } else if (tabIndex && !isCompositeItem) {
         additionalProps.tabIndex = tabIndex;
       }
       if (disabled) {
         additionalProps['aria-disabled'] = disabled as boolean;
-        additionalProps.tabIndex = focusableWhenDisabled ? (tabIndex ?? 0) : -1;
+        if (!isCompositeItem) {
+          additionalProps.tabIndex = focusableWhenDisabled ? (tabIndex ?? 0) : -1;
+        }
       }
     }
 
     return additionalProps;
-  }, [disabled, elementName, focusableWhenDisabled, tabIndex]);
+  }, [disabled, elementName, focusableWhenDisabled, isCompositeItem, tabIndex]);
 
   const getButtonProps = React.useCallback(
     (externalProps: GenericButtonProps = {}): GenericButtonProps => {
@@ -133,7 +140,7 @@ interface AdditionalButtonProps
     'aria-disabled': React.AriaAttributes['aria-disabled'];
     disabled: boolean;
     role: React.AriaRole;
-    tabIndex: number;
+    tabIndex?: number;
   }> {}
 
 export namespace useButton {
