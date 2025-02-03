@@ -7,6 +7,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRoot } from '../root/AvatarRoot';
+import { avatarStyleHookMapping } from '../root/styleHooks';
 import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStatus';
 
 /**
@@ -54,6 +55,7 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
     className,
     ref: forwardedRef,
     extraProps: otherProps,
+    customStyleHookMapping: avatarStyleHookMapping,
   });
 
   return imageLoadingStatus === 'loaded' ? renderElement() : null;

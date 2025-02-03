@@ -4,10 +4,7 @@ import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { AvatarRootContext } from './AvatarRootContext';
-
-const rootStyleHookMapping = {
-  imageLoadingStatus: () => null,
-};
+import { avatarStyleHookMapping } from './styleHooks';
 
 /**
  * Displays a user's profile picture, initials, or fallback icon.
@@ -44,7 +41,7 @@ const AvatarRoot = React.forwardRef<HTMLSpanElement, AvatarRoot.Props>(function 
     className,
     ref: forwardedRef,
     extraProps: otherProps,
-    customStyleHookMapping: rootStyleHookMapping,
+    customStyleHookMapping: avatarStyleHookMapping,
   });
 
   return (
