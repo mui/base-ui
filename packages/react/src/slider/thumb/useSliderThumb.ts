@@ -81,7 +81,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
   } = parameters;
 
   const direction = useDirection();
-  const { setTouched } = useFieldRootContext();
+  const { setTouched, setFocused } = useFieldRootContext();
   const {
     getInputValidationProps,
     inputRef: inputValidationRef,
@@ -138,11 +138,15 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       return mergeReactProps(externalProps, {
         'data-index': index,
         id: thumbId,
+        onFocus() {
+          setFocused(true);
+        },
         onBlur() {
           if (!thumbRef.current) {
             return;
           }
           setTouched(true);
+          setFocused(false);
           commitValidation(
             getSliderValue(thumbValue, index, min, max, sliderValues.length > 1, sliderValues),
           );
@@ -226,6 +230,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       mergedThumbRef,
       min,
       minStepsBetweenValues,
+      setFocused,
       setTouched,
       sliderValues,
       step,

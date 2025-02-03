@@ -29,7 +29,7 @@ export function useSelectTrigger(
     readOnly,
   } = useSelectRootContext();
 
-  const { labelId, setTouched } = useFieldRootContext();
+  const { labelId, setTouched, setFocused } = useFieldRootContext();
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const timeoutRef = React.useRef(-1);
@@ -80,6 +80,7 @@ export function useSelectTrigger(
           tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onFocus() {
+            setFocused(true);
             // The popup element shouldn't obscure the focused trigger.
             if (open && alignItemToTrigger) {
               setOpen(false);
@@ -87,6 +88,7 @@ export function useSelectTrigger(
           },
           onBlur() {
             setTouched(true);
+            setFocused(false);
             fieldControlValidation.commitValidation(value);
           },
           onPointerMove({ pointerType }) {
@@ -141,19 +143,20 @@ export function useSelectTrigger(
       );
     },
     [
-      alignItemToTrigger,
-      disabled,
-      fieldControlValidation,
       getButtonProps,
-      handleRef,
+      fieldControlValidation,
       labelId,
-      open,
-      positionerElement,
       readOnly,
+      disabled,
+      handleRef,
+      setFocused,
+      open,
+      alignItemToTrigger,
       setOpen,
       setTouched,
-      setTouchModality,
       value,
+      setTouchModality,
+      positionerElement,
     ],
   );
 
