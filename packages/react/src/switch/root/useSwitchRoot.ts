@@ -15,7 +15,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
   const {
     id: idProp,
     checked: checkedProp,
-    onCheckedChange: onCheckedChangeProp = () => {},
+    onCheckedChange: onCheckedChangeProp,
     defaultChecked,
     name,
     readOnly,
