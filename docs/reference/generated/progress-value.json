@@ -1,6 +1,6 @@
 {
-  "name": "ProgressTrack",
-  "description": "Contains the progress bar indicator.\nRenders a `<div>` element.",
+  "name": "ProgressValue",
+  "description": "A text label displaying the current value.\nRenders a `<span>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",
@@ -11,16 +11,6 @@
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
-  "dataAttributes": {
-    "data-complete": {
-      "description": "Present when the progress has completed."
-    },
-    "data-indeterminate": {
-      "description": "Present when the progress is in interminate state."
-    },
-    "data-progressing": {
-      "description": "Present while the progress is progressing."
-    }
-  },
+  "dataAttributes": {},
   "cssVariables": {}
 }
