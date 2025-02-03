@@ -21,6 +21,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
+    format,
     getAriaLabel,
     getAriaValueText,
     max = 100,
@@ -35,6 +36,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
+    format,
     getAriaLabel,
     getAriaValueText,
     max,
@@ -113,24 +115,47 @@ ProgressRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Accepts a function which returns a string value that provides an accessible name for the Indicator component
-   * @param {number | null} value The component's value
+   * Options to format the value.
+   */
+  format: PropTypes.shape({
+    compactDisplay: PropTypes.oneOf(['long', 'short']),
+    currency: PropTypes.string,
+    currencyDisplay: PropTypes.oneOf(['code', 'name', 'narrowSymbol', 'symbol']),
+    currencySign: PropTypes.oneOf(['accounting', 'standard']),
+    localeMatcher: PropTypes.oneOf(['best fit', 'lookup']),
+    maximumFractionDigits: PropTypes.number,
+    maximumSignificantDigits: PropTypes.number,
+    minimumFractionDigits: PropTypes.number,
+    minimumIntegerDigits: PropTypes.number,
+    minimumSignificantDigits: PropTypes.number,
+    notation: PropTypes.oneOf(['compact', 'engineering', 'scientific', 'standard']),
+    numberingSystem: PropTypes.string,
+    signDisplay: PropTypes.oneOf(['always', 'auto', 'exceptZero', 'never']),
+    style: PropTypes.oneOf(['currency', 'decimal', 'percent', 'unit']),
+    unit: PropTypes.string,
+    unitDisplay: PropTypes.oneOf(['long', 'narrow', 'short']),
+    useGrouping: PropTypes.bool,
+  }),
+  /**
+   * Accepts a function which returns a string value that provides an accessible name for the Indicator component.
+   * @param {number | null} value The component's value.
    * @returns {string}
    */
   getAriaLabel: PropTypes.func,
   /**
    * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress indicator.
-   * @param {number | null} value The component's value to format
+   * @param {string} formattedValue The component's formatted value.
+   * @param {number | null} value The component's numerical value.
    * @returns {string}
    */
   getAriaValueText: PropTypes.func,
   /**
-   * The maximum value
+   * The maximum value.
    * @default 100
    */
   max: PropTypes.number,
   /**
-   * The minimum value
+   * The minimum value.
    * @default 0
    */
   min: PropTypes.number,
