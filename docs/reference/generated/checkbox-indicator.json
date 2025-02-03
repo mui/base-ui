@@ -44,6 +44,12 @@
     "data-touched": {
       "description": "Present when the checkbox has been touched (when wrapped in Field.Root)."
     },
+    "data-filled": {
+      "description": "Present when the checkbox is checked (when wrapped in Field.Root)."
+    },
+    "data-focused": {
+      "description": "Present when the checkbox is focused (when wrapped in Field.Root)."
+    },
     "data-starting-style": {
       "description": "Present when the checkbox indicator is animating in."
     },

@@ -7,10 +7,13 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 
 export function useSelectTrigger(
   parameters: useSelectTrigger.Parameters,
 ): useSelectTrigger.ReturnValue {
+  const BOUNDARY_OFFSET = 2;
+
   const { disabled = false, rootRef: externalRef } = parameters;
 
   const {
@@ -26,7 +29,7 @@ export function useSelectTrigger(
     readOnly,
   } = useSelectRootContext();
 
-  const { labelId, setTouched } = useFieldRootContext();
+  const { labelId, setTouched, setFocused } = useFieldRootContext();
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const timeoutRef = React.useRef(-1);
@@ -70,14 +73,14 @@ export function useSelectTrigger(
 
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps<'button'>(
-        fieldControlValidation.getValidationProps(externalProps),
-        {
+      return getButtonProps(
+        mergeReactProps<'button'>(fieldControlValidation.getValidationProps(externalProps), {
           'aria-labelledby': labelId,
           'aria-readonly': readOnly || undefined,
-          tabIndex: 0, // this is needed to make the button focused after click in Safari
+          tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onFocus() {
+            setFocused(true);
             // The popup element shouldn't obscure the focused trigger.
             if (open && alignItemToTrigger) {
               setOpen(false);
@@ -85,6 +88,7 @@ export function useSelectTrigger(
           },
           onBlur() {
             setTouched(true);
+            setFocused(false);
             fieldControlValidation.commitValidation(value);
           },
           onPointerMove({ pointerType }) {
@@ -107,18 +111,22 @@ export function useSelectTrigger(
 
               const mouseUpTarget = mouseEvent.target as Element | null;
 
-              const triggerRect = triggerRef.current.getBoundingClientRect();
+              // Early return if clicked on trigger element or its children
+              if (
+                contains(triggerRef.current, mouseUpTarget) ||
+                contains(positionerElement, mouseUpTarget) ||
+                mouseUpTarget === triggerRef.current
+              ) {
+                return;
+              }
 
-              const isInsideTrigger =
-                mouseEvent.clientX >= triggerRect.left &&
-                mouseEvent.clientX <= triggerRect.right &&
-                mouseEvent.clientY >= triggerRect.top &&
-                mouseEvent.clientY <= triggerRect.bottom;
+              const bounds = getPseudoElementBounds(triggerRef.current);
 
               if (
-                isInsideTrigger ||
-                contains(positionerElement, mouseUpTarget) ||
-                contains(triggerRef.current, mouseUpTarget)
+                mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
+                mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
+                mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
+                mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
               ) {
                 return;
               }
@@ -131,16 +139,17 @@ export function useSelectTrigger(
               doc.addEventListener('mouseup', handleMouseUp, { once: true });
             });
           },
-        },
-        getButtonProps(),
+        }),
       );
     },
     [
+      getButtonProps,
       fieldControlValidation,
       labelId,
       readOnly,
+      disabled,
       handleRef,
-      getButtonProps,
+      setFocused,
       open,
       alignItemToTrigger,
       setOpen,

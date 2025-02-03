@@ -6,10 +6,11 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositioner } from './usePreviewCardPositioner';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { useForkRef } from '../../utils/useForkRef';
-import { HTMLElementType } from '../../utils/proptypes';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { HTMLElementType, refType } from '../../utils/proptypes';
+import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 
 /**
  * Positions the popup against the trigger.
@@ -34,11 +35,12 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    keepMounted = false,
+    trackAnchor = true,
     ...otherProps
   } = props;
 
   const { open, mounted, floatingRootContext, setPositionerElement } = usePreviewCardRootContext();
+  const keepMounted = usePreviewCardPortalContext();
 
   const positioner = usePreviewCardPositioner({
     anchor,
@@ -46,7 +48,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     positionMethod,
     open,
     mounted,
-    keepMounted,
     side,
     sideOffset,
     align,
@@ -55,6 +56,8 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
+    trackAnchor,
+    keepMounted,
   });
 
   const state: PreviewCardPositioner.State = React.useMemo(
@@ -96,11 +99,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     customStyleHookMapping: popupStateMapping,
   });
 
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
-
   return (
     <PreviewCardPositionerContext.Provider value={contextValue}>
       {renderElement()}
@@ -135,16 +133,24 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    */
   align: PropTypes.oneOf(['center', 'end', 'start']),
   /**
-   * Additional offset along the alignment axis of the element.
+   * Additional offset along the alignment axis in pixels.
+   * Also accepts a function that returns the offset to read the dimensions of the anchor
+   * and positioner elements, along with its side and alignment.
+   *
+   * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
+   * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
+   * - `data.side`: which side of the anchor element the positioner is aligned against.
+   * - `data.align`: how the positioner is aligned relative to the specified side.
    * @default 0
    */
-  alignOffset: PropTypes.number,
+  alignOffset: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
   /**
    * An element to position the popup against.
    * By default, the popup will be positioned against the trigger.
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,
+    refType,
     PropTypes.object,
     PropTypes.func,
   ]),
@@ -193,11 +199,6 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
     }),
   ]),
   /**
-   * Whether to keep the HTML element in the DOM while the preview card is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
    * Determines which CSS `position` property to use.
    * @default 'absolute'
    */
@@ -216,16 +217,28 @@ PreviewCardPositioner.propTypes /* remove-proptypes */ = {
    */
   side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
   /**
-   * Distance between the anchor and the popup.
+   * Distance between the anchor and the popup in pixels.
+   * Also accepts a function that returns the distance to read the dimensions of the anchor
+   * and positioner elements, along with its side and alignment.
+   *
+   * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
+   * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
+   * - `data.side`: which side of the anchor element the positioner is aligned against.
+   * - `data.align`: how the positioner is aligned relative to the specified side.
    * @default 0
    */
-  sideOffset: PropTypes.number,
+  sideOffset: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
   /**
    * Whether to maintain the popup in the viewport after
-   * the anchor element is scrolled out of view.
+   * the anchor element was scrolled out of view.
    * @default false
    */
   sticky: PropTypes.bool,
+  /**
+   * Whether the popup tracks any layout shift of its positioning anchor.
+   * @default true
+   */
+  trackAnchor: PropTypes.bool,
 } as any;
 
 export { PreviewCardPositioner };

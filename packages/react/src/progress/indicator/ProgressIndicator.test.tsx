@@ -1,16 +1,14 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { Progress } from '@base-ui-components/react/progress';
-import { describeSkipIf } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { ProgressRootContext } from '../root/ProgressRootContext';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 const contextValue: ProgressRootContext = {
   max: 100,
   min: 0,
   value: 30,
+  formattedValue: '30',
   status: 'progressing',
   state: {
     max: 100,
@@ -28,15 +26,15 @@ describe('<Progress.Indicator />', () => {
         <ProgressRootContext.Provider value={contextValue}>{node}</ProgressRootContext.Provider>,
       );
     },
-    refInstanceof: window.HTMLSpanElement,
+    refInstanceof: window.HTMLDivElement,
   }));
 
-  describeSkipIf(isJSDOM)('internal styles', () => {
+  describe.skipIf(isJSDOM)('internal styles', () => {
     it('determinate', async () => {
       const { getByTestId } = await render(
         <Progress.Root value={33}>
           <Progress.Track>
-            <Progress.Indicator data-testid="indicator" />
+            <Progress.Indicator data-testid="indicator" render={<span />} />
           </Progress.Track>
         </Progress.Root>,
       );
@@ -62,7 +60,7 @@ describe('<Progress.Indicator />', () => {
 
       expect(indicator).toHaveComputedStyle({
         insetInlineStart: '0px',
-        width: '0%',
+        width: '0px',
       });
     });
 

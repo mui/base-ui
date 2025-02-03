@@ -13,7 +13,7 @@ import {
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { PATIENT_CLICK_THRESHOLD, OPEN_DELAY } from '../utils/constants';
+import { OPEN_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
@@ -24,11 +24,12 @@ import {
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
     open: externalOpen,
-    onOpenChange: onOpenChangeProp = () => {},
+    onOpenChange: onOpenChangeProp,
     defaultOpen = false,
     delay,
     closeDelay,
@@ -78,7 +79,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   useAfterExitAnimation({
     open,
     animatedElementRef: popupRef,
-    onFinished: () => {
+    onFinished() {
       setMounted(false);
       setOpenReason(null);
     },

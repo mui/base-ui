@@ -1,21 +1,23 @@
-import { beforeAll, afterAll, vi } from 'vitest';
+/* eslint-disable no-var */
+/* eslint-disable vars-on-top */
+import { beforeAll, afterAll } from 'vitest';
 import chai from 'chai';
-
 import chaiDom from 'chai-dom';
 import chaiPlugin from '@mui/internal-test-utils/chaiPlugin';
+
+declare global {
+  var before: typeof beforeAll;
+  var after: typeof afterAll;
+  var BASE_UI_ANIMATIONS_DISABLED: boolean;
+}
 
 chai.use(chaiDom);
 chai.use(chaiPlugin);
 
-// @ts-ignore
+// required for conformance tests (until everything is migrated to Vite)
 globalThis.before = beforeAll;
-// @ts-ignore
 globalThis.after = afterAll;
 
-// @ts-ignore
-globalThis.vi = vi;
-
-// @ts-ignore
 globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
 
 const isVitestJsdom = process.env.VITEST_ENV === 'jsdom';
