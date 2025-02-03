@@ -75,7 +75,7 @@
     "@playwright/test": "1.50.0",
     "@tailwindcss/postcss": "4.0.0-beta.2",
     "@types/fs-extra": "^11.0.4",
-    "@types/lodash": "^4.17.13",
+    "@types/lodash": "^4.17.15",
     "@types/node": "^18.19.74",
     "@types/react": "^19.0.2",
     "@types/url-join": "^4.0.3",
