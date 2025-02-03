@@ -117,7 +117,7 @@
     "eslint-plugin-testing-library": "^6.5.0",
     "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
-    "fs-extra": "^11.2.0",
+    "fs-extra": "^11.3.0",
     "globby": "^14.0.2",
     "jsonc-parser": "^3.3.1",
     "lerna": "^8.1.9",
