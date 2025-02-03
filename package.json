@@ -127,7 +127,7 @@
     "piscina": "^4.8.0",
     "postcss": "^8.5.1",
     "postcss-loader": "^8.1.1",
-    "postcss-styled-syntax": "^0.6.4",
+    "postcss-styled-syntax": "^0.7.1",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9",
     "pretty-quick": "^4.0.0",
