@@ -97,7 +97,7 @@
     "chai-dom": "^1.12.0",
     "chalk": "^5.4.1",
     "compression-webpack-plugin": "^11.1.0",
-    "concurrently": "^8.2.2",
+    "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
     "docs": "workspace:^",
