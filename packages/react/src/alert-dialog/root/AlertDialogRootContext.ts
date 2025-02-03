@@ -1,24 +1,11 @@
 'use client';
 import * as React from 'react';
-import { type useDialogRoot } from '../../dialog/root/useDialogRoot';
+import { DialogContext } from '../../dialog/utils/DialogContext';
 
-export interface AlertDialogRootContext extends useDialogRoot.ReturnValue {
-  /**
-   * Determines if the dialog is nested within a parent dialog.
-   */
-  nested: boolean;
-}
-
-export const AlertDialogRootContext = React.createContext<AlertDialogRootContext | undefined>(
-  undefined,
-);
-
-if (process.env.NODE_ENV !== 'production') {
-  AlertDialogRootContext.displayName = 'AlertDialogRootContext';
-}
+export { DialogContext as AlertDialogRootContext };
 
 export function useAlertDialogRootContext() {
-  const context = React.useContext(AlertDialogRootContext);
+  const context = React.useContext(DialogContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: AlertDialogRootContext is missing. AlertDialog parts must be placed within <AlertDialog.Root>.',

@@ -17,7 +17,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     id: idProp,
     checked: externalChecked,
     inputRef: externalInputRef,
-    onCheckedChange: onCheckedChangeProp = () => {},
+    onCheckedChange: onCheckedChangeProp,
     name,
     value,
     defaultChecked = false,
@@ -40,7 +40,8 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     state: 'checked',
   });
 
-  const { labelId, setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
+  const { labelId, setControlId, setTouched, setDirty, validityData, setFilled, setFocused } =
+    useFieldRootContext();
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
@@ -71,11 +72,14 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useForkRef(externalInputRef, inputRef, inputValidationRef);
 
-  React.useEffect(() => {
+  useEnhancedEffect(() => {
     if (inputRef.current) {
       inputRef.current.indeterminate = indeterminate;
+      if (checked) {
+        setFilled(true);
+      }
     }
-  }, [indeterminate]);
+  }, [checked, indeterminate, setFilled]);
 
   const getButtonProps: UseCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
@@ -88,12 +92,17 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
         'aria-checked': indeterminate ? 'mixed' : checked,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
+        onFocus() {
+          setFocused(true);
+        },
         onBlur() {
           const element = inputRef.current;
           if (!element) {
             return;
           }
+
           setTouched(true);
+          setFocused(false);
           commitValidation(element.checked);
         },
         onClick(event) {
@@ -107,13 +116,14 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
         },
       }),
     [
-      id,
       getValidationProps,
+      id,
+      disabled,
       indeterminate,
       checked,
-      disabled,
       readOnly,
       labelId,
+      setFocused,
       setTouched,
       commitValidation,
     ],
@@ -143,6 +153,10 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
 
           const nextChecked = event.target.checked;
 
+          if (!groupContext) {
+            setFilled(nextChecked);
+          }
+
           setDirty(nextChecked !== validityData.initialValue);
           setCheckedState(nextChecked);
           onCheckedChange?.(nextChecked, event.nativeEvent);
@@ -152,6 +166,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
               ? [...groupValue, name]
               : groupValue.filter((item) => item !== name);
             setGroupValue(nextGroupValue, event.nativeEvent);
+            setFilled(nextGroupValue.length > 0);
           }
         },
       }),
@@ -164,12 +179,14 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       required,
       autoFocus,
       mergedInputRef,
+      groupContext,
       setDirty,
       validityData.initialValue,
       setCheckedState,
       onCheckedChange,
       groupValue,
       setGroupValue,
+      setFilled,
     ],
   );
 

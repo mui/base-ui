@@ -1,16 +1,16 @@
 import * as React from 'react';
-import { DemoLoader } from './components/demo/NewDemoLoader';
+import { DemoLoader } from './components/Demo/DemoLoader';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
-import * as QuickNav from './components/quick-nav/QuickNav';
+import * as QuickNav from './components/QuickNav/QuickNav';
 import { Code } from './components/Code';
-import { PropsTable } from './components/reference/PropsTable';
-import { AttributesTable } from './components/reference/AttributesTable';
-import { CssVariablesTable } from './components/reference/CssVariablesTable';
-import { getChildrenText } from './getChildrenText';
+import { PropsReferenceTable } from './components/ReferenceTable/PropsReferenceTable';
+import { AttributesReferenceTable } from './components/ReferenceTable/AttributesReferenceTable';
+import { CssVariablesReferenceTable } from './components/ReferenceTable/CssVariablesReferenceTable';
+import { getChildrenText } from './utils/getChildrenText';
 import { Link } from './components/Link';
-import { Subtitle } from './components/subtitle/Subtitle';
-import { Kbd } from './components/kbd/Kbd';
+import { Subtitle } from './components/Subtitle/Subtitle';
+import { Kbd } from './components/Kbd/Kbd';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -73,16 +73,22 @@ export const mdxComponents: MDXComponents = {
   // Custom components
   Demo: (props) => <DemoLoader className="mt-5 mb-6" {...props} />,
   QuickNav,
-  AttributesTable: (props) => <AttributesTable className="mt-5 mb-6" {...props} />,
-  CssVariablesTable: (props) => <CssVariablesTable className="mt-5 mb-6" {...props} />,
   Meta: (props: React.ComponentProps<'meta'>) => {
     if (props.name === 'description' && String(props.content).length > 170) {
       throw new Error('Meta description shouldn’t be longer than 170 chars');
     }
     return <meta {...props} />;
   },
-  PropsTable: (props) => <PropsTable className="mt-5 mb-6" {...props} />,
   Subtitle: (props) => <Subtitle className="-mt-2 mb-5" {...props} />,
+
+  // API reference components
+  AttributesReferenceTable: (props) => (
+    <AttributesReferenceTable className="mt-5 mb-6" {...props} />
+  ),
+  CssVariablesReferenceTable: (props) => (
+    <CssVariablesReferenceTable className="mt-5 mb-6" {...props} />
+  ),
+  PropsReferenceTable: (props) => <PropsReferenceTable className="mt-5 mb-6" {...props} />,
 };
 
 export const inlineMdxComponents: MDXComponents = {

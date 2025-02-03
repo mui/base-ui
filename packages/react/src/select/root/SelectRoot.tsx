@@ -6,13 +6,6 @@ import { SelectRootContext } from './SelectRootContext';
 import { SelectIndexContext } from './SelectIndexContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { PortalContext } from '../../portal/PortalContext';
-
-const inertStyle = `
-  [data-floating-ui-inert] {
-    pointer-events: none !important;
-  }
-`;
 
 /**
  * Groups all parts of the select.
@@ -71,13 +64,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
   return (
     <SelectRootContext.Provider value={selectRoot.rootContext}>
       <SelectIndexContext.Provider value={selectRoot.indexContext}>
-        {selectRoot.rootContext.open && modal && (
-          /* eslint-disable-next-line react/no-danger */
-          <style dangerouslySetInnerHTML={{ __html: inertStyle }} />
-        )}
-        <PortalContext.Provider value={rootContext.mounted}>
-          {props.children}
-        </PortalContext.Provider>
+        {props.children}
         <input
           {...rootContext.fieldControlValidation.getInputValidationProps({
             onFocus() {

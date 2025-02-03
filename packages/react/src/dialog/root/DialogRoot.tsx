@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { DialogRootContext } from './DialogRootContext';
-import { type CommonParameters, useDialogRoot } from './useDialogRoot';
-import { PortalContext } from '../../portal/PortalContext';
+import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
+import { DialogContext } from '../utils/DialogContext';
+import { type SharedParameters, useDialogRoot } from './useDialogRoot';
 
 /**
  * Groups all parts of the dialog.
@@ -21,7 +21,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     open,
   } = props;
 
-  const parentDialogRootContext = React.useContext(DialogRootContext);
+  const parentDialogRootContext = useOptionalDialogRootContext();
 
   const dialogRoot = useDialogRoot({
     open,
@@ -35,20 +35,20 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
 
   const nested = Boolean(parentDialogRootContext);
 
-  const contextValue = React.useMemo(
-    () => ({ ...dialogRoot, nested, dismissible }),
-    [dialogRoot, nested, dismissible],
-  );
+  const dialogContextValue = React.useMemo(() => ({ ...dialogRoot, nested }), [dialogRoot, nested]);
+  const dialogRootContextValue = React.useMemo(() => ({ dismissible }), [dismissible]);
 
   return (
-    <DialogRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={dialogRoot.mounted}>{children}</PortalContext.Provider>
-    </DialogRootContext.Provider>
+    <DialogContext.Provider value={dialogContextValue}>
+      <DialogRootContext.Provider value={dialogRootContextValue}>
+        {children}
+      </DialogRootContext.Provider>
+    </DialogContext.Provider>
   );
 };
 
 namespace DialogRoot {
-  export interface Props extends CommonParameters {
+  export interface Props extends SharedParameters {
     children?: React.ReactNode;
   }
 }

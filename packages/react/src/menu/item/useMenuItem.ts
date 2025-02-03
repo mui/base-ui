@@ -3,8 +3,7 @@ import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../use-button';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { GenericHTMLProps } from '../../utils/types';
-import { MuiCancellableEvent } from '../../utils/MuiCancellableEvent';
+import { GenericHTMLProps, BaseUIEvent } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
@@ -34,19 +33,12 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
           id,
           role: 'menuitem',
           tabIndex: highlighted ? 0 : -1,
-          onKeyUp: (event: React.KeyboardEvent & MuiCancellableEvent) => {
+          onKeyUp: (event: BaseUIEvent<React.KeyboardEvent>) => {
             if (event.key === ' ' && typingRef.current) {
-              event.defaultMuiPrevented = true;
+              event.preventBaseUIHandler();
             }
           },
           onClick: (event: React.MouseEvent | React.KeyboardEvent) => {
-            if (event.type === 'keydown') {
-              if ((event as React.KeyboardEvent).key === 'Enter') {
-                menuEvents.emit('close', event);
-                return;
-              }
-            }
-
             if (closeOnClick) {
               menuEvents.emit('close', event);
             }
@@ -62,7 +54,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
         }),
       );
     },
-    [closeOnClick, getButtonProps, highlighted, id, menuEvents, allowMouseUpTriggerRef, typingRef],
+    [getButtonProps, id, highlighted, typingRef, closeOnClick, menuEvents, allowMouseUpTriggerRef],
   );
 
   return React.useMemo(

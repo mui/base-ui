@@ -26,9 +26,13 @@
     "data-closed": {
       "description": "Present when the popup is closed."
     },
+    "data-instant": {
+      "description": "Present if animations should be instant.",
+      "type": "'click' | 'dismiss'"
+    },
     "data-side": {
       "description": "Indicates which side the popup is positioned relative to the trigger.",
-      "type": "'none' | 'top' | 'right' | 'bottom' | 'left'"
+      "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
     },
     "data-starting-style": {
       "description": "Present when the popup is animating in."

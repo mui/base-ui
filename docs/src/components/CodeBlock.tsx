@@ -3,8 +3,8 @@ import * as React from 'react';
 import copy from 'clipboard-copy';
 import clsx from 'clsx';
 import * as ScrollArea from './ScrollArea';
-import { CopyIcon } from './icons/CopyIcon';
-import { CheckIcon } from './icons/CheckIcon';
+import { CopyIcon } from '../icons/CopyIcon';
+import { CheckIcon } from '../icons/CheckIcon';
 import { GhostButton } from './GhostButton';
 
 const CodeBlockContext = React.createContext({ codeId: '', titleId: '' });
@@ -80,6 +80,7 @@ export function Pre({ className, ...props }: React.ComponentProps<'pre'>) {
       }}
     >
       <ScrollArea.Viewport
+        style={{ overflow: undefined }}
         render={<pre {...props} id={codeId} className={clsx('CodeBlockPre', className)} />}
       />
       <ScrollArea.Scrollbar orientation="horizontal" />

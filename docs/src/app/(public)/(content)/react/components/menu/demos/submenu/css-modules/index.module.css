@@ -125,6 +125,21 @@
   font-size: 0.875rem;
   line-height: 1rem;
 
+  &[data-popup-open] {
+    z-index: 0;
+    position: relative;
+  }
+
+  &[data-popup-open]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    border-radius: 0.25rem;
+    background-color: var(--color-gray-100);
+  }
+
   &[data-highlighted] {
     z-index: 0;
     position: relative;

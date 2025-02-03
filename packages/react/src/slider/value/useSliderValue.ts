@@ -5,27 +5,22 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
 export function useSliderValue(parameters: useSliderValue.Parameters): useSliderValue.ReturnValue {
-  const { 'aria-live': ariaLive = 'off', format: formatParam, inputIdMap, values } = parameters;
+  const { 'aria-live': ariaLive, format: formatParam, thumbMap, values } = parameters;
 
   const outputFor = React.useMemo(() => {
-    const size = inputIdMap.size;
     let htmlFor = '';
-    for (let i = 0; i < size; i += 1) {
-      const inputId = inputIdMap.get(i);
-      if (!inputId) {
-        break;
+    for (const thumbMetadata of thumbMap.values()) {
+      if (thumbMetadata?.inputId) {
+        htmlFor += `${thumbMetadata.inputId} `;
       }
-      htmlFor += `${inputId} `;
     }
     return htmlFor.trim() === '' ? undefined : htmlFor.trim();
-  }, [inputIdMap]);
+  }, [thumbMap]);
 
   const formattedValues = React.useMemo(() => {
     const arr = [];
     for (let i = 0; i < values.length; i += 1) {
-      arr.push(
-        formatNumber(values[i], [], Array.isArray(formatParam) ? formatParam[i] : formatParam),
-      );
+      arr.push(formatNumber(values[i], [], formatParam ?? undefined));
     }
     return arr;
   }, [formatParam, values]);
@@ -52,12 +47,13 @@ export function useSliderValue(parameters: useSliderValue.Parameters): useSlider
 }
 
 export namespace useSliderValue {
-  export interface Parameters extends Pick<useSliderRoot.ReturnValue, 'inputIdMap' | 'values'> {
-    'aria-live'?: React.AriaAttributes['aria-live'];
+  export interface Parameters extends Pick<useSliderRoot.ReturnValue, 'thumbMap' | 'values'> {
+    'aria-live': React.AriaAttributes['aria-live'];
     /**
      * Options to format the input value.
+     * @default null
      */
-    format?: Intl.NumberFormatOptions | Intl.NumberFormatOptions[];
+    format: Intl.NumberFormatOptions | null;
   }
 
   export interface ReturnValue {

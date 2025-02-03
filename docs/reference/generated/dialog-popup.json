@@ -14,11 +14,6 @@
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
-    "keepMounted": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether to keep the HTML element in the DOM while the dialog is hidden."
-    },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
@@ -31,9 +26,11 @@
     "data-closed": {
       "description": "Present when the dialog is closed."
     },
-    "data-nested-dialogs": {
-      "description": "Indicates how many dialogs are nested within.",
-      "type": "number"
+    "data-has-nested-dialogs": {
+      "description": "Present when the dialog has other open dialogs nested within it."
+    },
+    "data-nested": {
+      "description": "Present when the dialog is nested within another dialog."
     },
     "data-starting-style": {
       "description": "Present when the dialog is animating in."

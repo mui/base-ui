@@ -29,9 +29,10 @@ const Form = React.forwardRef(function Form(
   const formRef = React.useRef<FormContext['formRef']['current']>({
     fields: new Map(),
   });
+  const submittedRef = React.useRef(false);
 
-  const onSubmit = useEventCallback(onSubmitProp || (() => {}));
-  const onClearErrors = useEventCallback(onClearErrorsProp || (() => {}));
+  const onSubmit = useEventCallback(onSubmitProp);
+  const onClearErrors = useEventCallback(onClearErrorsProp);
 
   const getFormProps = React.useCallback(
     (externalProps = {}) =>
@@ -53,6 +54,7 @@ const Form = React.forwardRef(function Form(
             event.preventDefault();
             invalidFields[0]?.controlRef.current?.focus();
           } else {
+            submittedRef.current = true;
             onSubmit(event as any);
           }
         },
@@ -61,6 +63,12 @@ const Form = React.forwardRef(function Form(
   );
 
   React.useEffect(() => {
+    if (!submittedRef.current) {
+      return;
+    }
+
+    submittedRef.current = false;
+
     const invalidFields = Array.from(formRef.current.fields.values()).filter(
       (field) => field.validityData.state.valid === false,
     );
@@ -93,7 +101,7 @@ namespace Form {
   export interface Props extends BaseUIComponentProps<'form', State> {
     /**
      * An object where the keys correspond to the `name` attribute of the form fields,
-     * and the values correspond to the erorr(s) related to that field.
+     * and the values correspond to the error(s) related to that field.
      */
     errors?: FormContext['errors'];
     /**
@@ -120,7 +128,7 @@ Form.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * An object where the keys correspond to the `name` attribute of the form fields,
-   * and the values correspond to the erorr(s) related to that field.
+   * and the values correspond to the error(s) related to that field.
    */
   errors: PropTypes.object,
   /**

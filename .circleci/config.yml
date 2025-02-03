@@ -1,7 +1,4 @@
 version: 2.1
-orbs:
-  aws-cli: circleci/aws-cli@4.2.3
-  aws-s3: circleci/aws-s3@4.1.0
 
 parameters:
   browserstack-force:
@@ -16,10 +13,6 @@ parameters:
     description: The name of the workflow to run
     type: string
     default: pipeline
-  e2e-base-url:
-    description: The base url for running end-to-end test
-    type: string
-    default: ''
 
 default-job: &default-job
   parameters:
@@ -27,20 +20,10 @@ default-job: &default-job
       description: The version of react to be used
       type: string
       default: << pipeline.parameters.react-version >>
-    test-gate:
-      description: A particular type of tests that should be run
-      type: string
-      default: undefined
-    e2e-base-url:
-      description: The base url for running end-to-end test
-      type: string
-      default: << pipeline.parameters.e2e-base-url >>
   environment:
     # expose it globally otherwise we have to thread it from each job to the install command
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
     REACT_VERSION: << parameters.react-version >>
-    TEST_GATE: << parameters.test-gate >>
-    AWS_REGION_ARTIFACTS: eu-central-1
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
   working_directory: /tmp/base-ui
   docker:
@@ -72,6 +55,11 @@ commands:
         default: stable
 
     steps:
+      - run:
+          name: Set npm registry public signing keys
+          command: |
+            echo "export COREPACK_INTEGRITY_KEYS='$(curl https://registry.npmjs.org/-/npm/v1/keys | jq -c '{npm: .keys}')'" >> $BASH_ENV
+
       - when:
           condition: << parameters.browsers >>
           steps:
@@ -151,7 +139,7 @@ jobs:
           react-version: << parameters.react-version >>
       - run:
           name: Run tests on JSDOM
-          command: pnpm test:jsdom --coverage
+          command: pnpm test:jsdom:coverage
       - run:
           name: Check if coverage report is generated
           command: |
@@ -172,7 +160,10 @@ jobs:
       - install_js:
           react-version: << parameters.react-version >>
       - run:
-          name: Eslint
+          name: 'Prettier'
+          command: pnpm prettier --check
+      - run:
+          name: ESlint
           command: pnpm eslint:ci
       - run:
           name: Stylelint
@@ -189,9 +180,6 @@ jobs:
       - checkout
       - install_js:
           react-version: << parameters.react-version >>
-      - run:
-          name: '`pnpm prettier` changes committed?'
-          command: pnpm prettier --check
       - run:
           name: Generate PropTypes
           command: pnpm proptypes
@@ -214,6 +202,11 @@ jobs:
           command: |
             pnpm docs:link-check
             git add -A && git diff --exit-code --staged
+      - run:
+          name: '`pnpm inline-scripts changes committed?'
+          command: |
+            pnpm inline-scripts
+            git add -A && git diff --exit-code --staged
   test_types:
     <<: *default-job
     resource_class: 'medium+'
@@ -221,12 +214,6 @@ jobs:
       - checkout
       - install_js:
           react-version: << parameters.react-version >>
-      - run:
-          name: Transpile TypeScript demos
-          command: pnpm docs:typescript:formatted
-      - run:
-          name: '`pnpm docs:typescript:formatted` changes committed?'
-          command: git add -A && git diff --exit-code --staged
       - run:
           name: Tests TypeScript definitions
           command: pnpm typescript
@@ -251,18 +238,12 @@ jobs:
       - run:
           name: Resolve typescript version
           command: |
-            pnpm add typescript@next -d -w
+            pnpm update -r typescript@next
             # log a patch for maintainers who want to check out this change
             git --no-pager diff HEAD
       - run:
           name: Tests TypeScript definitions
-          command: |
-            # ignore build failures
-            # it's expected that typescript@next fails since the lines of the errors
-            # change frequently. This build is monitored regardless of its status
-            set +e
-            pnpm typescript
-            exit 0
+          command: pnpm typescript
       - restore_cache:
           name: Restore generated declaration files
           keys:
@@ -288,7 +269,7 @@ jobs:
     <<: *default-job
     resource_class: 'medium+'
     docker:
-      - image: mcr.microsoft.com/playwright:v1.49.1-noble
+      - image: mcr.microsoft.com/playwright:v1.50.0-noble
     steps:
       - checkout
       - install_js:
@@ -296,7 +277,7 @@ jobs:
           browsers: true
       - run:
           name: Run tests on headless Chromium
-          command: pnpm test:chromium --coverage
+          command: pnpm test:chromium:coverage
       - run:
           name: Check if coverage report is generated
           command: |
@@ -310,40 +291,10 @@ jobs:
             curl -Os https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
             ./codecov -t ${CODECOV_TOKEN} -Z -F "$REACT_VERSION-browser"
-      - store_artifacts:
-          # hardcoded in karma-webpack
-          path: /tmp/_karma_webpack_
-          destination: artifact-file
-  test_profile:
-    <<: *default-job
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.49.1-noble
-    steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
-          browsers: true
-      - run:
-          name: Tests real browsers
-          # Run a couple of times for a better sample.
-          # TODO: hack something together where we can compile once and run multiple times e.g. by abusing watchmode.
-          command: |
-            # Running on chrome only since actual times are innaccurate anyway
-            # The other reason is that browserstack allows little concurrency so it's likely that we're starving other runs.
-            pnpm test:karma:profile --browsers chrome,chromeHeadless
-            pnpm test:karma:profile --browsers chrome,chromeHeadless
-            pnpm test:karma:profile --browsers chrome,chromeHeadless
-            pnpm test:karma:profile --browsers chrome,chromeHeadless
-            pnpm test:karma:profile --browsers chrome,chromeHeadless
-      # Persist reports for inspection in https://mui-dashboard.netlify.app/
-      - store_artifacts:
-          # see karma.conf.profile.js reactProfilerReporter.outputDir
-          path: tmp/react-profiler-report/karma
-          destination: react-profiler-report/karma
   test_regressions:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.49.1-noble
+      - image: mcr.microsoft.com/playwright:v1.50.0-noble
     steps:
       - checkout
       - install_js:
@@ -358,7 +309,7 @@ jobs:
   test_e2e:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.49.1-noble
+      - image: mcr.microsoft.com/playwright:v1.50.0-noble
     steps:
       - checkout
       - install_js:
@@ -371,9 +322,6 @@ jobs:
     steps:
       - checkout
       - install_js
-      - run:
-          name: Run danger on PRs
-          command: pnpm danger ci --fail-on-errors
       # TODO test bundle size https://github.com/mui/base-ui/issues/201
   test_package:
     <<: *default-job
@@ -389,77 +337,58 @@ jobs:
           command: pnpm -r test:package
 
 workflows:
-  version: 2
   pipeline:
     when:
       equal: [pipeline, << pipeline.parameters.workflow >>]
     jobs:
       - checkout:
           <<: *default-context
+          name: 'Checkout'
       - test_unit:
           <<: *default-context
           name: 'JSDOM tests'
           requires:
-            - checkout
+            - Checkout
       - test_lint:
           <<: *default-context
+          name: 'Linting'
           requires:
-            - checkout
+            - Checkout
       - test_static:
           <<: *default-context
+          name: 'Generated files verification'
           requires:
-            - checkout
+            - Checkout
       - test_types:
           <<: *default-context
           name: 'Typechecking'
           requires:
-            - checkout
+            - Checkout
       - test_browser:
           <<: *default-context
           name: 'Browser tests'
           requires:
-            - checkout
+            - Checkout
       - test_regressions:
           <<: *default-context
           name: 'Regression tests'
           requires:
-            - checkout
+            - Checkout
       - test_e2e:
           <<: *default-context
+          name: 'E2E tests'
           requires:
-            - checkout
-      - test_bundle_size_monitor:
-          <<: *default-context
-          requires:
-            - checkout
+            - Checkout
+      # - test_bundle_size_monitor:
+      #    <<: *default-context
+      #    name: 'Bundle size monitor'
+      #    requires:
+      #      - checkout
       - test_package:
           <<: *default-context
+          name: 'Package verification'
           requires:
-            - checkout
-  profile:
-    when:
-      equal: [profile, << pipeline.parameters.workflow >>]
-    jobs:
-      - test_profile:
-          <<: *default-context
-  react-17:
-    triggers:
-      - schedule:
-          cron: '0 0 * * *'
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - test_unit:
-          <<: *default-context
-          react-version: ^17.0.0
-      - test_browser:
-          <<: *default-context
-          react-version: ^17.0.0
-      - test_regressions:
-          <<: *default-context
-          react-version: ^17.0.0
+            - Checkout
   react-18:
     when:
       equal: [pipeline, << pipeline.parameters.workflow >>]

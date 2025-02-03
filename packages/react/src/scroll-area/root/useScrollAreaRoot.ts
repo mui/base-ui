@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { SCROLL_TIMEOUT } from '../constants';
@@ -12,11 +11,10 @@ interface Size {
   height: number;
 }
 
-export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
-  const { dir: dirParam } = params;
-
+export function useScrollAreaRoot() {
   const [hovering, setHovering] = React.useState(false);
-  const [scrolling, setScrolling] = React.useState(false);
+  const [scrollingX, setScrollingX] = React.useState(false);
+  const [scrollingY, setScrollingY] = React.useState(false);
   const [cornerSize, setCornerSize] = React.useState<Size>({ width: 0, height: 0 });
   const [thumbSize, setThumbSize] = React.useState<Size>({ width: 0, height: 0 });
   const [touchModality, setTouchModality] = React.useState(false);
@@ -36,7 +34,9 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   const startScrollTopRef = React.useRef(0);
   const startScrollLeftRef = React.useRef(0);
   const currentOrientationRef = React.useRef<'vertical' | 'horizontal'>('vertical');
-  const timeoutRef = React.useRef(-1);
+  const scrollYTimeoutRef = React.useRef(-1);
+  const scrollXTimeoutRef = React.useRef(-1);
+  const scrollPositionRef = React.useRef({ x: 0, y: 0 });
 
   const [hiddenState, setHiddenState] = React.useState({
     scrollbarYHidden: false,
@@ -44,28 +44,35 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
     cornerHidden: false,
   });
 
-  const [autoDir, setAutoDir] = React.useState(dirParam);
-  const dir = dirParam ?? autoDir;
-
-  useEnhancedEffect(() => {
-    if (dirParam === undefined && viewportRef.current) {
-      setAutoDir(getComputedStyle(viewportRef.current).direction);
-    }
-  }, [dirParam]);
-
   React.useEffect(() => {
     return () => {
-      window.clearTimeout(timeoutRef.current);
+      window.clearTimeout(scrollYTimeoutRef.current);
+      window.clearTimeout(scrollXTimeoutRef.current);
     };
   }, []);
 
-  const handleScroll = useEventCallback(() => {
-    setScrolling(true);
+  const handleScroll = useEventCallback((scrollPosition: { x: number; y: number }) => {
+    const offsetX = scrollPosition.x - scrollPositionRef.current.x;
+    const offsetY = scrollPosition.y - scrollPositionRef.current.y;
+    scrollPositionRef.current = scrollPosition;
 
-    window.clearTimeout(timeoutRef.current);
-    timeoutRef.current = window.setTimeout(() => {
-      setScrolling(false);
-    }, SCROLL_TIMEOUT);
+    if (offsetY !== 0) {
+      setScrollingY(true);
+
+      window.clearTimeout(scrollYTimeoutRef.current);
+      scrollYTimeoutRef.current = window.setTimeout(() => {
+        setScrollingY(false);
+      }, SCROLL_TIMEOUT);
+    }
+
+    if (offsetX !== 0) {
+      setScrollingX(true);
+
+      window.clearTimeout(scrollXTimeoutRef.current);
+      scrollXTimeoutRef.current = window.setTimeout(() => {
+        setScrollingX(false);
+      }, SCROLL_TIMEOUT);
+    }
   });
 
   const handlePointerDown = useEventCallback((event: React.PointerEvent) => {
@@ -116,10 +123,12 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
         viewportRef.current.scrollTop =
           startScrollTopRef.current + scrollRatioY * (scrollableContentHeight - viewportHeight);
         event.preventDefault();
-        setScrolling(true);
-        window.clearTimeout(timeoutRef.current);
-        timeoutRef.current = window.setTimeout(() => {
-          setScrolling(false);
+
+        setScrollingY(true);
+
+        window.clearTimeout(scrollYTimeoutRef.current);
+        scrollYTimeoutRef.current = window.setTimeout(() => {
+          setScrollingY(false);
         }, SCROLL_TIMEOUT);
       }
 
@@ -137,10 +146,12 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
         viewportRef.current.scrollLeft =
           startScrollLeftRef.current + scrollRatioX * (scrollableContentWidth - viewportWidth);
         event.preventDefault();
-        setScrolling(true);
-        window.clearTimeout(timeoutRef.current);
-        timeoutRef.current = window.setTimeout(() => {
-          setScrolling(false);
+
+        setScrollingX(true);
+
+        window.clearTimeout(scrollXTimeoutRef.current);
+        scrollXTimeoutRef.current = window.setTimeout(() => {
+          setScrollingX(false);
         }, SCROLL_TIMEOUT);
       }
     }
@@ -170,7 +181,6 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
-        dir,
         onPointerEnter: handlePointerEnterOrMove,
         onPointerMove: handlePointerEnterOrMove,
         onPointerDown({ pointerType }) {
@@ -185,7 +195,7 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
           [ScrollAreaRootCssVars.scrollAreaCornerWidth as string]: `${cornerSize.width}px`,
         },
       }),
-    [cornerSize, dir, handlePointerEnterOrMove],
+    [cornerSize, handlePointerEnterOrMove],
   );
 
   return React.useMemo(
@@ -201,8 +211,10 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       setThumbSize,
       touchModality,
       cornerRef,
-      scrolling,
-      setScrolling,
+      scrollingX,
+      setScrollingX,
+      scrollingY,
+      setScrollingY,
       hovering,
       setHovering,
       viewportRef,
@@ -224,7 +236,10 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
       thumbSize,
       touchModality,
       cornerRef,
-      scrolling,
+      scrollingX,
+      setScrollingX,
+      scrollingY,
+      setScrollingY,
       hovering,
       setHovering,
       viewportRef,
@@ -238,8 +253,4 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   );
 }
 
-export namespace useScrollAreaRoot {
-  export interface Parameters {
-    dir: string | undefined;
-  }
-}
+export namespace useScrollAreaRoot {}

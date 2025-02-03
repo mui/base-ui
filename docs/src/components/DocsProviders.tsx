@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Tooltip } from '@base-ui-components/react/tooltip';
-import { DemoVariantSelectorProvider } from 'docs/src/components/demo/DemoVariantSelectorProvider';
+import { DemoVariantSelectorProvider } from 'docs/src/components/Demo/DemoVariantSelectorProvider';
 import { PackageManagerSnippetProvider } from 'docs/src/blocks/PackageManagerSnippet/PackageManagerSnippetProvider';
 
 export function DocsProviders({ children }: { children: React.ReactNode }) {

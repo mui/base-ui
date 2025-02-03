@@ -15,7 +15,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
   const {
     id: idProp,
     checked: checkedProp,
-    onCheckedChange: onCheckedChangeProp = () => {},
+    onCheckedChange: onCheckedChangeProp,
     defaultChecked,
     name,
     readOnly,
@@ -24,7 +24,8 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     inputRef: externalInputRef,
   } = params;
 
-  const { labelId, setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
+  const { labelId, setControlId, setTouched, setDirty, validityData, setFilled, setFocused } =
+    useFieldRootContext();
 
   const {
     getValidationProps,
@@ -63,6 +64,12 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     controlRef: buttonRef,
   });
 
+  useEnhancedEffect(() => {
+    if (inputRef.current) {
+      setFilled(inputRef.current.checked);
+    }
+  }, [setFilled]);
+
   const getButtonProps = React.useCallback(
     (otherProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(otherProps), {
@@ -74,12 +81,17 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
         'aria-checked': checked,
         'aria-readonly': readOnly,
         'aria-labelledby': labelId,
+        onFocus() {
+          setFocused(true);
+        },
         onBlur() {
           const element = inputRef.current;
           if (!element) {
             return;
           }
+
           setTouched(true);
+          setFocused(false);
           commitValidation(element.checked);
         },
         onClick(event) {
@@ -90,7 +102,17 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
           inputRef.current?.click();
         },
       }),
-    [getValidationProps, id, disabled, checked, readOnly, labelId, setTouched, commitValidation],
+    [
+      getValidationProps,
+      id,
+      disabled,
+      checked,
+      readOnly,
+      labelId,
+      setFocused,
+      setTouched,
+      commitValidation,
+    ],
   );
 
   const getInputProps = React.useCallback(
@@ -114,6 +136,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
           const nextChecked = event.target.checked;
 
           setDirty(nextChecked !== validityData.initialValue);
+          setFilled(nextChecked);
           setCheckedState(nextChecked);
           onCheckedChange?.(nextChecked, event.nativeEvent);
         },
@@ -127,6 +150,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
       handleInputRef,
       setDirty,
       validityData.initialValue,
+      setFilled,
       setCheckedState,
       onCheckedChange,
     ],

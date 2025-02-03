@@ -26,6 +26,10 @@
       "type": "(value, event) => void",
       "description": "Callback function that is fired when the `pointerup` is triggered."
     },
+    "tabIndex": {
+      "type": "number",
+      "description": "Optional tab index attribute for the thumb components."
+    },
     "step": {
       "type": "number",
       "default": "1",
@@ -102,6 +106,9 @@
     },
     "data-touched": {
       "description": "Present when the slider has been touched (when wrapped in Field.Root)."
+    },
+    "data-focused": {
+      "description": "Present when the slider is focused (when wrapped in Field.Root)."
     }
   },
   "cssVariables": {}

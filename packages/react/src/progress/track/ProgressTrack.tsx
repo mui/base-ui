@@ -9,7 +9,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * Contains the progress bar indicator.
- * Renders a `<span>` element.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
@@ -22,7 +22,7 @@ const ProgressTrack = React.forwardRef(function ProgressTrack(
   const { state } = useProgressRootContext();
 
   const { renderElement } = useComponentRenderer({
-    render: render ?? 'span',
+    render: render ?? 'div',
     state,
     className,
     ref: forwardedRef,
@@ -36,7 +36,7 @@ const ProgressTrack = React.forwardRef(function ProgressTrack(
 namespace ProgressTrack {
   export interface State extends ProgressRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 ProgressTrack.propTypes /* remove-proptypes */ = {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { Metadata, Viewport } from 'next/types';
 import * as SideNav from 'docs/src/components/SideNav';
-import * as QuickNav from 'docs/src/components/quick-nav/QuickNav';
+import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
 import { Header } from 'docs/src/components/Header';
 import { nav } from 'docs/src/nav';
 import './layout.css';

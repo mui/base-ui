@@ -19,12 +19,12 @@
       "description": "Present when the tooltip is closed."
     },
     "data-instant": {
-      "description": "Indicates the instant type of the tooltip popup.",
+      "description": "Present if animations should be instant.",
       "type": "'delay' | 'dismiss' | 'focus'"
     },
     "data-side": {
       "description": "Indicates which side the tooltip is positioned relative to the trigger.",
-      "type": "'none' | 'top' | 'right' | 'bottom' | 'left'"
+      "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
     },
     "data-starting-style": {
       "description": "Present when the tooltip is animating in."

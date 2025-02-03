@@ -1,10 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-
-function valueToPercent(value: number, min: number, max: number) {
-  return ((value - min) * 100) / (max - min);
-}
+import { valueToPercent } from '../../utils/valueToPercent';
 
 function useProgressIndicator(
   parameters: useProgressIndicator.Parameters,
@@ -15,7 +12,7 @@ function useProgressIndicator(
     Number.isFinite(value) && value !== null ? valueToPercent(value, min, max) : null;
 
   const getStyles = React.useCallback(() => {
-    if (!percentageValue) {
+    if (percentageValue == null) {
       return {};
     }
 

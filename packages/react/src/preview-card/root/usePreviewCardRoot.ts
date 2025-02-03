@@ -26,7 +26,7 @@ export function usePreviewCardRoot(
 ): usePreviewCardRoot.ReturnValue {
   const {
     open: externalOpen,
-    onOpenChange: onOpenChangeProp = () => {},
+    onOpenChange: onOpenChangeProp,
     defaultOpen = false,
     delay,
     closeDelay,
@@ -62,7 +62,9 @@ export function usePreviewCardRoot(
   useAfterExitAnimation({
     open,
     animatedElementRef: popupRef,
-    onFinished: () => setMounted(false),
+    onFinished() {
+      setMounted(false);
+    },
   });
 
   const context = useFloatingRootContext({

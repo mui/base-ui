@@ -2,6 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { act, waitFor, screen } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+import { Dialog } from '@base-ui-components/react/dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<AlertDialog.Popup />', () => {
@@ -12,8 +13,10 @@ describe('<AlertDialog.Popup />', () => {
     render: (node) => {
       return render(
         <AlertDialog.Root open>
-          <AlertDialog.Backdrop />
-          {node}
+          <AlertDialog.Portal>
+            <AlertDialog.Backdrop />
+            {node}
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
     },
@@ -23,7 +26,9 @@ describe('<AlertDialog.Popup />', () => {
     const { getByTestId } = await render(
       <AlertDialog.Root open>
         <AlertDialog.Backdrop />
-        <AlertDialog.Popup data-testid="test-alert-dialog" />
+        <AlertDialog.Portal>
+          <AlertDialog.Popup data-testid="test-alert-dialog" />
+        </AlertDialog.Portal>
       </AlertDialog.Root>,
     );
 
@@ -39,10 +44,12 @@ describe('<AlertDialog.Popup />', () => {
           <AlertDialog.Root>
             <AlertDialog.Backdrop />
             <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-            <AlertDialog.Popup data-testid="dialog">
-              <input data-testid="dialog-input" />
-              <button>Close</button>
-            </AlertDialog.Popup>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup data-testid="dialog">
+                <input data-testid="dialog-input" />
+                <button>Close</button>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
           </AlertDialog.Root>
           <input />
         </div>,
@@ -68,12 +75,14 @@ describe('<AlertDialog.Popup />', () => {
             <AlertDialog.Root>
               <AlertDialog.Backdrop />
               <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-              <AlertDialog.Popup data-testid="dialog" initialFocus={input2Ref}>
-                <input data-testid="input-1" />
-                <input data-testid="input-2" ref={input2Ref} />
-                <input data-testid="input-3" />
-                <button>Close</button>
-              </AlertDialog.Popup>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="dialog" initialFocus={input2Ref}>
+                  <input data-testid="input-1" />
+                  <input data-testid="input-2" ref={input2Ref} />
+                  <input data-testid="input-3" />
+                  <button>Close</button>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
             </AlertDialog.Root>
             <input />
           </div>
@@ -105,12 +114,14 @@ describe('<AlertDialog.Popup />', () => {
             <AlertDialog.Root>
               <AlertDialog.Backdrop />
               <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-              <AlertDialog.Popup data-testid="dialog" initialFocus={getRef}>
-                <input data-testid="input-1" />
-                <input data-testid="input-2" ref={input2Ref} />
-                <input data-testid="input-3" />
-                <button>Close</button>
-              </AlertDialog.Popup>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="dialog" initialFocus={getRef}>
+                  <input data-testid="input-1" />
+                  <input data-testid="input-2" ref={input2Ref} />
+                  <input data-testid="input-3" />
+                  <button>Close</button>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
             </AlertDialog.Root>
             <input />
           </div>
@@ -139,9 +150,11 @@ describe('<AlertDialog.Popup />', () => {
           <AlertDialog.Root>
             <AlertDialog.Backdrop />
             <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-            <AlertDialog.Popup>
-              <AlertDialog.Close>Close</AlertDialog.Close>
-            </AlertDialog.Popup>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup>
+                <AlertDialog.Close>Close</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
           </AlertDialog.Root>
           <input />
         </div>,
@@ -167,9 +180,11 @@ describe('<AlertDialog.Popup />', () => {
             <AlertDialog.Root>
               <AlertDialog.Backdrop />
               <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-              <AlertDialog.Popup finalFocus={inputRef}>
-                <AlertDialog.Close>Close</AlertDialog.Close>
-              </AlertDialog.Popup>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup finalFocus={inputRef}>
+                  <AlertDialog.Close>Close</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
             </AlertDialog.Root>
             <input />
             <input data-testid="input-to-focus" ref={inputRef} />
@@ -195,14 +210,20 @@ describe('<AlertDialog.Popup />', () => {
   });
 
   describe('style hooks', () => {
-    it('adds the `nested` style hook if a dialog has a parent dialog', async () => {
+    it('adds the `nested` and `has-nested-dialogs` style hooks if a dialog has a parent dialog', async () => {
       await render(
         <AlertDialog.Root open>
           <AlertDialog.Portal>
             <AlertDialog.Popup data-testid="parent-dialog" />
             <AlertDialog.Root open>
               <AlertDialog.Portal>
-                <AlertDialog.Popup data-testid="nested-dialog" />
+                <AlertDialog.Popup data-testid="nested-dialog">
+                  <AlertDialog.Root>
+                    <AlertDialog.Portal>
+                      <AlertDialog.Popup />
+                    </AlertDialog.Portal>
+                  </AlertDialog.Root>
+                </AlertDialog.Popup>
               </AlertDialog.Portal>
             </AlertDialog.Root>
           </AlertDialog.Portal>
@@ -214,6 +235,39 @@ describe('<AlertDialog.Popup />', () => {
 
       expect(parentDialog).not.to.have.attribute('data-nested');
       expect(nestedDialog).to.have.attribute('data-nested');
+
+      expect(parentDialog).to.have.attribute('data-has-nested-dialogs');
+      expect(nestedDialog).not.to.have.attribute('data-has-nested-dialogs');
+    });
+
+    it('adds the `nested` and `has-nested-dialogs` style hooks on an alert dialog if has a parent dialog', async () => {
+      await render(
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="parent-dialog" />
+            <AlertDialog.Root open>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="nested-dialog">
+                  <AlertDialog.Root>
+                    <AlertDialog.Portal>
+                      <AlertDialog.Popup />
+                    </AlertDialog.Portal>
+                  </AlertDialog.Root>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const parentDialog = screen.getByTestId('parent-dialog');
+      const nestedDialog = screen.getByTestId('nested-dialog');
+
+      expect(parentDialog).not.to.have.attribute('data-nested');
+      expect(nestedDialog).to.have.attribute('data-nested');
+
+      expect(parentDialog).to.have.attribute('data-has-nested-dialogs');
+      expect(nestedDialog).not.to.have.attribute('data-has-nested-dialogs');
     });
   });
 });

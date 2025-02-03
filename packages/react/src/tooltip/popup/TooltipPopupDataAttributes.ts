@@ -17,11 +17,11 @@ export enum TooltipPopupDataAttributes {
   endingStyle = 'data-ending-style',
   /**
    * Indicates which side the tooltip is positioned relative to the trigger.
-   * @type {'none' | 'top' | 'right' | 'bottom' | 'left'}
+   * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
   side = 'data-side',
   /**
-   * Indicates the instant type of the tooltip popup.
+   * Present if animations should be instant.
    * @type {'delay' | 'dismiss' | 'focus'}
    */
   instant = 'data-instant',

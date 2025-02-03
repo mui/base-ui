@@ -1,7 +1,6 @@
 // Public utils
 
 export * from './getReactElementRef';
-export * from './MuiCancellableEvent';
 export * from './useControlled';
 export * from './useEnhancedEffect';
 export * from './useForkRef';
