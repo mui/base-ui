@@ -15,7 +15,7 @@
   display: flex;
   position: relative;
   z-index: 0;
-  padding-inline: 0.25rem;
+  padding: 0.25rem;
   gap: 0.25rem;
   box-shadow: inset 0 -1px var(--color-gray-200);
 
@@ -43,7 +43,11 @@
   user-select: none;
   padding-inline: 0.5rem;
   padding-block: 0;
-  height: 2rem;
+  height: 1.5rem;
+
+  &[data-orientation='vertical'] {
+    height: 2rem;
+  }
 
   &[data-selected] {
     color: var(--color-gray-900);
@@ -76,21 +80,42 @@
 .indicator {
   position: absolute;
   z-index: -1;
-  left: 0;
-  top: 50%;
-  translate: var(--active-tab-left) -50%;
-  width: var(--active-tab-width);
-  height: 1.5rem;
+  inset: var(--active-tab-top) var(--active-tab-right) var(--active-tab-bottom)
+    var(--active-tab-left);
   border-radius: 0.25rem;
   background-color: var(--color-gray-100);
-  transition-property: translate, width;
+  transition-property: left, right, top, bottom;
   transition-duration: 200ms;
   transition-timing-function: ease-in-out;
 
-  &[data-orientation='vertical'] {
-    top: 0;
-    translate: var(--active-tab-left) var(--active-tab-top);
-    height: var(--active-tab-height);
+  &.elastic {
+    &[data-activation-direction='right'] {
+      transition:
+        left 0.6s 0.1s,
+        right 0.3s,
+        top 0.3s,
+        bottom 0.3s;
+    }
+
+    &[data-activation-direction='down'] {
+      transition:
+        top 0.6s 0.1s,
+        bottom 0.3s;
+    }
+
+    &[data-activation-direction='left'] {
+      transition:
+        left 0.3s,
+        right 0.6s 0.1s,
+        top 0.3s,
+        bottom 0.3s;
+    }
+
+    &[data-activation-direction='up'] {
+      transition:
+        top 0.3s,
+        bottom 0.6s 0.1s;
+    }
   }
 }
 
