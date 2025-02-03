@@ -11,7 +11,7 @@ export function useMenuPositioner(
 ): useMenuPositioner.ReturnValue {
   const { nodeId, parentNodeId } = params;
 
-  const { open, setOpen, mounted } = useMenuRootContext();
+  const { open, setOpen, mounted, setHoverEnabled } = useMenuRootContext();
 
   const positioning = useAnchorPositioning(params);
 
@@ -38,23 +38,28 @@ export function useMenuPositioner(
   );
 
   React.useEffect(() => {
-    function onMenuOpened(event: { nodeId: string; parentNodeId: string }) {
-      if (event.nodeId !== nodeId && event.parentNodeId === parentNodeId) {
-        setOpen(false, undefined);
+    function onMenuOpenChange(event: { open: boolean; nodeId: string; parentNodeId: string }) {
+      if (event.open) {
+        if (event.parentNodeId === nodeId) {
+          setHoverEnabled(false);
+        }
+        if (event.nodeId !== nodeId && event.parentNodeId === parentNodeId) {
+          setOpen(false, undefined);
+        }
+      } else if (event.parentNodeId === nodeId) {
+        setHoverEnabled(true);
       }
     }
 
-    menuEvents.on('opened', onMenuOpened);
+    menuEvents.on('openchange', onMenuOpenChange);
 
     return () => {
-      menuEvents.off('opened', onMenuOpened);
+      menuEvents.off('openchange', onMenuOpenChange);
     };
-  }, [menuEvents, nodeId, parentNodeId, setOpen]);
+  }, [menuEvents, nodeId, parentNodeId, setOpen, setHoverEnabled]);
 
   React.useEffect(() => {
-    if (open) {
-      menuEvents.emit('opened', { nodeId, parentNodeId });
-    }
+    menuEvents.emit('openchange', { open, nodeId, parentNodeId });
   }, [menuEvents, open, nodeId, parentNodeId]);
 
   return React.useMemo(

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
-import { NOOP } from '../../utils/noop';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useControlled } from '../../utils/useControlled';
@@ -31,7 +30,7 @@ const MenuRadioGroup = React.forwardRef(function MenuRadioGroup(
     name: 'MenuRadioGroup',
   });
 
-  const onValueChange = useEventCallback(onValueChangeProp ?? NOOP);
+  const onValueChange = useEventCallback(onValueChangeProp);
 
   const setValue = React.useCallback(
     (newValue: any, event: Event) => {

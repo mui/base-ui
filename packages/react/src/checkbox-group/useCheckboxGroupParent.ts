@@ -6,7 +6,7 @@ import { useEventCallback } from '../utils/useEventCallback';
 export function useCheckboxGroupParent(
   params: UseCheckboxGroupParent.Parameters,
 ): UseCheckboxGroupParent.ReturnValue {
-  const { allValues = [], value = [], onValueChange: onValueChangeProp = () => {} } = params;
+  const { allValues = [], value = [], onValueChange: onValueChangeProp } = params;
 
   const uncontrolledStateRef = React.useRef(value);
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
