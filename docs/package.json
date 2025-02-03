@@ -81,7 +81,7 @@
     "@types/chai": "^4.3.20",
     "@types/gtag.js": "^0.0.20",
     "@types/hast": "^3.0.4",
-    "@types/node": "^18.19.69",
+    "@types/node": "^18.19.74",
     "@types/prop-types": "^15.7.14",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",

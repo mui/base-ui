@@ -76,7 +76,7 @@
     "@tailwindcss/postcss": "4.0.0-beta.2",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.13",
-    "@types/node": "^18.19.69",
+    "@types/node": "^18.19.74",
     "@types/react": "^19.0.2",
     "@types/url-join": "^4.0.3",
     "@types/yargs": "^17.0.33",
@@ -169,7 +169,7 @@
     "@babel/preset-typescript": "^7.26.0",
     "@babel/runtime": "^7.26.0",
     "@babel/types": "^7.26.3",
-    "@types/node": "^18.19.69",
+    "@types/node": "^18.19.74",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2"
   }
