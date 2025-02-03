@@ -150,7 +150,7 @@
     "typescript": "^5.7.3",
     "unist-util-visit": "^5.0.0",
     "url-join": "4.0.1",
-    "vite": "^6.0.3",
+    "vite": "^6.0.11",
     "vitest": "^2.1.8",
     "webpack": "^5.97.1",
     "webpack-bundle-analyzer": "^4.10.2",
