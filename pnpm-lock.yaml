@@ -138,8 +138,8 @@ importers:
         specifier: ^0.4.24
         version: 0.4.24
       chai-dom:
-        specifier: ^1.12.0
-        version: 1.12.0(chai@5.1.2)
+        specifier: ^1.12.1
+        version: 1.12.1(chai@5.1.2)
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
@@ -4011,8 +4011,8 @@ packages:
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
 
-  chai-dom@1.12.0:
-    resolution: {integrity: sha512-pLP8h6IBR8z1AdeQ+EMcJ7dXPdsax/1Q7gdGZjsnAmSBl3/gItQUYSCo32br1qOy4SlcBjvqId7ilAf3uJ2K1w==}
+  chai-dom@1.12.1:
+    resolution: {integrity: sha512-tvz+D0PJue2VHXRec3udgP/OeeXBiePU3VH6JhEnHQJYzvNzR2nUvEykA9dXVS76JvaUENSOYH8Ufr0kZSnlCQ==}
     engines: {node: '>= 0.12.0'}
     peerDependencies:
       chai: '>= 3'
@@ -10908,7 +10908,7 @@ snapshots:
       '@testing-library/react': 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@19.0.2(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.0)
       chai: 4.5.0
-      chai-dom: 1.12.0(chai@4.5.0)
+      chai-dom: 1.12.1(chai@4.5.0)
       dom-accessibility-api: 0.7.0
       format-util: 1.0.5
       fs-extra: 11.3.0
@@ -12967,11 +12967,11 @@ snapshots:
 
   ccount@2.0.1: {}
 
-  chai-dom@1.12.0(chai@4.5.0):
+  chai-dom@1.12.1(chai@4.5.0):
     dependencies:
       chai: 4.5.0
 
-  chai-dom@1.12.0(chai@5.1.2):
+  chai-dom@1.12.1(chai@5.1.2):
     dependencies:
       chai: 5.1.2
 
