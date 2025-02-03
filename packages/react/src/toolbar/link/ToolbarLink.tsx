@@ -11,7 +11,12 @@ import { useToolbarRootContext } from '../root/ToolbarRootContext';
 const TOOLBAR_LINK_METADATA = {
   focusableWhenDisabled: true,
 };
-
+/**
+ * A link component.
+ * Renders a `<a>` element.
+ *
+ * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
+ */
 const ToolbarLink = React.forwardRef(function ToolbarLink(
   props: ToolbarLink.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,

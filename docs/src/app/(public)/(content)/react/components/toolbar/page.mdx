@@ -1,0 +1,27 @@
+# Toolbar
+
+<Subtitle>A container for grouping a set of buttons and controls.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React toolbar component that grouping a set of buttons and controls."
+/>
+
+## API reference
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Toolbar } from '@base-ui-components/react/toolbar';
+
+<Toolbar.Root>
+  <Toolbar.Button />
+  <Toolbar.Link />
+  <Toolbar.Separator />
+  <Toolbar.Group>
+    <Toolbar.Button />
+    <Toolbar.Button />
+  <Toolbar.Group />
+</Toolbar.Root>;
+```
+
+<Reference component="Toolbar" parts="Root, Button, Link, Group, Separator" />

@@ -2,6 +2,11 @@
   "name": "ToolbarRoot",
   "description": "A container for grouping a set of controls, such as buttons, toggle groups, or menus.\nRenders a `<div>` element.",
   "props": {
+    "cols": {
+      "type": "number",
+      "default": "1",
+      "description": "The number of columns. When greater than 1, the toolbar is arranged into\na grid."
+    },
     "loop": {
       "type": "boolean",
       "default": "true",
@@ -10,7 +15,7 @@
     "orientation": {
       "type": "'horizontal' | 'vertical'",
       "default": "'horizontal'",
-      "description": "The component orientation (layout flow direction)."
+      "description": "The orientation of the toolbar."
     },
     "className": {
       "type": "string | (state) => string",
