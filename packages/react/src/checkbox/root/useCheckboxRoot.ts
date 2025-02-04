@@ -17,7 +17,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     id: idProp,
     checked: externalChecked,
     inputRef: externalInputRef,
-    onCheckedChange: onCheckedChangeProp = () => {},
+    onCheckedChange: onCheckedChangeProp,
     name,
     value,
     defaultChecked = false,

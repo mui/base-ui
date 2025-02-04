@@ -1,15 +1,29 @@
 'use client';
 import * as React from 'react';
+import { formatNumber } from '../../utils/formatNumber';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useLatestRef } from '../../utils/useLatestRef';
 
 export type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 
-function getDefaultAriaValueText(value: number | null) {
-  if (value === null) {
+function formatValue(value: number | null, format?: Intl.NumberFormatOptions): string {
+  if (value == null) {
+    return '';
+  }
+
+  if (!format) {
+    return formatNumber(value / 100, [], { style: 'percent' });
+  }
+
+  return formatNumber(value, [], format);
+}
+
+function getDefaultAriaValueText(formattedValue: string | null, value: number | null) {
+  if (value == null) {
     return 'indeterminate progress';
   }
 
-  return `${value}%`;
+  return formattedValue || `${value}%`;
 }
 
 function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoot.ReturnValue {
@@ -17,6 +31,7 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
+    format,
     getAriaLabel,
     getAriaValueText,
     max = 100,
@@ -24,10 +39,13 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
     value,
   } = parameters;
 
+  const formatOptionsRef = useLatestRef(format);
+
   let status: ProgressStatus = 'indeterminate';
   if (Number.isFinite(value)) {
     status = value === max ? 'complete' : 'progressing';
   }
+  const formattedValue = formatValue(value, formatOptionsRef.current);
 
   const getRootProps: useProgressRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
@@ -38,16 +56,26 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
         'aria-valuemin': min,
         'aria-valuenow': value ?? undefined,
         'aria-valuetext': getAriaValueText
-          ? getAriaValueText(value)
-          : (ariaValuetext ?? getDefaultAriaValueText(value)),
+          ? getAriaValueText(formattedValue, value)
+          : (ariaValuetext ?? getDefaultAriaValueText(formattedValue, value)),
         role: 'progressbar',
       }),
-    [ariaLabel, ariaLabelledby, ariaValuetext, getAriaLabel, getAriaValueText, max, min, value],
+    [
+      ariaLabel,
+      ariaLabelledby,
+      ariaValuetext,
+      formattedValue,
+      getAriaLabel,
+      getAriaValueText,
+      max,
+      min,
+      value,
+    ],
   );
 
   return {
     getRootProps,
-
+    formattedValue,
     max,
     min,
     value,
@@ -70,24 +98,29 @@ namespace useProgressRoot {
      */
     'aria-valuetext'?: string;
     /**
-     * Accepts a function which returns a string value that provides an accessible name for the Indicator component
-     * @param {number | null} value The component's value
+     * Options to format the value.
+     */
+    format?: Intl.NumberFormatOptions;
+    /**
+     * Accepts a function which returns a string value that provides an accessible name for the Indicator component.
+     * @param {number | null} value The component's value.
      * @returns {string}
      */
     getAriaLabel?: (index: number | null) => string;
     /**
      * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress indicator.
-     * @param {number | null} value The component's value to format
+     * @param {string} formattedValue The component's formatted value.
+     * @param {number | null} value The component's numerical value.
      * @returns {string}
      */
-    getAriaValueText?: (value: number | null) => string;
+    getAriaValueText?: (formattedValue: string | null, value: number | null) => string;
     /**
-     * The maximum value
+     * The maximum value.
      * @default 100
      */
     max?: number;
     /**
-     * The minimum value
+     * The minimum value.
      * @default 0
      */
     min?: number;
@@ -103,17 +136,21 @@ namespace useProgressRoot {
       externalProps?: React.ComponentPropsWithRef<'div'>,
     ) => React.ComponentPropsWithRef<'div'>;
     /**
-     * The maximum value
+     * The maximum value.
      */
     max: number;
     /**
-     * The minimum value
+     * The minimum value.
      */
     min: number;
     /**
-     * Value of the component
+     * Value of the component.
      */
     value: number | null;
+    /**
+     * Formatted value of the component.
+     */
+    formattedValue: string;
     status: ProgressStatus;
   }
 }

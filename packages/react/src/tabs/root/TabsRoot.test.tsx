@@ -301,6 +301,58 @@ describe('<Tabs.Root />', () => {
     });
   });
 
+  describe('pointer navigation', () => {
+    it('activates the clicked tab', async () => {
+      const { user } = await render(
+        <Tabs.Root defaultValue={0}>
+          <Tabs.List activateOnFocus={false}>
+            <Tabs.Tab value={0}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 2</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 3</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel>Panel 1</Tabs.Panel>
+          <Tabs.Panel>Panel 2</Tabs.Panel>
+          <Tabs.Panel>Panel 3</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tab2 = screen.getByRole('tab', { name: 'Tab 2' });
+      await user.click(tab2);
+
+      const panels = screen.getAllByRole('tabpanel', { hidden: true });
+
+      expect(panels[0]).to.have.attribute('hidden');
+      expect(panels[1]).not.to.have.attribute('hidden');
+      expect(panels[2]).to.have.attribute('hidden');
+    });
+
+    it('does not activate the clicked disabled tab', async () => {
+      const { user } = await render(
+        <Tabs.Root defaultValue={0}>
+          <Tabs.List activateOnFocus={false}>
+            <Tabs.Tab value={0}>Tab 1</Tabs.Tab>
+            <Tabs.Tab disabled value={1}>
+              Tab 2
+            </Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 3</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel>Panel 1</Tabs.Panel>
+          <Tabs.Panel>Panel 2</Tabs.Panel>
+          <Tabs.Panel>Panel 3</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tab2 = screen.getByRole('tab', { name: 'Tab 2' });
+      await user.click(tab2);
+
+      const panels = screen.getAllByRole('tabpanel', { hidden: true });
+
+      expect(panels[0]).not.to.have.attribute('hidden');
+      expect(panels[1]).to.have.attribute('hidden');
+      expect(panels[2]).to.have.attribute('hidden');
+    });
+  });
+
   describe('keyboard navigation when focus is on a tab', () => {
     [
       ['horizontal', 'ltr', 'ArrowLeft', 'ArrowRight'],

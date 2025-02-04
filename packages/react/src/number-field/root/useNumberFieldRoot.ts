@@ -52,7 +52,7 @@ export function useNumberFieldRoot(
     allowWheelScrub = false,
     format,
     value: externalValue,
-    onValueChange: onValueChangeProp = () => {},
+    onValueChange: onValueChangeProp,
     defaultValue,
   } = params;
 
