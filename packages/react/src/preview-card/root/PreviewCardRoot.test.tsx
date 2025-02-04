@@ -752,5 +752,21 @@ describe('<PreviewCard.Root />', () => {
 
       expect(screen.queryByTestId('popup')).not.to.equal(null);
     });
+
+    it('does not get called on mount when not open', async () => {
+      const onOpenChangeComplete = spy();
+
+      await render(
+        <PreviewCard.Root onOpenChangeComplete={onOpenChangeComplete}>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup />
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+
+      expect(onOpenChangeComplete.callCount).to.equal(0);
+    });
   });
 });

@@ -14,16 +14,7 @@ export function useOpenChangeComplete(parameters: useOpenChangeComplete.Paramete
   const onComplete = useEventCallback(onCompleteParam);
   const runOnceAnimationsFinish = useAnimationsFinished(ref, open);
 
-  const hasMountedRef = React.useRef(false);
-
   useEnhancedEffect(() => {
-    if (hasMountedRef.current) {
-      hasMountedRef.current = true;
-      if (!open) {
-        return;
-      }
-    }
-
     runOnceAnimationsFinish(() => {
       if (open === openRef.current) {
         onComplete();

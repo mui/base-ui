@@ -708,5 +708,21 @@ describe('<Popover.Root />', () => {
 
       expect(screen.queryByTestId('popup')).not.to.equal(null);
     });
+
+    it('does not get called on mount when not open', async () => {
+      const onOpenChangeComplete = spy();
+
+      await render(
+        <Popover.Root onOpenChangeComplete={onOpenChangeComplete}>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      expect(onOpenChangeComplete.callCount).to.equal(0);
+    });
   });
 });

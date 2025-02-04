@@ -651,5 +651,21 @@ describe('<Tooltip.Root />', () => {
 
       expect(screen.queryByTestId('popup')).not.to.equal(null);
     });
+
+    it('does not get called on mount when not open', async () => {
+      const onOpenChangeComplete = spy();
+
+      await render(
+        <Tooltip.Root onOpenChangeComplete={onOpenChangeComplete}>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup />
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>,
+      );
+
+      expect(onOpenChangeComplete.callCount).to.equal(0);
+    });
   });
 });

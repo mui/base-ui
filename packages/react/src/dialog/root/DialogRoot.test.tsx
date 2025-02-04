@@ -874,5 +874,19 @@ describe('<Dialog.Root />', () => {
 
       expect(screen.queryByTestId('popup')).not.to.equal(null);
     });
+
+    it('does not get called on mount when not open', async () => {
+      const onOpenChangeComplete = spy();
+
+      await render(
+        <Dialog.Root onOpenChangeComplete={onOpenChangeComplete}>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="popup" />
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      expect(onOpenChangeComplete.callCount).to.equal(0);
+    });
   });
 });

@@ -1049,6 +1049,22 @@ describe('<Menu.Root />', () => {
 
       expect(screen.queryByTestId('popup')).not.to.equal(null);
     });
+
+    it('does not get called on mount when not open', async () => {
+      const onOpenChangeComplete = spy();
+
+      await render(
+        <Menu.Root onOpenChangeComplete={onOpenChangeComplete}>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(onOpenChangeComplete.callCount).to.equal(0);
+    });
   });
 
   describe('prop: openOnHover', () => {

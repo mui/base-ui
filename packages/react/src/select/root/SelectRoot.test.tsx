@@ -603,5 +603,21 @@ describe('<Select.Root />', () => {
 
       expect(screen.queryByRole('listbox')).not.to.equal(null);
     });
+
+    it('does not get called on mount when not open', async () => {
+      const onOpenChangeComplete = spy();
+
+      await render(
+        <Select.Root onOpenChangeComplete={onOpenChangeComplete}>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup data-testid="popup" />
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(onOpenChangeComplete.callCount).to.equal(0);
+    });
   });
 });
