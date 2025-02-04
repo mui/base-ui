@@ -14,6 +14,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
   ...baseMapping,
@@ -32,9 +33,29 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 ) {
   const { render, className, ...other } = props;
 
-  const { open, setOpen, popupRef, transitionStatus, nested, getPopupProps, modal, mounted } =
-    useMenuRootContext();
+  const {
+    open,
+    setOpen,
+    popupRef,
+    transitionStatus,
+    nested,
+    getPopupProps,
+    modal,
+    mounted,
+    instantType,
+    onOpenChangeComplete,
+  } = useMenuRootContext();
   const { side, align, floatingContext } = useMenuPositionerContext();
+
+  useOpenChangeComplete({
+    open,
+    ref: popupRef,
+    onComplete() {
+      if (open) {
+        onOpenChangeComplete?.(true);
+      }
+    },
+  });
 
   const { events: menuEvents } = useFloatingTree()!;
 
@@ -52,8 +73,9 @@ const MenuPopup = React.forwardRef(function MenuPopup(
       align,
       open,
       nested,
+      instant: instantType,
     }),
-    [transitionStatus, side, align, open, nested],
+    [transitionStatus, side, align, open, nested, instantType],
   );
 
   const { renderElement } = useComponentRenderer({

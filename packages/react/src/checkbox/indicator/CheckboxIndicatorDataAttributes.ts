@@ -43,4 +43,12 @@ export enum CheckboxIndicatorDataAttributes {
    * Present when the checkbox's value has changed (when wrapped in Field.Root).
    */
   dirty = 'data-dirty',
+  /**
+   * Present when the checkbox is checked (when wrapped in Field.Root).
+   */
+  filled = 'data-filled',
+  /**
+   * Present when the checkbox is focused (when wrapped in Field.Root).
+   */
+  focused = 'data-focused',
 }

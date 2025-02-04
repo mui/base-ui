@@ -50,9 +50,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
         mergeReactProps<'div'>(externalProps, {
           'aria-disabled': disabled || undefined,
           tabIndex: highlighted ? 0 : -1,
-          style: {
-            pointerEvents: disabled ? 'none' : undefined,
-          },
           onFocus() {
             if (allowFocusSyncRef.current) {
               setActiveIndex(indexRef.current);
@@ -64,9 +61,25 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               prevPopupHeightRef.current = popupRef.current.offsetHeight;
             }
           },
-          onMouseLeave() {
+          onMouseLeave(event) {
             const popup = popupRef.current;
             if (!popup || !open) {
+              return;
+            }
+
+            const targetRect = event.currentTarget.getBoundingClientRect();
+
+            // Safari randomly fires `mouseleave` incorrectly when the item is
+            // aligned to the trigger. This is a workaround to prevent the highlight
+            // from being removed while the cursor is still within the bounds of the item.
+            // https://github.com/mui/base-ui/issues/869
+            const isWithinBounds =
+              targetRect.top + 1 <= event.clientY &&
+              event.clientY <= targetRect.bottom - 1 &&
+              targetRect.left + 1 <= event.clientX &&
+              event.clientX <= targetRect.right - 1;
+
+            if (isWithinBounds) {
               return;
             }
 
@@ -96,6 +109,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           },
           onClick(event) {
             if (
+              disabled ||
               (lastKeyRef.current === ' ' && typingRef.current) ||
               (pointerTypeRef.current !== 'touch' && !highlighted)
             ) {
@@ -114,6 +128,9 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
             pointerTypeRef.current = event.pointerType;
           },
           onMouseUp(event) {
+            if (disabled) {
+              return;
+            }
             const disallowSelectedMouseUp = !selectionRef.current.allowSelectedMouseUp && selected;
             const disallowUnselectedMouseUp =
               !selectionRef.current.allowUnselectedMouseUp && !selected;

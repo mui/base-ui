@@ -16,44 +16,38 @@ export default function RtlPopover() {
             <Popover.Trigger className={s.IconButton}>
               <BellIcon aria-label="Notifications" className={s.Icon} />
             </Popover.Trigger>
-            <Popover.Positioner
-              sideOffset={12}
-              dir={DIR}
-              side="inline-start"
-              keepMounted
-            >
-              <Popover.Popup className={s.Popup}>
-                <Popover.Arrow className={s.Arrow}>
-                  <ArrowSvg />
-                </Popover.Arrow>
-                <Popover.Title className={s.Title}>Notifications</Popover.Title>
-                <Popover.Description className={s.Description}>
-                  You are all caught up. Good job!
-                </Popover.Description>
-              </Popover.Popup>
-            </Popover.Positioner>
+            <Popover.Portal keepMounted>
+              <Popover.Positioner sideOffset={12} dir={DIR} side="inline-start">
+                <Popover.Popup className={s.Popup}>
+                  <Popover.Arrow className={s.Arrow}>
+                    <ArrowSvg />
+                  </Popover.Arrow>
+                  <Popover.Title className={s.Title}>Notifications</Popover.Title>
+                  <Popover.Description className={s.Description}>
+                    You are all caught up. Good job!
+                  </Popover.Description>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
           </Popover.Root>
 
           <Popover.Root>
             <Popover.Trigger className={s.IconButton}>
               <BellIcon aria-label="Notifications" className={s.Icon} />
             </Popover.Trigger>
-            <Popover.Positioner
-              sideOffset={12}
-              dir={DIR}
-              side="inline-end"
-              keepMounted
-            >
-              <Popover.Popup className={s.Popup}>
-                <Popover.Arrow className={s.Arrow}>
-                  <ArrowSvg />
-                </Popover.Arrow>
-                <Popover.Title className={s.Title}>Notifications</Popover.Title>
-                <Popover.Description className={s.Description}>
-                  You are all caught up. Good job!
-                </Popover.Description>
-              </Popover.Popup>
-            </Popover.Positioner>
+            <Popover.Portal keepMounted>
+              <Popover.Positioner sideOffset={12} dir={DIR} side="inline-end">
+                <Popover.Popup className={s.Popup}>
+                  <Popover.Arrow className={s.Arrow}>
+                    <ArrowSvg />
+                  </Popover.Arrow>
+                  <Popover.Title className={s.Title}>Notifications</Popover.Title>
+                  <Popover.Description className={s.Description}>
+                    You are all caught up. Good job!
+                  </Popover.Description>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
           </Popover.Root>
         </div>
 
@@ -62,52 +56,56 @@ export default function RtlPopover() {
             <Menu.Trigger className={s.Button}>
               Song <ChevronDownIcon className={s.ButtonIcon} />
             </Menu.Trigger>
-            <Menu.Positioner
-              className={s.Positioner}
-              sideOffset={12}
-              side="inline-start"
-              dir={DIR}
-            >
-              <Menu.Popup className={s.Popup}>
-                <Menu.Arrow className={s.Arrow}>
-                  <ArrowSvg />
-                </Menu.Arrow>
-                <Menu.Item className={s.Item}>Add to Library</Menu.Item>
-                <Menu.Item className={s.Item}>Add to Playlist</Menu.Item>
-                <Menu.Separator className={s.Separator} />
-                <Menu.Item className={s.Item}>Play Next</Menu.Item>
-                <Menu.Item className={s.Item}>Play Last</Menu.Item>
-                <Menu.Separator className={s.Separator} />
-                <Menu.Item className={s.Item}>Favorite</Menu.Item>
-                <Menu.Item className={s.Item}>Share</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner
+                className={s.Positioner}
+                sideOffset={12}
+                side="inline-start"
+                dir={DIR}
+              >
+                <Menu.Popup className={s.Popup}>
+                  <Menu.Arrow className={s.Arrow}>
+                    <ArrowSvg />
+                  </Menu.Arrow>
+                  <Menu.Item className={s.Item}>Add to Library</Menu.Item>
+                  <Menu.Item className={s.Item}>Add to Playlist</Menu.Item>
+                  <Menu.Separator className={s.Separator} />
+                  <Menu.Item className={s.Item}>Play Next</Menu.Item>
+                  <Menu.Item className={s.Item}>Play Last</Menu.Item>
+                  <Menu.Separator className={s.Separator} />
+                  <Menu.Item className={s.Item}>Favorite</Menu.Item>
+                  <Menu.Item className={s.Item}>Share</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
 
           <Menu.Root>
             <Menu.Trigger className={s.Button}>
               Song <ChevronDownIcon className={s.ButtonIcon} />
             </Menu.Trigger>
-            <Menu.Positioner
-              className={s.Positioner}
-              sideOffset={12}
-              side="inline-end"
-              dir={DIR}
-            >
-              <Menu.Popup className={s.Popup}>
-                <Menu.Arrow className={s.Arrow}>
-                  <ArrowSvg />
-                </Menu.Arrow>
-                <Menu.Item className={s.Item}>Add to Library</Menu.Item>
-                <Menu.Item className={s.Item}>Add to Playlist</Menu.Item>
-                <Menu.Separator className={s.Separator} />
-                <Menu.Item className={s.Item}>Play Next</Menu.Item>
-                <Menu.Item className={s.Item}>Play Last</Menu.Item>
-                <Menu.Separator className={s.Separator} />
-                <Menu.Item className={s.Item}>Favorite</Menu.Item>
-                <Menu.Item className={s.Item}>Share</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner
+                className={s.Positioner}
+                sideOffset={12}
+                side="inline-end"
+                dir={DIR}
+              >
+                <Menu.Popup className={s.Popup}>
+                  <Menu.Arrow className={s.Arrow}>
+                    <ArrowSvg />
+                  </Menu.Arrow>
+                  <Menu.Item className={s.Item}>Add to Library</Menu.Item>
+                  <Menu.Item className={s.Item}>Add to Playlist</Menu.Item>
+                  <Menu.Separator className={s.Separator} />
+                  <Menu.Item className={s.Item}>Play Next</Menu.Item>
+                  <Menu.Item className={s.Item}>Play Last</Menu.Item>
+                  <Menu.Separator className={s.Separator} />
+                  <Menu.Item className={s.Item}>Favorite</Menu.Item>
+                  <Menu.Item className={s.Item}>Share</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
         </div>
       </DirectionProvider>

@@ -1,14 +1,42 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { describeSkipIf, screen, waitFor } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { spy } from 'sinon';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
 
 describe('<AlertDialog.Root />', () => {
   const { render } = createRenderer();
+
+  beforeEach(() => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
+  it('ARIA attributes', async () => {
+    const { queryByRole, getByText } = await render(
+      <AlertDialog.Root open>
+        <AlertDialog.Trigger />
+        <AlertDialog.Portal>
+          <AlertDialog.Backdrop />
+          <AlertDialog.Popup>
+            <AlertDialog.Title>title text</AlertDialog.Title>
+            <AlertDialog.Description>description text</AlertDialog.Description>
+          </AlertDialog.Popup>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>,
+    );
+
+    const popup = queryByRole('alertdialog');
+    expect(popup).not.to.equal(null);
+    expect(popup).to.have.attribute('aria-modal', 'true');
+
+    expect(getByText('title text').getAttribute('id')).to.equal(
+      popup?.getAttribute('aria-labelledby'),
+    );
+    expect(getByText('description text').getAttribute('id')).to.equal(
+      popup?.getAttribute('aria-describedby'),
+    );
+  });
 
   describe('prop: onOpenChange', () => {
     it('calls onOpenChange with the new open state', async () => {
@@ -17,9 +45,11 @@ describe('<AlertDialog.Root />', () => {
       const { user } = await render(
         <AlertDialog.Root onOpenChange={handleOpenChange}>
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-          <AlertDialog.Popup>
-            <AlertDialog.Close>Close</AlertDialog.Close>
-          </AlertDialog.Popup>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
 
@@ -44,9 +74,11 @@ describe('<AlertDialog.Root />', () => {
       const { user } = await render(
         <AlertDialog.Root onOpenChange={handleOpenChange}>
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-          <AlertDialog.Popup>
-            <AlertDialog.Close>Close</AlertDialog.Close>
-          </AlertDialog.Popup>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
 
@@ -69,9 +101,11 @@ describe('<AlertDialog.Root />', () => {
       const { user } = await render(
         <AlertDialog.Root defaultOpen onOpenChange={handleOpenChange}>
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
-          <AlertDialog.Popup>
-            <AlertDialog.Close>Close</AlertDialog.Close>
-          </AlertDialog.Popup>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
 
@@ -82,48 +116,186 @@ describe('<AlertDialog.Root />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('modality', () => {
-    it('makes other interactive elements on the page inert when a modal dialog is open and restores them after the dialog is closed', async () => {
-      const { user } = await render(
-        <div>
-          <input data-testid="input" />
-          <textarea data-testid="textarea" />
-
-          <AlertDialog.Root>
-            <AlertDialog.Trigger>Open Dialog</AlertDialog.Trigger>
+  describe.skipIf(isJSDOM)('modality', () => {
+    it('makes other interactive elements on the page inert when a modal dialog is open', async () => {
+      await render(
+        <AlertDialog.Root defaultOpen>
+          <AlertDialog.Trigger>Open Dialog</AlertDialog.Trigger>
+          <AlertDialog.Portal>
             <AlertDialog.Popup>
               <AlertDialog.Close>Close Dialog</AlertDialog.Close>
             </AlertDialog.Popup>
-          </AlertDialog.Root>
-
-          <button type="button">Another Button</button>
-        </div>,
+          </AlertDialog.Portal>
+        </AlertDialog.Root>,
       );
 
-      const outsideElements = [
-        screen.getByTestId('input'),
-        screen.getByTestId('textarea'),
-        screen.getByRole('button', { name: 'Another Button' }),
-      ];
+      expect(screen.getByRole('presentation', { hidden: true })).not.to.equal(null);
+    });
+  });
 
-      const trigger = screen.getByRole('button', { name: 'Open Dialog' });
-      await user.click(trigger);
+  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <AlertDialog.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="popup" />
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
 
       await waitFor(() => {
-        outsideElements.forEach((element) => {
-          // The `inert` attribute can be applied to the element itself or to an ancestor
-          expect(element.closest('[inert]')).not.to.equal(null);
-        });
+        expect(screen.queryByTestId('popup')).to.equal(null);
       });
 
-      const close = screen.getByRole('button', { name: 'Close Dialog' });
-      await user.click(close);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-indicator[data-ending-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <AlertDialog.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup className="animation-test-indicator" data-testid="popup" />
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.to.equal(null);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
 
       await waitFor(() => {
-        outsideElements.forEach((element) => {
-          expect(element.closest('[inert]')).to.equal(null);
-        });
+        expect(screen.queryByTestId('popup')).to.equal(null);
       });
+
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+    });
+
+    it('is called on open when there is no enter animation defined', async () => {
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button onClick={() => setOpen(true)}>Open</button>
+            <AlertDialog.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="popup" />
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.callCount).to.equal(2);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+    });
+
+    it('is called on open when the enter animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            from {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-indicator[data-starting-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(true)}>Open</button>
+            <AlertDialog.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <AlertDialog.Portal>
+                <AlertDialog.Popup className="animation-test-indicator" data-testid="popup" />
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
+
+      expect(screen.queryByTestId('popup')).not.to.equal(null);
     });
   });
 });

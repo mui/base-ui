@@ -6,7 +6,6 @@ import { SelectRootContext } from './SelectRootContext';
 import { SelectIndexContext } from './SelectIndexContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the select.
@@ -30,6 +29,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly = false,
     required = false,
     modal = true,
+    onOpenChangeComplete,
   } = props;
 
   const selectRoot = useSelectRoot<Value>({
@@ -45,6 +45,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly,
     required,
     modal,
+    onOpenChangeComplete,
   });
 
   const { setDirty, validityData } = useFieldRootContext();
@@ -65,9 +66,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
   return (
     <SelectRootContext.Provider value={selectRoot.rootContext}>
       <SelectIndexContext.Provider value={selectRoot.indexContext}>
-        <PortalContext.Provider value={rootContext.mounted}>
-          {props.children}
-        </PortalContext.Provider>
+        {props.children}
         <input
           {...rootContext.fieldControlValidation.getInputValidationProps({
             onFocus() {
@@ -157,6 +156,10 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    * Event handler called when the select menu is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the select menu is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */

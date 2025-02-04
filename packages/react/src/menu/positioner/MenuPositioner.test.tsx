@@ -1,35 +1,16 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { FloatingRootContext, FloatingTree } from '@floating-ui/react';
 import userEvent from '@testing-library/user-event';
-import { flushMicrotasks } from '@mui/internal-test-utils';
+import { describeSkipIf, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
-import { describeConformance, createRenderer } from '#test-utils';
-import { MenuRootContext } from '../root/MenuRootContext';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
-const testRootContext: MenuRootContext = {
-  floatingRootContext: undefined as unknown as FloatingRootContext,
-  getPopupProps: (p) => ({ ...p }),
-  getTriggerProps: (p) => ({ ...p }),
-  getItemProps: (p) => ({ ...p }),
-  parentContext: undefined,
-  nested: false,
-  setTriggerElement: () => {},
-  setPositionerElement: () => {},
-  activeIndex: null,
-  disabled: false,
-  itemDomElements: { current: [] },
-  itemLabels: { current: [] },
-  open: true,
-  setOpen: () => {},
-  popupRef: { current: null },
-  mounted: true,
-  transitionStatus: undefined,
-  typingRef: { current: false },
-  modal: false,
-  positionerRef: { current: null },
-  allowMouseUpTriggerRef: { current: false },
-};
+const Trigger = React.forwardRef(function Trigger(
+  props: Menu.Trigger.Props,
+  ref: React.ForwardedRef<HTMLDivElement>,
+) {
+  return <Menu.Trigger {...props} ref={ref} render={<div />} />;
+});
 
 describe('<Menu.Positioner />', () => {
   const { render } = createRenderer();
@@ -37,20 +18,18 @@ describe('<Menu.Positioner />', () => {
   describeConformance(<Menu.Positioner />, () => ({
     render: (node) => {
       return render(
-        <FloatingTree>
-          <MenuRootContext.Provider value={testRootContext}>{node}</MenuRootContext.Provider>
-        </FloatingTree>,
+        <Menu.Root open>
+          <Menu.Portal>{node}</Menu.Portal>
+        </Menu.Root>,
       );
     },
     refInstanceof: window.HTMLDivElement,
   }));
 
   describe('prop: anchor', () => {
-    it('should be placed near the specified element when a ref is passed', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should be placed near the specified element when a ref is passed', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       function TestComponent() {
@@ -59,18 +38,20 @@ describe('<Menu.Positioner />', () => {
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>
-              <Menu.Positioner
-                side="bottom"
-                align="start"
-                anchor={anchor}
-                arrowPadding={0}
-                data-testid="positioner"
-              >
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                  <Menu.Item>2</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={anchor}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
             </Menu.Root>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={anchor} />
           </div>
@@ -91,11 +72,11 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed near the specified element when an element is passed', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should be placed near the specified element when an element is passed', async ({
+      skip,
+    }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       function TestComponent() {
@@ -107,18 +88,20 @@ describe('<Menu.Positioner />', () => {
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>
-              <Menu.Positioner
-                side="bottom"
-                align="start"
-                anchor={anchor}
-                arrowPadding={0}
-                data-testid="positioner"
-              >
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                  <Menu.Item>2</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={anchor}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
             </Menu.Root>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={handleRef} />
           </div>
@@ -139,11 +122,11 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed near the specified element when a function returning an element is passed', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should be placed near the specified element when a function returning an element is passed', async ({
+      skip,
+    }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       function TestComponent() {
@@ -157,18 +140,20 @@ describe('<Menu.Positioner />', () => {
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>
-              <Menu.Positioner
-                side="bottom"
-                align="start"
-                anchor={getAnchor}
-                arrowPadding={0}
-                data-testid="positioner"
-              >
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                  <Menu.Item>2</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={getAnchor}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
             </Menu.Root>
             <div data-testid="anchor" style={{ marginTop: '100px' }} ref={handleRef} />
           </div>
@@ -189,11 +174,9 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed at the specified position', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should be placed at the specified position', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       const boundingRect = {
@@ -212,18 +195,20 @@ describe('<Menu.Positioner />', () => {
 
       const { getByTestId } = await render(
         <Menu.Root open>
-          <Menu.Positioner
-            side="bottom"
-            align="start"
-            anchor={virtualElement}
-            arrowPadding={0}
-            data-testid="positioner"
-          >
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Item>2</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="bottom"
+              align="start"
+              anchor={virtualElement}
+              arrowPadding={0}
+              data-testid="positioner"
+            >
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Item>2</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -239,12 +224,14 @@ describe('<Menu.Positioner />', () => {
       const { getByRole, queryByRole } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner keepMounted>
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Item>2</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal keepMounted>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Item>2</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -267,12 +254,14 @@ describe('<Menu.Positioner />', () => {
       const { getByRole, queryByRole } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner keepMounted={false}>
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Item>2</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal keepMounted={false}>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Item>2</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -287,6 +276,238 @@ describe('<Menu.Positioner />', () => {
 
       await user.click(trigger);
       expect(queryByRole('menu', { hidden: true })).to.equal(null);
+    });
+  });
+
+  const baselineX = 10;
+  const baselineY = 36;
+  const popupWidth = 52;
+  const popupHeight = 24;
+  const anchorWidth = 72;
+  const anchorHeight = 36;
+  const triggerStyle = { width: anchorWidth, height: anchorHeight };
+  const popupStyle = { width: popupWidth, height: popupHeight };
+
+  describeSkipIf(isJSDOM)('prop: sideOffset', () => {
+    it('offsets the side when a number is specified', async () => {
+      const sideOffset = 7;
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="positioner" sideOffset={sideOffset}>
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(screen.getByTestId('positioner').style.transform).to.equal(
+        `translate(${baselineX}px, ${baselineY + sideOffset}px)`,
+      );
+    });
+
+    it('offsets the side when a function is specified', async () => {
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              data-testid="positioner"
+              sideOffset={(data) => data.positioner.width + data.anchor.width}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(screen.getByTestId('positioner').style.transform).to.equal(
+        `translate(${baselineX}px, ${baselineY + popupWidth + anchorWidth}px)`,
+      );
+    });
+
+    it('can read the latest side inside sideOffset', async () => {
+      let side = 'none';
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="left"
+              data-testid="positioner"
+              sideOffset={(data) => {
+                side = data.side;
+                return 0;
+              }}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      // correctly flips the side in the browser
+      expect(side).to.equal('right');
+    });
+
+    it('can read the latest align inside sideOffset', async () => {
+      let align = 'none';
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="right"
+              align="start"
+              data-testid="positioner"
+              sideOffset={(data) => {
+                align = data.align;
+                return 0;
+              }}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      // correctly flips the align in the browser
+      expect(align).to.equal('end');
+    });
+
+    it('reads logical side inside sideOffset', async () => {
+      let side = 'none';
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="inline-start"
+              data-testid="positioner"
+              sideOffset={(data) => {
+                side = data.side;
+                return 0;
+              }}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      // correctly flips the side in the browser
+      expect(side).to.equal('inline-end');
+    });
+  });
+
+  describeSkipIf(isJSDOM)('prop: alignOffset', () => {
+    it('offsets the align when a number is specified', async () => {
+      const alignOffset = 7;
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="positioner" alignOffset={alignOffset}>
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(screen.getByTestId('positioner').style.transform).to.equal(
+        `translate(${baselineX + alignOffset}px, ${baselineY}px)`,
+      );
+    });
+
+    it('offsets the align when a function is specified', async () => {
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="positioner" alignOffset={(data) => data.positioner.width}>
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(screen.getByTestId('positioner').style.transform).to.equal(
+        `translate(${baselineX + popupWidth}px, ${baselineY}px)`,
+      );
+    });
+
+    it('can read the latest side inside alignOffset', async () => {
+      let side = 'none';
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="left"
+              data-testid="positioner"
+              alignOffset={(data) => {
+                side = data.side;
+                return 0;
+              }}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      // correctly flips the side in the browser
+      expect(side).to.equal('right');
+    });
+
+    it('can read the latest align inside alignOffset', async () => {
+      let align = 'none';
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="right"
+              align="start"
+              data-testid="positioner"
+              alignOffset={(data) => {
+                align = data.align;
+                return 0;
+              }}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      // correctly flips the align in the browser
+      expect(align).to.equal('end');
+    });
+
+    it('reads logical side inside alignOffset', async () => {
+      let side = 'none';
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="inline-start"
+              data-testid="positioner"
+              alignOffset={(data) => {
+                side = data.side;
+                return 0;
+              }}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      // correctly flips the side in the browser
+      expect(side).to.equal('inline-end');
     });
   });
 });

@@ -42,11 +42,23 @@
     "data-disabled": {
       "description": "Present when the field is disabled."
     },
+    "data-valid": {
+      "description": "Present when the field is valid."
+    },
+    "data-invalid": {
+      "description": "Present when the field is invalid."
+    },
     "data-dirty": {
       "description": "Present when the field's value has changed."
     },
     "data-touched": {
       "description": "Present when the field has been touched."
+    },
+    "data-filled": {
+      "description": "Present when the field is filled."
+    },
+    "data-focused": {
+      "description": "Present when the field control is focused."
     }
   },
   "cssVariables": {}

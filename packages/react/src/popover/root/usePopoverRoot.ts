@@ -13,7 +13,7 @@ import {
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { PATIENT_CLICK_THRESHOLD, OPEN_DELAY } from '../utils/constants';
+import { OPEN_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
@@ -23,16 +23,18 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
     open: externalOpen,
-    onOpenChange: onOpenChangeProp = () => {},
+    onOpenChange: onOpenChangeProp,
     defaultOpen = false,
     delay,
     closeDelay,
     openOnHover = false,
+    onOpenChangeComplete,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -75,12 +77,15 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     },
   );
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open,
-    animatedElementRef: popupRef,
-    onFinished: () => {
-      setMounted(false);
-      setOpenReason(null);
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        onOpenChangeComplete?.(false);
+        setMounted(false);
+        setOpenReason(null);
+      }
     },
   });
 
@@ -171,6 +176,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       instantType,
       openMethod,
       openReason,
+      onOpenChangeComplete,
     }),
     [
       mounted,
@@ -188,6 +194,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       openMethod,
       triggerProps,
       openReason,
+      onOpenChangeComplete,
     ],
   );
 }
@@ -209,6 +216,10 @@ export namespace usePopoverRoot {
      * Event handler called when the popover is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    /**
+     * Event handler called after any animations complete when the popover is opened or closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
     /**
      * Whether the popover should also open when the trigger is hovered.
      * @default false
@@ -251,5 +262,6 @@ export namespace usePopoverRoot {
     popupRef: React.RefObject<HTMLElement | null>;
     openMethod: InteractionType | null;
     openReason: OpenChangeReason | null;
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
   }
 }

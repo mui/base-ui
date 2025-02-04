@@ -3,8 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
 import { DialogContext } from '../utils/DialogContext';
-import { type CommonParameters, useDialogRoot } from './useDialogRoot';
-import { PortalContext } from '../../portal/PortalContext';
+import { type SharedParameters, useDialogRoot } from './useDialogRoot';
 
 /**
  * Groups all parts of the dialog.
@@ -20,6 +19,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     modal = true,
     onOpenChange,
     open,
+    onOpenChangeComplete,
   } = props;
 
   const parentDialogRootContext = useOptionalDialogRootContext();
@@ -30,27 +30,34 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     onOpenChange,
     modal,
     dismissible,
+    onOpenChangeComplete,
     onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
     onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,
   });
 
   const nested = Boolean(parentDialogRootContext);
 
-  const dialogContextValue = React.useMemo(() => ({ ...dialogRoot, nested }), [dialogRoot, nested]);
-
+  const dialogContextValue = React.useMemo(
+    () => ({
+      ...dialogRoot,
+      nested,
+      onOpenChangeComplete,
+    }),
+    [dialogRoot, nested, onOpenChangeComplete],
+  );
   const dialogRootContextValue = React.useMemo(() => ({ dismissible }), [dismissible]);
 
   return (
     <DialogContext.Provider value={dialogContextValue}>
       <DialogRootContext.Provider value={dialogRootContextValue}>
-        <PortalContext.Provider value={dialogRoot.mounted}>{children}</PortalContext.Provider>
+        {children}
       </DialogRootContext.Provider>
     </DialogContext.Provider>
   );
 };
 
 namespace DialogRoot {
-  export interface Props extends CommonParameters {
+  export interface Props extends SharedParameters {
     children?: React.ReactNode;
   }
 }
@@ -85,6 +92,10 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    * Event handler called when the dialog is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the dialog is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Whether the dialog is currently open.
    */

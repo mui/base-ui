@@ -1,11 +1,15 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
 describe('<Select.Root />', () => {
+  beforeEach(() => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
   const { render } = createRenderer();
 
   describe('prop: defaultValue', () => {
@@ -15,12 +19,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -44,12 +50,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -71,12 +79,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -103,7 +113,7 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
-    it('should call onValueChange when an item is selected', async function test() {
+    it('should call onValueChange when an item is selected', async () => {
       const handleValueChange = spy();
 
       function App() {
@@ -120,12 +130,14 @@ describe('<Select.Root />', () => {
             <Select.Trigger data-testid="trigger">
               <Select.Value />
             </Select.Trigger>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="a">a</Select.Item>
-                <Select.Item value="b">b</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
           </Select.Root>
         );
       }
@@ -153,12 +165,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -174,12 +188,14 @@ describe('<Select.Root />', () => {
             <Select.Trigger data-testid="trigger">
               <Select.Value />
             </Select.Trigger>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="a">a</Select.Item>
-                <Select.Item value="b">b</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
           </Select.Root>
         );
       }
@@ -195,11 +211,11 @@ describe('<Select.Root />', () => {
       expect(screen.queryByRole('listbox')).not.to.equal(null);
     });
 
-    it('when `false`, should remove the popup when there is no exit animation defined', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('when `false`, should remove the popup when there is no exit animation defined', async ({
+      skip,
+    }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       function Test() {
@@ -209,9 +225,11 @@ describe('<Select.Root />', () => {
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
             <Select.Root open={open} modal={false}>
-              <Select.Positioner>
-                <Select.Popup />
-              </Select.Positioner>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup />
+                </Select.Positioner>
+              </Select.Portal>
             </Select.Root>
           </div>
         );
@@ -227,14 +245,12 @@ describe('<Select.Root />', () => {
       });
     });
 
-    it('when `false`, should remove the popup when the animation finishes', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('when `false`, should remove the popup when the animation finishes', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let animationFinished = false;
       const notifyAnimationFinished = () => {
@@ -254,7 +270,7 @@ describe('<Select.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: test-anim 50ms;
+            animation: test-anim 1ms;
           }
         `;
 
@@ -266,12 +282,14 @@ describe('<Select.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <Select.Root open={open} modal={false}>
-              <Select.Positioner>
-                <Select.Popup
-                  className="animation-test-popup"
-                  onAnimationEnd={notifyAnimationFinished}
-                />
-              </Select.Positioner>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup
+                    className="animation-test-popup"
+                    onAnimationEnd={notifyAnimationFinished}
+                  />
+                </Select.Positioner>
+              </Select.Portal>
             </Select.Root>
           </div>
         );
@@ -287,8 +305,6 @@ describe('<Select.Root />', () => {
       });
 
       expect(animationFinished).to.equal(true);
-
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
   });
 
@@ -301,12 +317,14 @@ describe('<Select.Root />', () => {
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
@@ -324,12 +342,14 @@ describe('<Select.Root />', () => {
         <Select.Trigger data-testid="trigger">
           <Select.Value />
         </Select.Trigger>
-        <Select.Positioner>
-          <Select.Popup>
-            <Select.Item value="a">a</Select.Item>
-            <Select.Item value="b">b</Select.Item>
-          </Select.Popup>
-        </Select.Positioner>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
       </Select.Root>,
     );
 
@@ -408,6 +428,196 @@ describe('<Select.Root />', () => {
       const positioner = screen.getByTestId('positioner');
 
       expect(positioner.previousElementSibling).to.equal(null);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Select.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup data-testid="popup" />
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-indicator[data-ending-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Select.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup className="animation-test-indicator" data-testid="popup" />
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+    });
+
+    it('is called on open when there is no enter animation defined', async () => {
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Select.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup data-testid="popup" />
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.callCount).to.equal(1);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+    });
+
+    it('is called on open when the enter animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            from {
+              opacity: 0;
+            }
+          }
+  
+          .animation-test-indicator[data-starting-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Select.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup className="animation-test-indicator" data-testid="popup" />
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
+
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
+    });
+
+    it('does not get called on mount when not open', async () => {
+      const onOpenChangeComplete = spy();
+
+      await render(
+        <Select.Root onOpenChangeComplete={onOpenChangeComplete}>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup data-testid="popup" />
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(onOpenChangeComplete.callCount).to.equal(0);
     });
   });
 });

@@ -10,9 +10,11 @@ describe('<Popover.Arrow />', () => {
     render(node) {
       return render(
         <Popover.Root open>
-          <Popover.Positioner>
-            <Popover.Popup>{node}</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>{node}</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Popover.Root>,
       );
     },

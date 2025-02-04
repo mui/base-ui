@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { AlertDialogRootContext } from './AlertDialogRootContext';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
-import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the alert dialog.
@@ -13,7 +12,7 @@ import { PortalContext } from '../../portal/PortalContext';
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
-  const { children, defaultOpen = false, onOpenChange, open } = props;
+  const { children, defaultOpen = false, onOpenChange, open, onOpenChangeComplete } = props;
 
   const parentDialogRootContext = React.useContext(AlertDialogRootContext);
 
@@ -21,6 +20,7 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
     open,
     defaultOpen,
     onOpenChange,
+    onOpenChangeComplete,
     modal: true,
     dismissible: false,
     onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
@@ -30,13 +30,17 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
   const nested = Boolean(parentDialogRootContext);
 
   const contextValue: AlertDialogRootContext = React.useMemo(
-    () => ({ ...dialogRoot, nested }),
-    [dialogRoot, nested],
+    () => ({
+      ...dialogRoot,
+      nested,
+      onOpenChangeComplete,
+    }),
+    [dialogRoot, nested, onOpenChangeComplete],
   );
 
   return (
     <AlertDialogRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={dialogRoot.mounted}>{children}</PortalContext.Provider>
+      {children}
     </AlertDialogRootContext.Provider>
   );
 };
@@ -61,6 +65,10 @@ AlertDialogRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   defaultOpen: PropTypes.bool,
+  /**
+   * Event handler called after any animations complete when the dialog is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Event handler called when the dialog is opened or closed.
    */

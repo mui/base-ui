@@ -3,7 +3,7 @@ import { Popover } from '@base-ui-components/react/popover';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 function Root(props: Popover.Root.Props) {
@@ -12,7 +12,7 @@ function Root(props: Popover.Root.Props) {
 
 describe('<Popover.Root />', () => {
   beforeEach(() => {
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   const { render, clock } = createRenderer();
@@ -32,9 +32,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -51,9 +53,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -75,9 +79,11 @@ describe('<Popover.Root />', () => {
     it('should open when controlled open is true', async () => {
       await render(
         <Root open>
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -87,9 +93,11 @@ describe('<Popover.Root />', () => {
     it('should close when controlled open is false', async () => {
       await render(
         <Root open={false}>
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -111,9 +119,11 @@ describe('<Popover.Root />', () => {
             }}
           >
             <Popover.Trigger />
-            <Popover.Positioner>
-              <Popover.Popup>Content</Popover.Popup>
-            </Popover.Positioner>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
           </Root>
         );
       }
@@ -153,9 +163,11 @@ describe('<Popover.Root />', () => {
             }}
           >
             <Popover.Trigger />
-            <Popover.Positioner>
-              <Popover.Popup>Content</Popover.Popup>
-            </Popover.Positioner>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
           </Root>
         );
       }
@@ -175,11 +187,9 @@ describe('<Popover.Root />', () => {
       expect(handleChange.firstCall.args[0]).to.equal(false);
     });
 
-    it('should remove the popup when there is no exit animation defined', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should remove the popup when there is no exit animation defined', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
       function Test() {
@@ -189,9 +199,11 @@ describe('<Popover.Root />', () => {
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
             <Popover.Root open={open}>
-              <Popover.Positioner keepMounted>
-                <Popover.Popup />
-              </Popover.Positioner>
+              <Popover.Portal keepMounted>
+                <Popover.Positioner>
+                  <Popover.Popup />
+                </Popover.Positioner>
+              </Popover.Portal>
             </Popover.Root>
           </div>
         );
@@ -208,14 +220,12 @@ describe('<Popover.Root />', () => {
       });
     });
 
-    it('should remove the popup when the animation finishes', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+    it('should remove the popup when the animation finishes', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
       }
 
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let animationFinished = false;
       const notifyAnimationFinished = () => {
@@ -235,7 +245,7 @@ describe('<Popover.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: test-anim 50ms;
+            animation: test-anim 1ms;
           }
         `;
 
@@ -247,12 +257,14 @@ describe('<Popover.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <Popover.Root open={open}>
-              <Popover.Positioner keepMounted data-testid="positioner">
-                <Popover.Popup
-                  className="animation-test-popup"
-                  onAnimationEnd={notifyAnimationFinished}
-                />
-              </Popover.Positioner>
+              <Popover.Portal keepMounted>
+                <Popover.Positioner data-testid="positioner">
+                  <Popover.Popup
+                    className="animation-test-popup"
+                    onAnimationEnd={notifyAnimationFinished}
+                  />
+                </Popover.Positioner>
+              </Popover.Portal>
             </Popover.Root>
           </div>
         );
@@ -276,9 +288,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root defaultOpen>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -289,9 +303,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root defaultOpen open={false}>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -302,9 +318,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root defaultOpen open>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -315,9 +333,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root defaultOpen>
           <Popover.Trigger data-testid="trigger" />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -338,9 +358,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root openOnHover delay={100}>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -368,9 +390,11 @@ describe('<Popover.Root />', () => {
       await render(
         <Root openOnHover closeDelay={100}>
           <Popover.Trigger />
-          <Popover.Positioner>
-            <Popover.Popup>Content</Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Root>,
       );
 
@@ -404,11 +428,13 @@ describe('<Popover.Root />', () => {
           <input type="text" />
           <Popover.Root>
             <Popover.Trigger>Toggle</Popover.Trigger>
-            <Popover.Positioner keepMounted>
-              <Popover.Popup>
-                <Popover.Close>Close</Popover.Close>
-              </Popover.Popup>
-            </Popover.Positioner>
+            <Popover.Portal keepMounted>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <Popover.Close>Close</Popover.Close>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
           </Popover.Root>
           <input type="text" />
         </div>,
@@ -435,11 +461,13 @@ describe('<Popover.Root />', () => {
       const { user } = await render(
         <Popover.Root openOnHover delay={0}>
           <Popover.Trigger>Toggle</Popover.Trigger>
-          <Popover.Positioner>
-            <Popover.Popup>
-              <Popover.Close>Close</Popover.Close>
-            </Popover.Popup>
-          </Popover.Positioner>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Close>Close</Popover.Close>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
         </Popover.Root>,
       );
 
@@ -463,7 +491,7 @@ describe('<Popover.Root />', () => {
           height: 100px;
           background-color: red;
           opacity: 1;
-          transition: opacity 50ms;
+          transition: opacity 1ms;
         }
 
         .popup[data-exiting] {
@@ -478,9 +506,11 @@ describe('<Popover.Root />', () => {
           <input type="text" data-testid="first-input" />
           <Popover.Root openOnHover delay={0} closeDelay={0}>
             <Popover.Trigger>Toggle</Popover.Trigger>
-            <Popover.Positioner>
-              <Popover.Popup className="popup" />
-            </Popover.Positioner>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup className="popup" />
+              </Popover.Positioner>
+            </Popover.Portal>
           </Popover.Root>
           <input type="text" data-testid="last-input" />
         </div>,
@@ -503,6 +533,196 @@ describe('<Popover.Root />', () => {
       });
 
       expect(lastInput).toHaveFocus();
+    });
+  });
+
+  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Popover.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup" />
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-indicator[data-ending-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Popover.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup className="animation-test-indicator" data-testid="popup" />
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.to.equal(null);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+    });
+
+    it('is called on open when there is no enter animation defined', async () => {
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Popover.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup" />
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.callCount).to.equal(2);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+    });
+
+    it('is called on open when the enter animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            from {
+              opacity: 0;
+            }
+          }
+  
+          .animation-test-indicator[data-starting-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Popover.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup className="animation-test-indicator" data-testid="popup" />
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
+
+      expect(screen.queryByTestId('popup')).not.to.equal(null);
+    });
+
+    it('does not get called on mount when not open', async () => {
+      const onOpenChangeComplete = spy();
+
+      await render(
+        <Popover.Root onOpenChangeComplete={onOpenChangeComplete}>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      expect(onOpenChangeComplete.callCount).to.equal(0);
     });
   });
 });
