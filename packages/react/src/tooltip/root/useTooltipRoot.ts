@@ -26,7 +26,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
     open: externalOpen,
-    onOpenChange: onOpenChangeProp = () => {},
+    onOpenChange: onOpenChangeProp,
     defaultOpen = false,
     hoverable = true,
     trackCursorAxis = 'none',

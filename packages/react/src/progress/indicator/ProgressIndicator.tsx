@@ -10,7 +10,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * Visualizes the completion status of the task.
- * Renders a `<span>` element.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
@@ -30,7 +30,7 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
-    render: render ?? 'span',
+    render: render ?? 'div',
     state,
     className,
     ref: forwardedRef,
@@ -44,7 +44,7 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
 namespace ProgressIndicator {
   export interface State extends ProgressRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 ProgressIndicator.propTypes /* remove-proptypes */ = {

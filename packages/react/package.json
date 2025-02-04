@@ -76,7 +76,7 @@
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@babel/runtime": "^7.26.0",
+    "@babel/runtime": "^7.26.7",
     "@floating-ui/react": "^0.27.3",
     "@floating-ui/utils": "^0.2.9",
     "@react-aria/overlays": "^3.25.0",
@@ -91,7 +91,7 @@
     "@types/chai": "^4.3.20",
     "@types/chai-dom": "^1.11.3",
     "@types/prop-types": "^15.7.14",
-    "@types/react": "^19.0.2",
+    "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.2",
     "@types/sinon": "^17.0.3",
     "@types/use-sync-external-store": "^0.0.6",
