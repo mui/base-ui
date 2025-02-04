@@ -101,7 +101,6 @@ const DialogPopup = React.forwardRef(function DialogPopup(
       {mounted && modal && <InternalBackdrop ref={internalBackdropRef} inert={!open} />}
       <FloatingFocusManager
         context={floatingRootContext}
-        modal={open}
         disabled={!mounted}
         closeOnFocusOut={dismissible}
         initialFocus={resolvedInitialFocus}
