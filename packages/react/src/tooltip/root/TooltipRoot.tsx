@@ -20,6 +20,7 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
     closeDelay,
     hoverable = true,
     trackCursorAxis = 'none',
+    onOpenChangeComplete,
   } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -34,6 +35,7 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
     trackCursorAxis,
     delay,
     closeDelay,
+    onOpenChangeComplete,
   });
 
   const contextValue: TooltipRootContext = React.useMemo(
@@ -90,6 +92,10 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    * @default true
    */
   hoverable: PropTypes.bool,
+  /**
+   * Event handler called after any animations complete when the tooltip is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Event handler called when the tooltip is opened or closed.
    */
