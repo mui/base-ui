@@ -34,22 +34,4 @@ import { Form } from '@base-ui-components/react/form';
 
 When parsing the schema using `schema.safeParse()`, the `result.error.flatten().fieldErrors` data can be used to map the errors to each field's `name`.
 
-```jsx title="Zod integration"
-import { z } from 'zod';
-
-const schema = z.object({
-  name: z.string().min(1),
-  age: z.coerce.number().positive(),
-});
-
-function handleSubmit(event) {
-  // When submitting the form, parse the form data using the schema
-  const formData = new FormData(event.currentTarget);
-  const result = schema.safeParse(Object.fromEntries(formData));
-
-  // The field errors can be stored in state and passed as the `errors` prop
-  const fieldErrors = result.error.flatten().fieldErrors;
-}
-```
-
-<Demo compact path="./demos/zod" />
+<Demo path="./demos/zod" />

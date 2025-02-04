@@ -4,7 +4,7 @@ import styles from './index.module.css';
 
 export default function ExampleDialog() {
   return (
-    <Dialog.Root>
+    <Dialog.Root onOpenChangeComplete={console.log}>
       <Dialog.Trigger className={styles.Button}>View notifications</Dialog.Trigger>
       <Dialog.Portal keepMounted>
         <Dialog.Backdrop className={styles.Backdrop} />

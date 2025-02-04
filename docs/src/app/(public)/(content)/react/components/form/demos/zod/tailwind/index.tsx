@@ -8,15 +8,21 @@ const schema = z.object({
   age: z.coerce.number().positive(),
 });
 
-function handleRequest(event: React.FormEvent<HTMLFormElement>) {
+async function submitForm(event: React.FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+
   const formData = new FormData(event.currentTarget);
   const result = schema.safeParse(Object.fromEntries(formData as any));
 
   if (!result.success) {
-    return result.error.flatten().fieldErrors;
+    return {
+      errors: result.error.flatten().fieldErrors,
+    };
   }
 
-  return {};
+  return {
+    errors: {},
+  };
 }
 
 export default function Page() {
@@ -27,10 +33,9 @@ export default function Page() {
       className="flex w-full max-w-64 flex-col gap-4"
       errors={errors}
       onClearErrors={setErrors}
-      onSubmit={(event) => {
-        event.preventDefault();
-        const reqErrors = handleRequest(event);
-        setErrors(reqErrors);
+      onSubmit={async (event) => {
+        const response = await submitForm(event);
+        setErrors(response.errors);
       }}
     >
       <Field.Root name="name" className="flex flex-col items-start gap-1">
