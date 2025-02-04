@@ -5,6 +5,7 @@ import { areArraysEqual } from '../../utils/areArraysEqual';
 import { clamp } from '../../utils/clamp';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument } from '../../utils/owner';
+import type { GenericHTMLProps } from '../../utils/types';
 import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -233,8 +234,22 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     },
   );
 
+  // for pointer drag only
+  const commitValue = useEventCallback((value: number | readonly number[], event: Event) => {
+    if (Array.isArray(value)) {
+      const newPercentageValues = [];
+      for (let i = 0; i < value.length; i += 1) {
+        newPercentageValues.push(valueToPercent(value[i], min, max));
+      }
+    } else if (typeof value === 'number') {
+      setPercentageValues([valueToPercent(value, min, max)]);
+    }
+    onValueCommitted(value, event);
+  });
+
   const handleRootRef = useForkRef(rootRef, sliderRef);
 
+  // for keypresses only
   const handleInputChange = useEventCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
       const newValue = getSliderValue(valueInput, index, min, max, range, values);
@@ -375,12 +390,13 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   return React.useMemo(
     () => ({
-      getRootProps,
       'aria-labelledby': ariaLabelledby,
       active,
+      commitValue,
       disabled,
       dragging,
       getFingerState,
+      getRootProps,
       handleInputChange,
       largeStep,
       lastChangedValueRef,
@@ -404,12 +420,13 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       values,
     }),
     [
-      getRootProps,
       active,
       ariaLabelledby,
+      commitValue,
       disabled,
       dragging,
       getFingerState,
+      getRootProps,
       handleInputChange,
       largeStep,
       lastChangedValueRef,
@@ -535,19 +552,15 @@ export namespace useSliderRoot {
   }
 
   export interface ReturnValue {
-    getRootProps: (
-      externalProps?: React.ComponentPropsWithRef<'div'>,
-    ) => React.ComponentPropsWithRef<'div'>;
     /**
      * The index of the active thumb.
      */
     active: number;
     'aria-labelledby'?: string;
-    handleInputChange: (
-      valueInput: number,
-      index: number,
-      event: React.KeyboardEvent | React.ChangeEvent,
-    ) => void;
+    /**
+     * Callback fired when drag ends and invokes onValueCommitted.
+     */
+    commitValue: (newValue: number | readonly number[], event: Event) => void;
     dragging: boolean;
     disabled: boolean;
     getFingerState: (
@@ -555,14 +568,11 @@ export namespace useSliderRoot {
       shouldCaptureThumbIndex?: boolean,
       offset?: number,
     ) => FingerState | null;
-    /**
-     * Callback to invoke change handlers after internal value state is updated.
-     */
-    setValue: (
-      newValue: number | number[],
-      newPercentageValues: readonly number[],
-      activeThumb: number,
-      event: Event,
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    handleInputChange: (
+      valueInput: number,
+      index: number,
+      event: React.KeyboardEvent | React.ChangeEvent,
     ) => void;
     /**
      * The large step value of the slider when incrementing or decrementing while the shift key is held,
@@ -584,23 +594,31 @@ export namespace useSliderRoot {
      */
     minStepsBetweenValues: number;
     name: string;
-    onValueCommitted: (value: number | readonly number[], event: Event) => void;
     /**
      * The component orientation.
      * @default 'horizontal'
      */
     orientation: Orientation;
-    registerSliderControl: (element: HTMLElement | null) => void;
     /**
      * The value(s) of the slider as percentages
      */
     percentageValues: readonly number[];
+    registerSliderControl: (element: HTMLElement | null) => void;
     setActive: React.Dispatch<React.SetStateAction<number>>;
     setDragging: React.Dispatch<React.SetStateAction<boolean>>;
     setPercentageValues: React.Dispatch<React.SetStateAction<readonly number[]>>;
     setThumbMap: React.Dispatch<
       React.SetStateAction<Map<Node, CompositeMetadata<ThumbMetadata> | null>>
     >;
+    /**
+     * Callback fired when dragging and invokes onValueChange.
+     */
+    setValue: (
+      newValue: number | number[],
+      newPercentageValues: readonly number[],
+      activeThumb: number,
+      event: Event,
+    ) => void;
     /**
      * The step increment of the slider when incrementing or decrementing. It will snap
      * to multiples of this value. Decimal values are supported.
