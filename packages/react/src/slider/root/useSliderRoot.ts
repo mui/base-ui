@@ -55,6 +55,14 @@ function findClosest(values: readonly number[], currentValue: number) {
   return closestIndex;
 }
 
+function valueArrayToPercentages(values: number[], min: number, max: number) {
+  const output = [];
+  for (let i = 0; i < values.length; i += 1) {
+    output.push(valueToPercent(values[i], min, max));
+  }
+  return output;
+}
+
 export function focusThumb(
   thumbIndex: number,
   sliderRef: React.RefObject<HTMLElement | null>,
@@ -193,11 +201,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   }, [max, min, range, valueUnwrapped]);
 
   function initializePercentageValues() {
-    const vals = [];
-    for (let i = 0; i < values.length; i += 1) {
-      vals.push(valueToPercent(values[i], min, max));
-    }
-    return vals;
+    return valueArrayToPercentages(values, min, max);
   }
 
   const [percentageValues, setPercentageValues] = React.useState<readonly number[]>(
@@ -237,9 +241,9 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   // for pointer drag only
   const commitValue = useEventCallback((value: number | readonly number[], event: Event) => {
     if (Array.isArray(value)) {
-      const newPercentageValues = [];
-      for (let i = 0; i < value.length; i += 1) {
-        newPercentageValues.push(valueToPercent(value[i], min, max));
+      const newPercentageValues = valueArrayToPercentages(value, min, max);
+      if (!areArraysEqual(newPercentageValues, percentageValues)) {
+        setPercentageValues(newPercentageValues);
       }
     } else if (typeof value === 'number') {
       setPercentageValues([valueToPercent(value, min, max)]);
@@ -373,9 +377,9 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         setPercentageValues([newPercentageValue]);
       }
     } else if (Array.isArray(valueUnwrapped)) {
-      const newPercentageValues = [];
-      for (let i = 0; i < valueUnwrapped.length; i += 1) {
-        newPercentageValues.push(valueToPercent(valueUnwrapped[i], min, max));
+      const newPercentageValues = valueArrayToPercentages(valueUnwrapped, min, max);
+      if (!areArraysEqual(newPercentageValues, percentageValues)) {
+        setPercentageValues(newPercentageValues);
       }
     }
   }, [dragging, min, max, percentageValues, setPercentageValues, valueProp, valueUnwrapped]);
