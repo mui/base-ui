@@ -5,7 +5,7 @@ import classes from './page.module.css';
 
 export default async function Experiments() {
   return (
-    <div className={classes.root}>
+    <div className={clsx(classes.root, classes.withSidebar)}>
       <Sidebar className={classes.sidebar} />
       <main className={clsx(classes.main, classes.landing)}>
         <h1>Base UI experiments</h1>

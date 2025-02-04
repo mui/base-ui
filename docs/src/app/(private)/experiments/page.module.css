@@ -12,16 +12,24 @@
     Arial,
     sans-serif;
 
-  --sidebar-width: 260px;
-
-  @media screen and (max-width: 1300px) {
-    --sidebar-width: 20vw;
-  }
-
   & h1 {
     font-size: 2rem;
     margin-bottom: 1rem;
     font-weight: 500;
+  }
+
+  --sidebar-width: 0;
+
+  &.withSidebar {
+    --sidebar-width: 260px;
+
+    @media screen and (max-width: 1300px) {
+      --sidebar-width: max(20vw, 150px);
+    }
+
+    @media screen and (max-width: 650px) {
+      --sidebar-width: 0;
+    }
   }
 }
 
@@ -34,13 +42,10 @@
   padding: 20px;
   background-color: var(--color-background);
   margin-left: var(--sidebar-width);
-
-  @media screen and (max-width: 650px) {
-    margin: 0;
-  }
 }
 
 .sidebar {
+  box-sizing: border-box;
   width: var(--sidebar-width);
   font-size: var(--text-sm);
   position: fixed;

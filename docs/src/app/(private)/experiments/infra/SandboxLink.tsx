@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { createCodeSandbox } from 'docs/src/blocks/createCodeSandbox/createCodeSandbox';
 import { DemoFile } from 'docs/src/blocks/Demo';
+import { Button } from './Button';
 
 export function SandboxLink(props: SandboxLinkProps) {
   const { files, ...otherProps } = props;
@@ -24,9 +25,9 @@ export function SandboxLink(props: SandboxLinkProps) {
   }, [files]);
 
   return (
-    <button type="button" {...otherProps} onClick={handleClick}>
+    <Button {...otherProps} onClick={handleClick} variant="text" fullWidth>
       Open in CodeSandbox
-    </button>
+    </Button>
   );
 }
 

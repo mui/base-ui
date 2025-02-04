@@ -1,15 +1,22 @@
-.linkButton {
+.root {
   all: unset;
   display: block;
-  width: calc(100% + 8px);
   box-sizing: border-box;
-  color: var(--color-foreground);
   padding: 4px 8px;
   border-radius: var(--radius-md);
-  margin-left: -8px;
   cursor: pointer;
+}
+
+.text {
+  color: var(--color-foreground);
 
   &:hover {
     background-color: var(--color-gray-100);
   }
+}
+
+.fullWidth {
+  width: calc(100% + 16px);
+  margin-left: -8px;
+  margin-right: -8px;
 }

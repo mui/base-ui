@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { ExperimentsList } from './ExperimentsList';
 import { EditPanel } from './EditPanel';
 import classes from './Sidebar.module.css';
+import { HideSidebar } from './HideSidebar';
 
 export function Sidebar(props: SidebarProps) {
   const { experimentPath, className, ...otherProps } = props;
@@ -12,6 +13,7 @@ export function Sidebar(props: SidebarProps) {
         <React.Fragment>
           <div id="experiments-settings" className={classes.panel} />
           <EditPanel className={classes.panel} experimentPath={experimentPath} />
+          <HideSidebar className={classes.panel} />
         </React.Fragment>
       )}
       <ExperimentsList className={classes.panel} />

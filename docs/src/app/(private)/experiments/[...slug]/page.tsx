@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import glob from 'fast-glob';
 import { Sidebar } from '../infra/Sidebar';
 import classes from '../page.module.css';
+import { ExperimentRoot } from '../infra/ExperimentRoot';
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 const experimentsRootDirectory = resolve(currentDirectory, '..');
@@ -24,12 +25,11 @@ export default async function Page(props: Props) {
   try {
     const Experiment = (await import(`../${slug.join('/')}.tsx`)).default;
     return (
-      <div className={classes.root}>
-        <Sidebar experimentPath={fullPath} className={classes.sidebar} />
-        <main className={classes.main}>
-          <Experiment />
-        </main>
-      </div>
+      <ExperimentRoot
+        sidebar={<Sidebar experimentPath={fullPath} className={classes.sidebar} />}
+      >
+        <Experiment />
+      </ExperimentRoot>
     );
   } catch (error) {
     notFound();
