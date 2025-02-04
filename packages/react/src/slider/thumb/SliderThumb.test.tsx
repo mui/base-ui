@@ -94,8 +94,8 @@ describe('<Slider.Thumb />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  describe.skipIf(isJSDOM)('internal styles', () => {
-    it('positions the thumb when the value changes', async () => {
+  describe.skipIf(isJSDOM)('positioning styles', () => {
+    it('positions the thumb when dragged', async () => {
       const { getByTestId } = await render(
         <Slider.Root
           style={{
@@ -142,6 +142,40 @@ describe('<Slider.Thumb />', () => {
       expect(thumbStyles.getPropertyValue('left')).to.equal('199px');
       fireEvent.touchEnd(document.body, createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]));
       expect(thumbStyles.getPropertyValue('left')).to.equal('200px');
+    });
+
+    it('positions the thumb when the controlled value changes externally', async () => {
+      function App() {
+        const [val, setVal] = React.useState(20);
+        return (
+          <React.Fragment>
+            <button onClick={() => setVal(55)} />
+            <Slider.Root
+              value={val}
+              onValueChange={(newVal) => setVal(newVal as number)}
+              style={{
+                // browser tests render with 1024px width by default
+                // this is just to make the values asserted more readable
+                width: '100px',
+              }}
+            >
+              <Slider.Control data-testid="control">
+                <Slider.Track>
+                  <Slider.Indicator />
+                  <Slider.Thumb data-testid="thumb" />
+                </Slider.Track>
+              </Slider.Control>
+            </Slider.Root>
+          </React.Fragment>
+        );
+      }
+      const { getByTestId, getByRole } = await render(<App />);
+
+      const thumbStyles = getComputedStyle(getByTestId('thumb'));
+      expect(thumbStyles.getPropertyValue('left')).to.equal('20px');
+
+      fireEvent.click(getByRole('button'));
+      expect(thumbStyles.getPropertyValue('left')).to.equal('55px');
     });
   });
 });
