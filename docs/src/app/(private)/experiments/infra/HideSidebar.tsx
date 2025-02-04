@@ -16,7 +16,6 @@ export function HideSidebar(props: React.HTMLAttributes<HTMLDivElement>) {
         onClick={() => rootContext.setSidebarVisible(false)}
         variant="text"
         fullWidth
-        tooltip="Refresh the page to show the sidebar again."
       >
         Hide sidebar
       </Button>
