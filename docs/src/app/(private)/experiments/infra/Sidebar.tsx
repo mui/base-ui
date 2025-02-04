@@ -1,12 +1,13 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { ExperimentsList } from './ExperimentsList';
 import { EditPanel } from './EditPanel';
 import classes from './Sidebar.module.css';
 
 export function Sidebar(props: SidebarProps) {
-  const { experimentPath } = props;
+  const { experimentPath, className, ...otherProps } = props;
   return (
-    <div className={classes.root}>
+    <div {...otherProps} className={clsx(classes.root, className)}>
       {experimentPath && (
         <React.Fragment>
           <div id="experiments-settings" className={classes.panel} />
@@ -18,6 +19,6 @@ export function Sidebar(props: SidebarProps) {
   );
 }
 
-interface SidebarProps {
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   experimentPath?: string;
 }

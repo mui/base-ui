@@ -1,3 +1,30 @@
+.root {
+  display: flex;
+  min-height: 100vh;
+  font-family:
+    ui-sans-serif,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI Variable Display',
+    'Segoe UI',
+    Helvetica,
+    'Apple Color Emoji',
+    Arial,
+    sans-serif;
+
+  --sidebar-width: 260px;
+
+  @media screen and (max-width: 1300px) {
+    --sidebar-width: 20vw;
+  }
+
+  & h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+}
+
 .main {
   flex: 1 1 100%;
   display: flex;
@@ -6,6 +33,24 @@
   font-family: var(--ff-sans);
   padding: 20px;
   background-color: var(--color-background);
+  margin-left: var(--sidebar-width);
+
+  @media screen and (max-width: 650px) {
+    margin: 0;
+  }
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  font-size: var(--text-sm);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+
+  @media screen and (max-width: 650px) {
+    display: none;
+  }
 }
 
 .landing {

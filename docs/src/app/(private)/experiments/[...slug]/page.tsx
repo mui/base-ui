@@ -24,12 +24,12 @@ export default async function Page(props: Props) {
   try {
     const Experiment = (await import(`../${slug.join('/')}.tsx`)).default;
     return (
-      <React.Fragment>
-        <Sidebar experimentPath={fullPath} />
+      <div className={classes.root}>
+        <Sidebar experimentPath={fullPath} className={classes.sidebar} />
         <main className={classes.main}>
           <Experiment />
         </main>
-      </React.Fragment>
+      </div>
     );
   } catch (error) {
     notFound();
