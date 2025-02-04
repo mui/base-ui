@@ -22,6 +22,7 @@ export interface TooltipRootContext {
   floatingRootContext: FloatingRootContext;
   trackCursorAxis: 'none' | 'x' | 'y' | 'both';
   transitionStatus: TransitionStatus;
+  onOpenChangeComplete: ((open: boolean) => void) | undefined;
 }
 
 export const TooltipRootContext = React.createContext<TooltipRootContext | undefined>(undefined);
