@@ -363,6 +363,24 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   );
 
   useEnhancedEffect(() => {
+    if (valueProp === undefined || dragging) {
+      return;
+    }
+
+    if (typeof valueUnwrapped === 'number') {
+      const newPercentageValue = valueToPercent(valueUnwrapped, min, max);
+      if (newPercentageValue !== percentageValues[0]) {
+        setPercentageValues([newPercentageValue]);
+      }
+    } else if (Array.isArray(valueUnwrapped)) {
+      const newPercentageValues = [];
+      for (let i = 0; i < valueUnwrapped.length; i += 1) {
+        newPercentageValues.push(valueToPercent(valueUnwrapped[i], min, max));
+      }
+    }
+  }, [dragging, min, max, percentageValues, setPercentageValues, valueProp, valueUnwrapped]);
+
+  useEnhancedEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
     if (disabled && sliderRef.current?.contains(activeEl)) {
       // This is necessary because Firefox and Safari will keep focus
