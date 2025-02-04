@@ -4,9 +4,10 @@ import { notFound } from 'next/navigation';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import glob from 'fast-glob';
-import { Sidebar } from '../infra/Sidebar';
-import classes from '../page.module.css';
-import { ExperimentRoot } from '../infra/ExperimentRoot';
+import { Sidebar } from 'docs/src/components/Experiments/Sidebar';
+import { ExperimentRoot } from 'docs/src/components/Experiments/ExperimentRoot';
+import classes from 'docs/src/components/Experiments/ExperimentRoot.module.css';
+import { ExperimentSettingsProvider } from 'docs/src/components/Experiments/SettingsPanel';
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 const experimentsRootDirectory = resolve(currentDirectory, '..');
@@ -23,13 +24,24 @@ export default async function Page(props: Props) {
   const fullPath = resolve(currentDirectory, `../${slug.join('/')}.tsx`);
 
   try {
-    const Experiment = (await import(`../${slug.join('/')}.tsx`)).default;
+    const experimentModule = await import(`../${slug.join('/')}.tsx`);
+    const Experiment = experimentModule.default;
+    const settingsMetadata = experimentModule.settingsMetadata;
+
     return (
-      <ExperimentRoot
-        sidebar={<Sidebar experimentPath={fullPath} className={classes.sidebar} />}
-      >
-        <Experiment />
-      </ExperimentRoot>
+      <ExperimentSettingsProvider metadata={settingsMetadata}>
+        <ExperimentRoot
+          sidebar={
+            <Sidebar
+              experimentPath={fullPath}
+              className={classes.sidebar}
+              settingsMetadata={settingsMetadata}
+            />
+          }
+        >
+          <Experiment />
+        </ExperimentRoot>
+      </ExperimentSettingsProvider>
     );
   } catch (error) {
     notFound();

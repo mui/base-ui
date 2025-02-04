@@ -8,7 +8,7 @@ import { camelToSentenceCase } from 'docs/src/utils/camelToSentenceCase';
 import classes from './ExperimentsList.module.css';
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
-const experimentsRootDirectory = resolve(currentDirectory, '..');
+const experimentsRootDirectory = resolve(currentDirectory, '../../app/(private)/experiments');
 
 const allExperimentFiles = glob.globSync(
   ['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'],
@@ -60,9 +60,7 @@ export function ExperimentsList(props: React.HTMLAttributes<HTMLDivElement>) {
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map((experiment) => (
                     <li key={experiment.path}>
-                      <Link href={`/experiments/${experiment.path}`}>
-                        {experiment.name}
-                      </Link>
+                      <Link href={`/experiments/${experiment.path}`}>{experiment.name}</Link>
                     </li>
                   ))}
               </ul>
@@ -77,9 +75,7 @@ export function ExperimentsList(props: React.HTMLAttributes<HTMLDivElement>) {
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((experiment) => (
                 <li key={experiment.path}>
-                  <Link href={`/experiments/${experiment.path}`}>
-                    {experiment.name}
-                  </Link>
+                  <Link href={`/experiments/${experiment.path}`}>{experiment.name}</Link>
                 </li>
               ))}
           </ul>

@@ -1,57 +1,132 @@
+'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import clsx from 'clsx';
 import { Popover } from '@base-ui-components/react/popover';
 import { Field } from '@base-ui-components/react/field';
-import { useEnhancedEffect } from '@base-ui-components/react/utils';
-import { camelToSentenceCase } from 'docs/src/utils/camelToSentenceCase';
 import { Switch } from './Switch';
-import classes from './SettingsPanel.module.css';
 import { Input } from './Input';
 import { Select } from './Select';
+import classes from './SettingsPanel.module.css';
 
-export function SettingsPanel<Settings>(props: SettingsPanel.Props<Settings>) {
-  const {
-    settings,
-    settingsMetadata = {} as Record<keyof Settings, SettingsPanel.FieldMetadata>,
-    onChange: onChangeProp,
-    renderAsPopup = false,
-  } = props;
+export interface ExperimentsSettingsContext<Settings = Record<string, unknown>> {
+  settings: Settings;
+  setSettings: React.Dispatch<React.SetStateAction<Settings>>;
+}
 
-  const lastSettings = useLatestRef(settings);
-  const onChange = useEventCallback(onChangeProp);
+export const ExperimentSettingsContext = React.createContext<
+  ExperimentsSettingsContext | undefined
+>(undefined);
+
+export function ExperimentSettingsProvider<Settings extends {}>(
+  props: React.PropsWithChildren<{ metadata: SettingsMetadata<Settings> }>,
+) {
+  const [settingsState, setSettings] = React.useState<Settings>({} as Settings);
+  const { metadata, children } = props;
+  const isInitializedRef = React.useRef(false);
+
+  const settings = settingsState;
+
+  if (!isInitializedRef.current) {
+    Object.keys(metadata).forEach((key) => {
+      const fieldMetadata = metadata[key as keyof Settings];
+      if (fieldMetadata.default !== undefined) {
+        settings[key as keyof Settings] = fieldMetadata.default as any;
+      } else {
+        switch (fieldMetadata.type) {
+          case 'boolean':
+            (settings[key as keyof Settings] as any) = false;
+            break;
+          case 'number':
+            (settings[key as keyof Settings] as any) = 0;
+            break;
+          case 'string':
+            (settings[key as keyof Settings] as any) = '';
+            break;
+          default:
+            break;
+        }
+      }
+    });
+
+    isInitializedRef.current = true;
+    setSettings(settings);
+  }
+
+  const context = React.useMemo(
+    () => ({
+      settings,
+      setSettings,
+    }),
+    [settings],
+  );
+
+  return (
+    <ExperimentSettingsContext value={context as ExperimentsSettingsContext}>
+      {children}
+    </ExperimentSettingsContext>
+  );
+}
+
+export function useExperimentSettings<Settings extends {}>() {
+  const context = React.useContext(ExperimentSettingsContext);
+  if (!context) {
+    throw new Error('useExperimentSettings must be used within an ExperimentSettingsProvider');
+  }
+
+  return context as ExperimentsSettingsContext<Settings>;
+}
+
+export function SettingsPanel<Settings extends {}>(props: SettingsPanelProps<Settings>) {
+  const { metadata, renderAsPopup = true, className, ...otherProps } = props;
+  const { settings, setSettings } = useExperimentSettings<Settings>();
 
   const createChangeHandler = React.useCallback(
     (key: string) => (value: unknown) => {
-      onChange?.({
-        ...lastSettings.current,
+      setSettings((oldSettings) => ({
+        ...oldSettings,
         [key]: value,
-      });
+      }));
     },
-    [lastSettings, onChange],
+    [setSettings],
   );
 
   const controls = (
-    <div className={classes.settings}>
+    <div {...otherProps} className={clsx(classes.settings, className)}>
       <h2>Settings</h2>
-      {Object.keys(settings as Record<string, any>).map((key) => {
+      {Object.keys(metadata).map((key) => {
         const value = (settings as Record<string, unknown>)[key];
-        const metadata: SettingsPanel.FieldMetadata =
-          settingsMetadata[key as keyof Settings] || {};
-        switch (typeof value) {
+        const fieldMetadata: FieldMetadata = metadata[key as keyof Settings];
+        switch (fieldMetadata.type) {
           case 'boolean':
-            return renderSwitch(key, value as boolean, createChangeHandler(key));
+            return renderSwitch(
+              key,
+              fieldMetadata.label,
+              value as boolean,
+              createChangeHandler(key),
+            );
           case 'number':
-            return renderNumberInput(key, value as number, createChangeHandler(key));
+            return renderNumberInput(
+              key,
+              fieldMetadata.label,
+              value as number,
+              createChangeHandler(key),
+            );
           case 'string':
-            if (metadata.options) {
+            if (fieldMetadata.options) {
               return renderSelect(
                 key,
+                fieldMetadata.label,
                 value as string,
-                metadata.options,
+                fieldMetadata.options,
                 createChangeHandler(key),
               );
             }
-            return renderTextInput(key, value as string, createChangeHandler(key));
+            return renderTextInput(
+              key,
+              fieldMetadata.label,
+              value as string,
+              createChangeHandler(key),
+            );
           default:
             return null;
         }
@@ -59,39 +134,25 @@ export function SettingsPanel<Settings>(props: SettingsPanel.Props<Settings>) {
     </div>
   );
 
-  const [container, setContainer] = React.useState<HTMLElement | null | undefined>(
-    undefined,
-  );
-
-  useEnhancedEffect(() => {
-    setContainer(document.getElementById('experiments-settings'));
-  }, []);
-
-  if (container === null || renderAsPopup) {
-    // portal container not found (possible when rendering in codesandbox)
+  if (renderAsPopup) {
     return <SettingsPopup>{controls}</SettingsPopup>;
   }
 
-  if (container === undefined) {
-    // hasn't been initialized yet
-    return null;
-  }
-
-  return ReactDOM.createPortal(controls, container);
+  return controls;
 }
 
-export namespace SettingsPanel {
-  export interface FieldMetadata {
-    options?: string[];
-  }
+export interface FieldMetadata {
+  label: string;
+  type: 'boolean' | 'number' | 'string';
+  options?: string[];
+  default?: unknown;
+}
 
-  export interface Props<Settings> {
-    children?: React.ReactNode;
-    settings: Settings;
-    settingsMetadata?: Partial<Record<keyof Settings, FieldMetadata>>;
-    onChange: (newSettings: Settings) => void;
-    renderAsPopup?: boolean;
-  }
+export type SettingsMetadata<Settings> = Record<keyof Settings, FieldMetadata>;
+
+export interface SettingsPanelProps<Settings> extends React.HTMLAttributes<HTMLDivElement> {
+  metadata: SettingsMetadata<Settings>;
+  renderAsPopup?: boolean;
 }
 
 function SettingsPopup(props: React.PropsWithChildren<{}>) {
@@ -114,12 +175,7 @@ function SettingsPopup(props: React.PropsWithChildren<{}>) {
       </Popover.Trigger>
 
       <Popover.Portal>
-        <Popover.Positioner
-          align="end"
-          side="bottom"
-          sideOffset={8}
-          positionMethod="fixed"
-        >
+        <Popover.Positioner align="end" side="bottom" sideOffset={8} positionMethod="fixed">
           <Popover.Popup className={classes.popup}>{props.children}</Popover.Popup>
         </Popover.Positioner>
       </Popover.Portal>
@@ -129,6 +185,7 @@ function SettingsPopup(props: React.PropsWithChildren<{}>) {
 
 function renderSwitch(
   key: string,
+  label: string,
   value: boolean,
   onChange: (value: boolean) => void,
 ) {
@@ -137,7 +194,7 @@ function renderSwitch(
       key={key}
       checked={value}
       onCheckedChange={onChange}
-      label={camelToSentenceCase(key)}
+      label={label}
       className={classes.singleLineField}
     />
   );
@@ -145,14 +202,13 @@ function renderSwitch(
 
 function renderTextInput(
   key: string,
+  label: string,
   value: string,
   onChange: (value: string) => void,
 ) {
   return (
     <Field.Root key={key} className={classes.multiLineField}>
-      <Field.Label className={classes.fieldLabel}>
-        {camelToSentenceCase(key)}
-      </Field.Label>
+      <Field.Label className={classes.fieldLabel}>{label}</Field.Label>
       <Input
         type="text"
         value={value}
@@ -165,14 +221,13 @@ function renderTextInput(
 
 function renderNumberInput(
   key: string,
+  label: string,
   value: number,
   onChange: (value: number) => void,
 ) {
   return (
     <Field.Root key={key} className={classes.singleLineField}>
-      <Field.Label className={classes.fieldLabel}>
-        {camelToSentenceCase(key)}
-      </Field.Label>
+      <Field.Label className={classes.fieldLabel}>{label}</Field.Label>
       <Input
         type="number"
         value={value}
@@ -185,13 +240,14 @@ function renderNumberInput(
 
 function renderSelect(
   key: string,
+  label: string,
   value: string,
   options: string[],
   onChange: (value: string) => void,
 ) {
   return (
     <Field.Root key={key} className={classes.multiLineField}>
-      <Field.Label>{camelToSentenceCase(key)}</Field.Label>
+      <Field.Label>{label}</Field.Label>
       <Select
         value={value}
         onChange={(newValue) => onChange(newValue)}
@@ -219,33 +275,4 @@ function SettingsIcon(props: React.ComponentProps<'svg'>) {
       </g>
     </svg>
   );
-}
-
-// TODO: export from Base UI
-function useLatestRef<T>(value: T) {
-  const ref = React.useRef(value);
-  useEnhancedEffect(() => {
-    ref.current = value;
-  });
-  return ref;
-}
-
-// TODO: export from Base UI
-function useEventCallback<
-  Fn extends (...args: any[]) => any = (...args: unknown[]) => unknown,
->(fn: Fn): Fn;
-function useEventCallback<Args extends unknown[], Return>(
-  fn: (...args: Args) => Return,
-): (...args: Args) => Return;
-function useEventCallback<Args extends unknown[], Return>(
-  fn: (...args: Args) => Return,
-): (...args: Args) => Return {
-  const ref = React.useRef(fn);
-  useEnhancedEffect(() => {
-    ref.current = fn;
-  });
-  return React.useRef((...args: Args) =>
-    // @ts-expect-error hide `this`
-    (0, ref.current!)(...args),
-  ).current;
 }

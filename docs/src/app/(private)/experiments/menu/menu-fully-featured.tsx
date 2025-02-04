@@ -1,7 +1,11 @@
 'use client';
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
-import { SettingsPanel } from '../infra/SettingsPanel';
+import {
+  SettingsMetadata,
+  SettingsPanel,
+  useExperimentSettings,
+} from '../../../../components/Experiments/SettingsPanel';
 import '../../../../demo-theme.css';
 import classes from './menu.module.css';
 
@@ -12,12 +16,7 @@ interface Settings {
 }
 
 export default function MenuFullyFeatured() {
-  const [settings, setSettings] = React.useState<Settings>({
-    customAnchor: false,
-    modal: true,
-    openOnHover: false,
-  });
-
+  const { settings } = useExperimentSettings<Settings>();
   const anchorRef = React.useRef<HTMLDivElement>(null);
 
   return (
@@ -184,10 +183,26 @@ export default function MenuFullyFeatured() {
         </div>
       )}
 
-      <SettingsPanel settings={settings} onChange={setSettings} />
+      <SettingsPanel metadata={settingsMetadata} />
     </div>
   );
 }
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  customAnchor: {
+    type: 'boolean',
+    label: 'Custom anchor',
+  },
+  modal: {
+    type: 'boolean',
+    label: 'Modal',
+    default: true,
+  },
+  openOnHover: {
+    type: 'boolean',
+    label: 'Open on hover',
+  },
+};
 
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
