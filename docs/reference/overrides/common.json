@@ -1,5 +1,8 @@
 {
   "props": {
+    "alignOffset": {
+      "type": "number | (data) => number"
+    },
     "anchor": {
       "type": "React.Ref | Element | VirtualElement | (() => Element | VirtualElement | null) | null"
     },
@@ -26,6 +29,9 @@
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement"
+    },
+    "sideOffset": {
+      "type": "number | (data) => number"
     }
   },
   "types": {

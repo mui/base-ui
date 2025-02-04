@@ -21,10 +21,31 @@ import {
 import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
+import { useLatestRef } from './useLatestRef';
+
+function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
+  const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
+  const logicalRight = isRtl ? 'inline-start' : 'inline-end';
+  const logicalLeft = isRtl ? 'inline-end' : 'inline-start';
+  return (
+    {
+      top: 'top',
+      right: isLogicalSideParam ? logicalRight : 'right',
+      bottom: 'bottom',
+      left: isLogicalSideParam ? logicalLeft : 'left',
+    } satisfies Record<PhysicalSide, Side>
+  )[renderedSide];
+}
 
 export type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 export type Align = 'start' | 'center' | 'end';
 export type Boundary = 'clipping-ancestors' | Element | Element[] | Rect;
+export type OffsetFunction = (data: {
+  side: Side;
+  align: Align;
+  anchor: { width: number; height: number };
+  positioner: { width: number; height: number };
+}) => number;
 
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
@@ -80,12 +101,39 @@ export function useAnchorPositioning(
   // presence.
   const arrowRef = React.useRef<Element | null>(null);
 
+  // Keep these reactive if they're not functions
+  const sideOffsetRef = useLatestRef(sideOffset);
+  const alignOffsetRef = useLatestRef(alignOffset);
+  const sideOffsetDep = typeof sideOffset !== 'function' ? sideOffset : 0;
+  const alignOffsetDep = typeof alignOffset !== 'function' ? alignOffset : 0;
+
   const middleware: UseFloatingOptions['middleware'] = [
-    offset({
-      mainAxis: sideOffset,
-      crossAxis: alignOffset,
-      alignmentAxis: alignOffset,
-    }),
+    offset(
+      ({ rects, placement: currentPlacement }) => {
+        const data = {
+          side: getLogicalSide(sideParam, getSide(currentPlacement), isRtl),
+          align: getAlignment(currentPlacement) || 'center',
+          anchor: { width: rects.reference.width, height: rects.reference.height },
+          positioner: { width: rects.floating.width, height: rects.floating.height },
+        } as const;
+
+        const sideAxis =
+          typeof sideOffsetRef.current === 'function'
+            ? sideOffsetRef.current(data)
+            : sideOffsetRef.current;
+        const alignAxis =
+          typeof alignOffsetRef.current === 'function'
+            ? alignOffsetRef.current(data)
+            : alignOffsetRef.current;
+
+        return {
+          mainAxis: sideAxis,
+          crossAxis: alignAxis,
+          alignmentAxis: alignAxis,
+        };
+      },
+      [sideOffsetDep, alignOffsetDep, isRtl, sideParam],
+    ),
   ];
 
   const flipMiddleware = flip(commonCollisionProps);
@@ -241,17 +289,7 @@ export function useAnchorPositioning(
   }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
 
   const renderedSide = getSide(renderedPlacement);
-  const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
-  const logicalRight = isRtl ? 'inline-start' : 'inline-end';
-  const logicalLeft = isRtl ? 'inline-end' : 'inline-start';
-  const logicalRenderedSide = (
-    {
-      top: 'top',
-      right: isLogicalSideParam ? logicalRight : 'right',
-      bottom: 'bottom',
-      left: isLogicalSideParam ? logicalLeft : 'left',
-    } satisfies Record<PhysicalSide, Side>
-  )[renderedSide];
+  const logicalRenderedSide = getLogicalSide(sideParam, renderedSide, isRtl);
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
@@ -328,20 +366,34 @@ export namespace useAnchorPositioning {
      */
     side?: Side;
     /**
-     * Distance between the anchor and the popup.
+     * Distance between the anchor and the popup in pixels.
+     * Also accepts a function that returns the distance to read the dimensions of the anchor
+     * and positioner elements, along with its side and alignment.
+     *
+     * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
+     * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
+     * - `data.side`: which side of the anchor element the positioner is aligned against.
+     * - `data.align`: how the positioner is aligned relative to the specified side.
      * @default 0
      */
-    sideOffset?: number;
+    sideOffset?: number | OffsetFunction;
     /**
      * How to align the popup relative to the specified side.
      * @default 'center'
      */
     align?: 'start' | 'end' | 'center';
     /**
-     * Additional offset along the alignment axis of the element.
+     * Additional offset along the alignment axis in pixels.
+     * Also accepts a function that returns the offset to read the dimensions of the anchor
+     * and positioner elements, along with its side and alignment.
+     *
+     * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
+     * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
+     * - `data.side`: which side of the anchor element the positioner is aligned against.
+     * - `data.align`: how the positioner is aligned relative to the specified side.
      * @default 0
      */
-    alignOffset?: number;
+    alignOffset?: number | OffsetFunction;
     /**
      * An element or a rectangle that delimits the area that the popup is confined to.
      * @default 'clipping-ancestors'
