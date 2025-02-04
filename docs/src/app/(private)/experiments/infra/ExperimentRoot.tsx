@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
+import { ShowSidebar } from './ShowSidebar';
 import classes from '../page.module.css';
 
 export interface ExperimentRootContext {
@@ -27,7 +28,7 @@ export function ExperimentRoot(props: ExperimentRootProps) {
   return (
     <ExperimentRootContext value={context}>
       <div className={clsx(classes.root, sidebarVisible && classes.withSidebar)}>
-        {sidebarVisible ? sidebar : null}
+        {sidebarVisible ? sidebar : <ShowSidebar />}
         <main className={classes.main}>{children}</main>
       </div>
     </ExperimentRootContext>
