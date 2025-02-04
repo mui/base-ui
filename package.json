@@ -116,7 +116,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-testing-library": "^6.5.0",
     "execa": "^8.0.1",
-    "fast-glob": "^3.3.2",
+    "fast-glob": "^3.3.3",
     "fs-extra": "^11.3.0",
     "globby": "^14.0.2",
     "jsonc-parser": "^3.3.1",

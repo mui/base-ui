@@ -18,7 +18,7 @@
     "@types/sinon": "^17.0.3",
     "chai": "^4.5.0",
     "docs": "workspace:^",
-    "fast-glob": "^3.3.2",
+    "fast-glob": "^3.3.3",
     "fs-extra": "^11.3.0",
     "is-wsl": "^3.1.0",
     "lodash": "^4.17.21",
