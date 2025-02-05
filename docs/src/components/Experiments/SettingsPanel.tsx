@@ -26,7 +26,7 @@ export function ExperimentSettingsProvider<Settings extends {}>(
 
   const settings = settingsState;
 
-  if (!isInitializedRef.current) {
+  if (!isInitializedRef.current && metadata != null) {
     Object.keys(metadata).forEach((key) => {
       const fieldMetadata = metadata[key as keyof Settings];
       if (fieldMetadata.default !== undefined) {
