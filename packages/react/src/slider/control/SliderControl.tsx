@@ -21,12 +21,12 @@ const SliderControl = React.forwardRef(function SliderControl(
   const { render: renderProp, className, ...otherProps } = props;
 
   const {
+    commitValue,
     disabled,
     dragging,
     getFingerState,
     lastChangedValueRef,
     minStepsBetweenValues,
-    onValueCommitted,
     percentageValues,
     registerSliderControl,
     setActive,
@@ -38,12 +38,12 @@ const SliderControl = React.forwardRef(function SliderControl(
   } = useSliderRootContext();
 
   const { getRootProps } = useSliderControl({
+    commitValue,
     disabled,
     dragging,
     getFingerState,
     lastChangedValueRef,
     minStepsBetweenValues,
-    onValueCommitted,
     percentageValues,
     registerSliderControl,
     rootRef: forwardedRef,

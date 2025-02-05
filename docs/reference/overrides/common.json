@@ -27,6 +27,9 @@
     "onClick": {
       "type": "(event) => void"
     },
+    "onOpenChangeComplete": {
+      "type": "(open) => void"
+    },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement"
     },

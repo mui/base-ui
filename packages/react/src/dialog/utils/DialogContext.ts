@@ -10,6 +10,10 @@ export interface DialogContext extends useDialogRoot.ReturnValue {
    * Determines if the dialog is nested within a parent dialog.
    */
   nested: boolean;
+  /**
+   * Callback to invoke after any animations complete when the dialog is opened or closed.
+   */
+  onOpenChangeComplete?: (open: boolean) => void;
 }
 
 export const DialogContext = React.createContext<DialogContext | undefined>(undefined);
