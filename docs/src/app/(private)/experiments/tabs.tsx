@@ -3,28 +3,16 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { Tabs } from '@base-ui-components/react/tabs';
+import {
+  SettingsMetadata,
+  useExperimentSettings,
+} from '../../../components/Experiments/SettingsPanel';
+import '../../../demo-theme.css';
 import classes from './tabs.module.css';
-import { SettingsPanel } from './infra/SettingsPanel';
-
-interface Settings {
-  orientation: 'horizontal' | 'vertical';
-  activateOnFocus: boolean;
-  elasticIndicator: boolean;
-}
-
-const settingsMetadata = {
-  orientation: {
-    options: ['horizontal', 'vertical'],
-  },
-};
 
 export default function TabsExperiment() {
   const [value, setValue] = React.useState<string | number | null>(0);
-  const [settings, setSettings] = React.useState<Settings>({
-    orientation: 'horizontal',
-    activateOnFocus: true,
-    elasticIndicator: false,
-  });
+  const { settings } = useExperimentSettings<Settings>();
 
   return (
     <div>
@@ -77,12 +65,30 @@ export default function TabsExperiment() {
           Actions panel
         </Tabs.Panel>
       </Tabs.Root>
-
-      <SettingsPanel
-        settings={settings}
-        settingsMetadata={settingsMetadata}
-        onChange={setSettings}
-      />
     </div>
   );
 }
+
+interface Settings {
+  orientation: 'horizontal' | 'vertical';
+  activateOnFocus: boolean;
+  elasticIndicator: boolean;
+}
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  orientation: {
+    type: 'string',
+    label: 'Orientation',
+    options: ['horizontal', 'vertical'],
+    default: 'horizontal',
+  },
+  activateOnFocus: {
+    type: 'boolean',
+    label: 'Activate on focus',
+    default: true,
+  },
+  elasticIndicator: {
+    type: 'boolean',
+    label: 'Elastic indicator',
+  },
+};

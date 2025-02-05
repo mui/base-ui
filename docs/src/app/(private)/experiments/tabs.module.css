@@ -127,6 +127,10 @@
   outline: 0;
   flex: 1 0 auto;
 
+  &[data-hidden] {
+    display: none;
+  }
+
   &[data-orientation='horizontal'] {
     height: 8rem;
   }
