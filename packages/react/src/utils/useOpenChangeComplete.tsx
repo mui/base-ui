@@ -1,6 +1,6 @@
+'use client';
 import * as React from 'react';
 import { useAnimationsFinished } from './useAnimationsFinished';
-import { useEnhancedEffect } from './useEnhancedEffect';
 import { useEventCallback } from './useEventCallback';
 import { useLatestRef } from './useLatestRef';
 
@@ -14,7 +14,7 @@ export function useOpenChangeComplete(parameters: useOpenChangeComplete.Paramete
   const onComplete = useEventCallback(onCompleteParam);
   const runOnceAnimationsFinish = useAnimationsFinished(ref, open);
 
-  useEnhancedEffect(() => {
+  React.useEffect(() => {
     runOnceAnimationsFinish(() => {
       if (open === openRef.current) {
         onComplete();
