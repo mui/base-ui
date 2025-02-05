@@ -580,7 +580,7 @@ export namespace useSliderRoot {
     active: number;
     'aria-labelledby'?: string;
     /**
-     * Callback fired when drag ends and invokes onValueCommitted.
+     * Function to be called when drag ends. Invokes onValueCommitted.
      */
     commitValue: (newValue: number | readonly number[], event: Event) => void;
     dragging: boolean;
