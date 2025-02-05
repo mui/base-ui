@@ -51,7 +51,7 @@ export function useSliderControl(
     getFingerState,
     lastChangedValueRef,
     minStepsBetweenValues,
-    onValueCommitted,
+    commitValue,
     percentageValues,
     registerSliderControl,
     rootRef: externalRef,
@@ -128,10 +128,9 @@ export function useSliderControl(
     setActive(-1);
 
     commitValidation(lastChangedValueRef.current ?? finger.value);
-    onValueCommitted(lastChangedValueRef.current ?? finger.value, nativeEvent);
+    commitValue(lastChangedValueRef.current ?? finger.value, nativeEvent);
 
     touchIdRef.current = null;
-
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
   });
@@ -279,7 +278,7 @@ export namespace useSliderControl {
       | 'getFingerState'
       | 'lastChangedValueRef'
       | 'minStepsBetweenValues'
-      | 'onValueCommitted'
+      | 'commitValue'
       | 'percentageValues'
       | 'registerSliderControl'
       | 'setActive'
