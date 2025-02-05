@@ -13,7 +13,7 @@ import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuRoot = function MenuRoot(props: MenuRoot.Props) {
+const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const {
     children,
     defaultOpen = false,
@@ -26,7 +26,7 @@ const MenuRoot = function MenuRoot(props: MenuRoot.Props) {
     orientation = 'vertical',
     delay = 100,
     openOnHover: openOnHoverProp,
-    action,
+    actionsRef,
     onOpenChangeComplete,
   } = props;
 
@@ -56,7 +56,7 @@ const MenuRoot = function MenuRoot(props: MenuRoot.Props) {
     delay,
     onTypingChange,
     modal,
-    action,
+    actionsRef,
     onOpenChangeComplete,
   });
 
@@ -152,7 +152,7 @@ namespace MenuRoot {
     /**
      * A ref to imperative actions.
      */
-    action?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<{ unmount: () => void }>;
   }
 }
 

@@ -69,7 +69,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   });
 
   useOpenChangeComplete({
-    enabled: !params.action,
+    enabled: !params.actionsRef,
     open,
     ref: popupRef,
     onComplete() {
@@ -79,7 +79,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     },
   });
 
-  React.useImperativeHandle(params.action, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   useScrollLock(open && modal, popupElement);
 
@@ -236,14 +236,14 @@ export interface SharedParameters {
   /**
    * A ref to imperative actions.
    */
-  action?: React.RefObject<{ unmount: () => void }>;
+  actionsRef?: React.RefObject<{ unmount: () => void }>;
 }
 
 export namespace useDialogRoot {
   export interface Parameters
     extends RequiredExcept<
       SharedParameters,
-      'open' | 'onOpenChange' | 'onOpenChangeComplete' | 'action'
+      'open' | 'onOpenChange' | 'onOpenChangeComplete' | 'actionsRef'
     > {
     /**
      * Callback to invoke when a nested dialog is opened.
@@ -256,7 +256,7 @@ export namespace useDialogRoot {
     /**
      * A ref to imperative actions.
      */
-    action?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<{ unmount: () => void }>;
   }
 
   export interface ReturnValue {

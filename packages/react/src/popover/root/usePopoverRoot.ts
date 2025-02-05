@@ -84,7 +84,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   });
 
   useOpenChangeComplete({
-    enabled: !params.action,
+    enabled: !params.actionsRef,
     open,
     ref: popupRef,
     onComplete() {
@@ -94,7 +94,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     },
   });
 
-  React.useImperativeHandle(params.action, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   React.useEffect(() => {
     return () => {
@@ -250,7 +250,7 @@ export namespace usePopoverRoot {
     /**
      * A ref to imperative actions.
      */
-    action?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<{ unmount: () => void }>;
   }
 
   export interface ReturnValue {

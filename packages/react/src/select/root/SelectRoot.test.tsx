@@ -433,14 +433,14 @@ describe('<Select.Root />', () => {
 
   describe('prop: action', () => {
     it('unmounts the select when the `unmount` method is called', async () => {
-      const actionRef = {
+      const actionsRef = {
         current: {
           unmount: spy(),
         },
       };
 
       const { user } = await render(
-        <Select.Root action={actionRef}>
+        <Select.Root actionsRef={actionsRef}>
           <Select.Trigger data-testid="trigger">Open</Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -465,7 +465,7 @@ describe('<Select.Root />', () => {
         expect(screen.queryByRole('listbox')).not.to.equal(null);
       });
 
-      act(() => actionRef.current.unmount());
+      await act(async () => actionsRef.current.unmount());
 
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).to.equal(null);

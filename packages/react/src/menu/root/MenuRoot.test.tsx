@@ -879,14 +879,14 @@ describe('<Menu.Root />', () => {
 
   describe('prop: action', () => {
     it('unmounts the menu when the `unmount` method is called', async () => {
-      const actionRef = {
+      const actionsRef = {
         current: {
           unmount: spy(),
         },
       };
 
       await render(
-        <Menu.Root action={actionRef}>
+        <Menu.Root actionsRef={actionsRef}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>
@@ -909,7 +909,7 @@ describe('<Menu.Root />', () => {
         expect(screen.queryByRole('menu')).not.to.equal(null);
       });
 
-      await act(async () => actionRef.current.unmount());
+      await act(async () => actionsRef.current.unmount());
 
       await waitFor(() => {
         expect(screen.queryByRole('menu')).to.equal(null);

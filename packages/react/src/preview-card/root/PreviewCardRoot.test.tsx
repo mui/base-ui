@@ -498,14 +498,14 @@ describe('<PreviewCard.Root />', () => {
 
   describe('prop: action', () => {
     it('unmounts the preview card when the `unmount` method is called', async () => {
-      const actionRef = {
+      const actionsRef = {
         current: {
           unmount: spy(),
         },
       };
 
       const { user } = await render(
-        <Root action={actionRef} delay={0} closeDelay={0}>
+        <Root actionsRef={actionsRef} delay={0} closeDelay={0}>
           <Trigger>Open</Trigger>
           <PreviewCard.Portal>
             <PreviewCard.Positioner data-testid="positioner">
@@ -528,7 +528,7 @@ describe('<PreviewCard.Root />', () => {
         expect(screen.queryByTestId('positioner')).not.to.equal(null);
       });
 
-      act(() => actionRef.current.unmount());
+      await act(async () => actionsRef.current.unmount());
 
       await waitFor(() => {
         expect(screen.queryByTestId('positioner')).to.equal(null);

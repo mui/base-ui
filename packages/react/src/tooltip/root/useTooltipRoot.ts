@@ -69,7 +69,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   });
 
   useOpenChangeComplete({
-    enabled: !params.action,
+    enabled: !params.actionsRef,
     open,
     ref: popupRef,
     onComplete() {
@@ -79,7 +79,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     },
   });
 
-  React.useImperativeHandle(params.action, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -223,7 +223,7 @@ export namespace useTooltipRoot {
     /**
      * A ref to imperative actions.
      */
-    action?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<{ unmount: () => void }>;
   }
 
   export interface ReturnValue {

@@ -11,7 +11,7 @@ import { type SharedParameters, useDialogRoot } from './useDialogRoot';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
+const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props) {
   const {
     children,
     defaultOpen = false,
@@ -19,7 +19,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     modal = true,
     onOpenChange,
     open,
-    action,
+    actionsRef,
     onOpenChangeComplete,
   } = props;
 
@@ -31,7 +31,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     onOpenChange,
     modal,
     dismissible,
-    action,
+    actionsRef,
     onOpenChangeComplete,
     onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
     onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,

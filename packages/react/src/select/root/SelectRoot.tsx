@@ -29,7 +29,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly = false,
     required = false,
     modal = true,
-    action,
+    actionsRef,
     onOpenChangeComplete,
   } = props;
 
@@ -46,7 +46,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly,
     required,
     modal,
-    action,
+    actionsRef,
     onOpenChangeComplete,
   });
 
@@ -120,7 +120,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   /**
    * A ref to imperative actions.
    */
-  action: PropTypes.shape({
+  actionsRef: PropTypes.shape({
     current: PropTypes.shape({
       unmount: PropTypes.func.isRequired,
     }).isRequired,

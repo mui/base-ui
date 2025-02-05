@@ -136,7 +136,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
 
   useOpenChangeComplete({
-    enabled: !params.action,
+    enabled: !params.actionsRef,
     open,
     ref: popupRef,
     onComplete() {
@@ -146,7 +146,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     },
   });
 
-  React.useImperativeHandle(params.action, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
     params.onValueChange?.(nextValue, event);
@@ -429,7 +429,7 @@ export namespace useSelectRoot {
     /**
      * A ref to imperative actions.
      */
-    action?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<{ unmount: () => void }>;
   }
 
   export interface ReturnValue {

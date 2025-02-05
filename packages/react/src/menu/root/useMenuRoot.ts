@@ -99,7 +99,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   useOpenChangeComplete({
-    enabled: !parameters.action,
+    enabled: !parameters.actionsRef,
     open,
     ref: popupRef,
     onComplete() {
@@ -109,7 +109,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
   });
 
-  React.useImperativeHandle(parameters.action, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(parameters.actionsRef, () => ({ unmount: handleUnmount }), [
+    handleUnmount,
+  ]);
 
   const clearStickIfOpenTimeout = useEventCallback(() => {
     clearTimeout(stickIfOpenTimeoutRef.current);
@@ -368,7 +370,7 @@ export namespace useMenuRoot {
     /**
      * A ref to imperative actions.
      */
-    action: React.RefObject<{ unmount: () => void }> | undefined;
+    actionsRef: React.RefObject<{ unmount: () => void }> | undefined;
   }
 
   export interface ReturnValue {

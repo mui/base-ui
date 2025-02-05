@@ -32,7 +32,7 @@
       "type": "(open, event) => void",
       "description": "Event handler called when the select menu is opened or closed."
     },
-    "action": {
+    "actionsRef": {
       "type": "{ current: { unmount: func } }",
       "description": "A ref to imperative actions."
     },

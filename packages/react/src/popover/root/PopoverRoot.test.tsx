@@ -538,14 +538,14 @@ describe('<Popover.Root />', () => {
 
   describe('prop: action', () => {
     it('unmounts the popover when the `unmount` method is called', async () => {
-      const actionRef = {
+      const actionsRef = {
         current: {
           unmount: spy(),
         },
       };
 
       const { user } = await render(
-        <Popover.Root action={actionRef}>
+        <Popover.Root actionsRef={actionsRef}>
           <Popover.Trigger>Open</Popover.Trigger>
           <Popover.Portal>
             <Popover.Positioner>
@@ -568,7 +568,7 @@ describe('<Popover.Root />', () => {
         expect(screen.queryByRole('dialog')).not.to.equal(null);
       });
 
-      act(() => actionRef.current.unmount());
+      await act(async () => actionsRef.current.unmount());
 
       await waitFor(() => {
         expect(screen.queryByRole('dialog')).to.equal(null);

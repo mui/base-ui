@@ -11,8 +11,8 @@ import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-const PreviewCardRoot = function PreviewCardRoot(props: PreviewCardRoot.Props) {
-  const { delay, closeDelay, onOpenChangeComplete, action } = props;
+const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(props) {
+  const { delay, closeDelay, onOpenChangeComplete, actionsRef } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
@@ -20,7 +20,7 @@ const PreviewCardRoot = function PreviewCardRoot(props: PreviewCardRoot.Props) {
   const previewCardRoot = usePreviewCardRoot({
     delay,
     closeDelay,
-    action,
+    actionsRef,
     onOpenChangeComplete,
     open: props.open,
     onOpenChange: props.onOpenChange,
