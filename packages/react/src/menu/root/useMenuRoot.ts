@@ -95,18 +95,16 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     setOpenReason(null);
     setHoverEnabled(true);
     setStickIfOpen(true);
+    onOpenChangeComplete?.(false);
   });
 
   useOpenChangeComplete({
+    enabled: !parameters.action,
     open,
     ref: popupRef,
     onComplete() {
       if (!open) {
-        onOpenChangeComplete?.(false);
-        setMounted(false);
-        setOpenReason(null);
-        setHoverEnabled(true);
-        setStickIfOpen(true);
+        handleUnmount();
       }
     },
   });

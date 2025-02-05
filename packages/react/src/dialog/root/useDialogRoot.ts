@@ -65,15 +65,16 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
+    onOpenChangeComplete?.(false);
   });
 
   useOpenChangeComplete({
+    enabled: !params.action,
     open,
     ref: popupRef,
     onComplete() {
       if (!open) {
-        onOpenChangeComplete?.(false);
-        setMounted(false);
+        handleUnmount();
       }
     },
   });

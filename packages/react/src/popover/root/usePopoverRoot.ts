@@ -80,16 +80,16 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
     setOpenReason(null);
+    onOpenChangeComplete?.(false);
   });
 
   useOpenChangeComplete({
+    enabled: !params.action,
     open,
     ref: popupRef,
     onComplete() {
       if (!open) {
-        onOpenChangeComplete?.(false);
-        setMounted(false);
-        setOpenReason(null);
+        handleUnmount();
       }
     },
   });

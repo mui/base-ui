@@ -132,16 +132,16 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
     setActiveIndex(null);
+    onOpenChangeComplete?.(false);
   });
 
   useOpenChangeComplete({
+    enabled: !params.action,
     open,
     ref: popupRef,
     onComplete() {
       if (!open) {
-        onOpenChangeComplete?.(false);
-        setMounted(false);
-        setActiveIndex(null);
+        handleUnmount();
       }
     },
   });

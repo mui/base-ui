@@ -62,15 +62,16 @@ export function usePreviewCardRoot(
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
+    onOpenChangeComplete?.(false);
   });
 
   useOpenChangeComplete({
+    enabled: !params.action,
     open,
     ref: popupRef,
     onComplete() {
       if (!open) {
-        onOpenChangeComplete?.(false);
-        setMounted(false);
+        handleUnmount();
       }
     },
   });
