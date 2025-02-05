@@ -29,7 +29,11 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly = false,
     required = false,
     modal = true,
+<<<<<<< HEAD
     action,
+=======
+    onOpenChangeComplete,
+>>>>>>> upstream/master
   } = props;
 
   const selectRoot = useSelectRoot<Value>({
@@ -45,7 +49,11 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly,
     required,
     modal,
+<<<<<<< HEAD
     action,
+=======
+    onOpenChangeComplete,
+>>>>>>> upstream/master
   });
 
   const { setDirty, validityData } = useFieldRootContext();
@@ -164,6 +172,10 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    * Event handler called when the select menu is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the select menu is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */

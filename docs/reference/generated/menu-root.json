@@ -29,6 +29,10 @@
       "default": "true",
       "description": "Whether the menu should prevent outside clicks and lock page scroll when open."
     },
+    "onOpenChangeComplete": {
+      "type": "(open) => void",
+      "description": "Event handler called after any animations complete when the menu is opened or closed."
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

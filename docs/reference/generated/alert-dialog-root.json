@@ -15,9 +15,15 @@
       "type": "(open, event, reason) => void",
       "description": "Event handler called when the dialog is opened or closed."
     },
+<<<<<<< HEAD
     "action": {
       "type": "{ current: { unmount: func } }",
       "description": "A ref to imperative actions."
+=======
+    "onOpenChangeComplete": {
+      "type": "(open) => void",
+      "description": "Event handler called after any animations complete when the dialog is opened or closed."
+>>>>>>> upstream/master
     }
   },
   "dataAttributes": {},

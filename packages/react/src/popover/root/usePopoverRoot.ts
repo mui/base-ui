@@ -23,17 +23,18 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
     open: externalOpen,
-    onOpenChange: onOpenChangeProp = () => {},
+    onOpenChange: onOpenChangeProp,
     defaultOpen = false,
     delay,
     closeDelay,
     openOnHover = false,
+    onOpenChangeComplete,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -81,11 +82,16 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     setOpenReason(null);
   });
 
-  useAfterExitAnimation({
-    enabled: !params.action,
+  useOpenChangeComplete({
     open,
-    animatedElementRef: popupRef,
-    onFinished: handleUnmount,
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        onOpenChangeComplete?.(false);
+        setMounted(false);
+        setOpenReason(null);
+      }
+    },
   });
 
   React.useImperativeHandle(params.action, () => ({ unmount: handleUnmount }), [handleUnmount]);
@@ -177,6 +183,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       instantType,
       openMethod,
       openReason,
+      onOpenChangeComplete,
     }),
     [
       mounted,
@@ -194,6 +201,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       openMethod,
       triggerProps,
       openReason,
+      onOpenChangeComplete,
     ],
   );
 }
@@ -215,6 +223,10 @@ export namespace usePopoverRoot {
      * Event handler called when the popover is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    /**
+     * Event handler called after any animations complete when the popover is opened or closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
     /**
      * Whether the popover should also open when the trigger is hovered.
      * @default false
@@ -261,5 +273,6 @@ export namespace usePopoverRoot {
     popupRef: React.RefObject<HTMLElement | null>;
     openMethod: InteractionType | null;
     openReason: OpenChangeReason | null;
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
   }
 }

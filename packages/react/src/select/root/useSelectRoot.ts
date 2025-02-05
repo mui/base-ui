@@ -18,7 +18,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -36,6 +36,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     required = false,
     alignItemToTrigger: alignItemToTriggerParam = true,
     modal = false,
+    onOpenChangeComplete,
   } = params;
 
   const { setDirty, validityData, validationMode, setControlId, setFilled } = useFieldRootContext();
@@ -133,11 +134,16 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     setActiveIndex(null);
   });
 
-  useAfterExitAnimation({
-    enabled: !params.action,
+  useOpenChangeComplete({
     open,
-    animatedElementRef: popupRef,
-    onFinished: handleUnmount,
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        onOpenChangeComplete?.(false);
+        setMounted(false);
+        setActiveIndex(null);
+      }
+    },
   });
 
   React.useImperativeHandle(params.action, () => ({ unmount: handleUnmount }), [handleUnmount]);
@@ -295,6 +301,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       fieldControlValidation,
       modal,
       registerSelectedItem,
+      onOpenChangeComplete,
     }),
     [
       id,
@@ -323,6 +330,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       fieldControlValidation,
       modal,
       registerSelectedItem,
+      onOpenChangeComplete,
     ],
   );
 
@@ -396,6 +404,10 @@ export namespace useSelectRoot {
      * Event handler called when the select menu is opened or closed.
      */
     onOpenChange?: (open: boolean, event: Event | undefined) => void;
+    /**
+     * Event handler called after any animations complete when the select menu is opened or closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
     /**
      * Whether the select menu is currently open.
      */

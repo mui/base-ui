@@ -20,6 +20,7 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     onOpenChange,
     open,
     action,
+    onOpenChangeComplete,
   } = props;
 
   const parentDialogRootContext = useOptionalDialogRootContext();
@@ -31,13 +32,21 @@ const DialogRoot = function DialogRoot(props: DialogRoot.Props) {
     modal,
     dismissible,
     action,
+    onOpenChangeComplete,
     onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
     onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,
   });
 
   const nested = Boolean(parentDialogRootContext);
 
-  const dialogContextValue = React.useMemo(() => ({ ...dialogRoot, nested }), [dialogRoot, nested]);
+  const dialogContextValue = React.useMemo(
+    () => ({
+      ...dialogRoot,
+      nested,
+      onOpenChangeComplete,
+    }),
+    [dialogRoot, nested, onOpenChangeComplete],
+  );
   const dialogRootContextValue = React.useMemo(() => ({ dismissible }), [dismissible]);
 
   return (
@@ -93,6 +102,10 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    * Event handler called when the dialog is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the dialog is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Whether the dialog is currently open.
    */

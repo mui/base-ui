@@ -10,6 +10,8 @@ export interface MenuRootContext extends useMenuRoot.ReturnValue {
   typingRef: React.RefObject<boolean>;
   modal: boolean;
   openReason: OpenChangeReason | null;
+  onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);

@@ -19,17 +19,18 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,
 ): usePreviewCardRoot.ReturnValue {
   const {
     open: externalOpen,
-    onOpenChange: onOpenChangeProp = () => {},
+    onOpenChange: onOpenChangeProp,
     defaultOpen = false,
     delay,
     closeDelay,
+    onOpenChangeComplete,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -63,11 +64,15 @@ export function usePreviewCardRoot(
     setMounted(false);
   });
 
-  useAfterExitAnimation({
-    enabled: !params.action,
+  useOpenChangeComplete({
     open,
-    animatedElementRef: popupRef,
-    onFinished: handleUnmount,
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        onOpenChangeComplete?.(false);
+        setMounted(false);
+      }
+    },
   });
 
   React.useImperativeHandle(params.action, () => ({ unmount: handleUnmount }), [handleUnmount]);
@@ -134,6 +139,7 @@ export function usePreviewCardRoot(
       floatingRootContext: context,
       instantType,
       transitionStatus,
+      onOpenChangeComplete,
     }),
     [
       mounted,
@@ -146,6 +152,7 @@ export function usePreviewCardRoot(
       context,
       instantType,
       transitionStatus,
+      onOpenChangeComplete,
     ],
   );
 }
@@ -167,6 +174,10 @@ export namespace usePreviewCardRoot {
      * Event handler called when the preview card is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    /**
+     * Event handler called after any animations complete when the preview card is opened or closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
     /**
      * How long to wait before the preview card opens. Specified in milliseconds.
      * @default 600
@@ -197,5 +208,6 @@ export namespace usePreviewCardRoot {
     positionerElement: HTMLElement | null;
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLDivElement | null>;
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
   }
 }

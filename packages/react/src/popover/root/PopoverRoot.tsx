@@ -20,6 +20,7 @@ const PopoverRoot = function PopoverRoot(props: PopoverRoot.Props) {
     delay,
     closeDelay = 0,
     action,
+    onOpenChangeComplete,
   } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -30,6 +31,7 @@ const PopoverRoot = function PopoverRoot(props: PopoverRoot.Props) {
     onOpenChange,
     open,
     openOnHover,
+    onOpenChangeComplete,
     delay: delayWithDefault,
     closeDelay,
     action,
@@ -97,6 +99,10 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    * @default 300
    */
   delay: PropTypes.number,
+  /**
+   * Event handler called after any animations complete when the popover is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Event handler called when the popover is opened or closed.
    */

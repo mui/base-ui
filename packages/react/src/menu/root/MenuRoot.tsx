@@ -27,6 +27,7 @@ const MenuRoot = function MenuRoot(props: MenuRoot.Props) {
     delay = 100,
     openOnHover: openOnHoverProp,
     action,
+    onOpenChangeComplete,
   } = props;
 
   const direction = useDirection();
@@ -56,6 +57,7 @@ const MenuRoot = function MenuRoot(props: MenuRoot.Props) {
     onTypingChange,
     modal,
     action,
+    onOpenChangeComplete,
   });
 
   const context: MenuRootContext = React.useMemo(
@@ -109,6 +111,10 @@ namespace MenuRoot {
      * Event handler called when the menu is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    /**
+     * Event handler called after any animations complete when the menu is closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
     /**
      * Whether the menu is currently open.
      */
@@ -203,6 +209,10 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    * @default true
    */
   modal: PropTypes.bool,
+  /**
+   * Event handler called after any animations complete when the menu is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Event handler called when the menu is opened or closed.
    */

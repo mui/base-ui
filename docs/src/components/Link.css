@@ -1,5 +1,9 @@
 .Link {
   color: var(--color-blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in oklab, var(--color-blue), transparent);
 
   &:focus-visible {
     outline: 2px solid var(--color-blue);
@@ -9,10 +13,7 @@
 
   @media (hover: hover) {
     &:hover {
-      text-decoration: underline;
-      text-underline-offset: 2px;
-      text-decoration-thickness: 1px;
-      text-decoration-color: color-mix(in oklab, var(--color-blue), transparent);
+      text-decoration-color: var(--color-blue);
     }
   }
 }

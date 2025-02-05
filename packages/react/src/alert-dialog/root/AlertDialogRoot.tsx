@@ -12,7 +12,7 @@ import { useDialogRoot } from '../../dialog/root/useDialogRoot';
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogRoot = function AlertDialogRoot(props: AlertDialogRoot.Props) {
-  const { children, defaultOpen = false, onOpenChange, open, action } = props;
+  const { children, defaultOpen = false, onOpenChange, onOpenChangeComplete, open, action } = props;
 
   const parentDialogRootContext = React.useContext(AlertDialogRootContext);
 
@@ -21,6 +21,7 @@ const AlertDialogRoot = function AlertDialogRoot(props: AlertDialogRoot.Props) {
     defaultOpen,
     onOpenChange,
     action,
+    onOpenChangeComplete,
     modal: true,
     dismissible: false,
     onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
@@ -30,8 +31,12 @@ const AlertDialogRoot = function AlertDialogRoot(props: AlertDialogRoot.Props) {
   const nested = Boolean(parentDialogRootContext);
 
   const contextValue: AlertDialogRootContext = React.useMemo(
-    () => ({ ...dialogRoot, nested }),
-    [dialogRoot, nested],
+    () => ({
+      ...dialogRoot,
+      nested,
+      onOpenChangeComplete,
+    }),
+    [dialogRoot, nested, onOpenChangeComplete],
   );
 
   return (
@@ -69,6 +74,10 @@ AlertDialogRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   defaultOpen: PropTypes.bool,
+  /**
+   * Event handler called after any animations complete when the dialog is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Event handler called when the dialog is opened or closed.
    */

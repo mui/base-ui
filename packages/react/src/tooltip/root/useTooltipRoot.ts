@@ -21,17 +21,18 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
     open: externalOpen,
-    onOpenChange: onOpenChangeProp = () => {},
+    onOpenChange: onOpenChangeProp,
     defaultOpen = false,
     hoverable = true,
     trackCursorAxis = 'none',
     delay,
     closeDelay,
+    onOpenChangeComplete,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -66,11 +67,15 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     setMounted(false);
   });
 
-  useAfterExitAnimation({
-    enabled: !params.action,
+  useOpenChangeComplete({
     open,
-    animatedElementRef: popupRef,
-    onFinished: handleUnmount,
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        onOpenChangeComplete?.(false);
+        setMounted(false);
+      }
+    },
   });
 
   React.useImperativeHandle(params.action, () => ({ unmount: handleUnmount }), [handleUnmount]);
@@ -155,6 +160,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       floatingRootContext: context,
       instantType,
       transitionStatus,
+      onOpenChangeComplete,
     }),
     [
       mounted,
@@ -167,6 +173,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       context,
       instantType,
       transitionStatus,
+      onOpenChangeComplete,
     ],
   );
 }
@@ -188,6 +195,10 @@ export namespace useTooltipRoot {
      * Event handler called when the tooltip is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    /**
+     * Event handler called after any animations complete when the tooltip is opened or closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
     /**
      * Whether the tooltip contents can be hovered without closing the tooltip.
      * @default true
@@ -228,5 +239,6 @@ export namespace useTooltipRoot {
     setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLElement | null>;
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
   }
 }
