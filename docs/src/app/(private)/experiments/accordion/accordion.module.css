@@ -1,4 +1,4 @@
-@keyframes slideDown {
+@keyframes slide-down {
   from {
     height: 0;
   }
@@ -8,7 +8,7 @@
   }
 }
 
-@keyframes slideUp {
+@keyframes slide-up {
   from {
     height: var(--accordion-panel-height);
   }
@@ -104,11 +104,11 @@
 }
 
 .panel.cssanimation[data-open] {
-  animation: slideDown var(--duration) ease-out;
+  animation: slide-down var(--duration) ease-out;
 }
 
 .panel.cssanimation {
-  animation: slideUp var(--duration) ease-out;
+  animation: slide-up var(--duration) ease-out;
 }
 
 .panel.csstransition[data-open] {

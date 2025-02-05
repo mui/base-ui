@@ -75,7 +75,7 @@
   top: 50%;
   left: 50%;
   padding: 16px;
-  font-family: 'IBM Plex Sans';
+  font-family: 'IBM Plex Sans', sans-serif;
   z-index: 1;
   transform: translate(-50%, -50%);
   opacity: calc(pow(0.95, var(--nested-dialogs)));
@@ -177,10 +177,10 @@
   max-width: 1000px;
   margin: 0 auto;
   padding: 16px;
-  font-family: 'IBM Plex Sans';
+  font-family: 'IBM Plex Sans', sans-serif;
 
   & h1 {
-    font-family: 'General Sans';
+    font-family: 'General Sans', sans-serif;
     font-weight: 600;
     font-size: 2rem;
   }

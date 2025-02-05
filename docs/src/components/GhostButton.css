@@ -41,6 +41,14 @@
       inset: -0.375rem -0.5rem;
     }
 
+    &:focus-visible::before {
+      content: '';
+      position: absolute;
+      pointer-events: none;
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+    }
+
     &:not(:focus-visible) {
       @media (hover: hover) {
         &:hover {
@@ -62,14 +70,6 @@
           background-color: var(--color-gray-200);
         }
       }
-    }
-
-    &:focus-visible::before {
-      content: '';
-      position: absolute;
-      pointer-events: none;
-      outline: 2px solid var(--color-blue);
-      outline-offset: -1px;
     }
   }
 }

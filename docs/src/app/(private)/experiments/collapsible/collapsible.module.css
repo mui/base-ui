@@ -83,11 +83,11 @@
 
 .animation {
   & .panel[data-open] {
-    animation: slideDown var(--duration) ease-out;
+    animation: slide-down var(--duration) ease-out;
   }
 
   & .panel {
-    animation: slideUp var(--duration) ease-in;
+    animation: slide-up var(--duration) ease-in;
   }
 }
 
@@ -98,7 +98,7 @@
   }
 }
 
-@keyframes slideDown {
+@keyframes slide-down {
   from {
     height: 0;
   }
@@ -108,7 +108,7 @@
   }
 }
 
-@keyframes slideUp {
+@keyframes slide-up {
   from {
     height: var(--collapsible-panel-height);
   }
