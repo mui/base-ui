@@ -735,7 +735,9 @@ describe('<Field.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(trigger).to.have.attribute('aria-invalid', 'true');
+        await waitFor(() => {
+          expect(trigger).to.have.attribute('aria-invalid', 'true');
+        });
       });
 
       it('validates CheckboxGroup on blur', async () => {
