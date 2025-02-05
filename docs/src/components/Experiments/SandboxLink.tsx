@@ -3,6 +3,7 @@ import * as React from 'react';
 import { createCodeSandbox } from 'docs/src/blocks/createCodeSandbox/createCodeSandbox';
 import { DemoFile } from 'docs/src/blocks/Demo';
 import { Button } from './Button';
+import { resolveDependencies } from '../Demo/CodeSandboxLink';
 
 export function SandboxLink(props: SandboxLinkProps) {
   const { files, ...otherProps } = props;
@@ -21,6 +22,8 @@ export function SandboxLink(props: SandboxLinkProps) {
         '@types/react-dom': '^19',
         'react-scripts': 'latest',
       },
+      dependencyResolver: resolveDependencies,
+      customIndexFile: indexTs,
     });
   }, [files]);
 
@@ -30,6 +33,20 @@ export function SandboxLink(props: SandboxLinkProps) {
     </Button>
   );
 }
+
+const indexTs = `import * as React from 'react';
+import * as ReactDOM from 'react-dom/client';
+import Experiment, { settingsMetadata } from './App';
+import { SettingsPanel, ExperimentSettingsProvider } from './SettingsPanel';
+
+ReactDOM.createRoot(document.querySelector("#root")!).render(
+  <React.StrictMode>
+    <ExperimentSettingsProvider metadata={settingsMetadata}>
+      <Experiment />
+      <SettingsPanel metadata={settingsMetadata} />
+    </ExperimentSettingsProvider>
+  </React.StrictMode>
+);`;
 
 interface SandboxLinkProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   files: DemoFile[];

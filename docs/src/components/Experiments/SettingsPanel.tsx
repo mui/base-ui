@@ -90,6 +90,10 @@ export function SettingsPanel<Settings extends {}>(props: SettingsPanelProps<Set
     [setSettings],
   );
 
+  if (!metadata) {
+    return null;
+  }
+
   const controls = (
     <div {...otherProps} className={clsx(classes.settings, className)}>
       <h2>Settings</h2>

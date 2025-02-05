@@ -3,7 +3,6 @@ import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import {
   SettingsMetadata,
-  SettingsPanel,
   useExperimentSettings,
 } from '../../../../components/Experiments/SettingsPanel';
 import '../../../../demo-theme.css';
@@ -182,8 +181,6 @@ export default function MenuFullyFeatured() {
           Menu will be anchored here
         </div>
       )}
-
-      <SettingsPanel metadata={settingsMetadata} />
     </div>
   );
 }
