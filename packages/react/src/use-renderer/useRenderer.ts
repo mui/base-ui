@@ -6,10 +6,9 @@ import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
 /**
  * Returns a function that renders a Base UI component.
  */
-export function useRenderer<
-  State extends Record<string, any>,
-  RenderedElementType extends Element,
->(settings: useRenderer.Settings<State, RenderedElementType>) {
+export function useRenderer<State extends Record<string, any>, RenderedElementType extends Element>(
+  settings: useRenderer.Settings<State, RenderedElementType>,
+) {
   return useComponentRenderer(settings);
 }
 
