@@ -909,7 +909,7 @@ describe('<Menu.Root />', () => {
         expect(screen.queryByRole('menu')).not.to.equal(null);
       });
 
-      act(() => actionRef.current.unmount());
+      await act(async () => actionRef.current.unmount());
 
       await waitFor(() => {
         expect(screen.queryByRole('menu')).to.equal(null);
