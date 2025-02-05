@@ -887,6 +887,7 @@ describe('<Menu.Root />', () => {
 
       await render(
         <Menu.Root action={actionRef}>
+          <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup />
