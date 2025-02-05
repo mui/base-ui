@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Popover as PopoverPrimitive } from '@base-ui-components/react/popover';
-import styles from './popup-transform-origin.module.css';
-import type { Side } from '../../../../../packages/react/src/utils/useAnchorPositioning';
+import styles from './popups-transform-origin.module.css';
+import type { Side } from '../../../../../../packages/react/src/utils/useAnchorPositioning';
 
 function Popover({ side }: { side: Side }) {
   return (

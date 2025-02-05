@@ -115,7 +115,7 @@ export function CodeSandboxLink({ title, description, ...props }: CodeSandboxLin
   );
 }
 
-function resolveDependencies(packageName: string): Record<string, string> {
+export function resolveDependencies(packageName: string): Record<string, string> {
   switch (packageName) {
     case '@base-ui-components/react': {
       if (COMMIT_REF === undefined || SOURCE_CODE_REPO !== 'https://github.com/mui/base-ui') {
