@@ -75,13 +75,13 @@ AlertDialogRoot.propTypes /* remove-proptypes */ = {
    */
   defaultOpen: PropTypes.bool,
   /**
-   * Event handler called after any animations complete when the dialog is opened or closed.
-   */
-  onOpenChangeComplete: PropTypes.func,
-  /**
    * Event handler called when the dialog is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the dialog is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Whether the dialog is currently open.
    */

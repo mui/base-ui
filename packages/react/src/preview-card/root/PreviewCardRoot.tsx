@@ -86,13 +86,13 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
-   * Event handler called after any animations complete when the preview card is opened or closed.
-   */
-  onOpenChangeComplete: PropTypes.func,
-  /**
    * Event handler called when the preview card is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the preview card is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Whether the preview card is currently open.
    */
