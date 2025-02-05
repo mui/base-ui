@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable react/no-danger */
 import * as React from 'react';
 import clsx from 'clsx';
 import { Tabs } from '@base-ui-components/react/tabs';
