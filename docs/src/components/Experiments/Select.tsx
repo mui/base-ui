@@ -8,10 +8,7 @@ export function Select(props: Select.Props) {
 
   return (
     <BaseSelect.Root value={value} onValueChange={onChange}>
-      <BaseSelect.Trigger
-        {...otherProps}
-        className={clsx(classes.Select, otherProps.className)}
-      >
+      <BaseSelect.Trigger {...otherProps} className={clsx(classes.Select, otherProps.className)}>
         <BaseSelect.Value />
         <BaseSelect.Icon className={classes.SelectIcon}>
           <ChevronUpDownIcon />
@@ -28,9 +25,7 @@ export function Select(props: Select.Props) {
                 <BaseSelect.ItemIndicator className={classes.ItemIndicator}>
                   <CheckIcon className={classes.ItemIndicatorIcon} />
                 </BaseSelect.ItemIndicator>
-                <BaseSelect.ItemText className={classes.ItemText}>
-                  {option}
-                </BaseSelect.ItemText>
+                <BaseSelect.ItemText className={classes.ItemText}>{option}</BaseSelect.ItemText>
               </BaseSelect.Item>
             ))}
           </BaseSelect.Popup>

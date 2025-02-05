@@ -4,24 +4,12 @@ import classes from './Button.module.css';
 import { Tooltip } from './Tooltip';
 
 export function Button(props: ButtonProps) {
-  const {
-    children,
-    className,
-    variant,
-    fullWidth = false,
-    tooltip,
-    ...otherProps
-  } = props;
+  const { children, className, variant, fullWidth = false, tooltip, ...otherProps } = props;
   const button = (
     <button
       type="button"
       {...otherProps}
-      className={clsx(
-        classes.root,
-        classes[variant],
-        fullWidth && classes.fullWidth,
-        className,
-      )}
+      className={clsx(classes.root, classes[variant], fullWidth && classes.fullWidth, className)}
     >
       {children}
     </button>

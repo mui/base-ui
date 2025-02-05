@@ -10,9 +10,7 @@ export async function EditPanel(props: EditPanelProps) {
   return (
     <div {...otherProps}>
       <h2>Edit</h2>
-      <SandboxLink files={dependencies}>
-        Open in CodeSandbox ({experimentPath})
-      </SandboxLink>
+      <SandboxLink files={dependencies}>Open in CodeSandbox ({experimentPath})</SandboxLink>
     </div>
   );
 }

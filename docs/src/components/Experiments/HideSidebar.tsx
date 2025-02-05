@@ -12,11 +12,7 @@ export function HideSidebar(props: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div {...props}>
       <h2>Sidebar visibility</h2>
-      <Button
-        onClick={() => rootContext.setSidebarVisible(false)}
-        variant="text"
-        fullWidth
-      >
+      <Button onClick={() => rootContext.setSidebarVisible(false)} variant="text" fullWidth>
         Hide sidebar
       </Button>
     </div>
