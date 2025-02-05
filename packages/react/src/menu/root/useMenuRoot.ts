@@ -90,7 +90,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
   );
 
-<<<<<<< HEAD
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
     setOpenReason(null);
@@ -98,12 +97,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     setStickIfOpen(true);
   });
 
-  useAfterExitAnimation({
-    enabled: !parameters.action,
-    open,
-    animatedElementRef: popupRef,
-    onFinished: handleUnmount,
-=======
   useOpenChangeComplete({
     open,
     ref: popupRef,
@@ -116,7 +109,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         setStickIfOpen(true);
       }
     },
->>>>>>> upstream/master
   });
 
   React.useImperativeHandle(parameters.action, () => ({ unmount: handleUnmount }), [handleUnmount]);

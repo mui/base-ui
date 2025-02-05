@@ -29,11 +29,8 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly = false,
     required = false,
     modal = true,
-<<<<<<< HEAD
     action,
-=======
     onOpenChangeComplete,
->>>>>>> upstream/master
   } = props;
 
   const selectRoot = useSelectRoot<Value>({
@@ -49,11 +46,8 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly,
     required,
     modal,
-<<<<<<< HEAD
     action,
-=======
     onOpenChangeComplete,
->>>>>>> upstream/master
   });
 
   const { setDirty, validityData } = useFieldRootContext();
