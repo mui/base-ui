@@ -8,7 +8,6 @@ import { ownerDocument } from '../../utils/owner';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import { valueToPercent } from '../../utils/valueToPercent';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
@@ -21,6 +20,7 @@ import { getSliderValue } from '../utils/getSliderValue';
 import { replaceArrayItemAtIndex } from '../utils/replaceArrayItemAtIndex';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { ThumbMetadata } from '../thumb/useSliderThumb';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 function areValuesEqual(
   newValue: number | readonly number[],
@@ -134,7 +134,8 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   } = parameters;
 
   const direction = useDirection();
-  const { setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
+  const { setControlId, setTouched, setDirty, validityData, validationMode } =
+    useFieldRootContext();
 
   const {
     getValidationProps,
@@ -279,8 +280,11 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         }
         setDirty(newValue !== validityData.initialValue);
         setTouched(true);
-        commitValidation(lastChangedValueRef.current ?? newValue);
         onValueCommitted(lastChangedValueRef.current ?? newValue, event.nativeEvent);
+
+        if (validationMode === 'onChange') {
+          commitValidation(lastChangedValueRef.current ?? newValue);
+        }
       }
     },
   );
