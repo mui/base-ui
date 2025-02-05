@@ -192,7 +192,7 @@ export namespace usePreviewCardRoot {
     /**
      * A ref to imperative actions.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
@@ -210,5 +210,9 @@ export namespace usePreviewCardRoot {
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLDivElement | null>;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

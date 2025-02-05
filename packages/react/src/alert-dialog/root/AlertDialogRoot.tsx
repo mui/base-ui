@@ -55,6 +55,8 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
 
 namespace AlertDialogRoot {
   export interface Props extends Omit<DialogRoot.Props, 'modal' | 'dismissible'> {}
+
+  export type Actions = DialogRoot.Actions;
 }
 
 AlertDialogRoot.propTypes /* remove-proptypes */ = {

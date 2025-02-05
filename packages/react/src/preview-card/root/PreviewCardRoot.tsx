@@ -49,6 +49,8 @@ namespace PreviewCardRoot {
   export interface Props extends usePreviewCardRoot.Parameters {
     children?: React.ReactNode;
   }
+
+  export type Actions = usePreviewCardRoot.Actions;
 }
 
 PreviewCardRoot.propTypes /* remove-proptypes */ = {

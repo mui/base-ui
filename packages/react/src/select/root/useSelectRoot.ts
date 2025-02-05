@@ -429,11 +429,15 @@ export namespace useSelectRoot {
     /**
      * A ref to imperative actions.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
     rootContext: SelectRootContext;
     indexContext: SelectIndexContext;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

@@ -250,7 +250,7 @@ export namespace usePopoverRoot {
     /**
      * A ref to imperative actions.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
@@ -274,5 +274,9 @@ export namespace usePopoverRoot {
     openMethod: InteractionType | null;
     openReason: OpenChangeReason | null;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

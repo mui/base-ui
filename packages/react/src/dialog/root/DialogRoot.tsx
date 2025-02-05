@@ -62,6 +62,8 @@ namespace DialogRoot {
   export interface Props extends SharedParameters {
     children?: React.ReactNode;
   }
+
+  export type Actions = useDialogRoot.Actions;
 }
 
 DialogRoot.propTypes /* remove-proptypes */ = {

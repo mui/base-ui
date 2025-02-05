@@ -370,7 +370,7 @@ export namespace useMenuRoot {
     /**
      * A ref to imperative actions.
      */
-    actionsRef: React.RefObject<{ unmount: () => void }> | undefined;
+    actionsRef: React.RefObject<Actions> | undefined;
   }
 
   export interface ReturnValue {
@@ -394,5 +394,9 @@ export namespace useMenuRoot {
     instantType: 'dismiss' | 'click' | undefined;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
     setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

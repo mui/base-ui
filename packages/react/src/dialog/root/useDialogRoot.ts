@@ -256,7 +256,7 @@ export namespace useDialogRoot {
     /**
      * A ref to imperative actions.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
@@ -356,5 +356,9 @@ export namespace useDialogRoot {
      * The Floating UI root context.
      */
     floatingRootContext: FloatingRootContext;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

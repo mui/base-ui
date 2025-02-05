@@ -112,6 +112,21 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
   );
 };
 
+namespace SelectRoot {
+  export interface Props<Value> extends useSelectRoot.Parameters<Value> {
+    children?: React.ReactNode;
+  }
+
+  export interface State {}
+
+  export type Actions = useSelectRoot.Actions;
+}
+
+interface SelectRoot {
+  <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
+  propTypes?: any;
+}
+
 SelectRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -193,18 +208,5 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   value: PropTypes.any,
 } as any;
-
-namespace SelectRoot {
-  export interface Props<Value> extends useSelectRoot.Parameters<Value> {
-    children?: React.ReactNode;
-  }
-
-  export interface State {}
-}
-
-interface SelectRoot {
-  <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
-  propTypes?: any;
-}
 
 export { SelectRoot };

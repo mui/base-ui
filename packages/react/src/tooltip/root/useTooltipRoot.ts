@@ -223,7 +223,7 @@ export namespace useTooltipRoot {
     /**
      * A ref to imperative actions.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
@@ -241,5 +241,9 @@ export namespace useTooltipRoot {
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLElement | null>;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

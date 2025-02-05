@@ -58,6 +58,8 @@ namespace PopoverRoot {
   export interface Props extends usePopoverRoot.Parameters {
     children?: React.ReactNode;
   }
+
+  export type Actions = usePopoverRoot.Actions;
 }
 
 PopoverRoot.propTypes /* remove-proptypes */ = {

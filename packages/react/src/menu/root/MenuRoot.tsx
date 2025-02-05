@@ -154,6 +154,10 @@ namespace MenuRoot {
      */
     actionsRef?: React.RefObject<{ unmount: () => void }>;
   }
+
+  export interface Actions {
+    unmount: () => void;
+  }
 }
 
 MenuRoot.propTypes /* remove-proptypes */ = {
