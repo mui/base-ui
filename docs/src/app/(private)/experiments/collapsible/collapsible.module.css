@@ -102,6 +102,7 @@
   from {
     height: 0;
   }
+
   to {
     height: var(--collapsible-panel-height);
   }
@@ -111,6 +112,7 @@
   from {
     height: var(--collapsible-panel-height);
   }
+
   to {
     height: 0;
   }

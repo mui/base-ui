@@ -9,7 +9,6 @@
     align-items: center;
     gap: 0.375rem;
     outline: 0;
-    -webkit-user-select: none;
     user-select: none;
 
     &::before,
@@ -30,6 +29,7 @@
       min-width: 1rem;
       min-height: 1rem;
       justify-content: center;
+
       &::before {
         inset: -0.25rem;
         border-radius: var(--radius-sm);
