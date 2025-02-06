@@ -1,5 +1,91 @@
 # Versions
 
+## v1.0.0-alpha.6
+
+_Feb 6, 2025_
+
+### AlertDialog
+
+- `onOpenChangeComplete` prop (#1305) @atomiks
+- Fix jump with `scroll-behavior` style (#1343) @atomiks
+
+### Avatar
+
+- Add avatar component (#1210) @acomanescu
+
+### Checkbox
+
+- Avoid applying `hidden` attr when `keepMounted=true` for indicators (#1329) @onehanddev
+
+### Dialog
+
+- Remove `modal={open}` state (#1352) @atomiks
+- Support multiple non-nested modal backdrops (#1327) @atomiks
+- Fix missing `id`s on Title and Description (#1326) @mj12albert
+- `onOpenChangeComplete` prop (#1305) @atomiks
+- Fix jump with `scroll-behavior` style (#1343) @atomiks
+
+### Field
+
+- Respect `validationMode` (#1053) @atomiks
+- Add `filled` and `focused` style hooks (#1341) @atomiks
+
+### Form
+
+- Fix focusing of invalid field controls on errors prop change (#1364) @atomiks
+
+### Menu
+
+- Avoid applying `hidden` attr when `keepMounted=true` for indicators (#1329) @onehanddev
+- Support submenus with `openOnHover` prop (#1338) @atomiks
+- Fix iPad detection when applying scroll lock (#1342) @mj12albert
+- `onOpenChangeComplete` prop (#1305) @atomiks
+- Fix jump with `scroll-behavior` style (#1343) @atomiks
+- Add `OffsetFunction` for `sideOffset` and `alignOffset` (#1223) @atomiks
+- Ensure `keepMounted` is a private param on `Positioner` (#1410) @atomiks
+
+### Popover
+
+- `onOpenChangeComplete` prop (#1305) @atomiks
+- Add `OffsetFunction` for `sideOffset` and `alignOffset` (#1223) @atomiks
+- Ensure `keepMounted` is a private param on `Positioner` (#1410) @atomiks
+
+### PreviewCard
+
+- `onOpenChangeComplete` prop (#1305) @atomiks
+- Add `OffsetFunction` for `sideOffset` and `alignOffset` (#1223) @atomiks
+- Ensure `keepMounted` is a private param on `Positioner` (#1410) @atomiks
+
+### Progress
+
+- Add `format` prop and `Value` component (#1355) @mj12albert
+
+### Radio
+
+- Avoid applying `hidden` attr when `keepMounted=true` for indicators (#1329) @onehanddev
+
+### Select
+
+- `onOpenChangeComplete` prop (#1305) @atomiks
+- Fix jump with `scroll-behavior` style (#1343) @atomiks
+- Add `OffsetFunction` for `sideOffset` and `alignOffset` (#1223) @atomiks
+- Ensure `keepMounted` is a private param on `Positioner` (#1410) @atomiks
+
+### Slider
+
+- Fix thumb positioning (#1411) @mj12albert
+
+### Tabs
+
+- Fix being able to activate a disabled tab (#1359) @michaldudak
+- Fix tabs activating incorrectly on non-primary button clicks (#1318) @mj12albert
+
+### Tooltip
+
+- `onOpenChangeComplete` prop (#1305) @atomiks
+- Add `OffsetFunction` for `sideOffset` and `alignOffset` (#1223) @atomiks
+- Ensure `keepMounted` is a private param on `Positioner` (#1410) @atomiks
+
 ## v1.0.0-alpha.5
 
 _Jan 10, 2025_

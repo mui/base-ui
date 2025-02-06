@@ -1,6 +1,6 @@
 {
   "name": "@base-ui-components/monorepo",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0-alpha.6",
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
