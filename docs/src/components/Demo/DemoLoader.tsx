@@ -167,10 +167,20 @@ async function getDemoFromFile(
  * @param baseDirectory Directory the file is located in.
  */
 function getLocalImports(content: string, baseDirectory: string): string[] {
-  return (
-    content.match(/from ['"]\.\.?\/[^'"]+['"]/g)?.map((match) => match.slice(6, -1)) ?? []
-  ).map((file) => resolve(baseDirectory, file));
+  const localPaths = [
+    // import { foo } from './foo'
+    ...(content.match(/from ['"]\.\.?\/[^'"]+['"]/g)?.map((match) => match.slice(6, -1)) ?? []),
+    // import './foo'
+    ...(content.match(/import ['"]\.\.?\/[^'"]+['"]/g)?.map((match) => match.slice(8, -1)) ?? []),
+  ];
+
+  return localPaths.map((file) => resolve(baseDirectory, file));
 }
+
+const shikiLanguageMapping = {
+  jsx: 'js',
+  ts: 'tsx',
+} as Record<string, string>;
 
 /**
  * Lists all the dependencies of the provided files, including transitive dependencies (only in case of JS/TS files).
@@ -178,7 +188,7 @@ function getLocalImports(content: string, baseDirectory: string): string[] {
  * @param paths Paths to the files to read.
  * @param preferTs Whether to prefer TS files over JS files when resolving extensionless imports.
  */
-async function getDependencyFiles(paths: string[], preferTs: boolean): Promise<DemoFile[]> {
+export async function getDependencyFiles(paths: string[], preferTs: boolean): Promise<DemoFile[]> {
   const files = await Promise.all(
     paths.map(async (path) => {
       let extension = extname(path);
@@ -199,7 +209,7 @@ async function getDependencyFiles(paths: string[], preferTs: boolean): Promise<D
 
       const content = await readFile(path, 'utf-8');
       const prettyContent = highlighter.codeToHtml(content, {
-        lang: extension.slice(1),
+        lang: shikiLanguageMapping[extension.slice(1)] ?? extension.slice(1),
         theme: 'base-ui',
       });
 
