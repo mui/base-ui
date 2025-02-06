@@ -11,7 +11,7 @@ _Feb 6, 2025_
 
 ### Avatar
 
-- Add avatar component (#1210) @acomanescu
+- Add Avatar component (#1210) @acomanescu
 
 ### Checkbox
 
