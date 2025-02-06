@@ -67,8 +67,8 @@ export function useAnchorPositioning(
     collisionPadding = 5,
     sticky = false,
     arrowPadding = 5,
-    keepMounted = false,
     // Private parameters
+    keepMounted = false,
     floatingRootContext,
     mounted,
     trackAnchor = true,
@@ -422,14 +422,10 @@ export namespace useAnchorPositioning {
      * @default true
      */
     trackAnchor?: boolean;
-    /**
-     * Whether to keep the popup mounted in the DOM while it's hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
   }
 
   export interface Parameters extends SharedParameters {
+    keepMounted?: boolean;
     trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
     floatingRootContext?: FloatingRootContext;
     mounted: boolean;
