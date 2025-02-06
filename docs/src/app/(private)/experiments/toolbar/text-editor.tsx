@@ -6,6 +6,10 @@ import { Toggle } from '@base-ui-components/react/toggle';
 import { ToggleGroup } from '@base-ui-components/react/toggle-group';
 import { Select } from '@base-ui-components/react/select';
 import { Menu } from '@base-ui-components/react/menu';
+import {
+  SettingsMetadata,
+  useExperimentSettings,
+} from '../../../../components/Experiments/SettingsPanel';
 import toolbarClasses from './toolbar.module.css';
 import selectClasses from '../../../(public)/(content)/react/components/select/demos/hero/css-modules/index.module.css';
 import tooltipClasses from '../../../(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
@@ -25,7 +29,34 @@ import {
   ChevronRightIcon,
 } from './_icons';
 
-const DISABLED = false;
+interface Settings extends Record<string, boolean> {}
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  selectDisabled: {
+    type: 'boolean',
+    label: 'Select disabled',
+  },
+  boldDisabled: {
+    type: 'boolean',
+    label: 'Bold disabled',
+  },
+  italicsDisabled: {
+    type: 'boolean',
+    label: 'Italics disabled',
+  },
+  underlineDisabled: {
+    type: 'boolean',
+    label: 'Underline disabled',
+  },
+  menuDisabled: {
+    type: 'boolean',
+    label: 'Menu disabled',
+  },
+  toolbarDisabled: {
+    type: 'boolean',
+    label: 'Everything disabled',
+  },
+};
 
 const TEXT = `This demo uses the render prop to render Toolbar parts as other things:
 - Toolbar.Button renders Toggles, Select.Trigger, Menu.Trigger
@@ -48,8 +79,9 @@ function renderToggleWithTooltip(args: {
   key: string;
   label: string;
   icon: (props: React.ComponentProps<'svg'>) => React.JSX.Element;
+  disabled?: boolean;
 }) {
-  const { key, label, icon: Icon } = args;
+  const { key, label, icon: Icon, disabled = false } = args;
   return (
     <Tooltip.Root key={key}>
       <Tooltip.Trigger
@@ -59,7 +91,7 @@ function renderToggleWithTooltip(args: {
             aria-label={label}
             value={key}
             className={styles.toolbar.Toggle}
-            disabled={DISABLED}
+            disabled={disabled}
           >
             <Icon className={styles.toolbar.Icon} />
           </Toolbar.Button>
@@ -85,6 +117,7 @@ function renderToggleWithTooltip(args: {
 }
 
 export default function App() {
+  const { settings } = useExperimentSettings<Settings>();
   return (
     <React.Fragment>
       <a
@@ -100,7 +133,7 @@ export default function App() {
           <Toolbar.Root className={styles.toolbar.Root}>
             <Select.Root defaultValue="sans">
               <Toolbar.Button
-                disabled={DISABLED}
+                disabled={settings.toolbarDisabled || settings.selectDisabled}
                 render={<Select.Trigger />}
                 className={styles.select.Select}
               >
@@ -166,9 +199,24 @@ export default function App() {
               className={styles.toolbar.ToggleGroup}
             >
               {[
-                { key: 'bold', label: 'Bold', icon: BoldIcon },
-                { key: 'italics', label: 'Italics', icon: ItalicsIcon },
-                { key: 'underline', label: 'Underline', icon: UnderlineIcon },
+                {
+                  key: 'bold',
+                  label: 'Bold',
+                  icon: BoldIcon,
+                  disabled: settings.toolbarDisabled || settings.boldDisabled,
+                },
+                {
+                  key: 'italics',
+                  label: 'Italics',
+                  icon: ItalicsIcon,
+                  disabled: settings.toolbarDisabled || settings.italicsDisabled,
+                },
+                {
+                  key: 'underline',
+                  label: 'Underline',
+                  icon: UnderlineIcon,
+                  disabled: settings.toolbarDisabled || settings.underlineDisabled,
+                },
               ].map(renderToggleWithTooltip)}
             </Toolbar.Group>
 
@@ -178,7 +226,7 @@ export default function App() {
               render={<ToggleGroup />}
               defaultValue={['left']}
               className={styles.toolbar.ToggleGroup}
-              disabled={DISABLED}
+              disabled={settings.toolbarDisabled}
             >
               {[
                 { key: 'left', label: 'Align left', icon: AlignLeftIcon },
@@ -191,21 +239,29 @@ export default function App() {
 
             <Menu.Root>
               <Toolbar.Button
-                disabled={DISABLED}
+                disabled={settings.toolbarDisabled || settings.menuDisabled}
                 render={<Menu.Trigger />}
                 className={styles.toolbar.More}
               >
                 <MoreHorizontalIcon className={styles.toolbar.Icon} />
               </Toolbar.Button>
               <Menu.Portal>
-                <Menu.Positioner className={styles.menu.Positioner} sideOffset={8}>
+                <Menu.Positioner
+                  className={styles.menu.Positioner}
+                  align="start"
+                  side="inline-end"
+                  sideOffset={8}
+                >
                   <Menu.Popup
                     className={styles.menu.Popup}
-                    style={{ backgroundColor: 'var(--color-gray-50)' }}
+                    style={{ backgroundColor: 'canvas' }}
                   >
                     <Menu.Arrow
                       className={styles.menu.Arrow}
-                      style={{ color: 'var(--color-gray-50)' }}
+                      style={{
+                        color: 'canvas',
+                        transform: 'rotate(-90deg) translateY(-124%)',
+                      }}
                     >
                       <ArrowSvg className={styles.toolbar.ArrowSvg} />
                     </Menu.Arrow>
