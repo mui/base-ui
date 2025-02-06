@@ -9,7 +9,26 @@ import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
 export function useRenderer<State extends Record<string, any>, RenderedElementType extends Element>(
   settings: useRenderer.Settings<State, RenderedElementType>,
 ) {
-  return useComponentRenderer(settings);
+  const { className, render, state, ref, props, excludedStyleHookStates = [] } = settings;
+
+  const customStyleHookMapping = React.useMemo(() => {
+    return excludedStyleHookStates.reduce((acc, key) => {
+      return {
+        ...acc,
+        [key]: () => null,
+      };
+    }, {});
+  }, [excludedStyleHookStates]);
+
+  return useComponentRenderer({
+    className,
+    render,
+    state,
+    ref,
+    extraProps: props,
+    propGetter: (props) => props,
+    ...(excludedStyleHookStates.length > 0 && { customStyleHookMapping }),
+  });
 }
 
 namespace useRenderer {
@@ -35,15 +54,12 @@ namespace useRenderer {
      */
     ref?: React.Ref<RenderedElementType>;
     /**
-     * A function that returns props for the rendered element.
-     * It should accept and merge additional props.
+     * Props to be spread on the rendered element.
      */
-    propGetter?: (
-      externalProps: Record<string, any>,
-    ) => React.HTMLAttributes<any> & React.RefAttributes<RenderedElementType>;
+    props?: Record<string, any>;
     /**
-     * Additional props to be spread on the rendered element.
+     * List of state keys that should not be generated as a styled hooks (data-attributes).
      */
-    extraProps?: Record<string, any>;
+    excludedStyleHookStates?: string[];
   }
 }
