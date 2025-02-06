@@ -37,4 +37,7 @@ export const defaultRenderFunctions = {
   form: (props: React.ComponentPropsWithRef<'form'>) => {
     return <form {...props} />;
   },
+  img: (props: React.ComponentPropsWithRef<'img'>) => {
+    return <img alt="" {...props} />;
+  },
 };

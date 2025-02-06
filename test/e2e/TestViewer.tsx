@@ -12,11 +12,9 @@ function TestViewer(props: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <React.Suspense fallback={<div aria-busy />}>
-      <div aria-busy={!ready} data-testid="testcase">
-        {children}
-      </div>
-    </React.Suspense>
+    <div aria-busy={!ready} data-testid="testcase">
+      {children}
+    </div>
   );
 }
 

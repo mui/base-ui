@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { FieldRootContext } from './FieldRootContext';
-import { DEFAULT_VALIDITY_STATE, STYLE_HOOK_MAPPING } from '../utils/constants';
+import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFormContext } from '../../form/FormContext';
@@ -45,6 +45,8 @@ const FieldRoot = React.forwardRef(function FieldRoot(
 
   const [touched, setTouched] = React.useState(false);
   const [dirty, setDirtyUnwrapped] = React.useState(false);
+  const [filled, setFilled] = React.useState(false);
+  const [focused, setFocused] = React.useState(false);
 
   const markedDirtyRef = React.useRef(false);
 
@@ -73,8 +75,10 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       touched,
       dirty,
       valid,
+      filled,
+      focused,
     }),
-    [disabled, touched, dirty, valid],
+    [disabled, touched, dirty, valid, filled, focused],
   );
 
   const contextValue: FieldRootContext = React.useMemo(
@@ -94,6 +98,10 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       setTouched,
       dirty,
       setDirty,
+      filled,
+      setFilled,
+      focused,
+      setFocused,
       validate,
       validationMode,
       validationDebounceTime,
@@ -111,6 +119,10 @@ const FieldRoot = React.forwardRef(function FieldRoot(
       touched,
       dirty,
       setDirty,
+      filled,
+      setFilled,
+      focused,
+      setFocused,
       validate,
       validationMode,
       validationDebounceTime,
@@ -124,7 +136,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     className,
     state,
     extraProps: otherProps,
-    customStyleHookMapping: STYLE_HOOK_MAPPING,
+    customStyleHookMapping: fieldValidityMapping,
   });
 
   return (
@@ -161,6 +173,8 @@ namespace FieldRoot {
     touched: boolean;
     dirty: boolean;
     valid: boolean | null;
+    filled: boolean;
+    focused: boolean;
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {

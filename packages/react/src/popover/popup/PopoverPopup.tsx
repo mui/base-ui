@@ -16,6 +16,7 @@ import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { refType } from '../../utils/proptypes';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
   ...baseMapping,
@@ -44,8 +45,19 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     popupRef,
     mounted,
     openReason,
+    onOpenChangeComplete,
   } = usePopoverRootContext();
   const positioner = usePopoverPositionerContext();
+
+  useOpenChangeComplete({
+    open,
+    ref: popupRef,
+    onComplete() {
+      if (open) {
+        onOpenChangeComplete?.(true);
+      }
+    },
+  });
 
   const { getPopupProps, resolvedInitialFocus } = usePopoverPopup({
     getProps: getRootPopupProps,

@@ -7,7 +7,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useForkRef } from '../../utils/useForkRef';
 
 /**
@@ -27,22 +27,23 @@ const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndi
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
   const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(item.checked);
+  const { transitionStatus, setMounted } = useTransitionStatus(item.checked);
 
   const getItemProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         'aria-hidden': true,
-        hidden: !mounted,
       }),
-    [mounted],
+    [],
   );
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open: item.checked,
-    animatedElementRef: indicatorRef,
-    onFinished() {
-      setMounted(false);
+    ref: indicatorRef,
+    onComplete() {
+      if (!item.checked) {
+        setMounted(false);
+      }
     },
   });
 

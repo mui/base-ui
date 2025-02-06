@@ -74,6 +74,12 @@
     },
     "data-touched": {
       "description": "Present when the switch has been touched (when wrapped in Field.Root)."
+    },
+    "data-filled": {
+      "description": "Present when the switch is active (when wrapped in Field.Root)."
+    },
+    "data-focused": {
+      "description": "Present when the switch is focused (when wrapped in Field.Root)."
     }
   },
   "cssVariables": {}

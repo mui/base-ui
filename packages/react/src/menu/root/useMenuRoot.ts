@@ -19,7 +19,7 @@ import { useTransitionStatus, type TransitionStatus } from '../../utils/useTrans
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useControlled } from '../../utils/useControlled';
 import { PATIENT_CLICK_THRESHOLD, TYPEAHEAD_RESET_MS } from '../../utils/constants';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import {
@@ -34,6 +34,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     open: openParam,
     defaultOpen,
     onOpenChange,
+    onOpenChangeComplete,
     orientation,
     direction,
     disabled,
@@ -89,14 +90,17 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
   );
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open,
-    animatedElementRef: popupRef,
-    onFinished() {
-      setMounted(false);
-      setOpenReason(null);
-      setHoverEnabled(true);
-      setStickIfOpen(true);
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        onOpenChangeComplete?.(false);
+        setMounted(false);
+        setOpenReason(null);
+        setHoverEnabled(true);
+        setStickIfOpen(true);
+      }
     },
   });
 
@@ -266,6 +270,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       transitionStatus,
       openReason,
       instantType,
+      onOpenChangeComplete,
+      setHoverEnabled,
     }),
     [
       activeIndex,
@@ -283,6 +289,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       setPositionerElement,
       openReason,
       instantType,
+      onOpenChangeComplete,
     ],
   );
 }
@@ -299,6 +306,10 @@ export namespace useMenuRoot {
      * Event handler called when the menu is opened or closed.
      */
     onOpenChange: ((open: boolean, event?: Event, reason?: OpenChangeReason) => void) | undefined;
+    /**
+     * Event handler called after any animations complete when the menu is opened or closed.
+     */
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
     /**
      * Whether the menu is initially open.
      *
@@ -368,5 +379,7 @@ export namespace useMenuRoot {
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     openReason: OpenChangeReason | null;
     instantType: 'dismiss' | 'click' | undefined;
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
+    setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
   }
 }
