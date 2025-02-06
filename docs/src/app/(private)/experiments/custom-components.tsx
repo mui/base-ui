@@ -49,7 +49,11 @@ const Text = React.forwardRef(
           fontWeight,
         },
       },
-      excludedStyleHookStates: ['excludedProp'],
+      customStyleHookMapping: {
+        excludedProp() {
+          return null;
+        },
+      },
     });
 
     return renderElement();

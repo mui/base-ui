@@ -18,7 +18,7 @@ function useRenderer<State extends Record<string, any>, RenderedElementType exte
     state,
     ref,
     extraProps: props,
-    propGetter: (props) => props,
+    propGetter: (x) => x,
     customStyleHookMapping,
   });
 }
