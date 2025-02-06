@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
+import type { Orientation } from '../../utils/types';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
-import type { ToolbarOrientation, ToolbarItemMetadata } from './ToolbarRoot';
+import type { ToolbarItemMetadata } from './ToolbarRoot';
 
 export interface ToolbarRootContext {
   disabled: boolean;
-  orientation: ToolbarOrientation;
+  orientation: Orientation;
   setItemMap: React.Dispatch<
     React.SetStateAction<Map<Node, CompositeMetadata<ToolbarItemMetadata> | null>>
   >;

@@ -2,10 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import type { ToolbarOrientation, ToolbarItemMetadata } from '../root/ToolbarRoot';
+import type { ToolbarItemMetadata } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 
 const TOOLBAR_LINK_METADATA = {
@@ -52,7 +52,7 @@ const ToolbarLink = React.forwardRef(function ToolbarLink(
 
 export namespace ToolbarLink {
   export interface State {
-    orientation: ToolbarOrientation;
+    orientation: Orientation;
   }
 
   export interface Props extends BaseUIComponentProps<'a', State> {}
