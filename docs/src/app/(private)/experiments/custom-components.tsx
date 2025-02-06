@@ -9,7 +9,7 @@ type TextProps = {
   render?: any;
   children: any;
   style?: any;
-  size: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large';
   excludedProp?: boolean;
 };
 
