@@ -12,6 +12,10 @@ A typical release goes like this:
    //registry.npmjs.org/:_authToken=npm_000000000000000000000000000000000000
    ```
 3. Generate a GitHub Token at https://github.com/settings/personal-access-tokens/new and add it to your shell rc script (either `.bashrc` or `.zshrc`) as `GITHUB_TOKEN`.
+   - When creating the token, choose **mui** as the Resource owner.
+   - Set expiration to 366 days or less.
+   - Set **Public Repositories (read-only)** in Repository access.
+   - Organization permissions are not required.
 
 ### Prepare
 
