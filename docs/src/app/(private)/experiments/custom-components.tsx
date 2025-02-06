@@ -9,6 +9,8 @@ type TextProps = {
   render?: any;
   children: any;
   style?: any;
+  size: 'small' | 'medium' | 'large';
+  excludedProp?: boolean;
 };
 
 const Text = React.forwardRef(
