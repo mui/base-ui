@@ -1,4 +1,4 @@
-export { Separator } from '../separator/Separator';
+export { ToolbarSeparator as Separator } from './separator/ToolbarSeparator';
 export { ToolbarRoot as Root } from './root/ToolbarRoot';
 export { ToolbarGroup as Group } from './group/ToolbarGroup';
 export { ToolbarButton as Button } from './button/ToolbarButton';

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { ToolbarRootContext } from './ToolbarRootContext';
@@ -32,7 +32,7 @@ const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     orientation,
   });
 
-  const toolbarRootContext = React.useMemo(
+  const toolbarRootContext: ToolbarRootContext = React.useMemo(
     () => ({
       disabled,
       orientation,
@@ -65,8 +65,6 @@ const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   );
 });
 
-export type ToolbarOrientation = 'horizontal' | 'vertical';
-
 export interface ToolbarItemMetadata {
   focusableWhenDisabled: boolean;
 }
@@ -74,7 +72,7 @@ export interface ToolbarItemMetadata {
 namespace ToolbarRoot {
   export type State = {
     disabled: boolean;
-    orientation: ToolbarOrientation;
+    orientation: Orientation;
   };
 
   export interface Props extends BaseUIComponentProps<'div', State> {
@@ -89,7 +87,7 @@ namespace ToolbarRoot {
      * The orientation of the toolbar.
      * @default 'horizontal'
      */
-    orientation?: ToolbarOrientation;
+    orientation?: Orientation;
     /**
      * If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.
      *
