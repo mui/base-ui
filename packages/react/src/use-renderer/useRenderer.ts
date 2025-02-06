@@ -2,6 +2,7 @@ import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
+import { CustomStyleHookMapping } from '../utils/getStyleHookProps';
 
 /**
  * Returns a function that renders a Base UI component.
@@ -9,16 +10,7 @@ import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
 function useRenderer<State extends Record<string, any>, RenderedElementType extends Element>(
   settings: useRenderer.Settings<State, RenderedElementType>,
 ) {
-  const { className, render, state, ref, props, excludedStyleHookStates = [] } = settings;
-
-  const customStyleHookMapping = React.useMemo(() => {
-    return excludedStyleHookStates.reduce((acc, key) => {
-      return {
-        ...acc,
-        [key]: () => null,
-      };
-    }, {});
-  }, [excludedStyleHookStates]);
+  const { className, render, state, ref, props, customStyleHookMapping } = settings;
 
   return useComponentRenderer({
     className,
@@ -27,7 +19,7 @@ function useRenderer<State extends Record<string, any>, RenderedElementType exte
     ref,
     extraProps: props,
     propGetter: (props) => props,
-    ...(excludedStyleHookStates.length > 0 && { customStyleHookMapping }),
+    customStyleHookMapping,
   });
 }
 
@@ -58,9 +50,9 @@ namespace useRenderer {
      */
     props?: Record<string, any>;
     /**
-     * List of state keys that should not be generated as a styled hooks (data-attributes).
+     * A mapping of state to style hooks.
      */
-    excludedStyleHookStates?: string[];
+    customStyleHookMapping?: CustomStyleHookMapping<State>;
   }
 }
 

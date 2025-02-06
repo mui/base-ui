@@ -57,7 +57,7 @@ describe('useRenderer', () => {
     expect(element).to.have.attribute('data-weight', 'bold');
   });
 
-  it('does not create data-attributes for the states specified in excludedStyleHookStates', async () => {
+  it('respects the customStyleHookMapping config if provided', async () => {
     function TestComponent(props: {
       render?: useRenderer.Settings<any, Element>['render'];
       className?: useRenderer.Settings<any, Element>['className'];
@@ -71,7 +71,14 @@ describe('useRenderer', () => {
           size,
           weight,
         },
-        excludedStyleHookStates: ['size'],
+        customStyleHookMapping: {
+          size(value) {
+            return { [`data-size${value}`]: '' };
+          },
+          weight() {
+            return null;
+          },
+        },
       });
       return renderElement();
     }
@@ -80,7 +87,7 @@ describe('useRenderer', () => {
 
     const element = container.firstElementChild;
 
-    expect(element).not.to.have.attribute('data-size', 'large');
-    expect(element).to.have.attribute('data-weight', 'bold');
+    expect(element).to.have.attribute('data-sizelarge', '');
+    expect(element).not.to.have.attribute('data-weight');
   });
 });
