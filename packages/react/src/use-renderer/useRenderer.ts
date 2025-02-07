@@ -2,7 +2,7 @@ import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
-import { CustomStyleHookMapping } from '../utils/getStyleHookProps';
+import { CustomStyleHookMapping as StyleHookMapping } from '../utils/getStyleHookProps';
 
 /**
  * Returns a function that renders a Base UI component.
@@ -10,7 +10,7 @@ import { CustomStyleHookMapping } from '../utils/getStyleHookProps';
 function useRenderer<State extends Record<string, any>, RenderedElementType extends Element>(
   settings: useRenderer.Settings<State, RenderedElementType>,
 ) {
-  const { className, render, state, ref, props, customStyleHookMapping } = settings;
+  const { className, render, state, ref, props, styleHookMapping } = settings;
 
   return useComponentRenderer({
     className,
@@ -19,9 +19,14 @@ function useRenderer<State extends Record<string, any>, RenderedElementType exte
     ref,
     extraProps: props,
     propGetter: (x) => x,
-    customStyleHookMapping,
+    customStyleHookMapping: styleHookMapping,
   });
 }
+
+type RenderProp<State> =
+  | ComponentRenderFn<React.HTMLAttributes<any>, State>
+  | React.ReactElement<Record<string, unknown>>
+  | keyof typeof defaultRenderFunctions;
 
 namespace useRenderer {
   export interface Settings<State, RenderedElementType extends Element> {
@@ -33,10 +38,7 @@ namespace useRenderer {
     /**
      * The render prop or React element to override the default element.
      */
-    render:
-      | ComponentRenderFn<React.HTMLAttributes<any>, State>
-      | React.ReactElement<Record<string, unknown>>
-      | keyof typeof defaultRenderFunctions;
+    render: RenderProp<State>;
     /**
      * The state of the component. It will be used as a parameter for the render and className callbacks.
      */
@@ -48,12 +50,14 @@ namespace useRenderer {
     /**
      * Props to be spread on the rendered element.
      */
-    props?: Record<string, any>;
+    props?: Record<string, unknown>;
     /**
      * A mapping of state to style hooks.
      */
-    customStyleHookMapping?: CustomStyleHookMapping<State>;
+    styleHookMapping?: StyleHookMapping<State>;
   }
 }
+
+export type { ComponentRenderFn, StyleHookMapping, RenderProp };
 
 export { useRenderer };
