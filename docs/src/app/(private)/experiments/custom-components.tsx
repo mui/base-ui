@@ -1,15 +1,24 @@
 'use client';
 import * as React from 'react';
-import { useRenderer } from '@base-ui-components/react/use-renderer';
+import { useRenderer, RenderProp } from '@base-ui-components/react/use-renderer';
 import styles from './custom-components.module.css';
 
+type Weight = 'light' | 'regular' | 'bold';
+type Size = 'small' | 'medium' | 'large';
+
+type TextState = {
+  weight: Weight;
+  size: Size;
+  excludedProp: boolean;
+};
+
 type TextProps = {
-  weight?: 'light' | 'regular' | 'bold';
-  className: any;
-  render?: any;
-  children: any;
-  style?: any;
-  size?: 'small' | 'medium' | 'large';
+  className: string | ((state: TextState) => string);
+  weight?: Weight;
+  render?: RenderProp<TextState>;
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+  size?: Size;
   excludedProp?: boolean;
 };
 
@@ -49,7 +58,7 @@ const Text = React.forwardRef(
           fontWeight,
         },
       },
-      customStyleHookMapping: {
+      styleHookMapping: {
         excludedProp() {
           return null;
         },

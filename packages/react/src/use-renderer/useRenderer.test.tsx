@@ -71,7 +71,7 @@ describe('useRenderer', () => {
           size,
           weight,
         },
-        customStyleHookMapping: {
+        styleHookMapping: {
           size(value) {
             return { [`data-size${value}`]: '' };
           },
