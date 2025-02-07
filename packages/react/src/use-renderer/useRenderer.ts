@@ -10,14 +10,15 @@ import { CustomStyleHookMapping as StyleHookMapping } from '../utils/getStyleHoo
 function useRenderer<State extends Record<string, any>, RenderedElementType extends Element>(
   settings: useRenderer.Settings<State, RenderedElementType>,
 ) {
-  const { className, render, state, ref, props, styleHookMapping } = settings;
+  const { className, render, state, props, styleHookMapping } = settings;
+  const { ref, ...extraProps } = props ?? {};
 
   return useComponentRenderer({
     className,
     render,
     state,
-    ref,
-    extraProps: props,
+    ref: ref as React.Ref<RenderedElementType>,
+    extraProps,
     propGetter: (x) => x,
     customStyleHookMapping: styleHookMapping,
   });
@@ -43,10 +44,6 @@ namespace useRenderer {
      * The state of the component. It will be used as a parameter for the render and className callbacks.
      */
     state: State;
-    /**
-     * The ref to apply to the rendered element.
-     */
-    ref?: React.Ref<RenderedElementType>;
     /**
      * Props to be spread on the rendered element.
      */

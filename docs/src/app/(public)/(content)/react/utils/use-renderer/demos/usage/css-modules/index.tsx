@@ -21,42 +21,39 @@ type TextProps = {
   excludedProp?: boolean;
 };
 
-const Text = React.forwardRef(
-  (props: TextProps, forwardedRef: React.ForwardedRef<HTMLElement>) => {
-    const {
-      className,
-      render,
-      style = {},
-      weight = 'regular',
-      size = 'medium',
-      ...otherProps
-    } = props;
+function Text(props: TextProps) {
+  const {
+    className,
+    render,
+    style = {},
+    weight = 'regular',
+    size = 'medium',
+    ...otherProps
+  } = props;
 
-    const fontWeight = {
-      light: 300,
-      regular: 400,
-      bold: 700,
-    }[weight];
+  const fontWeight = {
+    light: 300,
+    regular: 400,
+    bold: 700,
+  }[weight];
 
-    const state = React.useMemo(() => ({ weight, size }), [weight, size]);
+  const state = React.useMemo(() => ({ weight, size }), [weight, size]);
 
-    const { renderElement } = useRenderer({
-      render: render ?? <p />,
-      state,
-      className,
-      ref: forwardedRef,
-      props: {
-        ...otherProps,
-        style: {
-          ...style,
-          fontWeight,
-        },
+  const { renderElement } = useRenderer({
+    render: render ?? <p />,
+    state,
+    className,
+    props: {
+      ...otherProps,
+      style: {
+        ...style,
+        fontWeight,
       },
-    });
+    },
+  });
 
-    return renderElement();
-  },
-);
+  return renderElement();
+}
 
 export default function ExampleText() {
   return (
