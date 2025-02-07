@@ -47,7 +47,7 @@ export function useImageLoadingStatus(
     return () => {
       isMounted = false;
     };
-  }, [src, options]);
+  }, [src, options?.crossOrigin, options?.referrerPolicy]);
 
   return loadingStatus;
 }
