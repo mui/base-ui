@@ -87,7 +87,7 @@ function renderToggleWithTooltip(args: {
       <Tooltip.Trigger
         render={
           <Toolbar.Button
-            render={<Toggle />}
+            render={<Toggle disabled={disabled} />}
             aria-label={label}
             value={key}
             className={styles.toolbar.Toggle}
@@ -131,7 +131,10 @@ export default function App() {
       <div className={styles.toolbar.Wrapper}>
         <Tooltip.Provider>
           <Toolbar.Root className={styles.toolbar.Root}>
-            <Select.Root defaultValue="sans">
+            <Select.Root
+              defaultValue="sans"
+              disabled={settings.toolbarDisabled || settings.selectDisabled}
+            >
               <Toolbar.Button
                 disabled={settings.toolbarDisabled || settings.selectDisabled}
                 render={<Select.Trigger />}
@@ -229,9 +232,24 @@ export default function App() {
               disabled={settings.toolbarDisabled}
             >
               {[
-                { key: 'left', label: 'Align left', icon: AlignLeftIcon },
-                { key: 'center', label: 'Align center', icon: AlignCenterIcon },
-                { key: 'right', label: 'Align right', icon: AlignRightIcon },
+                {
+                  key: 'left',
+                  label: 'Align left',
+                  icon: AlignLeftIcon,
+                  disabled: settings.toolbarDisabled,
+                },
+                {
+                  key: 'center',
+                  label: 'Align center',
+                  icon: AlignCenterIcon,
+                  disabled: settings.toolbarDisabled,
+                },
+                {
+                  key: 'right',
+                  label: 'Align right',
+                  icon: AlignRightIcon,
+                  disabled: settings.toolbarDisabled,
+                },
               ].map(renderToggleWithTooltip)}
             </Toolbar.Group>
 
@@ -240,7 +258,11 @@ export default function App() {
             <Menu.Root>
               <Toolbar.Button
                 disabled={settings.toolbarDisabled || settings.menuDisabled}
-                render={<Menu.Trigger />}
+                render={
+                  <Menu.Trigger
+                    disabled={settings.toolbarDisabled || settings.menuDisabled}
+                  />
+                }
                 className={styles.toolbar.More}
               >
                 <MoreHorizontalIcon className={styles.toolbar.Icon} />
