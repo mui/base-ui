@@ -1,18 +1,16 @@
 # useRenderer
 
-<Subtitle>Utility for adding Base UI like features in a custom build components.</Subtitle>
+<Subtitle>Utility for adding Base UI-like features to custom components.</Subtitle>
 <Meta
   name="description"
-  content="Utility for adding Base UI like features in a custom build components."
+  content="Utility for adding Base UI-like features to custom components."
 />
 
-Base UI provides few common features across all components:
+The `useRenderer` hook allows you to support the same features Base UI provides across all components so that you can also have a consistent experience in your custom components:
 
-- support for a [callback](/react/handbook/styling#css-classes) on the `className` prop where developers can generate classes based on the state of the components
-- [render](/react/handbook/composition) prop that allows developers to override the default rendered element of the component
-- adds data-attributes for the component's state that can be used as style hooks
-
-The `useRenderer` hook allows you to add these feature on your custom built components, so that you can provide consistenc experience across your library.
+- A [render](/react/handbook/composition) prop to override the default rendered element.
+- A [callback](/react/handbook/styling#css-classes) on the `className` prop that enables passing dynamically generated CSS classes based on the component's state.
+- Adds [data-attributes](https://base-ui.com/react/handbook/styling#data-attributes) that map to the component's state that can be used as style hooks.
 
 ## API reference
 
@@ -23,11 +21,11 @@ The `useRenderer` hook allows you to add these feature on your custom built comp
     className: {
       type: 'string | ((state: State) => string)',
       description:
-        'The class name to apply to the rendered element. Can be a string or a function that accepts the state and returns a string.',
+        'CSS class applied to the element, or a function that returns a class based on the component’s state.',
     },
     render: {
       type: 'RenderProp<State>',
-      description: 'The render prop or React element to override the default element.',
+      description: 'Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.',
     },
     state: {
       type: 'State',
