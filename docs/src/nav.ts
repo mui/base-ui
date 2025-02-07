@@ -149,6 +149,10 @@ export const nav = [
         label: 'Direction Provider',
         href: '/react/utils/direction-provider',
       },
+      {
+        label: 'useRenderer',
+        href: '/react/utils/use-renderer',
+      },
     ],
   },
 ];

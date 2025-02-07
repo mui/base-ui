@@ -1,0 +1,60 @@
+# useRenderer
+
+<Subtitle>Utility for adding Base UI like features in a custom build components.</Subtitle>
+<Meta
+  name="description"
+  content="Utility for adding Base UI like features in a custom build components."
+/>
+
+Base UI provides few common features across all components:
+
+- support for a [callback](/react/handbook/styling#css-classes) on the `className` prop where developers can generate classes based on the state of the components
+- [render](/react/handbook/composition) prop that allows developers to override the default rendered element of the component
+- adds data-attributes for the component's state that can be used as style hooks
+
+The `useRenderer` hook allows you to add these feature on your custom built components, so that you can provide consistenc experience across your library.
+
+## API reference
+
+### Input parameters
+
+<PropsReferenceTable
+  data={{
+    className: {
+      type: 'string | ((state: State) => string)',
+      description:
+        'The class name to apply to the rendered element. Can be a string or a function that accepts the state and returns a string.',
+    },
+    render: {
+      type: 'RenderProp<State>',
+      description: 'The render prop or React element to override the default element.',
+    },
+    state: {
+      type: 'State',
+      description:
+        'The state of the component. It will be used as a parameter for the render and className callbacks.',
+    },
+    ref: {
+      type: 'React.Ref<RenderedElementType>',
+      description: 'The ref to apply to the rendered element.',
+    },
+    props: {
+      type: 'Record<string, unknown>',
+      description: 'Props to be spread on the rendered element.',
+    },
+    styleHookMapping: {
+      type: 'StyleHookMapping<State>',
+      description: 'A mapping of state to style hooks.',
+    },
+  }}
+/>
+
+### Return value
+
+The hook returns a function that when called returns the element that should be rendered.
+
+## Usage
+
+This is an example usage for creating a Text component that generates data-attributes based on its state, and have the support for the `render` prop and the `className` callback.
+
+<Demo path="./demos/usage" />
