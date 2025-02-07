@@ -2,7 +2,7 @@ import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
-import { CustomStyleHookMapping as StyleHookMapping } from '../utils/getStyleHookProps';
+import { CustomStyleHookMapping as StateDataAttributes } from '../utils/getStyleHookProps';
 
 /**
  * Returns a function that renders a Base UI component.
@@ -10,7 +10,7 @@ import { CustomStyleHookMapping as StyleHookMapping } from '../utils/getStyleHoo
 function useRenderer<State extends Record<string, any>, RenderedElementType extends Element>(
   settings: useRenderer.Settings<State, RenderedElementType>,
 ) {
-  const { className, render, state, props, styleHookMapping } = settings;
+  const { className, render, state, props, stateDataAttributes } = settings;
   const { ref, ...extraProps } = props ?? {};
 
   return useComponentRenderer({
@@ -20,7 +20,7 @@ function useRenderer<State extends Record<string, any>, RenderedElementType exte
     ref: ref as React.Ref<RenderedElementType>,
     extraProps,
     propGetter: (x) => x,
-    customStyleHookMapping: styleHookMapping,
+    customStyleHookMapping: stateDataAttributes,
   });
 }
 
@@ -49,12 +49,12 @@ namespace useRenderer {
      */
     props?: Record<string, unknown>;
     /**
-     * A mapping of state to style hooks.
+     * A mapping of state to data attributes.
      */
-    styleHookMapping?: StyleHookMapping<State>;
+    stateDataAttributes?: StateDataAttributes<State>;
   }
 }
 
-export type { ComponentRenderFn, StyleHookMapping, RenderProp };
+export type { ComponentRenderFn, StateDataAttributes, RenderProp };
 
 export { useRenderer };
