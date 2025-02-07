@@ -25,11 +25,15 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
     render,
     onLoadingStatusChange: onLoadingStatusChangeProp,
     referrerPolicy,
+    crossOrigin,
     ...otherProps
   } = props;
 
   const context = useAvatarRootContext();
-  const imageLoadingStatus = useImageLoadingStatus(props.src, referrerPolicy);
+  const imageLoadingStatus = useImageLoadingStatus(props.src, {
+    referrerPolicy,
+    crossOrigin,
+  });
 
   const handleLoadingStatusChange = useEventCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);

@@ -5,9 +5,14 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
+interface UseImageLoadingStatusOptions {
+  referrerPolicy?: React.HTMLAttributeReferrerPolicy;
+  crossOrigin?: string | null;
+}
+
 export function useImageLoadingStatus(
   src?: string,
-  referrerPolicy?: React.HTMLAttributeReferrerPolicy,
+  options?: UseImageLoadingStatusOptions,
 ): ImageLoadingStatus {
   const [loadingStatus, setLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 
@@ -31,15 +36,18 @@ export function useImageLoadingStatus(
     setLoadingStatus('loading');
     image.onload = updateStatus('loaded');
     image.onerror = updateStatus('error');
-    image.src = src;
-    if (referrerPolicy) {
-      image.referrerPolicy = referrerPolicy;
+    if (options?.referrerPolicy) {
+      image.referrerPolicy = options.referrerPolicy;
     }
+    if (options?.crossOrigin) {
+      image.crossOrigin = options.crossOrigin;
+    }
+    image.src = src;
 
     return () => {
       isMounted = false;
     };
-  }, [src, referrerPolicy]);
+  }, [src, options]);
 
   return loadingStatus;
 }
