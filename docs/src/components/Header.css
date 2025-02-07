@@ -61,6 +61,7 @@
         background-color: var(--color-gray-100);
       }
     }
+
     @media not (hover: hover) {
       &:active {
         background-color: var(--color-gray-100);

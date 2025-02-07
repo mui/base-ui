@@ -7,7 +7,6 @@
     transition-duration: 600ms;
     transition-property: -webkit-backdrop-filter, backdrop-filter, opacity;
     transition-timing-function: var(--ease-out-fast);
-    -webkit-backdrop-filter: blur(1.5px);
     backdrop-filter: blur(1.5px);
     background-image: linear-gradient(to bottom, transparent 2rem, rgb(0 0 0 / 5%) 50%);
 
@@ -17,8 +16,7 @@
 
     &[data-starting-style],
     &[data-ending-style] {
-      -webkit-backdrop-filter: blur(0px);
-      backdrop-filter: blur(0px);
+      backdrop-filter: blur(0);
       opacity: 0;
     }
 
@@ -67,6 +65,7 @@
 
     /* Native apps don't show scrollbars on sheets like this */
     scrollbar-width: none;
+
     &::-webkit-scrollbar {
       display: none;
     }
@@ -81,6 +80,7 @@
       height: 1px;
       transition: background-color 50ms;
     }
+
     &[data-clipped]::after {
       background-color: var(--color-gridline);
     }
@@ -229,7 +229,6 @@
   background-color: var(--color-gray-200);
 
   /* Blur the dividers behind */
-  -webkit-backdrop-filter: blur(1rem);
   backdrop-filter: blur(1rem);
 
   &:focus-visible {

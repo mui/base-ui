@@ -81,10 +81,10 @@ export function CodeSandboxLink({ title, description, ...props }: CodeSandboxLin
       title,
       description,
       dependencies: {
-        '@types/react': '^18',
-        '@types/react-dom': '^18',
-        react: '^18',
-        'react-dom': '^18',
+        '@types/react': '^19',
+        '@types/react-dom': '^19',
+        react: '^19',
+        'react-dom': '^19',
       },
       devDependencies: {
         'react-scripts': 'latest',

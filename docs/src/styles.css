@@ -52,18 +52,18 @@
   --color-black: black;
 
   /* Gray scale that is roughly compatible with Tailwind's grays */
-  --color-gray-50: oklch(98% 0.25% 264);
-  --color-gray-75: oklch(97% 0.325% 264); /* Not a Tailwind step, don't use it in the demos */
-  --color-gray-100: oklch(12% 9.5% 264 / 5%);
-  --color-gray-200: oklch(12% 9% 264 / 7%);
-  --color-gray-300: oklch(12% 8.5% 264 / 17%);
-  --color-gray-400: oklch(12% 8% 264 / 38%);
-  --color-gray-500: oklch(12% 7.5% 264 / 50%);
-  --color-gray-600: oklch(12% 7% 264 / 67%);
-  --color-gray-700: oklch(12% 6% 264 / 77%);
-  --color-gray-800: oklch(12% 5% 264 / 85%);
-  --color-gray-900: oklch(12% 5% 264 / 90%);
-  --color-gray-950: oklch(12% 5% 264 / 95%);
+  --color-gray-50: oklch(98% 0.25% 264deg);
+  --color-gray-75: oklch(97% 0.325% 264deg); /* Not a Tailwind step, don't use it in the demos */
+  --color-gray-100: oklch(12% 9.5% 264deg / 5%);
+  --color-gray-200: oklch(12% 9% 264deg / 7%);
+  --color-gray-300: oklch(12% 8.5% 264deg / 17%);
+  --color-gray-400: oklch(12% 8% 264deg / 38%);
+  --color-gray-500: oklch(12% 7.5% 264deg / 50%);
+  --color-gray-600: oklch(12% 7% 264deg / 67%);
+  --color-gray-700: oklch(12% 6% 264deg / 77%);
+  --color-gray-800: oklch(12% 5% 264deg / 85%);
+  --color-gray-900: oklch(12% 5% 264deg / 90%);
+  --color-gray-950: oklch(12% 5% 264deg / 95%);
 
   /* Other colors used in Tailwind demos */
   --color-blue-800: var(--color-blue);
@@ -74,21 +74,21 @@
   --color-background: var(--color-gray-50);
   --color-foreground: var(--color-gray-900);
   --color-popup: white;
-  --color-gridline: oklch(91.6% 1% 264);
-  --color-selection: oklch(80% 50% 264 / 25%);
+  --color-gridline: oklch(91.6% 1% 264deg);
+  --color-selection: oklch(80% 50% 264deg / 25%);
   --color-highlight: var(--color-blue);
-  --color-line-highlight: oklch(80% 50% 264 / 10%);
-  --color-line-highlight-strong: oklch(80% 50% 264 / 25%);
-  --color-inline-highlight: oklch(80% 50% 264 / 15%);
+  --color-line-highlight: oklch(80% 50% 264deg / 10%);
+  --color-line-highlight-strong: oklch(80% 50% 264deg / 25%);
+  --color-inline-highlight: oklch(80% 50% 264deg / 15%);
 
   /* Text colors for the docs */
   --color-gray: var(--color-gray-600);
-  --color-navy: oklch(31% 25% 264);
-  --color-blue: oklch(45% 50% 264);
-  --color-green: oklch(46% 30% 150);
-  --color-purple: oklch(40% 45% 360);
-  --color-violet: oklch(40% 60% 300);
-  --color-red: oklch(50% 55% 31);
+  --color-navy: oklch(31% 25% 264deg);
+  --color-blue: oklch(45% 50% 264deg);
+  --color-green: oklch(46% 30% 150deg);
+  --color-purple: oklch(40% 45% 360deg);
+  --color-violet: oklch(40% 60% 300deg);
+  --color-red: oklch(50% 55% 31deg);
 
   /* Typography */
   --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
@@ -145,39 +145,39 @@
 
 :root {
   @media (prefers-color-scheme: dark) {
-    --color-gray-50: oklch(17% 0.25% 264);
-    --color-gray-75: oklch(19% 0.5% 264); /* Not a Tailwind step, don't use it in the demos */
-    --color-gray-100: oklch(28% 0.75% 264 / 65%);
-    --color-gray-200: oklch(29% 0.75% 264 / 80%);
-    --color-gray-300: oklch(35% 0.75% 264 / 80%);
-    --color-gray-400: oklch(47% 0.875% 264 / 80%);
-    --color-gray-500: oklch(64% 1% 264 / 80%);
-    --color-gray-600: oklch(82% 1% 264 / 80%);
-    --color-gray-700: oklch(92% 1.125% 264 / 80%);
-    --color-gray-800: oklch(93% 0.875% 264 / 85%);
-    --color-gray-900: oklch(95% 0.5% 264 / 90%);
-    --color-gray-950: oklch(94% 0.375% 264 / 95%);
+    --color-gray-50: oklch(17% 0.25% 264deg);
+    --color-gray-75: oklch(19% 0.5% 264deg); /* Not a Tailwind step, don't use it in the demos */
+    --color-gray-100: oklch(28% 0.75% 264deg / 65%);
+    --color-gray-200: oklch(29% 0.75% 264deg / 80%);
+    --color-gray-300: oklch(35% 0.75% 264deg / 80%);
+    --color-gray-400: oklch(47% 0.875% 264deg / 80%);
+    --color-gray-500: oklch(64% 1% 264deg / 80%);
+    --color-gray-600: oklch(82% 1% 264deg / 80%);
+    --color-gray-700: oklch(92% 1.125% 264deg / 80%);
+    --color-gray-800: oklch(93% 0.875% 264deg / 85%);
+    --color-gray-900: oklch(95% 0.5% 264deg / 90%);
+    --color-gray-950: oklch(94% 0.375% 264deg / 95%);
 
     /* Functional colors */
     --color-content: black;
     --color-background: black;
-    --color-foreground: oklch(90% 2% 264);
+    --color-foreground: oklch(90% 2% 264deg);
     --color-popup: var(--color-gray-50);
-    --color-gridline: oklch(24% 1% 264);
-    --color-highlight: oklch(45% 40% 264);
-    --color-selection: oklch(50% 50% 264 / 40%);
-    --color-line-highlight: oklch(50% 50% 264 / 20%);
-    --color-line-highlight-strong: oklch(50% 50% 264 / 35%);
-    --color-inline-highlight: oklch(50% 50% 264 / 35%);
+    --color-gridline: oklch(24% 1% 264deg);
+    --color-highlight: oklch(45% 40% 264deg);
+    --color-selection: oklch(50% 50% 264deg / 40%);
+    --color-line-highlight: oklch(50% 50% 264deg / 20%);
+    --color-line-highlight-strong: oklch(50% 50% 264deg / 35%);
+    --color-inline-highlight: oklch(50% 50% 264deg / 35%);
 
     /* Text colors */
     --color-gray: var(--color-gray-600);
-    --color-blue: oklch(69% 50% 264);
-    --color-green: oklch(75% 25% 150);
-    --color-navy: oklch(85% 25% 264);
-    --color-purple: oklch(85% 30% 360);
-    --color-red: oklch(80% 55% 31);
-    --color-violet: oklch(80% 60% 280);
+    --color-blue: oklch(69% 50% 264deg);
+    --color-green: oklch(75% 25% 150deg);
+    --color-navy: oklch(85% 25% 264deg);
+    --color-purple: oklch(85% 30% 360deg);
+    --color-red: oklch(80% 55% 31deg);
+    --color-violet: oklch(80% 60% 280deg);
   }
 }
 

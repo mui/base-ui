@@ -7,12 +7,12 @@
 }
 
 .root {
-  --shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
-    0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  --shadow: 0px 2px 1px -1px rgb(0 0 0 / 0.2), 0px 1px 1px 0px rgb(0 0 0 / 0.14),
+    0px 1px 3px 0px rgb(0 0 0 / 0.12);
 
   font-family: system-ui, sans-serif;
   box-shadow: var(--shadow);
-  background-color: rgba(0, 0, 0, 0.12);
+  background-color: rgb(0 0 0 / 0.12);
   border-radius: 0.3rem;
   height: 40rem;
   display: inline-flex;
@@ -21,7 +21,7 @@
 .item {
   position: relative;
   background-color: #fff;
-  color: rgba(0, 0, 0, 0.87);
+  color: rgb(0 0 0 / 0.87);
   display: flex;
 }
 
@@ -73,7 +73,7 @@
 
 .trigger:focus-visible {
   outline: 0;
-  background-color: rgba(0, 0, 0, 0.88);
+  background-color: rgb(0 0 0 / 0.88);
   color: #eee;
 }
 
