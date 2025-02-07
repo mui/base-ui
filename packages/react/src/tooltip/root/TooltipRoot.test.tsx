@@ -30,7 +30,6 @@ describe('<Tooltip.Root />', () => {
     ),
     render,
     triggerMouseAction: 'hover',
-    expectedPopupRole: 'presentation',
   });
 
   describe('uncontrolled open', () => {

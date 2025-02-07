@@ -21,6 +21,8 @@ export function usePreviewCardPositioner(
         }
 
         return mergeReactProps<'div'>(externalProps, {
+          role: 'presentation',
+
           hidden: !mounted,
           style: {
             ...positioning.positionerStyles,

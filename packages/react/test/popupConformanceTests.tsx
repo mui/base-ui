@@ -62,12 +62,14 @@ export function popupConformanceTests(config: PopupTestConfig) {
     }
 
     describe('ARIA attributes', () => {
-      it(`has the ${expectedPopupRole} role on the popup`, async () => {
-        await render(prepareComponent({ root: { open: true } }));
-        const popup = getPopup();
-        expect(popup).not.to.equal(null);
-        expect(popup).to.have.attribute('role', expectedPopupRole);
-      });
+      if (expectedPopupRole) {
+        it(`has the ${expectedPopupRole} role on the popup`, async () => {
+          await render(prepareComponent({ root: { open: true } }));
+          const popup = getPopup();
+          expect(popup).not.to.equal(null);
+          expect(popup).to.have.attribute('role', expectedPopupRole);
+        });
+      }
 
       if (triggerMouseAction === 'click') {
         it('has the `aria-controls` attribute on the trigger', async () => {
@@ -192,7 +194,7 @@ export interface PopupTestConfig {
   /**
    * Expected `role` attribute of the popup element.
    */
-  expectedPopupRole: string;
+  expectedPopupRole?: string;
   /**
    * Whether the popup contents are always present in the DOM.
    */

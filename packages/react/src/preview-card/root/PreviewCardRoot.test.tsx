@@ -38,7 +38,6 @@ describe('<PreviewCard.Root />', () => {
     ),
     render,
     triggerMouseAction: 'hover',
-    expectedPopupRole: 'presentation',
   });
 
   describe('uncontrolled open', () => {
