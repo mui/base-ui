@@ -53,7 +53,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     if (elementName === 'BUTTON' || elementName === 'INPUT') {
       if (focusableWhenDisabled) {
         additionalProps['aria-disabled'] = disabled;
-      } else {
+      } else if (!isCompositeItem) {
         additionalProps.disabled = disabled;
       }
     } else if (elementName !== '') {
