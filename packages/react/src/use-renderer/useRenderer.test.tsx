@@ -71,7 +71,7 @@ describe('useRenderer', () => {
           size,
           weight,
         },
-        styleHookMapping: {
+        stateDataAttributes: {
           size(value) {
             return { [`data-size${value}`]: '' };
           },
