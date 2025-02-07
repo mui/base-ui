@@ -162,7 +162,7 @@ const MenuPopup = styled(Menu.Popup)(
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
   color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
-  box-shadow: 0px 4px 30px ${theme.palette.mode === 'dark' ? grey[900] : grey[200]};
+  box-shadow: 0 4px 30px ${theme.palette.mode === 'dark' ? grey[900] : grey[200]};
   z-index: 1;
   transform-origin: var(--transform-origin);
   opacity: 1;
@@ -174,10 +174,8 @@ const MenuPopup = styled(Menu.Popup)(
   }
 
   &[data-starting-style] {
-    & {
-      opacity: 0;
-      transform: scale(0.8);
-    }
+    opacity: 0;
+    transform: scale(0.8);
   }
 
   &[data-ending-style] {
@@ -262,7 +260,6 @@ const MenuButton = styled(Menu.Trigger)(
   line-height: 1.5;
   padding: 8px 16px;
   border-radius: 8px;
-  color: white;
   transition: all 150ms ease;
   cursor: pointer;
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
