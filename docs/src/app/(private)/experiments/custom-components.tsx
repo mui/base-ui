@@ -47,7 +47,7 @@ const Text = React.forwardRef(
     );
 
     const { renderElement } = useRenderer({
-      render: render ?? 'p',
+      render: render ?? <p />,
       state,
       className,
       ref: forwardedRef,
