@@ -40,6 +40,7 @@
     "./form": "./src/form/index.ts",
     "./input": "./src/input/index.ts",
     "./menu": "./src/menu/index.ts",
+    "./menubar": "./src/menubar/index.ts",
     "./merge-props": "./src/merge-props/index.ts",
     "./meter": "./src/meter/index.ts",
     "./number-field": "./src/number-field/index.ts",
