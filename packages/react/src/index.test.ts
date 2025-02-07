@@ -4,8 +4,8 @@
  */
 import { expect } from 'chai';
 import { describe, it } from 'vitest';
+import { isJSDOM } from '#test-utils';
 import * as BaseUI from './index';
-import packageJson from '../package.json';
 
 describe('@base-ui-components/react', () => {
   it('should have exports', () => {
@@ -18,7 +18,8 @@ describe('@base-ui-components/react', () => {
     });
   });
 
-  it('should have the correct root exports', async () => {
+  it.skipIf(!isJSDOM)('should have the correct root exports', async () => {
+    const packageJson = await import('../package.json');
     const subpathExports = packageJson.exports;
 
     await Promise.all(
