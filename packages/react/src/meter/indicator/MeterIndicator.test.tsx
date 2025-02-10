@@ -31,9 +31,9 @@ describe('<Meter.Indicator />', () => {
   describe.skipIf(isJSDOM)('internal styles', () => {
     it('sets positioning styles', async () => {
       const { getByTestId } = await render(
-        <Meter.Root value={33}>
+        <Meter.Root value={33} style={{ width: '100px' }}>
           <Meter.Track>
-            <Meter.Indicator data-testid="indicator" render={<span />} />
+            <Meter.Indicator data-testid="indicator" />
           </Meter.Track>
         </Meter.Root>,
       );
@@ -42,7 +42,24 @@ describe('<Meter.Indicator />', () => {
 
       expect(indicator).toHaveComputedStyle({
         left: '0px',
-        width: '33%',
+        width: '33px',
+      });
+    });
+
+    it('sets zero width when value is 0', async () => {
+      const { getByTestId } = await render(
+        <Meter.Root value={0} style={{ width: '100px' }}>
+          <Meter.Track>
+            <Meter.Indicator data-testid="indicator" />
+          </Meter.Track>
+        </Meter.Root>,
+      );
+
+      const indicator = getByTestId('indicator');
+
+      expect(indicator).toHaveComputedStyle({
+        insetInlineStart: '0px',
+        width: '0px',
       });
     });
   });

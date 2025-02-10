@@ -1,5 +1,5 @@
 {
-  "name": "ProgressRoot",
+  "name": "MeterRoot",
   "props": {
     "format": {
       "type": "Intl.NumberFormatOptions"
