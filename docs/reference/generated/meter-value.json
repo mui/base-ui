@@ -1,6 +1,6 @@
 {
-  "name": "MeterTrack",
-  "description": "Contains the meter indicator and represents the entire range of the meter.\nRenders a `<div>` element.",
+  "name": "MeterValue",
+  "description": "A text element displaying the current value.\nRenders a `<span>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

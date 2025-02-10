@@ -1,30 +1,25 @@
-.demo {
-  --icon-size: 46px;
+.Root {
+  --icon-size: 44px;
   display: flex;
-  flex-flow: row nowrap;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem;
+  margin-top: 50dvh;
 }
 
-.meter {
-  display: flex;
-  flex-flow: column nowrap;
-  gap: 1rem;
-  color: var(--gray-text-2);
-}
-
-.track {
+.Track {
   position: relative;
-  width: 38px;
-  height: 16px;
+  width: 40px;
+  height: 26px;
   border-radius: 5px;
   border: 3px solid currentColor;
   padding: 2px;
   display: flex;
+
+  @media (prefers-color-scheme: dark) {
+    border-width: 1px;
+    padding: 3px;
+  }
 }
 
-.track:after {
+.Track:after {
   content: '';
   background-color: currentColor;
   position: absolute;
@@ -34,16 +29,23 @@
   width: 3px;
   height: 14px;
   border-radius: 0 6px 6px 0;
+
+  @media (prefers-color-scheme: dark) {
+    top: 4px;
+    right: -4px;
+    height: 15px;
+    border-radius: 0 8px 7px 0;
+  }
 }
 
-.icon {
+.Icon {
   position: absolute;
   width: var(--icon-size);
   height: var(--icon-size);
-  transform: translate(-3px, -14px);
+  transform: translate(-2px, -20%);
 }
 
-.indicator {
+.Indicator {
   background-color: rgb(40, 205, 65);
   border-radius: 3px;
 }

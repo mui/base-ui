@@ -24,7 +24,7 @@ const MeterIndicator = React.forwardRef(function MeterIndicator(
   const getStyles = React.useCallback(() => {
     return {
       insetInlineStart: 0,
-      height: 'inherit',
+      // height: 'inherit',
       width: `${percentageValue}%`,
     };
   }, [percentageValue]);
