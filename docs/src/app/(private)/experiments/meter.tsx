@@ -1,13 +1,30 @@
 'use client';
 import * as React from 'react';
 import { Meter } from '@base-ui-components/react/meter';
+import {
+  SettingsMetadata,
+  useExperimentSettings,
+} from '../../../components/Experiments/SettingsPanel';
 import styles from './meter.module.css';
 
+interface Settings {
+  value: number;
+}
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  value: {
+    type: 'number',
+    label: 'Value',
+    default: 77,
+  },
+};
+
 export default function BatteryMeter() {
+  const { settings } = useExperimentSettings<Settings>();
   return (
     <Meter.Root
       className={styles.Root}
-      value={77}
+      value={settings.value}
       aria-label="Battery percentage remaining"
     >
       <Meter.Track className={styles.Track}>
