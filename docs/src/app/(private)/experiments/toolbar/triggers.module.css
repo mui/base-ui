@@ -1,0 +1,14 @@
+.Root {
+  background-color: var(--color-gray-100);
+  padding: 0 0.75rem;
+}
+
+.Toggle {
+  margin-block: 0.5rem;
+}
+
+.Separator[data-orientation='vertical'] {
+  width: 1px;
+  align-self: stretch;
+  background-color: var(--color-gray-200);
+}
