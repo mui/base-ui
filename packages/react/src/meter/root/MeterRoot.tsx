@@ -112,6 +112,28 @@ MeterRoot.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * Options to format the value.
+   */
+  format: PropTypes.shape({
+    compactDisplay: PropTypes.oneOf(['long', 'short']),
+    currency: PropTypes.string,
+    currencyDisplay: PropTypes.oneOf(['code', 'name', 'narrowSymbol', 'symbol']),
+    currencySign: PropTypes.oneOf(['accounting', 'standard']),
+    localeMatcher: PropTypes.oneOf(['best fit', 'lookup']),
+    maximumFractionDigits: PropTypes.number,
+    maximumSignificantDigits: PropTypes.number,
+    minimumFractionDigits: PropTypes.number,
+    minimumIntegerDigits: PropTypes.number,
+    minimumSignificantDigits: PropTypes.number,
+    notation: PropTypes.oneOf(['compact', 'engineering', 'scientific', 'standard']),
+    numberingSystem: PropTypes.string,
+    signDisplay: PropTypes.oneOf(['always', 'auto', 'exceptZero', 'never']),
+    style: PropTypes.oneOf(['currency', 'decimal', 'percent', 'unit']),
+    unit: PropTypes.string,
+    unitDisplay: PropTypes.oneOf(['long', 'narrow', 'short']),
+    useGrouping: PropTypes.bool,
+  }),
+  /**
    * Accepts a function which returns a string value that provides an accessible name for the Indicator component
    * @param {number} value The component's value
    * @returns {string}

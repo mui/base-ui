@@ -20,11 +20,11 @@
       "description": "A string value that provides a human-readable text alternative for the current value of the meter indicator."
     },
     "getAriaLabel": {
-      "type": "function(value: number) => string",
+      "type": "(value) => string",
       "description": "Accepts a function which returns a string value that provides an accessible name for the Indicator component"
     },
     "getAriaValueText": {
-      "type": "function(value: number) => string",
+      "type": "(value) => string",
       "description": "Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the meter indicator."
     },
     "min": {
@@ -36,6 +36,10 @@
       "type": "number",
       "default": "100",
       "description": "The maximum value"
+    },
+    "format": {
+      "type": "Intl.NumberFormatOptions",
+      "description": "Options to format the value."
     },
     "className": {
       "type": "string | (state) => string",
