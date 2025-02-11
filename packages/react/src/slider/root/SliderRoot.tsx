@@ -212,7 +212,11 @@ export namespace SliderRoot {
      * You can pull out the new value by accessing `event.target.value` (any).
      * @param {number} activeThumbIndex Index of the currently moved thumb.
      */
-    onValueChange?: (value: Value, event: Event, activeThumbIndex: number) => void;
+    onValueChange?: (
+      value: Value extends number ? number : Value,
+      event: Event,
+      activeThumbIndex: number,
+    ) => void;
     /**
      * Callback function that is fired when the `pointerup` is triggered.
      *
@@ -220,7 +224,7 @@ export namespace SliderRoot {
      * @param {Event} event The corresponding event that initiated the change.
      * **Warning**: This is a generic event not a change event.
      */
-    onValueCommitted?: (value: Value, event: Event) => void;
+    onValueCommitted?: (value: Value extends number ? number : Value, event: Event) => void;
   }
 }
 export { SliderRoot };
