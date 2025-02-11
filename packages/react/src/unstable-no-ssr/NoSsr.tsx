@@ -33,8 +33,10 @@ function NoSsr(props: NoSsrProps): React.JSX.Element {
     }
   }, [defer]);
 
-  // We need the Fragment here to force react-docgen to recognise NoSsr as a component.
-  return <React.Fragment>{mountedState ? children : fallback}</React.Fragment>;
+  // TODO casting won't be needed at one point https://github.com/DefinitelyTyped/DefinitelyTyped/pull/65135
+  // We could replace React.JSX.Element with React.ReactNode.
+  // But first, we need to bump min typescript support to version to 5.1 and enough people to adopt the above change.
+  return (mountedState ? children : fallback) as React.JSX.Element;
 }
 
 NoSsr.propTypes /* remove-proptypes */ = {

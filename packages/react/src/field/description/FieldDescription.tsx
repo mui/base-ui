@@ -5,7 +5,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldDescription } from './useFieldDescription';
-import { STYLE_HOOK_MAPPING } from '../utils/constants';
+import { fieldValidityMapping } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
@@ -31,7 +31,7 @@ const FieldDescription = React.forwardRef(function FieldDescription(
     className,
     state,
     extraProps: otherProps,
-    customStyleHookMapping: STYLE_HOOK_MAPPING,
+    customStyleHookMapping: fieldValidityMapping,
   });
 
   return renderElement();

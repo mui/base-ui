@@ -6,7 +6,7 @@ import { NOOP } from '../../utils/noop';
 
 const testRootContext: SliderRootContext = {
   active: -1,
-  handleInputChange: NOOP,
+  commitValue: NOOP,
   dragging: false,
   disabled: false,
   getFingerState: () => ({
@@ -15,7 +15,7 @@ const testRootContext: SliderRootContext = {
     percentageValues: [0],
     thumbIndex: 0,
   }),
-  setValue: NOOP,
+  handleInputChange: NOOP,
   largeStep: 10,
   lastChangedValueRef: { current: null },
   thumbMap: new Map(),
@@ -23,7 +23,6 @@ const testRootContext: SliderRootContext = {
   min: 0,
   minStepsBetweenValues: 0,
   name: '',
-  onValueCommitted: NOOP,
   orientation: 'horizontal',
   state: {
     activeThumbIndex: -1,
@@ -38,6 +37,8 @@ const testRootContext: SliderRootContext = {
     valid: null,
     dirty: false,
     touched: false,
+    filled: false,
+    focused: false,
   },
   percentageValues: [0],
   registerSliderControl: NOOP,
@@ -45,6 +46,7 @@ const testRootContext: SliderRootContext = {
   setDragging: NOOP,
   setPercentageValues: NOOP,
   setThumbMap: NOOP,
+  setValue: NOOP,
   step: 1,
   tabIndex: null,
   thumbRefs: { current: [] },
