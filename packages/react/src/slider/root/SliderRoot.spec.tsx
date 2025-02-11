@@ -32,3 +32,10 @@ const arrayValueWithOnValueCommitted = (
 const arrayDefaultValueWithOnValueCommitted = (
   <Slider.Root defaultValue={[25]} onValueCommitted={(v) => expectType<number[], typeof v>(v)} />
 );
+
+const singleValueExplicitTypeAnnotation = (
+  <Slider.Root<number> onValueChange={(v) => expectType<number, typeof v>(v)} />
+);
+const arrayValueExplicitTypeAnnotation = (
+  <Slider.Root<number[]> onValueChange={(v) => expectType<number[], typeof v>(v)} />
+);
