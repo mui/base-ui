@@ -43,7 +43,8 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
       return getButtonProps(
         mergeReactProps(externalProps, {
           'aria-haspopup': 'menu' as const,
-          tabIndex: 0, // this is needed to make the button focused after click in Safari
+          // TODO: how can CompositeItem's tabIndex bypass mergeReactProps and override this?
+          // tabIndex: !isCompositeItem ? 0 : undefined, // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onMouseDown: (event: React.MouseEvent) => {
             if (open) {

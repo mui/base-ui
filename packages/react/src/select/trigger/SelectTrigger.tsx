@@ -9,6 +9,10 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
 
+import { useCompositeButton } from '../../toolbar/root/useCompositeButton';
+import type { ToolbarItemMetadata } from '../../toolbar/root/ToolbarRoot';
+import { CompositeItem } from '../../composite/item/CompositeItem';
+
 /**
  * A button that opens the select menu.
  * Renders a `<div>` element.
@@ -19,13 +23,22 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
   props: SelectTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...otherProps } = props;
+  const {
+    render,
+    className,
+    disabled: disabledProp = false,
+    focusableWhenDisabled = false,
+    ...otherProps
+  } = props;
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
 
   const { getRootTriggerProps, disabled: selectDisabled, open } = useSelectRootContext();
 
-  const disabled = fieldDisabled || selectDisabled || disabledProp;
+  const { toolbarContext, disabled, itemMetadata } = useCompositeButton({
+    disabled: fieldDisabled || selectDisabled || disabledProp,
+    focusableWhenDisabled,
+  });
 
   const { getTriggerProps } = useSelectTrigger({
     disabled,
@@ -58,6 +71,10 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
     extraProps: otherProps,
   });
 
+  if (toolbarContext !== undefined) {
+    return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={renderElement()} />;
+  }
+
   return renderElement();
 });
 
@@ -69,6 +86,10 @@ namespace SelectTrigger {
      * @default false
      */
     disabled?: boolean;
+    /**
+     * @default false
+     */
+    focusableWhenDisabled?: boolean;
   }
 
   export interface State {
@@ -98,6 +119,10 @@ SelectTrigger.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * @default false
+   */
+  focusableWhenDisabled: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

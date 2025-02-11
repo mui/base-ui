@@ -30,7 +30,7 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
 ) {
   const {
     defaultValue: defaultValueProp,
-    disabled = false,
+    disabled: disabledParam = false,
     loop = true,
     onValueChange: onValueChangeProp,
     orientation = 'horizontal',
@@ -53,32 +53,27 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
     return undefined;
   }, [valueProp, defaultValueProp]);
 
-  const {
-    getRootProps,
-    disabled: isDisabled,
-    setGroupValue,
-    value,
-  } = useToggleGroup({
+  const { getRootProps, disabled, setGroupValue, value } = useToggleGroup({
     value: valueProp,
     defaultValue,
-    disabled,
+    disabled: toolbarContext?.disabled || disabledParam,
     toggleMultiple,
     onValueChange: onValueChangeProp ?? NOOP,
   });
 
   const state: ToggleGroup.State = React.useMemo(
-    () => ({ disabled: isDisabled, multiple: toggleMultiple, orientation }),
-    [isDisabled, orientation, toggleMultiple],
+    () => ({ disabled, multiple: toggleMultiple, orientation }),
+    [disabled, orientation, toggleMultiple],
   );
 
   const contextValue: ToggleGroupContext = React.useMemo(
     () => ({
-      disabled: isDisabled,
+      disabled,
       orientation,
       setGroupValue,
       value,
     }),
-    [isDisabled, orientation, setGroupValue, value],
+    [disabled, orientation, setGroupValue, value],
   );
 
   const { renderElement } = useComponentRenderer({

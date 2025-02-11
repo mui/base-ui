@@ -77,7 +77,8 @@ export function useSelectTrigger(
         mergeReactProps<'button'>(fieldControlValidation.getValidationProps(externalProps), {
           'aria-labelledby': labelId,
           'aria-readonly': readOnly || undefined,
-          tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
+          // TODO: how can CompositeItem's tabIndex bypass mergeReactProps and override this?
+          // tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onFocus() {
             setFocused(true);

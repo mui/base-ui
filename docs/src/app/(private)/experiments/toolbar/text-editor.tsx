@@ -58,10 +58,11 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   },
 };
 
-const TEXT = `This demo uses the render prop to render Toolbar parts as other things:
-- Toolbar.Button renders Toggles, Select.Trigger, Menu.Trigger
-- Toolbar.Group is used to render ToggleGroup
-- The toggle buttons stack the render prop multiple times: Tooltip.Trigger > Toolbar.Button > Toggle
+const TEXT = `This is a POC for an API that just places Select,
+Menu, ToggleGroup/Toggle into Toolbar as-is without any explicit
+use of the render prop
+
+* Tooltip.Trigger uses the render prop but it's not related to Toolbar
 `;
 
 const styles = {
@@ -86,15 +87,14 @@ function renderToggleWithTooltip(args: {
     <Tooltip.Root key={key}>
       <Tooltip.Trigger
         render={
-          <Toolbar.Button
-            render={<Toggle disabled={disabled} />}
+          <Toggle
             aria-label={label}
             value={key}
             className={styles.toolbar.Toggle}
             disabled={disabled}
           >
             <Icon className={styles.toolbar.Icon} />
-          </Toolbar.Button>
+          </Toggle>
         }
       />
       <Tooltip.Portal>
@@ -135,16 +135,15 @@ export default function App() {
               defaultValue="sans"
               disabled={settings.toolbarDisabled || settings.selectDisabled}
             >
-              <Toolbar.Button
+              <Select.Trigger
                 disabled={settings.toolbarDisabled || settings.selectDisabled}
-                render={<Select.Trigger />}
                 className={styles.select.Select}
               >
                 <Select.Value placeholder="Sans-serif" />
                 <Select.Icon className={styles.select.SelectIcon}>
                   <ChevronUpDownIcon />
                 </Select.Icon>
-              </Toolbar.Button>
+              </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner
                   className={styles.select.Positioner}
@@ -196,8 +195,8 @@ export default function App() {
 
             <Toolbar.Separator className={styles.toolbar.Separator} />
 
-            <Toolbar.Group
-              render={<ToggleGroup toggleMultiple />}
+            <ToggleGroup
+              toggleMultiple
               defaultValue={[]}
               className={styles.toolbar.ToggleGroup}
             >
@@ -221,7 +220,7 @@ export default function App() {
                   disabled: settings.toolbarDisabled || settings.underlineDisabled,
                 },
               ].map(renderToggleWithTooltip)}
-            </Toolbar.Group>
+            </ToggleGroup>
 
             <Toolbar.Separator className={styles.toolbar.Separator} />
 
@@ -255,18 +254,10 @@ export default function App() {
 
             <Toolbar.Separator className={styles.toolbar.Separator} />
 
-            <Menu.Root>
-              <Toolbar.Button
-                disabled={settings.toolbarDisabled || settings.menuDisabled}
-                render={
-                  <Menu.Trigger
-                    disabled={settings.toolbarDisabled || settings.menuDisabled}
-                  />
-                }
-                className={styles.toolbar.More}
-              >
+            <Menu.Root disabled={settings.toolbarDisabled || settings.menuDisabled}>
+              <Menu.Trigger className={styles.toolbar.More}>
                 <MoreHorizontalIcon className={styles.toolbar.Icon} />
-              </Toolbar.Button>
+              </Menu.Trigger>
               <Menu.Portal>
                 <Menu.Positioner
                   className={styles.menu.Positioner}

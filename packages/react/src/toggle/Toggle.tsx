@@ -8,6 +8,9 @@ import { CompositeItem } from '../composite/item/CompositeItem';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
 import { useToggle } from './useToggle';
 
+import { useCompositeButton } from '../toolbar/root/useCompositeButton';
+import type { ToolbarItemMetadata } from '../toolbar/root/ToolbarRoot';
+
 /**
  * A two-state button that can be on or off.
  * Renders a `<button>` element.
@@ -28,6 +31,7 @@ const Toggle = React.forwardRef(function Toggle(
     render,
     type, // cannot change button type
     value: valueProp,
+    focusableWhenDisabled = false,
     ...otherProps
   } = props;
 
@@ -35,10 +39,19 @@ const Toggle = React.forwardRef(function Toggle(
 
   const groupValue = groupContext?.value ?? [];
 
-  const { disabled, pressed, getRootProps } = useToggle({
+  const { toolbarContext, disabled, itemMetadata } = useCompositeButton({
+    disabled: (disabledProp || groupContext?.disabled) ?? false,
+    focusableWhenDisabled,
+  });
+
+  const {
+    disabled: toggleDisabled,
+    pressed,
+    getRootProps,
+  } = useToggle({
     buttonRef: forwardedRef,
     defaultPressed: groupContext ? undefined : defaultPressed,
-    disabled: (disabledProp || groupContext?.disabled) ?? false,
+    disabled,
     onPressedChange: onPressedChangeProp ?? NOOP,
     pressed: groupContext && valueProp ? groupValue?.indexOf(valueProp) > -1 : pressedProp,
     setGroupValue: groupContext?.setGroupValue ?? NOOP,
@@ -47,10 +60,10 @@ const Toggle = React.forwardRef(function Toggle(
 
   const state: Toggle.State = React.useMemo(
     () => ({
-      disabled,
+      disabled: toggleDisabled,
       pressed,
     }),
-    [disabled, pressed],
+    [toggleDisabled, pressed],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -61,6 +74,10 @@ const Toggle = React.forwardRef(function Toggle(
     className,
     extraProps: otherProps,
   });
+
+  if (toolbarContext !== undefined) {
+    return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={renderElement()} />;
+  }
 
   return groupContext ? <CompositeItem render={renderElement()} /> : renderElement();
 });
@@ -92,6 +109,11 @@ export namespace Toggle {
      * An id or space-separated list of ids of elements that label the Toggle.
      */
     'aria-labelledby'?: React.AriaAttributes['aria-labelledby'];
+
+    /**
+     * @default false
+     */
+    focusableWhenDisabled?: boolean;
   }
 }
 
@@ -127,6 +149,10 @@ Toggle.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * @default false
+   */
+  focusableWhenDisabled: PropTypes.bool,
   /**
    * @ignore
    */
