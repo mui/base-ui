@@ -610,9 +610,6 @@ importers:
       '@mui/internal-test-utils':
         specifier: ^1.0.26
         version: 1.0.26(@babel/core@7.26.8)(@types/react-dom@19.0.2(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      '@mui/types':
-        specifier: ^7.2.21
-        version: 7.2.21(@types/react@19.0.8)
       '@testing-library/react':
         specifier: ^16.2.0
         version: 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@19.0.2(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
