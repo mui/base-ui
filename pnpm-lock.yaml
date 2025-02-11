@@ -610,6 +610,9 @@ importers:
       '@mui/internal-test-utils':
         specifier: ^1.0.24
         version: 1.0.24(@babel/core@7.26.0)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@mui/types':
+        specifier: ^7.2.21
+        version: 7.2.21(@types/react@19.0.2)
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.1.0(@testing-library/dom@10.4.0)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -2273,6 +2276,14 @@ packages:
 
   '@mui/types@7.2.20':
     resolution: {integrity: sha512-straFHD7L8v05l/N5vcWk+y7eL9JF0C2mtph/y4BPm3gn2Eh61dDwDB65pa8DLss3WJfDXYC7Kx5yjP0EmXpgw==}
+    peerDependencies:
+      '@types/react': ^19.0.2
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@mui/types@7.2.21':
+    resolution: {integrity: sha512-6HstngiUxNqLU+/DPqlUJDIPbzUBxIVHb1MmXP0eTWDIROiCR2viugXpEif0PPe2mLqqakPzzRClWAnK+8UJww==}
     peerDependencies:
       '@types/react': ^19.0.2
     peerDependenciesMeta:
@@ -10971,10 +10982,14 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.0.2
 
+  '@mui/types@7.2.21(@types/react@19.0.2)':
+    optionalDependencies:
+      '@types/react': 19.0.2
+
   '@mui/utils@6.3.0(@types/react@19.0.2)(react@19.0.0)':
     dependencies:
       '@babel/runtime': 7.26.0
-      '@mui/types': 7.2.20(@types/react@19.0.2)
+      '@mui/types': 7.2.21(@types/react@19.0.2)
       '@types/prop-types': 15.7.14
       clsx: 2.1.1
       prop-types: 15.8.1
