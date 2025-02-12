@@ -7,12 +7,12 @@ export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
 interface UseImageLoadingStatusOptions {
   referrerPolicy?: React.HTMLAttributeReferrerPolicy;
-  crossOrigin?: string | null;
+  crossOrigin?: React.ImgHTMLAttributes<HTMLImageElement>['crossOrigin'];
 }
 
 export function useImageLoadingStatus(
-  src?: string,
-  options?: UseImageLoadingStatusOptions,
+  src: string | undefined,
+  { referrerPolicy, crossOrigin }: UseImageLoadingStatusOptions,
 ): ImageLoadingStatus {
   const [loadingStatus, setLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 
@@ -36,18 +36,18 @@ export function useImageLoadingStatus(
     setLoadingStatus('loading');
     image.onload = updateStatus('loaded');
     image.onerror = updateStatus('error');
-    if (options?.referrerPolicy) {
-      image.referrerPolicy = options.referrerPolicy;
+    if (referrerPolicy) {
+      image.referrerPolicy = referrerPolicy;
     }
-    if (options?.crossOrigin) {
-      image.crossOrigin = options.crossOrigin;
+    if (typeof crossOrigin === 'string') {
+      image.crossOrigin = crossOrigin;
     }
     image.src = src;
 
     return () => {
       isMounted = false;
     };
-  }, [src, options?.crossOrigin, options?.referrerPolicy]);
+  }, [src, crossOrigin, referrerPolicy]);
 
   return loadingStatus;
 }

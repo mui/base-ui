@@ -91,6 +91,10 @@ AvatarImage.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * @ignore
+   */
+  crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
+  /**
    * Callback fired when the loading status changes.
    */
   onLoadingStatusChange: PropTypes.func,
