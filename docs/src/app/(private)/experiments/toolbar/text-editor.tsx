@@ -196,8 +196,8 @@ export default function App() {
 
             <Toolbar.Separator className={styles.toolbar.Separator} />
 
-            <Toolbar.Group
-              render={<ToggleGroup toggleMultiple />}
+            <ToggleGroup
+              toggleMultiple
               defaultValue={[]}
               className={styles.toolbar.ToggleGroup}
             >
@@ -221,12 +221,11 @@ export default function App() {
                   disabled: settings.toolbarDisabled || settings.underlineDisabled,
                 },
               ].map(renderToggleWithTooltip)}
-            </Toolbar.Group>
+            </ToggleGroup>
 
             <Toolbar.Separator className={styles.toolbar.Separator} />
 
-            <Toolbar.Group
-              render={<ToggleGroup />}
+            <ToggleGroup
               defaultValue={['left']}
               className={styles.toolbar.ToggleGroup}
               disabled={settings.toolbarDisabled}
@@ -251,7 +250,7 @@ export default function App() {
                   disabled: settings.toolbarDisabled,
                 },
               ].map(renderToggleWithTooltip)}
-            </Toolbar.Group>
+            </ToggleGroup>
 
             <Toolbar.Separator className={styles.toolbar.Separator} />
 
