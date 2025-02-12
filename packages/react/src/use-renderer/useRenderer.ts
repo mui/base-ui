@@ -47,7 +47,7 @@ namespace useRenderer {
     /**
      * Props to be spread on the rendered element.
      */
-    props?: Record<string, unknown>;
+    props?: Record<string, unknown> & { ref?: React.Ref<RenderedElementType> };
     /**
      * A mapping of state to data attributes.
      */
