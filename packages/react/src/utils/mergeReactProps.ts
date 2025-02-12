@@ -32,21 +32,21 @@ function merge<T extends React.ElementType>(
   }
 
   return Object.entries(externalProps).reduce(
-    (mergedProps, [externalPropName, externalPropValue]) => {
-      if (isEventHandler(externalPropName, externalPropValue)) {
-        mergedProps[externalPropName] = mergeEventHandlers(
-          externalPropValue,
-          internalProps[externalPropName],
-        );
-      } else if (externalPropName === 'style') {
-        mergedProps[externalPropName] = mergeStyles(
+    (mergedProps, [propName, externalPropValue]) => {
+      if (isEventHandler(propName, externalPropValue)) {
+        mergedProps[propName] = mergeEventHandlers(externalPropValue, internalProps[propName]);
+      } else if (propName === 'style') {
+        mergedProps[propName] = mergeStyles(
           externalPropValue as React.CSSProperties,
           internalProps.style,
         );
-      } else if (externalPropName === 'className') {
-        mergeClassNames(externalPropValue as string, internalProps.className);
+      } else if (propName === 'className') {
+        mergedProps[propName] = mergeClassNames(
+          externalPropValue as string,
+          internalProps.className,
+        );
       } else {
-        mergedProps[externalPropName] = externalPropValue;
+        mergedProps[propName] = externalPropValue;
       }
 
       return mergedProps;
@@ -57,11 +57,12 @@ function merge<T extends React.ElementType>(
 
 function isEventHandler(key: string, value: unknown) {
   // This approach is more efficient than using a regex.
+  const thirdCharCode = key.charCodeAt(2);
   return (
     key[0] === 'o' &&
     key[1] === 'n' &&
-    key.charCodeAt(2) >= 65 /* A */ &&
-    key.charCodeAt(2) <= 90 /* Z */ &&
+    thirdCharCode >= 65 /* A */ &&
+    thirdCharCode <= 90 /* Z */ &&
     typeof value === 'function'
   );
 }
