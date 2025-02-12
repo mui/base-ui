@@ -5,6 +5,7 @@ import { Tooltip } from '@base-ui-components/react/tooltip';
 import { Toggle } from '@base-ui-components/react/toggle';
 import { ToggleGroup } from '@base-ui-components/react/toggle-group';
 import { Select } from '@base-ui-components/react/select';
+import { NumberField } from '@base-ui-components/react/number-field';
 import { Menu } from '@base-ui-components/react/menu';
 import {
   SettingsMetadata,
@@ -14,6 +15,7 @@ import toolbarClasses from './toolbar.module.css';
 import selectClasses from '../../../(public)/(content)/react/components/select/demos/hero/css-modules/index.module.css';
 import tooltipClasses from '../../../(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
 import menuClasses from '../../../(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
+import numberFieldClasses from '../../../(public)/(content)/react/components/number-field/demos/hero/css-modules/index.module.css';
 import '../../../../demo-theme.css';
 import {
   BoldIcon,
@@ -27,6 +29,9 @@ import {
   CheckIcon,
   MoreHorizontalIcon,
   ChevronRightIcon,
+  CursorGrowIcon,
+  MinusIcon,
+  PlusIcon,
 } from './_icons';
 
 interface Settings extends Record<string, boolean> {}
@@ -62,8 +67,8 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
 
 const TEXT = `This demo uses the render prop to render Toolbar parts as other things:
 - Toolbar.Button renders Toggles, Select.Trigger, Menu.Trigger
-- Toolbar.Group is used to render ToggleGroup
-- The toggle buttons stack the render prop multiple times: Tooltip.Trigger > Toolbar.Button > Toggle
+- Toolbar.Input renders NumberField.Input
+- The render prop is stacked multiple times e.g. Tooltip.Trigger > Toolbar.Button > Toggle
 `;
 
 const styles = {
@@ -71,6 +76,7 @@ const styles = {
   tooltip: tooltipClasses,
   select: selectClasses,
   menu: menuClasses,
+  numField: numberFieldClasses,
 };
 
 function classNames(...c: Array<string | undefined | null | false>) {
@@ -194,6 +200,64 @@ export default function App() {
                 </Select.Positioner>
               </Select.Portal>
             </Select.Root>
+
+            <Tooltip.Root>
+              <Tooltip.Trigger
+                render={
+                  <NumberField.Root
+                    defaultValue={16}
+                    max={256}
+                    min={1}
+                    className={styles.numField.Field}
+                  >
+                    <NumberField.ScrubArea className={styles.numField.ScrubArea}>
+                      <NumberField.ScrubAreaCursor
+                        className={styles.numField.ScrubAreaCursor}
+                      >
+                        <CursorGrowIcon />
+                      </NumberField.ScrubAreaCursor>
+                    </NumberField.ScrubArea>
+
+                    <NumberField.Group
+                      className={classNames(
+                        styles.toolbar.NumberFieldGroup,
+                        styles.numField.Group,
+                      )}
+                    >
+                      <NumberField.Decrement className={styles.numField.Decrement}>
+                        <MinusIcon />
+                      </NumberField.Decrement>
+
+                      <Toolbar.Input
+                        className={styles.toolbar.Input}
+                        render={<NumberField.Input />}
+                        aria-label="Font size"
+                        disabled={settings.toolbarDisabled}
+                      />
+
+                      <NumberField.Increment className={styles.numField.Increment}>
+                        <PlusIcon />
+                      </NumberField.Increment>
+                    </NumberField.Group>
+                  </NumberField.Root>
+                }
+              />
+              <Tooltip.Portal>
+                <Tooltip.Positioner sideOffset={10}>
+                  <Tooltip.Popup className={styles.tooltip.Popup}>
+                    <Tooltip.Arrow
+                      className={classNames(
+                        styles.tooltip.Arrow,
+                        styles.toolbar.TooltipArrow,
+                      )}
+                    >
+                      <ArrowSvg className={styles.toolbar.ArrowSvg} />
+                    </Tooltip.Arrow>
+                    Font size
+                  </Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
 
             <Toolbar.Separator className={styles.toolbar.Separator} />
 

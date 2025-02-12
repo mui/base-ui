@@ -59,6 +59,7 @@ const ToolbarRoot = React.forwardRef(function ToolbarRoot(
         disabledIndices={disabledIndices}
         loop={loop}
         onMapChange={setItemMap}
+        orientation={orientation}
         render={renderElement()}
       />
     </ToolbarRootContext.Provider>

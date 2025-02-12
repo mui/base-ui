@@ -6,14 +6,13 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import {
   ALL_KEYS,
-  ARROW_KEYS,
   ARROW_DOWN,
+  ARROW_KEYS,
   ARROW_LEFT,
   ARROW_RIGHT,
   ARROW_UP,
-  HOME,
-  END,
   buildCellMap,
+  END,
   findNonDisabledIndex,
   getCellIndexOfCorner,
   getCellIndices,
@@ -21,10 +20,12 @@ import {
   getMaxIndex,
   getMinIndex,
   getTextDirection,
+  HOME,
   HORIZONTAL_KEYS,
   HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
   isDisabled,
   isIndexOutOfBounds,
+  isNativeInput,
   VERTICAL_KEYS,
   VERTICAL_KEYS_WITH_EXTRA_KEYS,
   type Dimensions,
@@ -90,11 +91,28 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
 
+  const horizontalArrowTravelDirectionRef = React.useRef<'end' | 'start'>(null);
+
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
         'aria-orientation': orientation === 'both' ? undefined : orientation,
         ref: mergedRef,
+        onFocus(event) {
+          const element = rootRef.current;
+          if (!element || !isNativeInput(event.target)) {
+            return;
+          }
+          if (horizontalArrowTravelDirectionRef.current == null) {
+            return;
+          }
+          const textContentLength = event.target.value.length ?? 0;
+          if (horizontalArrowTravelDirectionRef.current === 'end') {
+            event.target.setSelectionRange(0, 0);
+          } else if (textContentLength && horizontalArrowTravelDirectionRef.current === 'start') {
+            event.target.setSelectionRange(textContentLength, textContentLength);
+          }
+        },
         onKeyDown(event) {
           const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
           if (!RELEVANT_KEYS.includes(event.key)) {
@@ -110,6 +128,35 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             textDirectionRef.current = getTextDirection(element);
           }
           const isRtl = textDirectionRef.current === 'rtl';
+
+          const horizontalEndKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
+          const horizontalStartKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
+
+          if (event.key === horizontalEndKey) {
+            horizontalArrowTravelDirectionRef.current = 'end';
+          }
+          if (event.key === horizontalStartKey) {
+            horizontalArrowTravelDirectionRef.current = 'start';
+          }
+
+          if (isNativeInput(event.target)) {
+            const selectionStart = event.target.selectionStart;
+            const selectionEnd = event.target.selectionEnd;
+            const textContent = event.target.value ?? '';
+            // bail out of composite into native textbox behavior if Shift
+            // is held to make a text selection, or if there already is a text selection
+            if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
+              return;
+            }
+            // arrow-ing forward and not in the last position of the text
+            if (event.key !== horizontalStartKey && selectionStart < textContent.length) {
+              return;
+            }
+            // arrow-ing backward and not in the first position of the text
+            if (event.key !== horizontalEndKey && selectionStart > 0) {
+              return;
+            }
+          }
 
           let nextIndex = highlightedIndex;
           const minIndex = getMinIndex(elementsRef, disabledIndices);
@@ -180,14 +227,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             ] as number; // navigated cell will never be nullish
           }
 
-          const horizontalEndKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
           const toEndKeys = {
             horizontal: [horizontalEndKey],
             vertical: [ARROW_DOWN],
             both: [horizontalEndKey, ARROW_DOWN],
           }[orientation];
 
-          const horizontalStartKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
           const toStartKeys = {
             horizontal: [horizontalStartKey],
             vertical: [ARROW_UP],
