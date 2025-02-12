@@ -10,6 +10,27 @@ import switchClasses from '../../../(public)/(content)/react/components/switch/d
 import dialogClasses from '../../../(public)/(content)/react/components/alert-dialog/demos/hero/css-modules/index.module.css';
 import popoverClasses from '../../../(public)/(content)/react/components/popover/demos/hero/css-modules/index.module.css';
 import { MessageCircleIcon } from './_icons';
+import {
+  SettingsMetadata,
+  useExperimentSettings,
+} from '../../../../components/Experiments/SettingsPanel';
+
+interface Settings extends Record<string, boolean> {}
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  dialogDisabled: {
+    type: 'boolean',
+    label: 'Dialog disabled',
+  },
+  switchDisabled: {
+    type: 'boolean',
+    label: 'Switch disabled',
+  },
+  toolbarDisabled: {
+    type: 'boolean',
+    label: 'Everything disabled',
+  },
+};
 
 const styles = {
   demo: triggerToolbarClasses,
@@ -31,6 +52,7 @@ function classNames(...c: Array<string | undefined | null | false>) {
 }
 
 export default function App() {
+  const { settings } = useExperimentSettings<Settings>();
   return (
     <React.Fragment>
       <a
@@ -76,7 +98,7 @@ export default function App() {
           <Toolbar.Separator className={styles.demo.Separator} />
 
           <Toolbar.Button
-            disabled={DISABLED}
+            disabled={settings.switchDisabled}
             className={classNames(styles.toolbar.Toggle, styles.demo.Toggle)}
             render={
               <Switch.Root defaultChecked className={styles.switch.Switch}>
