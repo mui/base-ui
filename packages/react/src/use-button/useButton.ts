@@ -161,7 +161,9 @@ export namespace useButton {
      * Type attribute applied when the `component` is `button`.
      * @default 'button'
      */
-    type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
+    type?:
+      | React.ButtonHTMLAttributes<HTMLButtonElement>['type']
+      | React.InputHTMLAttributes<HTMLInputElement>['type'];
     /**
      * The HTML element, e.g.'button', 'span' etc.
      * @default ''

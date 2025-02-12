@@ -370,3 +370,15 @@ export function getTextDirection(element: HTMLElement): TextDirection {
 
   return ownerWindow(element).getComputedStyle(element).direction as TextDirection;
 }
+
+export function isNativeInput(
+  element: EventTarget,
+): element is HTMLElement & (HTMLInputElement | HTMLTextAreaElement) {
+  if (element instanceof HTMLInputElement && element.selectionStart != null) {
+    return true;
+  }
+  if (element instanceof HTMLTextAreaElement) {
+    return true;
+  }
+  return false;
+}

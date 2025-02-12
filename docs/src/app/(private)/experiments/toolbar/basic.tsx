@@ -1,23 +1,22 @@
 'use client';
 import * as React from 'react';
 import { Toolbar } from '@base-ui-components/react/toolbar';
-import s from './toolbar.module.css';
-import selectClasses from '../../../(public)/(content)/react/components/select/demos/hero/css-modules/index.module.css';
-import menuClasses from '../../../(public)/(content)/react/components/menu/demos/hero/css-modules/index.module.css';
+import toolbarClasses from './toolbar.module.css';
+import inputClasses from '../../../(public)/(content)/react/components/input/demos/hero/css-modules/index.module.css';
 import '../../../../demo-theme.css';
 
 const DISABLED = false;
 
 const styles = {
-  toolbar: s,
-  select: selectClasses,
-  menu: menuClasses,
+  toolbar: toolbarClasses,
+  input: inputClasses,
 };
 
 const TEXT = `Shows the basic anatomy:
 - Toolbar.Root
 - Toolbar.Button
 - Toolbar.Link
+- Toolbar.Input
 - Toolbar.Separator
 - Toolbar.Group
 `;
@@ -40,7 +39,7 @@ export default function App() {
             className={styles.toolbar.Button}
             onClick={() => console.log('clicked a regular toolbar button')}
           >
-            Toolbar.Button
+            Button 1
           </Toolbar.Button>
 
           <Toolbar.Link
@@ -48,7 +47,7 @@ export default function App() {
             href="https://base-ui.com"
             target="_blank"
           >
-            Visit base-ui.com
+            Link
           </Toolbar.Link>
 
           <Toolbar.Separator className={styles.toolbar.Separator} />
@@ -60,7 +59,7 @@ export default function App() {
               onClick={() => console.log('clicked button 1 inside a group')}
               style={{ marginRight: '0.5rem' }}
             >
-              Toolbar.Button in a Group
+              Grouped Button 1
             </Toolbar.Button>
 
             <Toolbar.Button
@@ -68,9 +67,11 @@ export default function App() {
               className={styles.toolbar.Button}
               onClick={() => console.log('clicked button 2 inside a group')}
             >
-              Toolbar.Button in a Group
+              Grouped Button 2
             </Toolbar.Button>
           </Toolbar.Group>
+
+          <Toolbar.Input className={styles.input.Input} defaultValue="A textbox" />
         </Toolbar.Root>
         <textarea
           className={styles.toolbar.Textarea}
