@@ -15,9 +15,9 @@ describe('mergeReactProps', () => {
     };
     const mergedProps = mergeReactProps<'button'>(theirProps, ourProps);
 
-    mergedProps.onClick?.({} as any);
-    mergedProps.onKeyDown?.({} as any);
-    mergedProps.onPaste?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
+    mergedProps.onKeyDown?.({ nativeEvent: new MouseEvent('keydown') } as any);
+    mergedProps.onPaste?.({ nativeEvent: new Event('paste') } as any);
 
     expect(theirProps.onClick.calledBefore(ourProps.onClick)).to.equal(true);
     expect(theirProps.onClick.callCount).to.equal(1);
@@ -47,7 +47,7 @@ describe('mergeReactProps', () => {
       },
     );
 
-    mergedProps.onClick?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
     expect(log).to.deep.equal(['1', '2', '3']);
   });
 
@@ -106,7 +106,7 @@ describe('mergeReactProps', () => {
       },
     );
 
-    mergedProps.onClick?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
 
     expect(ran).to.equal(true);
   });
@@ -132,7 +132,7 @@ describe('mergeReactProps', () => {
       },
     );
 
-    mergedProps.onClick?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
 
     expect(ran).to.equal(false);
   });
@@ -159,9 +159,32 @@ describe('mergeReactProps', () => {
       },
     );
 
-    mergedProps.onClick?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') });
 
     expect(log).to.deep.equal(['0', '1']);
+  });
+
+  [true, 13, 'newValue', { key: 'value' }, ['value'], () => 'value'].forEach((eventArgument) => {
+    it('handles non-standard event handlers without error', () => {
+      const log: string[] = [];
+
+      const mergedProps = mergeReactProps(
+        {
+          onValueChange() {
+            log.push('0');
+          },
+        },
+        {
+          onValueChange() {
+            log.push('1');
+          },
+        },
+      );
+
+      mergedProps.onValueChange(eventArgument);
+
+      expect(log).to.deep.equal(['0', '1']);
+    });
   });
 
   it('merges internal props so that the ones defined first override the ones defined later', () => {

@@ -1,12 +1,12 @@
-import type * as React from 'react';
+import * as React from 'react';
 import type { BaseUIEvent, WithBaseUIEvent } from './types';
 
 /**
  * Merges multiple sets of React props such that their event handlers are called in sequence (the user's
  * before our internal ones), and allows the user to prevent the internal event handlers from being
- * executed by attaching a `preventBaseUIHandler` method. It also merges the `style` prop, whereby
- * the user's styles overwrite the internal ones.
- * @important **`className` and `ref` are not merged.**
+ * executed by attaching a `preventBaseUIHandler` method. It also merges the `className` and `style` props, whereby
+ * the classes are concatenated and the user's styles overwrite the internal ones.
+ * @important **`ref` is not merged.**
  * @param externalProps the user's external props.
  * @param internalProps our own internal props.
  * @returns the merged props.
@@ -32,56 +32,88 @@ function merge<T extends React.ElementType>(
   }
 
   return Object.entries(externalProps).reduce(
-    (acc, [key, value]) => {
-      if (
-        // This approach is more efficient than using a regex.
-        key[0] === 'o' &&
-        key[1] === 'n' &&
-        key.charCodeAt(2) >= 65 /* A */ &&
-        key.charCodeAt(2) <= 90 /* Z */ &&
-        typeof value === 'function'
-      ) {
-        acc[key] = (event: React.SyntheticEvent) => {
-          let isPrevented = false;
-
-          const theirHandler = value;
-          const ourHandler = internalProps[key];
-
-          const baseUIEvent = event as BaseUIEvent<typeof event>;
-
-          baseUIEvent.preventBaseUIHandler = () => {
-            isPrevented = true;
-          };
-
-          const result = theirHandler(baseUIEvent);
-
-          if (!isPrevented) {
-            ourHandler?.(baseUIEvent);
-          }
-
-          return result;
-        };
-      } else if (key === 'style') {
-        if (value || internalProps.style) {
-          acc[key] = { ...internalProps.style, ...(value || {}) };
-        }
-      } else if (key === 'className') {
-        if (value) {
-          if (internalProps.className) {
-            // eslint-disable-next-line prefer-template
-            acc[key] = value + ' ' + internalProps.className;
-          } else {
-            acc[key] = value;
-          }
-        } else {
-          acc[key] = internalProps.className;
-        }
+    (mergedProps, [externalPropName, externalPropValue]) => {
+      if (isEventHandler(externalPropName, externalPropValue)) {
+        mergedProps[externalPropName] = mergeEventHandlers(
+          externalPropValue,
+          internalProps[externalPropName],
+        );
+      } else if (externalPropName === 'style') {
+        mergedProps[externalPropName] = mergeStyles(
+          externalPropValue as React.CSSProperties,
+          internalProps.style,
+        );
+      } else if (externalPropName === 'className') {
+        mergeClassNames(externalPropValue as string, internalProps.className);
       } else {
-        acc[key] = value;
+        mergedProps[externalPropName] = externalPropValue;
       }
 
-      return acc;
+      return mergedProps;
     },
     { ...internalProps },
   );
+}
+
+function isEventHandler(key: string, value: unknown) {
+  // This approach is more efficient than using a regex.
+  return (
+    key[0] === 'o' &&
+    key[1] === 'n' &&
+    key.charCodeAt(2) >= 65 /* A */ &&
+    key.charCodeAt(2) <= 90 /* Z */ &&
+    typeof value === 'function'
+  );
+}
+
+function mergeEventHandlers(theirHandler: any, ourHandler: any) {
+  return (event: React.SyntheticEvent | {}) => {
+    if (isSyntheticEvent(event)) {
+      let isPrevented = false;
+      const baseUIEvent = event as BaseUIEvent<typeof event>;
+
+      baseUIEvent.preventBaseUIHandler = () => {
+        isPrevented = true;
+      };
+
+      const result = theirHandler(baseUIEvent);
+
+      if (!isPrevented) {
+        ourHandler?.(baseUIEvent);
+      }
+
+      return result;
+    }
+
+    const result = theirHandler(event);
+    ourHandler?.(event);
+    return result;
+  };
+}
+
+function mergeStyles(
+  theirStyle: React.CSSProperties | undefined,
+  ourStyle: React.CSSProperties | undefined,
+) {
+  if (theirStyle || ourStyle) {
+    return { ...ourStyle, ...(theirStyle || {}) };
+  }
+  return undefined;
+}
+
+function mergeClassNames(theirClassName: string | undefined, ourClassName: string | undefined) {
+  if (theirClassName) {
+    if (ourClassName) {
+      // eslint-disable-next-line prefer-template
+      return theirClassName + ' ' + ourClassName;
+    }
+
+    return theirClassName;
+  }
+
+  return ourClassName;
+}
+
+function isSyntheticEvent(event: React.SyntheticEvent | {}): event is React.SyntheticEvent {
+  return typeof event === 'object' && 'nativeEvent' in event;
 }
