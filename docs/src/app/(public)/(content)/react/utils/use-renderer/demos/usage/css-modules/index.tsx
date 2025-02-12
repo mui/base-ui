@@ -16,26 +16,17 @@ type TextProps = {
   weight?: Weight;
   render?: RenderProp<TextState>;
   children: React.ReactNode;
-  style?: React.CSSProperties;
   size?: Size;
-  excludedProp?: boolean;
 };
 
 function Text(props: TextProps) {
   const {
     className,
     render,
-    style = {},
     weight = 'regular',
     size = 'medium',
     ...otherProps
   } = props;
-
-  const fontWeight = {
-    light: 300,
-    regular: 400,
-    bold: 700,
-  }[weight];
 
   const state = React.useMemo(() => ({ weight, size }), [weight, size]);
 
@@ -43,13 +34,7 @@ function Text(props: TextProps) {
     render: render ?? <p />,
     state,
     className,
-    props: {
-      ...otherProps,
-      style: {
-        ...style,
-        fontWeight,
-      },
-    },
+    props: otherProps,
   });
 
   return renderElement();

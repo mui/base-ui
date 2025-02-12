@@ -8,12 +8,6 @@ import styles from './index.module.css';
 type Weight = 'light' | 'regular' | 'bold';
 type Size = 'small' | 'medium' | 'large';
 
-// type TextState = {
-//   weight: Weight;
-//   size: Size;
-// };
-
-// TODO: fix the types of the generic
 type TextProps = {
   className?: string | ((state: Record<string, any>) => string);
   weight?: Weight;
