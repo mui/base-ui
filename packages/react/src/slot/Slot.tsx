@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { useForkRef } from '../utils';
+import type { BaseUIComponentProps } from '../utils/types';
 import type { ComponentRenderFn } from '../utils/types';
 import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
 import { CustomStyleHookMapping as StateDataAttributes } from '../utils/getStyleHookProps';
@@ -14,7 +15,7 @@ const Slot = React.forwardRef(function SlotComponent<
   inProps: Slot.Props<State, RenderedElementType>,
   forwardedRef: React.ForwardedRef<RenderedElementType>,
 ) {
-  const { className, render = <div />, state = {} as State, props, stateDataAttributes } = inProps;
+  const { className, render = <div />, state = {} as State, stateDataAttributes, ...props } = inProps;
   const { ref, ...extraProps } = props ?? {};
   const finalRef = useForkRef(ref, forwardedRef);
 
@@ -52,13 +53,10 @@ namespace Slot {
      */
     state?: State;
     /**
-     * Props to be spread on the rendered element.
-     */
-    props?: Record<string, unknown> & { ref?: React.Ref<RenderedElementType> };
-    /**
      * A mapping of state to data attributes.
      */
     stateDataAttributes?: StateDataAttributes<State>;
+    ref?: React.Ref<RenderedElementType> 
   }
 }
 

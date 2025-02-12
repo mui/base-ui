@@ -26,19 +26,11 @@ type TextProps = {
 
 function Text(props: TextProps) {
   const {
-    className,
     render,
-    style = {},
     weight = 'regular',
     size = 'medium',
     ...otherProps
   } = props;
-
-  const fontWeight = {
-    light: 300,
-    regular: 400,
-    bold: 700,
-  }[weight];
 
   const state = React.useMemo(() => ({ weight, size }), [weight, size]);
 
@@ -46,14 +38,7 @@ function Text(props: TextProps) {
     <Slot
       render={render ?? <p />}
       state={state}
-      className={className}
-      props={{
-        ...otherProps,
-        style: {
-          ...style,
-          fontWeight,
-        },
-      }}
+      {...otherProps}
     />
   );
 }
