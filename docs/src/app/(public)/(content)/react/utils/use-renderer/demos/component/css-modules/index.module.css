@@ -1,0 +1,11 @@
+.Text {
+  font-size: 0.875rem;
+  line-height: 1rem;
+  color: var(--color-gray-900);
+  &[data-size='small'] {
+    font-size: 0.75rem;
+  }
+  &[data-size='large'] {
+    font-size: 1.25rem;
+  }
+}
