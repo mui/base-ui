@@ -21,7 +21,7 @@
   background: #fff;
   border: 1px solid var(--color-gray-200);
   color: black;
-  box-shadow: 0px 4px 30px var(--color-gray-200);
+  box-shadow: 0 4px 30px var(--color-gray-200);
   z-index: 1;
   transform-origin: var(--transform-origin);
   opacity: 1;
