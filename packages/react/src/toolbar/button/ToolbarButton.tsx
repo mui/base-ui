@@ -19,13 +19,7 @@ const ToolbarButton = React.forwardRef(function ToolbarButton(
   props: ToolbarButton.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const {
-    className,
-    disabled: disabledProp = false,
-    focusableWhenDisabled = true,
-    render,
-    ...otherProps
-  } = props;
+  const { className, focusableWhenDisabled = true, render, ...otherProps } = props;
 
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
 
@@ -33,7 +27,8 @@ const ToolbarButton = React.forwardRef(function ToolbarButton(
 
   const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
 
-  const disabled = toolbarDisabled || groupContext?.disabled || disabledProp;
+  const disabled =
+    toolbarDisabled || (groupContext?.disabled ?? false) || (otherProps.disabled ?? false);
 
   const { getButtonProps } = useButton({
     buttonRef: forwardedRef,
@@ -50,6 +45,8 @@ const ToolbarButton = React.forwardRef(function ToolbarButton(
     }),
     [disabled, focusableWhenDisabled, orientation],
   );
+
+  otherProps.disabled = disabled;
 
   const { renderElement } = useComponentRenderer({
     propGetter: getButtonProps,

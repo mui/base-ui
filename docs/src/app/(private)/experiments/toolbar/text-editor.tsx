@@ -35,6 +35,7 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   selectDisabled: {
     type: 'boolean',
     label: 'Select disabled',
+    default: false,
   },
   boldDisabled: {
     type: 'boolean',
@@ -55,6 +56,7 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   toolbarDisabled: {
     type: 'boolean',
     label: 'Everything disabled',
+    default: false,
   },
 };
 
@@ -87,7 +89,7 @@ function renderToggleWithTooltip(args: {
       <Tooltip.Trigger
         render={
           <Toolbar.Button
-            render={<Toggle disabled={disabled} />}
+            render={<Toggle />}
             aria-label={label}
             value={key}
             className={styles.toolbar.Toggle}
@@ -118,6 +120,8 @@ function renderToggleWithTooltip(args: {
 
 export default function App() {
   const { settings } = useExperimentSettings<Settings>();
+
+  const selectDisabled = settings.toolbarDisabled || settings.selectDisabled;
   return (
     <React.Fragment>
       <a
@@ -131,12 +135,9 @@ export default function App() {
       <div className={styles.toolbar.Wrapper}>
         <Tooltip.Provider>
           <Toolbar.Root className={styles.toolbar.Root}>
-            <Select.Root
-              defaultValue="sans"
-              disabled={settings.toolbarDisabled || settings.selectDisabled}
-            >
+            <Select.Root defaultValue="sans" disabled={selectDisabled}>
               <Toolbar.Button
-                disabled={settings.toolbarDisabled || settings.selectDisabled}
+                disabled={selectDisabled}
                 render={<Select.Trigger />}
                 className={styles.select.Select}
               >
@@ -200,25 +201,26 @@ export default function App() {
               toggleMultiple
               defaultValue={[]}
               className={styles.toolbar.ToggleGroup}
+              disabled={settings.toolbarDisabled}
             >
               {[
                 {
                   key: 'bold',
                   label: 'Bold',
                   icon: BoldIcon,
-                  disabled: settings.toolbarDisabled || settings.boldDisabled,
+                  disabled: settings.boldDisabled,
                 },
                 {
                   key: 'italics',
                   label: 'Italics',
                   icon: ItalicsIcon,
-                  disabled: settings.toolbarDisabled || settings.italicsDisabled,
+                  disabled: settings.italicsDisabled,
                 },
                 {
                   key: 'underline',
                   label: 'Underline',
                   icon: UnderlineIcon,
-                  disabled: settings.toolbarDisabled || settings.underlineDisabled,
+                  disabled: settings.underlineDisabled,
                 },
               ].map(renderToggleWithTooltip)}
             </ToggleGroup>
@@ -257,11 +259,7 @@ export default function App() {
             <Menu.Root>
               <Toolbar.Button
                 disabled={settings.toolbarDisabled || settings.menuDisabled}
-                render={
-                  <Menu.Trigger
-                    disabled={settings.toolbarDisabled || settings.menuDisabled}
-                  />
-                }
+                render={<Menu.Trigger />}
                 className={styles.toolbar.More}
               >
                 <MoreHorizontalIcon className={styles.toolbar.Icon} />
