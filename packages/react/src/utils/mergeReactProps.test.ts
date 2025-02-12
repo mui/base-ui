@@ -17,7 +17,7 @@ describe('mergeReactProps', () => {
 
     mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
     mergedProps.onKeyDown?.({ nativeEvent: new KeyboardEvent('keydown') } as any);
-    mergedProps.onPaste?.({ nativeEvent: new ClipboardEvent('paste') } as any);
+    mergedProps.onPaste?.({ nativeEvent: new Event('paste') } as any);
 
     expect(theirProps.onClick.calledBefore(ourProps.onClick)).to.equal(true);
     expect(theirProps.onClick.callCount).to.equal(1);
@@ -70,9 +70,8 @@ describe('mergeReactProps', () => {
     const theirProps = {
       style: { color: 'red' },
     };
-    const ourProps = {
-      style: undefined,
-    };
+    const ourProps = {};
+
     const mergedProps = mergeReactProps<'button'>(theirProps, ourProps);
 
     expect(mergedProps.style).to.deep.equal({
@@ -81,12 +80,8 @@ describe('mergeReactProps', () => {
   });
 
   it('does not merge styles if both are undefined', () => {
-    const theirProps = {
-      style: undefined,
-    };
-    const ourProps = {
-      style: undefined,
-    };
+    const theirProps = {};
+    const ourProps = {};
     const mergedProps = mergeReactProps<'button'>(theirProps, ourProps);
 
     expect(mergedProps.style).to.equal(undefined);
@@ -116,23 +111,24 @@ describe('mergeReactProps', () => {
 
     const mergedProps = mergeReactProps<'button'>(
       {
-        onClick(event) {
+        onClick: function onClick1(event) {
           event.preventBaseUIHandler();
         },
       },
       {
-        onClick() {
+        onClick: function onClick2() {
           ran = true;
         },
       },
       {
-        onClick() {
+        onClick: function onClick3() {
           ran = true;
         },
       },
     );
 
-    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
+    const event = { nativeEvent: new MouseEvent('click') } as any;
+    mergedProps.onClick?.(event);
 
     expect(ran).to.equal(false);
   });

@@ -2,33 +2,52 @@ import * as React from 'react';
 import type { BaseUIEvent, WithBaseUIEvent } from './types';
 
 /**
- * Merges multiple sets of React props such that their event handlers are called in sequence (the user's
- * before our internal ones), and allows the user to prevent the internal event handlers from being
- * executed by attaching a `preventBaseUIHandler` method. It also merges the `className` and `style` props, whereby
- * the classes are concatenated and the user's styles overwrite the internal ones.
+ * Merges multiple sets of React props such that their event handlers are called in sequence
+ * (the leftmost one being called first), and allows the user to prevent the subsequent event handlers from being
+ * executed by attaching a `preventBaseUIHandler` method.
+ * It also merges the `className` and `style` props, whereby the classes are concatenated
+ * and the leftmost styles overwrite the subsequent ones.
  * @important **`ref` is not merged.**
- * @param externalProps the user's external props.
- * @param internalProps our own internal props.
+ * @param props props to merge.
  * @returns the merged props.
  */
 export function mergeReactProps<T extends React.ElementType>(
-  externalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>> | undefined,
-  ...internalProps: React.ComponentPropsWithRef<T>[]
+  ...props: (WithBaseUIEvent<React.ComponentPropsWithRef<T>> | undefined)[]
 ): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
-  let mergedInternalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>> = internalProps[0];
-  for (let i = 1; i < internalProps.length; i += 1) {
-    mergedInternalProps = merge(mergedInternalProps, internalProps[i]);
+  if (props.length === 0) {
+    return {} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
   }
 
-  return merge(externalProps, mergedInternalProps as React.ComponentPropsWithRef<T>);
+  if (props.length === 1) {
+    return props[0] ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
+  }
+
+  let merged = merge(props[props.length - 2], props[props.length - 1]);
+
+  for (let i = props.length - 3; i >= 0; i -= 1) {
+    merged = merge(props[i], merged);
+  }
+
+  return merged ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
 }
 
+/**
+ * Merges two sets of props. In case of conflicts, the external props take precedence.
+ */
 function merge<T extends React.ElementType>(
   externalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>> | undefined,
-  internalProps: React.ComponentPropsWithRef<T>,
+  internalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>> | undefined,
 ): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
   if (!externalProps) {
+    if (!internalProps) {
+      return {} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
+    }
+
     return internalProps;
+  }
+
+  if (!internalProps) {
+    return externalProps;
   }
 
   return Object.entries(externalProps).reduce(
@@ -51,7 +70,7 @@ function merge<T extends React.ElementType>(
 
       return mergedProps;
     },
-    { ...internalProps },
+    { ...internalProps } as React.ComponentPropsWithRef<T>,
   );
 }
 
@@ -67,8 +86,8 @@ function isEventHandler(key: string, value: unknown) {
   );
 }
 
-function mergeEventHandlers(theirHandler: any, ourHandler: any) {
-  return (event: React.SyntheticEvent | {}) => {
+function mergeEventHandlers(theirHandler: Function, ourHandler: Function) {
+  return (event: unknown) => {
     if (isSyntheticEvent(event)) {
       let isPrevented = false;
       const baseUIEvent = event as BaseUIEvent<typeof event>;
@@ -97,8 +116,9 @@ function mergeStyles(
   ourStyle: React.CSSProperties | undefined,
 ) {
   if (theirStyle || ourStyle) {
-    return { ...ourStyle, ...(theirStyle || {}) };
+    return { ...ourStyle, ...theirStyle };
   }
+
   return undefined;
 }
 
@@ -115,6 +135,6 @@ function mergeClassNames(theirClassName: string | undefined, ourClassName: strin
   return ourClassName;
 }
 
-function isSyntheticEvent(event: React.SyntheticEvent | unknown): event is React.SyntheticEvent {
+function isSyntheticEvent(event: unknown): event is React.SyntheticEvent {
   return event != null && typeof event === 'object' && 'nativeEvent' in event;
 }
