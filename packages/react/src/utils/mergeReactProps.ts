@@ -115,6 +115,6 @@ function mergeClassNames(theirClassName: string | undefined, ourClassName: strin
   return ourClassName;
 }
 
-function isSyntheticEvent(event: React.SyntheticEvent | {}): event is React.SyntheticEvent {
-  return typeof event === 'object' && 'nativeEvent' in event;
+function isSyntheticEvent(event: React.SyntheticEvent | unknown): event is React.SyntheticEvent {
+  return event != null && typeof event === 'object' && 'nativeEvent' in event;
 }
