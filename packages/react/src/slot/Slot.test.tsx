@@ -6,7 +6,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<Slot />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Slot state={{}} />, () => ({
+  describeConformance(<Slot />, () => ({
     render,
     refInstanceof: window.HTMLDivElement,
   }));
