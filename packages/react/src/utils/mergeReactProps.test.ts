@@ -16,8 +16,8 @@ describe('mergeReactProps', () => {
     const mergedProps = mergeReactProps<'button'>(theirProps, ourProps);
 
     mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
-    mergedProps.onKeyDown?.({ nativeEvent: new MouseEvent('keydown') } as any);
-    mergedProps.onPaste?.({ nativeEvent: new Event('paste') } as any);
+    mergedProps.onKeyDown?.({ nativeEvent: new KeyboardEvent('keydown') } as any);
+    mergedProps.onPaste?.({ nativeEvent: new ClipboardEvent('paste') } as any);
 
     expect(theirProps.onClick.calledBefore(ourProps.onClick)).to.equal(true);
     expect(theirProps.onClick.callCount).to.equal(1);
