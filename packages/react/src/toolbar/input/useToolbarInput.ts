@@ -1,0 +1,71 @@
+'use client';
+import * as React from 'react';
+import { mergeReactProps } from '../../utils/mergeReactProps';
+import { GenericHTMLProps } from '../../utils/types';
+import { useButton } from '../../use-button';
+import { ARROW_LEFT, ARROW_RIGHT } from '../../composite/composite';
+
+export function useToolbarInput(
+  parameters: useToolbarInput.Parameters,
+): useToolbarInput.ReturnValue {
+  const { disabled, focusableWhenDisabled, ref: externalRef } = parameters;
+
+  const { getButtonProps } = useButton({
+    buttonRef: externalRef,
+    disabled,
+    focusableWhenDisabled,
+    type: 'text',
+    elementName: 'input',
+  });
+
+  const getInputProps = React.useCallback(
+    (externalProps = {}) =>
+      getButtonProps(
+        mergeReactProps<'input'>(externalProps, {
+          onClick(event) {
+            if (disabled) {
+              event.preventDefault();
+            }
+          },
+          onKeyDown(event) {
+            if (event.key !== ARROW_LEFT && event.key !== ARROW_RIGHT && disabled) {
+              event.preventDefault();
+            }
+          },
+          onPointerDown(event) {
+            if (disabled) {
+              event.preventDefault();
+            }
+          },
+        }),
+      ),
+    [disabled, getButtonProps],
+  );
+
+  return React.useMemo(
+    () => ({
+      getInputProps,
+    }),
+    [getInputProps],
+  );
+}
+
+export namespace useToolbarInput {
+  export interface Parameters {
+    /**
+     * When `true` the item is disabled.
+     */
+    disabled: boolean;
+    /**
+     * When `true` the item remains focuseable when disabled.
+     */
+    focusableWhenDisabled: boolean;
+    /**
+     * The element ref.
+     */
+    ref?: React.Ref<Element>;
+  }
+  export interface ReturnValue {
+    getInputProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  }
+}

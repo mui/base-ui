@@ -230,9 +230,9 @@ export default function App() {
 
                       <Toolbar.Input
                         className={styles.toolbar.Input}
+                        disabled={settings.toolbarDisabled}
                         render={<NumberField.Input />}
                         aria-label="Font size"
-                        disabled={settings.toolbarDisabled}
                       />
 
                       <NumberField.Increment className={styles.numField.Increment}>

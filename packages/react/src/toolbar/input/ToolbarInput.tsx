@@ -3,11 +3,11 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useButton } from '../../use-button';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { ToolbarRoot, ToolbarItemMetadata } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
+import { useToolbarInput } from './useToolbarInput';
 /**
  *
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
@@ -16,7 +16,13 @@ const ToolbarInput = React.forwardRef(function ToolbarInput(
   props: ToolbarInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { className, focusableWhenDisabled = true, render, ...otherProps } = props;
+  const {
+    className,
+    focusableWhenDisabled = true,
+    render,
+    disabled: disabledProp = false,
+    ...otherProps
+  } = props;
 
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
 
@@ -24,15 +30,12 @@ const ToolbarInput = React.forwardRef(function ToolbarInput(
 
   const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
 
-  const disabled =
-    toolbarDisabled || (groupContext?.disabled ?? false) || (otherProps.disabled ?? false);
+  const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
 
-  const { getButtonProps } = useButton({
-    buttonRef: forwardedRef,
+  const { getInputProps } = useToolbarInput({
+    ref: forwardedRef,
     disabled,
     focusableWhenDisabled,
-    type: 'text',
-    elementName: 'input',
   });
 
   const state: ToolbarInput.State = React.useMemo(
@@ -44,10 +47,8 @@ const ToolbarInput = React.forwardRef(function ToolbarInput(
     [disabled, focusableWhenDisabled, orientation],
   );
 
-  otherProps.disabled = disabled;
-
   const { renderElement } = useComponentRenderer({
-    propGetter: getButtonProps,
+    propGetter: getInputProps,
     render: render ?? 'input',
     state,
     className,
