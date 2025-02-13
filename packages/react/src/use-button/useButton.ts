@@ -67,15 +67,22 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   const getButtonProps = React.useCallback(
     (externalProps: GenericButtonProps = {}): GenericButtonProps => {
-      const onClickProp = externalProps?.onClick ?? NOOP;
+      const {
+        onClick: onClickProp,
+        onMouseDown: onMouseDownProp,
+        ...otherExternalProps
+      } = externalProps;
 
-      const otherExternalProps = { ...externalProps };
-      delete otherExternalProps.onClick;
       return mergeReactProps(otherExternalProps, buttonProps, {
         type,
         onClick(event: React.MouseEvent) {
           if (!disabled) {
-            onClickProp(event);
+            onClickProp?.(event);
+          }
+        },
+        onMouseDown(event: React.MouseEvent) {
+          if (!disabled) {
+            onMouseDownProp?.(event);
           }
         },
         onKeyDown(event: React.KeyboardEvent) {
@@ -91,7 +98,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             event.key === 'Enter' &&
             !disabled
           ) {
-            onClickProp(event);
+            onClickProp?.(event);
             event.preventDefault();
           }
         },
@@ -105,7 +112,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             !disabled &&
             event.key === ' '
           ) {
-            onClickProp(event);
+            onClickProp?.(event);
           }
         },
         ref: mergedRef,

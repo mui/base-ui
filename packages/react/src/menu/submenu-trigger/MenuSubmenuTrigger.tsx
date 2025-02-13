@@ -68,7 +68,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     className,
     state,
     propGetter: (externalProps: GenericHTMLProps) =>
-      mergeReactProps(getTriggerProps(externalProps), itemProps, rootTriggerProps),
+      mergeReactProps(getTriggerProps, externalProps, itemProps, rootTriggerProps),
     customStyleHookMapping: triggerOpenStateMapping,
     extraProps: other,
   });

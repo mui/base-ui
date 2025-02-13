@@ -196,4 +196,73 @@ describe('mergeReactProps', () => {
 
     expect(mergedProps.title).to.equal('internal title 1');
   });
+
+  describe('props getters', () => {
+    it('calls the props getter with the props defined after it', () => {
+      const propsGetter = spy((props) => props);
+      mergeReactProps(
+        {
+          id: '1',
+          role: 'button',
+        },
+        propsGetter,
+        {
+          id: '2',
+          className: 'test-class',
+        },
+      );
+
+      expect(propsGetter.calledOnce).to.equal(true);
+      expect(propsGetter.firstCall.args[0]).to.deep.equal({ id: '2', className: 'test-class' });
+    });
+
+    it('calls the props getter with merged props defined after it', () => {
+      const propsGetter = spy((props) => props);
+      mergeReactProps(
+        {
+          id: 'one',
+        },
+        propsGetter,
+        {
+          role: 'tab',
+        },
+        {
+          role: 'button',
+          className: 'test-class',
+        },
+      );
+
+      expect(propsGetter.calledOnce).to.equal(true);
+      expect(propsGetter.firstCall.args[0]).to.deep.equal({
+        role: 'tab',
+        className: 'test-class',
+      });
+    });
+
+    it('calls the props getter with an empty object if no props are defined after it', () => {
+      const propsGetter = spy((props) => props);
+      mergeReactProps({ id: '1' }, propsGetter);
+
+      expect(propsGetter.calledOnce).to.equal(true);
+      expect(propsGetter.firstCall.args[0]).to.deep.equal({});
+    });
+
+    it('accepts the result of the props getter', () => {
+      const propsGetter = () => ({ className: 'test-class' });
+      const result = mergeReactProps(
+        propsGetter,
+        {
+          id: 'one',
+        },
+        {
+          id: 'two',
+          role: 'tab',
+        },
+      );
+
+      expect(result).to.deep.equal({
+        className: 'test-class',
+      });
+    });
+  });
 });
