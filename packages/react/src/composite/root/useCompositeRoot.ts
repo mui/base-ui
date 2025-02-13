@@ -24,6 +24,7 @@ import {
   HORIZONTAL_KEYS,
   HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
   isDisabled,
+  isElementDisabled,
   isIndexOutOfBounds,
   isNativeInput,
   VERTICAL_KEYS,
@@ -139,7 +140,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             horizontalArrowTravelDirectionRef.current = 'start';
           }
 
-          if (isNativeInput(event.target)) {
+          if (isNativeInput(event.target) && !isElementDisabled(event.target)) {
             const selectionStart = event.target.selectionStart;
             const selectionEnd = event.target.selectionEnd;
             const textContent = event.target.value ?? '';

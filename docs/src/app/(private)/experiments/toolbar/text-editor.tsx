@@ -224,7 +224,10 @@ export default function App() {
                         styles.numField.Group,
                       )}
                     >
-                      <NumberField.Decrement className={styles.numField.Decrement}>
+                      <NumberField.Decrement
+                        className={styles.numField.Decrement}
+                        disabled={settings.toolbarDisabled}
+                      >
                         <MinusIcon />
                       </NumberField.Decrement>
 
@@ -235,7 +238,10 @@ export default function App() {
                         aria-label="Font size"
                       />
 
-                      <NumberField.Increment className={styles.numField.Increment}>
+                      <NumberField.Increment
+                        className={styles.numField.Increment}
+                        disabled={settings.toolbarDisabled}
+                      >
                         <PlusIcon />
                       </NumberField.Increment>
                     </NumberField.Group>
