@@ -125,6 +125,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             return;
           }
 
+          if ((event.target as HTMLElement).closest('[data-floating-ui-portal]') != null) {
+            // don't navigate if the event came from a popup
+            return;
+          }
+
           if (textDirectionRef?.current == null) {
             textDirectionRef.current = getTextDirection(element);
           }
@@ -144,16 +149,16 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             const selectionStart = event.target.selectionStart;
             const selectionEnd = event.target.selectionEnd;
             const textContent = event.target.value ?? '';
-            // bail out of composite into native textbox behavior if Shift
-            // is held to make a text selection, or if there already is a text selection
+            // return to native textbox behavior when
+            // 1 - Shift is held to make a text selection, or if there already is a text selection
             if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
               return;
             }
-            // arrow-ing forward and not in the last position of the text
+            // 2 - arrow-ing forward and not in the last position of the text
             if (event.key !== horizontalStartKey && selectionStart < textContent.length) {
               return;
             }
-            // arrow-ing backward and not in the first position of the text
+            // 3 -arrow-ing backward and not in the first position of the text
             if (event.key !== horizontalEndKey && selectionStart > 0) {
               return;
             }
