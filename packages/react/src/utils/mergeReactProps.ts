@@ -89,16 +89,15 @@ function isEventHandler(key: string, value: unknown) {
 function mergeEventHandlers(theirHandler: Function, ourHandler: Function) {
   return (event: unknown) => {
     if (isSyntheticEvent(event)) {
-      let isPrevented = false;
       const baseUIEvent = event as BaseUIEvent<typeof event>;
 
       baseUIEvent.preventBaseUIHandler = () => {
-        isPrevented = true;
+        (baseUIEvent.baseUIHandlerPrevented as boolean) = true;
       };
 
       const result = theirHandler(baseUIEvent);
 
-      if (!isPrevented) {
+      if (!baseUIEvent.baseUIHandlerPrevented) {
         ourHandler?.(baseUIEvent);
       }
 

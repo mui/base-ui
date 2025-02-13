@@ -247,7 +247,7 @@ describe('<Menu.Trigger />', () => {
   });
 
   describe('preventBaseUIHandler', () => {
-    it('prevents opening the menu with a mouse when `preventBaseUIHandler is called in onMouseDown', async () => {
+    it('prevents opening the menu with a mouse when `preventBaseUIHandler` is called in onMouseDown', async () => {
       const { getByRole, queryByRole } = await render(
         <Menu.Root>
           <Menu.Trigger onMouseDown={(event) => event.preventBaseUIHandler()} />
@@ -265,32 +265,10 @@ describe('<Menu.Trigger />', () => {
       expect(queryByRole('menu', { hidden: false })).to.equal(null);
     });
 
-    it('prevents opening the menu with the Space key when `preventBaseUIHandler is called in onKeyUp', async () => {
+    it('prevents opening the menu with keyboard when `preventBaseUIHandler` is called in onClick', async () => {
       const { getByRole, queryByRole } = await render(
         <Menu.Root>
-          <Menu.Trigger onKeyUp={(event) => event.preventBaseUIHandler()} />
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup />
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      const button = getByRole('button');
-      await act(async () => {
-        button.focus();
-      });
-
-      await user.keyboard('[Space]');
-
-      expect(queryByRole('menu', { hidden: false })).to.equal(null);
-    });
-
-    it('prevents opening the menu with the Enter key when `preventBaseUIHandler is called in onKeyDown', async () => {
-      const { getByRole, queryByRole } = await render(
-        <Menu.Root>
-          <Menu.Trigger onKeyDown={(event) => event.preventBaseUIHandler()} />
+          <Menu.Trigger onClick={(event) => event.preventBaseUIHandler()} />
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup />
