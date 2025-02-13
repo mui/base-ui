@@ -8,11 +8,11 @@ export function useMenuRadioItem(
 ): useMenuRadioItem.ReturnValue {
   const { checked, setChecked, ...other } = params;
 
-  const { getRootProps: getMenuItemRootProps, ...menuItem } = useMenuItem(other);
+  const { getItemProps: getMenuItemProps, ...menuItem } = useMenuItem(other);
 
-  const getRootProps = React.useCallback(
+  const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return getMenuItemRootProps(
+      return getMenuItemProps(
         mergeReactProps(externalProps, {
           role: 'menuitemradio',
           'aria-checked': checked,
@@ -22,12 +22,12 @@ export function useMenuRadioItem(
         }),
       );
     },
-    [checked, getMenuItemRootProps, setChecked],
+    [checked, getMenuItemProps, setChecked],
   );
 
   return {
     ...menuItem,
-    getRootProps,
+    getItemProps,
     checked,
   };
 }

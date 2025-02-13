@@ -26,7 +26,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     buttonRef: useForkRef(externalRef, itemRef),
   });
 
-  const getRootProps = React.useCallback(
+  const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return getButtonProps(
         mergeReactProps(externalProps, {
@@ -59,10 +59,10 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
 
   return React.useMemo(
     () => ({
-      getRootProps,
+      getItemProps,
       rootRef: mergedRef,
     }),
-    [getRootProps, mergedRef],
+    [getItemProps, mergedRef],
   );
 }
 
@@ -108,7 +108,7 @@ export namespace useMenuItem {
      * @param externalProps event handlers for the root slot
      * @returns props that should be spread on the root slot
      */
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**
      * The ref to the component's root DOM element.
      */

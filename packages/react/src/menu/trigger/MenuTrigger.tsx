@@ -5,7 +5,8 @@ import { useMenuTrigger } from './useMenuTrigger';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
  * A button that opens the menu.
@@ -20,7 +21,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
   const { render, className, disabled = false, ...other } = props;
 
   const {
-    getTriggerProps: getRootTriggerProps,
+    triggerProps: rootTriggerProps,
     disabled: menuDisabled,
     setTriggerElement,
     open,
@@ -41,11 +42,17 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const state: MenuTrigger.State = React.useMemo(() => ({ open }), [open]);
 
+  const propGetter = React.useCallback(
+    (externalProps: GenericHTMLProps) =>
+      mergeReactProps(getTriggerProps(externalProps), rootTriggerProps),
+    [getTriggerProps, rootTriggerProps],
+  );
+
   const { renderElement } = useComponentRenderer({
     render: render || 'button',
     className,
     state,
-    propGetter: (externalProps) => getRootTriggerProps(getTriggerProps(externalProps)),
+    propGetter,
     customStyleHookMapping: pressableTriggerOpenStateMapping,
     extraProps: other,
   });

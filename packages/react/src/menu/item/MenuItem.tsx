@@ -9,6 +9,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 const InnerMenuItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuItemProps,
@@ -21,14 +22,14 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
     highlighted,
     id,
     menuEvents,
-    propGetter,
+    itemProps,
     render,
     allowMouseUpTriggerRef,
     typingRef,
     ...other
   } = props;
 
-  const { getRootProps } = useMenuItem({
+  const { getItemProps } = useMenuItem({
     closeOnClick,
     disabled,
     highlighted,
@@ -48,7 +49,7 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
     render: render || 'div',
     className,
     state,
-    propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
+    propGetter: (externalProps) => mergeReactProps(getItemProps(externalProps), itemProps),
     extraProps: other,
   });
 
@@ -120,10 +121,6 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    */
   onClick: PropTypes.func,
   /**
-   * @ignore
-   */
-  propGetter: PropTypes.func.isRequired,
-  /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
    *
@@ -154,7 +151,7 @@ const MenuItem = React.forwardRef(function MenuItem(
   const listItem = useCompositeListItem({ label });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
+  const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
   const id = useBaseUiId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -171,7 +168,7 @@ const MenuItem = React.forwardRef(function MenuItem(
       ref={mergedRef}
       highlighted={highlighted}
       menuEvents={menuEvents}
-      propGetter={getItemProps}
+      itemProps={itemProps}
       allowMouseUpTriggerRef={allowMouseUpTriggerRef}
       typingRef={typingRef}
     />
@@ -180,7 +177,7 @@ const MenuItem = React.forwardRef(function MenuItem(
 
 interface InnerMenuItemProps extends MenuItem.Props {
   highlighted: boolean;
-  propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  itemProps: GenericHTMLProps;
   menuEvents: FloatingEvents;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   typingRef: React.RefObject<boolean>;
