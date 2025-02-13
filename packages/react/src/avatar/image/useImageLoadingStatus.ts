@@ -39,9 +39,7 @@ export function useImageLoadingStatus(
     if (referrerPolicy) {
       image.referrerPolicy = referrerPolicy;
     }
-    if (typeof crossOrigin === 'string') {
-      image.crossOrigin = crossOrigin;
-    }
+    image.crossOrigin = crossOrigin ?? null;
     image.src = src;
 
     return () => {
