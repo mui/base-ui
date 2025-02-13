@@ -16,6 +16,7 @@
 }
 
 /* disabled buttons + focusableWhenDisabled */
+.Root [type='button']:disabled,
 .Root [type='button'][data-disabled],
 .Root input[data-disabled],
 .Root button[data-disabled] {
