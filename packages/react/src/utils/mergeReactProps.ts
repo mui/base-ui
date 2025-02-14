@@ -137,9 +137,7 @@ function mergeEventHandlers(theirHandler: Function, ourHandler: Function) {
     if (isSyntheticEvent(event)) {
       const baseUIEvent = event as BaseUIEvent<typeof event>;
 
-      baseUIEvent.preventBaseUIHandler = () => {
-        (baseUIEvent.baseUIHandlerPrevented as boolean) = true;
-      };
+      makeEventPreventable(baseUIEvent);
 
       const result = theirHandler(baseUIEvent);
 
@@ -154,6 +152,14 @@ function mergeEventHandlers(theirHandler: Function, ourHandler: Function) {
     ourHandler?.(event);
     return result;
   };
+}
+
+export function makeEventPreventable<T extends React.SyntheticEvent>(event: BaseUIEvent<T>) {
+  event.preventBaseUIHandler = () => {
+    (event.baseUIHandlerPrevented as boolean) = true;
+  };
+
+  return event;
 }
 
 function mergeStyles(

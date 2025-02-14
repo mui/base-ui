@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useForkRef } from '../utils/useForkRef';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import { makeEventPreventable, mergeReactProps } from '../utils/mergeReactProps';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRootElementName } from '../utils/useRootElementName';
 import { BaseUIEvent, GenericHTMLProps } from '../utils/types';
@@ -92,6 +92,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
           }
 
           if (!disabled) {
+            makeEventPreventable(event);
             externalOnKeyDown?.(event);
           }
 
@@ -116,6 +117,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
           // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
           // Keyboard accessibility for non interactive elements
           if (!disabled) {
+            makeEventPreventable(event);
             externalOnKeyUp?.(event);
           }
 
