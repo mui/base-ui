@@ -1,10 +1,5 @@
 .Text {
   font-size: 0.875rem;
   line-height: 1rem;
-  font-weight: 400;
   color: var(--color-gray-900);
-}
-
-strong.Text {
-  font-weight: 700;
 }
