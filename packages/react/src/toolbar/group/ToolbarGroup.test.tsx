@@ -18,11 +18,11 @@ const testToolbarContext: ToolbarRootContext = {
   setItemMap: NOOP,
 };
 
-describe('<Toolbar.Link />', () => {
+describe('<Toolbar.Group />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Toolbar.Link />, () => ({
-    refInstanceof: window.HTMLAnchorElement,
+  describeConformance(<Toolbar.Group />, () => ({
+    refInstanceof: window.HTMLDivElement,
     render: (node) => {
       return render(
         <ToolbarRootContext.Provider value={testToolbarContext}>
@@ -35,14 +35,36 @@ describe('<Toolbar.Link />', () => {
   }));
 
   describe('ARIA attributes', () => {
-    it('renders an anchor', async () => {
+    it('renders a group', async () => {
       const { getByTestId } = await render(
         <Toolbar.Root>
-          <Toolbar.Link data-testid="link" href="https://base-ui.com" />
+          <Toolbar.Group data-testid="group" />
         </Toolbar.Root>,
       );
 
-      expect(getByTestId('link')).to.equal(screen.getByRole('link'));
+      expect(getByTestId('group')).to.equal(screen.getByRole('group'));
+    });
+  });
+
+  describe('prop: disabled', () => {
+    it('disables all toolbar items except links in the group', async () => {
+      const { getByRole, getByText } = await render(
+        <Toolbar.Root>
+          <Toolbar.Group disabled>
+            <Toolbar.Button />
+            <Toolbar.Link href="https://base-ui.com">Link</Toolbar.Link>
+            <Toolbar.Input defaultValue="" />
+          </Toolbar.Group>
+        </Toolbar.Root>,
+      );
+
+      [getByRole('button'), getByRole('textbox')].forEach((toolbarItem) => {
+        expect(toolbarItem).to.have.attribute('aria-disabled', 'true');
+        expect(toolbarItem).to.have.attribute('data-disabled');
+      });
+
+      expect(getByText('Link')).to.not.have.attribute('data-disabled');
+      expect(getByText('Link')).to.not.have.attribute('aria-disabled');
     });
   });
 });
