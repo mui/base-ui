@@ -142,7 +142,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   );
 });
 
-export namespace MenuPositioner {
+namespace MenuPositioner {
   export interface State {
     /**
      * Whether the menu is currently open.

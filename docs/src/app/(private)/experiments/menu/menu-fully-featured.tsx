@@ -12,16 +12,31 @@ interface Settings {
   customAnchor: boolean;
   modal: boolean;
   openOnHover: boolean;
+  disabled: boolean;
+  customTriggerElement: boolean;
+  side: Menu.Positioner.Props['side'];
+  align: Menu.Positioner.Props['align'];
 }
 
 export default function MenuFullyFeatured() {
   const { settings } = useExperimentSettings<Settings>();
+
   const anchorRef = React.useRef<HTMLDivElement>(null);
+
+  const triggerRender = React.useMemo(
+    () => (settings.customTriggerElement ? <span /> : undefined),
+    [settings.customTriggerElement],
+  );
 
   return (
     <div>
-      <Menu.Root openOnHover={settings.openOnHover} modal={settings.modal}>
-        <Menu.Trigger className={classes.Button}>
+      <h1>Fully featured menu</h1>
+      <Menu.Root
+        openOnHover={settings.openOnHover}
+        modal={settings.modal}
+        disabled={settings.disabled}
+      >
+        <Menu.Trigger className={classes.Button} render={triggerRender}>
           Menu <ChevronDownIcon className={classes.ButtonIcon} />
         </Menu.Trigger>
         <Menu.Portal keepMounted>
@@ -29,6 +44,8 @@ export default function MenuFullyFeatured() {
             className={classes.Positioner}
             sideOffset={8}
             anchor={settings.customAnchor ? anchorRef : undefined}
+            side={settings.side}
+            align={settings.align}
           >
             <Menu.Popup className={classes.Popup}>
               <Menu.Arrow className={classes.Arrow}>
@@ -242,6 +259,26 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   openOnHover: {
     type: 'boolean',
     label: 'Open on hover',
+  },
+  disabled: {
+    type: 'boolean',
+    label: 'Disabled',
+  },
+  customTriggerElement: {
+    type: 'boolean',
+    label: 'Trigger as <span>',
+  },
+  side: {
+    type: 'string',
+    label: 'Side',
+    options: ['top', 'right', 'bottom', 'left'],
+    default: 'bottom',
+  },
+  align: {
+    type: 'string',
+    label: 'Align',
+    options: ['start', 'center', 'end'],
+    default: 'center',
   },
 };
 
