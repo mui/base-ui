@@ -71,7 +71,7 @@ describe('useRenderer', () => {
           size,
           weight,
         },
-        stateDataAttributes: {
+        stateAttributesMap: {
           size(value) {
             return { [`data-size${value}`]: '' };
           },

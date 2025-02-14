@@ -10,7 +10,7 @@ import { CustomStyleHookMapping as StateDataAttributes } from '../utils/getStyle
 function useRenderer<State extends Record<string, any>, RenderedElementType extends Element>(
   settings: useRenderer.Settings<State, RenderedElementType>,
 ) {
-  const { className, render, state, props, stateDataAttributes } = settings;
+  const { className, render, state, props, stateAttributesMap } = settings;
   const { ref, ...extraProps } = props ?? {};
 
   return useComponentRenderer({
@@ -20,7 +20,7 @@ function useRenderer<State extends Record<string, any>, RenderedElementType exte
     ref: ref as React.Ref<RenderedElementType>,
     extraProps,
     propGetter: (x) => x,
-    customStyleHookMapping: stateDataAttributes,
+    customStyleHookMapping: stateAttributesMap,
   });
 }
 
@@ -51,7 +51,7 @@ namespace useRenderer {
     /**
      * A mapping of state to data attributes.
      */
-    stateDataAttributes?: StateDataAttributes<State>;
+    stateAttributesMap?: StateDataAttributes<State>;
   }
 }
 
