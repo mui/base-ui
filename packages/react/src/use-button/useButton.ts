@@ -51,7 +51,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     }
 
     if (elementName === 'BUTTON' || elementName === 'INPUT') {
-      if (focusableWhenDisabled) {
+      if (focusableWhenDisabled || isCompositeItem) {
         additionalProps['aria-disabled'] = disabled;
       } else if (!isCompositeItem) {
         additionalProps.disabled = disabled;
@@ -90,7 +90,10 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
           }
         },
         onKeyDown(event: React.KeyboardEvent) {
-          if (event.target === event.currentTarget && !isNativeButton() && event.key === ' ') {
+          if (
+            disabled ||
+            (event.target === event.currentTarget && !isNativeButton() && event.key === ' ')
+          ) {
             event.preventDefault();
           }
 
@@ -117,6 +120,11 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             event.key === ' '
           ) {
             onClickProp(event);
+          }
+        },
+        onPointerDown(event: React.PointerEvent) {
+          if (disabled) {
+            event.preventDefault();
           }
         },
         ref: mergedRef,
