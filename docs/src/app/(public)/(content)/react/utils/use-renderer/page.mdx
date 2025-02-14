@@ -47,10 +47,14 @@ The hook returns a function that when called returns the element that should be 
 
 ## Usage
 
-This is an example usage for creating a Text component that generates data-attributes based on its state, and have the support for the `render` prop and the `className` callback.
+This is an example of a Text component that provides the support for the render prop.
 
-<Demo path="./demos/usage" />
+<Demo path="./demos/render" />
 
-Alternatevly, you can use the Slot component
+In the following demo, the Text component provides more Base UI features, like adding data attributes and `className` callback where developers can have access to the internal state of the component.
 
-<Demo path="./demos/component" />
+<Demo path="./demos/data-attributes" />
+
+Additionally, you can also customize how the data-attributes are generated, by providing the `stateAttributesMap` option.
+
+<Demo path="./demos/state-attributes-map" />

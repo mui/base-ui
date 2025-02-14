@@ -10,13 +10,7 @@
   &[data-size='large'] {
     font-size: 1.25rem;
   }
-  &[data-weight='light'] {
-    font-weight: 300;
-  }
-  &[data-weight='bold'] {
-    font-weight: 700;
-  }
-  &[data-color='blue'] {
+  &[data-color='active'] {
     color: var(--color-blue);
   }
 }
