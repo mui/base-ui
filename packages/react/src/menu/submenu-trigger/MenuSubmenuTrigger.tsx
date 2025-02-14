@@ -22,7 +22,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   props: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, disabled = false, label, id: idProp, ...other } = props;
+  const { render, className, label, id: idProp, ...other } = props;
   const id = useBaseUiId(idProp);
 
   const {
@@ -32,6 +32,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     allowMouseUpTriggerRef,
     open,
     typingRef,
+    disabled,
   } = useMenuRootContext();
 
   if (parentContext === undefined) {
@@ -80,11 +81,6 @@ namespace MenuSubmenuTrigger {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
     /**
      * Overrides the text label to use when the item is matched during keyboard text navigation.
      */
