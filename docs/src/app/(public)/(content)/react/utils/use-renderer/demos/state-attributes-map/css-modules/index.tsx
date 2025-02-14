@@ -35,8 +35,8 @@ function Text(props: TextProps) {
     state,
     className,
     stateAttributesMap: {
-      size: (size) => ({ [`data-size-${size}`]: '' }),
-      color: (color) => ({ [`data-color-${color}`]: '' }),
+      size: (value) => ({ [`data-size-${value}`]: '' }),
+      color: (value) => ({ [`data-color-${value}`]: '' }),
     },
     props: {
       ...otherProps,
