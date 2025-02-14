@@ -6,7 +6,7 @@ A typical release goes like this:
 
 ### Prerequisites
 
-1. You must be a member of the `@mui` org in npm to publish the release.
+1. You must be a member of the `@base-ui-components` org in npm to publish the release.
 2. Set up your npm authToken by logging into npm (`npm login`) . This will save a token to `~/.npmrc` as a line that looks like this:
    ```text
    //registry.npmjs.org/:_authToken=npm_000000000000000000000000000000000000
