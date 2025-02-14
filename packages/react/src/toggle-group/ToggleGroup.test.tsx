@@ -141,9 +141,9 @@ describe('<ToggleGroup />', () => {
 
       const [button1, button2] = getAllByRole('button');
 
-      expect(button1).to.have.attribute('disabled');
+      expect(button1).to.have.attribute('aria-disabled', 'true');
       expect(button1).to.have.attribute('data-disabled');
-      expect(button2).to.have.attribute('disabled');
+      expect(button2).to.have.attribute('aria-disabled', 'true');
       expect(button2).to.have.attribute('data-disabled');
     });
 
@@ -157,9 +157,9 @@ describe('<ToggleGroup />', () => {
 
       const [button1, button2] = getAllByRole('button');
 
-      expect(button1).to.not.have.attribute('disabled');
+      expect(button1).to.have.attribute('aria-disabled', 'false');
       expect(button1).to.not.have.attribute('data-disabled');
-      expect(button2).to.have.attribute('disabled');
+      expect(button2).to.have.attribute('aria-disabled', 'true');
       expect(button2).to.have.attribute('data-disabled');
     });
   });
