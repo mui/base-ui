@@ -59,7 +59,7 @@ export default function MenuFullyFeatured() {
                           Radio items
                         </Menu.GroupLabel>
                         <Menu.RadioGroup>
-                          <Menu.RadioItem className={classes.RadioItem} value="date">
+                          <Menu.RadioItem className={classes.RadioItem} value="o1">
                             <Menu.RadioItemIndicator
                               className={classes.RadioItemIndicator}
                             >
@@ -69,7 +69,7 @@ export default function MenuFullyFeatured() {
                             </Menu.RadioItemIndicator>
                             <span className={classes.RadioItemText}>Option 1</span>
                           </Menu.RadioItem>
-                          <Menu.RadioItem className={classes.RadioItem} value="name">
+                          <Menu.RadioItem className={classes.RadioItem} value="o2">
                             <Menu.RadioItemIndicator
                               className={classes.RadioItemIndicator}
                             >
@@ -81,7 +81,7 @@ export default function MenuFullyFeatured() {
                           </Menu.RadioItem>
                           <Menu.RadioItem
                             className={classes.RadioItem}
-                            value="type"
+                            value="o3"
                             closeOnClick
                           >
                             <Menu.RadioItemIndicator
@@ -93,6 +93,22 @@ export default function MenuFullyFeatured() {
                             </Menu.RadioItemIndicator>
                             <span className={classes.RadioItemText}>
                               Option 3 (close on click)
+                            </span>
+                          </Menu.RadioItem>
+                          <Menu.RadioItem
+                            className={classes.RadioItem}
+                            value="o4"
+                            disabled
+                          >
+                            <Menu.RadioItemIndicator
+                              className={classes.RadioItemIndicator}
+                            >
+                              <CheckIcon
+                                className={classes.RadioItemIndicatorIcon}
+                              />
+                            </Menu.RadioItemIndicator>
+                            <span className={classes.RadioItemText}>
+                              Disabled option
                             </span>
                           </Menu.RadioItem>
                         </Menu.RadioGroup>
@@ -139,6 +155,18 @@ export default function MenuFullyFeatured() {
                             Option C (close on click)
                           </span>
                         </Menu.CheckboxItem>
+                        <Menu.CheckboxItem className={classes.CheckboxItem} disabled>
+                          <Menu.CheckboxItemIndicator
+                            className={classes.CheckboxItemIndicator}
+                          >
+                            <CheckIcon
+                              className={classes.CheckboxItemIndicatorIcon}
+                            />
+                          </Menu.CheckboxItemIndicator>
+                          <span className={classes.CheckboxItemText}>
+                            Disabled option
+                          </span>
+                        </Menu.CheckboxItem>
                       </Menu.Group>
 
                       <Menu.Separator className={classes.Separator} />
@@ -167,6 +195,22 @@ export default function MenuFullyFeatured() {
                           </Menu.Positioner>
                         </Menu.Portal>
                       </Menu.Root>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+
+              <Menu.Root disabled>
+                <Menu.SubmenuTrigger className={classes.SubmenuTrigger}>
+                  Disabled nested menu
+                  <ChevronRightIcon />
+                </Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner className={classes.Positioner} sideOffset={8}>
+                    <Menu.Popup className={classes.Popup}>
+                      <Menu.Item className={classes.Item}>
+                        This should not appear
+                      </Menu.Item>
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
