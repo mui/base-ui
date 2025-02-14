@@ -92,7 +92,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
 
-  const horizontalArrowTravelDirectionRef = React.useRef<'end' | 'start'>(null);
+  const arrowKeyTravelDirectionRef = React.useRef<'end' | 'start'>(null);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
@@ -104,13 +104,13 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           if (!element || !isNativeInput(event.target)) {
             return;
           }
-          if (horizontalArrowTravelDirectionRef.current == null) {
+          if (arrowKeyTravelDirectionRef.current == null) {
             return;
           }
           const textContentLength = event.target.value.length ?? 0;
-          if (horizontalArrowTravelDirectionRef.current === 'end') {
+          if (arrowKeyTravelDirectionRef.current === 'end') {
             event.target.setSelectionRange(0, 0);
-          } else if (textContentLength && horizontalArrowTravelDirectionRef.current === 'start') {
+          } else if (textContentLength && arrowKeyTravelDirectionRef.current === 'start') {
             event.target.setSelectionRange(textContentLength, textContentLength);
           }
         },
@@ -135,14 +135,24 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           }
           const isRtl = textDirectionRef.current === 'rtl';
 
-          const horizontalEndKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
-          const horizontalStartKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
+          const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
+          const forwardKey = {
+            horizontal: horizontalForwardKey,
+            vertical: ARROW_DOWN,
+            both: horizontalForwardKey,
+          }[orientation];
+          const horizontalBackwardKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
+          const backwardKey = {
+            horizontal: horizontalBackwardKey,
+            vertical: ARROW_UP,
+            both: horizontalBackwardKey,
+          }[orientation];
 
-          if (event.key === horizontalEndKey) {
-            horizontalArrowTravelDirectionRef.current = 'end';
+          if (event.key === forwardKey) {
+            arrowKeyTravelDirectionRef.current = 'end';
           }
-          if (event.key === horizontalStartKey) {
-            horizontalArrowTravelDirectionRef.current = 'start';
+          if (event.key === backwardKey) {
+            arrowKeyTravelDirectionRef.current = 'start';
           }
 
           if (isNativeInput(event.target) && !isElementDisabled(event.target)) {
@@ -155,11 +165,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               return;
             }
             // 2 - arrow-ing forward and not in the last position of the text
-            if (event.key !== horizontalStartKey && selectionStart < textContent.length) {
+            if (event.key !== backwardKey && selectionStart < textContent.length) {
               return;
             }
             // 3 -arrow-ing backward and not in the first position of the text
-            if (event.key !== horizontalEndKey && selectionStart > 0) {
+            if (event.key !== forwardKey && selectionStart > 0) {
               return;
             }
           }
@@ -234,15 +244,15 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           }
 
           const toEndKeys = {
-            horizontal: [horizontalEndKey],
+            horizontal: [horizontalForwardKey],
             vertical: [ARROW_DOWN],
-            both: [horizontalEndKey, ARROW_DOWN],
+            both: [horizontalForwardKey, ARROW_DOWN],
           }[orientation];
 
           const toStartKeys = {
-            horizontal: [horizontalStartKey],
+            horizontal: [horizontalBackwardKey],
             vertical: [ARROW_UP],
-            both: [horizontalStartKey, ARROW_UP],
+            both: [horizontalBackwardKey, ARROW_UP],
           }[orientation];
 
           const preventedKeys = isGrid
