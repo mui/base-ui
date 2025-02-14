@@ -1,4 +1,5 @@
 .Text {
+  cursor: pointer;
   font-size: 0.875rem;
   line-height: 1rem;
   font-weight: 400;
