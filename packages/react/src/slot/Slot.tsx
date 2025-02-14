@@ -15,7 +15,13 @@ const Slot = React.forwardRef(function SlotComponent<
   inProps: Slot.Props<State, RenderedElementType>,
   forwardedRef: React.ForwardedRef<RenderedElementType>,
 ) {
-  const { className, render = <div />, state = {} as State, stateAttributesMap, ...props } = inProps;
+  const {
+    className,
+    render = <div />,
+    state = {} as State,
+    stateAttributesMap,
+    ...props
+  } = inProps;
   const { ref, ...extraProps } = props ?? {};
   const finalRef = useForkRef(ref, forwardedRef);
 
@@ -56,7 +62,7 @@ namespace Slot {
      * A mapping of state to data attributes.
      */
     stateAttributesMap?: StateDataAttributes<State>;
-    ref?: React.Ref<RenderedElementType> 
+    ref?: React.Ref<RenderedElementType>;
   }
 }
 

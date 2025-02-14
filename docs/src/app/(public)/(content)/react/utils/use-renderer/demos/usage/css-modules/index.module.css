@@ -15,4 +15,7 @@
   &[data-weight='bold'] {
     font-weight: 700;
   }
+  &[data-color='blue'] {
+    color: var(--color-blue);
+  }
 }

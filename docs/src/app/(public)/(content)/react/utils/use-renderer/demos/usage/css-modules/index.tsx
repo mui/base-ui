@@ -5,16 +5,19 @@ import styles from './index.module.css';
 
 type Weight = 'light' | 'regular' | 'bold';
 type Size = 'small' | 'medium' | 'large';
+type Color = 'grey' | 'blue';
 
 type TextState = {
   weight: Weight;
   size: Size;
+  color: Color;
 };
 
 type TextProps = {
   className: string | ((state: TextState) => string);
   weight?: Weight;
   render?: RenderProp<TextState>;
+  onClick?: (event: React.MouseEvent<Element>) => void;
   children: React.ReactNode;
   size?: Size;
 };
@@ -25,16 +28,29 @@ function Text(props: TextProps) {
     render,
     weight = 'regular',
     size = 'medium',
+    onClick,
     ...otherProps
   } = props;
+  const [color, setColor] = React.useState<Color>('grey');
 
-  const state = React.useMemo(() => ({ weight, size }), [weight, size]);
+  const onClickHandler = (event: React.MouseEvent<Element>) => {
+    setColor(color === 'grey' ? 'blue' : 'grey');
+    onClick?.(event);
+  };
+
+  const state = React.useMemo(
+    () => ({ weight, size, color }),
+    [weight, size, color],
+  );
 
   const { renderElement } = useRenderer({
     render: render ?? <p />,
     state,
     className,
-    props: otherProps,
+    props: {
+      ...otherProps,
+      onClick: onClickHandler,
+    },
   });
 
   return renderElement();

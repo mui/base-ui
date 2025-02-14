@@ -19,22 +19,11 @@ type TextProps = {
 };
 
 function Text(props: TextProps) {
-  const {
-    render,
-    weight = 'regular',
-    size = 'medium',
-    ...otherProps
-  } = props;
+  const { render, weight = 'regular', size = 'medium', ...otherProps } = props;
 
   const state = React.useMemo(() => ({ weight, size }), [weight, size]);
 
-  return (
-    <Slot
-      render={render ?? <p />}
-      state={state}
-      {...otherProps}
-    />
-  );
+  return <Slot render={render ?? <p />} state={state} {...otherProps} />;
 }
 
 export default function ExampleText() {
