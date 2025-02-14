@@ -57,7 +57,7 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
     render: render || 'div',
     className,
     state,
-    propGetter: (externalProps) => mergeReactProps(getItemProps(externalProps), itemProps),
+    propGetter: (externalProps) => mergeReactProps(getItemProps, externalProps, itemProps),
     customStyleHookMapping: itemMapping,
     extraProps: other,
   });
