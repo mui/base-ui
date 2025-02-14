@@ -50,7 +50,6 @@
     "./select": "./src/select/index.ts",
     "./separator": "./src/separator/index.ts",
     "./slider": "./src/slider/index.ts",
-    "./slot": "./src/slot/index.ts",
     "./switch": "./src/switch/index.ts",
     "./tabs": "./src/tabs/index.ts",
     "./toggle": "./src/toggle/index.ts",
