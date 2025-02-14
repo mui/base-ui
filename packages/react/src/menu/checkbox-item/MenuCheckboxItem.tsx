@@ -120,6 +120,10 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
+   * @ignore
+   */
+  itemProps: PropTypes.object.isRequired,
+  /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
@@ -139,10 +143,6 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    * The click handler for the menu item.
    */
   onClick: PropTypes.func,
-  /**
-   * @ignore
-   */
-  propGetter: PropTypes.func.isRequired,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

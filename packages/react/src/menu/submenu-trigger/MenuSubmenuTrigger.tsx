@@ -119,11 +119,6 @@ MenuSubmenuTrigger.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
    * @ignore
    */
   id: PropTypes.string,

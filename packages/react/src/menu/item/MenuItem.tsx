@@ -105,6 +105,10 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
+   * @ignore
+   */
+  itemProps: PropTypes.object.isRequired,
+  /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
