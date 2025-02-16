@@ -14,9 +14,9 @@
 
 To ensure that tooltips are accessible and helpful, follow these guidelines:
 
-- **The trigger must be labeled**: Make sure the trigger element has an accessible name — this can be the button's text, an `aria-label`, or an `aria-labelledby` attribute. The label is the primary way for screen readers to communicate the trigger/tool's purpose. The accessible name should closely match the tooltip's content to convey the same information.
-- **Avoid for critical information**: Tooltips are a great way to visually label an element for sighted mouse users while conserving layout space, but they should be used supplementarily, as they do not show for touch input (i.e. mobile devices). Opt for a `Popover` for critical information instead.
-- **Avoid for "infotips"**: If your tooltip is attached to an "info icon" button whose only purpose is to show the tooltip, opt for [Popover](/react/components/popover) and add the `openOnHover` prop instead. Tooltips are meant to provide additional information about an element that performs a separate action from opening the popup.
+- **Provide an accessible name for the trigger**: The tooltip's trigger must have a meaningful label. This can be its visible text or an `aria-label`/`aria-labelledby` attribute. The label should closely match the tooltip's content to ensure consistency for screen reader users.
+- **Avoid tooltips for critical information**: Tooltips work well for enhancing UI clarity (like labeling icon buttons) but should not be the sole means of conveying important information. Since tooltips do not appear on touch devices, consider using a [Popover](/react/components/popover) for essential content.
+- **Avoid tooltips for "infotips"**: If your tooltip is attached to an "info icon" button whose only purpose is to show the tooltip, opt for [Popover](/react/components/popover) and add the `openOnHover` prop instead. Tooltips should describe an element that performs an action separate from opening the tooltip itself.
 
 ## API reference
 
