@@ -21,7 +21,7 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
@@ -32,6 +32,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     trackCursorAxis = 'none',
     delay,
     closeDelay,
+    onOpenChangeComplete,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -62,11 +63,14 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open,
-    animatedElementRef: popupRef,
-    onFinished() {
-      setMounted(false);
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        onOpenChangeComplete?.(false);
+        setMounted(false);
+      }
     },
   });
 
@@ -100,15 +104,17 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   });
 
   const { delay: groupDelay, isInstantPhase, currentId } = useDelayGroup(context);
-  const openGroupDelay = typeof groupDelay === 'object' ? groupDelay.open : groupDelay;
-  const closeGroupDelay = typeof groupDelay === 'object' ? groupDelay.close : groupDelay;
+  // We only pass an object to `FloatingDelayGroup`. A number means the Provider is not
+  // present, so we should ignore the value by using `undefined`.
+  const openGroupDelay = typeof groupDelay === 'object' ? groupDelay.open : undefined;
+  const closeGroupDelay = typeof groupDelay === 'object' ? groupDelay.close : undefined;
 
   let instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
   if (!open && context.floatingId === currentId) {
     instantType = instantTypeState;
   }
 
-  const computedRestMs = openGroupDelay || delayWithDefault;
+  const computedRestMs = openGroupDelay ?? delayWithDefault;
   let computedCloseDelay: number | undefined = closeDelayWithDefault;
 
   // A provider is present and the close delay is not set.
@@ -150,6 +156,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       floatingRootContext: context,
       instantType,
       transitionStatus,
+      onOpenChangeComplete,
     }),
     [
       mounted,
@@ -162,6 +169,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       context,
       instantType,
       transitionStatus,
+      onOpenChangeComplete,
     ],
   );
 }
@@ -183,6 +191,10 @@ export namespace useTooltipRoot {
      * Event handler called when the tooltip is opened or closed.
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    /**
+     * Event handler called after any animations complete when the tooltip is opened or closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
     /**
      * Whether the tooltip contents can be hovered without closing the tooltip.
      * @default true
@@ -219,5 +231,6 @@ export namespace useTooltipRoot {
     setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLElement | null>;
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
   }
 }

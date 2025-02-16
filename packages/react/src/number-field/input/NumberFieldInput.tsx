@@ -6,6 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { fieldValidityMapping } from '../../field/utils/constants';
 
 /**
  * The native input control in the number field.
@@ -30,6 +31,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     className,
     state,
     extraProps: otherProps,
+    customStyleHookMapping: fieldValidityMapping,
   });
 
   return renderElement();
