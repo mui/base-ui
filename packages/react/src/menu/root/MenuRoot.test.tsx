@@ -5,7 +5,7 @@ import { DirectionProvider } from '@base-ui-components/react/direction-provider'
 import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 
 describe('<Menu.Root />', () => {
   beforeEach(() => {
@@ -14,6 +14,24 @@ describe('<Menu.Root />', () => {
 
   const { render } = createRenderer();
   const user = userEvent.setup();
+
+  popupConformanceTests({
+    createComponent: (props) => (
+      <Menu.Root {...props.root}>
+        <Menu.Trigger {...props.trigger}>Open menu</Menu.Trigger>
+        <Menu.Portal {...props.portal}>
+          <Menu.Positioner>
+            <Menu.Popup {...props.popup}>
+              <Menu.Item>Item</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    ),
+    render,
+    triggerMouseAction: 'click',
+    expectedPopupRole: 'menu',
+  });
 
   describe('keyboard navigation', () => {
     it('changes the highlighted item using the arrow keys', async () => {
@@ -714,102 +732,6 @@ describe('<Menu.Root />', () => {
       });
 
       expect(menus[0].id).to.equal('parent-menu');
-    });
-  });
-
-  describe('controlled mode', () => {
-    it('should remove the popup when and there is no exit animation defined', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
-      function Test() {
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Menu.Root open={open} modal={false}>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup />
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </div>
-        );
-      }
-
-      await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
-      });
-    });
-
-    it('should remove the popup when the animation finishes', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      let animationFinished = false;
-      const notifyAnimationFinished = () => {
-        animationFinished = true;
-      };
-
-      function Test() {
-        const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-popup[data-open] {
-            opacity: 1;
-          }
-
-          .animation-test-popup[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Menu.Root open={open} modal={false}>
-              <Menu.Portal keepMounted>
-                <Menu.Positioner>
-                  <Menu.Popup
-                    className="animation-test-popup"
-                    onAnimationEnd={notifyAnimationFinished}
-                  />
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </div>
-        );
-      }
-
-      await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
-      });
-
-      expect(animationFinished).to.equal(true);
     });
   });
 

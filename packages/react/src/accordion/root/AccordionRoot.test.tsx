@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { flushMicrotasks } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Accordion } from '@base-ui-components/react/accordion';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -149,8 +148,7 @@ describe('<Accordion.Root />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT_1)).to.equal(null);
 
-      setProps({ value: [0] });
-      await flushMicrotasks();
+      await setProps({ value: [0] });
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(trigger).to.have.attribute('data-panel-open');
@@ -158,8 +156,7 @@ describe('<Accordion.Root />', () => {
       expect(queryByText(PANEL_CONTENT_1)).toBeVisible();
       expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
 
-      setProps({ value: [] });
-      await flushMicrotasks();
+      await setProps({ value: [] });
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT_1)).to.equal(null);
