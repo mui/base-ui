@@ -271,7 +271,7 @@ const MenuPopup = styled(Menu.Popup)(
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
   color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
-  box-shadow: 0px 4px 30px ${theme.palette.mode === 'dark' ? grey[900] : grey[200]};
+  box-shadow: 0 4px 30px ${theme.palette.mode === 'dark' ? grey[900] : grey[200]};
   z-index: 1;
   transform-origin: var(--transform-origin);
   opacity: 1;
@@ -323,7 +323,7 @@ const DialogPopup = styled(Dialog.Popup)(
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[100]};
   min-width: 400px;
   border-radius: 4px;
-  box-shadow: rgba(0, 0, 0, 0.2) 0px 18px 50px -10px;
+  box-shadow: rgb(0 0 0 / 0.2) 0 18px 50px -10px;
   position: fixed;
   top: 50%;
   left: 50%;
