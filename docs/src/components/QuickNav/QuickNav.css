@@ -18,6 +18,7 @@
     /* The variable is used in JS positioning logic */
     --top: -1px;
     --margin-top: 5.75rem; /* Match hero code block top */
+
     @apply text-md;
     z-index: 1;
     position: sticky;
@@ -26,8 +27,8 @@
     width: 0;
     float: right;
     contain: layout;
-
     display: none;
+
     @media (--show-quick-nav) {
       display: block;
     }

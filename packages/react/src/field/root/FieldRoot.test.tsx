@@ -10,10 +10,8 @@ import { Select } from '@base-ui-components/react/select';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
-
-const user = userEvent.setup();
 
 describe('<Field.Root />', () => {
   const { render } = createRenderer();
@@ -309,29 +307,490 @@ describe('<Field.Root />', () => {
   });
 
   describe('prop: validationMode', () => {
-    it('should validate the field on change', async () => {
-      await render(
-        <Field.Root
-          validationMode="onChange"
-          validate={(value) => {
-            const str = value as string;
-            return str.length < 3 ? 'error' : null;
-          }}
-        >
-          <Field.Control />
-          <Field.Error />
-        </Field.Root>,
-      );
+    describe('onChange', () => {
+      it('validates the field on change', async () => {
+        await render(
+          <Field.Root
+            validationMode="onChange"
+            validate={(value) => {
+              const str = value as string;
+              return str.length < 3 ? 'error' : null;
+            }}
+          >
+            <Field.Control />
+            <Field.Error />
+          </Field.Root>,
+        );
 
-      const control = screen.getByRole<HTMLInputElement>('textbox');
-      const message = screen.queryByText('error');
+        const control = screen.getByRole<HTMLInputElement>('textbox');
+        const message = screen.queryByText('error');
 
-      expect(message).to.equal(null);
+        expect(message).to.equal(null);
 
-      fireEvent.change(control, { target: { value: 't' } });
+        fireEvent.change(control, { target: { value: 't' } });
 
-      expect(control).to.have.attribute('data-invalid', '');
-      expect(control).to.have.attribute('aria-invalid', 'true');
+        expect(control).to.have.attribute('data-invalid', '');
+        expect(control).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('validates Checkbox on change', async () => {
+        await render(
+          <Field.Root
+            validationMode="onChange"
+            validate={(value) => {
+              const checked = value as boolean;
+              return checked ? 'error' : null;
+            }}
+          >
+            <Checkbox.Root data-testid="button" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).not.to.have.attribute('aria-invalid');
+
+        fireEvent.click(button);
+
+        expect(button).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('validates Switch on change', async () => {
+        await render(
+          <Field.Root
+            validationMode="onChange"
+            validate={(value) => {
+              const checked = value as boolean;
+              return checked ? 'error' : null;
+            }}
+          >
+            <Switch.Root data-testid="button" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).not.to.have.attribute('aria-invalid');
+
+        fireEvent.click(button);
+
+        expect(button).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('validates NumberField on change', async () => {
+        await render(
+          <Field.Root
+            validationMode="onChange"
+            validate={(value) => {
+              return value === 1 ? 'error' : null;
+            }}
+          >
+            <NumberField.Root>
+              <NumberField.Input data-testid="input" />
+            </NumberField.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        expect(input).not.to.have.attribute('aria-invalid');
+
+        fireEvent.change(input, { target: { value: '1' } });
+
+        expect(input).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('validates Slider on change', async () => {
+        const { container } = await render(
+          <Field.Root
+            validationMode="onChange"
+            validate={(value) => {
+              return value === 1 ? 'error' : null;
+            }}
+          >
+            <Slider.Root>
+              <Slider.Control>
+                <Slider.Thumb data-testid="thumb" />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>,
+        );
+
+        // eslint-disable-next-line testing-library/no-node-access
+        const input = container.querySelector<HTMLInputElement>('input')!;
+
+        expect(input).not.to.have.attribute('aria-invalid');
+
+        fireEvent.change(input, { target: { value: '1' } });
+
+        expect(input).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('validates RadioGroup on change', async () => {
+        await render(
+          <Field.Root
+            validationMode="onChange"
+            validate={(value) => {
+              return value === '1' ? 'error' : null;
+            }}
+          >
+            <RadioGroup data-testid="group">
+              <Radio.Root value="1">One</Radio.Root>
+              <Radio.Root value="2">Two</Radio.Root>
+            </RadioGroup>
+          </Field.Root>,
+        );
+
+        const one = screen.getByText('One');
+
+        expect(one).not.to.have.attribute('aria-invalid');
+
+        fireEvent.click(one);
+
+        expect(one).to.have.attribute('aria-invalid', 'true');
+      });
+
+      // flaky in real browser
+      it.skipIf(!isJSDOM)('validates Select on change', async () => {
+        const { user } = await render(
+          <Field.Root
+            validationMode="onChange"
+            validate={(value) => {
+              return value === '1' ? 'error' : null;
+            }}
+          >
+            <Select.Root>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value placeholder="Select an option" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('aria-invalid');
+
+        await userEvent.click(trigger);
+
+        await flushMicrotasks();
+
+        // Arrow Down to focus the Option 1
+        await user.keyboard('{ArrowDown}');
+        await user.keyboard('{Enter}');
+
+        expect(trigger).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('validates CheckboxGroup on change', async () => {
+        await render(
+          <Field.Root
+            validationMode="onChange"
+            validate={(value) => {
+              const v = value as string[];
+              return v.includes('fuji-apple') ? 'error' : null;
+            }}
+          >
+            <CheckboxGroup defaultValue={['fuji-apple']}>
+              <Checkbox.Root name="fuji-apple" data-testid="button-1" />
+              <Checkbox.Root name="gala-apple" data-testid="button-2" />
+              <Checkbox.Root name="granny-smith-apple" data-testid="button-3" />
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        const button1 = screen.getByTestId('button-1');
+        const button2 = screen.getByTestId('button-2');
+        const button3 = screen.getByTestId('button-3');
+
+        expect(button1).not.to.have.attribute('aria-invalid');
+        expect(button2).not.to.have.attribute('aria-invalid');
+        expect(button3).not.to.have.attribute('aria-invalid');
+
+        fireEvent.click(button1);
+
+        expect(button1).not.to.have.attribute('aria-invalid');
+        expect(button2).not.to.have.attribute('aria-invalid');
+        expect(button3).not.to.have.attribute('aria-invalid');
+
+        fireEvent.click(button2);
+
+        expect(button1).not.to.have.attribute('aria-invalid');
+        expect(button2).not.to.have.attribute('aria-invalid');
+        expect(button3).not.to.have.attribute('aria-invalid');
+
+        fireEvent.click(button1);
+
+        expect(button1).to.have.attribute('aria-invalid', 'true');
+        expect(button2).to.have.attribute('aria-invalid', 'true');
+        expect(button3).to.have.attribute('aria-invalid', 'true');
+
+        fireEvent.click(button3);
+
+        expect(button1).to.have.attribute('aria-invalid', 'true');
+        expect(button2).to.have.attribute('aria-invalid', 'true');
+        expect(button3).to.have.attribute('aria-invalid', 'true');
+      });
+    });
+
+    describe('onBlur', () => {
+      it('validates the field on blur', async () => {
+        await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => {
+              const str = value as string;
+              return str.length < 3 ? 'error' : null;
+            }}
+          >
+            <Field.Control />
+            <Field.Error />
+          </Field.Root>,
+        );
+
+        const control = screen.getByRole<HTMLInputElement>('textbox');
+        const message = screen.queryByText('error');
+
+        expect(message).to.equal(null);
+
+        fireEvent.change(control, { target: { value: 't' } });
+
+        expect(control).not.to.have.attribute('data-invalid');
+
+        fireEvent.blur(control);
+
+        expect(control).to.have.attribute('data-invalid', '');
+        expect(control).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('validates Checkbox on blur', async () => {
+        await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => {
+              const checked = value as boolean;
+              return checked ? 'error' : null;
+            }}
+          >
+            <Checkbox.Root data-testid="button" />
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).not.to.have.attribute('aria-invalid');
+
+        fireEvent.click(button);
+        fireEvent.blur(button);
+
+        expect(button).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('validates Switch on blur', async () => {
+        await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => {
+              const checked = value as boolean;
+              return checked ? 'error' : null;
+            }}
+          >
+            <Switch.Root data-testid="button" />
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).not.to.have.attribute('aria-invalid');
+
+        fireEvent.click(button);
+        fireEvent.blur(button);
+
+        expect(button).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('validates NumberField on blur', async () => {
+        await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => {
+              return value === 1 ? 'error' : null;
+            }}
+          >
+            <NumberField.Root>
+              <NumberField.Input data-testid="input" />
+            </NumberField.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        expect(input).not.to.have.attribute('aria-invalid');
+
+        fireEvent.change(input, { target: { value: '1' } });
+        fireEvent.blur(input);
+
+        expect(input).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('validates Slider on blur', async () => {
+        const { container } = await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => {
+              return value === 1 ? 'error' : null;
+            }}
+          >
+            <Slider.Root>
+              <Slider.Control>
+                <Slider.Thumb data-testid="thumb" />
+              </Slider.Control>
+            </Slider.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        // eslint-disable-next-line testing-library/no-node-access
+        const input = container.querySelector<HTMLInputElement>('input')!;
+        const thumb = screen.getByTestId('thumb');
+
+        expect(input).not.to.have.attribute('aria-invalid');
+
+        fireEvent.change(input, { target: { value: '1' } });
+        fireEvent.blur(thumb);
+
+        expect(input).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('validates RadioGroup on blur', async () => {
+        await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => {
+              return value === '1' ? 'error' : null;
+            }}
+          >
+            <RadioGroup data-testid="group">
+              <Radio.Root value="1">One</Radio.Root>
+              <Radio.Root value="2">Two</Radio.Root>
+            </RadioGroup>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const group = screen.getByTestId('group');
+
+        expect(group).not.to.have.attribute('aria-invalid');
+
+        fireEvent.click(screen.getByText('One'));
+        fireEvent.blur(group);
+
+        expect(group).to.have.attribute('aria-invalid', 'true');
+      });
+
+      // flaky in real browser
+      it.skipIf(!isJSDOM)('validates Select on blur', async () => {
+        const { user } = await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => {
+              return value === '1' ? 'error' : null;
+            }}
+          >
+            <Select.Root>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value placeholder="Select an option" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('aria-invalid');
+
+        await user.click(trigger);
+
+        await flushMicrotasks();
+
+        // Arrow Down to focus the Option 1
+        await user.keyboard('{ArrowDown}');
+        await user.keyboard('{Enter}');
+
+        fireEvent.blur(trigger);
+
+        await flushMicrotasks();
+
+        await waitFor(() => {
+          expect(trigger).to.have.attribute('aria-invalid', 'true');
+        });
+      });
+
+      it('validates CheckboxGroup on blur', async () => {
+        await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => {
+              const v = value as string[];
+              return v.includes('fuji-apple') ? 'error' : null;
+            }}
+          >
+            <CheckboxGroup defaultValue={['fuji-apple']}>
+              <Checkbox.Root name="fuji-apple" data-testid="button-1" />
+              <Checkbox.Root name="gala-apple" data-testid="button-2" />
+              <Checkbox.Root name="granny-smith-apple" data-testid="button-3" />
+            </CheckboxGroup>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const button1 = screen.getByTestId('button-1');
+        const button2 = screen.getByTestId('button-2');
+        const button3 = screen.getByTestId('button-3');
+
+        expect(button1).not.to.have.attribute('aria-invalid');
+        expect(button2).not.to.have.attribute('aria-invalid');
+        expect(button3).not.to.have.attribute('aria-invalid');
+
+        fireEvent.click(button1);
+        fireEvent.blur(button1);
+
+        expect(button1).not.to.have.attribute('aria-invalid');
+        expect(button2).not.to.have.attribute('aria-invalid');
+        expect(button3).not.to.have.attribute('aria-invalid');
+
+        fireEvent.click(button3);
+        fireEvent.blur(button3);
+
+        expect(button1).not.to.have.attribute('aria-invalid');
+        expect(button2).not.to.have.attribute('aria-invalid');
+        expect(button3).not.to.have.attribute('aria-invalid');
+
+        fireEvent.click(button1);
+        fireEvent.blur(button1);
+
+        expect(button1).to.have.attribute('aria-invalid', 'true');
+        expect(button2).to.have.attribute('aria-invalid', 'true');
+        expect(button3).to.have.attribute('aria-invalid', 'true');
+      });
     });
   });
 
@@ -682,7 +1141,7 @@ describe('<Field.Root />', () => {
       });
 
       it('supports Select', async () => {
-        await render(
+        const { user } = await render(
           <Field.Root>
             <Select.Root>
               <Select.Trigger data-testid="trigger" />
@@ -902,7 +1361,7 @@ describe('<Field.Root />', () => {
 
       describe('Select', () => {
         it('adds [data-filled] attribute when filled', async () => {
-          await render(
+          const { user } = await render(
             <Field.Root>
               <Select.Root>
                 <Select.Trigger data-testid="trigger" />

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { NOOP } from '../utils/noop';
+import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 
 export interface RadioGroupContext {
   disabled: boolean | undefined;
@@ -11,6 +12,7 @@ export interface RadioGroupContext {
   onValueChange: (value: unknown, event: Event) => void;
   touched: boolean;
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
+  fieldControlValidation?: ReturnType<typeof useFieldControlValidation>;
 }
 
 export const RadioGroupContext = React.createContext<RadioGroupContext>({

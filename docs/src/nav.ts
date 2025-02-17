@@ -49,6 +49,10 @@ export const nav = [
         href: '/react/components/alert-dialog',
       },
       {
+        label: 'Avatar',
+        href: '/react/components/avatar',
+      },
+      {
         label: 'Checkbox',
         href: '/react/components/checkbox',
       },

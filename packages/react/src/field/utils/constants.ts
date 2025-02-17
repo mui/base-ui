@@ -14,7 +14,7 @@ export const DEFAULT_VALIDITY_STATE = {
   valueMissing: false,
 };
 
-export const STYLE_HOOK_MAPPING = {
+export const fieldValidityMapping = {
   valid(value: boolean | null): Record<string, string> | null {
     if (value === null) {
       return null;

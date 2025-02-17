@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { FieldRootContext } from './FieldRootContext';
-import { DEFAULT_VALIDITY_STATE, STYLE_HOOK_MAPPING } from '../utils/constants';
+import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFormContext } from '../../form/FormContext';
@@ -136,7 +136,7 @@ const FieldRoot = React.forwardRef(function FieldRoot(
     className,
     state,
     extraProps: otherProps,
-    customStyleHookMapping: STYLE_HOOK_MAPPING,
+    customStyleHookMapping: fieldValidityMapping,
   });
 
   return (

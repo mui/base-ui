@@ -22,10 +22,10 @@
     border-bottom: 1px solid var(--color-gray-200);
 
     /* Scroll */
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: auto hidden;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
+
     &::-webkit-scrollbar {
       display: none;
     }

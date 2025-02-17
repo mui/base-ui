@@ -29,6 +29,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly = false,
     required = false,
     modal = true,
+    onOpenChangeComplete,
   } = props;
 
   const selectRoot = useSelectRoot<Value>({
@@ -44,9 +45,10 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly,
     required,
     modal,
+    onOpenChangeComplete,
   });
 
-  const { setDirty, validityData } = useFieldRootContext();
+  const { setDirty, validityData, validationMode } = useFieldRootContext();
 
   const { rootContext } = selectRoot;
   const value = rootContext.value;
@@ -89,6 +91,10 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
               if (exactValue != null) {
                 setDirty(exactValue !== validityData.initialValue);
                 rootContext.setValue?.(exactValue, event.nativeEvent);
+
+                if (validationMode === 'onChange') {
+                  selectRoot.rootContext.fieldControlValidation.commitValidation(exactValue);
+                }
               }
             },
             id: rootContext.id,
@@ -154,6 +160,10 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    * Event handler called when the select menu is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the select menu is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */

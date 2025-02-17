@@ -99,7 +99,6 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
   width: 24rem;
   max-width: calc(100vw - 3rem);
   margin-top: -2rem;

@@ -7,6 +7,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { fieldValidityMapping } from '../../field/utils/constants';
 
 /**
  * A button that opens the select menu.
@@ -40,12 +41,20 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
     [fieldState, open, disabled],
   );
 
+  const styleHookMapping = React.useMemo(
+    () => ({
+      ...pressableTriggerOpenStateMapping,
+      ...fieldValidityMapping,
+    }),
+    [],
+  );
+
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
     state,
     propGetter: (externalProps) => getTriggerProps(getRootTriggerProps(externalProps)),
-    customStyleHookMapping: pressableTriggerOpenStateMapping,
+    customStyleHookMapping: styleHookMapping,
     extraProps: otherProps,
   });
 

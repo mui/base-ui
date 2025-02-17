@@ -78,6 +78,7 @@
         left: 0;
         margin-left: -1px;
       }
+
       &::after {
         right: 0;
         margin-right: -1px;

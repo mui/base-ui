@@ -21,6 +21,7 @@
     top: 0;
 
     display: none;
+
     @media (--show-side-nav) {
       display: block;
     }
@@ -28,16 +29,16 @@
 
   .SideNavViewport {
     max-height: 100vh;
-    padding-top: 0.75rem;
-    padding-bottom: 3rem;
-    padding-left: 1.5rem;
-    padding-right: calc(
-      var(--side-nav-scrollbar-gap-left) + var(--side-nav-scrollbar-width) / 2 +
-        var(--side-nav-scrollbar-thumb-width) / 2
-    );
+    padding: 0.75rem
+      calc(
+        var(--side-nav-scrollbar-gap-left) + var(--side-nav-scrollbar-width) / 2 +
+          var(--side-nav-scrollbar-thumb-width) / 2
+      )
+      3rem 1.5rem;
 
     /* Scroll containers are focusable */
     outline: 0;
+
     .SideNavRoot:has(&:focus-visible)::before {
       content: '';
       inset: 0;

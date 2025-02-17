@@ -20,6 +20,6 @@
 @custom-media --md (min-width: 48rem);
 @custom-media --lg (min-width: 64rem);
 @custom-media --xl (min-width: 80rem);
-@custom-media --2xl (min-width: 96rem);
+@custom-media --2xl (min-width: 96rem); /* stylelint-disable-line custom-media-pattern */
 @custom-media --show-side-nav (min-width: 64rem);
 @custom-media --show-quick-nav (min-width: 84rem);

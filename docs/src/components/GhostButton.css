@@ -9,7 +9,6 @@
     align-items: center;
     gap: 0.375rem;
     outline: 0;
-    -webkit-user-select: none;
     user-select: none;
 
     &::before,
@@ -30,6 +29,7 @@
       min-width: 1rem;
       min-height: 1rem;
       justify-content: center;
+
       &::before {
         inset: -0.25rem;
         border-radius: var(--radius-sm);
@@ -39,6 +39,14 @@
     /* Increase the clickable size  */
     &::after {
       inset: -0.375rem -0.5rem;
+    }
+
+    &:focus-visible::before {
+      content: '';
+      position: absolute;
+      pointer-events: none;
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
     }
 
     &:not(:focus-visible) {
@@ -62,14 +70,6 @@
           background-color: var(--color-gray-200);
         }
       }
-    }
-
-    &:focus-visible::before {
-      content: '';
-      position: absolute;
-      pointer-events: none;
-      outline: 2px solid var(--color-blue);
-      outline-offset: -1px;
     }
   }
 }

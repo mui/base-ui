@@ -1,0 +1,126 @@
+@keyframes slide-down {
+  from {
+    height: 0;
+  }
+
+  to {
+    height: var(--accordion-panel-height);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    height: var(--accordion-panel-height);
+  }
+
+  to {
+    height: 0;
+  }
+}
+
+.wrapper {
+  width: 40rem;
+  margin: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.root {
+  --duration: 300ms;
+  --shadow: 0px 2px 1px -1px rgb(0 0 0 / 0.2), 0px 1px 1px 0px rgb(0 0 0 / 0.14),
+    0px 1px 3px 0px rgb(0 0 0 / 0.12);
+
+  font-family: system-ui, sans-serif;
+  box-shadow: var(--shadow);
+  background-color: rgb(0 0 0 / 0.12);
+  border-radius: 0.3rem;
+}
+
+.item {
+  position: relative;
+  background-color: #fff;
+  color: rgb(0 0 0 / 0.87);
+}
+
+.item:not(:first-of-type) {
+  margin-top: 1px;
+}
+
+.item:first-of-type {
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+}
+
+.item:last-of-type {
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.header {
+  margin: 0;
+}
+
+.trigger {
+  appearance: none;
+  background-color: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  padding: 0 1rem;
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
+.trigger:focus-visible {
+  outline: 0;
+  background-color: rgb(0 0 0 / 0.12);
+}
+
+.trigger .triggerText {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 12px auto 12px 0;
+}
+
+.trigger svg {
+  transition: transform 300ms;
+}
+
+.trigger[data-panel-open] svg {
+  transform: rotate(180deg);
+}
+
+.panel {
+  overflow: hidden;
+}
+
+.panel p {
+  margin: 0;
+  padding: 1rem;
+}
+
+.panel.cssanimation[data-open] {
+  animation: slide-down var(--duration) ease-out;
+}
+
+.panel.cssanimation {
+  animation: slide-up var(--duration) ease-out;
+}
+
+.panel.csstransition[data-open] {
+  height: var(--accordion-panel-height);
+  transition: height var(--duration) ease-out;
+}
+
+.panel.csstransition {
+  height: 0;
+  transition: height var(--duration) ease-in;
+}
+
+.panel.csstransition[data-starting-style] {
+  height: 0;
+}

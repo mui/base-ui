@@ -99,9 +99,6 @@ module.exports = function getBabelConfig(api) {
       },
     ],
     env: {
-      coverage: {
-        plugins: ['babel-plugin-istanbul', ...devPlugins],
-      },
       development: {
         plugins: devPlugins,
       },

@@ -13,8 +13,16 @@ import { useEventCallback } from '../../utils/useEventCallback';
 export function useFieldControl(params: useFieldControl.Parameters) {
   const { id: idProp, name, value: valueProp, defaultValue, onValueChange, disabled } = params;
 
-  const { setControlId, labelId, setTouched, setDirty, validityData, setFocused, setFilled } =
-    useFieldRootContext();
+  const {
+    setControlId,
+    labelId,
+    setTouched,
+    setDirty,
+    validityData,
+    setFocused,
+    setFilled,
+    validationMode,
+  } = useFieldRootContext();
 
   const { errors, onClearErrors } = useFormContext();
 
@@ -87,7 +95,10 @@ export function useFieldControl(params: useFieldControl.Parameters) {
         onBlur(event) {
           setTouched(true);
           setFocused(false);
-          commitValidation(event.currentTarget.value);
+
+          if (validationMode === 'onBlur') {
+            commitValidation(event.currentTarget.value);
+          }
         },
         onKeyDown(event) {
           if (event.currentTarget.tagName === 'INPUT' && event.key === 'Enter') {
@@ -113,6 +124,7 @@ export function useFieldControl(params: useFieldControl.Parameters) {
       onClearErrors,
       setFocused,
       setTouched,
+      validationMode,
       commitValidation,
     ],
   );

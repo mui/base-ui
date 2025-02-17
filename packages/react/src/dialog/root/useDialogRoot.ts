@@ -17,7 +17,7 @@ import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import {
   type OpenChangeReason,
   translateOpenChangeReason,
@@ -32,6 +32,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     onNestedDialogOpen,
     onOpenChange: onOpenChangeParameter,
     open: openParam,
+    onOpenChangeComplete,
   } = params;
 
   const [open, setOpenUnwrapped] = useControlled({
@@ -62,11 +63,14 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     },
   );
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open,
-    animatedElementRef: popupRef,
-    onFinished() {
-      setMounted(false);
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        onOpenChangeComplete?.(false);
+        setMounted(false);
+      }
     },
   });
 
@@ -214,6 +218,10 @@ export interface SharedParameters {
     reason: OpenChangeReason | undefined,
   ) => void;
   /**
+   * Event handler called after any animations complete when the dialog is opened or closed.
+   */
+  onOpenChangeComplete?: (open: boolean) => void;
+  /**
    * Determines whether the dialog should close on outside clicks.
    * @default true
    */
@@ -221,7 +229,8 @@ export interface SharedParameters {
 }
 
 export namespace useDialogRoot {
-  export interface Parameters extends RequiredExcept<SharedParameters, 'open' | 'onOpenChange'> {
+  export interface Parameters
+    extends RequiredExcept<SharedParameters, 'open' | 'onOpenChange' | 'onOpenChangeComplete'> {
     /**
      * Callback to invoke when a nested dialog is opened.
      */

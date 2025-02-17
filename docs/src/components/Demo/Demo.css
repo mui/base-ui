@@ -11,8 +11,7 @@
     border-top-right-radius: var(--radius-md);
 
     /* Scroll */
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: auto hidden;
     overscroll-behavior-x: contain;
     scrollbar-width: thin;
 
@@ -56,14 +55,13 @@
     gap: 2rem;
     height: 2.25rem;
     padding: 0 0.75rem;
-    -webkit-user-select: none;
     user-select: none;
 
     /* Scroll */
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: auto hidden;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
+
     &::-webkit-scrollbar {
       display: none;
     }
@@ -82,7 +80,6 @@
     letter-spacing: normal;
     color: var(--color-foreground);
     font-weight: bold;
-    -webkit-user-select: text;
     user-select: text;
   }
 
@@ -133,16 +130,17 @@
         outline: 1px solid var(--color-gray-300);
         outline-offset: -1px;
         box-shadow:
-          0px 2px 3px -2px var(--color-gray-300),
-          inset 0px -1px 1px var(--color-gray-200);
+          0 2px 3px -2px var(--color-gray-300),
+          inset 0 -1px 1px var(--color-gray-200);
       }
+
       @media (prefers-color-scheme: dark) {
         &::before {
           outline: none;
           background-color: var(--color-gray-50);
           box-shadow:
-            0px 0px 3px 0px var(--color-gray-300),
-            inset 0px 0px 0px 1px var(--color-gray-400);
+            0 0 3px 0 var(--color-gray-300),
+            inset 0 0 0 1px var(--color-gray-400);
         }
       }
     }
@@ -218,7 +216,6 @@
     border-bottom: 1px solid transparent;
     background-clip: padding-box;
     margin-bottom: -1px;
-    -webkit-user-select: none;
     user-select: none;
 
     @media (hover: hover) {

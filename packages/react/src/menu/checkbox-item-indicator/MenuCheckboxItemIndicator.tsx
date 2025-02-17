@@ -7,7 +7,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useForkRef } from '../../utils/useForkRef';
 
 /**
@@ -37,11 +37,13 @@ const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndi
     [],
   );
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open: item.checked,
-    animatedElementRef: indicatorRef,
-    onFinished() {
-      setMounted(false);
+    ref: indicatorRef,
+    onComplete() {
+      if (!item.checked) {
+        setMounted(false);
+      }
     },
   });
 

@@ -11,14 +11,14 @@ import { useField } from '../field/useField';
 export function useRadioGroup(params: useRadioGroup.Parameters) {
   const { disabled = false, name, defaultValue, readOnly, value: externalValue } = params;
 
-  const { labelId, setTouched: setFieldTouched, setFocused } = useFieldRootContext();
-
   const {
-    getValidationProps,
-    getInputValidationProps,
-    inputRef: inputValidationRef,
-    commitValidation,
-  } = useFieldControlValidation();
+    labelId,
+    setTouched: setFieldTouched,
+    setFocused,
+    validationMode,
+  } = useFieldRootContext();
+
+  const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId();
 
@@ -31,16 +31,16 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
 
   useField({
     id,
-    commitValidation,
+    commitValidation: fieldControlValidation.commitValidation,
     value: checkedValue,
-    controlRef: inputValidationRef,
+    controlRef: fieldControlValidation.inputRef,
   });
 
   const [touched, setTouched] = React.useState(false);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(getValidationProps(externalProps), {
+      mergeReactProps<'div'>(fieldControlValidation.getValidationProps(externalProps), {
         role: 'radiogroup',
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
@@ -52,7 +52,10 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
           if (!contains(event.currentTarget, event.relatedTarget)) {
             setFieldTouched(true);
             setFocused(false);
-            commitValidation(checkedValue);
+
+            if (validationMode === 'onBlur') {
+              fieldControlValidation.commitValidation(checkedValue);
+            }
           }
         },
         onKeyDownCapture(event) {
@@ -64,14 +67,14 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
         },
       }),
     [
-      checkedValue,
-      commitValidation,
+      fieldControlValidation,
       disabled,
-      getValidationProps,
-      labelId,
       readOnly,
-      setFieldTouched,
+      labelId,
       setFocused,
+      setFieldTouched,
+      validationMode,
+      checkedValue,
     ],
   );
 
@@ -87,24 +90,16 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
 
   const getInputProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(getInputValidationProps(externalProps), {
+      mergeReactProps<'input'>(fieldControlValidation.getInputValidationProps(externalProps), {
         type: 'hidden',
         value: serializedCheckedValue,
-        ref: inputValidationRef,
+        ref: fieldControlValidation.inputRef,
         id,
         name,
         disabled,
         readOnly,
       }),
-    [
-      getInputValidationProps,
-      serializedCheckedValue,
-      inputValidationRef,
-      id,
-      name,
-      disabled,
-      readOnly,
-    ],
+    [fieldControlValidation, serializedCheckedValue, id, name, disabled, readOnly],
   );
 
   return React.useMemo(
@@ -115,8 +110,9 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
       setCheckedValue,
       touched,
       setTouched,
+      fieldControlValidation,
     }),
-    [getRootProps, getInputProps, checkedValue, setCheckedValue, touched],
+    [getRootProps, getInputProps, checkedValue, setCheckedValue, touched, fieldControlValidation],
   );
 }
 

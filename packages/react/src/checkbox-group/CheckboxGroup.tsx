@@ -7,6 +7,7 @@ import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRoot } from '../field/root/FieldRoot';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../utils/types';
+import { fieldValidityMapping } from '../field/utils/constants';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -54,6 +55,7 @@ const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     state,
     ref: forwardedRef,
     extraProps: otherProps,
+    customStyleHookMapping: fieldValidityMapping,
   });
 
   const contextValue: CheckboxGroupContext = React.useMemo(
@@ -82,6 +84,7 @@ namespace CheckboxGroup {
      */
     disabled: boolean;
   }
+
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Names of the checkboxes in the group that should be ticked.

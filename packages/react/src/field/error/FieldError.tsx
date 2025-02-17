@@ -5,7 +5,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldError } from './useFieldError';
-import { STYLE_HOOK_MAPPING } from '../utils/constants';
+import { fieldValidityMapping } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 
@@ -45,7 +45,7 @@ const FieldError = React.forwardRef(function FieldError(
     className,
     state,
     extraProps: otherProps,
-    customStyleHookMapping: STYLE_HOOK_MAPPING,
+    customStyleHookMapping: fieldValidityMapping,
   });
 
   if (!rendered) {

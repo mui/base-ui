@@ -40,8 +40,16 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     state: 'checked',
   });
 
-  const { labelId, setControlId, setTouched, setDirty, validityData, setFilled, setFocused } =
-    useFieldRootContext();
+  const {
+    labelId,
+    setControlId,
+    setTouched,
+    setDirty,
+    validityData,
+    setFilled,
+    setFocused,
+    validationMode,
+  } = useFieldRootContext();
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
@@ -103,7 +111,10 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
 
           setTouched(true);
           setFocused(false);
-          commitValidation(element.checked);
+
+          if (validationMode === 'onBlur') {
+            commitValidation(groupContext ? groupValue : element.checked);
+          }
         },
         onClick(event) {
           if (event.defaultPrevented || readOnly) {
@@ -125,7 +136,10 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       labelId,
       setFocused,
       setTouched,
+      validationMode,
       commitValidation,
+      groupContext,
+      groupValue,
     ],
   );
 
@@ -153,20 +167,29 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
 
           const nextChecked = event.target.checked;
 
-          if (!groupContext) {
-            setFilled(nextChecked);
-          }
-
           setDirty(nextChecked !== validityData.initialValue);
           setCheckedState(nextChecked);
           onCheckedChange?.(nextChecked, event.nativeEvent);
+
+          if (!groupContext) {
+            setFilled(nextChecked);
+
+            if (validationMode === 'onChange') {
+              commitValidation(nextChecked);
+            }
+          }
 
           if (name && groupValue && setGroupValue) {
             const nextGroupValue = nextChecked
               ? [...groupValue, name]
               : groupValue.filter((item) => item !== name);
+
             setGroupValue(nextGroupValue, event.nativeEvent);
             setFilled(nextGroupValue.length > 0);
+
+            if (validationMode === 'onChange') {
+              commitValidation(nextGroupValue);
+            }
           }
         },
       }),
@@ -184,8 +207,10 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       validityData.initialValue,
       setCheckedState,
       onCheckedChange,
+      validationMode,
       groupValue,
       setGroupValue,
+      commitValidation,
       setFilled,
     ],
   );

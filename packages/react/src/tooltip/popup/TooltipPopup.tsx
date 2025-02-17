@@ -12,6 +12,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -30,9 +31,19 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, instantType, transitionStatus, getRootPopupProps, popupRef } =
+  const { open, instantType, transitionStatus, getRootPopupProps, popupRef, onOpenChangeComplete } =
     useTooltipRootContext();
   const { side, align } = useTooltipPositionerContext();
+
+  useOpenChangeComplete({
+    open,
+    ref: popupRef,
+    onComplete() {
+      if (open) {
+        onOpenChangeComplete?.(true);
+      }
+    },
+  });
 
   const state: TooltipPopup.State = React.useMemo(
     () => ({

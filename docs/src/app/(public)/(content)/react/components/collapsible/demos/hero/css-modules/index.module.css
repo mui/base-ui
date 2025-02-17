@@ -7,6 +7,12 @@
   color: var(--color-gray-900);
 }
 
+.Icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  transition: transform 150ms ease-out;
+}
+
 .Trigger {
   display: flex;
   align-items: center;
@@ -40,12 +46,6 @@
   &[data-panel-open] .Icon {
     transform: rotate(90deg);
   }
-}
-
-.Icon {
-  width: 0.75rem;
-  height: 0.75rem;
-  transition: transform 150ms ease-out;
 }
 
 .Panel {

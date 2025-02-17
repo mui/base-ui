@@ -81,10 +81,10 @@ export function CodeSandboxLink({ title, description, ...props }: CodeSandboxLin
       title,
       description,
       dependencies: {
-        '@types/react': '^18',
-        '@types/react-dom': '^18',
-        react: '^18',
-        'react-dom': '^18',
+        '@types/react': '^19',
+        '@types/react-dom': '^19',
+        react: '^19',
+        'react-dom': '^19',
       },
       devDependencies: {
         'react-scripts': 'latest',
@@ -115,7 +115,7 @@ export function CodeSandboxLink({ title, description, ...props }: CodeSandboxLin
   );
 }
 
-function resolveDependencies(packageName: string): Record<string, string> {
+export function resolveDependencies(packageName: string): Record<string, string> {
   switch (packageName) {
     case '@base-ui-components/react': {
       if (COMMIT_REF === undefined || SOURCE_CODE_REPO !== 'https://github.com/mui/base-ui') {

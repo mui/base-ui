@@ -27,3 +27,11 @@ import { Form } from '@base-ui-components/react/form';
 ```
 
 <Reference component="Form" />
+
+## Examples
+
+### Using with Zod
+
+When parsing the schema using `schema.safeParse()`, the `result.error.flatten().fieldErrors` data can be used to map the errors to each field's `name`.
+
+<Demo path="./demos/zod" />
