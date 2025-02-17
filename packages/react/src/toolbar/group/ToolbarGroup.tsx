@@ -17,9 +17,11 @@ const ToolbarGroup = React.forwardRef(function ToolbarGroup(
   props: ToolbarGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { className, disabled = false, render, ...otherProps } = props;
+  const { className, disabled: disabledProp = false, render, ...otherProps } = props;
 
-  const { orientation } = useToolbarRootContext();
+  const { orientation, disabled: toolbarDisabled } = useToolbarRootContext();
+
+  const disabled = toolbarDisabled || disabledProp;
 
   const contextValue: ToolbarGroupContext = React.useMemo(
     () => ({

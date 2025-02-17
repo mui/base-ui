@@ -86,6 +86,35 @@ describe('<Toolbar.Root />', () => {
     });
   });
 
+  describe('prop: disabled', () => {
+    it('disables all toolbar items except links', async () => {
+      const { getAllByRole, getByRole, getAllByText } = await render(
+        <Toolbar.Root disabled>
+          <Toolbar.Button />
+          <Toolbar.Link href="https://base-ui.com">Link</Toolbar.Link>
+          <Toolbar.Input defaultValue="" />
+          <Toolbar.Group>
+            <Toolbar.Button />
+            <Toolbar.Link href="https://base-ui.com">Link</Toolbar.Link>
+            <Toolbar.Input defaultValue="" />
+          </Toolbar.Group>
+        </Toolbar.Root>,
+      );
+
+      [...getAllByRole('button'), ...getAllByRole('textbox')].forEach((toolbarItem) => {
+        expect(toolbarItem).to.have.attribute('aria-disabled', 'true');
+        expect(toolbarItem).to.have.attribute('data-disabled');
+      });
+
+      expect(getByRole('group')).to.have.attribute('data-disabled');
+
+      getAllByText('Link').forEach((link) => {
+        expect(link).to.not.have.attribute('data-disabled');
+        expect(link).to.not.have.attribute('aria-disabled');
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM)('prop: focusableWhenDisabled', () => {
     function expectFocusedWhenDisabled(element) {
       expect(element).to.have.attribute('data-disabled');
