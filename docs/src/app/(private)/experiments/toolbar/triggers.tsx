@@ -30,6 +30,11 @@ import {
 interface Settings extends Record<string, boolean> {}
 
 export const settingsMetadata: SettingsMetadata<Settings> = {
+  verticalOrientation: {
+    type: 'boolean',
+    label: 'Vertical',
+    default: false,
+  },
   dialogDisabled: {
     type: 'boolean',
     label: 'Dialog disabled',
@@ -70,7 +75,6 @@ function renderTriggerWithTooltip(args: {
   render: any;
   key: string;
   label: string;
-  // icon: (props: React.ComponentProps<'svg'>) => React.JSX.Element;
   disabled?: boolean;
 }) {
   const { render, key, label, disabled = false } = args;
@@ -117,7 +121,10 @@ export default function App() {
         <h3 className={styles.toolbar.h3}>Toolbar pattern</h3>
       </a>
       <div className={styles.toolbar.Wrapper}>
-        <Toolbar.Root className={classNames(styles.toolbar.Root, styles.demo.Root)}>
+        <Toolbar.Root
+          className={classNames(styles.toolbar.Root, styles.demo.Root)}
+          orientation={settings.verticalOrientation ? 'vertical' : 'horizontal'}
+        >
           <Dialog.Root>
             {renderTriggerWithTooltip({
               render: (
@@ -276,13 +283,13 @@ export default function App() {
 
           <Toolbar.Button
             disabled={settings.switchDisabled}
-            className={classNames(styles.toolbar.Toggle, styles.demo.Toggle)}
+            className={classNames(
+              styles.toolbar.Toggle,
+              styles.demo.Toggle,
+              styles.demo.Switch,
+            )}
             render={
-              <Switch.Root
-                defaultChecked
-                className={styles.switch.Switch}
-                style={{ insetInline: '.5rem' }}
-              >
+              <Switch.Root defaultChecked className={styles.switch.Switch}>
                 <Switch.Thumb
                   className={styles.switch.Thumb}
                   style={{ marginRight: 'auto' }}
