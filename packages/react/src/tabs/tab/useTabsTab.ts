@@ -58,11 +58,15 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
     return valueParam === selectedTabValue;
   }, [index, selectedTabValue, valueParam]);
 
-  // when activateOnFocus is `true`, ensure the active item in Composite's roving
-  // focus group matches the selected Tab
+  const selectedValueSyncedWithHighlightedTabIndexRef = React.useRef(false);
+
   useEnhancedEffect(() => {
+    if (selectedValueSyncedWithHighlightedTabIndexRef.current === true) {
+      return;
+    }
     if (activateOnFocus && selected && index > -1 && highlightedTabIndex !== index) {
       setHighlightedTabIndex(index);
+      selectedValueSyncedWithHighlightedTabIndexRef.current = true;
     }
   }, [activateOnFocus, highlightedTabIndex, index, selected, setHighlightedTabIndex]);
 
@@ -81,51 +85,61 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'button'>(
-        externalProps,
-        {
-          role: 'tab',
-          'aria-controls': tabPanelId,
-          'aria-selected': selected,
-          id,
-          ref: handleRef,
-          onClick(event) {
-            if (selected || disabled) {
-              return;
-            }
+      return getButtonProps(
+        mergeReactProps<'button'>(
+          externalProps,
+          {
+            role: 'tab',
+            'aria-controls': tabPanelId,
+            'aria-selected': selected,
+            id,
+            ref: handleRef,
+            onClick(event) {
+              if (selected || disabled) {
+                return;
+              }
 
-            onTabActivation(tabValue, event.nativeEvent);
-          },
-          onFocus(event) {
-            if (!activateOnFocus || selected || disabled) {
-              return;
-            }
-
-            if (!isPressingRef.current || (isPressingRef.current && isMainButtonRef.current)) {
               onTabActivation(tabValue, event.nativeEvent);
-            }
+            },
+            onFocus(event) {
+              if (selected) {
+                return;
+              }
+
+              if (index > 1 && index !== highlightedTabIndex) {
+                setHighlightedTabIndex(index);
+              }
+
+              if (!activateOnFocus || disabled) {
+                return;
+              }
+
+              if (!isPressingRef.current || (isPressingRef.current && isMainButtonRef.current)) {
+                onTabActivation(tabValue, event.nativeEvent);
+              }
+            },
+            onPointerDown(event) {
+              if (selected || disabled) {
+                return;
+              }
+
+              isPressingRef.current = true;
+
+              function handlePointerUp() {
+                isPressingRef.current = false;
+                isMainButtonRef.current = false;
+              }
+
+              if (!event.button || event.button === 0) {
+                isMainButtonRef.current = true;
+
+                const doc = ownerDocument(event.currentTarget);
+                doc.addEventListener('pointerup', handlePointerUp, { once: true });
+              }
+            },
           },
-          onPointerDown(event) {
-            if (selected || disabled) {
-              return;
-            }
-
-            isPressingRef.current = true;
-
-            function handlePointerUp() {
-              isPressingRef.current = false;
-              isMainButtonRef.current = false;
-            }
-
-            if (!event.button || event.button === 0) {
-              isMainButtonRef.current = true;
-
-              const doc = ownerDocument(event.currentTarget);
-              doc.addEventListener('pointerup', handlePointerUp, { once: true });
-            }
-          },
-        },
-        mergeReactProps(getItemProps(), getButtonProps()),
+          mergeReactProps(getItemProps()),
+        ),
       );
     },
     [
@@ -139,6 +153,9 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
       tabPanelId,
       tabValue,
       disabled,
+      index,
+      setHighlightedTabIndex,
+      highlightedTabIndex,
     ],
   );
 

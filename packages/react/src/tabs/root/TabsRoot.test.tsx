@@ -692,7 +692,7 @@ describe('<Tabs.Root />', () => {
                   </Tabs.Root>
                 </DirectionProvider>,
               );
-              const [firstTab, disabledTab] = getAllByRole('tab');
+              const [firstTab, disabledTab, thirdTab] = getAllByRole('tab');
               await act(async () => {
                 firstTab.focus();
               });
@@ -704,6 +704,10 @@ describe('<Tabs.Root />', () => {
               expect(handleChange.callCount).to.equal(0);
               expect(handleKeyDown.callCount).to.equal(1);
               expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+
+              fireEvent.keyDown(disabledTab, { key: nextItemKey });
+              await flushMicrotasks();
+              expect(thirdTab).toHaveFocus();
             });
           });
         },
@@ -853,7 +857,7 @@ describe('<Tabs.Root />', () => {
             const handleChange = spy();
             const handleKeyDown = spy();
             const { getAllByRole } = await render(
-              <Tabs.Root onKeyDown={handleKeyDown} onValueChange={handleChange} value={2}>
+              <Tabs.Root onKeyDown={handleKeyDown} onValueChange={handleChange} value={0}>
                 <Tabs.List activateOnFocus={activateOnFocusProp}>
                   <Tabs.Tab value={0} />
                   <Tabs.Tab value={1} />
