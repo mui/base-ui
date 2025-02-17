@@ -23,6 +23,7 @@ describe('<Toolbar.Link />', () => {
 
   describeConformance(<Toolbar.Link />, () => ({
     refInstanceof: window.HTMLAnchorElement,
+    testRenderPropWith: 'a',
     render: (node) => {
       return render(
         <ToolbarRootContext.Provider value={testToolbarContext}>

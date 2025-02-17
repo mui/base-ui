@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { Toolbar } from '@base-ui-components/react/toolbar';
+import { Toolbar, type Orientation } from '@base-ui-components/react/toolbar';
 import {
   DirectionProvider,
   type TextDirection,
@@ -32,7 +32,7 @@ describe('<Toolbar.Root />', () => {
     ].forEach((entry) => {
       const [direction, orientation, nextKey, prevKey] = entry;
 
-      function expectFocused(element) {
+      function expectFocused(element: Element) {
         expect(element).to.have.attribute('data-highlighted');
         expect(element).to.have.attribute('tabindex', '0');
         expect(element).toHaveFocus();
@@ -42,7 +42,7 @@ describe('<Toolbar.Root />', () => {
         it(`orientation: ${orientation}`, async () => {
           const { getAllByRole, getByRole, getByText, user } = await render(
             <DirectionProvider direction={direction as TextDirection}>
-              <Toolbar.Root dir={direction} orientation={orientation}>
+              <Toolbar.Root dir={direction} orientation={orientation as Orientation}>
                 <Toolbar.Button />
                 <Toolbar.Link href="https://base-ui.com">Link</Toolbar.Link>
                 <Toolbar.Group>
@@ -116,7 +116,7 @@ describe('<Toolbar.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('prop: focusableWhenDisabled', () => {
-    function expectFocusedWhenDisabled(element) {
+    function expectFocusedWhenDisabled(element: Element) {
       expect(element).to.have.attribute('data-disabled');
       expect(element).to.have.attribute('aria-disabled', 'true');
       expect(element).to.have.attribute('data-highlighted');
