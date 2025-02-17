@@ -580,7 +580,7 @@ importers:
         specifier: ^5.62.0
         version: 5.62.0(eslint@9.8.0)(typescript@5.7.3)
       '@typescript-eslint/parser':
-        specifier: ^8.23.0
+        specifier: ^8.24.0
         version: 8.24.0(eslint@9.8.0)(typescript@5.7.3)
 
   packages/react:
