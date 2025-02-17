@@ -23,6 +23,7 @@ describe('<Toolbar.Input />', () => {
 
   describeConformance(<Toolbar.Input />, () => ({
     refInstanceof: window.HTMLInputElement,
+    testRenderPropWith: 'input',
     render: (node) => {
       return render(
         <ToolbarRootContext.Provider value={testToolbarContext}>
