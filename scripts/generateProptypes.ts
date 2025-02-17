@@ -72,6 +72,15 @@ async function generateProptypes(project: TypeScriptProject, sourceFile: string)
   const sourceContent = await fse.readFile(sourceFile, 'utf8');
   const isTsFile = /(\.(ts|tsx))/.test(sourceFile);
 
+  if (
+    sourceFile.includes('internal') ||
+    !!sourceContent.match(/@ignore - internal component\./) ||
+    !!sourceContent.match(/@ignore - internal hook\./) ||
+    !!sourceContent.match(/@ignore - do not document\./)
+  ) {
+    return;
+  }
+
   const result = injectPropTypesInFile({
     components,
     target: sourceContent,
