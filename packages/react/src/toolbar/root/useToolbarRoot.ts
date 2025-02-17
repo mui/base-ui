@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import { GenericHTMLProps } from '../../utils/types';
+import { GenericHTMLProps, Orientation } from '../../utils/types';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { ToolbarItemMetadata } from './ToolbarRoot';
 
@@ -46,9 +46,10 @@ namespace useToolbarRoot {
   export interface Parameters {
     disabled: boolean;
     /**
-     * The component orientation (layout flow direction).
+     * The component orientation.
+     * @default 'horizontal'
      */
-    orientation: 'horizontal' | 'vertical';
+    orientation: Orientation;
   }
 
   export interface ReturnValue {

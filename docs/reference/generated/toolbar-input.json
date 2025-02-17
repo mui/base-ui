@@ -1,6 +1,6 @@
 {
   "name": "ToolbarInput",
-  "description": "",
+  "description": "A native input element that integrates with Toolbar keyboard navigation.\nRenders an `<input>` element.",
   "props": {
     "focusableWhenDisabled": {
       "type": "boolean",
@@ -21,6 +21,20 @@
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-highlighted": {
+      "description": "Present when the input is the active item in the toolbar."
+    },
+    "data-orientation": {
+      "description": "Indicates the orientation of the toolbar.",
+      "type": "'horizontal' | 'vertical'"
+    },
+    "data-disabled": {
+      "description": "Present when the input is disabled."
+    },
+    "data-focusable": {
+      "description": "Present when the input remains focusable when disabled."
+    }
+  },
   "cssVariables": {}
 }
