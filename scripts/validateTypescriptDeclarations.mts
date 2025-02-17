@@ -12,11 +12,11 @@ function validateMissingExports(fileContent: string) {
 }
 
 /**
- * Validates if there component type declarations containing `var propTypes =`.
+ * Validates if there component type declarations containing `propTypes: any`.
  * It is a symptom of a missing `React.FC` type annotation.
  */
 function validateComponentTypes(fileContent: string) {
-  const regex = /var propTypes =/gm;
+  const regex = /propTypes: any/gm;
   return !regex.test(fileContent);
 }
 
@@ -46,10 +46,14 @@ function validateFiles() {
     filesWithMissingExports.forEach((file) => console.error(file));
   }
 
-  if (filesWithMissingExports.length > 0) {
+  if (filesWithMissingComponentTypes.length > 0) {
     console.error('Found invalid component types in the following files:');
-    filesWithMissingExports.forEach((file) => console.error(file));
+    filesWithMissingComponentTypes.forEach((file) => console.error(file));
     console.log('Make sure to explicitly annotate components as `React.FC`');
+  }
+
+  if (filesWithMissingExports.length > 0 || filesWithMissingComponentTypes.length > 0) {
+    process.exit(1);
   }
 
   console.log('All built declaration files are OK.');
