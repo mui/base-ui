@@ -11,8 +11,6 @@ import {
   useExperimentSettings,
 } from '../../../../components/Experiments/SettingsPanel';
 
-const DISABLED = false;
-
 const styles = {
   toolbar: toolbarClasses,
   input: inputClasses,
@@ -35,6 +33,11 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     label: 'RTL',
     default: false,
   },
+  toolbarDisabled: {
+    type: 'boolean',
+    label: 'Everything disabled',
+    default: true,
+  },
 };
 
 export default function App() {
@@ -53,9 +56,12 @@ export default function App() {
       </a>
       <div className={styles.toolbar.Wrapper} dir={dir}>
         <DirectionProvider direction={dir}>
-          <Toolbar.Root className={styles.toolbar.Root} orientation="horizontal">
+          <Toolbar.Root
+            className={styles.toolbar.Root}
+            orientation="horizontal"
+            disabled={settings.toolbarDisabled}
+          >
             <Toolbar.Button
-              disabled={DISABLED}
               className={styles.toolbar.Button}
               onClick={() => console.log('clicked a regular toolbar button')}
             >
@@ -74,7 +80,6 @@ export default function App() {
 
             <Toolbar.Group className={styles.toolbar.ToggleGroup}>
               <Toolbar.Button
-                disabled={DISABLED}
                 className={styles.toolbar.Button}
                 onClick={() => console.log('clicked button 1 inside a group')}
                 style={{ marginRight: '0.5rem' }}
@@ -83,7 +88,6 @@ export default function App() {
               </Toolbar.Button>
 
               <Toolbar.Button
-                disabled={DISABLED}
                 className={styles.toolbar.Button}
                 onClick={() => console.log('clicked button 2 inside a group')}
               >

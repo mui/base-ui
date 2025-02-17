@@ -9,6 +9,8 @@ import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
 import { useToolbarInput } from './useToolbarInput';
 /**
+ * A native input element that integrates with Toolbar keyboard navigation.
+ * Renders an `<input>` element.
  *
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
