@@ -486,9 +486,23 @@ describe('Composite', () => {
             onHighlightedIndexChange={setHighlightedIndex}
             disabledIndices={[]}
           >
-            <CompositeItem data-testid="1" data-disabled aria-disabled="true" disabled />
-            <CompositeItem data-testid="2" data-disabled aria-disabled="true" disabled />
-            <CompositeItem data-testid="3" data-disabled aria-disabled="true" disabled />
+            <CompositeItem
+              data-testid="1"
+              // TS doesn't like the disabled attribute on non-interactive elements
+              // but testing library refuses to focus disabled interactive elements
+              // @ts-ignore
+              render={<span data-disabled aria-disabled="true" disabled />}
+            />
+            <CompositeItem
+              data-testid="2"
+              // @ts-ignore
+              render={<span data-disabled aria-disabled="true" disabled />}
+            />
+            <CompositeItem
+              data-testid="3"
+              // @ts-ignore
+              render={<span data-disabled aria-disabled="true" disabled />}
+            />
           </CompositeRoot>
         );
       }
