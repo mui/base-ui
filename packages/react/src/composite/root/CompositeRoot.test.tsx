@@ -437,4 +437,44 @@ describe('Composite', () => {
       });
     });
   });
+
+  describe('prop: disabledIndices', () => {
+    it('disables navigating item when their index is included', async () => {
+      function App() {
+        const [highlightedIndex, setHighlightedIndex] = React.useState(0);
+        return (
+          <CompositeRoot
+            highlightedIndex={highlightedIndex}
+            onHighlightedIndexChange={setHighlightedIndex}
+            disabledIndices={[1]}
+          >
+            <CompositeItem data-testid="1" />
+            <CompositeItem data-testid="2" />
+            <CompositeItem data-testid="3" />
+          </CompositeRoot>
+        );
+      }
+
+      const { getByTestId } = render(<App />);
+
+      const item1 = getByTestId('1');
+      const item3 = getByTestId('3');
+
+      act(() => item1.focus());
+
+      expect(item1).to.have.attribute('data-highlighted');
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      await flushMicrotasks();
+      expect(item3).to.have.attribute('data-highlighted');
+      expect(item3).to.have.attribute('tabindex', '0');
+      expect(item3).toHaveFocus();
+
+      fireEvent.keyDown(item3, { key: 'ArrowUp' });
+      await flushMicrotasks();
+      expect(item1).to.have.attribute('data-highlighted');
+      expect(item1).to.have.attribute('tabindex', '0');
+      expect(item1).toHaveFocus();
+    });
+  });
 });

@@ -52,10 +52,12 @@ export interface UseCompositeRootParameters {
    * @default false
    */
   stopEventPropagation?: boolean;
+  /**
+   * Array of item indices to be considered disabled.
+   * Used for composite items that are focusable when disabled.
+   */
+  disabledIndices?: number[];
 }
-
-// Advanced options of Composite, to be implemented later if needed.
-const disabledIndices = undefined;
 
 /**
  * @ignore - internal hook.
@@ -73,6 +75,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     rootRef: externalRef,
     enableHomeAndEndKeys = false,
     stopEventPropagation = false,
+    disabledIndices,
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
@@ -249,18 +252,19 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         },
       }),
     [
-      highlightedIndex,
-      stopEventPropagation,
       cols,
       dense,
+      disabledIndices,
       elementsRef,
+      enableHomeAndEndKeys,
+      highlightedIndex,
       isGrid,
       itemSizes,
       loop,
       mergedRef,
       onHighlightedIndexChange,
       orientation,
-      enableHomeAndEndKeys,
+      stopEventPropagation,
     ],
   );
 
@@ -270,7 +274,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       highlightedIndex,
       onHighlightedIndexChange,
       elementsRef,
+      disabledIndices,
     }),
-    [getRootProps, highlightedIndex, onHighlightedIndexChange, elementsRef],
+    [getRootProps, highlightedIndex, onHighlightedIndexChange, elementsRef, disabledIndices],
   );
 }
