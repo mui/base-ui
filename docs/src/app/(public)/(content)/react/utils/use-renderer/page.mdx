@@ -61,7 +61,7 @@ In the following demo, the Text component provides more Base UI features, like a
 
 Sometimes, you may want to customize how the data attributes are generated. You can do this by providing the `stateAttributesMap` option.
 
-```
+```jsx
 useRenderer({
   render: render ?? <p />,
   state,
@@ -70,12 +70,12 @@ useRenderer({
     color: (value) => ({ [`data-color-${value}`]: '' }),
   },
   props,
-  });
+});
 ```
 
 Then, developers can target the data attributes like this:
 
-```
+```css
 .Text {
   font-size: 0.875rem;
   line-height: 1rem;
