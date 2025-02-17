@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useRenderer, RenderProp } from '@base-ui-components/react/use-renderer';
+import { useRenderer } from '@base-ui-components/react/use-renderer';
 import styles from './index.module.css';
 
 type Size = 'small' | 'medium' | 'large';
@@ -13,7 +13,7 @@ type TextState = {
 
 type TextProps = {
   className: string | ((state: TextState) => string);
-  render?: RenderProp<TextState>;
+  render?: useRenderer.RenderProp<TextState>;
   onClick?: (event: React.MouseEvent<Element>) => void;
   children: React.ReactNode;
   size?: Size;

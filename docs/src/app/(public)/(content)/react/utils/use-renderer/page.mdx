@@ -47,14 +47,43 @@ The hook returns a function that when called returns the element that should be 
 
 ## Usage
 
+### Supporting the `render` prop
+
 This is an example of a Text component that provides the support for the render prop.
 
 <Demo path="./demos/render" />
+
+### Generating data attributes
 
 In the following demo, the Text component provides more Base UI features, like adding data attributes and `className` callback where developers can have access to the internal state of the component.
 
 <Demo path="./demos/data-attributes" />
 
-Additionally, you can also customize how the data-attributes are generated, by providing the `stateAttributesMap` option.
+Sometimes, you may want to customize how the data attributes are generated. You can do this by providing the `stateAttributesMap` option.
 
-<Demo path="./demos/state-attributes-map" />
+```
+useRenderer({
+  render: render ?? <p />,
+  state,
+  stateAttributesMap: {
+    size: (value) => ({ [`data-size-${value}`]: '' }),
+    color: (value) => ({ [`data-color-${value}`]: '' }),
+  },
+  props,
+  });
+```
+
+Then, developers can target the data attributes like this:
+
+```
+.Text {
+  font-size: 0.875rem;
+  line-height: 1rem;
+  &[data-size-small] {
+    font-size: 0.75rem;
+  }
+  &[data-size-large] {
+    font-size: 1.25rem;
+  }
+}
+```
