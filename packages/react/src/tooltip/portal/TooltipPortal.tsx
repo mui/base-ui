@@ -12,7 +12,7 @@ import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-function TooltipPortal(props: TooltipPortal.Props) {
+const TooltipPortal: React.FC<TooltipPortal.Props> = function TooltipPortal(props) {
   const { children, keepMounted = false, container } = props;
 
   const { mounted } = useTooltipRootContext();
@@ -27,7 +27,7 @@ function TooltipPortal(props: TooltipPortal.Props) {
       <FloatingPortalLite root={container}>{children}</FloatingPortalLite>
     </TooltipPortalContext.Provider>
   );
-}
+};
 
 namespace TooltipPortal {
   export interface Props {

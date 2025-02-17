@@ -11,7 +11,7 @@ import { SelectPortalContext } from './SelectPortalContext';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-function SelectPortal(props: SelectPortal.Props) {
+const SelectPortal: React.FC<SelectPortal.Props> = function SelectPortal(props) {
   const { children, container } = props;
 
   return (
@@ -19,7 +19,7 @@ function SelectPortal(props: SelectPortal.Props) {
       <FloatingPortal root={container}>{children}</FloatingPortal>
     </SelectPortalContext.Provider>
   );
-}
+};
 
 namespace SelectPortal {
   export interface Props {
