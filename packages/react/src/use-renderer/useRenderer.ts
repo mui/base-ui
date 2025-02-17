@@ -24,12 +24,12 @@ function useRenderer<State extends Record<string, any>, RenderedElementType exte
   });
 }
 
-type RenderProp<State> =
-  | ComponentRenderFn<React.HTMLAttributes<any>, State>
-  | React.ReactElement<Record<string, unknown>>
-  | keyof typeof defaultRenderFunctions;
-
 namespace useRenderer {
+  export type RenderProp<State> =
+    | ComponentRenderFn<React.HTMLAttributes<any>, State>
+    | React.ReactElement<Record<string, unknown>>
+    | keyof typeof defaultRenderFunctions;
+
   export interface Settings<State, RenderedElementType extends Element> {
     /**
      * The class name to apply to the rendered element.
@@ -54,7 +54,5 @@ namespace useRenderer {
     stateAttributesMap?: StateDataAttributes<State>;
   }
 }
-
-export type { ComponentRenderFn, StateDataAttributes, RenderProp };
 
 export { useRenderer };

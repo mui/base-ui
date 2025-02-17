@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useRenderer, RenderProp } from '@base-ui-components/react/use-renderer';
+import { useRenderer } from '@base-ui-components/react/use-renderer';
 import styles from './index.module.css';
 
 type TextProps = {
   className?: string;
-  render?: RenderProp<Record<string, any>>;
+  render?: useRenderer.RenderProp<Record<string, any>>;
   children: React.ReactNode;
 };
 
