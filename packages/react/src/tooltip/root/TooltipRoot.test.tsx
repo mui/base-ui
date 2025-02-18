@@ -330,7 +330,7 @@ describe('<Tooltip.Root />', () => {
   describe('prop: delay', () => {
     clock.withFakeTimers();
 
-    it('should open after delay with rest type by default', async () => {
+    it('should open after rest delay', async () => {
       await render(
         <Root delay={100}>
           <Tooltip.Trigger />

@@ -29,6 +29,11 @@
   cursor: not-allowed;
 }
 
+.button:focus-visible {
+  outline: 2px solid black;
+  z-index: 1;
+}
+
 .button:first-child {
   border-radius: var(--border-radius-left);
   border-inline-end-color: transparent;
@@ -53,11 +58,6 @@
   outline-offset: -1px;
   color: var(--gray-text-2);
   cursor: pointer;
-  z-index: 1;
-}
-
-.button:focus-visible {
-  outline: 2px solid black;
   z-index: 1;
 }
 

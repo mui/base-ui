@@ -10,10 +10,8 @@ import { Select } from '@base-ui-components/react/select';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
-
-const user = userEvent.setup();
 
 describe('<Field.Root />', () => {
   const { render } = createRenderer();
@@ -452,8 +450,9 @@ describe('<Field.Root />', () => {
         expect(one).to.have.attribute('aria-invalid', 'true');
       });
 
-      it('validates Select on change', async () => {
-        await render(
+      // flaky in real browser
+      it.skipIf(!isJSDOM)('validates Select on change', async () => {
+        const { user } = await render(
           <Field.Root
             validationMode="onChange"
             validate={(value) => {
@@ -461,7 +460,9 @@ describe('<Field.Root />', () => {
             }}
           >
             <Select.Root>
-              <Select.Trigger data-testid="trigger" />
+              <Select.Trigger data-testid="trigger">
+                <Select.Value placeholder="Select an option" />
+              </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner>
                   <Select.Popup>
@@ -697,8 +698,9 @@ describe('<Field.Root />', () => {
         expect(group).to.have.attribute('aria-invalid', 'true');
       });
 
-      it('validates Select on blur', async () => {
-        await render(
+      // flaky in real browser
+      it.skipIf(!isJSDOM)('validates Select on blur', async () => {
+        const { user } = await render(
           <Field.Root
             validationMode="onBlur"
             validate={(value) => {
@@ -706,7 +708,9 @@ describe('<Field.Root />', () => {
             }}
           >
             <Select.Root>
-              <Select.Trigger data-testid="trigger" />
+              <Select.Trigger data-testid="trigger">
+                <Select.Value placeholder="Select an option" />
+              </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner>
                   <Select.Popup>
@@ -723,7 +727,7 @@ describe('<Field.Root />', () => {
 
         expect(trigger).not.to.have.attribute('aria-invalid');
 
-        await userEvent.click(trigger);
+        await user.click(trigger);
 
         await flushMicrotasks();
 
@@ -1137,7 +1141,7 @@ describe('<Field.Root />', () => {
       });
 
       it('supports Select', async () => {
-        await render(
+        const { user } = await render(
           <Field.Root>
             <Select.Root>
               <Select.Trigger data-testid="trigger" />
@@ -1357,7 +1361,7 @@ describe('<Field.Root />', () => {
 
       describe('Select', () => {
         it('adds [data-filled] attribute when filled', async () => {
-          await render(
+          const { user } = await render(
             <Field.Root>
               <Select.Root>
                 <Select.Trigger data-testid="trigger" />

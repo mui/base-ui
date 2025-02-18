@@ -1,16 +1,18 @@
-@keyframes slideDown {
+@keyframes slide-down {
   from {
     height: 0;
   }
+
   to {
     height: var(--accordion-panel-height);
   }
 }
 
-@keyframes slideUp {
+@keyframes slide-up {
   from {
     height: var(--accordion-panel-height);
   }
+
   to {
     height: 0;
   }
@@ -26,19 +28,19 @@
 
 .root {
   --duration: 300ms;
-  --shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
-    0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  --shadow: 0px 2px 1px -1px rgb(0 0 0 / 0.2), 0px 1px 1px 0px rgb(0 0 0 / 0.14),
+    0px 1px 3px 0px rgb(0 0 0 / 0.12);
 
   font-family: system-ui, sans-serif;
   box-shadow: var(--shadow);
-  background-color: rgba(0, 0, 0, 0.12);
+  background-color: rgb(0 0 0 / 0.12);
   border-radius: 0.3rem;
 }
 
 .item {
   position: relative;
   background-color: #fff;
-  color: rgba(0, 0, 0, 0.87);
+  color: rgb(0 0 0 / 0.87);
 }
 
 .item:not(:first-of-type) {
@@ -75,7 +77,7 @@
 
 .trigger:focus-visible {
   outline: 0;
-  background-color: rgba(0, 0, 0, 0.12);
+  background-color: rgb(0 0 0 / 0.12);
 }
 
 .trigger .triggerText {
@@ -102,11 +104,11 @@
 }
 
 .panel.cssanimation[data-open] {
-  animation: slideDown var(--duration) ease-out;
+  animation: slide-down var(--duration) ease-out;
 }
 
 .panel.cssanimation {
-  animation: slideUp var(--duration) ease-out;
+  animation: slide-up var(--duration) ease-out;
 }
 
 .panel.csstransition[data-open] {

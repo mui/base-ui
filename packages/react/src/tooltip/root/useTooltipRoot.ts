@@ -111,15 +111,17 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   });
 
   const { delay: groupDelay, isInstantPhase, currentId } = useDelayGroup(context);
-  const openGroupDelay = typeof groupDelay === 'object' ? groupDelay.open : groupDelay;
-  const closeGroupDelay = typeof groupDelay === 'object' ? groupDelay.close : groupDelay;
+  // We only pass an object to `FloatingDelayGroup`. A number means the Provider is not
+  // present, so we should ignore the value by using `undefined`.
+  const openGroupDelay = typeof groupDelay === 'object' ? groupDelay.open : undefined;
+  const closeGroupDelay = typeof groupDelay === 'object' ? groupDelay.close : undefined;
 
   let instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
   if (!open && context.floatingId === currentId) {
     instantType = instantTypeState;
   }
 
-  const computedRestMs = openGroupDelay || delayWithDefault;
+  const computedRestMs = openGroupDelay ?? delayWithDefault;
   let computedCloseDelay: number | undefined = closeDelayWithDefault;
 
   // A provider is present and the close delay is not set.

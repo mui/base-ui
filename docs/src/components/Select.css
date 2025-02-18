@@ -19,7 +19,6 @@
     background-color: var(--color-popup);
     overflow: hidden;
     cursor: default;
-    -webkit-user-select: none;
     user-select: none;
     padding-block: 0.25rem;
 
@@ -80,6 +79,7 @@
     &[data-side='bottom'] {
       top: -6px;
     }
+
     &[data-side='top'] {
       bottom: -6px;
       transform: scaleY(-1);
