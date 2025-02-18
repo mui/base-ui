@@ -64,7 +64,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(open && modal, triggerElement);
+  useScrollLock(open && modal && openReason !== 'hover', triggerElement);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -108,9 +108,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   }, [clearStickIfOpenTimeout, open]);
 
   React.useEffect(() => {
-    return () => {
-      clearStickIfOpenTimeout();
-    };
+    return clearStickIfOpenTimeout;
   }, [clearStickIfOpenTimeout]);
 
   const context = useFloatingRootContext({

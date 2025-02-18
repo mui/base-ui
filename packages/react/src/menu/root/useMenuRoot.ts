@@ -124,9 +124,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   }, [clearStickIfOpenTimeout, open]);
 
   React.useEffect(() => {
-    return () => {
-      clearStickIfOpenTimeout();
-    };
+    return clearStickIfOpenTimeout;
   }, [clearStickIfOpenTimeout]);
 
   const floatingRootContext = useFloatingRootContext({
