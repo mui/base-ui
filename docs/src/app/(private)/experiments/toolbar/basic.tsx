@@ -36,7 +36,7 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   toolbarDisabled: {
     type: 'boolean',
     label: 'Everything disabled',
-    default: true,
+    default: false,
   },
 };
 
