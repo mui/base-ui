@@ -26,6 +26,8 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     orientation = 'vertical',
     delay = 100,
     openOnHover: openOnHoverProp,
+    actionsRef,
+    onOpenChangeComplete,
   } = props;
 
   const direction = useDirection();
@@ -54,6 +56,8 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     delay,
     onTypingChange,
     modal,
+    actionsRef,
+    onOpenChangeComplete,
   });
 
   const context: MenuRootContext = React.useMemo(
@@ -108,6 +112,10 @@ namespace MenuRoot {
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
+     * Event handler called after any animations complete when the menu is closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
+    /**
      * Whether the menu is currently open.
      */
     open?: boolean;
@@ -141,6 +149,14 @@ namespace MenuRoot {
      * Defaults to `true` for nested menus.
      */
     openOnHover?: boolean;
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef?: React.RefObject<{ unmount: () => void }>;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }
 
@@ -149,6 +165,14 @@ MenuRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  action: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * @ignore
    */
@@ -193,6 +217,10 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    * Event handler called when the menu is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the menu is closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Whether the menu is currently open.
    */

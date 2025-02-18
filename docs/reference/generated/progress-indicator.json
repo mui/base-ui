@@ -1,6 +1,6 @@
 {
   "name": "ProgressIndicator",
-  "description": "Visualizes the completion status of the task.\nRenders a `<span>` element.",
+  "description": "Visualizes the completion status of the task.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

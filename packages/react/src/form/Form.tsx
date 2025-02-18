@@ -31,8 +31,8 @@ const Form = React.forwardRef(function Form(
   });
   const submittedRef = React.useRef(false);
 
-  const onSubmit = useEventCallback(onSubmitProp || (() => {}));
-  const onClearErrors = useEventCallback(onClearErrorsProp || (() => {}));
+  const onSubmit = useEventCallback(onSubmitProp);
+  const onClearErrors = useEventCallback(onClearErrorsProp);
 
   const getFormProps = React.useCallback(
     (externalProps = {}) =>

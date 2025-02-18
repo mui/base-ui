@@ -12,7 +12,7 @@ import { FloatingDelayGroup } from '@floating-ui/react';
 const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvider(props) {
   const { delay, closeDelay, timeout = 400 } = props;
   return (
-    <FloatingDelayGroup delay={{ open: delay ?? 0, close: closeDelay ?? 0 }} timeoutMs={timeout}>
+    <FloatingDelayGroup delay={{ open: delay, close: closeDelay }} timeoutMs={timeout}>
       {props.children}
     </FloatingDelayGroup>
   );

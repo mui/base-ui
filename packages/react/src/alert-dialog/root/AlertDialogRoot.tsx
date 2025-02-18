@@ -12,7 +12,14 @@ import { useDialogRoot } from '../../dialog/root/useDialogRoot';
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
-  const { children, defaultOpen = false, onOpenChange, open } = props;
+  const {
+    children,
+    defaultOpen = false,
+    onOpenChange,
+    onOpenChangeComplete,
+    open,
+    actionsRef,
+  } = props;
 
   const parentDialogRootContext = React.useContext(AlertDialogRootContext);
 
@@ -20,6 +27,8 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
     open,
     defaultOpen,
     onOpenChange,
+    actionsRef,
+    onOpenChangeComplete,
     modal: true,
     dismissible: false,
     onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
@@ -29,8 +38,12 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
   const nested = Boolean(parentDialogRootContext);
 
   const contextValue: AlertDialogRootContext = React.useMemo(
-    () => ({ ...dialogRoot, nested }),
-    [dialogRoot, nested],
+    () => ({
+      ...dialogRoot,
+      nested,
+      onOpenChangeComplete,
+    }),
+    [dialogRoot, nested, onOpenChangeComplete],
   );
 
   return (
@@ -41,7 +54,9 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
 };
 
 namespace AlertDialogRoot {
-  export type Props = Omit<DialogRoot.Props, 'modal' | 'dismissible'>;
+  export interface Props extends Omit<DialogRoot.Props, 'modal' | 'dismissible'> {}
+
+  export type Actions = DialogRoot.Actions;
 }
 
 AlertDialogRoot.propTypes /* remove-proptypes */ = {
@@ -49,6 +64,14 @@ AlertDialogRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  action: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * @ignore
    */
@@ -64,6 +87,10 @@ AlertDialogRoot.propTypes /* remove-proptypes */ = {
    * Event handler called when the dialog is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the dialog is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Whether the dialog is currently open.
    */

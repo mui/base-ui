@@ -5,7 +5,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useFieldControl } from './useFieldControl';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
-import { STYLE_HOOK_MAPPING } from '../utils/constants';
+import { fieldValidityMapping } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
@@ -60,7 +60,7 @@ const FieldControl = React.forwardRef(function FieldControl(
     className,
     state,
     extraProps: otherProps,
-    customStyleHookMapping: STYLE_HOOK_MAPPING,
+    customStyleHookMapping: fieldValidityMapping,
   });
 
   return renderElement();
