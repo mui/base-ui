@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Mock } from 'vitest';
 import { Avatar } from '@base-ui-components/react/avatar';
+import { waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { useImageLoadingStatus } from '../image/useImageLoadingStatus';
 
@@ -30,7 +31,9 @@ describe('<Avatar.Fallback />', () => {
       </Avatar.Root>,
     );
 
-    expect(queryByTestId('fallback')).to.equal(null);
+    await waitFor(() => {
+      expect(queryByTestId('fallback')).to.equal(null);
+    });
   });
 
   it('should render the fallback if the image fails to load', async () => {
