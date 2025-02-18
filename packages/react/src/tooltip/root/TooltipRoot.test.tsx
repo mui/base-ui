@@ -395,6 +395,46 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
+  describe('prop: action', () => {
+    it('unmounts the tooltip when the `unmount` method is called', async () => {
+      const actionsRef = {
+        current: {
+          unmount: spy(),
+        },
+      };
+
+      const { user } = await render(
+        <Root actionsRef={actionsRef}>
+          <Tooltip.Trigger data-testid="trigger" />
+          <Tooltip.Portal>
+            <Tooltip.Positioner data-testid="positioner">
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.hover(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).not.to.equal(null);
+      });
+
+      await user.unhover(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).not.to.equal(null);
+      });
+
+      await act(async () => actionsRef.current.unmount());
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).to.equal(null);
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       const onOpenChangeComplete = spy();

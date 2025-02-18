@@ -20,6 +20,7 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
     closeDelay,
     hoverable = true,
     trackCursorAxis = 'none',
+    actionsRef,
     onOpenChangeComplete,
   } = props;
 
@@ -35,6 +36,7 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
     trackCursorAxis,
     delay,
     closeDelay,
+    actionsRef,
     onOpenChangeComplete,
   });
 
@@ -59,6 +61,8 @@ namespace TooltipRoot {
   export interface Props extends useTooltipRoot.Parameters {
     children?: React.ReactNode;
   }
+
+  export type Actions = useTooltipRoot.Actions;
 }
 
 TooltipRoot.propTypes /* remove-proptypes */ = {
@@ -66,6 +70,14 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  action: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * @ignore
    */
@@ -93,13 +105,13 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   hoverable: PropTypes.bool,
   /**
-   * Event handler called after any animations complete when the tooltip is opened or closed.
-   */
-  onOpenChangeComplete: PropTypes.func,
-  /**
    * Event handler called when the tooltip is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the tooltip is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Whether the tooltip is currently open.
    */

@@ -90,19 +90,28 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
   );
 
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+    setOpenReason(null);
+    setHoverEnabled(true);
+    setStickIfOpen(true);
+    onOpenChangeComplete?.(false);
+  });
+
   useOpenChangeComplete({
+    enabled: !parameters.actionsRef,
     open,
     ref: popupRef,
     onComplete() {
       if (!open) {
-        onOpenChangeComplete?.(false);
-        setMounted(false);
-        setOpenReason(null);
-        setHoverEnabled(true);
-        setStickIfOpen(true);
+        handleUnmount();
       }
     },
   });
+
+  React.useImperativeHandle(parameters.actionsRef, () => ({ unmount: handleUnmount }), [
+    handleUnmount,
+  ]);
 
   const clearStickIfOpenTimeout = useEventCallback(() => {
     clearTimeout(stickIfOpenTimeoutRef.current);
@@ -358,6 +367,10 @@ export namespace useMenuRoot {
      */
     onTypingChange: (typing: boolean) => void;
     modal: boolean;
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef: React.RefObject<Actions> | undefined;
   }
 
   export interface ReturnValue {
@@ -381,5 +394,9 @@ export namespace useMenuRoot {
     instantType: 'dismiss' | 'click' | undefined;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
     setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

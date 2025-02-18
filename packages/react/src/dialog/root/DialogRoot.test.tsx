@@ -710,6 +710,44 @@ describe('<Dialog.Root />', () => {
     });
   });
 
+  describe('prop: action', () => {
+    it('unmounts the dialog when the `unmount` method is called', async () => {
+      const actionsRef = {
+        current: {
+          unmount: spy(),
+        },
+      };
+
+      const { user } = await render(
+        <Dialog.Root actionsRef={actionsRef}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup />
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      await act(async () => actionsRef.current.unmount());
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       const onOpenChangeComplete = spy();
