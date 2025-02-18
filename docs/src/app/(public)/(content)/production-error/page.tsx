@@ -17,16 +17,21 @@ export default async function ProductionError(props: {
 }) {
   const searchParams = await props.searchParams;
   const code = Number(searchParams.code);
-  const args = ensureArray(searchParams[`args[]`]);
-  const msg = (codes as Partial<Record<string, string>>)[code];
 
-  if (Number.isNaN(code) || !msg) {
+  if (Number.isNaN(code)) {
     notFound();
   }
 
+  const msg = (codes as Partial<Record<string, string>>)[code];
+
+  if (!msg) {
+    notFound();
+  }
+
+  const args = ensureArray(searchParams[`args[]`]);
   const resolvedMsg = msg.replace(/\$(\d+)/g, (_, index) => args[Number(index) - 1]);
 
-  const ErrorMessage = () => resolvedMsg;
+  const FormattedErrorMessage = () => resolvedMsg;
 
-  return <Page components={{ ErrorMessage }} />;
+  return <Page components={{ FormattedErrorMessage }} />;
 }
