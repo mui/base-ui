@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Mock } from 'vitest';
 import { Avatar } from '@base-ui-components/react/avatar';
-import { describeConformance, createRenderer } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { useImageLoadingStatus } from '../image/useImageLoadingStatus';
 
 vi.mock('../image/useImageLoadingStatus');
@@ -46,7 +46,7 @@ describe('<Avatar.Fallback />', () => {
     expect(queryByText('AC')).to.not.equal(null);
   });
 
-  describe('prop: delay', () => {
+  describe.skipIf(!isJSDOM)('prop: delay', () => {
     const { clock, render: renderFakeTimers } = createRenderer();
 
     clock.withFakeTimers();
