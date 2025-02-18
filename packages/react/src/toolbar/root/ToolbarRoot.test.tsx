@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { Toolbar, type Orientation } from '@base-ui-components/react/toolbar';
+import { Toolbar } from '@base-ui-components/react/toolbar';
 import {
   DirectionProvider,
   type TextDirection,
 } from '@base-ui-components/react/direction-provider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { type Orientation } from '../../utils/types';
 
 describe('<Toolbar.Root />', () => {
   const { render } = createRenderer();
