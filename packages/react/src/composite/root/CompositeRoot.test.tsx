@@ -437,4 +437,109 @@ describe('Composite', () => {
       });
     });
   });
+
+  describe('prop: disabledIndices', () => {
+    it('disables navigating item when their index is included', async () => {
+      function App() {
+        const [highlightedIndex, setHighlightedIndex] = React.useState(0);
+        return (
+          <CompositeRoot
+            highlightedIndex={highlightedIndex}
+            onHighlightedIndexChange={setHighlightedIndex}
+            disabledIndices={[1]}
+          >
+            <CompositeItem data-testid="1" />
+            <CompositeItem data-testid="2" />
+            <CompositeItem data-testid="3" />
+          </CompositeRoot>
+        );
+      }
+
+      const { getByTestId } = render(<App />);
+
+      const item1 = getByTestId('1');
+      const item3 = getByTestId('3');
+
+      act(() => item1.focus());
+
+      expect(item1).to.have.attribute('data-highlighted');
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      await flushMicrotasks();
+      expect(item3).to.have.attribute('data-highlighted');
+      expect(item3).to.have.attribute('tabindex', '0');
+      expect(item3).toHaveFocus();
+
+      fireEvent.keyDown(item3, { key: 'ArrowUp' });
+      await flushMicrotasks();
+      expect(item1).to.have.attribute('data-highlighted');
+      expect(item1).to.have.attribute('tabindex', '0');
+      expect(item1).toHaveFocus();
+    });
+
+    it('allows navigating items disabled in the DOM when their index is excluded', async () => {
+      function App() {
+        const [highlightedIndex, setHighlightedIndex] = React.useState(0);
+        return (
+          <CompositeRoot
+            highlightedIndex={highlightedIndex}
+            onHighlightedIndexChange={setHighlightedIndex}
+            disabledIndices={[]}
+          >
+            <CompositeItem
+              data-testid="1"
+              // TS doesn't like the disabled attribute on non-interactive elements
+              // but testing library refuses to focus disabled interactive elements
+              // @ts-ignore
+              render={<span data-disabled aria-disabled="true" disabled />}
+            />
+            <CompositeItem
+              data-testid="2"
+              // @ts-ignore
+              render={<span data-disabled aria-disabled="true" disabled />}
+            />
+            <CompositeItem
+              data-testid="3"
+              // @ts-ignore
+              render={<span data-disabled aria-disabled="true" disabled />}
+            />
+          </CompositeRoot>
+        );
+      }
+
+      const { getByTestId } = await render(<App />);
+
+      const item1 = getByTestId('1');
+      const item2 = getByTestId('2');
+      const item3 = getByTestId('3');
+
+      act(() => item1.focus());
+
+      expect(item1).to.have.attribute('data-highlighted');
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      await flushMicrotasks();
+      expect(item2).to.have.attribute('data-highlighted');
+      expect(item2).to.have.attribute('tabindex', '0');
+      expect(item2).toHaveFocus();
+
+      fireEvent.keyDown(item2, { key: 'ArrowDown' });
+      await flushMicrotasks();
+      expect(item3).to.have.attribute('data-highlighted');
+      expect(item3).to.have.attribute('tabindex', '0');
+      expect(item3).toHaveFocus();
+
+      fireEvent.keyDown(item3, { key: 'ArrowDown' });
+      await flushMicrotasks();
+      expect(item1).to.have.attribute('data-highlighted');
+      expect(item1).to.have.attribute('tabindex', '0');
+      expect(item1).toHaveFocus();
+
+      fireEvent.keyDown(item1, { key: 'ArrowUp' });
+      await flushMicrotasks();
+      expect(item3).to.have.attribute('data-highlighted');
+      expect(item3).to.have.attribute('tabindex', '0');
+      expect(item3).toHaveFocus();
+    });
+  });
 });

@@ -94,6 +94,7 @@ const TabsList = React.forwardRef(function TabsList(
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
         render={renderElement()}
+        disabledIndices={[]}
       />
     </TabsListContext.Provider>
   );
