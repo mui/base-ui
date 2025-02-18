@@ -41,6 +41,7 @@ export async function createPackageManifest() {
       },
     },
     exports: retargetExports(exports),
+    imports: retargetExports(imports),
     publishConfig,
   };
 
