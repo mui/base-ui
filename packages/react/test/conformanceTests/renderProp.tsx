@@ -117,7 +117,7 @@ export function testRenderProp(
       function Test() {
         return React.cloneElement(element, {
           className: 'component-classname',
-          render: <div className="render-prop-classname" />,
+          render: <Element className="render-prop-classname" />,
           'data-testid': 'test-component',
         });
       }
@@ -133,7 +133,7 @@ export function testRenderProp(
       function Test() {
         return React.cloneElement(element, {
           className: () => 'conditional-component-classname',
-          render: <div className="render-prop-classname" />,
+          render: <Element className="render-prop-classname" />,
           'data-testid': 'test-component',
         });
       }
