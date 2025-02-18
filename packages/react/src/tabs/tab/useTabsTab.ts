@@ -85,61 +85,62 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return getButtonProps(
-        mergeReactProps<'button'>(
-          externalProps,
-          {
-            role: 'tab',
-            'aria-controls': tabPanelId,
-            'aria-selected': selected,
-            id,
-            ref: handleRef,
-            onClick(event) {
-              if (selected || disabled) {
-                return;
-              }
+      return mergeReactProps<'button'>(
+        externalProps,
+        {
+          role: 'tab',
+          'aria-controls': tabPanelId,
+          'aria-selected': selected,
+          id,
+          ref: handleRef,
+          onClick(event) {
+            if (selected || disabled) {
+              return;
+            }
 
-              onTabActivation(tabValue, event.nativeEvent);
-            },
-            onFocus(event) {
-              if (selected) {
-                return;
-              }
-
-              if (index > 1 && index !== highlightedTabIndex) {
-                setHighlightedTabIndex(index);
-              }
-
-              if (!activateOnFocus || disabled) {
-                return;
-              }
-
-              if (!isPressingRef.current || (isPressingRef.current && isMainButtonRef.current)) {
-                onTabActivation(tabValue, event.nativeEvent);
-              }
-            },
-            onPointerDown(event) {
-              if (selected || disabled) {
-                return;
-              }
-
-              isPressingRef.current = true;
-
-              function handlePointerUp() {
-                isPressingRef.current = false;
-                isMainButtonRef.current = false;
-              }
-
-              if (!event.button || event.button === 0) {
-                isMainButtonRef.current = true;
-
-                const doc = ownerDocument(event.currentTarget);
-                doc.addEventListener('pointerup', handlePointerUp, { once: true });
-              }
-            },
+            onTabActivation(tabValue, event.nativeEvent);
           },
-          mergeReactProps(getItemProps()),
-        ),
+          onFocus(event) {
+            if (selected) {
+              return;
+            }
+
+            if (index > 1 && index !== highlightedTabIndex) {
+              setHighlightedTabIndex(index);
+            }
+
+            if (disabled) {
+              return;
+            }
+
+            if (
+              (activateOnFocus && !isPressingRef.current) || // keyboard focus
+              (isPressingRef.current && isMainButtonRef.current) // focus caused by pointerdown
+            ) {
+              onTabActivation(tabValue, event.nativeEvent);
+            }
+          },
+          onPointerDown(event) {
+            if (selected || disabled) {
+              return;
+            }
+
+            isPressingRef.current = true;
+
+            function handlePointerUp() {
+              isPressingRef.current = false;
+              isMainButtonRef.current = false;
+            }
+
+            if (!event.button || event.button === 0) {
+              isMainButtonRef.current = true;
+
+              const doc = ownerDocument(event.currentTarget);
+              doc.addEventListener('pointerup', handlePointerUp, { once: true });
+            }
+          },
+        },
+        mergeReactProps(getItemProps(), getButtonProps()),
       );
     },
     [
