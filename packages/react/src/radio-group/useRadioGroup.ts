@@ -7,16 +7,27 @@ import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { useField } from '../field/useField';
+import { visuallyHidden } from '../utils';
 
 export function useRadioGroup(params: useRadioGroup.Parameters) {
-  const { disabled = false, name, defaultValue, readOnly, value: externalValue } = params;
+  const {
+    disabled = false,
+    required,
+    name: nameProp,
+    defaultValue,
+    readOnly,
+    value: externalValue,
+  } = params;
 
   const {
     labelId,
     setTouched: setFieldTouched,
     setFocused,
     validationMode,
+    name: fieldName,
   } = useFieldRootContext();
+
+  const name = fieldName ?? nameProp;
 
   const fieldControlValidation = useFieldControlValidation();
 
@@ -91,15 +102,18 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
   const getInputProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(fieldControlValidation.getInputValidationProps(externalProps), {
-        type: 'hidden',
         value: serializedCheckedValue,
         ref: fieldControlValidation.inputRef,
         id,
         name,
         disabled,
         readOnly,
+        required,
+        'aria-hidden': true,
+        tabIndex: -1,
+        style: visuallyHidden,
       }),
-    [fieldControlValidation, serializedCheckedValue, id, name, disabled, readOnly],
+    [fieldControlValidation, serializedCheckedValue, id, name, disabled, readOnly, required],
   );
 
   return React.useMemo(
@@ -120,6 +134,7 @@ namespace useRadioGroup {
   export interface Parameters {
     name?: string;
     disabled?: boolean;
+    required?: boolean;
     readOnly?: boolean;
     defaultValue?: unknown;
     value?: unknown;
