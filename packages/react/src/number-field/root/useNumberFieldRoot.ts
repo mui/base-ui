@@ -402,7 +402,7 @@ export function useNumberFieldRoot(
   );
 
   const getCommonButtonProps = React.useCallback(
-    (isIncrement: boolean, externalProps = {}) => {
+    (isIncrement: boolean, externalProps: React.ComponentPropsWithRef<'button'> = {}) => {
       function commitValue(nativeEvent: MouseEvent) {
         allowInputSyncRef.current = true;
 
