@@ -39,6 +39,18 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     type: 'boolean',
     label: 'Dialog disabled',
   },
+  interactivePopoverDisabled: {
+    type: 'boolean',
+    label: 'Popover (interactive) disabled',
+  },
+  popoverDisabled: {
+    type: 'boolean',
+    label: 'Popover disabled',
+  },
+  alertDialogDisabled: {
+    type: 'boolean',
+    label: 'Alert Dialog disabled',
+  },
   switchDisabled: {
     type: 'boolean',
     label: 'Switch disabled',
@@ -134,6 +146,7 @@ export default function App() {
               ),
               key: 'comment-dialog',
               label: 'Add a comment',
+              disabled: settings.dialogDisabled || settings.toolbarDisabled,
             })}
 
             <Dialog.Portal keepMounted>
@@ -170,6 +183,8 @@ export default function App() {
                 ),
                 key: 'rgb-color-picker',
                 label: 'RGB color picker',
+                disabled:
+                  settings.interactivePopoverDisabled || settings.toolbarDisabled,
               })}
 
               <Tooltip.Portal>
@@ -223,6 +238,7 @@ export default function App() {
               ),
               key: 'notifications',
               label: 'Notifications',
+              disabled: settings.popoverDisabled || settings.toolbarDisabled,
             })}
 
             <Popover.Portal>
@@ -253,6 +269,7 @@ export default function App() {
               ),
               key: 'delete',
               label: 'Delete',
+              disabled: settings.alertDialogDisabled || settings.toolbarDisabled,
             })}
 
             <AlertDialog.Portal keepMounted>
@@ -282,7 +299,7 @@ export default function App() {
           <Toolbar.Separator className={styles.demo.Separator} />
 
           <Toolbar.Button
-            disabled={settings.switchDisabled}
+            disabled={settings.switchDisabled || settings.toolbarDisabled}
             className={classNames(
               styles.toolbar.Toggle,
               styles.demo.Toggle,
