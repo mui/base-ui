@@ -19,7 +19,7 @@ type MergableProps<T extends React.ElementType> =
  *
  * Props can either be provided as objects or as functions that take the previous props as an argument.
  * The function will receive the merged props up to that point (going from right to left):
- * so it the case of `(obj1, fn, obj2, obj3)`, `fn` will receive the merged props of `obj2` and `obj3`.
+ * so in the case of `(obj1, fn, obj2, obj3)`, `fn` will receive the merged props of `obj2` and `obj3`.
  * The function is responsible for chaining event handlers if needed (i.e. we don't run the merge logic).
  *
  * Event handlers returned by the functions are not automatically prevented when `preventBaseUIHandler` is called.
