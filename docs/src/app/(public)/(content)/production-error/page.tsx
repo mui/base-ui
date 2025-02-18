@@ -2,6 +2,7 @@ import * as React from 'react';
 import { notFound } from 'next/navigation';
 import codes from './error-codes.json';
 import Page from './Page.mdx';
+import * as CodeBlock from '../../../../components/CodeBlock';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -31,7 +32,11 @@ export default async function ProductionError(props: {
   const args = ensureArray(searchParams[`args[]`]);
   const resolvedMsg = msg.replace(/\$(\d+)/g, (_, index) => args[Number(index) - 1]);
 
-  const FormattedErrorMessage = () => resolvedMsg;
+  // This is a server component, this should be safe:
+  // eslint-disable-next-line react/no-unstable-nested-components
+  function FormattedErrorMessage() {
+    return <CodeBlock.Pre>{resolvedMsg}</CodeBlock.Pre>;
+  }
 
   return <Page components={{ FormattedErrorMessage }} />;
 }
