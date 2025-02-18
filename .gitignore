@@ -31,3 +31,4 @@ size-snapshot.json
 .github/styles/MUI
 .github/styles/.vale-config
 .nx/cache
+__screenshots__

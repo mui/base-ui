@@ -12,6 +12,7 @@ import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 
 const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuRadioItemProps,
@@ -26,14 +27,14 @@ const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
     highlighted,
     id,
     menuEvents,
-    propGetter,
+    itemProps,
     render,
     allowMouseUpTriggerRef,
     typingRef,
     ...other
   } = props;
 
-  const { getRootProps } = useMenuRadioItem({
+  const { getItemProps } = useMenuRadioItem({
     checked,
     setChecked,
     closeOnClick,
@@ -52,7 +53,7 @@ const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
     render: render || 'div',
     className,
     state,
-    propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
+    propGetter: (externalProps) => mergeReactProps(getItemProps, externalProps, itemProps),
     customStyleHookMapping: itemMapping,
     extraProps: other,
   });
@@ -109,6 +110,10 @@ InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
+   * @ignore
+   */
+  itemProps: PropTypes.object.isRequired,
+  /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
@@ -124,10 +129,6 @@ InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
    * The click handler for the menu item.
    */
   onClick: PropTypes.func,
-  /**
-   * @ignore
-   */
-  propGetter: PropTypes.func.isRequired,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
@@ -172,7 +173,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const listItem = useCompositeListItem({ label });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
+  const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
   const id = useBaseUiId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -213,7 +214,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
         disabled={disabled}
         highlighted={highlighted}
         menuEvents={menuEvents}
-        propGetter={getItemProps}
+        itemProps={itemProps}
         allowMouseUpTriggerRef={allowMouseUpTriggerRef}
         checked={selectedValue === value}
         setChecked={setChecked}
@@ -226,7 +227,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
 
 interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
   highlighted: boolean;
-  propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  itemProps: GenericHTMLProps;
   menuEvents: FloatingEvents;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   checked: boolean;

@@ -21,6 +21,9 @@ const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
   ...transitionStatusMapping,
 };
 
+const DISABLED_TRANSITIONS_STYLE = { style: { transition: 'none' } };
+const EMPTY_OBJ = {};
+
 /**
  * A container for the menu items.
  * Renders a `<div>` element.
@@ -39,7 +42,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     popupRef,
     transitionStatus,
     nested,
-    getPopupProps,
+    popupProps,
     modal,
     mounted,
     instantType,
@@ -79,16 +82,14 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getPopupProps,
     render: render || 'div',
     className,
     state,
-    extraProps:
-      transitionStatus === 'starting'
-        ? mergeReactProps(other, {
-            style: { transition: 'none' },
-          })
-        : other,
+    extraProps: mergeReactProps(
+      other,
+      popupProps,
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJ,
+    ),
     customStyleHookMapping,
     ref: mergedRef,
   });

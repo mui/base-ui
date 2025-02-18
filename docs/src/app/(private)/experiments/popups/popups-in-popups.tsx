@@ -181,7 +181,7 @@ function MenuDemo({ modal }: Props) {
                       Paragraph
                     </MenuItem>
                     <Menu.Root disabled>
-                      <SubmenuTrigger disabled>List</SubmenuTrigger>
+                      <SubmenuTrigger>List</SubmenuTrigger>
                       <Menu.Portal>
                         <Menu.Positioner
                           align="start"
