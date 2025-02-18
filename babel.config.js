@@ -1,6 +1,9 @@
 const path = require('path');
 
-const errorCodesPath = path.resolve(__dirname, './docs/public/static/error-codes.json');
+const errorCodesPath = path.resolve(
+  __dirname,
+  './docs/src/app/(public)/(content)/production-error/error-codes.json',
+);
 const missingError = process.env.MUI_EXTRACT_ERROR_CODES === 'true' ? 'write' : 'annotate';
 
 function resolveAliasPath(relativeToBabelConf) {
@@ -39,15 +42,6 @@ module.exports = function getBabelConfig(api) {
   ];
 
   const plugins = [
-    [
-      'babel-plugin-macros',
-      {
-        muiError: {
-          errorCodesPath,
-          missingError,
-        },
-      },
-    ],
     'babel-plugin-optimize-clsx',
     [
       '@babel/plugin-transform-runtime',
@@ -61,6 +55,14 @@ module.exports = function getBabelConfig(api) {
       'babel-plugin-transform-react-remove-prop-types',
       {
         mode: 'unsafe-wrap',
+      },
+    ],
+    [
+      '@mui/internal-babel-plugin-minify-errors',
+      {
+        errorCodesPath,
+        missingError,
+        runtimeModule: '#formatErrorMessage',
       },
     ],
   ];

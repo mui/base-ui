@@ -60,7 +60,8 @@
     "./utils": "./src/utils/index.ts"
   },
   "imports": {
-    "#test-utils": "./test/index.ts"
+    "#test-utils": "./test/index.ts",
+    "#formatErrorMessage": "./src/utils/formatErrorMessage.ts"
   },
   "type": "commonjs",
   "scripts": {

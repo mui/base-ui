@@ -50,6 +50,9 @@ importers:
       '@babel/register':
         specifier: ^7.25.9
         version: 7.25.9(@babel/core@7.26.8)
+      '@mui/internal-babel-plugin-minify-errors':
+        specifier: https://pkg.csb.dev/mui/material-ui/commit/665d7b07/@mui/internal-babel-plugin-minify-errors
+        version: https://pkg.csb.dev/mui/material-ui/commit/665d7b07/@mui/internal-babel-plugin-minify-errors
       '@mui/internal-docs-utils':
         specifier: ^1.0.16
         version: 1.0.16
@@ -119,9 +122,6 @@ importers:
       babel-plugin-add-import-extension:
         specifier: 1.6.0
         version: 1.6.0(@babel/core@7.26.8)
-      babel-plugin-macros:
-        specifier: ^3.1.0
-        version: 3.1.0
       babel-plugin-module-resolver:
         specifier: ^5.0.2
         version: 5.0.2
@@ -2212,6 +2212,11 @@ packages:
   '@mswjs/interceptors@0.37.1':
     resolution: {integrity: sha512-SvE+tSpcX884RJrPCskXxoS965Ky/pYABDEhWW6oeSRhpUDLrS5nTvT5n1LLSDVDYvty4imVmXsy+3/ROVuknA==}
     engines: {node: '>=18'}
+
+  '@mui/internal-babel-plugin-minify-errors@https://pkg.csb.dev/mui/material-ui/commit/665d7b07/@mui/internal-babel-plugin-minify-errors':
+    resolution: {tarball: https://pkg.csb.dev/mui/material-ui/commit/665d7b07/@mui/internal-babel-plugin-minify-errors}
+    version: 2.0.0
+    engines: {node: '>=14.0.0'}
 
   '@mui/internal-docs-utils@1.0.16':
     resolution: {integrity: sha512-GEq4dG9+10WGlQVrmXUfCWNe1FiWoMr2KXbgn2/00Da5hdvp4nIa3PXYYZF08Wh+FtnBbLHKGkPmZ7iw9WKtjQ==}
@@ -10876,6 +10881,12 @@ snapshots:
       is-node-process: 1.2.0
       outvariant: 1.4.3
       strict-event-emitter: 0.5.1
+
+  '@mui/internal-babel-plugin-minify-errors@https://pkg.csb.dev/mui/material-ui/commit/665d7b07/@mui/internal-babel-plugin-minify-errors':
+    dependencies:
+      '@babel/helper-module-imports': 7.25.9
+    transitivePeerDependencies:
+      - supports-color
 
   '@mui/internal-docs-utils@1.0.16':
     dependencies:
