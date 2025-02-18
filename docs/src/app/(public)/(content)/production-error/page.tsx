@@ -24,7 +24,7 @@ export default async function ProductionError(props: {
     notFound();
   }
 
-  const resolvedMsg = msg.replace(/\${(\d+)}/g, (_, index) => args[Number(index)]);
+  const resolvedMsg = msg.replace(/\$(\d+)/g, (_, index) => args[Number(index) - 1]);
 
   const ErrorMessage = () => resolvedMsg;
 
