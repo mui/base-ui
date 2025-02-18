@@ -25,7 +25,7 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
-import { useScrollLock } from '@base-ui-components/react/utils';
+import { useScrollLock } from '../../utils/useScrollLock';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
