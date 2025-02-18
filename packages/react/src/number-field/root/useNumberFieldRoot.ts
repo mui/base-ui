@@ -398,7 +398,7 @@ export function useNumberFieldRoot(
   );
 
   const getCommonButtonProps = React.useCallback(
-    (isIncrement: boolean, externalProps = {}) => {
+    (isIncrement: boolean, externalProps: React.ComponentPropsWithRef<'button'> = {}) => {
       function commitValue(nativeEvent: MouseEvent) {
         allowInputSyncRef.current = true;
 
@@ -452,7 +452,8 @@ export function useNumberFieldRoot(
         },
         onPointerDown(event) {
           const isMainButton = !event.button || event.button === 0;
-          const isDisabled = disabled || (isIncrement ? isMax : isMin);
+          const isDisabled =
+            (externalProps.disabled ?? false) || disabled || (isIncrement ? isMax : isMin);
           if (event.defaultPrevented || readOnly || !isMainButton || isDisabled) {
             return;
           }
@@ -485,7 +486,8 @@ export function useNumberFieldRoot(
           }
         },
         onPointerMove(event) {
-          const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
+          const isDisabled =
+            (externalProps.disabled ?? false) || disabled || (isIncrement ? isMax : isMin);
           if (isDisabled || event.pointerType !== 'touch' || !isPressedRef.current) {
             return;
           }
@@ -503,7 +505,8 @@ export function useNumberFieldRoot(
           }
         },
         onMouseEnter(event) {
-          const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
+          const isDisabled =
+            (externalProps.disabled ?? false) || disabled || (isIncrement ? isMax : isMin);
           if (
             event.defaultPrevented ||
             isDisabled ||
