@@ -2,6 +2,7 @@ import * as React from 'react';
 import { notFound } from 'next/navigation';
 import PageContent from './PageContent.mdx';
 import codes from '../../../../../error-codes.json';
+import ErrorDisplay from './ErrorDisplay';
 
 export const dynamicParams = false;
 
@@ -25,5 +26,5 @@ export default async function ProductionError(props: {
     notFound();
   }
 
-  return <PageContent msg={msg} />;
+  return <PageContent components={{ ErrorDisplay }} msg={msg} />;
 }
