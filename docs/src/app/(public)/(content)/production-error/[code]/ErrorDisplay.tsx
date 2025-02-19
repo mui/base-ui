@@ -19,6 +19,10 @@ function ErrorMessageWithArgs({ msg }: ErrorDisplayProps) {
   }, [msg, searchParams]);
 }
 
+/**
+ * Client component that interpollates arguments in an error message. Must be
+ * a client component because it reads the search params.
+ */
 export default function ErrorDisplay({ msg }: ErrorDisplayProps) {
   const fallbackMsg = React.useMemo(() => msg.replace(/%s/g, '…'), [msg]);
 
