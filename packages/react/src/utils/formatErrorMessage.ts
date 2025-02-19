@@ -9,7 +9,7 @@
  * @param {number} code
  */
 export default function formatErrorMessage(code: number, ...args: string[]): string {
-  const url = new URL(`https://base-ui.com/production-error/?code=${code}`);
+  const url = new URL(`https://base-ui.com/production-error/${code}`);
   args.forEach((arg) => url.searchParams.append('args[]', arg));
   return `Minified MUI error #${code}; visit ${url} for the full message.`;
 }

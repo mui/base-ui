@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { notFound } from 'next/navigation';
-import codes from './error-codes.json';
 import Page from './Page.mdx';
-import * as CodeBlock from '../../../../components/CodeBlock';
+import codes from '../../../../../error-codes.json';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -13,11 +12,18 @@ function ensureArray(input: string | string[] | undefined): string[] {
   return Array.isArray(input) ? input : [input];
 }
 
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  return Object.keys(codes).map((code) => ({ code }));
+}
+
 export default async function ProductionError(props: {
+  params: Promise<{ code: string }>;
   searchParams: SearchParams;
 }) {
-  const searchParams = await props.searchParams;
-  const code = Number(searchParams.code);
+  const params = await props.params;
+  const code = Number(params.code);
 
   if (Number.isNaN(code)) {
     notFound();
@@ -29,14 +35,9 @@ export default async function ProductionError(props: {
     notFound();
   }
 
+  const searchParams = await props.searchParams;
   const args = ensureArray(searchParams[`args[]`]);
   const resolvedMsg = msg.replace(/\$(\d+)/g, (_, index) => args[Number(index) - 1]);
 
-  // This is a server component, this should be safe:
-  // eslint-disable-next-line react/no-unstable-nested-components
-  function FormattedErrorMessage() {
-    return <CodeBlock.Pre>{resolvedMsg}</CodeBlock.Pre>;
-  }
-
-  return <Page components={{ FormattedErrorMessage }} />;
+  return <Page msg={resolvedMsg} />;
 }

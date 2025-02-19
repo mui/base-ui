@@ -1,3 +1,8 @@
+{/**
+@typedef Props
+@property {string} msg - The error message.
+**/}
+
 # Minified production error
 
 In the production build, error messages are minified to keep your application lightweight.
@@ -6,4 +11,4 @@ For debugging, we recommend using the development build, which provides addition
 
 The original error you encountered:
 
-<FormattedErrorMessage />
+<code>{props.msg}</code>

@@ -1,9 +1,6 @@
 const path = require('path');
 
-const errorCodesPath = path.resolve(
-  __dirname,
-  './docs/src/app/(public)/(content)/production-error/error-codes.json',
-);
+const errorCodesPath = path.resolve(__dirname, './docs/src/error-codes.json');
 const missingError = process.env.MUI_EXTRACT_ERROR_CODES === 'true' ? 'write' : 'annotate';
 
 function resolveAliasPath(relativeToBabelConf) {
