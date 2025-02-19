@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { notFound } from 'next/navigation';
-import Page from './Page.mdx';
+import PageContent from './PageContent.mdx';
 import codes from '../../../../../error-codes.json';
 
 export const dynamicParams = false;
@@ -25,5 +25,5 @@ export default async function ProductionError(props: {
     notFound();
   }
 
-  return <Page msg={msg} />;
+  return <PageContent msg={msg} />;
 }
