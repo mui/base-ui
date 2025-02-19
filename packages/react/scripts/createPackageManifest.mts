@@ -57,9 +57,9 @@ function retargetExports(originalExports: Record<string, string>) {
 
   for (const subpath of subpaths) {
     const originalPath = originalExports[subpath];
-    if (!originalPath.startsWith('./src/')) {
+    if (originalPath.startsWith('.') && !originalPath.startsWith('./src/')) {
       // These won't be in the output directory. (e.g. testing code)
-      break;
+      continue;
     }
     transformed[subpath] = {
       require: {
