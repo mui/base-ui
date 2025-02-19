@@ -1,7 +1,9 @@
 {/**
 @typedef Props
-@property {string} msg - The error message.
+@property {string} msg The raw error message.
 **/}
+
+import ErrorDisplay from './ErrorDisplay';
 
 # Minified production error
 
@@ -11,4 +13,4 @@ For debugging, we recommend using the development build, which provides addition
 
 The original error you encountered:
 
-<code>{props.msg}</code>
+<ErrorDisplay msg={props.msg} />

@@ -28,6 +28,9 @@
     "plugins": [
       {
         "name": "next"
+      },
+      {
+        "name": "@mdx-js/typescript-plugin"
       }
     ],
     "strictNullChecks": true
@@ -37,5 +40,9 @@
     {
       "path": "../packages/react/tsconfig.build.json"
     }
-  ]
+  ],
+  "mdx": {
+    // Enable strict type checking in MDX files.
+    "checkMdx": true
+  }
 }

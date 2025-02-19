@@ -3,15 +3,6 @@ import { notFound } from 'next/navigation';
 import Page from './Page.mdx';
 import codes from '../../../../../error-codes.json';
 
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
-
-function ensureArray(input: string | string[] | undefined): string[] {
-  if (input === undefined) {
-    return [];
-  }
-  return Array.isArray(input) ? input : [input];
-}
-
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -20,7 +11,6 @@ export async function generateStaticParams() {
 
 export default async function ProductionError(props: {
   params: Promise<{ code: string }>;
-  searchParams: SearchParams;
 }) {
   const params = await props.params;
   const code = Number(params.code);
@@ -35,9 +25,5 @@ export default async function ProductionError(props: {
     notFound();
   }
 
-  const searchParams = await props.searchParams;
-  const args = ensureArray(searchParams[`args[]`]);
-  const resolvedMsg = msg.replace(/\$(\d+)/g, (_, index) => args[Number(index) - 1]);
-
-  return <Page msg={resolvedMsg} />;
+  return <Page msg={msg} />;
 }

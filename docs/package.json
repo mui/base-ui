@@ -74,6 +74,7 @@
   "devDependencies": {
     "@babel/plugin-transform-react-constant-elements": "^7.25.9",
     "@babel/preset-typescript": "^7.26.0",
+    "@mdx-js/typescript-plugin": "^0.0.8",
     "@mui/internal-docs-utils": "^1.0.16",
     "@mui/internal-scripts": "^1.0.33",
     "@mui/internal-test-utils": "^1.0.26",
