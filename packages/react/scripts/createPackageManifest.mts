@@ -57,6 +57,10 @@ function retargetExports(originalExports: Record<string, string>) {
 
   for (const subpath of subpaths) {
     const originalPath = originalExports[subpath];
+    if (!originalPath.startsWith('./src/')) {
+      // These won't be in the output directory. (e.g. testing code)
+      break;
+    }
     transformed[subpath] = {
       require: {
         types: originalPath.replace('/src/', '/cjs/').replace(/\.tsx?$/, '.d.ts'),
