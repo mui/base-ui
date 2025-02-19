@@ -54,7 +54,7 @@ async function run() {
 }
 
 function findMarkdownPages(rootDirectory: string): Promise<string[]> {
-  return glob('**/page.{md,mdx}', {
+  return glob('**/*.{md,mdx}', {
     cwd: rootDirectory,
     ignore: ['**/node_modules/**', '.next/**', 'build/**', 'export/**'],
   });
