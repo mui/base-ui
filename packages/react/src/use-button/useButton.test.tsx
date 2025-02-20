@@ -48,16 +48,16 @@ describe('useButton', () => {
       expect(button).toHaveFocus();
 
       fireEvent.keyDown(button, { key: 'Enter' });
-      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
 
       fireEvent.keyUp(button, { key: 'Space' });
-      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleKeyUp.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
 
       fireEvent.click(button);
-      expect(handleKeyDown.callCount).to.equal(1);
-      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleKeyDown.callCount).to.equal(0);
+      expect(handleKeyUp.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
     });
   });

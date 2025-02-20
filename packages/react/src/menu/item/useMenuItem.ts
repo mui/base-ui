@@ -26,43 +26,41 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     buttonRef: useForkRef(externalRef, itemRef),
   });
 
-  const getRootProps = React.useCallback(
+  const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return getButtonProps(
-        mergeReactProps(externalProps, {
-          id,
-          role: 'menuitem',
-          tabIndex: highlighted ? 0 : -1,
-          onKeyUp: (event: BaseUIEvent<React.KeyboardEvent>) => {
-            if (event.key === ' ' && typingRef.current) {
-              event.preventBaseUIHandler();
-            }
-          },
-          onClick: (event: React.MouseEvent | React.KeyboardEvent) => {
-            if (closeOnClick) {
-              menuEvents.emit('close', event);
-            }
-          },
-          onMouseUp: (event: React.MouseEvent) => {
-            if (itemRef.current && allowMouseUpTriggerRef.current) {
-              // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
-              // We trigger the click and override the `closeOnClick` preference to always close the menu.
-              itemRef.current.click();
-              menuEvents.emit('close', event);
-            }
-          },
-        }),
-      );
+      return mergeReactProps(getButtonProps, externalProps, {
+        id,
+        role: 'menuitem',
+        tabIndex: highlighted ? 0 : -1,
+        onKeyUp: (event: BaseUIEvent<React.KeyboardEvent>) => {
+          if (event.key === ' ' && typingRef.current) {
+            event.preventBaseUIHandler();
+          }
+        },
+        onClick: (event: React.MouseEvent | React.KeyboardEvent) => {
+          if (closeOnClick) {
+            menuEvents.emit('close', event);
+          }
+        },
+        onMouseUp: (event: React.MouseEvent) => {
+          if (itemRef.current && allowMouseUpTriggerRef.current) {
+            // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
+            // We trigger the click and override the `closeOnClick` preference to always close the menu.
+            itemRef.current.click();
+            menuEvents.emit('close', event);
+          }
+        },
+      });
     },
     [getButtonProps, id, highlighted, typingRef, closeOnClick, menuEvents, allowMouseUpTriggerRef],
   );
 
   return React.useMemo(
     () => ({
-      getRootProps,
+      getItemProps,
       rootRef: mergedRef,
     }),
-    [getRootProps, mergedRef],
+    [getItemProps, mergedRef],
   );
 }
 
@@ -108,7 +106,7 @@ export namespace useMenuItem {
      * @param externalProps event handlers for the root slot
      * @returns props that should be spread on the root slot
      */
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**
      * The ref to the component's root DOM element.
      */

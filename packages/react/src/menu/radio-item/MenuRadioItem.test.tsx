@@ -346,12 +346,12 @@ describe('<Menu.RadioItem />', () => {
       expect(item1).toHaveFocus();
 
       fireEvent.keyDown(item1, { key: 'Enter' });
-      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleValueChange.callCount).to.equal(0);
 
       fireEvent.keyUp(item1, { key: 'Space' });
-      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleValueChange.callCount).to.equal(0);
 
@@ -360,16 +360,16 @@ describe('<Menu.RadioItem />', () => {
       expect(handleValueChange.callCount).to.equal(0);
 
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
-      expect(handleKeyDown.callCount).to.equal(2);
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'Enter' });
-      expect(handleKeyDown.callCount).to.equal(3);
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleValueChange.callCount).to.equal(0);
 
       fireEvent.keyUp(item2, { key: 'Space' });
-      expect(handleKeyDown.callCount).to.equal(3);
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleValueChange.callCount).to.equal(0);
 
@@ -424,12 +424,12 @@ describe('<Menu.RadioItem />', () => {
     expect(item1).toHaveFocus();
 
     fireEvent.keyDown(item1, { key: 'Enter' });
-    expect(handleKeyDown.callCount).to.equal(1);
+    expect(handleKeyDown.callCount).to.equal(0);
     expect(handleClick.callCount).to.equal(0);
     expect(handleValueChange.callCount).to.equal(0);
 
     fireEvent.keyUp(item1, { key: 'Space' });
-    expect(handleKeyDown.callCount).to.equal(1);
+    expect(handleKeyDown.callCount).to.equal(0);
     expect(handleClick.callCount).to.equal(0);
     expect(handleValueChange.callCount).to.equal(0);
 
@@ -438,11 +438,11 @@ describe('<Menu.RadioItem />', () => {
     expect(handleValueChange.callCount).to.equal(0);
 
     fireEvent.keyDown(item1, { key: 'ArrowDown' });
-    expect(handleKeyDown.callCount).to.equal(2);
+    expect(handleKeyDown.callCount).to.equal(0);
     expect(item2).toHaveFocus();
 
     fireEvent.keyDown(item2, { key: 'Enter' });
-    expect(handleKeyDown.callCount).to.equal(3);
+    expect(handleKeyDown.callCount).to.equal(1);
     expect(handleClick.callCount).to.equal(1);
     expect(handleValueChange.callCount).to.equal(1);
     expect(handleValueChange.args[0][0]).to.equal('two');
