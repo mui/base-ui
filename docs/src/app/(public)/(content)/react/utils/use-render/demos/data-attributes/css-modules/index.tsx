@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useRenderer } from '@base-ui-components/react/use-renderer';
+import { useRender } from '@base-ui-components/react/use-render';
 import styles from './index.module.css';
 
 type Size = 'small' | 'medium' | 'large';
@@ -13,7 +13,7 @@ type TextState = {
 
 type TextProps = {
   className: string | ((state: TextState) => string);
-  render?: useRenderer.RenderProp<TextState>;
+  render?: useRender.RenderProp<TextState>;
   onClick?: (event: React.MouseEvent<Element>) => void;
   children: React.ReactNode;
   size?: Size;
@@ -30,7 +30,7 @@ function Text(props: TextProps) {
 
   const state = React.useMemo(() => ({ size, color }), [size, color]);
 
-  const { renderElement } = useRenderer({
+  const { renderElement } = useRender({
     render: render ?? <p />,
     state,
     className,

@@ -1,18 +1,18 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer } from '@mui/internal-test-utils';
-import { useRenderer } from '@base-ui-components/react/use-renderer';
+import { useRender } from '@base-ui-components/react/use-render';
 
-describe('useRenderer', () => {
+describe('useRender', () => {
   const { render } = createRenderer();
 
   it('render props does not overwrite className in a render function when unspecified', async () => {
     function TestComponent(props: {
-      render: useRenderer.Settings<any, Element>['render'];
-      className?: useRenderer.Settings<any, Element>['className'];
+      render: useRender.Settings<any, Element>['render'];
+      className?: useRender.Settings<any, Element>['className'];
     }) {
       const { render: renderProp, className } = props;
-      const { renderElement } = useRenderer({
+      const { renderElement } = useRender({
         render: renderProp,
         state: {},
         className,
@@ -33,13 +33,13 @@ describe('useRenderer', () => {
 
   it('includes data-attributes for all state members', async () => {
     function TestComponent(props: {
-      render?: useRenderer.Settings<any, Element>['render'];
-      className?: useRenderer.Settings<any, Element>['className'];
+      render?: useRender.Settings<any, Element>['render'];
+      className?: useRender.Settings<any, Element>['className'];
       size: 'small' | 'medium' | 'large';
       weight: 'light' | 'regular' | 'bold';
     }) {
       const { render: renderProp, size, weight } = props;
-      const { renderElement } = useRenderer({
+      const { renderElement } = useRender({
         render: renderProp ?? 'span',
         state: {
           size,
@@ -59,13 +59,13 @@ describe('useRenderer', () => {
 
   it('respects the customStyleHookMapping config if provided', async () => {
     function TestComponent(props: {
-      render?: useRenderer.Settings<any, Element>['render'];
-      className?: useRenderer.Settings<any, Element>['className'];
+      render?: useRender.Settings<any, Element>['render'];
+      className?: useRender.Settings<any, Element>['className'];
       size: 'small' | 'medium' | 'large';
       weight: 'light' | 'regular' | 'bold';
     }) {
       const { render: renderProp, size, weight } = props;
-      const { renderElement } = useRenderer({
+      const { renderElement } = useRender({
         render: renderProp ?? 'span',
         state: {
           size,
