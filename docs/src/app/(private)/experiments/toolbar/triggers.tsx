@@ -124,6 +124,13 @@ function renderTriggerWithTooltip(args: {
 
 export default function App() {
   const { settings } = useExperimentSettings<Settings>();
+  const DIALOG_DISABLED = settings.dialogDisabled || settings.toolbarDisabled;
+  const ALERT_DIALOG_DISABLED =
+    settings.alertDialogDisabled || settings.toolbarDisabled;
+  const POPOVER_DISABLED = settings.popoverDisabled || settings.toolbarDisabled;
+  const INT_POPOVER_DISABLED =
+    settings.interactivePopoverDisabled || settings.toolbarDisabled;
+  const SWITCH_DISABLED = settings.switchDisabled || settings.toolbarDisabled;
   return (
     <React.Fragment>
       <a
@@ -148,7 +155,7 @@ export default function App() {
               ),
               key: 'comment-dialog',
               label: 'Add a comment',
-              disabled: settings.dialogDisabled || settings.toolbarDisabled,
+              disabled: DIALOG_DISABLED,
             })}
 
             <Dialog.Portal keepMounted>
@@ -185,8 +192,7 @@ export default function App() {
                 ),
                 key: 'rgb-color-picker',
                 label: 'RGB color picker',
-                disabled:
-                  settings.interactivePopoverDisabled || settings.toolbarDisabled,
+                disabled: INT_POPOVER_DISABLED,
               })}
 
               <Tooltip.Portal>
@@ -240,7 +246,7 @@ export default function App() {
               ),
               key: 'notifications',
               label: 'Notifications',
-              disabled: settings.popoverDisabled || settings.toolbarDisabled,
+              disabled: POPOVER_DISABLED,
             })}
 
             <Popover.Portal>
@@ -271,7 +277,7 @@ export default function App() {
               ),
               key: 'delete',
               label: 'Delete',
-              disabled: settings.alertDialogDisabled || settings.toolbarDisabled,
+              disabled: ALERT_DIALOG_DISABLED,
             })}
 
             <AlertDialog.Portal keepMounted>
@@ -301,7 +307,7 @@ export default function App() {
           <Toolbar.Separator className={styles.demo.Separator} />
 
           <Toolbar.Button
-            disabled={settings.switchDisabled || settings.toolbarDisabled}
+            disabled={SWITCH_DISABLED}
             className={classNames(
               styles.toolbar.Toggle,
               styles.demo.Toggle,
