@@ -127,7 +127,7 @@ describe('<Toolbar.Root />', () => {
     it('toolbar items can be focused when disabled by default', async () => {
       const { getAllByRole, getByRole, user } = await render(
         <Toolbar.Root>
-          <Toolbar.Button />
+          <Toolbar.Button disabled />
           <Toolbar.Group>
             <Toolbar.Button disabled />
             <Toolbar.Button disabled />
@@ -136,8 +136,13 @@ describe('<Toolbar.Root />', () => {
         </Toolbar.Root>,
       );
 
-      const [button1, groupedButton1, groupedButton2] = getAllByRole('button');
       const input = getByRole('textbox');
+      const buttons = getAllByRole('button');
+      [input, ...buttons].forEach((item) => {
+        expect(item).to.not.have.attribute('disabled');
+      });
+
+      const [button1, groupedButton1, groupedButton2] = buttons;
 
       await user.keyboard('[Tab]');
       expect(button1).to.have.attribute('data-highlighted');
@@ -166,7 +171,7 @@ describe('<Toolbar.Root />', () => {
     it('toolbar items can individually disable focusableWhenDisabled', async () => {
       const { getAllByRole, getByRole, user } = await render(
         <Toolbar.Root>
-          <Toolbar.Button />
+          <Toolbar.Button disabled />
           <Toolbar.Group>
             <Toolbar.Button disabled />
             <Toolbar.Button disabled focusableWhenDisabled={false} />
@@ -175,8 +180,13 @@ describe('<Toolbar.Root />', () => {
         </Toolbar.Root>,
       );
 
-      const [button1, groupedButton1] = getAllByRole('button');
       const input = getByRole('textbox');
+      const buttons = getAllByRole('button');
+      [input, ...buttons].forEach((item) => {
+        expect(item).to.not.have.attribute('disabled');
+      });
+
+      const [button1, groupedButton1] = buttons;
 
       await user.keyboard('[Tab]');
       expect(button1).to.have.attribute('data-highlighted');

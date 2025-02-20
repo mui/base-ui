@@ -66,7 +66,7 @@ export namespace ToolbarInput {
     focusable: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', ToolbarRoot.State> {
+  export interface Props extends BaseUIComponentProps<'input', ToolbarRoot.State> {
     /**
      * When `true` the item is disabled.
      * @default false

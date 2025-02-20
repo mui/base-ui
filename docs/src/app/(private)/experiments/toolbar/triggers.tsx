@@ -54,10 +54,12 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   switchDisabled: {
     type: 'boolean',
     label: 'Switch disabled',
+    default: false,
   },
   toolbarDisabled: {
     type: 'boolean',
     label: 'Everything disabled',
+    default: false,
   },
 };
 

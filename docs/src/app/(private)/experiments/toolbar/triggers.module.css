@@ -41,3 +41,12 @@
   justify-content: center;
   align-items: center;
 }
+
+.Switch[data-disabled] {
+  cursor: not-allowed !important;
+  background-image: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--color-gray-700) 30%, transparent) 35%,
+    color-mix(in srgb, var(--color-gray-200) 30%, transparent) 65%
+  );
+}
