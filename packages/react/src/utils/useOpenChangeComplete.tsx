@@ -1,6 +1,6 @@
+'use client';
 import * as React from 'react';
 import { useAnimationsFinished } from './useAnimationsFinished';
-import { useEnhancedEffect } from './useEnhancedEffect';
 import { useEventCallback } from './useEventCallback';
 import { useLatestRef } from './useLatestRef';
 
@@ -8,23 +8,32 @@ import { useLatestRef } from './useLatestRef';
  * Calls the provided function when the CSS open/close animation or transition completes.
  */
 export function useOpenChangeComplete(parameters: useOpenChangeComplete.Parameters) {
-  const { open, ref, onComplete: onCompleteParam } = parameters;
+  const { enabled = true, open, ref, onComplete: onCompleteParam } = parameters;
 
   const openRef = useLatestRef(open);
   const onComplete = useEventCallback(onCompleteParam);
   const runOnceAnimationsFinish = useAnimationsFinished(ref, open);
 
-  useEnhancedEffect(() => {
+  React.useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     runOnceAnimationsFinish(() => {
       if (open === openRef.current) {
         onComplete();
       }
     });
-  }, [open, onComplete, runOnceAnimationsFinish, openRef]);
+  }, [enabled, open, onComplete, runOnceAnimationsFinish, openRef]);
 }
 
 export namespace useOpenChangeComplete {
   export interface Parameters {
+    /**
+     * Whether the hook is enabled.
+     * @default true
+     */
+    enabled?: boolean;
     /**
      * Whether the element is open.
      */

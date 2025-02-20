@@ -63,16 +63,23 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+    onOpenChangeComplete?.(false);
+  });
+
   useOpenChangeComplete({
+    enabled: !params.actionsRef,
     open,
     ref: popupRef,
     onComplete() {
       if (!open) {
-        onOpenChangeComplete?.(false);
-        setMounted(false);
+        handleUnmount();
       }
     },
   });
+
+  React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -215,6 +222,10 @@ export namespace useTooltipRoot {
      * @default 0
      */
     closeDelay?: number;
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
@@ -232,5 +243,9 @@ export namespace useTooltipRoot {
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLElement | null>;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

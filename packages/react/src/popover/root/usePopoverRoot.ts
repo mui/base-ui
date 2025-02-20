@@ -77,17 +77,24 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     },
   );
 
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+    setOpenReason(null);
+    onOpenChangeComplete?.(false);
+  });
+
   useOpenChangeComplete({
+    enabled: !params.actionsRef,
     open,
     ref: popupRef,
     onComplete() {
       if (!open) {
-        onOpenChangeComplete?.(false);
-        setMounted(false);
-        setOpenReason(null);
+        handleUnmount();
       }
     },
   });
+
+  React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   React.useEffect(() => {
     return () => {
@@ -240,6 +247,10 @@ export namespace usePopoverRoot {
      * @default 0
      */
     closeDelay?: number;
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
@@ -263,5 +274,9 @@ export namespace usePopoverRoot {
     openMethod: InteractionType | null;
     openReason: OpenChangeReason | null;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

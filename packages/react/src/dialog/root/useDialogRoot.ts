@@ -63,16 +63,23 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     },
   );
 
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+    onOpenChangeComplete?.(false);
+  });
+
   useOpenChangeComplete({
+    enabled: !params.actionsRef,
     open,
     ref: popupRef,
     onComplete() {
       if (!open) {
-        onOpenChangeComplete?.(false);
-        setMounted(false);
+        handleUnmount();
       }
     },
   });
+
+  React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   useScrollLock(open && modal, popupElement);
 
@@ -226,11 +233,18 @@ export interface SharedParameters {
    * @default true
    */
   dismissible?: boolean;
+  /**
+   * A ref to imperative actions.
+   */
+  actionsRef?: React.RefObject<{ unmount: () => void }>;
 }
 
 export namespace useDialogRoot {
   export interface Parameters
-    extends RequiredExcept<SharedParameters, 'open' | 'onOpenChange' | 'onOpenChangeComplete'> {
+    extends RequiredExcept<
+      SharedParameters,
+      'open' | 'onOpenChange' | 'onOpenChangeComplete' | 'actionsRef'
+    > {
     /**
      * Callback to invoke when a nested dialog is opened.
      */
@@ -239,6 +253,10 @@ export namespace useDialogRoot {
      * Callback to invoke when a nested dialog is closed.
      */
     onNestedDialogClose?: () => void;
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
@@ -338,5 +356,9 @@ export namespace useDialogRoot {
      * The Floating UI root context.
      */
     floatingRootContext: FloatingRootContext;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }
