@@ -3,7 +3,8 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { Toolbar } from '@base-ui-components/react/toolbar';
 import { Switch } from '@base-ui-components/react/switch';
-import { screen } from '@mui/internal-test-utils';
+import { Menu } from '@base-ui-components/react/menu';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { NOOP } from '../../utils/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
@@ -60,7 +61,7 @@ describe('<Toolbar.Button />', () => {
         expect(getByTestId('button')).to.equal(screen.getByRole('switch'));
       });
 
-      it('handles events', async () => {
+      it('handles interactions', async () => {
         const handleCheckedChange = spy();
         const handleClick = spy();
         const { user } = await render(
@@ -129,6 +130,97 @@ describe('<Toolbar.Button />', () => {
         await user.click(switchElement);
         expect(handleCheckedChange.callCount).to.equal(0);
         expect(handleClick.callCount).to.equal(0);
+      });
+    });
+
+    describe('Menu', () => {
+      it('renders a menu trigger', async () => {
+        const { getByTestId } = await render(
+          <Toolbar.Root>
+            <Menu.Root>
+              <Toolbar.Button data-testid="button" render={<Menu.Trigger>Toggle</Menu.Trigger>} />
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item data-testid="item-1">1</Menu.Item>
+                    <Menu.Item data-testid="item-2">2</Menu.Item>
+                    <Menu.Item data-testid="item-3">3</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(getByTestId('button')).to.have.attribute('aria-haspopup', 'menu');
+      });
+
+      it('handles interactions', async () => {
+        const handleOpenChange = spy();
+        const handleClick = spy();
+        const { getByRole, getByTestId, user } = await render(
+          <Toolbar.Root>
+            <Menu.Root onOpenChange={handleOpenChange}>
+              <Toolbar.Button
+                data-testid="button"
+                onClick={handleClick}
+                render={<Menu.Trigger>Toggle</Menu.Trigger>}
+              />
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item data-testid="item-1">1</Menu.Item>
+                    <Menu.Item data-testid="item-2">2</Menu.Item>
+                    <Menu.Item data-testid="item-3">3</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByRole('menu')).to.equal(null);
+
+        const trigger = getByRole('button', { name: 'Toggle' });
+
+        await user.keyboard('[Tab]');
+        expect(trigger).to.have.attribute('data-highlighted');
+        expect(trigger).to.have.attribute('tabindex', '0');
+
+        await user.keyboard('[Enter]');
+        expect(handleClick.callCount).to.equal(1);
+        expect(handleOpenChange.callCount).to.equal(1);
+        expect(screen.queryByRole('menu')).to.not.equal(null);
+
+        await waitFor(() => {
+          expect(getByTestId('item-1')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(getByTestId('item-2')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(getByTestId('item-3')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowUp]');
+        await waitFor(() => {
+          expect(getByTestId('item-2')).toHaveFocus();
+        });
+
+        await user.keyboard('[Escape]');
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).to.equal(null);
+        });
+
+        expect(handleOpenChange.callCount).to.equal(2);
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
       });
     });
   });
