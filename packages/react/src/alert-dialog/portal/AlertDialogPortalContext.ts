@@ -5,7 +5,7 @@ export const AlertDialogPortalContext = React.createContext<boolean | undefined>
 export function useAlertDialogPortalContext() {
   const value = React.useContext(AlertDialogPortalContext);
   if (value === undefined) {
-    throw /* minify-error */ new Error('Base UI: <AlertDialog.Portal> is missing.');
+    throw new Error('Base UI: <AlertDialog.Portal> is missing.');
   }
   return value;
 }

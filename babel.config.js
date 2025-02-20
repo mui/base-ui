@@ -60,6 +60,7 @@ module.exports = function getBabelConfig(api) {
         errorCodesPath,
         missingError,
         runtimeModule: '#formatErrorMessage',
+        detection: 'opt-out',
       },
     ],
   ];
