@@ -1,0 +1,89 @@
+# useRender
+
+<Subtitle>Utility for adding Base UI-like features to custom components.</Subtitle>
+<Meta name="description" content="Utility for adding Base UI-like features to custom components." />
+
+The `useRender` hook allows you to support the same features Base UI provides across all components so that you can also have a consistent experience in your custom components:
+
+- A [render](/react/handbook/composition) prop to override the default rendered element (you may find this concept as "slot" in other libraries).
+- A [callback](/react/handbook/styling#css-classes) on the `className` prop that enables passing dynamically generated CSS classes based on the component's state.
+- Adds [data-attributes](https://base-ui.com/react/handbook/styling#data-attributes) that map to the component's state that can be used as style hooks.
+
+## API reference
+
+### Input parameters
+
+<PropsReferenceTable
+  data={{
+    className: {
+      type: 'string | ((state: State) => string)',
+      description:
+        "CSS class applied to the element, or a function that returns a class based on the component's state.",
+    },
+    render: {
+      type: 'RenderProp<State>',
+      description:
+        "Allows you to replace the component's HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a \`ReactElement\` or a function that returns the element to render.",
+    },
+    state: {
+      type: 'State',
+      description:
+        'The state of the component. It will be used as a parameter for the render and className callbacks.',
+    },
+    props: {
+      type: 'Record<string, unknown>',
+      description: 'Props to be spread on the rendered element.',
+    },
+    stateAttributesMap: {
+      type: 'StateDataAttributes<State>',
+      description: 'A mapping of state to style hooks.',
+    },
+  }}
+/>
+
+### Return value
+
+The hook returns a function that when called returns the element that should be rendered.
+
+## Usage
+
+### Supporting the `render` prop
+
+This is an example of a Text component that provides the support for the render prop.
+
+<Demo path="./demos/render" />
+
+### Generating data attributes
+
+In the following demo, the Text component provides more Base UI features, like adding data attributes and `className` callback where developers can have access to the internal state of the component.
+
+<Demo path="./demos/data-attributes" />
+
+Sometimes, you may want to customize how the data attributes are generated. You can do this by providing the `stateAttributesMap` option.
+
+```jsx
+useRender({
+  render: render ?? <p />,
+  state,
+  stateAttributesMap: {
+    size: (value) => ({ [`data-size-${value}`]: '' }),
+    color: (value) => ({ [`data-color-${value}`]: '' }),
+  },
+  props,
+});
+```
+
+Then, developers can target the data attributes like this:
+
+```css
+.Text {
+  font-size: 0.875rem;
+  line-height: 1rem;
+  &[data-size-small] {
+    font-size: 0.75rem;
+  }
+  &[data-size-large] {
+    font-size: 1.25rem;
+  }
+}
+```
