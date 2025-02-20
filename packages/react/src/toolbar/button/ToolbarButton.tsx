@@ -51,12 +51,20 @@ const ToolbarButton = React.forwardRef(function ToolbarButton(
     [disabled, focusableWhenDisabled, orientation],
   );
 
+  const extraProps = React.useMemo(
+    () => ({
+      ...otherProps,
+      disabled,
+    }),
+    [otherProps, disabled],
+  );
+
   const { renderElement } = useComponentRenderer({
     propGetter: getButtonProps,
     render: render ?? 'button',
     state,
     className,
-    extraProps: otherProps,
+    extraProps,
   });
 
   return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={renderElement()} />;

@@ -82,12 +82,19 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
       const otherExternalProps = { ...externalProps };
       delete otherExternalProps.onClick;
+
+      if (isCompositeItem && disabled && otherExternalProps.disabled) {
+        delete otherExternalProps.disabled;
+      }
+
       return mergeReactProps(otherExternalProps, buttonProps, {
         type,
         onClick(event: React.MouseEvent) {
-          if (!disabled) {
-            onClickProp(event);
+          if (disabled) {
+            event.preventDefault();
+            return;
           }
+          onClickProp(event);
         },
         onKeyDown(event: React.KeyboardEvent) {
           if (
@@ -130,7 +137,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         ref: mergedRef,
       });
     },
-    [buttonProps, disabled, isNativeButton, isValidLink, mergedRef, type],
+    [buttonProps, disabled, isNativeButton, isValidLink, mergedRef, type, isCompositeItem],
   );
 
   return {
