@@ -24,6 +24,7 @@ export * from './select';
 export * from './separator';
 export * from './slider';
 export * from './switch';
+export * from './toast';
 export * from './tabs';
 export * from './toggle';
 export * from './toggle-group';
