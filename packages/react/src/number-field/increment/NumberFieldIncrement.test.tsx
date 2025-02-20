@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { screen, fireEvent, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -314,5 +315,23 @@ describe('<NumberField.Increment />', () => {
     fireEvent.touchEnd(button);
 
     expect(input).to.have.value('2');
+  });
+
+  it('prop: disabled', async () => {
+    const handleValueChange = spy();
+    await render(
+      <NumberField.Root defaultValue={0} onValueChange={handleValueChange}>
+        <NumberField.Increment disabled />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+    const input = screen.getByRole('textbox');
+    const button = screen.getByRole('button');
+    expect(button).to.have.attribute('disabled');
+    expect(input).to.have.value('0');
+
+    fireEvent.pointerDown(button);
+    expect(handleValueChange.callCount).to.equal(0);
+    expect(input).to.have.value('0');
   });
 });
