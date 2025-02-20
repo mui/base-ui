@@ -58,11 +58,15 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
     return valueParam === selectedTabValue;
   }, [index, selectedTabValue, valueParam]);
 
-  // when activateOnFocus is `true`, ensure the active item in Composite's roving
-  // focus group matches the selected Tab
+  const isSelectionSyncedWithHighlightRef = React.useRef(false);
+
   useEnhancedEffect(() => {
+    if (isSelectionSyncedWithHighlightRef.current === true) {
+      return;
+    }
     if (activateOnFocus && selected && index > -1 && highlightedTabIndex !== index) {
       setHighlightedTabIndex(index);
+      isSelectionSyncedWithHighlightRef.current = true;
     }
   }, [activateOnFocus, highlightedTabIndex, index, selected, setHighlightedTabIndex]);
 
@@ -97,11 +101,22 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
             onTabActivation(tabValue, event.nativeEvent);
           },
           onFocus(event) {
-            if (!activateOnFocus || selected || disabled) {
+            if (selected) {
               return;
             }
 
-            if (!isPressingRef.current || (isPressingRef.current && isMainButtonRef.current)) {
+            if (index > 1 && index !== highlightedTabIndex) {
+              setHighlightedTabIndex(index);
+            }
+
+            if (disabled) {
+              return;
+            }
+
+            if (
+              (activateOnFocus && !isPressingRef.current) || // keyboard focus
+              (isPressingRef.current && isMainButtonRef.current) // focus caused by pointerdown
+            ) {
               onTabActivation(tabValue, event.nativeEvent);
             }
           },
@@ -139,6 +154,9 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
       tabPanelId,
       tabValue,
       disabled,
+      index,
+      setHighlightedTabIndex,
+      highlightedTabIndex,
     ],
   );
 
