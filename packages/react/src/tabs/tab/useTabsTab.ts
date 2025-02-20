@@ -58,15 +58,15 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
     return valueParam === selectedTabValue;
   }, [index, selectedTabValue, valueParam]);
 
-  const selectedValueSyncedWithHighlightedTabIndexRef = React.useRef(false);
+  const isSelectionSyncedWithHighlightRef = React.useRef(false);
 
   useEnhancedEffect(() => {
-    if (selectedValueSyncedWithHighlightedTabIndexRef.current === true) {
+    if (isSelectionSyncedWithHighlightRef.current === true) {
       return;
     }
     if (activateOnFocus && selected && index > -1 && highlightedTabIndex !== index) {
       setHighlightedTabIndex(index);
-      selectedValueSyncedWithHighlightedTabIndexRef.current = true;
+      isSelectionSyncedWithHighlightRef.current = true;
     }
   }, [activateOnFocus, highlightedTabIndex, index, selected, setHighlightedTabIndex]);
 
