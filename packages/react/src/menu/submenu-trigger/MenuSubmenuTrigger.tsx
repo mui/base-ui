@@ -37,7 +37,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     throw new Error('Base UI: ItemTrigger must be placed in a nested Menu.');
   }
 
-  const { activeIndex, getItemProps } = parentContext;
+  const { activeIndex, getItemProps, setActiveIndex } = parentContext;
   const item = useCompositeListItem();
 
   const highlighted = activeIndex === item.index;
@@ -45,7 +45,6 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   const mergedRef = useForkRef(forwardedRef, item.ref);
 
   const { events: menuEvents } = useFloatingTree()!;
-
   const { getRootProps } = useMenuSubmenuTrigger({
     id,
     highlighted,
@@ -55,6 +54,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     setTriggerElement,
     allowMouseUpTriggerRef,
     typingRef,
+    setActiveIndex,
   });
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
