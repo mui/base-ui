@@ -6,14 +6,13 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import {
   ALL_KEYS,
-  ARROW_KEYS,
   ARROW_DOWN,
+  ARROW_KEYS,
   ARROW_LEFT,
   ARROW_RIGHT,
   ARROW_UP,
-  HOME,
-  END,
   buildCellMap,
+  END,
   findNonDisabledIndex,
   getCellIndexOfCorner,
   getCellIndices,
@@ -21,10 +20,13 @@ import {
   getMaxIndex,
   getMinIndex,
   getTextDirection,
+  HOME,
   HORIZONTAL_KEYS,
   HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
   isDisabled,
+  isElementDisabled,
   isIndexOutOfBounds,
+  isNativeInput,
   VERTICAL_KEYS,
   VERTICAL_KEYS_WITH_EXTRA_KEYS,
   type Dimensions,
@@ -52,10 +54,8 @@ export interface UseCompositeRootParameters {
    * @default false
    */
   stopEventPropagation?: boolean;
+  disabledIndices?: number[];
 }
-
-// Advanced options of Composite, to be implemented later if needed.
-const disabledIndices = undefined;
 
 /**
  * @ignore - internal hook.
@@ -73,6 +73,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     rootRef: externalRef,
     enableHomeAndEndKeys = false,
     stopEventPropagation = false,
+    disabledIndices,
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
@@ -91,11 +92,28 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
 
+  const arrowKeyTravelDirectionRef = React.useRef<'end' | 'start'>(null);
+
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
         'aria-orientation': orientation === 'both' ? undefined : orientation,
         ref: mergedRef,
+        onFocus(event) {
+          const element = rootRef.current;
+          if (!element || !isNativeInput(event.target)) {
+            return;
+          }
+          if (arrowKeyTravelDirectionRef.current == null) {
+            return;
+          }
+          const textContentLength = event.target.value.length ?? 0;
+          if (arrowKeyTravelDirectionRef.current === 'end') {
+            event.target.setSelectionRange(0, 0);
+          } else if (textContentLength && arrowKeyTravelDirectionRef.current === 'start') {
+            event.target.setSelectionRange(textContentLength, textContentLength);
+          }
+        },
         onKeyDown(event) {
           const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
           if (!RELEVANT_KEYS.includes(event.key)) {
@@ -107,10 +125,54 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             return;
           }
 
+          if ((event.target as HTMLElement).closest('[data-floating-ui-portal]') != null) {
+            // don't navigate if the event came from a popup
+            return;
+          }
+
           if (textDirectionRef?.current == null) {
             textDirectionRef.current = getTextDirection(element);
           }
           const isRtl = textDirectionRef.current === 'rtl';
+
+          const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
+          const forwardKey = {
+            horizontal: horizontalForwardKey,
+            vertical: ARROW_DOWN,
+            both: horizontalForwardKey,
+          }[orientation];
+          const horizontalBackwardKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
+          const backwardKey = {
+            horizontal: horizontalBackwardKey,
+            vertical: ARROW_UP,
+            both: horizontalBackwardKey,
+          }[orientation];
+
+          if (event.key === forwardKey) {
+            arrowKeyTravelDirectionRef.current = 'end';
+          }
+          if (event.key === backwardKey) {
+            arrowKeyTravelDirectionRef.current = 'start';
+          }
+
+          if (isNativeInput(event.target) && !isElementDisabled(event.target)) {
+            const selectionStart = event.target.selectionStart;
+            const selectionEnd = event.target.selectionEnd;
+            const textContent = event.target.value ?? '';
+            // return to native textbox behavior when
+            // 1 - Shift is held to make a text selection, or if there already is a text selection
+            if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
+              return;
+            }
+            // 2 - arrow-ing forward and not in the last position of the text
+            if (event.key !== backwardKey && selectionStart < textContent.length) {
+              return;
+            }
+            // 3 -arrow-ing backward and not in the first position of the text
+            if (event.key !== forwardKey && selectionStart > 0) {
+              return;
+            }
+          }
 
           let nextIndex = highlightedIndex;
           const minIndex = getMinIndex(elementsRef, disabledIndices);
@@ -181,18 +243,16 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             ] as number; // navigated cell will never be nullish
           }
 
-          const horizontalEndKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
           const toEndKeys = {
-            horizontal: [horizontalEndKey],
+            horizontal: [horizontalForwardKey],
             vertical: [ARROW_DOWN],
-            both: [horizontalEndKey, ARROW_DOWN],
+            both: [horizontalForwardKey, ARROW_DOWN],
           }[orientation];
 
-          const horizontalStartKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
           const toStartKeys = {
-            horizontal: [horizontalStartKey],
+            horizontal: [horizontalBackwardKey],
             vertical: [ARROW_UP],
-            both: [horizontalStartKey, ARROW_UP],
+            both: [horizontalBackwardKey, ARROW_UP],
           }[orientation];
 
           const preventedKeys = isGrid
@@ -238,7 +298,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             if (preventedKeys.includes(event.key)) {
               event.preventDefault();
             }
-
             onHighlightedIndexChange(nextIndex);
 
             // Wait for FocusManager `returnFocus` to execute.
@@ -261,6 +320,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       onHighlightedIndexChange,
       orientation,
       enableHomeAndEndKeys,
+      disabledIndices,
     ],
   );
 

@@ -6,6 +6,7 @@ import { mergeReactProps } from '../utils/mergeReactProps';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRootElementName } from '../utils/useRootElementName';
 import { GenericHTMLProps } from '../utils/types';
+import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
   const {
@@ -21,6 +22,8 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   const { rootElementName: elementName, updateRootElementName } = useRootElementName({
     rootElementName: elementNameProp,
   });
+
+  const isCompositeItem = useCompositeRootContext(true) !== undefined;
 
   const isNativeButton = useEventCallback(() => {
     const element = buttonRef.current;
@@ -43,27 +46,35 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   const buttonProps = React.useMemo(() => {
     const additionalProps: AdditionalButtonProps = {};
 
-    if (tabIndex !== undefined) {
+    if (tabIndex !== undefined && !isCompositeItem) {
       additionalProps.tabIndex = tabIndex;
     }
 
     if (elementName === 'BUTTON' || elementName === 'INPUT') {
-      if (focusableWhenDisabled) {
+      if (focusableWhenDisabled || isCompositeItem) {
         additionalProps['aria-disabled'] = disabled;
-      } else {
+      } else if (!isCompositeItem) {
         additionalProps.disabled = disabled;
       }
     } else if (elementName !== '') {
-      additionalProps.role = 'button';
-      additionalProps.tabIndex = tabIndex ?? 0;
+      if (elementName !== 'A') {
+        additionalProps.role = 'button';
+        if (!isCompositeItem) {
+          additionalProps.tabIndex = tabIndex ?? 0;
+        }
+      } else if (tabIndex && !isCompositeItem) {
+        additionalProps.tabIndex = tabIndex;
+      }
       if (disabled) {
         additionalProps['aria-disabled'] = disabled as boolean;
-        additionalProps.tabIndex = focusableWhenDisabled ? (tabIndex ?? 0) : -1;
+        if (!isCompositeItem) {
+          additionalProps.tabIndex = focusableWhenDisabled ? (tabIndex ?? 0) : -1;
+        }
       }
     }
 
     return additionalProps;
-  }, [disabled, elementName, focusableWhenDisabled, tabIndex]);
+  }, [disabled, elementName, focusableWhenDisabled, isCompositeItem, tabIndex]);
 
   const getButtonProps = React.useCallback(
     (externalProps: GenericButtonProps = {}): GenericButtonProps => {
@@ -71,15 +82,25 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
       const otherExternalProps = { ...externalProps };
       delete otherExternalProps.onClick;
+
+      if (isCompositeItem && disabled && otherExternalProps.disabled) {
+        delete otherExternalProps.disabled;
+      }
+
       return mergeReactProps(otherExternalProps, buttonProps, {
         type,
         onClick(event: React.MouseEvent) {
-          if (!disabled) {
-            onClickProp(event);
+          if (disabled) {
+            event.preventDefault();
+            return;
           }
+          onClickProp(event);
         },
         onKeyDown(event: React.KeyboardEvent) {
-          if (event.target === event.currentTarget && !isNativeButton() && event.key === ' ') {
+          if (
+            disabled ||
+            (event.target === event.currentTarget && !isNativeButton() && event.key === ' ')
+          ) {
             event.preventDefault();
           }
 
@@ -108,10 +129,15 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             onClickProp(event);
           }
         },
+        onPointerDown(event: React.PointerEvent) {
+          if (disabled) {
+            event.preventDefault();
+          }
+        },
         ref: mergedRef,
       });
     },
-    [buttonProps, disabled, isNativeButton, isValidLink, mergedRef, type],
+    [buttonProps, disabled, isNativeButton, isValidLink, mergedRef, type, isCompositeItem],
   );
 
   return {
@@ -129,7 +155,7 @@ interface AdditionalButtonProps
     'aria-disabled': React.AriaAttributes['aria-disabled'];
     disabled: boolean;
     role: React.AriaRole;
-    tabIndex: number;
+    tabIndex?: number;
   }> {}
 
 export namespace useButton {
@@ -150,7 +176,9 @@ export namespace useButton {
      * Type attribute applied when the `component` is `button`.
      * @default 'button'
      */
-    type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
+    type?:
+      | React.ButtonHTMLAttributes<HTMLButtonElement>['type']
+      | React.InputHTMLAttributes<HTMLInputElement>['type'];
     /**
      * The HTML element, e.g.'button', 'span' etc.
      * @default ''

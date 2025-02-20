@@ -29,6 +29,7 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
     onMapChange,
     stopEventPropagation,
     rootRef,
+    disabledIndices,
     ...otherProps
   } = props;
 
@@ -45,6 +46,7 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
       stopEventPropagation,
       enableHomeAndEndKeys,
       direction,
+      disabledIndices,
     });
 
   const { renderElement } = useComponentRenderer({
@@ -85,6 +87,7 @@ namespace CompositeRoot {
     onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
     stopEventPropagation?: boolean;
     rootRef?: React.RefObject<HTMLElement | null>;
+    disabledIndices?: number[];
   }
 }
 
@@ -116,6 +119,10 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   direction: PropTypes.oneOf(['ltr', 'rtl']),
+  /**
+   * @ignore
+   */
+  disabledIndices: PropTypes.arrayOf(PropTypes.number),
   /**
    * @ignore
    */
