@@ -15,7 +15,7 @@
       "type": "(open, event, reason) => void",
       "description": "Event handler called when the dialog is opened or closed."
     },
-    "action": {
+    "actionsRef": {
       "type": "{ current: { unmount: func } }",
       "description": "A ref to imperative actions."
     },
