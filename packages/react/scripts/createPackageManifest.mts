@@ -41,7 +41,6 @@ export async function createPackageManifest() {
       },
     },
     exports: retargetExports(exports),
-    imports: retargetExports(imports),
     publishConfig,
   };
 
@@ -57,10 +56,6 @@ function retargetExports(originalExports: Record<string, string>) {
 
   for (const subpath of subpaths) {
     const originalPath = originalExports[subpath];
-    if (originalPath.startsWith('.') && !originalPath.startsWith('./src/')) {
-      // These won't be in the output directory. (e.g. testing code)
-      continue;
-    }
     transformed[subpath] = {
       require: {
         types: originalPath.replace('/src/', '/cjs/').replace(/\.tsx?$/, '.d.ts'),
