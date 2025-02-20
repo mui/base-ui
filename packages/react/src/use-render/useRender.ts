@@ -7,8 +7,8 @@ import { CustomStyleHookMapping as StateDataAttributes } from '../utils/getStyle
 /**
  * Returns a function that renders a Base UI component.
  */
-function useRenderer<State extends Record<string, any>, RenderedElementType extends Element>(
-  settings: useRenderer.Settings<State, RenderedElementType>,
+function useRender<State extends Record<string, any>, RenderedElementType extends Element>(
+  settings: useRender.Settings<State, RenderedElementType>,
 ) {
   const { className, render, state = {}, props, stateAttributesMap } = settings;
   const { ref, ...extraProps } = props ?? {};
@@ -24,7 +24,7 @@ function useRenderer<State extends Record<string, any>, RenderedElementType exte
   });
 }
 
-namespace useRenderer {
+namespace useRender {
   export type RenderProp<State> =
     | ComponentRenderFn<React.HTMLAttributes<any>, State>
     | React.ReactElement<Record<string, unknown>>
@@ -55,4 +55,4 @@ namespace useRenderer {
   }
 }
 
-export { useRenderer };
+export { useRender };

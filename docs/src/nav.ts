@@ -154,8 +154,8 @@ export const nav = [
         href: '/react/utils/direction-provider',
       },
       {
-        label: 'useRenderer',
-        href: '/react/utils/use-renderer',
+        label: 'useRender',
+        href: '/react/utils/use-render',
       },
     ],
   },

@@ -1,11 +1,11 @@
-# useRenderer
+# useRender
 
 <Subtitle>Utility for adding Base UI-like features to custom components.</Subtitle>
 <Meta name="description" content="Utility for adding Base UI-like features to custom components." />
 
-The `useRenderer` hook allows you to support the same features Base UI provides across all components so that you can also have a consistent experience in your custom components:
+The `useRender` hook allows you to support the same features Base UI provides across all components so that you can also have a consistent experience in your custom components:
 
-- A [render](/react/handbook/composition) prop to override the default rendered element.
+- A [render](/react/handbook/composition) prop to override the default rendered element (you may find this concept as "slot" in other libraries).
 - A [callback](/react/handbook/styling#css-classes) on the `className` prop that enables passing dynamically generated CSS classes based on the component's state.
 - Adds [data-attributes](https://base-ui.com/react/handbook/styling#data-attributes) that map to the component's state that can be used as style hooks.
 
@@ -62,7 +62,7 @@ In the following demo, the Text component provides more Base UI features, like a
 Sometimes, you may want to customize how the data attributes are generated. You can do this by providing the `stateAttributesMap` option.
 
 ```jsx
-useRenderer({
+useRender({
   render: render ?? <p />,
   state,
   stateAttributesMap: {
