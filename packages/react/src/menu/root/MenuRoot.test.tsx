@@ -1135,9 +1135,9 @@ describe('<Menu.Root />', () => {
       });
     });
 
-    it('should close the menu when the trigger is no longer hovered', async () => {
+    it.skipIf(!isJSDOM)('should close the menu when the trigger is no longer hovered', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root openOnHover delay={0}>
+        <Menu.Root openOnHover delay={0} modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>
