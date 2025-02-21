@@ -245,4 +245,46 @@ describe('<Menu.Trigger />', () => {
       expect(trigger).not.to.have.attribute('data-popup-open');
     });
   });
+
+  describe('preventBaseUIHandler', () => {
+    it('prevents opening the menu with a mouse when `preventBaseUIHandler` is called in onMouseDown', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root>
+          <Menu.Trigger onMouseDown={(event) => event.preventBaseUIHandler()} />
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const button = getByRole('button');
+      await user.click(button);
+
+      expect(queryByRole('menu', { hidden: false })).to.equal(null);
+    });
+
+    it('prevents opening the menu with keyboard when `preventBaseUIHandler` is called in onClick', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root>
+          <Menu.Trigger onClick={(event) => event.preventBaseUIHandler()} />
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const button = getByRole('button');
+      await act(async () => {
+        button.focus();
+      });
+
+      await user.keyboard('[Enter]');
+
+      expect(queryByRole('menu', { hidden: false })).to.equal(null);
+    });
+  });
 });

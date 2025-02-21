@@ -8,26 +8,24 @@ export function useMenuRadioItem(
 ): useMenuRadioItem.ReturnValue {
   const { checked, setChecked, ...other } = params;
 
-  const { getRootProps: getMenuItemRootProps, ...menuItem } = useMenuItem(other);
+  const { getItemProps: getMenuItemProps, ...menuItem } = useMenuItem(other);
 
-  const getRootProps = React.useCallback(
+  const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return getMenuItemRootProps(
-        mergeReactProps(externalProps, {
-          role: 'menuitemradio',
-          'aria-checked': checked,
-          onClick: (event: React.MouseEvent) => {
-            setChecked(event.nativeEvent);
-          },
-        }),
-      );
+      return mergeReactProps(getMenuItemProps, externalProps, {
+        role: 'menuitemradio',
+        'aria-checked': checked,
+        onClick: (event: React.MouseEvent) => {
+          setChecked(event.nativeEvent);
+        },
+      });
     },
-    [checked, getMenuItemRootProps, setChecked],
+    [checked, getMenuItemProps, setChecked],
   );
 
   return {
     ...menuItem,
-    getRootProps,
+    getItemProps,
     checked,
   };
 }

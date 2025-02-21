@@ -364,18 +364,18 @@ describe('<Menu.CheckboxItem />', () => {
       expect(item).toHaveFocus();
 
       fireEvent.keyDown(item, { key: 'Enter' });
-      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleCheckedChange.callCount).to.equal(0);
 
       fireEvent.keyUp(item, { key: 'Space' });
-      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleKeyUp.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleCheckedChange.callCount).to.equal(0);
 
       fireEvent.click(item);
-      expect(handleKeyDown.callCount).to.equal(1);
-      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleKeyDown.callCount).to.equal(0);
+      expect(handleKeyUp.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleCheckedChange.callCount).to.equal(0);
     });
