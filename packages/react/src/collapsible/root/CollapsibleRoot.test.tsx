@@ -33,6 +33,21 @@ describe('<Collapsible.Root />', () => {
     });
   });
 
+  describe('collapsible status', () => {
+    it('disabled status', async () => {
+      const { getByTestId, getByRole } = await render(
+        <Collapsible.Root disabled>
+          <Collapsible.Trigger />
+          <Collapsible.Panel data-testid="panel" />
+        </Collapsible.Root>,
+      );
+
+      const trigger = getByRole('button');
+
+      expect(trigger).to.have.attribute('data-disabled');
+    });
+  });
+
   describe('open state', () => {
     it('controlled mode', async () => {
       const { queryByText, getByRole, setProps } = await render(
