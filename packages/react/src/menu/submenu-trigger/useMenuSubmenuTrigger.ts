@@ -6,8 +6,8 @@ import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
 
 export function useMenuSubmenuTrigger(
-  parameters: useSubmenuTrigger.Parameters,
-): useSubmenuTrigger.ReturnValue {
+  parameters: useMenuSubmenuTrigger.Parameters,
+): useMenuSubmenuTrigger.ReturnValue {
   const {
     id,
     highlighted,
@@ -19,7 +19,7 @@ export function useMenuSubmenuTrigger(
     typingRef,
   } = parameters;
 
-  const { getRootProps: getMenuItemProps, rootRef: menuItemRef } = useMenuItem({
+  const { getItemProps, rootRef: menuItemRef } = useMenuItem({
     closeOnClick: false,
     disabled,
     highlighted,
@@ -32,29 +32,27 @@ export function useMenuSubmenuTrigger(
 
   const menuTriggerRef = useForkRef(menuItemRef, setTriggerElement);
 
-  const getRootProps = React.useCallback(
+  const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps) => {
       return {
-        ...getMenuItemProps({
-          'aria-haspopup': 'menu' as const,
-          ...externalProps,
-        }),
+        ...getItemProps(externalProps),
+        'aria-haspopup': 'menu' as const,
         ref: menuTriggerRef,
       };
     },
-    [getMenuItemProps, menuTriggerRef],
+    [getItemProps, menuTriggerRef],
   );
 
   return React.useMemo(
     () => ({
-      getRootProps,
+      getTriggerProps,
       rootRef: menuTriggerRef,
     }),
-    [getRootProps, menuTriggerRef],
+    [getTriggerProps, menuTriggerRef],
   );
 }
 
-export namespace useSubmenuTrigger {
+export namespace useMenuSubmenuTrigger {
   export interface Parameters {
     id: string | undefined;
     highlighted: boolean;
@@ -85,6 +83,6 @@ export namespace useSubmenuTrigger {
   }
 
   export interface ReturnValue {
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   }
 }
