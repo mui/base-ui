@@ -116,7 +116,7 @@ describe('<Tabs.Indicator />', () => {
         </Tabs.Root>,
       );
 
-      setProps({ value: 3 });
+      await setProps({ value: 3 });
 
       const bubble = getByTestId('bubble');
       const tabs = getAllByRole('tab');
@@ -125,7 +125,7 @@ describe('<Tabs.Indicator />', () => {
 
       assertBubblePositionVariables(bubble, tabList, activeTab);
 
-      setProps({ value: 1 });
+      await setProps({ value: 1 });
       activeTab = tabs[0];
       await waitFor(() => {
         assertBubblePositionVariables(bubble, tabList, activeTab);
@@ -154,7 +154,7 @@ describe('<Tabs.Indicator />', () => {
 
       assertBubblePositionVariables(bubble, tabList, activeTab);
 
-      setProps({
+      await setProps({
         style: { width: '800px' },
       });
 
