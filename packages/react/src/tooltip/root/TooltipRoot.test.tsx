@@ -316,7 +316,7 @@ describe('<Tooltip.Root />', () => {
   describe('prop: delay', () => {
     clock.withFakeTimers();
 
-    it('should open after delay with rest type by default', async () => {
+    it('should open after rest delay', async () => {
       await render(
         <Root delay={100}>
           <Tooltip.Trigger />
@@ -378,6 +378,46 @@ describe('<Tooltip.Root />', () => {
       clock.tick(100);
 
       expect(screen.queryByText('Content')).to.equal(null);
+    });
+  });
+
+  describe('prop: action', () => {
+    it('unmounts the tooltip when the `unmount` method is called', async () => {
+      const actionsRef = {
+        current: {
+          unmount: spy(),
+        },
+      };
+
+      const { user } = await render(
+        <Root actionsRef={actionsRef}>
+          <Tooltip.Trigger data-testid="trigger" />
+          <Tooltip.Portal>
+            <Tooltip.Positioner data-testid="positioner">
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.hover(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).not.to.equal(null);
+      });
+
+      await user.unhover(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).not.to.equal(null);
+      });
+
+      await act(async () => actionsRef.current.unmount());
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).to.equal(null);
+      });
     });
   });
 

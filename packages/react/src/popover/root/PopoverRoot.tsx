@@ -19,6 +19,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     openOnHover = false,
     delay,
     closeDelay = 0,
+    actionsRef,
     onOpenChangeComplete,
   } = props;
 
@@ -33,6 +34,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     onOpenChangeComplete,
     delay: delayWithDefault,
     closeDelay,
+    actionsRef,
   });
 
   const contextValue: PopoverRootContext = React.useMemo(
@@ -53,9 +55,11 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
 namespace PopoverRoot {
   export interface State {}
 
-  export interface Props extends Omit<usePopoverRoot.Parameters, 'floatingRootContext'> {
+  export interface Props extends usePopoverRoot.Parameters {
     children?: React.ReactNode;
   }
+
+  export type Actions = usePopoverRoot.Actions;
 }
 
 PopoverRoot.propTypes /* remove-proptypes */ = {
@@ -63,6 +67,14 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  actionsRef: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * @ignore
    */
@@ -90,13 +102,13 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
-   * Event handler called after any animations complete when the popover is opened or closed.
-   */
-  onOpenChangeComplete: PropTypes.func,
-  /**
    * Event handler called when the popover is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the popover is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Whether the popover is currently open.
    */

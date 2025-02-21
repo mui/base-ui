@@ -129,17 +129,24 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }
   });
 
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+    setActiveIndex(null);
+    onOpenChangeComplete?.(false);
+  });
+
   useOpenChangeComplete({
+    enabled: !params.actionsRef,
     open,
     ref: popupRef,
     onComplete() {
       if (!open) {
-        onOpenChangeComplete?.(false);
-        setMounted(false);
-        setActiveIndex(null);
+        handleUnmount();
       }
     },
   });
+
+  React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
     params.onValueChange?.(nextValue, event);
@@ -419,10 +426,18 @@ export namespace useSelectRoot {
      * @default true
      */
     modal?: boolean;
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
     rootContext: SelectRootContext;
     indexContext: SelectIndexContext;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

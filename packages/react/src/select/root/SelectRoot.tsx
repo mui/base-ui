@@ -29,6 +29,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly = false,
     required = false,
     modal = true,
+    actionsRef,
     onOpenChangeComplete,
   } = props;
 
@@ -45,6 +46,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly,
     required,
     modal,
+    actionsRef,
     onOpenChangeComplete,
   });
 
@@ -114,11 +116,34 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
   );
 };
 
+namespace SelectRoot {
+  export interface Props<Value> extends useSelectRoot.Parameters<Value> {
+    children?: React.ReactNode;
+  }
+
+  export interface State {}
+
+  export type Actions = useSelectRoot.Actions;
+}
+
+interface SelectRoot {
+  <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
+  propTypes?: any;
+}
+
 SelectRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  actionsRef: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * Determines if the selected item inside the popup should align to the trigger element.
    * @default true
@@ -189,16 +214,3 @@ SelectRoot.propTypes /* remove-proptypes */ = {
 } as any;
 
 export { SelectRoot };
-
-namespace SelectRoot {
-  export interface Props<Value> extends useSelectRoot.Parameters<Value> {
-    children?: React.ReactNode;
-  }
-
-  export interface State {}
-}
-
-interface SelectRoot {
-  <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
-  propTypes?: any;
-}

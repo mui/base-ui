@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { spy } from 'sinon';
@@ -127,6 +127,44 @@ describe('<AlertDialog.Root />', () => {
 
       expect(handleOpenChange.callCount).to.equal(1);
       expect(handleOpenChange.firstCall.args[2]).to.equal('escape-key');
+    });
+  });
+
+  describe('prop: action', () => {
+    it('unmounts the alert dialog when the `unmount` method is called', async () => {
+      const actionsRef = {
+        current: {
+          unmount: spy(),
+        },
+      };
+
+      const { user } = await render(
+        <AlertDialog.Root actionsRef={actionsRef}>
+          <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup />
+          </AlertDialog.Portal>
+        </AlertDialog.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).not.to.equal(null);
+      });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).not.to.equal(null);
+      });
+
+      await act(async () => actionsRef.current.unmount());
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).to.equal(null);
+      });
     });
   });
 

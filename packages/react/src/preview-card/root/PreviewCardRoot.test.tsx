@@ -385,6 +385,46 @@ describe('<PreviewCard.Root />', () => {
     });
   });
 
+  describe('prop: action', () => {
+    it('unmounts the preview card when the `unmount` method is called', async () => {
+      const actionsRef = {
+        current: {
+          unmount: spy(),
+        },
+      };
+
+      const { user } = await render(
+        <Root actionsRef={actionsRef} delay={0} closeDelay={0}>
+          <Trigger>Open</Trigger>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner data-testid="positioner">
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('link');
+      await user.hover(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).not.to.equal(null);
+      });
+
+      await user.unhover(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).not.to.equal(null);
+      });
+
+      await act(async () => actionsRef.current.unmount());
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).to.equal(null);
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       const onOpenChangeComplete = spy();

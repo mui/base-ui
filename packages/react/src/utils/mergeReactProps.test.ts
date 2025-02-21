@@ -15,9 +15,9 @@ describe('mergeReactProps', () => {
     };
     const mergedProps = mergeReactProps<'button'>(theirProps, ourProps);
 
-    mergedProps.onClick?.({} as any);
-    mergedProps.onKeyDown?.({} as any);
-    mergedProps.onPaste?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
+    mergedProps.onKeyDown?.({ nativeEvent: new KeyboardEvent('keydown') } as any);
+    mergedProps.onPaste?.({ nativeEvent: new Event('paste') } as any);
 
     expect(theirProps.onClick.calledBefore(ourProps.onClick)).to.equal(true);
     expect(theirProps.onClick.callCount).to.equal(1);
@@ -47,7 +47,7 @@ describe('mergeReactProps', () => {
       },
     );
 
-    mergedProps.onClick?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
     expect(log).to.deep.equal(['1', '2', '3']);
   });
 
@@ -70,9 +70,8 @@ describe('mergeReactProps', () => {
     const theirProps = {
       style: { color: 'red' },
     };
-    const ourProps = {
-      style: undefined,
-    };
+    const ourProps = {};
+
     const mergedProps = mergeReactProps<'button'>(theirProps, ourProps);
 
     expect(mergedProps.style).to.deep.equal({
@@ -81,12 +80,8 @@ describe('mergeReactProps', () => {
   });
 
   it('does not merge styles if both are undefined', () => {
-    const theirProps = {
-      style: undefined,
-    };
-    const ourProps = {
-      style: undefined,
-    };
+    const theirProps = {};
+    const ourProps = {};
     const mergedProps = mergeReactProps<'button'>(theirProps, ourProps);
 
     expect(mergedProps.style).to.equal(undefined);
@@ -106,7 +101,7 @@ describe('mergeReactProps', () => {
       },
     );
 
-    mergedProps.onClick?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
 
     expect(ran).to.equal(true);
   });
@@ -116,23 +111,24 @@ describe('mergeReactProps', () => {
 
     const mergedProps = mergeReactProps<'button'>(
       {
-        onClick(event) {
+        onClick: function onClick1(event) {
           event.preventBaseUIHandler();
         },
       },
       {
-        onClick() {
+        onClick: function onClick2() {
           ran = true;
         },
       },
       {
-        onClick() {
+        onClick: function onClick3() {
           ran = true;
         },
       },
     );
 
-    mergedProps.onClick?.({} as any);
+    const event = { nativeEvent: new MouseEvent('click') } as any;
+    mergedProps.onClick?.(event);
 
     expect(ran).to.equal(false);
   });
@@ -159,9 +155,32 @@ describe('mergeReactProps', () => {
       },
     );
 
-    mergedProps.onClick?.({} as any);
+    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') });
 
     expect(log).to.deep.equal(['0', '1']);
+  });
+
+  [true, 13, 'newValue', { key: 'value' }, ['value'], () => 'value'].forEach((eventArgument) => {
+    it('handles non-standard event handlers without error', () => {
+      const log: string[] = [];
+
+      const mergedProps = mergeReactProps(
+        {
+          onValueChange() {
+            log.push('0');
+          },
+        },
+        {
+          onValueChange() {
+            log.push('1');
+          },
+        },
+      );
+
+      mergedProps.onValueChange(eventArgument);
+
+      expect(log).to.deep.equal(['0', '1']);
+    });
   });
 
   it('merges internal props so that the ones defined first override the ones defined later', () => {
@@ -176,5 +195,74 @@ describe('mergeReactProps', () => {
     );
 
     expect(mergedProps.title).to.equal('internal title 1');
+  });
+
+  describe('props getters', () => {
+    it('calls the props getter with the props defined after it', () => {
+      const propsGetter = spy((props) => props);
+      mergeReactProps(
+        {
+          id: '1',
+          role: 'button',
+        },
+        propsGetter,
+        {
+          id: '2',
+          className: 'test-class',
+        },
+      );
+
+      expect(propsGetter.calledOnce).to.equal(true);
+      expect(propsGetter.firstCall.args[0]).to.deep.equal({ id: '2', className: 'test-class' });
+    });
+
+    it('calls the props getter with merged props defined after it', () => {
+      const propsGetter = spy((props) => props);
+      mergeReactProps(
+        {
+          id: 'one',
+        },
+        propsGetter,
+        {
+          role: 'tab',
+        },
+        {
+          role: 'button',
+          className: 'test-class',
+        },
+      );
+
+      expect(propsGetter.calledOnce).to.equal(true);
+      expect(propsGetter.firstCall.args[0]).to.deep.equal({
+        role: 'tab',
+        className: 'test-class',
+      });
+    });
+
+    it('calls the props getter with an empty object if no props are defined after it', () => {
+      const propsGetter = spy((props) => props);
+      mergeReactProps({ id: '1' }, propsGetter);
+
+      expect(propsGetter.calledOnce).to.equal(true);
+      expect(propsGetter.firstCall.args[0]).to.deep.equal({});
+    });
+
+    it('accepts the result of the props getter', () => {
+      const propsGetter = () => ({ className: 'test-class' });
+      const result = mergeReactProps(
+        propsGetter,
+        {
+          id: 'one',
+        },
+        {
+          id: 'two',
+          role: 'tab',
+        },
+      );
+
+      expect(result).to.deep.equal({
+        className: 'test-class',
+      });
+    });
   });
 });

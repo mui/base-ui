@@ -799,6 +799,46 @@ describe('<Menu.Root />', () => {
     });
   });
 
+  describe('prop: action', () => {
+    it('unmounts the menu when the `unmount` method is called', async () => {
+      const actionsRef = {
+        current: {
+          unmount: spy(),
+        },
+      };
+
+      await render(
+        <Menu.Root actionsRef={actionsRef}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      await act(async () => actionsRef.current.unmount());
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).to.equal(null);
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       const onOpenChangeComplete = spy();
@@ -1017,9 +1057,9 @@ describe('<Menu.Root />', () => {
       });
     });
 
-    it('should close the menu when the trigger is no longer hovered', async () => {
+    it.skipIf(!isJSDOM)('should close the menu when the trigger is no longer hovered', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root openOnHover delay={0}>
+        <Menu.Root openOnHover delay={0} modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>

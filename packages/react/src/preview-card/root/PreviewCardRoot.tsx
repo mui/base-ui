@@ -12,7 +12,7 @@ import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(props) {
-  const { delay, closeDelay, onOpenChangeComplete } = props;
+  const { delay, closeDelay, onOpenChangeComplete, actionsRef } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
@@ -20,6 +20,7 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
   const previewCardRoot = usePreviewCardRoot({
     delay,
     closeDelay,
+    actionsRef,
     onOpenChangeComplete,
     open: props.open,
     onOpenChange: props.onOpenChange,
@@ -48,6 +49,8 @@ namespace PreviewCardRoot {
   export interface Props extends usePreviewCardRoot.Parameters {
     children?: React.ReactNode;
   }
+
+  export type Actions = usePreviewCardRoot.Actions;
 }
 
 PreviewCardRoot.propTypes /* remove-proptypes */ = {
@@ -55,6 +58,14 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  actionsRef: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * @ignore
    */
@@ -77,13 +88,13 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
-   * Event handler called after any animations complete when the preview card is opened or closed.
-   */
-  onOpenChangeComplete: PropTypes.func,
-  /**
    * Event handler called when the preview card is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the preview card is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Whether the preview card is currently open.
    */

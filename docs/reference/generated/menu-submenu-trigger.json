@@ -6,11 +6,6 @@
       "type": "string",
       "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
     },
-    "disabled": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the component should ignore user interaction."
-    },
     "className": {
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
