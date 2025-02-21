@@ -12,16 +12,31 @@ interface Settings {
   customAnchor: boolean;
   modal: boolean;
   openOnHover: boolean;
+  disabled: boolean;
+  customTriggerElement: boolean;
+  side: Menu.Positioner.Props['side'];
+  align: Menu.Positioner.Props['align'];
 }
 
 export default function MenuFullyFeatured() {
   const { settings } = useExperimentSettings<Settings>();
+
   const anchorRef = React.useRef<HTMLDivElement>(null);
+
+  const triggerRender = React.useMemo(
+    () => (settings.customTriggerElement ? <span /> : undefined),
+    [settings.customTriggerElement],
+  );
 
   return (
     <div>
-      <Menu.Root openOnHover={settings.openOnHover} modal={settings.modal}>
-        <Menu.Trigger className={classes.Button}>
+      <h1>Fully featured menu</h1>
+      <Menu.Root
+        openOnHover={settings.openOnHover}
+        modal={settings.modal}
+        disabled={settings.disabled}
+      >
+        <Menu.Trigger className={classes.Button} render={triggerRender}>
           Menu <ChevronDownIcon className={classes.ButtonIcon} />
         </Menu.Trigger>
         <Menu.Portal keepMounted>
@@ -29,6 +44,8 @@ export default function MenuFullyFeatured() {
             className={classes.Positioner}
             sideOffset={8}
             anchor={settings.customAnchor ? anchorRef : undefined}
+            side={settings.side}
+            align={settings.align}
           >
             <Menu.Popup className={classes.Popup}>
               <Menu.Arrow className={classes.Arrow}>
@@ -59,7 +76,7 @@ export default function MenuFullyFeatured() {
                           Radio items
                         </Menu.GroupLabel>
                         <Menu.RadioGroup>
-                          <Menu.RadioItem className={classes.RadioItem} value="date">
+                          <Menu.RadioItem className={classes.RadioItem} value="o1">
                             <Menu.RadioItemIndicator
                               className={classes.RadioItemIndicator}
                             >
@@ -69,7 +86,7 @@ export default function MenuFullyFeatured() {
                             </Menu.RadioItemIndicator>
                             <span className={classes.RadioItemText}>Option 1</span>
                           </Menu.RadioItem>
-                          <Menu.RadioItem className={classes.RadioItem} value="name">
+                          <Menu.RadioItem className={classes.RadioItem} value="o2">
                             <Menu.RadioItemIndicator
                               className={classes.RadioItemIndicator}
                             >
@@ -81,7 +98,7 @@ export default function MenuFullyFeatured() {
                           </Menu.RadioItem>
                           <Menu.RadioItem
                             className={classes.RadioItem}
-                            value="type"
+                            value="o3"
                             closeOnClick
                           >
                             <Menu.RadioItemIndicator
@@ -93,6 +110,22 @@ export default function MenuFullyFeatured() {
                             </Menu.RadioItemIndicator>
                             <span className={classes.RadioItemText}>
                               Option 3 (close on click)
+                            </span>
+                          </Menu.RadioItem>
+                          <Menu.RadioItem
+                            className={classes.RadioItem}
+                            value="o4"
+                            disabled
+                          >
+                            <Menu.RadioItemIndicator
+                              className={classes.RadioItemIndicator}
+                            >
+                              <CheckIcon
+                                className={classes.RadioItemIndicatorIcon}
+                              />
+                            </Menu.RadioItemIndicator>
+                            <span className={classes.RadioItemText}>
+                              Disabled option
                             </span>
                           </Menu.RadioItem>
                         </Menu.RadioGroup>
@@ -139,6 +172,18 @@ export default function MenuFullyFeatured() {
                             Option C (close on click)
                           </span>
                         </Menu.CheckboxItem>
+                        <Menu.CheckboxItem className={classes.CheckboxItem} disabled>
+                          <Menu.CheckboxItemIndicator
+                            className={classes.CheckboxItemIndicator}
+                          >
+                            <CheckIcon
+                              className={classes.CheckboxItemIndicatorIcon}
+                            />
+                          </Menu.CheckboxItemIndicator>
+                          <span className={classes.CheckboxItemText}>
+                            Disabled option
+                          </span>
+                        </Menu.CheckboxItem>
                       </Menu.Group>
 
                       <Menu.Separator className={classes.Separator} />
@@ -171,6 +216,22 @@ export default function MenuFullyFeatured() {
                   </Menu.Positioner>
                 </Menu.Portal>
               </Menu.Root>
+
+              <Menu.Root disabled>
+                <Menu.SubmenuTrigger className={classes.SubmenuTrigger}>
+                  Disabled nested menu
+                  <ChevronRightIcon />
+                </Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner className={classes.Positioner} sideOffset={8}>
+                    <Menu.Popup className={classes.Popup}>
+                      <Menu.Item className={classes.Item}>
+                        This should not appear
+                      </Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
@@ -198,6 +259,26 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   openOnHover: {
     type: 'boolean',
     label: 'Open on hover',
+  },
+  disabled: {
+    type: 'boolean',
+    label: 'Disabled',
+  },
+  customTriggerElement: {
+    type: 'boolean',
+    label: 'Trigger as <span>',
+  },
+  side: {
+    type: 'string',
+    label: 'Side',
+    options: ['top', 'right', 'bottom', 'left'],
+    default: 'bottom',
+  },
+  align: {
+    type: 'string',
+    label: 'Align',
+    options: ['start', 'center', 'end'],
+    default: 'center',
   },
 };
 

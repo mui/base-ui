@@ -13,7 +13,6 @@ import {
   useTypeahead,
   type FloatingRootContext,
 } from '@floating-ui/react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -226,45 +225,43 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     typeahead,
   ]);
 
-  const getTriggerProps = React.useCallback(
-    (externalProps?: GenericHTMLProps) =>
-      getReferenceProps(
-        mergeReactProps(externalProps, {
-          onMouseEnter() {
-            setHoverEnabled(true);
-          },
-        }),
-      ),
+  const triggerProps = React.useMemo(
+    () =>
+      getReferenceProps({
+        onMouseEnter() {
+          setHoverEnabled(true);
+        },
+      }),
     [getReferenceProps],
   );
 
-  const getPopupProps = React.useCallback(
-    (externalProps?: GenericHTMLProps) =>
-      getFloatingProps(
-        mergeReactProps(externalProps, {
-          onMouseEnter() {
-            if (!openOnHover || nested) {
-              setHoverEnabled(false);
-            }
-          },
-          onClick() {
-            if (openOnHover) {
-              setHoverEnabled(false);
-            }
-          },
-        }),
-      ),
+  const popupProps = React.useMemo(
+    () =>
+      getFloatingProps({
+        onMouseEnter() {
+          if (!openOnHover || nested) {
+            setHoverEnabled(false);
+          }
+        },
+        onClick() {
+          if (openOnHover) {
+            setHoverEnabled(false);
+          }
+        },
+      }),
     [getFloatingProps, openOnHover, nested],
   );
+
+  const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
 
   return React.useMemo(
     () => ({
       activeIndex,
       allowMouseUpTriggerRef,
       floatingRootContext,
-      getItemProps,
-      getPopupProps,
-      getTriggerProps,
+      itemProps,
+      popupProps,
+      triggerProps,
       itemDomElements,
       itemLabels,
       mounted,
@@ -283,9 +280,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     [
       activeIndex,
       floatingRootContext,
-      getItemProps,
-      getPopupProps,
-      getTriggerProps,
+      itemProps,
+      popupProps,
+      triggerProps,
       itemDomElements,
       itemLabels,
       mounted,
@@ -374,9 +371,9 @@ export namespace useMenuRoot {
   export interface ReturnValue {
     activeIndex: number | null;
     floatingRootContext: FloatingRootContext;
-    getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    itemProps: GenericHTMLProps;
+    popupProps: GenericHTMLProps;
+    triggerProps: GenericHTMLProps;
     itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
     itemLabels: React.MutableRefObject<(string | null)[]>;
     mounted: boolean;
