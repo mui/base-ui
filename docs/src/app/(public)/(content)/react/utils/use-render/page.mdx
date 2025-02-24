@@ -53,40 +53,6 @@ This is an example of a Text component supporting the `render` prop.
 
 <Demo path="./demos/render" />
 
-### Migrating from Radix
-
-Radix and Base UI take different approaches to customizing the rendered element within a component. Radix uses the `asChild` prop, while Base UI uses the `render` prop. Learn more about how composition works in Base UI in the [composition guide](/react/handbook/composition).
-
-In Radix, you'd use the `Slot` component to implement your own `asChild` prop.
-
-```jsx title="Custom asChild prop with Radix"
-import { Slot } from 'radix-ui';
-
-function Button({ asChild, ...props }) {
-  const Comp = asChild ? Slot.Root : 'button';
-  return <Comp {...props} />;
-}
-
-// Usage
-<Button asChild>
-  <a href="/contact">Contact</a>
-</Button>;
-```
-
-In Base UI, you use `useRender` to implement your own `render` prop. The example below is the equivalent implementation to the Radix example above.
-
-```jsx title="Custom render prop with Base UI"
-import { useRender } from '@base-ui-components/react/use-render';
-
-function Button({ render, ...props }) {
-  const { renderElement } = useRender({ render: render ?? <button />, props });
-  return renderElement();
-}
-
-// Usage
-<Button render={<a href="/contact">Contact</a>} />;
-```
-
 ### State-based data attributes
 
 When you pass the `state` option, data attributes based on this state are added automatically. In the following example, the counter text color is set to red when it's an odd number by targeting the corresponding data attribute.
@@ -122,3 +88,37 @@ useRender({
 You can define a `className` prop that accepts a callback function, enabling dynamic CSS class assignment based on the component's state. The example below achieves the same result as the state-based attributes approach but uses the `className` callback for styling instead of data attributes.
 
 <Demo path="./demos/class-name" />
+
+### Migrating from Radix
+
+Radix and Base UI take different approaches to customizing the rendered element within a component. Radix uses the `asChild` prop, while Base UI uses the `render` prop. Learn more about how composition works in Base UI in the [composition guide](/react/handbook/composition).
+
+In Radix, you'd use the `Slot` component to implement your own `asChild` prop.
+
+```jsx title="Custom asChild prop with Radix"
+import { Slot } from 'radix-ui';
+
+function Button({ asChild, ...props }) {
+  const Comp = asChild ? Slot.Root : 'button';
+  return <Comp {...props} />;
+}
+
+// Usage
+<Button asChild>
+  <a href="/contact">Contact</a>
+</Button>;
+```
+
+In Base UI, you use `useRender` to implement your own `render` prop. The example below is the equivalent implementation to the Radix example above.
+
+```jsx title="Custom render prop with Base UI"
+import { useRender } from '@base-ui-components/react/use-render';
+
+function Button({ render, ...props }) {
+  const { renderElement } = useRender({ render: render ?? <button />, props });
+  return renderElement();
+}
+
+// Usage
+<Button render={<a href="/contact">Contact</a>} />;
+```
