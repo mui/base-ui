@@ -376,7 +376,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       return;
     }
 
-    if (min === max) {
+    if (min >= max) {
       warn('Slider `max` must be greater than `min`');
     }
 
