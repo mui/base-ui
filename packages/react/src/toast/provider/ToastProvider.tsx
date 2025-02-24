@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
 import { Toast, ToastContext } from './ToastProviderContext';
+import { globalToastEmitter } from '../globalToast';
 
 let counter = 0;
 function generateId() {
-  return `toast-${Date.now()}-${counter++}`;
+  counter += 1;
+  return `toast-${Math.random().toString(36).slice(2, 6)}-${counter}`;
 }
 
 interface TimerInfo {
@@ -14,20 +16,36 @@ interface TimerInfo {
   remaining: number;
   callback: () => void;
 }
-
+/**
+ *
+ * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ */
 const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
   const { children, defaultTimeout = 5000 } = props;
 
   const [toasts, setToasts] = React.useState<Toast[]>([]);
+  const [hovering, setHovering] = React.useState(false);
+  const [focused, setFocused] = React.useState(false);
+
   const timersRef = React.useRef(new Map<string, TimerInfo>());
   const prevFocusRef = React.useRef<HTMLElement | null>(null);
 
   const remove = React.useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    setToasts((prev) =>
+      prev.map((toast) =>
+        toast.id === id ? { ...toast, animation: 'ending' as const, height: 0 } : toast,
+      ),
+    );
+
+    // Don't immediately clear the timeout - wait for animation to complete
     const timer = timersRef.current.get(id);
     if (timer && timer.timeoutId) {
       clearTimeout(timer.timeoutId);
     }
+  }, []);
+
+  const finalizeRemove = React.useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
     timersRef.current.delete(id);
   }, []);
 
@@ -42,15 +60,16 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   }, []);
 
   const add = React.useCallback(
-    (toast: Omit<Toast, 'id'>): string => {
+    (toast: Omit<Toast, 'id' | 'animation'>): string => {
       const id = generateId();
-      const toastToAdd = { id, ...toast };
+      const toastToAdd = {
+        id,
+        ...toast,
+        animation: 'starting' as const,
+      };
 
       setToasts((prev) => [toastToAdd, ...prev]);
 
-      // Schedule auto-dismiss if:
-      // 1. Not a "loading" toast (which may change later), and
-      // 2. The duration (toast-specific or default) is > 0.
       const duration = toastToAdd.duration ?? defaultTimeout;
       if (toastToAdd.type !== 'loading' && duration > 0) {
         scheduleTimer(id, duration, () => remove(id));
@@ -66,12 +85,12 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
   const promise = React.useCallback(
     <T,>(
-      promise: Promise<T>,
+      promiseValue: Promise<T>,
       messages: { loading: string; success: string; error: string },
     ): Promise<T> => {
       // Create a loading toast (which does not auto-dismiss).
       const id = add({ title: messages.loading, type: 'loading' });
-      return promise
+      return promiseValue
         .then((result: T) => {
           update(id, { title: messages.success, type: 'success' });
           // Now schedule auto-dismiss on success.
@@ -89,7 +108,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   );
 
   const pauseTimers = React.useCallback(() => {
-    timersRef.current.forEach((timer, id) => {
+    timersRef.current.forEach((timer) => {
       if (timer.timeoutId) {
         const elapsed = Date.now() - timer.start;
         const remaining = timer.delay - elapsed;
@@ -113,18 +132,61 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     });
   }, []);
 
+  React.useEffect(() => {
+    const unsubscribe = globalToastEmitter.subscribe((toastOptions) => {
+      if (toastOptions.isUpdate && toastOptions.id) {
+        // Handle updates for promise toasts
+        update(toastOptions.id, {
+          title: toastOptions.title,
+          type: toastOptions.type,
+          description: toastOptions.description,
+        });
+
+        const id = toastOptions.id;
+
+        // Schedule auto-dismiss for resolved/rejected promises
+        if (toastOptions.type !== 'loading' && id) {
+          const duration = toastOptions.duration ?? defaultTimeout;
+          scheduleTimer(id, duration, () => remove(id));
+        }
+      } else {
+        // Regular toast creation
+        add(toastOptions);
+      }
+    });
+
+    return unsubscribe;
+  }, [add, update, remove, scheduleTimer, defaultTimeout]);
+
   const value = React.useMemo(
     () => ({
       toasts,
+      setToasts,
+      hovering,
+      setHovering,
+      focused,
+      setFocused,
       add,
       remove,
+      finalizeRemove,
       update,
       promise,
       pauseTimers,
       resumeTimers,
       prevFocusRef,
     }),
-    [toasts, add, remove, update, promise, pauseTimers, resumeTimers],
+    [
+      toasts,
+      hovering,
+      focused,
+      add,
+      remove,
+      finalizeRemove,
+      update,
+      promise,
+      pauseTimers,
+      resumeTimers,
+    ],
   );
 
   return <ToastContext.Provider value={value}>{children}</ToastContext.Provider>;
