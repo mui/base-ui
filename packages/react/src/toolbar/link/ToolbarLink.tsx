@@ -13,7 +13,7 @@ const TOOLBAR_LINK_METADATA = {
 };
 /**
  * A link component.
- * Renders a `<a>` element.
+ * Renders an `<a>` element.
  *
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */

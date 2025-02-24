@@ -1,6 +1,6 @@
 {
   "name": "ToolbarLink",
-  "description": "A link component.\nRenders a `<a>` element.",
+  "description": "A link component.\nRenders an `<a>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",
