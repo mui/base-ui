@@ -9,7 +9,7 @@ type CounterState = {
 };
 
 type CounterProps = {
-  className?: string;
+  className?: string | ((state: CounterState) => string);
   render?: useRender.RenderProp<CounterState>;
 };
 
@@ -21,8 +21,8 @@ function Counter(props: CounterProps) {
 
   const { renderElement } = useRender({
     render: render ?? <button />,
-    className,
     state,
+    className,
     props: {
       ...otherProps,
       type: 'button',
@@ -36,5 +36,11 @@ function Counter(props: CounterProps) {
 }
 
 export default function ExampleCounter() {
-  return <Counter className={styles.Button} />;
+  return (
+    <Counter
+      className={(state) =>
+        state.odd ? `${styles.Button} ${styles.odd}` : styles.Button
+      }
+    />
+  );
 }

@@ -31,8 +31,8 @@
     outline: 2px solid var(--color-blue);
     outline-offset: -1px;
   }
+}
 
-  &[data-odd] {
-    color: var(--color-red);
-  }
+.odd {
+  color: var(--color-red);
 }
