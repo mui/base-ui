@@ -82,6 +82,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         onMouseDown: externalOnMouseDown,
         onKeyUp: externalOnKeyUp,
         onKeyDown: externalOnKeyDown,
+        onPointerDown: externalOnPointerDown,
         ...otherExternalProps
       } = externalProps;
 
@@ -92,9 +93,11 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       return mergeReactProps(otherExternalProps, buttonProps, {
         type,
         onClick(event: React.MouseEvent) {
-          if (!disabled) {
-            externalOnClick?.(event);
+          if (disabled) {
+            event.preventDefault();
+            return;
           }
+          externalOnClick?.(event);
         },
         onMouseDown(event: React.MouseEvent) {
           if (!disabled) {
@@ -155,7 +158,9 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         onPointerDown(event: React.PointerEvent) {
           if (disabled) {
             event.preventDefault();
+            return;
           }
+          externalOnPointerDown?.(event);
         },
         ref: mergedRef,
       });

@@ -49,6 +49,41 @@ describe('<Toolbar.Button />', () => {
     });
   });
 
+  describe('prop: disabled', () => {
+    it('disables the button', async () => {
+      const handleClick = spy();
+      const handleMouseDown = spy();
+      const handlePointerDown = spy();
+      const handleKeyDown = spy();
+
+      const { user } = await render(
+        <Toolbar.Root>
+          <Toolbar.Button
+            disabled
+            onClick={handleClick}
+            onMouseDown={handleMouseDown}
+            onPointerDown={handlePointerDown}
+            onKeyDown={handleKeyDown}
+          />
+        </Toolbar.Root>,
+      );
+
+      const button = screen.getByRole('button');
+
+      expect(button).to.not.have.attribute('disabled');
+      expect(button).to.have.attribute('data-disabled');
+      expect(button).to.have.attribute('aria-disabled', 'true');
+
+      await user.click(button);
+      await user.keyboard(`[Space]`);
+      await user.keyboard(`[Enter]`);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleMouseDown.callCount).to.equal(0);
+      expect(handlePointerDown.callCount).to.equal(0);
+      expect(handleKeyDown.callCount).to.equal(0);
+    });
+  });
+
   describe('rendering other Base UI components', () => {
     describe('Switch', () => {
       it('renders a switch', async () => {
