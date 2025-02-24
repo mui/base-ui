@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useForkRef } from '../utils/useForkRef';
 import { makeEventPreventable, mergeReactProps } from '../utils/mergeReactProps';
+import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRootElementName } from '../utils/useRootElementName';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
@@ -75,6 +76,21 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     return additionalProps;
   }, [disabled, elementName, focusableWhenDisabled, isCompositeItem, tabIndex]);
 
+  // handles a disabled composite button rendering another button, e.g.
+  // <Toolbar.Button disabled render={<Menu.Trigger />} />
+  // the `disabled` prop needs to pass through 2 `useButton`s then finally
+  // delete the `disabled` attribute from DOM
+  useEnhancedEffect(() => {
+    const element = buttonRef.current;
+    if (!(element instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    if (isCompositeItem && disabled && buttonProps.disabled === undefined && element.disabled) {
+      element.disabled = false;
+    }
+  }, [disabled, buttonProps.disabled, isCompositeItem]);
+
   const getButtonProps = React.useCallback(
     (externalProps: GenericButtonProps = {}): GenericButtonProps => {
       const {
@@ -85,10 +101,6 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         onPointerDown: externalOnPointerDown,
         ...otherExternalProps
       } = externalProps;
-
-      if (isCompositeItem && disabled && otherExternalProps.disabled) {
-        delete otherExternalProps.disabled;
-      }
 
       return mergeReactProps(otherExternalProps, buttonProps, {
         type,
@@ -165,7 +177,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         ref: mergedRef,
       });
     },
-    [buttonProps, disabled, isNativeButton, isValidLink, mergedRef, type, isCompositeItem],
+    [buttonProps, disabled, isNativeButton, isValidLink, mergedRef, type],
   );
 
   return {
