@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { expect } from 'chai';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
