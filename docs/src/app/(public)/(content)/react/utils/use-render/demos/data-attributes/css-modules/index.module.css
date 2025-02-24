@@ -1,16 +1,13 @@
 .Text {
-  cursor: pointer;
   font-size: 0.875rem;
   line-height: 1rem;
-  font-weight: 400;
   color: var(--color-gray-900);
+
   &[data-size='small'] {
     font-size: 0.75rem;
   }
+
   &[data-size='large'] {
     font-size: 1.25rem;
-  }
-  &[data-color='active'] {
-    color: var(--color-blue);
   }
 }

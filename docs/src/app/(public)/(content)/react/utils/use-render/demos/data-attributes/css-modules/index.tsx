@@ -4,40 +4,28 @@ import { useRender } from '@base-ui-components/react/use-render';
 import styles from './index.module.css';
 
 type Size = 'small' | 'medium' | 'large';
-type Color = 'default' | 'active';
 
 type TextState = {
   size: Size;
-  color: Color;
 };
 
 type TextProps = {
-  className: string | ((state: TextState) => string);
+  className?: string | ((state: TextState) => string);
   render?: useRender.RenderProp<TextState>;
-  onClick?: (event: React.MouseEvent<Element>) => void;
-  children: React.ReactNode;
   size?: Size;
+  children: React.ReactNode;
 };
 
 function Text(props: TextProps) {
-  const { className, render, size = 'medium', onClick, ...otherProps } = props;
-  const [color, setColor] = React.useState<Color>('default');
+  const { className, render, size = 'medium', ...otherProps } = props;
 
-  const onClickHandler = (event: React.MouseEvent<Element>) => {
-    setColor(color === 'default' ? 'active' : 'default');
-    onClick?.(event);
-  };
-
-  const state = React.useMemo(() => ({ size, color }), [size, color]);
+  const state = React.useMemo(() => ({ size }), [size]);
 
   const { renderElement } = useRender({
     render: render ?? <p />,
     state,
     className,
-    props: {
-      ...otherProps,
-      onClick: onClickHandler,
-    },
+    props: { ...otherProps, className: styles.Text },
   });
 
   return renderElement();
@@ -46,13 +34,9 @@ function Text(props: TextProps) {
 export default function ExampleText() {
   return (
     <div>
-      <Text className={styles.Text} size="small">
-        Small size
-      </Text>
-      <Text className={styles.Text}>Medium size</Text>
-      <Text className={styles.Text} size="large">
-        Large size
-      </Text>
+      <Text size="small">Small size</Text>
+      <Text size="medium">Medium size</Text>
+      <Text size="large">Large size</Text>
     </div>
   );
 }
