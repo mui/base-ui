@@ -20,25 +20,23 @@ export function useToolbarInput(
 
   const getInputProps = React.useCallback(
     (externalProps = {}) =>
-      getButtonProps(
-        mergeReactProps<'input'>(externalProps, {
-          onClick(event) {
-            if (disabled) {
-              event.preventDefault();
-            }
-          },
-          onKeyDown(event) {
-            if (event.key !== ARROW_LEFT && event.key !== ARROW_RIGHT && disabled) {
-              event.preventDefault();
-            }
-          },
-          onPointerDown(event) {
-            if (disabled) {
-              event.preventDefault();
-            }
-          },
-        }),
-      ),
+      mergeReactProps<'input'>(getButtonProps, externalProps, {
+        onClick(event) {
+          if (disabled) {
+            event.preventDefault();
+          }
+        },
+        onKeyDown(event) {
+          if (event.key !== ARROW_LEFT && event.key !== ARROW_RIGHT && disabled) {
+            event.preventDefault();
+          }
+        },
+        onPointerDown(event) {
+          if (disabled) {
+            event.preventDefault();
+          }
+        },
+      }),
     [disabled, getButtonProps],
   );
 
