@@ -2,6 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
+import { useButton } from '../../use-button/useButton';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -17,18 +18,26 @@ const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   props: AlertDialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, disabled = false, ...other } = props;
   const { open, setTriggerElement, getTriggerProps } = useAlertDialogRootContext();
 
-  const state: AlertDialogTrigger.State = React.useMemo(() => ({ open }), [open]);
+  const state: AlertDialogTrigger.State = React.useMemo(
+    () => ({ disabled, open }),
+    [disabled, open],
+  );
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
+
+  const { getButtonProps } = useButton({
+    disabled,
+    buttonRef: mergedRef,
+  });
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
     className,
     state,
-    propGetter: getTriggerProps,
+    propGetter: (externalProps) => getButtonProps(getTriggerProps(externalProps)),
     extraProps: other,
     customStyleHookMapping: triggerOpenStateMapping,
     ref: mergedRef,
@@ -41,6 +50,10 @@ namespace AlertDialogTrigger {
   export interface Props extends BaseUIComponentProps<'button', State> {}
 
   export interface State {
+    /**
+     * Whether the dialog is currently disabled.
+     */
+    disabled: boolean;
     /**
      * Whether the dialog is currently open.
      */
