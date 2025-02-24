@@ -1,0 +1,32 @@
+# Toast
+
+<Subtitle>A component for generating toast notifications.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React toast component that generates notifications."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Toast } from '@base-ui-components/react/toast';
+
+<Toast.Provider>
+  <Toast.Viewport>
+    <Toast.Root>
+      <Toast.Content>
+        <Toast.Title />
+        <Toast.Description />
+      </Toast.Content>
+      <Toast.Close />
+    </Toast.Root>
+  </Toast.Viewport>
+</Toast.Provider>;
+```
+
+<Reference component="Toast" parts="Provider, Viewport, Root, Title, Description, Content, Close" />

@@ -7,10 +7,17 @@ export interface Toast {
   description?: string;
   duration?: number;
   priority?: 'low' | 'high';
+  animation?: 'starting' | 'ending' | undefined;
+  height?: number;
 }
 
 export interface ToastContext {
   toasts: Toast[];
+  setToasts: React.Dispatch<React.SetStateAction<Toast[]>>;
+  hovering: boolean;
+  setHovering: React.Dispatch<React.SetStateAction<boolean>>;
+  focused: boolean;
+  setFocused: React.Dispatch<React.SetStateAction<boolean>>;
   add: (toast: Omit<Toast, 'id'>) => string;
   remove: (id: string) => void;
   update: (id: string, updates: Partial<Omit<Toast, 'id'>>) => void;
@@ -21,6 +28,7 @@ export interface ToastContext {
   pauseTimers: () => void;
   resumeTimers: () => void;
   prevFocusRef: React.RefObject<HTMLElement | null>;
+  finalizeRemove: (id: string) => void;
 }
 
 export const ToastContext = React.createContext<ToastContext | undefined>(undefined);

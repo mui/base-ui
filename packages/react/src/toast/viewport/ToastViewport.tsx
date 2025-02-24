@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { activeElement } from '@floating-ui/react/utils';
+import PropTypes from 'prop-types';
+import { activeElement, contains } from '@floating-ui/react/utils';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -10,14 +11,18 @@ import { ownerDocument } from '../../utils/owner';
 import { ToastViewportContext } from './ToastViewportContext';
 
 const state = {};
-
+/**
+ *
+ * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ */
 const ToastViewport = React.forwardRef(function ToastViewport(
   props: ToastViewport.Props,
   forwardedRef: React.Ref<HTMLDivElement>,
 ) {
   const { render, className, ...other } = props;
 
-  const { pauseTimers, resumeTimers, toasts, prevFocusRef } = useToastContext();
+  const { pauseTimers, resumeTimers, toasts, prevFocusRef, setHovering, setFocused } =
+    useToastContext();
 
   const viewportRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -70,6 +75,28 @@ const ToastViewport = React.forwardRef(function ToastViewport(
     }
   }
 
+  function handleMouseEnter() {
+    pauseTimers();
+    setHovering(true);
+  }
+
+  function handleMouseLeave() {
+    resumeTimers();
+    setHovering(false);
+  }
+
+  function handleFocus() {
+    setFocused(true);
+    pauseTimers();
+  }
+
+  function handleBlur(event: React.FocusEvent) {
+    if (!contains(viewportRef.current, event.relatedTarget as HTMLElement | null)) {
+      setFocused(false);
+      resumeTimers();
+    }
+  }
+
   const numToasts = toasts.length;
 
   const { renderElement } = useComponentRenderer({
@@ -82,8 +109,10 @@ const ToastViewport = React.forwardRef(function ToastViewport(
       tabIndex: -1,
       'aria-label': `${numToasts} notification${numToasts !== 1 ? 's' : ''}`,
       onKeyDown: handleKeyDown,
-      onMouseEnter: pauseTimers,
-      onMouseLeave: resumeTimers,
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
+      onFocus: handleFocus,
+      onBlur: handleBlur,
     }),
   });
 
@@ -95,6 +124,29 @@ const ToastViewport = React.forwardRef(function ToastViewport(
     </ToastViewportContext.Provider>
   );
 });
+
+ToastViewport.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
+   */
+  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+} as any;
 
 namespace ToastViewport {
   export interface State {}
