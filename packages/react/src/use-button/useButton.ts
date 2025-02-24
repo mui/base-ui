@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
-import { NOOP } from '../utils/noop';
 import { useForkRef } from '../utils/useForkRef';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import { makeEventPreventable, mergeReactProps } from '../utils/mergeReactProps';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRootElementName } from '../utils/useRootElementName';
-import { GenericHTMLProps } from '../utils/types';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
+import { BaseUIEvent, GenericHTMLProps } from '../utils/types';
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
   const {
@@ -78,10 +77,13 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   const getButtonProps = React.useCallback(
     (externalProps: GenericButtonProps = {}): GenericButtonProps => {
-      const onClickProp = externalProps?.onClick ?? NOOP;
-
-      const otherExternalProps = { ...externalProps };
-      delete otherExternalProps.onClick;
+      const {
+        onClick: externalOnClick,
+        onMouseDown: externalOnMouseDown,
+        onKeyUp: externalOnKeyUp,
+        onKeyDown: externalOnKeyDown,
+        ...otherExternalProps
+      } = externalProps;
 
       if (isCompositeItem && disabled && otherExternalProps.disabled) {
         delete otherExternalProps.disabled;
@@ -90,18 +92,30 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       return mergeReactProps(otherExternalProps, buttonProps, {
         type,
         onClick(event: React.MouseEvent) {
-          if (disabled) {
-            event.preventDefault();
-            return;
+          if (!disabled) {
+            externalOnClick?.(event);
           }
-          onClickProp(event);
         },
-        onKeyDown(event: React.KeyboardEvent) {
+        onMouseDown(event: React.MouseEvent) {
+          if (!disabled) {
+            externalOnMouseDown?.(event);
+          }
+        },
+        onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
           if (
             disabled ||
             (event.target === event.currentTarget && !isNativeButton() && event.key === ' ')
           ) {
             event.preventDefault();
+          }
+
+          if (!disabled) {
+            makeEventPreventable(event);
+            externalOnKeyDown?.(event);
+          }
+
+          if (event.baseUIHandlerPrevented) {
+            return;
           }
 
           // Keyboard accessibility for non interactive elements
@@ -112,21 +126,30 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             event.key === 'Enter' &&
             !disabled
           ) {
-            onClickProp(event);
+            externalOnClick?.(event);
             event.preventDefault();
           }
         },
-        onKeyUp(event: React.KeyboardEvent) {
+        onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
           // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
           // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
           // Keyboard accessibility for non interactive elements
+          if (!disabled) {
+            makeEventPreventable(event);
+            externalOnKeyUp?.(event);
+          }
+
+          if (event.baseUIHandlerPrevented) {
+            return;
+          }
+
           if (
             event.target === event.currentTarget &&
             !isNativeButton() &&
             !disabled &&
             event.key === ' '
           ) {
-            onClickProp(event);
+            externalOnClick?.(event);
           }
         },
         onPointerDown(event: React.PointerEvent) {

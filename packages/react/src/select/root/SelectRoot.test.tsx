@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
@@ -11,6 +11,27 @@ describe('<Select.Root />', () => {
   });
 
   const { render } = createRenderer();
+
+  popupConformanceTests({
+    createComponent: (props) => (
+      <Select.Root {...props.root}>
+        <Select.Trigger {...props.trigger}>
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal {...props.portal}>
+          <Select.Positioner>
+            <Select.Popup {...props.popup}>
+              <Select.Item>Item</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>
+    ),
+    render,
+    triggerMouseAction: 'click',
+    expectedPopupRole: 'listbox',
+    alwaysMounted: true,
+  });
 
   describe('prop: defaultValue', () => {
     it('should select the item by default', async () => {
@@ -101,9 +122,7 @@ describe('<Select.Root />', () => {
         '',
       );
 
-      setProps({ value: 'b' });
-
-      await flushMicrotasks();
+      await setProps({ value: 'b' });
 
       expect(screen.getByRole('option', { name: 'b', hidden: false })).to.have.attribute(
         'data-selected',
@@ -177,134 +196,6 @@ describe('<Select.Root />', () => {
       );
 
       expect(screen.getByRole('listbox', { hidden: false })).toBeVisible();
-    });
-  });
-
-  describe('prop: open', () => {
-    it('should control the open state of the select', async () => {
-      function ControlledSelect({ open }: { open: boolean }) {
-        return (
-          <Select.Root open={open}>
-            <Select.Trigger data-testid="trigger">
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Portal>
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.Item value="a">a</Select.Item>
-                  <Select.Item value="b">b</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-        );
-      }
-
-      const { rerender } = await render(<ControlledSelect open={false} />);
-
-      expect(screen.queryByRole('listbox', { hidden: false })).to.equal(null);
-
-      rerender(<ControlledSelect open />);
-
-      await flushMicrotasks();
-
-      expect(screen.queryByRole('listbox')).not.to.equal(null);
-    });
-
-    it('when `false`, should remove the popup when there is no exit animation defined', async ({
-      skip,
-    }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
-      function Test() {
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Select.Root open={open} modal={false}>
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup />
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).to.equal(null);
-      });
-    });
-
-    it('when `false`, should remove the popup when the animation finishes', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      let animationFinished = false;
-      const notifyAnimationFinished = () => {
-        animationFinished = true;
-      };
-
-      function Test() {
-        const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-popup[data-open] {
-            opacity: 1;
-          }
-
-          .animation-test-popup[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Select.Root open={open} modal={false}>
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup
-                    className="animation-test-popup"
-                    onAnimationEnd={notifyAnimationFinished}
-                  />
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).to.equal(null);
-      });
-
-      expect(animationFinished).to.equal(true);
     });
   });
 

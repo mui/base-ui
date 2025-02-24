@@ -4,6 +4,7 @@ export type GenericHTMLProps = React.HTMLAttributes<any> & { ref?: React.Ref<any
 
 export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
   preventBaseUIHandler: () => void;
+  readonly baseUIHandlerPrevented?: boolean;
 };
 
 type WithPreventBaseUIHandler<T> = T extends (event: infer E) => any

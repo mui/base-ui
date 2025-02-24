@@ -45,7 +45,7 @@ describe('<NumberField />', () => {
       const { rerender } = await render(<NumberField value={1} />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.value('1');
-      rerender(<NumberField value={2} />);
+      await rerender(<NumberField value={2} />);
       expect(input).to.have.value('2');
     });
 
