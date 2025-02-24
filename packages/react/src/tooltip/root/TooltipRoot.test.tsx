@@ -3,7 +3,7 @@ import { Tooltip } from '@base-ui-components/react/tooltip';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 function Root(props: Tooltip.Root.Props) {
@@ -16,6 +16,21 @@ describe('<Tooltip.Root />', () => {
   });
 
   const { render, clock } = createRenderer();
+
+  popupConformanceTests({
+    createComponent: (props) => (
+      <Tooltip.Root {...props.root}>
+        <Tooltip.Trigger {...props.trigger}>Open menu</Tooltip.Trigger>
+        <Tooltip.Portal {...props.portal}>
+          <Tooltip.Positioner>
+            <Tooltip.Popup {...props.popup}>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+    ),
+    render,
+    triggerMouseAction: 'hover',
+  });
 
   describe('uncontrolled open', () => {
     clock.withFakeTimers();
@@ -130,35 +145,6 @@ describe('<Tooltip.Root />', () => {
 
   describe('controlled open', () => {
     clock.withFakeTimers();
-
-    it('should open when controlled open is true', async () => {
-      await render(
-        <Root open>
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-    });
-
-    it('should close when controlled open is false', async () => {
-      await render(
-        <Root open={false}>
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
-
-      expect(screen.queryByText('Content')).to.equal(null);
-    });
-
     it('should call onOpenChange when the open state changes', async () => {
       const handleChange = spy();
 

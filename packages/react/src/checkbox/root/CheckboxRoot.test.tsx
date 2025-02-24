@@ -201,7 +201,7 @@ describe('<Checkbox.Root />', () => {
     expect(indicator).to.have.attribute('data-readonly', '');
     expect(indicator).to.have.attribute('data-required', '');
 
-    setProps({ disabled: false, readOnly: false });
+    await setProps({ disabled: false, readOnly: false });
     fireEvent.click(checkbox);
 
     expect(checkbox).to.have.attribute('data-unchecked', '');
