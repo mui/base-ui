@@ -5,3 +5,4 @@ export { ToastDescription as Description } from './description/ToastDescription'
 export { ToastClose as Close } from './close/ToastClose';
 export { ToastContent as Content } from './content/ToastContent';
 export { useToast } from './useToast';
+export { add, promise } from './globalToast';
