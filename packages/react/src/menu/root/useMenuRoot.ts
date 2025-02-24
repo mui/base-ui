@@ -89,10 +89,13 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
   );
 
+  if (!open && !hoverEnabled) {
+    setHoverEnabled(true);
+  }
+
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
     setOpenReason(null);
-    setHoverEnabled(true);
     setStickIfOpen(true);
     onOpenChangeComplete?.(false);
   });
