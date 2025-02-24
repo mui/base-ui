@@ -4,6 +4,7 @@ import { spy } from 'sinon';
 import { Toolbar } from '@base-ui-components/react/toolbar';
 import { Switch } from '@base-ui-components/react/switch';
 import { Menu } from '@base-ui-components/react/menu';
+import { Select } from '@base-ui-components/react/select';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { NOOP } from '../../utils/noop';
@@ -302,6 +303,83 @@ describe('<Toolbar.Button />', () => {
         expect(handleClick.callCount).to.equal(0);
         expect(handleOpenChange.callCount).to.equal(0);
         expect(screen.queryByRole('menu')).to.equal(null);
+      });
+    });
+
+    describe('Select', () => {
+      it('renders a select trigger', async () => {
+        const { getByTestId } = await render(
+          <Toolbar.Root>
+            <Select.Root defaultValue="a">
+              <Toolbar.Button data-testid="button" render={<Select.Trigger />} />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Toolbar.Root>,
+        );
+
+        const trigger = getByTestId('button');
+        // should have role="combobox"
+        expect(trigger).to.have.attribute('aria-haspopup', 'listbox');
+      });
+
+      it('handles interactions', async () => {
+        const handleValueChange = spy();
+        const { getByTestId, user } = await render(
+          <Toolbar.Root>
+            <Select.Root defaultValue="a" onValueChange={handleValueChange}>
+              <Toolbar.Button data-testid="button" render={<Select.Trigger />} />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup data-testid="popup">
+                    <Select.Item value="a" data-testid="item-a">
+                      a
+                    </Select.Item>
+                    <Select.Item value="b" data-testid="item-b">
+                      b
+                    </Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByRole('listbox')).to.equal(null);
+
+        const trigger = getByTestId('button');
+        await user.keyboard('[Tab]');
+        expect(trigger).to.have.attribute('data-highlighted');
+        expect(trigger).to.have.attribute('tabindex', '0');
+
+        await user.keyboard('[ArrowDown]');
+        expect(screen.queryByRole('listbox')).to.equal(getByTestId('popup'));
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: 'a' })).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
+        });
+
+        await user.keyboard('[Enter]');
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).to.equal(null);
+        });
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+
+        expect(handleValueChange.callCount).to.equal(1);
+        expect(handleValueChange.args[0][0]).to.equal('b');
       });
     });
   });
