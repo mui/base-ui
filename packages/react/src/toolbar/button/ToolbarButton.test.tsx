@@ -257,6 +257,52 @@ describe('<Toolbar.Button />', () => {
           expect(trigger).toHaveFocus();
         });
       });
+
+      it('disabled state', async () => {
+        const handleOpenChange = spy();
+        const handleClick = spy();
+        const { getByRole, user } = await render(
+          <Toolbar.Root>
+            <Menu.Root onOpenChange={handleOpenChange}>
+              <Toolbar.Button
+                data-testid="button"
+                disabled
+                onClick={handleClick}
+                render={<Menu.Trigger>Toggle</Menu.Trigger>}
+              />
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item data-testid="item-1">1</Menu.Item>
+                    <Menu.Item data-testid="item-2">2</Menu.Item>
+                    <Menu.Item data-testid="item-3">3</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Toolbar.Root>,
+        );
+
+        const trigger = getByRole('button', { name: 'Toggle' });
+        expect(trigger).to.not.have.attribute('disabled');
+        expect(trigger).to.have.attribute('data-disabled');
+        expect(trigger).to.have.attribute('aria-disabled', 'true');
+
+        expect(screen.queryByRole('menu')).to.equal(null);
+
+        await user.keyboard('[Tab]');
+        expect(trigger).to.have.attribute('data-highlighted');
+        expect(trigger).to.have.attribute('tabindex', '0');
+
+        await user.keyboard('[Enter]');
+        await user.keyboard('[Space]');
+        await user.keyboard('[ArrowUp]');
+        await user.keyboard('[ArrowDown]');
+
+        expect(handleClick.callCount).to.equal(0);
+        expect(handleOpenChange.callCount).to.equal(0);
+        expect(screen.queryByRole('menu')).to.equal(null);
+      });
     });
   });
 });
