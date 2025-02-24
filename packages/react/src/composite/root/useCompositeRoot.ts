@@ -54,6 +54,10 @@ export interface UseCompositeRootParameters {
    * @default false
    */
   stopEventPropagation?: boolean;
+  /**
+   * Array of item indices to be considered disabled.
+   * Used for composite items that are focusable when disabled.
+   */
   disabledIndices?: number[];
 }
 
@@ -308,19 +312,19 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         },
       }),
     [
-      highlightedIndex,
-      stopEventPropagation,
       cols,
       dense,
+      disabledIndices,
       elementsRef,
+      enableHomeAndEndKeys,
+      highlightedIndex,
       isGrid,
       itemSizes,
       loop,
       mergedRef,
       onHighlightedIndexChange,
       orientation,
-      enableHomeAndEndKeys,
-      disabledIndices,
+      stopEventPropagation,
     ],
   );
 
@@ -330,7 +334,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       highlightedIndex,
       onHighlightedIndexChange,
       elementsRef,
+      disabledIndices,
     }),
-    [getRootProps, highlightedIndex, onHighlightedIndexChange, elementsRef],
+    [getRootProps, highlightedIndex, onHighlightedIndexChange, elementsRef, disabledIndices],
   );
 }
