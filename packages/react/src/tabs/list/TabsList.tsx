@@ -11,6 +11,8 @@ import { type TabMetadata } from '../tab/useTabsTab';
 import { useTabsList } from './useTabsList';
 import { TabsListContext } from './TabsListContext';
 
+const EMPTY_ARRAY: number[] = [];
+
 /**
  * Groups the individual tab buttons.
  * Renders a `<div>` element.
@@ -94,6 +96,7 @@ const TabsList = React.forwardRef(function TabsList(
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
         render={renderElement()}
+        disabledIndices={EMPTY_ARRAY}
       />
     </TabsListContext.Provider>
   );
