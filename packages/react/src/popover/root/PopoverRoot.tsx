@@ -73,7 +73,7 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
   /**
    * A ref to imperative actions.
    */
-  action: PropTypes.shape({
+  actionsRef: PropTypes.shape({
     current: PropTypes.shape({
       unmount: PropTypes.func.isRequired,
     }).isRequired,
@@ -104,6 +104,11 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    * @default 300
    */
   delay: PropTypes.number,
+  /**
+   * Whether the popover should prevent outside clicks and lock page scroll when open.
+   * @default false
+   */
+  modal: PropTypes.bool,
   /**
    * Event handler called when the popover is opened or closed.
    */
