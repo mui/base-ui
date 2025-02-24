@@ -58,7 +58,7 @@ describe('<Tabs.Root />', () => {
 
       expect(getAllByRole('tab').map((tab) => tab.tabIndex)).to.have.ordered.members([-1, 0]);
 
-      setProps({ value: 0 });
+      await setProps({ value: 0 });
 
       expect(getAllByRole('tab').map((tab) => tab.tabIndex)).to.have.ordered.members([0, -1]);
     });

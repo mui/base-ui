@@ -57,7 +57,7 @@ describe('<Progress.Root />', () => {
     it('should update aria-valuenow when value changes', async () => {
       const { getByRole, setProps } = await render(<TestProgress value={50} />);
       const progressbar = getByRole('progressbar');
-      setProps({ value: 77 });
+      await setProps({ value: 77 });
       expect(progressbar).to.have.attribute('aria-valuenow', '77');
     });
   });
