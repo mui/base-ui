@@ -59,6 +59,10 @@ AlertDialogClose.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * @ignore
+   */
+  disabled: PropTypes.bool,
+  /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
    *
