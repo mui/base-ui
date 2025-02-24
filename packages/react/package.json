@@ -74,7 +74,8 @@
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
-    "typescript": "tsc -b tsconfig.json"
+    "typescript": "tsc -b tsconfig.json",
+    "extract-api": "api-extractor run --local --verbose --config ./api-extractor.jsonc"
   },
   "dependencies": {
     "@babel/runtime": "^7.26.9",
@@ -86,6 +87,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.3",
+    "@microsoft/api-extractor": "^7.50.1",
     "@mui/internal-test-utils": "^1.0.26",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.1",

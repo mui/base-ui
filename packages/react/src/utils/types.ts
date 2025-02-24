@@ -25,8 +25,8 @@ export type WithBaseUIEvent<T> = {
 /**
  * Shape of the render prop: a function that takes props to be spread on the element and component's state and returns a React element.
  *
- * @template Props Props to be spread on the rendered element.
- * @template State Component's internal state.
+ * @typeParam  Props Props to be spread on the rendered element.
+ * @typeParam  State Component's internal state.
  */
 export type ComponentRenderFn<Props, State> = (
   props: Props,

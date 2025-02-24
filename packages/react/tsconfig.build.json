@@ -5,6 +5,7 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
+    "declarationMap": true,
     "emitDeclarationOnly": true,
     "module": "esnext",
     "moduleResolution": "bundler",
