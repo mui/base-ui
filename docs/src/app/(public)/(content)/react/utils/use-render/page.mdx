@@ -15,24 +15,24 @@ The `useRender` hook allows you to support the same features Base UI provides ac
 
 <PropsReferenceTable
   data={{
-    className: {
-      type: 'string | ((state: State) => string)',
-      description:
-        "CSS class applied to the element, or a function that returns a class based on the component's state.",
-    },
     render: {
       type: 'RenderProp<State>',
       description:
         "Allows you to replace the component's HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a \`ReactElement\` or a function that returns the element to render.",
     },
+    props: {
+      type: 'Record<string, unknown>',
+      description: 'Props to be spread on the rendered element.',
+    },
+    className: {
+      type: 'string | ((state: State) => string)',
+      description:
+        "CSS class applied to the element, or a function that returns a class based on the component's state.",
+    },
     state: {
       type: 'State',
       description:
         'The state of the component. It will be used as a parameter for the render and className callbacks.',
-    },
-    props: {
-      type: 'Record<string, unknown>',
-      description: 'Props to be spread on the rendered element.',
     },
     stateAttributesMap: {
       type: 'StateDataAttributes<State>',
