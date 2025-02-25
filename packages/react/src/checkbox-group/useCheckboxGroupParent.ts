@@ -4,8 +4,8 @@ import { useBaseUiId } from '../utils/useBaseUiId';
 import { useEventCallback } from '../utils/useEventCallback';
 
 export function useCheckboxGroupParent(
-  params: UseCheckboxGroupParent.Parameters,
-): UseCheckboxGroupParent.ReturnValue {
+  params: useCheckboxGroupParent.Parameters,
+): useCheckboxGroupParent.ReturnValue {
   const { allValues = [], value = [], onValueChange: onValueChangeProp } = params;
 
   const uncontrolledStateRef = React.useRef(value);
@@ -19,7 +19,7 @@ export function useCheckboxGroupParent(
 
   const onValueChange = useEventCallback(onValueChangeProp);
 
-  const getParentProps: UseCheckboxGroupParent.ReturnValue['getParentProps'] = React.useCallback(
+  const getParentProps: useCheckboxGroupParent.ReturnValue['getParentProps'] = React.useCallback(
     () => ({
       id,
       indeterminate,
@@ -68,7 +68,7 @@ export function useCheckboxGroupParent(
     [allValues, checked, id, indeterminate, onValueChange, status, value.length],
   );
 
-  const getChildProps: UseCheckboxGroupParent.ReturnValue['getChildProps'] = React.useCallback(
+  const getChildProps: useCheckboxGroupParent.ReturnValue['getChildProps'] = React.useCallback(
     (name: string) => ({
       name,
       id: `${id}-${name}`,
@@ -100,7 +100,7 @@ export function useCheckboxGroupParent(
   );
 }
 
-export namespace UseCheckboxGroupParent {
+export namespace useCheckboxGroupParent {
   export interface Parameters {
     allValues?: string[];
     value?: string[];
