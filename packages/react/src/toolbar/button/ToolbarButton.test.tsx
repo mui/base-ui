@@ -741,7 +741,7 @@ describe('<Toolbar.Button />', () => {
 
         const [button1, button2, button3] = getAllByRole('button');
 
-        [(button1, button2, button3)].forEach((button) => {
+        [button1, button2, button3].forEach((button) => {
           expect(button).to.have.attribute('aria-pressed', 'false');
         });
         expect(onPressedChange.callCount).to.equal(0);
@@ -799,7 +799,7 @@ describe('<Toolbar.Button />', () => {
         );
         const [button1, button2, button3] = getAllByRole('button');
 
-        [(button1, button2, button3)].forEach((button) => {
+        [button1, button2, button3].forEach((button) => {
           expect(button).to.have.attribute('aria-pressed', 'false');
           expect(button).to.not.have.attribute('disabled');
           expect(button).to.have.attribute('data-disabled');
