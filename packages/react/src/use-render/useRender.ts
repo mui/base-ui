@@ -37,7 +37,7 @@ namespace useRender {
      */
     className?: string | ((state: State) => string);
     /**
-     * The render prop or React element to override the default element.
+     * The React element or a function that returns one to override the default element.
      */
     render: RenderProp<State>;
     /**
@@ -46,6 +46,9 @@ namespace useRender {
     state?: State;
     /**
      * Props to be spread on the rendered element.
+     * They are merged with the internal props of the component, so that event handlers
+     * are merged, class names and styles are joined, and other external props overwrite the
+     * internal ones.
      */
     props?: Record<string, unknown> & { ref?: React.Ref<RenderedElementType> };
     /**
