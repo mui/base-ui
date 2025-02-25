@@ -5,6 +5,8 @@ import { Toolbar } from '@base-ui-components/react/toolbar';
 import { Switch } from '@base-ui-components/react/switch';
 import { Menu } from '@base-ui-components/react/menu';
 import { Select } from '@base-ui-components/react/select';
+import { Dialog } from '@base-ui-components/react/dialog';
+import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { NOOP } from '../../utils/noop';
@@ -380,6 +382,194 @@ describe('<Toolbar.Button />', () => {
 
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.equal('b');
+      });
+    });
+
+    describe('Dialog', () => {
+      it('renders a dialog trigger', async () => {
+        const { getByTestId } = await render(
+          <Toolbar.Root>
+            <Dialog.Root modal={false}>
+              <Toolbar.Button render={<Dialog.Trigger data-testid="trigger" />} />
+              <Dialog.Portal>
+                <Dialog.Backdrop />
+                <Dialog.Popup>
+                  <Dialog.Title>title text</Dialog.Title>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(getByTestId('trigger')).to.equal(screen.getByRole('button'));
+      });
+
+      it('handles interactions', async () => {
+        const onOpenChange = spy();
+        const { user } = await render(
+          <Toolbar.Root>
+            <Dialog.Root modal={false} onOpenChange={onOpenChange}>
+              <Toolbar.Button render={<Dialog.Trigger />} />
+              <Dialog.Portal>
+                <Dialog.Backdrop />
+                <Dialog.Popup>
+                  <Dialog.Title>title text</Dialog.Title>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByText('title text')).to.equal(null);
+
+        const trigger = screen.getByRole('button');
+        await user.keyboard('[Tab]');
+        expect(trigger).to.have.attribute('data-highlighted');
+        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(onOpenChange.callCount).to.equal(0);
+
+        await user.keyboard('[Enter]');
+        expect(screen.queryByText('title text')).to.not.equal(null);
+        expect(onOpenChange.callCount).to.equal(1);
+        expect(onOpenChange.firstCall.args[0]).to.equal(true);
+
+        await user.keyboard('[Escape]');
+        expect(screen.queryByText('title text')).to.equal(null);
+        expect(onOpenChange.callCount).to.equal(2);
+        expect(onOpenChange.secondCall.args[0]).to.equal(false);
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+      });
+
+      it('disabled state', async () => {
+        const onOpenChange = spy();
+        const { user } = await render(
+          <Toolbar.Root>
+            <Dialog.Root modal={false} onOpenChange={onOpenChange}>
+              <Toolbar.Button disabled render={<Dialog.Trigger />} />
+              <Dialog.Portal>
+                <Dialog.Backdrop />
+                <Dialog.Popup>
+                  <Dialog.Title>title text</Dialog.Title>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByText('title text')).to.equal(null);
+
+        const trigger = screen.getByRole('button');
+        expect(trigger).to.not.have.attribute('disabled');
+        expect(trigger).to.have.attribute('data-disabled');
+        expect(trigger).to.have.attribute('aria-disabled', 'true');
+
+        await user.keyboard('[Tab]');
+        expect(trigger).to.have.attribute('data-highlighted');
+        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(onOpenChange.callCount).to.equal(0);
+
+        await user.keyboard('[Enter]');
+        await user.keyboard('[Space]');
+        await user.keyboard('[ArrowUp]');
+        await user.keyboard('[ArrowDown]');
+        expect(onOpenChange.callCount).to.equal(0);
+      });
+    });
+
+    describe('AlertDialog', () => {
+      it('renders an alert dialog trigger', async () => {
+        const { getByTestId } = await render(
+          <Toolbar.Root>
+            <AlertDialog.Root>
+              <Toolbar.Button render={<AlertDialog.Trigger data-testid="trigger" />} />
+              <AlertDialog.Portal>
+                <AlertDialog.Backdrop />
+                <AlertDialog.Popup>
+                  <AlertDialog.Title>title text</AlertDialog.Title>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(getByTestId('trigger')).to.equal(screen.getByRole('button'));
+      });
+
+      it('handles interactions', async () => {
+        const onOpenChange = spy();
+        const { user } = await render(
+          <Toolbar.Root>
+            <AlertDialog.Root onOpenChange={onOpenChange}>
+              <Toolbar.Button render={<AlertDialog.Trigger />} />
+              <AlertDialog.Portal>
+                <AlertDialog.Backdrop />
+                <AlertDialog.Popup>
+                  <AlertDialog.Title>title text</AlertDialog.Title>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByText('title text')).to.equal(null);
+
+        const trigger = screen.getByRole('button');
+        await user.keyboard('[Tab]');
+        expect(trigger).to.have.attribute('data-highlighted');
+        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(onOpenChange.callCount).to.equal(0);
+
+        await user.keyboard('[Enter]');
+        expect(screen.queryByText('title text')).to.not.equal(null);
+        expect(onOpenChange.callCount).to.equal(1);
+        expect(onOpenChange.firstCall.args[0]).to.equal(true);
+
+        await user.keyboard('[Escape]');
+        expect(screen.queryByText('title text')).to.equal(null);
+        expect(onOpenChange.callCount).to.equal(2);
+        expect(onOpenChange.secondCall.args[0]).to.equal(false);
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+      });
+
+      it('disabled state', async () => {
+        const onOpenChange = spy();
+        const { user } = await render(
+          <Toolbar.Root>
+            <AlertDialog.Root onOpenChange={onOpenChange}>
+              <Toolbar.Button disabled render={<AlertDialog.Trigger />} />
+              <AlertDialog.Portal>
+                <AlertDialog.Backdrop />
+                <AlertDialog.Popup>
+                  <AlertDialog.Title>title text</AlertDialog.Title>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByText('title text')).to.equal(null);
+
+        const trigger = screen.getByRole('button');
+        expect(trigger).to.not.have.attribute('disabled');
+        expect(trigger).to.have.attribute('data-disabled');
+        expect(trigger).to.have.attribute('aria-disabled', 'true');
+
+        await user.keyboard('[Tab]');
+        expect(trigger).to.have.attribute('data-highlighted');
+        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(onOpenChange.callCount).to.equal(0);
+
+        await user.keyboard('[Enter]');
+        await user.keyboard('[Space]');
+        await user.keyboard('[ArrowUp]');
+        await user.keyboard('[ArrowDown]');
+        expect(onOpenChange.callCount).to.equal(0);
       });
     });
   });
