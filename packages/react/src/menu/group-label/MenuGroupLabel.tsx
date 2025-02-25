@@ -15,7 +15,7 @@ const state = {};
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
+export const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
   props: MenuGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -70,10 +70,8 @@ MenuGroupLabel.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-namespace MenuGroupLabel {
+export namespace MenuGroupLabel {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {}
 }
-
-export { MenuGroupLabel };

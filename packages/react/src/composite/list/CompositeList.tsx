@@ -49,7 +49,7 @@ function areMapsEqual<Metadata>(
  * Provides context for a list of items in a composite component.
  * @ignore - internal component.
  */
-function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
+export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const { children, elementsRef, labelsRef, onMapChange } = props;
 
   const [map, setMap] = React.useState(() => new Map<Node, CompositeMetadata<Metadata> | null>());
@@ -93,7 +93,7 @@ function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   );
 }
 
-namespace CompositeList {
+export namespace CompositeList {
   export interface Props<Metadata> {
     children: React.ReactNode;
     /**
@@ -109,8 +109,6 @@ namespace CompositeList {
     onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
   }
 }
-
-export { CompositeList };
 
 CompositeList.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

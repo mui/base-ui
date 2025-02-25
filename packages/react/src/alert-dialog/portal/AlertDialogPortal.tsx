@@ -12,7 +12,7 @@ import { HTMLElementType, refType } from '../../utils/proptypes';
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-function AlertDialogPortal(props: AlertDialogPortal.Props) {
+export function AlertDialogPortal(props: AlertDialogPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
   const { mounted } = useAlertDialogRootContext();
@@ -29,7 +29,7 @@ function AlertDialogPortal(props: AlertDialogPortal.Props) {
   );
 }
 
-namespace AlertDialogPortal {
+export namespace AlertDialogPortal {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -63,5 +63,3 @@ AlertDialogPortal.propTypes /* remove-proptypes */ = {
    */
   keepMounted: PropTypes.bool,
 } as any;
-
-export { AlertDialogPortal };

@@ -18,10 +18,9 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | readonly number[]>(
-  props: SliderRoot.Props<Value>,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
+export const SliderRoot = React.forwardRef(function SliderRoot<
+  Value extends number | readonly number[],
+>(props: SliderRoot.Props<Value>, forwardedRef: React.ForwardedRef<HTMLDivElement>) {
   const {
     'aria-labelledby': ariaLabelledby,
     className,
@@ -128,7 +127,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
   propTypes?: any;
 };
 
-namespace SliderRoot {
+export namespace SliderRoot {
   export interface State extends FieldRoot.State {
     /**
      * The index of the active thumb.
@@ -227,7 +226,6 @@ namespace SliderRoot {
     onValueCommitted?: (value: Value extends number ? number : Value, event: Event) => void;
   }
 }
-export { SliderRoot };
 
 SliderRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

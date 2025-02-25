@@ -145,7 +145,7 @@ InnerMenuItem.propTypes /* remove-proptypes */ = {
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuItem = React.forwardRef(function MenuItem(
+export const MenuItem = React.forwardRef(function MenuItem(
   props: MenuItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -187,7 +187,7 @@ interface InnerMenuItemProps extends MenuItem.Props {
   typingRef: React.RefObject<boolean>;
 }
 
-namespace MenuItem {
+export namespace MenuItem {
   export type State = {
     /**
      * Whether the component should ignore user interaction.
@@ -269,5 +269,3 @@ MenuItem.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { MenuItem };

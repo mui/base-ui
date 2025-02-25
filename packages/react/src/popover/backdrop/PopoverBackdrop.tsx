@@ -21,7 +21,7 @@ const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.State> = {
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
+export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   props: PopoverBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -53,7 +53,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   return renderElement();
 });
 
-namespace PopoverBackdrop {
+export namespace PopoverBackdrop {
   export interface State {
     /**
      * Whether the popover is currently open.
@@ -87,5 +87,3 @@ PopoverBackdrop.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { PopoverBackdrop };

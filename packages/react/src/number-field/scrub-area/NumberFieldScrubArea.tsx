@@ -13,7 +13,7 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
-const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
+export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
   props: NumberFieldScrubArea.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -48,7 +48,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
   return renderElement();
 });
 
-namespace NumberFieldScrubArea {
+export namespace NumberFieldScrubArea {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
@@ -108,5 +108,3 @@ NumberFieldScrubArea.propTypes /* remove-proptypes */ = {
    */
   teleportDistance: PropTypes.number,
 } as any;
-
-export { NumberFieldScrubArea };

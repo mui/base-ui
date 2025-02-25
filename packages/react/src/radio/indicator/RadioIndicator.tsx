@@ -15,7 +15,7 @@ import { type TransitionStatus, useTransitionStatus } from '../../utils/useTrans
  *
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
-const RadioIndicator = React.forwardRef(function RadioIndicator(
+export const RadioIndicator = React.forwardRef(function RadioIndicator(
   props: RadioIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -65,7 +65,7 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
   return renderElement();
 });
 
-namespace RadioIndicator {
+export namespace RadioIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * Whether to keep the HTML element in the DOM when the radio button is inactive.
@@ -110,5 +110,3 @@ RadioIndicator.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { RadioIndicator };

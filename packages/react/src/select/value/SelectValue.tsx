@@ -13,7 +13,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectValue = React.forwardRef(function SelectValue(
+export const SelectValue = React.forwardRef(function SelectValue(
   props: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -45,7 +45,7 @@ const SelectValue = React.forwardRef(function SelectValue(
   return renderElement();
 });
 
-namespace SelectValue {
+export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
     children?: null | ((value: string) => React.ReactNode);
     /**
@@ -89,5 +89,3 @@ SelectValue.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { SelectValue };

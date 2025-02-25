@@ -13,7 +13,7 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-const TooltipTrigger = React.forwardRef(function TooltipTrigger(
+export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   props: TooltipTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
@@ -38,7 +38,7 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   return renderElement();
 });
 
-namespace TooltipTrigger {
+export namespace TooltipTrigger {
   export interface State {
     /**
      * Whether the tooltip is currently open.
@@ -71,5 +71,3 @@ TooltipTrigger.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { TooltipTrigger };

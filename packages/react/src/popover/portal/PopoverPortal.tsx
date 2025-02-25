@@ -12,7 +12,7 @@ import { PopoverPortalContext } from './PopoverPortalContext';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-function PopoverPortal(props: PopoverPortal.Props) {
+export function PopoverPortal(props: PopoverPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
   const { mounted } = usePopoverRootContext();
@@ -29,7 +29,7 @@ function PopoverPortal(props: PopoverPortal.Props) {
   );
 }
 
-namespace PopoverPortal {
+export namespace PopoverPortal {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -63,5 +63,3 @@ PopoverPortal.propTypes /* remove-proptypes */ = {
    */
   keepMounted: PropTypes.bool,
 } as any;
-
-export { PopoverPortal };

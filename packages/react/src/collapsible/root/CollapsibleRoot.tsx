@@ -14,7 +14,7 @@ import { collapsibleStyleHookMapping } from './styleHooks';
  *
  * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
  */
-const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
+export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   props: CollapsibleRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -77,7 +77,7 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   );
 });
 
-namespace CollapsibleRoot {
+export namespace CollapsibleRoot {
   export interface State
     extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
 
@@ -87,8 +87,6 @@ namespace CollapsibleRoot {
     render?: BaseUIComponentProps<'div', State>['render'] | null;
   }
 }
-
-export { CollapsibleRoot };
 
 CollapsibleRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

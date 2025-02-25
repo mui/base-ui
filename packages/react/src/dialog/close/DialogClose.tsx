@@ -12,7 +12,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-const DialogClose = React.forwardRef(function DialogClose(
+export const DialogClose = React.forwardRef(function DialogClose(
   props: DialogClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -33,7 +33,7 @@ const DialogClose = React.forwardRef(function DialogClose(
   return renderElement();
 });
 
-namespace DialogClose {
+export namespace DialogClose {
   export interface Props extends BaseUIComponentProps<'button', State> {}
 
   export interface State {
@@ -70,5 +70,3 @@ DialogClose.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { DialogClose };

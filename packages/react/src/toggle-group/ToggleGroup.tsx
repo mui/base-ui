@@ -23,7 +23,7 @@ const customStyleHookMapping = {
  *
  * Documentation: [Base UI Toggle Group](https://base-ui.com/react/components/toggle-group)
  */
-const ToggleGroup = React.forwardRef(function ToggleGroup(
+export const ToggleGroup = React.forwardRef(function ToggleGroup(
   props: ToggleGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -95,11 +95,9 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
   );
 });
 
-export { ToggleGroup };
-
 export type ToggleGroupOrientation = 'horizontal' | 'vertical';
 
-namespace ToggleGroup {
+export namespace ToggleGroup {
   export interface State {
     /**
      * Whether the component should ignore user interaction.

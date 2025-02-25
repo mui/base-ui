@@ -18,7 +18,7 @@ import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverTrigger = React.forwardRef(function PopoverTrigger(
+export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   props: PopoverTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
@@ -61,7 +61,7 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   return renderElement();
 });
 
-namespace PopoverTrigger {
+export namespace PopoverTrigger {
   export interface State {
     /**
      * Whether the popover is currently disabled.
@@ -102,5 +102,3 @@ PopoverTrigger.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { PopoverTrigger };

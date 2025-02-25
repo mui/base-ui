@@ -17,7 +17,7 @@ import { NoSsrProps } from './NoSsr.types';
  *
  * Documentation: [Base UI Unstable No Ssr](https://base-ui.com/react/components/unstable-no-ssr)
  */
-function NoSsr(props: NoSsrProps): React.JSX.Element {
+export function NoSsr(props: NoSsrProps): React.JSX.Element {
   const { children, defer = false, fallback = null } = props;
   const [mountedState, setMountedState] = React.useState(false);
 
@@ -65,5 +65,3 @@ if (process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line
   (NoSsr as any)['propTypes' + ''] = exactProp(NoSsr.propTypes);
 }
-
-export { NoSsr };

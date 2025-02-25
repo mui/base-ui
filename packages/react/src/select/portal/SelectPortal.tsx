@@ -11,7 +11,7 @@ import { SelectPortalContext } from './SelectPortalContext';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-function SelectPortal(props: SelectPortal.Props) {
+export function SelectPortal(props: SelectPortal.Props) {
   const { children, container } = props;
 
   return (
@@ -21,7 +21,7 @@ function SelectPortal(props: SelectPortal.Props) {
   );
 }
 
-namespace SelectPortal {
+export namespace SelectPortal {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -45,5 +45,3 @@ SelectPortal.propTypes /* remove-proptypes */ = {
    */
   container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
 } as any;
-
-export { SelectPortal };

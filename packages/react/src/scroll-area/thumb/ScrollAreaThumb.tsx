@@ -15,7 +15,7 @@ import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssV
  *
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
-const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
+export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
   props: ScrollAreaThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -68,7 +68,7 @@ const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
   return renderElement();
 });
 
-namespace ScrollAreaThumb {
+export namespace ScrollAreaThumb {
   export interface State {
     orientation?: 'horizontal' | 'vertical';
   }
@@ -98,5 +98,3 @@ ScrollAreaThumb.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { ScrollAreaThumb };
