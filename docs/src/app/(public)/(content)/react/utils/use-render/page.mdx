@@ -18,7 +18,7 @@ The `useRender` hook allows you to support the `render` prop to override the def
     },
     props: {
       type: 'Record<string, unknown>',
-      description: 'Props to be spread on the rendered element.',
+      description: 'Props to be spread on the rendered element.\n\nThey are merged with the internal props\n of the component, so that event handlers are merged,\nclass names and styles are joined, and other external props overwrite the internal ones.',
     },
   }}
 />
