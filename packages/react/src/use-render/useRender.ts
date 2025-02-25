@@ -2,7 +2,6 @@ import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
-import { CustomStyleHookMapping as StateAttributes } from '../utils/getStyleHookProps';
 
 /**
  * Returns a function that renders a Base UI component.
