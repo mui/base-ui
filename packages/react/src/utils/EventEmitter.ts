@@ -1,3 +1,5 @@
+import { generateId } from './generateId';
+
 /**
  * Implements pub/sub pattern for event handling.
  */
@@ -27,7 +29,7 @@ export class EventEmitter<T> {
    * @param data The event data to pass to listeners.
    */
   emit(data: T) {
-    this.lastEventId = `event-${Math.random().toString(36).substring(2, 9)}`;
+    this.lastEventId = generateId('event');
     this.listeners.forEach((listener) => listener(data));
   }
 }

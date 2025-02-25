@@ -1,11 +1,12 @@
 import * as React from 'react';
+import { PromiseToastOptions } from '../globalToast';
 
 export interface Toast {
   id: string;
   title: string;
-  type: 'loading' | 'success' | 'error' | 'message';
+  type?: string;
   description?: string;
-  duration?: number;
+  timeout?: number;
   priority?: 'low' | 'high';
   animation?: 'starting' | 'ending' | undefined;
   height?: number;
@@ -21,10 +22,7 @@ export interface ToastContext {
   add: (toast: Omit<Toast, 'id'>) => string;
   remove: (id: string) => void;
   update: (id: string, updates: Partial<Omit<Toast, 'id'>>) => void;
-  promise: <T>(
-    promise: Promise<T>,
-    messages: { loading: string; success: string; error: string },
-  ) => Promise<T>;
+  promise: <Value>(promise: Promise<Value>, options: PromiseToastOptions<Value>) => Promise<Value>;
   pauseTimers: () => void;
   resumeTimers: () => void;
   prevFocusRef: React.RefObject<HTMLElement | null>;
@@ -36,7 +34,7 @@ export const ToastContext = React.createContext<ToastContext | undefined>(undefi
 export function useToastContext() {
   const context = React.useContext(ToastContext);
   if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
+    throw new Error('Base UI: useToast must be used within <Toast.Provider>.');
   }
   return context;
 }
