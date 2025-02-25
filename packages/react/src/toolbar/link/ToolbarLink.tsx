@@ -50,7 +50,7 @@ const ToolbarLink = React.forwardRef(function ToolbarLink(
   );
 });
 
-export namespace ToolbarLink {
+namespace ToolbarLink {
   export interface State {
     orientation: Orientation;
   }

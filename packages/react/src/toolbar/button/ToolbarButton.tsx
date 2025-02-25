@@ -62,7 +62,7 @@ const ToolbarButton = React.forwardRef(function ToolbarButton(
   return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={renderElement()} />;
 });
 
-export namespace ToolbarButton {
+namespace ToolbarButton {
   export interface State extends ToolbarRoot.State {
     disabled: boolean;
     focusable: boolean;

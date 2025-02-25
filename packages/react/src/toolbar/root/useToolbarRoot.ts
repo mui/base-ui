@@ -5,7 +5,7 @@ import { GenericHTMLProps, Orientation } from '../../utils/types';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { ToolbarItemMetadata } from './ToolbarRoot';
 
-function useToolbarRoot(parameters: useToolbarRoot.Parameters): useToolbarRoot.ReturnValue {
+export function useToolbarRoot(parameters: useToolbarRoot.Parameters): useToolbarRoot.ReturnValue {
   const { orientation } = parameters;
 
   const [itemMap, setItemMap] = React.useState(
@@ -42,7 +42,7 @@ function useToolbarRoot(parameters: useToolbarRoot.Parameters): useToolbarRoot.R
   );
 }
 
-namespace useToolbarRoot {
+export namespace useToolbarRoot {
   export interface Parameters {
     disabled: boolean;
     /**
@@ -65,5 +65,3 @@ namespace useToolbarRoot {
     >;
   }
 }
-
-export { useToolbarRoot };

@@ -60,7 +60,7 @@ const ToolbarInput = React.forwardRef(function ToolbarInput(
   return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={renderElement()} />;
 });
 
-export namespace ToolbarInput {
+namespace ToolbarInput {
   export interface State extends ToolbarRoot.State {
     disabled: boolean;
     focusable: boolean;

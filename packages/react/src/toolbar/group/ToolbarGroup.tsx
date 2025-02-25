@@ -56,7 +56,7 @@ const ToolbarGroup = React.forwardRef(function ToolbarGroup(
   );
 });
 
-export namespace ToolbarGroup {
+namespace ToolbarGroup {
   export interface Props extends BaseUIComponentProps<'div', ToolbarRoot.State> {
     /**
      * When `true` all toolbar items in the group are disabled.
