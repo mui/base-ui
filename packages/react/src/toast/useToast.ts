@@ -1,10 +1,25 @@
 import * as React from 'react';
 import { ToastContext } from './provider/ToastProviderContext';
 
-export function useToast() {
+/**
+ * Returns the array of toasts and methods to create toasts.
+ */
+export function useToast(): useToast.ReturnValue {
   const context = React.useContext(ToastContext);
+
   if (!context) {
-    throw new Error('useToast must be used within a Toast.Provider');
+    throw new Error('Base UI: useToast must be used within <Toast.Provider>.');
   }
-  return context;
+
+  const { toasts, add, promise } = context;
+
+  return React.useMemo(() => ({ toasts, add, promise }), [toasts, add, promise]);
+}
+
+export namespace useToast {
+  export interface ReturnValue {
+    add: ToastContext['add'];
+    promise: ToastContext['promise'];
+    toasts: ToastContext['toasts'];
+  }
 }

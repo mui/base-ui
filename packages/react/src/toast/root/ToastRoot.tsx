@@ -11,6 +11,8 @@ import { ToastRootCssVars } from './ToastRootCssVars';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useEventCallback } from '../../utils/useEventCallback';
+
 /**
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
@@ -23,18 +25,11 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 
   const { toasts, finalizeRemove, hovering, focused, setToasts } = useToastContext();
 
-  const handleTransitionEnd = React.useCallback(
-    (event: React.TransitionEvent) => {
-      if (
-        event.target === event.currentTarget &&
-        toast.animation === 'ending' &&
-        event.propertyName === 'opacity'
-      ) {
-        finalizeRemove(toast.id);
-      }
-    },
-    [toast.animation, toast.id, finalizeRemove],
-  );
+  const handleTransitionEnd = useEventCallback((event: React.TransitionEvent) => {
+    if (event.target === event.currentTarget && toast.animation === 'ending') {
+      finalizeRemove(toast.id);
+    }
+  });
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const mergedRef = useForkRef(rootRef, forwardedRef);
