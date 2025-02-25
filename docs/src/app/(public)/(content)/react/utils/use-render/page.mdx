@@ -1,13 +1,9 @@
 # useRender
 
-<Subtitle>Utility for adding Base UI-like features to custom components.</Subtitle>
+<Subtitle>Utility for creating custom components that support a render prop.</Subtitle>
 <Meta name="description" content="Utility for adding Base UI-like features to custom components." />
 
-The `useRender` hook allows you to support the same features Base UI provides across all components so that you can also have a consistent experience in your custom components:
-
-- A [render](/react/handbook/composition) prop to override the default rendered element (similar to `asChild` from Radix).
-- [data attributes](https://base-ui.com/react/handbook/styling#data-attributes) that map to the component's state which can be used for styling.
-- A [callback](/react/handbook/styling#css-classes) on the `className` prop that enables passing CSS classes depending on the component's state.
+The `useRender` hook allows you to support the `render` prop to override the default rendered element (similar to `asChild` from Radix) in your custom components.
 
 ## API reference
 
@@ -24,20 +20,6 @@ The `useRender` hook allows you to support the same features Base UI provides ac
       type: 'Record<string, unknown>',
       description: 'Props to be spread on the rendered element.',
     },
-    className: {
-      type: 'string | ((state: State) => string)',
-      description:
-        "CSS class applied to the element, or a function that returns a class based on the component's state.",
-    },
-    state: {
-      type: 'State',
-      description:
-        'The state of the component. It will be used as a parameter for the render and className callbacks.',
-    },
-    stateAttributesMap: {
-      type: 'StateAttributes<State>',
-      description: 'A mapping of state to data attributes.',
-    },
   }}
 />
 
@@ -47,47 +29,9 @@ The hook returns a function that when called returns the element that should be 
 
 ## Examples
 
-### Support the `render` prop
-
 This is an example of a Text component supporting the `render` prop.
 
 <Demo path="./demos/render" />
-
-### State-based data attributes
-
-When you pass the `state` option, data attributes based on this state are added automatically. In the following example, the counter text color is set to red when it's an odd number by targeting the corresponding data attribute.
-
-<Demo path="./demos/data-attributes" />
-
-To customize how data attributes are generated, use the `stateAttributesMap` option.
-
-```jsx {4-6} title="Customizing data attributes"
-useRender({
-  render: render ?? <button />,
-  state,
-  stateAttributesMap: {
-    odd: (value) => (value ? { ['data-parity']: 'odd' } : { ['data-parity']: 'even' }),
-  },
-});
-```
-
-To skip a data attribute, return `null` in the corresponding state key.
-
-```jsx {5} title="Skipping data attributes"
-useRender({
-  render: render ?? <button />,
-  state,
-  stateAttributesMap: {
-    odd: () => null,
-  },
-});
-```
-
-### State-based class names
-
-You can define a `className` prop that accepts a callback function, enabling dynamic CSS class assignment based on the component's state. The example below achieves the same result as the state-based attributes approach but uses the `className` callback for styling instead of data attributes.
-
-<Demo path="./demos/class-name" />
 
 ### Migrating from Radix
 

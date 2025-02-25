@@ -8,8 +8,8 @@ describe('useRender', () => {
 
   it('render props does not overwrite className in a render function when unspecified', async () => {
     function TestComponent(props: {
-      render: useRender.Settings<any, Element>['render'];
-      className?: useRender.Settings<any, Element>['className'];
+      render: useRender.Settings<Element>['render'];
+      className?: string;
     }) {
       const { render: renderProp, className } = props;
       const { renderElement } = useRender({
@@ -22,72 +22,14 @@ describe('useRender', () => {
 
     const { container } = await render(
       <TestComponent
-        render={(props: any, state: any) => <span className="my-span" {...props} {...state} />}
+        render={(props: any, state: any) => (
+          <span {...props} className={`my-span ${props.className ?? ''}`} {...state} />
+        )}
       />,
     );
 
     const element = container.firstElementChild;
 
-    expect(element).to.have.attribute('class', 'my-span');
-  });
-
-  it('includes data-attributes for all state members', async () => {
-    function TestComponent(props: {
-      render?: useRender.Settings<any, Element>['render'];
-      className?: useRender.Settings<any, Element>['className'];
-      size: 'small' | 'medium' | 'large';
-      weight: 'light' | 'regular' | 'bold';
-    }) {
-      const { render: renderProp, size, weight } = props;
-      const { renderElement } = useRender({
-        render: renderProp ?? 'span',
-        state: {
-          size,
-          weight,
-        },
-      });
-      return renderElement();
-    }
-
-    const { container } = await render(<TestComponent size="large" weight="bold" />);
-
-    const element = container.firstElementChild;
-
-    expect(element).to.have.attribute('data-size', 'large');
-    expect(element).to.have.attribute('data-weight', 'bold');
-  });
-
-  it('respects the customStyleHookMapping config if provided', async () => {
-    function TestComponent(props: {
-      render?: useRender.Settings<any, Element>['render'];
-      className?: useRender.Settings<any, Element>['className'];
-      size: 'small' | 'medium' | 'large';
-      weight: 'light' | 'regular' | 'bold';
-    }) {
-      const { render: renderProp, size, weight } = props;
-      const { renderElement } = useRender({
-        render: renderProp ?? 'span',
-        state: {
-          size,
-          weight,
-        },
-        stateAttributesMap: {
-          size(value) {
-            return { [`data-size${value}`]: '' };
-          },
-          weight() {
-            return null;
-          },
-        },
-      });
-      return renderElement();
-    }
-
-    const { container } = await render(<TestComponent size="large" weight="bold" />);
-
-    const element = container.firstElementChild;
-
-    expect(element).to.have.attribute('data-sizelarge', '');
-    expect(element).not.to.have.attribute('data-weight');
+    expect(element).to.have.attribute('class', 'my-span ');
   });
 });
