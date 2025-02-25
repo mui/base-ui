@@ -25,7 +25,11 @@ function Counter(props: CounterProps) {
     props: {
       ...otherProps,
       type: 'button',
-      children: `Counter: ${count}`,
+      children: (
+        <React.Fragment>
+          Counter: <span>{count}</span>
+        </React.Fragment>
+      ),
       onClick: () => setCount((prev) => prev + 1),
       'aria-label': `Count is ${count}, click to increase`,
     },

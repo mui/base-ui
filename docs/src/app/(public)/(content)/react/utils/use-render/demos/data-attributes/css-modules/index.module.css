@@ -17,6 +17,13 @@
   color: var(--color-gray-900);
   user-select: none;
 
+  & span {
+    font-variant-numeric: tabular-nums;
+    display: inline-block;
+    text-align: end;
+    min-width: 2.5ch;
+  }
+
   @media (hover: hover) {
     &:hover {
       background-color: var(--color-gray-100);
