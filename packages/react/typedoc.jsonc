@@ -1,0 +1,8 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "outputs": [{
+    "name": "json",
+    "path": "../../docs/reference/typedoc.json"
+  }],
+  "excludeExternals": true
+}
