@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { Toolbar } from '@base-ui-components/react/toolbar';
+import { NumberField } from '@base-ui-components/react/number-field';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../utils/noop';
@@ -101,6 +103,82 @@ describe('<Toolbar.Input />', () => {
 
         expectFocused(button1);
       });
+    });
+  });
+
+  describe('rendering NumberField', () => {
+    it('renders NumberField.Input', async () => {
+      await render(
+        <Toolbar.Root>
+          <NumberField.Root>
+            <NumberField.Group>
+              <Toolbar.Input render={<NumberField.Input />} />
+            </NumberField.Group>
+          </NumberField.Root>
+        </Toolbar.Root>,
+      );
+
+      expect(screen.getByRole('textbox')).to.have.attribute('aria-roledescription', 'Number field');
+    });
+
+    it('handles interactions', async () => {
+      const onValueChange = spy();
+      const { user } = await render(
+        <Toolbar.Root>
+          <NumberField.Root min={1} max={10} defaultValue={5} onValueChange={onValueChange}>
+            <NumberField.Group>
+              <NumberField.Decrement />
+              <Toolbar.Input render={<NumberField.Input />} />
+              <NumberField.Increment />
+            </NumberField.Group>
+          </NumberField.Root>
+        </Toolbar.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+
+      await user.keyboard('[Tab]');
+      expect(input).to.have.attribute('data-highlighted');
+      expect(input).to.have.attribute('tabindex', '0');
+      expect(input).toHaveFocus();
+
+      await user.keyboard(`[${ARROW_UP}]`);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.args[0][0]).to.equal(6);
+
+      await user.keyboard(`[${ARROW_DOWN}]`);
+      expect(onValueChange.callCount).to.equal(2);
+      expect(onValueChange.args[1][0]).to.equal(5);
+    });
+
+    it('disabled state', async () => {
+      const onValueChange = spy();
+      const { user } = await render(
+        <Toolbar.Root>
+          <NumberField.Root min={1} max={10} defaultValue={5} onValueChange={onValueChange}>
+            <NumberField.Group>
+              <NumberField.Decrement />
+              <Toolbar.Input disabled render={<NumberField.Input />} />
+              <NumberField.Increment />
+            </NumberField.Group>
+          </NumberField.Root>
+        </Toolbar.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+
+      expect(input).to.not.have.attribute('disabled');
+      expect(input).to.have.attribute('data-disabled');
+      expect(input).to.have.attribute('aria-disabled', 'true');
+
+      await user.keyboard('[Tab]');
+      expect(input).to.have.attribute('data-highlighted');
+      expect(input).to.have.attribute('tabindex', '0');
+      expect(input).toHaveFocus();
+
+      await user.keyboard(`[${ARROW_UP}]`);
+      await user.keyboard(`[${ARROW_DOWN}]`);
+      expect(onValueChange.callCount).to.equal(0);
     });
   });
 });
