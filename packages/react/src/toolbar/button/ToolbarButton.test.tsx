@@ -7,6 +7,7 @@ import { Menu } from '@base-ui-components/react/menu';
 import { Select } from '@base-ui-components/react/select';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+import { Popover } from '@base-ui-components/react/popover';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { NOOP } from '../../utils/noop';
@@ -596,6 +597,97 @@ describe('<Toolbar.Button />', () => {
         );
 
         expect(screen.queryByText('title text')).to.equal(null);
+
+        const trigger = screen.getByRole('button');
+        expect(trigger).to.not.have.attribute('disabled');
+        expect(trigger).to.have.attribute('data-disabled');
+        expect(trigger).to.have.attribute('aria-disabled', 'true');
+
+        await user.keyboard('[Tab]');
+        expect(trigger).to.have.attribute('data-highlighted');
+        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(onOpenChange.callCount).to.equal(0);
+
+        await user.keyboard('[Enter]');
+        await user.keyboard('[Space]');
+        await user.keyboard('[ArrowUp]');
+        await user.keyboard('[ArrowDown]');
+        expect(onOpenChange.callCount).to.equal(0);
+      });
+    });
+
+    describe('Popover', () => {
+      it('renders a popover trigger', async () => {
+        const { getByTestId } = await render(
+          <Toolbar.Root>
+            <Popover.Root>
+              <Toolbar.Button render={<Popover.Trigger data-testid="trigger" />} />
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(getByTestId('trigger')).to.equal(screen.getByRole('button'));
+        expect(screen.getByRole('button')).to.have.attribute('aria-haspopup', 'dialog');
+      });
+
+      it('handles interactions', async () => {
+        const onOpenChange = spy();
+        const { user } = await render(
+          <Toolbar.Root>
+            <Popover.Root onOpenChange={onOpenChange}>
+              <Toolbar.Button render={<Popover.Trigger />} />
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByText('Content')).to.equal(null);
+
+        const trigger = screen.getByRole('button');
+        await user.keyboard('[Tab]');
+        expect(trigger).to.have.attribute('data-highlighted');
+        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(onOpenChange.callCount).to.equal(0);
+
+        await user.keyboard('[Enter]');
+        expect(screen.queryByText('Content')).to.not.equal(null);
+        expect(onOpenChange.callCount).to.equal(1);
+        expect(onOpenChange.args[0][0]).to.equal(true);
+
+        await user.keyboard('[Escape]');
+        expect(onOpenChange.callCount).to.equal(2);
+        expect(onOpenChange.args[1][0]).to.equal(false);
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+      });
+
+      it('disabled state', async () => {
+        const onOpenChange = spy();
+        const { user } = await render(
+          <Toolbar.Root>
+            <Popover.Root onOpenChange={onOpenChange}>
+              <Toolbar.Button disabled render={<Popover.Trigger />} />
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByText('Content')).to.equal(null);
 
         const trigger = screen.getByRole('button');
         expect(trigger).to.not.have.attribute('disabled');
