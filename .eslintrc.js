@@ -96,12 +96,6 @@ module.exports = {
       },
     },
     {
-      files: ['docs/src/app/(public)/(content)/react/utils/use-render/demos/**/*{.tsx,.js}'],
-      rules: {
-        'jsx-a11y/control-has-associated-label': 'off',
-      },
-    },
-    {
       files: ['packages/**/*.test{.tsx,.js}'],
       extends: ['plugin:testing-library/react'],
       rules: {

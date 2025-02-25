@@ -1,7 +1,7 @@
 # useRender
 
-<Subtitle>Utility for creating custom components that support a render prop.</Subtitle>
-<Meta name="description" content="Utility for adding Base UI-like features to custom components." />
+<Subtitle>Utility for supporting a `render` prop in custom components.</Subtitle>
+<Meta name="description" content="Utility for supporting a render prop in custom components." />
 
 The `useRender` hook allows you to support the `render` prop to override the default rendered element (similar to `asChild` from Radix) in your custom components.
 
@@ -14,7 +14,7 @@ The `useRender` hook allows you to support the `render` prop to override the def
     render: {
       type: 'RenderProp<State>',
       description:
-        "Allows you to replace the component's HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a \`ReactElement\` or a function that returns the element to render.",
+        "The React element or a function that returns one to override the default element.",
     },
     props: {
       type: 'Record<string, unknown>',
