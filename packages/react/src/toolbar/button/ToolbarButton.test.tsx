@@ -383,6 +383,48 @@ describe('<Toolbar.Button />', () => {
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.equal('b');
       });
+
+      it('disabled state', async () => {
+        const onValueChange = spy();
+        const onOpenChange = spy();
+        const { user } = await render(
+          <Toolbar.Root>
+            <Select.Root defaultValue="a" onValueChange={onValueChange} onOpenChange={onOpenChange}>
+              <Toolbar.Button disabled render={<Select.Trigger />} />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="a" />
+                    <Select.Item value="b" />
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByRole('listbox')).to.equal(null);
+
+        const trigger = screen.getByRole('button');
+        expect(trigger).to.not.have.attribute('disabled');
+        expect(trigger).to.have.attribute('data-disabled');
+        expect(trigger).to.have.attribute('aria-disabled', 'true');
+
+        await user.keyboard('[Tab]');
+        expect(trigger).to.have.attribute('data-highlighted');
+        expect(trigger).to.have.attribute('tabindex', '0');
+
+        expect(onOpenChange.callCount).to.equal(0);
+        expect(onValueChange.callCount).to.equal(0);
+
+        await user.keyboard('[ArrowUp]');
+        await user.keyboard('[ArrowDown]');
+        await user.keyboard('[Enter]');
+        await user.keyboard('[Space]');
+
+        expect(onOpenChange.callCount).to.equal(0);
+        expect(onValueChange.callCount).to.equal(0);
+      });
     });
 
     describe('Dialog', () => {
