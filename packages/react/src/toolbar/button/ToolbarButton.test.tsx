@@ -8,6 +8,8 @@ import { Select } from '@base-ui-components/react/select';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { Popover } from '@base-ui-components/react/popover';
+import { Toggle } from '@base-ui-components/react/toggle';
+import { ToggleGroup } from '@base-ui-components/react/toggle-group';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { NOOP } from '../../utils/noop';
@@ -704,6 +706,130 @@ describe('<Toolbar.Button />', () => {
         await user.keyboard('[ArrowUp]');
         await user.keyboard('[ArrowDown]');
         expect(onOpenChange.callCount).to.equal(0);
+      });
+    });
+
+    describe('Toggle and ToggleGroup', () => {
+      it('renders toggle and toggle group', async () => {
+        const { getAllByRole } = await render(
+          <Toolbar.Root>
+            <Toolbar.Button render={<Toggle />} value="apple" />
+            <ToggleGroup>
+              <Toolbar.Button render={<Toggle />} value="one" />
+              <Toolbar.Button render={<Toggle />} value="two" />
+            </ToggleGroup>
+          </Toolbar.Root>,
+        );
+
+        expect(getAllByRole('button').length).to.equal(3);
+        getAllByRole('button').forEach((button) => {
+          expect(button).to.have.attribute('aria-pressed');
+        });
+      });
+
+      it('handles interactions', async () => {
+        const onPressedChange = spy();
+        const { getAllByRole, user } = await render(
+          <Toolbar.Root>
+            <Toolbar.Button render={<Toggle onPressedChange={onPressedChange} />} value="apple" />
+            <ToggleGroup>
+              <Toolbar.Button render={<Toggle onPressedChange={onPressedChange} />} value="one" />
+              <Toolbar.Button render={<Toggle onPressedChange={onPressedChange} />} value="two" />
+            </ToggleGroup>
+          </Toolbar.Root>,
+        );
+
+        const [button1, button2, button3] = getAllByRole('button');
+
+        [(button1, button2, button3)].forEach((button) => {
+          expect(button).to.have.attribute('aria-pressed', 'false');
+        });
+        expect(onPressedChange.callCount).to.equal(0);
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(button1).toHaveFocus();
+        });
+
+        await user.keyboard('[Enter]');
+        expect(onPressedChange.callCount).to.equal(1);
+        expect(button1).to.have.attribute('aria-pressed', 'true');
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(button2).toHaveFocus();
+        });
+
+        await user.keyboard('[Space]');
+        expect(onPressedChange.callCount).to.equal(2);
+        expect(button2).to.have.attribute('aria-pressed', 'true');
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(button3).toHaveFocus();
+        });
+
+        await user.keyboard('[Enter]');
+        expect(onPressedChange.callCount).to.equal(3);
+        expect(button3).to.have.attribute('aria-pressed', 'true');
+      });
+
+      it('disabled state', async () => {
+        const onPressedChange = spy();
+        const { getAllByRole, user } = await render(
+          <Toolbar.Root>
+            <Toolbar.Button
+              disabled
+              render={<Toggle onPressedChange={onPressedChange} />}
+              value="apple"
+            />
+            <ToggleGroup>
+              <Toolbar.Button
+                disabled
+                render={<Toggle onPressedChange={onPressedChange} />}
+                value="one"
+              />
+              <Toolbar.Button
+                disabled
+                render={<Toggle onPressedChange={onPressedChange} />}
+                value="two"
+              />
+            </ToggleGroup>
+          </Toolbar.Root>,
+        );
+        const [button1, button2, button3] = getAllByRole('button');
+
+        [(button1, button2, button3)].forEach((button) => {
+          expect(button).to.have.attribute('aria-pressed', 'false');
+          expect(button).to.not.have.attribute('disabled');
+          expect(button).to.have.attribute('data-disabled');
+          expect(button).to.have.attribute('aria-disabled', 'true');
+        });
+        expect(onPressedChange.callCount).to.equal(0);
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(button1).toHaveFocus();
+        });
+        await user.keyboard('[Enter]');
+        await user.keyboard('[Space]');
+        expect(onPressedChange.callCount).to.equal(0);
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(button2).toHaveFocus();
+        });
+        await user.keyboard('[Enter]');
+        await user.keyboard('[Space]');
+        expect(onPressedChange.callCount).to.equal(0);
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(button3).toHaveFocus();
+        });
+        await user.keyboard('[Enter]');
+        await user.keyboard('[Space]');
+        expect(onPressedChange.callCount).to.equal(0);
       });
     });
   });
