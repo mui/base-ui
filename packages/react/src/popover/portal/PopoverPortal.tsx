@@ -12,7 +12,7 @@ import { PopoverPortalContext } from './PopoverPortalContext';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-export function PopoverPortal(props: PopoverPortal.Props) {
+export const PopoverPortal: React.FC<PopoverPortal.Props> = function PopoverPortal(props) {
   const { children, keepMounted = false, container } = props;
 
   const { mounted } = usePopoverRootContext();
@@ -27,7 +27,7 @@ export function PopoverPortal(props: PopoverPortal.Props) {
       <FloatingPortal root={container}>{children}</FloatingPortal>
     </PopoverPortalContext.Provider>
   );
-}
+};
 
 export namespace PopoverPortal {
   export interface Props {

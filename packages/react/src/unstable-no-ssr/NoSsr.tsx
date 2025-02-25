@@ -17,7 +17,7 @@ import { NoSsrProps } from './NoSsr.types';
  *
  * Documentation: [Base UI Unstable No Ssr](https://base-ui.com/react/components/unstable-no-ssr)
  */
-export function NoSsr(props: NoSsrProps): React.JSX.Element {
+export const NoSsr = function NoSsr(props: NoSsrProps): React.JSX.Element {
   const { children, defer = false, fallback = null } = props;
   const [mountedState, setMountedState] = React.useState(false);
 
@@ -37,7 +37,7 @@ export function NoSsr(props: NoSsrProps): React.JSX.Element {
   // We could replace React.JSX.Element with React.ReactNode.
   // But first, we need to bump min typescript support to version to 5.1 and enough people to adopt the above change.
   return (mountedState ? children : fallback) as React.JSX.Element;
-}
+};
 
 NoSsr.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
