@@ -8,7 +8,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 
-function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValue {
+export function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValue {
   const {
     getTabElementBySelectedValue,
     onValueChange,
@@ -137,7 +137,7 @@ function useActivationDirectionDetector(
   );
 }
 
-namespace useTabsList {
+export namespace useTabsList {
   export interface Parameters
     extends Pick<
       TabsRootContext,
@@ -167,5 +167,3 @@ namespace useTabsList {
     tabsListRef: React.RefObject<HTMLElement | null>;
   }
 }
-
-export { useTabsList };
