@@ -52,7 +52,7 @@ namespace useRender {
      */
     props?: Record<string, unknown> & { ref?: React.Ref<RenderedElementType> };
     /**
-     * A mapping of state to data attributes.
+     * An object that maps the state (passed with the `state` parameter) to attributes placed on the rendered component.
      */
     stateAttributesMap?: StateDataAttributes<State>;
   }
