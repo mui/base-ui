@@ -1,13 +1,9 @@
 'use client';
 import * as React from 'react';
 import { Toast, ToastContext } from './ToastProviderContext';
-import { globalToastEmitter } from '../globalToast';
-
-let counter = 0;
-function generateId() {
-  counter += 1;
-  return `toast-${Math.random().toString(36).slice(2, 6)}-${counter}`;
-}
+import { globalToastEmitter, PromiseToastOptions } from '../globalToast';
+import { generateId } from '../../utils/generateId';
+import { resolvePromiseContent } from '../utils/resolvePromiseContent';
 
 interface TimerInfo {
   timeoutId?: ReturnType<typeof setTimeout>;
@@ -16,12 +12,13 @@ interface TimerInfo {
   remaining: number;
   callback: () => void;
 }
+
 /**
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
 const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
-  const { children, defaultTimeout = 5000 } = props;
+  const { children, timeout = 5000, limit = 3 } = props;
 
   const [toasts, setToasts] = React.useState<Toast[]>([]);
   const [hovering, setHovering] = React.useState(false);
@@ -61,22 +58,46 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
   const add = React.useCallback(
     (toast: Omit<Toast, 'id' | 'animation'>): string => {
-      const id = generateId();
+      const id = generateId('toast');
       const toastToAdd = {
         id,
         ...toast,
         animation: 'starting' as const,
       };
 
-      setToasts((prev) => [toastToAdd, ...prev]);
+      setToasts((prev) => {
+        const updatedToasts = [toastToAdd, ...prev];
+        const activeToasts = updatedToasts.filter((t) => t.animation !== 'ending');
 
-      const duration = toastToAdd.duration ?? defaultTimeout;
+        // Mark oldest toasts for removal when over limit
+        if (activeToasts.length > limit) {
+          const excessCount = activeToasts.length - limit;
+          const oldestActiveToasts = activeToasts.slice(-excessCount);
+
+          oldestActiveToasts.forEach((t) => {
+            const timer = timersRef.current.get(t.id);
+            if (timer && timer.timeoutId) {
+              clearTimeout(timer.timeoutId);
+            }
+          });
+
+          return updatedToasts.map((t) =>
+            oldestActiveToasts.some((old) => old.id === t.id)
+              ? { ...t, animation: 'ending' as const, height: 0 }
+              : t,
+          );
+        }
+
+        return updatedToasts;
+      });
+
+      const duration = toastToAdd.timeout ?? timeout;
       if (toastToAdd.type !== 'loading' && duration > 0) {
         scheduleTimer(id, duration, () => remove(id));
       }
       return id;
     },
-    [defaultTimeout, remove, scheduleTimer],
+    [limit, timeout, remove, scheduleTimer],
   );
 
   const update = React.useCallback((id: string, updates: Partial<Omit<Toast, 'id'>>) => {
@@ -84,27 +105,44 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   }, []);
 
   const promise = React.useCallback(
-    <T,>(
-      promiseValue: Promise<T>,
-      messages: { loading: string; success: string; error: string },
-    ): Promise<T> => {
+    <Value,>(promiseValue: Promise<Value>, options: PromiseToastOptions<Value>): Promise<Value> => {
       // Create a loading toast (which does not auto-dismiss).
-      const id = add({ title: messages.loading, type: 'loading' });
+      const loadingContent = resolvePromiseContent(options.loading);
+
+      const id = add({
+        ...options,
+        title: loadingContent.title,
+        description: loadingContent.description,
+        type: 'loading',
+      });
+
       return promiseValue
-        .then((result: T) => {
-          update(id, { title: messages.success, type: 'success' });
+        .then((result: Value) => {
+          const successContent = resolvePromiseContent(options.success);
+          update(id, {
+            ...options,
+            title: successContent.title,
+            description: successContent.description,
+            type: 'success',
+          });
           // Now schedule auto-dismiss on success.
-          scheduleTimer(id, defaultTimeout, () => remove(id));
+          scheduleTimer(id, timeout, () => remove(id));
           return result;
         })
         .catch((error) => {
-          update(id, { title: messages.error, type: 'error' });
+          const errorContent = resolvePromiseContent(options.error);
+          update(id, {
+            ...options,
+            title: errorContent.title,
+            description: errorContent.description,
+            type: 'error',
+          });
           // Schedule auto-dismiss on error.
-          scheduleTimer(id, defaultTimeout, () => remove(id));
+          scheduleTimer(id, timeout, () => remove(id));
           return Promise.reject(error);
         });
     },
-    [add, update, remove, defaultTimeout, scheduleTimer],
+    [add, update, remove, timeout, scheduleTimer],
   );
 
   const pauseTimers = React.useCallback(() => {
@@ -134,7 +172,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
   React.useEffect(() => {
     const unsubscribe = globalToastEmitter.subscribe((toastOptions) => {
-      if (toastOptions.isUpdate && toastOptions.id) {
+      if (toastOptions.promise && toastOptions.id) {
         // Handle updates for promise toasts
         update(toastOptions.id, {
           title: toastOptions.title,
@@ -146,7 +184,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
         // Schedule auto-dismiss for resolved/rejected promises
         if (toastOptions.type !== 'loading' && id) {
-          const duration = toastOptions.duration ?? defaultTimeout;
+          const duration = toastOptions.timeout ?? timeout;
           scheduleTimer(id, duration, () => remove(id));
         }
       } else {
@@ -156,9 +194,9 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     });
 
     return unsubscribe;
-  }, [add, update, remove, scheduleTimer, defaultTimeout]);
+  }, [add, update, remove, scheduleTimer, timeout]);
 
-  const value = React.useMemo(
+  const contextValue = React.useMemo(
     () => ({
       toasts,
       setToasts,
@@ -189,7 +227,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     ],
   );
 
-  return <ToastContext.Provider value={value}>{children}</ToastContext.Provider>;
+  return <ToastContext.Provider value={contextValue}>{children}</ToastContext.Provider>;
 };
 
 namespace ToastProvider {
@@ -199,7 +237,13 @@ namespace ToastProvider {
      * The default amount of time (in ms) before a toast is auto dismissed.
      * @default 5000
      */
-    defaultTimeout?: number;
+    timeout?: number;
+    /**
+     * The maximum number of toasts that can be displayed at once.
+     * When the limit is reached, the oldest toast will be removed to make room for the new one.
+     * @default 3
+     */
+    limit?: number;
   }
 }
 
