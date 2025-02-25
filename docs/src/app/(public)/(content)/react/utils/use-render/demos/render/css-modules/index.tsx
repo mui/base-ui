@@ -4,7 +4,7 @@ import { useRender } from '@base-ui-components/react/use-render';
 import styles from './index.module.css';
 
 type TextProps = {
-  render?: useRender.RenderProp<Record<string, any>>;
+  render?: useRender.RenderProp<Record<string, unknown>>;
   children: React.ReactNode;
 };
 
