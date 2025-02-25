@@ -2,7 +2,7 @@ import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
-import { CustomStyleHookMapping as StateDataAttributes } from '../utils/getStyleHookProps';
+import { CustomStyleHookMapping as StateAttributes } from '../utils/getStyleHookProps';
 
 /**
  * Returns a function that renders a Base UI component.
@@ -54,7 +54,7 @@ namespace useRender {
     /**
      * An object that maps the state (passed with the `state` parameter) to attributes placed on the rendered component.
      */
-    stateAttributesMap?: StateDataAttributes<State>;
+    stateAttributesMap?: StateAttributes<State>;
   }
 }
 
