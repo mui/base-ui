@@ -96,6 +96,12 @@ module.exports = {
       },
     },
     {
+      files: ['docs/src/app/(public)/(content)/react/**/*{.tsx,.js}'],
+      rules: {
+        'jsx-a11y/control-has-associated-label': 'off',
+      },
+    },
+    {
       files: ['packages/**/*.test{.tsx,.js}'],
       extends: ['plugin:testing-library/react'],
       rules: {

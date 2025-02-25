@@ -1,4 +1,3 @@
-/* eslint-disable react/button-has-type, jsx-a11y/control-has-associated-label */
 'use client';
 import * as React from 'react';
 import { useRender } from '@base-ui-components/react/use-render';
@@ -20,7 +19,7 @@ function Counter(props: CounterProps) {
   const state = React.useMemo(() => ({ odd }), [odd]);
 
   const { renderElement } = useRender({
-    render: render ?? <button />,
+    render: render ?? <button type="button" />,
     state,
     className,
     props: {
