@@ -18,7 +18,6 @@ function useRender<RenderedElementType extends Element>(
     state: {} as Record<string, any>,
     ref: ref as React.Ref<RenderedElementType>,
     extraProps,
-    propGetter: (x) => x,
   });
 }
 
