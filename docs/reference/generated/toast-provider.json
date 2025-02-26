@@ -1,7 +1,18 @@
 {
   "name": "ToastProvider",
-  "description": "",
-  "props": {},
+  "description": "Provides a context for creating and managing toasts.",
+  "props": {
+    "limit": {
+      "type": "number",
+      "default": "3",
+      "description": "The maximum number of toasts that can be displayed at once.\nWhen the limit is reached, the oldest toast will be removed to make room for the new one."
+    },
+    "timeout": {
+      "type": "number",
+      "default": "5000",
+      "description": "The default amount of time (in ms) before a toast is auto dismissed."
+    }
+  },
   "dataAttributes": {},
   "cssVariables": {}
 }
