@@ -10,6 +10,7 @@ import {
 } from '@floating-ui/react';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { isElementDisabled } from '../../utils/isElementDisabled';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
 import { type TransitionStatus, useTransitionStatus } from '../../utils';
@@ -21,12 +22,6 @@ import type { SelectIndexContext } from './SelectIndexContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const EMPTY_ARRAY: never[] = [];
-
-function isDisabled(element: HTMLElement | null) {
-  return (
-    element == null || element.hasAttribute('disabled') || element.hasAttribute('data-disabled')
-  );
-}
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
@@ -198,7 +193,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     },
   });
 
-  const triggerDisabled = isDisabled(triggerElement);
+  const triggerDisabled = isElementDisabled(triggerElement);
 
   const click = useClick(floatingRootContext, {
     enabled: !readOnly && !disabled && !triggerDisabled,

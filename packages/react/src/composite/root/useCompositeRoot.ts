@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
+import { isElementDisabled } from '../../utils/isElementDisabled';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
@@ -24,7 +25,6 @@ import {
   HORIZONTAL_KEYS,
   HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
   isDisabled,
-  isElementDisabled,
   isIndexOutOfBounds,
   isNativeInput,
   VERTICAL_KEYS,

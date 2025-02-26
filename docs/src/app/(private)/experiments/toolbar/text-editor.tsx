@@ -127,7 +127,7 @@ function renderToggleWithTooltip(args: {
 export default function App() {
   const { settings } = useExperimentSettings<Settings>();
 
-  const selectDisabled = settings.toolbarDisabled || settings.selectDisabled;
+  const SELECT_DISABLED = settings.toolbarDisabled || settings.selectDisabled;
   return (
     <React.Fragment>
       <a
@@ -141,10 +141,9 @@ export default function App() {
       <div className={styles.toolbar.Wrapper}>
         <Tooltip.Provider>
           <Toolbar.Root className={styles.toolbar.Root}>
-            {/* only disabling the trigger doesn't work yet - https://github.com/mui/base-ui/issues/1439 */}
-            <Select.Root defaultValue="sans" disabled={selectDisabled}>
+            <Select.Root defaultValue="sans">
               <Toolbar.Button
-                disabled={selectDisabled}
+                disabled={SELECT_DISABLED}
                 render={<Select.Trigger />}
                 className={styles.select.Select}
               >

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { hasComputedStyleMapSupport } from '../utils/hasComputedStyleMapSupport';
+import { isElementDisabled } from '../utils/isElementDisabled';
 import { ownerWindow } from '../utils/owner';
 import type { TextDirection } from '../direction-provider/DirectionContext';
 
@@ -342,14 +343,6 @@ export function getCellIndexOfCorner(
 /** Gets all cell indices that correspond to the specified indices */
 export function getCellIndices(indices: (number | undefined)[], cellMap: (number | undefined)[]) {
   return cellMap.flatMap((index, cellIndex) => (indices.includes(index) ? [cellIndex] : []));
-}
-
-export function isElementDisabled(element: HTMLElement | null) {
-  return (
-    element == null ||
-    element.hasAttribute('disabled') ||
-    element.getAttribute('aria-disabled') === 'true'
-  );
 }
 
 export function isDisabled(
