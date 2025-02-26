@@ -14,7 +14,9 @@ describe('useRender', () => {
       const { render: renderProp, className } = props;
       const { renderElement } = useRender({
         render: renderProp,
-        className,
+        props: {
+          className,
+        }
       });
       return renderElement();
     }
