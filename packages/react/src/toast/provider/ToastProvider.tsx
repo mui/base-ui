@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { Toast, ToastContext } from './ToastProviderContext';
 import { globalToastEmitter, PromiseToastOptions } from '../globalToast';
 import { generateId } from '../../utils/generateId';
@@ -14,6 +15,7 @@ interface TimerInfo {
 }
 
 /**
+ * Provides a context for creating and managing toasts.
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
@@ -23,6 +25,16 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   const [toasts, setToasts] = React.useState<Toast[]>([]);
   const [hovering, setHovering] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
+
+  if (toasts.length === 0) {
+    if (hovering) {
+      setHovering(false);
+    }
+
+    if (focused) {
+      setFocused(false);
+    }
+  }
 
   const timersRef = React.useRef(new Map<string, TimerInfo>());
   const prevFocusRef = React.useRef<HTMLElement | null>(null);
@@ -246,5 +258,27 @@ namespace ToastProvider {
     limit?: number;
   }
 }
+
+ToastProvider.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * The maximum number of toasts that can be displayed at once.
+   * When the limit is reached, the oldest toast will be removed to make room for the new one.
+   * @default 3
+   */
+  limit: PropTypes.number,
+  /**
+   * The default amount of time (in ms) before a toast is auto dismissed.
+   * @default 5000
+   */
+  timeout: PropTypes.number,
+} as any;
 
 export { ToastProvider };

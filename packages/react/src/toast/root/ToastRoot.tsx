@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { contains, getTarget } from '@floating-ui/react/utils';
 import { useToastContext, type Toast } from '../provider/ToastProviderContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -12,8 +13,16 @@ import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+
+const DEFAULT_SWIPE_THRESHOLD = 20;
+const OPPOSITE_DIRECTION_DAMPING_FACTOR = 0.5;
+const MAX_MOMENTUM = 3;
+const MIN_DRAG_THRESHOLD = 5;
 
 /**
+ * Groups all parts of an individual toast.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
@@ -21,18 +30,40 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   props: ToastRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { toast, render, className, ...other } = props;
+  const {
+    toast,
+    render,
+    className,
+    swipeDirection = 'up',
+    swipeThreshold = DEFAULT_SWIPE_THRESHOLD,
+    ...other
+  } = props;
 
-  const { toasts, finalizeRemove, hovering, focused, setToasts } = useToastContext();
-
-  const handleTransitionEnd = useEventCallback((event: React.TransitionEvent) => {
-    if (event.target === event.currentTarget && toast.animation === 'ending') {
-      finalizeRemove(toast.id);
-    }
-  });
+  const { toasts, finalizeRemove, hovering, focused, setToasts, remove } = useToastContext();
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const mergedRef = useForkRef(rootRef, forwardedRef);
+
+  useOpenChangeComplete({
+    open: toast.animation !== 'ending',
+    ref: rootRef,
+    onComplete() {
+      if (toast.animation === 'ending') {
+        finalizeRemove(toast.id);
+      }
+    },
+  });
+
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [isRealDrag, setIsRealDrag] = React.useState(false);
+  const [dragOffset, setDragOffset] = React.useState({ x: 0, y: 0 });
+  const [dragDismissed, setDragDismissed] = React.useState(false);
+  const [momentum, setMomentum] = React.useState(0);
+  const [initialTransform, setInitialTransform] = React.useState({ x: 0, y: 0, scale: 1 });
+
+  const dragStartPosRef = React.useRef({ x: 0, y: 0 });
+  const initialTransformRef = React.useRef({ x: 0, y: 0, scale: 1 });
+  const dragHistoryRef = React.useRef<Array<{ x: number; y: number; time: number }>>([]);
 
   const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
   const index = React.useMemo(
@@ -83,6 +114,276 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     return toasts.slice(0, i).reduce((acc, t) => acc + (t.height ?? 0), 0);
   }, [toasts, toast.id]);
 
+  function getElementTransform(element: HTMLElement) {
+    const computedStyle = window.getComputedStyle(element);
+    const transform = computedStyle.transform;
+
+    let translateX = 0;
+    let translateY = 0;
+    let scale = 1;
+
+    // Parse transform matrix if it exists
+    if (transform && transform !== 'none') {
+      const matrix = transform.match(/matrix(?:3d)?\(([^)]+)\)/);
+      if (matrix) {
+        const values = matrix[1].split(', ').map(parseFloat);
+
+        // Handle both 2D (6 values) and 3D (16 values) matrices
+        if (values.length === 6) {
+          // 2D matrix: matrix(a, b, c, d, tx, ty)
+          translateX = values[4];
+          translateY = values[5];
+          // Calculate scale from the matrix (approximate)
+          scale = Math.sqrt(values[0] * values[0] + values[1] * values[1]);
+        } else if (values.length === 16) {
+          // 3D matrix: matrix3d(...)
+          translateX = values[12];
+          translateY = values[13];
+          scale = values[0]; // Simplified scale calculation
+        }
+      }
+    }
+
+    return { x: translateX, y: translateY, scale };
+  }
+
+  function applyDirectionalDamping(deltaX: number, deltaY: number) {
+    let newDeltaX = deltaX;
+    let newDeltaY = deltaY;
+
+    switch (swipeDirection) {
+      case 'right':
+        if (deltaX < 0) {
+          newDeltaX = -(Math.abs(deltaX) ** OPPOSITE_DIRECTION_DAMPING_FACTOR);
+        }
+        break;
+      case 'left':
+        if (deltaX > 0) {
+          newDeltaX = deltaX ** OPPOSITE_DIRECTION_DAMPING_FACTOR;
+        }
+        break;
+      case 'down':
+        if (deltaY < 0) {
+          newDeltaY = -(Math.abs(deltaY) ** OPPOSITE_DIRECTION_DAMPING_FACTOR);
+        }
+        break;
+      case 'up':
+        if (deltaY > 0) {
+          newDeltaY = deltaY ** OPPOSITE_DIRECTION_DAMPING_FACTOR;
+        }
+        break;
+      default:
+        break;
+    }
+
+    return { x: newDeltaX, y: newDeltaY };
+  }
+
+  const handlePointerDown = useEventCallback((event: React.PointerEvent) => {
+    // Only handle left clicks or touch
+    if (event.button !== 0) {
+      return;
+    }
+
+    // Check if the event target is (or is inside) an interactive element (button, a, input, etc.)
+    // If so, don't initiate dragging to allow normal click behavior
+    const target = event.target as HTMLElement;
+    const isInteractiveElement =
+      target.tagName === 'BUTTON' ||
+      target.tagName === 'A' ||
+      target.tagName === 'INPUT' ||
+      target.closest('button,a,input,[role="button"]') !== null;
+
+    if (isInteractiveElement) {
+      return;
+    }
+
+    dragStartPosRef.current = { x: event.clientX, y: event.clientY };
+
+    if (rootRef.current) {
+      const transform = getElementTransform(rootRef.current);
+      initialTransformRef.current = transform;
+      setInitialTransform(transform);
+      setDragOffset({
+        x: transform.x,
+        y: transform.y,
+      });
+    }
+
+    setIsDragging(true);
+    setIsRealDrag(false);
+
+    if (rootRef.current) {
+      rootRef.current.setPointerCapture(event.pointerId);
+    }
+  });
+
+  const handlePointerMove = useEventCallback((event: React.PointerEvent) => {
+    if (!isDragging) {
+      return;
+    }
+
+    // Record position for velocity calculation
+    dragHistoryRef.current.push({
+      x: event.clientX,
+      y: event.clientY,
+      time: Date.now(),
+    });
+
+    if (dragHistoryRef.current.length > 5) {
+      dragHistoryRef.current.shift();
+    }
+
+    const deltaX = event.clientX - dragStartPosRef.current.x;
+    const deltaY = event.clientY - dragStartPosRef.current.y;
+
+    // Check if the user has moved enough to be considered a real drag
+    if (!isRealDrag) {
+      const movementDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      if (movementDistance >= MIN_DRAG_THRESHOLD) {
+        setIsRealDrag(true);
+      }
+    }
+
+    // Apply damping to opposite direction movements
+    const dampedDelta = applyDirectionalDamping(deltaX, deltaY);
+
+    let newOffsetX = initialTransformRef.current.x;
+    let newOffsetY = initialTransformRef.current.y;
+
+    if (swipeDirection === 'left' || swipeDirection === 'right') {
+      newOffsetX += dampedDelta.x;
+    } else if (swipeDirection === 'up' || swipeDirection === 'down') {
+      newOffsetY += dampedDelta.y;
+    }
+
+    setDragOffset({ x: newOffsetX, y: newOffsetY });
+  });
+
+  const handlePointerUp = useEventCallback((event: React.PointerEvent) => {
+    if (!isDragging) {
+      return;
+    }
+
+    setIsDragging(false);
+    setIsRealDrag(false);
+
+    if (rootRef.current) {
+      rootRef.current.releasePointerCapture(event.pointerId);
+    }
+
+    // Check if swipe exceeds threshold
+    const deltaX = event.clientX - dragStartPosRef.current.x;
+    const deltaY = event.clientY - dragStartPosRef.current.y;
+
+    let shouldClose = false;
+
+    switch (swipeDirection) {
+      case 'right':
+        shouldClose = deltaX > swipeThreshold;
+        break;
+      case 'left':
+        shouldClose = deltaX < -swipeThreshold;
+        break;
+      case 'down':
+        shouldClose = deltaY > swipeThreshold;
+        break;
+      case 'up':
+        shouldClose = deltaY < -swipeThreshold;
+        break;
+      default:
+        break;
+    }
+
+    // Calculate momentum if we have enough history
+    if (dragHistoryRef.current.length >= 2) {
+      const recent = dragHistoryRef.current[dragHistoryRef.current.length - 1];
+      const older = dragHistoryRef.current[0];
+      const timeDiff = recent.time - older.time;
+
+      if (timeDiff > 0) {
+        const velocityX = (recent.x - older.x) / timeDiff;
+        const velocityY = (recent.y - older.y) / timeDiff;
+
+        let velocity = 0;
+        switch (swipeDirection) {
+          case 'right':
+            velocity = velocityX;
+            break;
+          case 'left':
+            velocity = -velocityX;
+            break;
+          case 'down':
+            velocity = velocityY;
+            break;
+          case 'up':
+            velocity = -velocityY;
+            break;
+          default:
+            velocity = 0;
+            break;
+        }
+
+        const absVelocity = Math.abs(velocity) * 1000; // Scale for better CSS variable values
+        const normalizedMomentum = Math.min(Math.max(absVelocity, 0.5), MAX_MOMENTUM);
+        setMomentum(normalizedMomentum);
+      }
+    }
+
+    if (shouldClose) {
+      setDragDismissed(true);
+      remove(toast.id);
+    } else {
+      setDragOffset({
+        x: initialTransform.x,
+        y: initialTransform.y,
+      });
+
+      dragHistoryRef.current = [];
+    }
+  });
+
+  // Prevent page scrolling when dragging the toast
+  React.useEffect(() => {
+    const element = rootRef.current;
+
+    if (!element) {
+      return undefined;
+    }
+
+    function preventDefaultTouchStart(event: TouchEvent) {
+      if (contains(element, getTarget(event) as HTMLElement | null)) {
+        event.preventDefault();
+      }
+    }
+
+    element.addEventListener('touchmove', preventDefaultTouchStart, { passive: false });
+
+    return () => {
+      element.removeEventListener('touchmove', preventDefaultTouchStart);
+    };
+  }, []);
+
+  function getDragStyles() {
+    if (
+      !isDragging &&
+      dragOffset.x === initialTransform.x &&
+      dragOffset.y === initialTransform.y &&
+      !dragDismissed
+    ) {
+      return {};
+    }
+
+    return {
+      transform: isDragging
+        ? `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${initialTransform.scale})`
+        : undefined,
+      transition: isDragging ? 'none' : undefined,
+      userSelect: isDragging ? 'none' : undefined,
+      touchAction: 'none',
+    } as const;
+  }
+
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     ref: mergedRef,
@@ -94,10 +395,15 @@ const ToastRoot = React.forwardRef(function ToastRoot(
       'aria-modal': false,
       tabIndex: 0,
       ['data-base-ui-toast' as string]: '',
-      onTransitionEnd: handleTransitionEnd,
+      ['data-drag-dismissed' as string]: dragDismissed ? '' : undefined,
+      onPointerDown: handlePointerDown,
+      onPointerMove: handlePointerMove,
+      onPointerUp: handlePointerUp,
       style: {
+        ...getDragStyles(),
         [ToastRootCssVars.index as string]: toast.animation === 'ending' ? domIndex : index,
         [ToastRootCssVars.offset as string]: `${offset}px`,
+        [ToastRootCssVars.momentum as string]: momentum,
       },
     }),
   });
@@ -108,6 +414,27 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     <ToastRootContext.Provider value={contextValue}>{renderElement()}</ToastRootContext.Provider>
   );
 });
+
+namespace ToastRoot {
+  export interface State {
+    transitionStatus: TransitionStatus;
+    expanded: boolean;
+  }
+
+  export interface Props extends BaseUIComponentProps<'div', State> {
+    toast: Toast;
+    /**
+     * Direction in which the toast can be swiped to dismiss.
+     * @default 'up'
+     */
+    swipeDirection?: 'up' | 'down' | 'left' | 'right';
+    /**
+     * Threshold in pixels to determine if swipe should close toast or cancel.
+     * @default 20
+     */
+    swipeThreshold?: number;
+  }
+}
 
 ToastRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -131,29 +458,28 @@ ToastRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
+   * Direction in which the toast can be swiped to dismiss.
+   * @default 'up'
+   */
+  swipeDirection: PropTypes.oneOf(['down', 'left', 'right', 'up']),
+  /**
+   * Threshold in pixels to determine if swipe should close toast or cancel.
+   * @default 20
+   */
+  swipeThreshold: PropTypes.number,
+  /**
    * @ignore
    */
   toast: PropTypes.shape({
     animation: PropTypes.oneOf(['ending', 'starting']),
     description: PropTypes.string,
-    duration: PropTypes.number,
     height: PropTypes.number,
     id: PropTypes.string.isRequired,
     priority: PropTypes.oneOf(['high', 'low']),
+    timeout: PropTypes.number,
     title: PropTypes.string.isRequired,
-    type: PropTypes.oneOf(['error', 'loading', 'message', 'success']).isRequired,
+    type: PropTypes.string,
   }).isRequired,
 } as any;
-
-namespace ToastRoot {
-  export interface State {
-    transitionStatus: TransitionStatus;
-    expanded: boolean;
-  }
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    toast: Toast;
-  }
-}
 
 export { ToastRoot };

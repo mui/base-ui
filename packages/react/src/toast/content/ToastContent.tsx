@@ -7,7 +7,10 @@ import { useToastRootContext } from '../root/ToastRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 
 const state = {};
+
 /**
+ * Groups content parts of the toast (title and description) to be announced.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
@@ -58,6 +61,12 @@ const ToastContent = React.forwardRef(function ToastContent(
   );
 });
 
+namespace ToastContent {
+  export interface State {}
+
+  export interface Props extends BaseUIComponentProps<'div', State> {}
+}
+
 ToastContent.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -80,11 +89,5 @@ ToastContent.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-namespace ToastContent {
-  export interface State {}
-
-  export interface Props extends BaseUIComponentProps<'div', State> {}
-}
 
 export { ToastContent };

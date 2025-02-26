@@ -9,4 +9,10 @@ export const ToastRootCssVars = {
    * @type {number}
    */
   offset: '--toast-offset',
+  /**
+   * Indicates the momentum of the toast swipe gesture.
+   * Used to adjust animation speed when dismissing.
+   * @type {number}
+   */
+  momentum: '--toast-momentum',
 } as const;

@@ -5,7 +5,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 const state = {};
+
 /**
+ * A description that describes the toast.
+ * Renders a `<p>` element.
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
@@ -25,6 +28,12 @@ const ToastDescription = React.forwardRef(function ToastDescription(
 
   return renderElement();
 });
+
+namespace ToastDescription {
+  export interface State {}
+
+  export interface Props extends BaseUIComponentProps<'p', State> {}
+}
 
 ToastDescription.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -48,11 +57,5 @@ ToastDescription.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-namespace ToastDescription {
-  export interface State {}
-
-  export interface Props extends BaseUIComponentProps<'p', State> {}
-}
 
 export { ToastDescription };

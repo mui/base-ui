@@ -1,6 +1,6 @@
 {
   "name": "ToastContent",
-  "description": "",
+  "description": "Groups content parts of the toast (title and description) to be announced.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",
