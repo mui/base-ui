@@ -16,7 +16,7 @@ describe('useRender', () => {
         render: renderProp,
         props: {
           className,
-        }
+        },
       });
       return renderElement();
     }
