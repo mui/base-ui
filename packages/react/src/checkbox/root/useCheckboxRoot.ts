@@ -12,7 +12,7 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useField } from '../../field/useField';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 
-export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckboxRoot.ReturnValue {
+export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckboxRoot.ReturnValue {
   const {
     id: idProp,
     checked: externalChecked,
@@ -89,7 +89,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     }
   }, [checked, indeterminate, setFilled]);
 
-  const getButtonProps: UseCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
+  const getButtonProps: useCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'button'>(getValidationProps(externalProps), {
         id,
@@ -143,7 +143,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     ],
   );
 
-  const getInputProps: UseCheckboxRoot.ReturnValue['getInputProps'] = React.useCallback(
+  const getInputProps: useCheckboxRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(getInputValidationProps(externalProps), {
         checked,
@@ -225,7 +225,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   );
 }
 
-export namespace UseCheckboxRoot {
+export namespace useCheckboxRoot {
   export interface Parameters {
     /**
      * The id of the input element.

@@ -93,7 +93,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   return renderElement();
 });
 
-export namespace AccordionPanel {
+namespace AccordionPanel {
   export interface Props
     extends BaseUIComponentProps<'div', AccordionItem.State>,
       Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
