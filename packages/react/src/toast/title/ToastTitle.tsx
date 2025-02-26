@@ -5,7 +5,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 const state = {};
+
 /**
+ * A title that labels the toast.
+ * Renders an `<h2>` element.
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
@@ -25,6 +28,12 @@ const ToastTitle = React.forwardRef(function ToastTitle(
 
   return renderElement();
 });
+
+namespace ToastTitle {
+  export interface State {}
+
+  export interface Props extends BaseUIComponentProps<'h2', State> {}
+}
 
 ToastTitle.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -48,11 +57,5 @@ ToastTitle.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-namespace ToastTitle {
-  export interface State {}
-
-  export interface Props extends BaseUIComponentProps<'h2', State> {}
-}
 
 export { ToastTitle };

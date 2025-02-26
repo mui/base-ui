@@ -1,6 +1,6 @@
 {
   "name": "ToastViewport",
-  "description": "",
+  "description": "A container viewport for toasts.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

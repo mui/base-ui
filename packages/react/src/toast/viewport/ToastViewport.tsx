@@ -9,9 +9,13 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useForkRef } from '../../utils/useForkRef';
 import { ownerDocument } from '../../utils/owner';
 import { ToastViewportContext } from './ToastViewportContext';
+import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 
 const state = {};
+
 /**
+ * A container viewport for toasts.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
@@ -120,10 +124,16 @@ const ToastViewport = React.forwardRef(function ToastViewport(
 
   return (
     <ToastViewportContext.Provider value={contextValue}>
-      {renderElement()}
+      <FloatingPortalLite>{renderElement()}</FloatingPortalLite>
     </ToastViewportContext.Provider>
   );
 });
+
+namespace ToastViewport {
+  export interface State {}
+
+  export interface Props extends BaseUIComponentProps<'div', State> {}
+}
 
 ToastViewport.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -147,11 +157,5 @@ ToastViewport.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-namespace ToastViewport {
-  export interface State {}
-
-  export interface Props extends BaseUIComponentProps<'div', State> {}
-}
 
 export { ToastViewport };

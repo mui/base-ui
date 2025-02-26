@@ -1,6 +1,6 @@
 {
   "name": "ToastTitle",
-  "description": "",
+  "description": "A title that labels the toast.\nRenders an `<h2>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

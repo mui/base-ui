@@ -9,7 +9,10 @@ import { useToastContext } from '../provider/ToastProviderContext';
 import { useToastViewportContext } from '../viewport/ToastViewportContext';
 
 const state = {};
+
 /**
+ * Closes the toast when clicked.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
@@ -61,6 +64,12 @@ const ToastClose = React.forwardRef(function ToastClose(
   return renderElement();
 });
 
+namespace ToastClose {
+  export interface State {}
+
+  export interface Props extends BaseUIComponentProps<'button', State> {}
+}
+
 ToastClose.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -83,11 +92,5 @@ ToastClose.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-namespace ToastClose {
-  export interface State {}
-
-  export interface Props extends BaseUIComponentProps<'button', State> {}
-}
 
 export { ToastClose };
