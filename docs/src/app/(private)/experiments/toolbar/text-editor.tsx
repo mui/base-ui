@@ -141,6 +141,7 @@ export default function App() {
       <div className={styles.toolbar.Wrapper}>
         <Tooltip.Provider>
           <Toolbar.Root className={styles.toolbar.Root}>
+            {/* only disabling the trigger doesn't work yet - https://github.com/mui/base-ui/issues/1439 */}
             <Select.Root defaultValue="sans" disabled={selectDisabled}>
               <Toolbar.Button
                 disabled={selectDisabled}

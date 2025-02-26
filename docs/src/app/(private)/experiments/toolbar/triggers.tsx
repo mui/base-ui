@@ -194,22 +194,6 @@ export default function App() {
                 label: 'RGB color picker',
                 disabled: INT_POPOVER_DISABLED,
               })}
-
-              <Tooltip.Portal>
-                <Tooltip.Positioner sideOffset={10}>
-                  <Tooltip.Popup className={styles.tooltip.Popup}>
-                    <Tooltip.Arrow
-                      className={classNames(
-                        styles.tooltip.Arrow,
-                        styles.toolbar.TooltipArrow,
-                      )}
-                    >
-                      <ArrowSvg className={styles.toolbar.ArrowSvg} />
-                    </Tooltip.Arrow>
-                    RGB color picker
-                  </Tooltip.Popup>
-                </Tooltip.Positioner>
-              </Tooltip.Portal>
             </Tooltip.Root>
 
             <Popover.Portal>
