@@ -65,7 +65,7 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
   return imageLoadingStatus === 'loaded' ? renderElement() : null;
 });
 
-export namespace AvatarImage {
+namespace AvatarImage {
   export interface Props extends BaseUIComponentProps<'img', AvatarRoot.State> {
     /**
      * Callback fired when the loading status changes.

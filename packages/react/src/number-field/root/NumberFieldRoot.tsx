@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { NumberFieldRootContext } from './NumberFieldRootContext';
-import { UseNumberFieldRoot, useNumberFieldRoot } from './useNumberFieldRoot';
+import { useNumberFieldRoot } from './useNumberFieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -92,9 +92,9 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   );
 });
 
-export namespace NumberFieldRoot {
+namespace NumberFieldRoot {
   export interface Props
-    extends UseNumberFieldRoot.Parameters,
+    extends useNumberFieldRoot.Parameters,
       Omit<BaseUIComponentProps<'div', State>, 'onChange' | 'defaultValue'> {}
 
   export interface State extends FieldRoot.State {

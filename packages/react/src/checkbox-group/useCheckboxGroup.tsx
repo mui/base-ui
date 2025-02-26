@@ -5,12 +5,11 @@ import { useControlled } from '../utils/useControlled';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
-import type { UseCheckboxGroupParent } from './useCheckboxGroupParent';
 import type { GenericHTMLProps } from '../utils/types';
 
 export function useCheckboxGroup(
-  params: UseCheckboxGroup.Parameters,
-): UseCheckboxGroup.ReturnValue {
+  params: useCheckboxGroup.Parameters,
+): useCheckboxGroup.ReturnValue {
   const { allValues, value: externalValue, defaultValue, onValueChange } = params;
 
   const { labelId } = useFieldRootContext();
@@ -53,7 +52,7 @@ export function useCheckboxGroup(
   );
 }
 
-namespace UseCheckboxGroup {
+namespace useCheckboxGroup {
   export interface Parameters {
     value?: string[];
     defaultValue?: string[];
@@ -65,6 +64,6 @@ namespace UseCheckboxGroup {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     value: string[];
     setValue: (value: string[], event: Event) => void;
-    parent: UseCheckboxGroupParent.ReturnValue;
+    parent: useCheckboxGroupParent.ReturnValue;
   }
 }
