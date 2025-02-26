@@ -61,6 +61,8 @@ module.exports = function getBabelConfig(api) {
         missingError,
         runtimeModule: '#formatErrorMessage',
         detection: 'opt-out',
+        // Just strip the extension, extensions are handled by babel-plugin-add-import-extension
+        outExtension: '',
       },
     ],
   ];
