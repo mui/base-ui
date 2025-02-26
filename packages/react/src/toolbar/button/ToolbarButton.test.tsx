@@ -330,7 +330,7 @@ describe('<Toolbar.Button />', () => {
         );
 
         const trigger = getByTestId('button');
-        // should have role="combobox"
+        expect(trigger).to.equal(screen.getByRole('combobox'));
         expect(trigger).to.have.attribute('aria-haspopup', 'listbox');
       });
 
@@ -408,7 +408,7 @@ describe('<Toolbar.Button />', () => {
 
         expect(screen.queryByRole('listbox')).to.equal(null);
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('combobox');
         expect(trigger).to.not.have.attribute('disabled');
         expect(trigger).to.have.attribute('data-disabled');
         expect(trigger).to.have.attribute('aria-disabled', 'true');

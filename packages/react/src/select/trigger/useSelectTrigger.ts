@@ -73,8 +73,13 @@ export function useSelectTrigger(
 
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return getButtonProps(
-        mergeReactProps<'button'>(fieldControlValidation.getValidationProps(externalProps), {
+      return mergeReactProps<'button'>(
+        // ensure nested useButton does not overwrite the combobox role:
+        // <Toolbar.Button render={<Select.Trigger />} />
+        { role: 'combobox' },
+        getButtonProps,
+        fieldControlValidation.getValidationProps(externalProps),
+        {
           'aria-labelledby': labelId,
           'aria-readonly': readOnly || undefined,
           tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
@@ -142,7 +147,7 @@ export function useSelectTrigger(
               doc.addEventListener('mouseup', handleMouseUp, { once: true });
             });
           },
-        }),
+        },
       );
     },
     [
