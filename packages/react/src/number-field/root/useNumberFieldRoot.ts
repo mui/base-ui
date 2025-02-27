@@ -3,16 +3,9 @@ import * as React from 'react';
 import { useScrub } from './useScrub';
 import { formatNumber } from '../../utils/formatNumber';
 import { toValidatedNumber } from '../utils/validate';
-import {
-  ARABIC_RE,
-  HAN_RE,
-  PERCENTAGES,
-  getNumberLocaleDetails,
-  parseNumber,
-} from '../utils/parse';
+import { PERCENTAGES, getNumberLocaleDetails } from '../utils/parse';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 import { isIOS } from '../../utils/detectBrowser';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -50,24 +43,16 @@ export function useNumberFieldRoot(
   } = params;
 
   const {
-    labelId,
     setControlId,
     validationMode,
-    setTouched,
     setDirty,
     validityData,
     setValidityData,
     disabled: fieldDisabled,
-    setFocused,
     setFilled,
   } = useFieldRootContext();
 
-  const {
-    getInputValidationProps,
-    getValidationProps,
-    inputRef: inputValidationRef,
-    commitValidation,
-  } = useFieldControlValidation();
+  const { inputRef: inputValidationRef, commitValidation } = useFieldControlValidation();
 
   const disabled = fieldDisabled || disabledProp;
 
@@ -123,7 +108,6 @@ export function useNumberFieldRoot(
   const movesAfterTouchRef = React.useRef(0);
   const allowInputSyncRef = React.useRef(true);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
-  const hasTouchedInputRef = React.useRef(false);
 
   useEnhancedEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {
@@ -136,7 +120,7 @@ export function useNumberFieldRoot(
   // rendering an empty input field and then updating it with the formatted value, as the user
   // can still see the value prior to hydration, even if it's not formatted correctly.
   const [inputValue, setInputValue] = React.useState(() => formatNumber(value, [], format));
-  const [inputMode, setInputMode] = React.useState<'numeric' | 'decimal' | 'text'>('numeric');
+  const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
   const getAllowedNonNumericKeys = useEventCallback(() => {
     const { decimal, group, currency } = getNumberLocaleDetails([], format);
@@ -375,231 +359,6 @@ export function useNumberFieldRoot(
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  const getInputProps: useNumberFieldRoot.ReturnValue['getInputProps'] = React.useCallback(
-    (externalProps = {}) =>
-      mergeReactProps<'input'>(getInputValidationProps(getValidationProps(externalProps)), {
-        id,
-        required,
-        autoFocus,
-        name,
-        disabled,
-        readOnly,
-        inputMode,
-        value: inputValue,
-        ref: mergedRef,
-        type: 'text',
-        autoComplete: 'off',
-        autoCorrect: 'off',
-        spellCheck: 'false',
-        'aria-roledescription': 'Number field',
-        'aria-invalid': invalid || undefined,
-        'aria-labelledby': labelId,
-        // If the server's locale does not match the client's locale, the formatting may not match,
-        // causing a hydration mismatch.
-        suppressHydrationWarning: true,
-        onFocus(event) {
-          if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
-            return;
-          }
-
-          hasTouchedInputRef.current = true;
-          setFocused(true);
-
-          // Browsers set selection at the start of the input field by default. We want to set it at
-          // the end for the first focus.
-          const target = event.currentTarget;
-          const length = target.value.length;
-          target.setSelectionRange(length, length);
-        },
-        onBlur(event) {
-          if (event.defaultPrevented || readOnly || disabled) {
-            return;
-          }
-
-          setTouched(true);
-          setFocused(false);
-
-          if (validationMode === 'onBlur') {
-            commitValidation(valueRef.current);
-          }
-
-          allowInputSyncRef.current = true;
-
-          if (inputValue.trim() === '') {
-            setValue(null);
-            return;
-          }
-
-          const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
-
-          if (parsedValue !== null) {
-            setValue(parsedValue, event.nativeEvent);
-          }
-        },
-        onChange(event) {
-          // Workaround for https://github.com/facebook/react/issues/9023
-          if (event.nativeEvent.defaultPrevented) {
-            return;
-          }
-
-          allowInputSyncRef.current = false;
-          const targetValue = event.target.value;
-
-          if (targetValue.trim() === '') {
-            setInputValue(targetValue);
-            setValue(null, event.nativeEvent);
-            return;
-          }
-
-          if (event.isTrusted) {
-            setInputValue(targetValue);
-            return;
-          }
-
-          const parsedValue = parseNumber(targetValue, formatOptionsRef.current);
-
-          if (parsedValue !== null) {
-            setInputValue(targetValue);
-            setValue(parsedValue, event.nativeEvent);
-          }
-        },
-        onKeyDown(event) {
-          if (event.defaultPrevented || readOnly || disabled) {
-            return;
-          }
-
-          const nativeEvent = event.nativeEvent;
-
-          allowInputSyncRef.current = true;
-
-          const allowedNonNumericKeys = getAllowedNonNumericKeys();
-
-          let isAllowedNonNumericKey = allowedNonNumericKeys.includes(event.key);
-
-          const { decimal, currency, percentSign } = getNumberLocaleDetails(
-            [],
-            formatOptionsRef.current,
-          );
-
-          const selectionStart = event.currentTarget.selectionStart;
-          const selectionEnd = event.currentTarget.selectionEnd;
-          const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
-
-          // Allow the minus key only if there isn't already a plus or minus sign, or if all the text
-          // is selected, or if only the minus sign is highlighted.
-          if (event.key === '-' && allowedNonNumericKeys.includes('-')) {
-            const isMinusHighlighted =
-              selectionStart === 0 && selectionEnd === 1 && inputValue[0] === '-';
-            isAllowedNonNumericKey =
-              !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
-          }
-
-          // Only allow one of each symbol.
-          [decimal, currency, percentSign].forEach((symbol) => {
-            if (event.key === symbol) {
-              const symbolIndex = inputValue.indexOf(symbol);
-              const isSymbolHighlighted =
-                selectionStart === symbolIndex && selectionEnd === symbolIndex + 1;
-              isAllowedNonNumericKey =
-                !inputValue.includes(symbol) || isAllSelected || isSymbolHighlighted;
-            }
-          });
-
-          const isLatinNumeral = /^[0-9]$/.test(event.key);
-          const isArabicNumeral = ARABIC_RE.test(event.key);
-          const isHanNumeral = HAN_RE.test(event.key);
-          const isNavigateKey = [
-            'Backspace',
-            'Delete',
-            'ArrowLeft',
-            'ArrowRight',
-            'Tab',
-            'Enter',
-          ].includes(event.key);
-
-          if (
-            // Allow composition events (e.g., pinyin)
-            // event.nativeEvent.isComposing does not work in Safari:
-            // https://bugs.webkit.org/show_bug.cgi?id=165004
-            event.which === 229 ||
-            event.altKey ||
-            event.ctrlKey ||
-            event.metaKey ||
-            isAllowedNonNumericKey ||
-            isLatinNumeral ||
-            isArabicNumeral ||
-            isHanNumeral ||
-            isNavigateKey
-          ) {
-            return;
-          }
-
-          // We need to commit the number at this point if the input hasn't been blurred.
-          const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
-
-          const amount = getStepAmount() ?? DEFAULT_STEP;
-
-          // Prevent insertion of text or caret from moving.
-          event.preventDefault();
-
-          if (event.key === 'ArrowUp') {
-            incrementValue(amount, 1, parsedValue, nativeEvent);
-          } else if (event.key === 'ArrowDown') {
-            incrementValue(amount, -1, parsedValue, nativeEvent);
-          } else if (event.key === 'Home' && min != null) {
-            setValue(min, nativeEvent);
-          } else if (event.key === 'End' && max != null) {
-            setValue(max, nativeEvent);
-          }
-        },
-        onPaste(event) {
-          if (event.defaultPrevented || readOnly || disabled) {
-            return;
-          }
-
-          // Prevent `onChange` from being called.
-          event.preventDefault();
-
-          const clipboardData = event.clipboardData || window.Clipboard;
-          const pastedData = clipboardData.getData('text/plain');
-          const parsedValue = parseNumber(pastedData, formatOptionsRef.current);
-
-          if (parsedValue !== null) {
-            allowInputSyncRef.current = false;
-            setValue(parsedValue, event.nativeEvent);
-            setInputValue(pastedData);
-          }
-        },
-      }),
-    [
-      getInputValidationProps,
-      getValidationProps,
-      id,
-      required,
-      autoFocus,
-      name,
-      disabled,
-      readOnly,
-      inputMode,
-      inputValue,
-      mergedRef,
-      invalid,
-      labelId,
-      setFocused,
-      setTouched,
-      validationMode,
-      formatOptionsRef,
-      commitValidation,
-      valueRef,
-      setValue,
-      getAllowedNonNumericKeys,
-      getStepAmount,
-      min,
-      max,
-      incrementValue,
-    ],
-  );
-
   const scrub = useScrub({
     disabled,
     readOnly,
@@ -611,7 +370,6 @@ export function useNumberFieldRoot(
 
   return React.useMemo(
     () => ({
-      getInputProps,
       inputRef,
       mergedRef,
       inputValue,
@@ -632,10 +390,18 @@ export function useNumberFieldRoot(
       isPressedRef,
       intentionalTouchCheckTimeoutRef,
       movesAfterTouchRef,
+      name,
+      required,
+      invalid,
+      autoFocus,
+      inputMode,
+      getAllowedNonNumericKeys,
+      min,
+      max,
+      setInputValue,
       ...scrub,
     }),
     [
-      getInputProps,
       inputRef,
       mergedRef,
       inputValue,
@@ -657,9 +423,20 @@ export function useNumberFieldRoot(
       isPressedRef,
       intentionalTouchCheckTimeoutRef,
       movesAfterTouchRef,
+      name,
+      required,
+      invalid,
+      autoFocus,
+      inputMode,
+      getAllowedNonNumericKeys,
+      min,
+      max,
+      setInputValue,
     ],
   );
 }
+
+export type InputMode = 'numeric' | 'decimal' | 'text';
 
 export namespace useNumberFieldRoot {
   export interface Parameters {
@@ -751,9 +528,6 @@ export namespace useNumberFieldRoot {
   }
 
   export interface ReturnValue {
-    getInputProps: (
-      externalProps?: React.ComponentPropsWithRef<'input'>,
-    ) => React.ComponentPropsWithRef<'input'>;
     getScrubAreaProps: (
       externalProps?: React.ComponentPropsWithRef<'span'>,
     ) => React.ComponentPropsWithRef<'span'>;
@@ -789,5 +563,14 @@ export namespace useNumberFieldRoot {
     isPressedRef: React.RefObject<boolean | null>;
     intentionalTouchCheckTimeoutRef: React.RefObject<number | null>;
     movesAfterTouchRef: React.RefObject<number | null>;
+    name: string | undefined;
+    required: boolean;
+    invalid: boolean;
+    autoFocus: boolean;
+    inputMode: InputMode;
+    getAllowedNonNumericKeys: () => (string | undefined)[];
+    min: number | undefined;
+    max: number | undefined;
+    setInputValue: React.Dispatch<React.SetStateAction<string>>;
   }
 }
