@@ -375,14 +375,6 @@ export function useNumberFieldRoot(
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  const getGroupProps: useNumberFieldRoot.ReturnValue['getGroupProps'] = React.useCallback(
-    (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        role: 'group',
-      }),
-    [],
-  );
-
   const getInputProps: useNumberFieldRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(getInputValidationProps(getValidationProps(externalProps)), {
@@ -619,7 +611,6 @@ export function useNumberFieldRoot(
 
   return React.useMemo(
     () => ({
-      getGroupProps,
       getInputProps,
       inputRef,
       mergedRef,
@@ -644,7 +635,6 @@ export function useNumberFieldRoot(
       ...scrub,
     }),
     [
-      getGroupProps,
       getInputProps,
       inputRef,
       mergedRef,
@@ -761,9 +751,6 @@ export namespace useNumberFieldRoot {
   }
 
   export interface ReturnValue {
-    getGroupProps: (
-      externalProps?: React.ComponentPropsWithRef<'div'>,
-    ) => React.ComponentPropsWithRef<'div'>;
     getInputProps: (
       externalProps?: React.ComponentPropsWithRef<'input'>,
     ) => React.ComponentPropsWithRef<'input'>;
