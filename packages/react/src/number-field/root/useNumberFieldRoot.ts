@@ -31,7 +31,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useForkRef } from '../../utils/useForkRef';
 import { useField } from '../../field/useField';
-import type { ScrubHandle } from './useScrub.types';
+import type { ScrubHandle } from './useScrub';
 
 export function useNumberFieldRoot(
   params: useNumberFieldRoot.Parameters,
