@@ -30,7 +30,7 @@ namespace useRender {
     /**
      * The React element or a function that returns one to override the default element.
      */
-    render: RenderProp<Record<string, any>>;
+    render: RenderProp<Record<string, unknown>>;
     /**
      * Props to be spread on the rendered element.
      * They are merged with the internal props of the component, so that event handlers
