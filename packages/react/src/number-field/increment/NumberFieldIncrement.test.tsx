@@ -5,17 +5,58 @@ import { screen, fireEvent, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
+import { NOOP } from '../../utils/noop';
 import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
 
 const testContext = {
-  getIncrementButtonProps: (externalProps) => externalProps,
+  allowInputSyncRef: { current: false },
+  disabled: false,
+  formatOptionsRef: { current: undefined },
+  getGroupProps: (externalProps) => externalProps,
+  getInputProps: (externalProps) => externalProps,
+  getScrubAreaProps: (externalProps) => externalProps,
+  getScrubAreaCursorProps: (externalProps) => externalProps,
+  getStepAmount: NOOP,
+  id: 'id',
+  incrementValue: NOOP,
+  inputRef: { current: null },
+  inputValue: '',
+  intentionalTouchCheckTimeoutRef: { current: -1 },
+  isPressedRef: { current: false },
+  isScrubbing: false,
+  maxWithDefault: 100,
+  mergedRef: (_node) => {},
+  minWithDefault: 0,
+  movesAfterTouchRef: { current: 0 },
+  readOnly: false,
+  scrubAreaRef: { current: null },
+  scrubAreaCursorRef: { current: null },
+  scrubHandleRef: {
+    current: {
+      direction: 'horizontal',
+      pixelSensitivity: 0,
+      teleportDistance: 0,
+    },
+  },
+  setValue: NOOP,
   state: {
     value: null,
     required: false,
     disabled: false,
     invalid: false,
     readOnly: false,
+    scrubbing: false,
+    touched: false,
+    dirty: false,
+    inputValue: '',
+    valid: true,
+    filled: false,
+    focused: false,
   },
+  startAutoChange: NOOP,
+  stopAutoChange: NOOP,
+  value: null,
+  valueRef: { current: null },
 } as NumberFieldRootContext;
 
 describe('<NumberField.Increment />', () => {
