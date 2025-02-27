@@ -12,7 +12,6 @@ const testContext = {
   allowInputSyncRef: { current: false },
   disabled: false,
   formatOptionsRef: { current: undefined },
-  getGroupProps: (externalProps) => externalProps,
   getInputProps: (externalProps) => externalProps,
   getScrubAreaProps: (externalProps) => externalProps,
   getScrubAreaCursorProps: (externalProps) => externalProps,
