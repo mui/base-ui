@@ -20,9 +20,9 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { getInputProps, inputRef, state } = useNumberFieldRootContext();
+  const { getInputProps, mergedRef, state } = useNumberFieldRootContext();
 
-  const mergedInputRef = useForkRef(forwardedRef, inputRef);
+  const mergedInputRef = useForkRef(forwardedRef, mergedRef);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getInputProps,

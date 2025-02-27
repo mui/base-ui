@@ -10,14 +10,7 @@ import {
   getNumberLocaleDetails,
   parseNumber,
 } from '../utils/parse';
-import {
-  CHANGE_VALUE_TICK_DELAY,
-  DEFAULT_STEP,
-  MAX_POINTER_MOVES_AFTER_TOUCH,
-  SCROLLING_POINTER_MOVE_DISTANCE,
-  START_AUTO_CHANGE_DELAY,
-  TOUCH_TIMEOUT,
-} from '../utils/constants';
+import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 import { isIOS } from '../../utils/detectBrowser';
 import { mergeProps } from '../../merge-props';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
@@ -128,14 +121,10 @@ export function useNumberFieldRoot(
   const isPressedRef = React.useRef(false);
   const isHoldingShiftRef = React.useRef(false);
   const isHoldingAltRef = React.useRef(false);
-  const incrementDownCoordsRef = React.useRef({ x: 0, y: 0 });
   const movesAfterTouchRef = React.useRef(0);
   const allowInputSyncRef = React.useRef(true);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
-  const isTouchingButtonRef = React.useRef(false);
   const hasTouchedInputRef = React.useRef(false);
-  const ignoreClickRef = React.useRef(false);
-  const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen' | ''>('');
 
   useEnhancedEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {
@@ -149,9 +138,6 @@ export function useNumberFieldRoot(
   // can still see the value prior to hydration, even if it's not formatted correctly.
   const [inputValue, setInputValue] = React.useState(() => formatNumber(value, locale, format));
   const [inputMode, setInputMode] = React.useState<'numeric' | 'decimal' | 'text'>('numeric');
-
-  const isMin = value != null && value <= minWithDefault;
-  const isMax = value != null && value >= maxWithDefault;
 
   const getAllowedNonNumericKeys = useEventCallback(() => {
     const { decimal, group, currency } = getNumberLocaleDetails(locale, format);
@@ -401,173 +387,6 @@ export function useNumberFieldRoot(
     [],
   );
 
-  const getCommonButtonProps = React.useCallback(
-    (isIncrement: boolean, externalProps = {}) => {
-      function commitValue(nativeEvent: MouseEvent) {
-        allowInputSyncRef.current = true;
-
-        // The input may be dirty but not yet blurred, so the value won't have been committed.
-        const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
-
-        if (parsedValue !== null) {
-          // The increment value function needs to know the current input value to increment it
-          // correctly.
-          valueRef.current = parsedValue;
-          setValue(parsedValue, nativeEvent);
-        }
-      }
-
-      return mergeProps<'button'>(
-        {
-          disabled: disabled || (isIncrement ? isMax : isMin),
-          type: 'button',
-          'aria-readonly': readOnly || undefined,
-          'aria-label': isIncrement ? 'Increase' : 'Decrease',
-          'aria-controls': id,
-          // Keyboard users shouldn't have access to the buttons, since they can use the input element
-          // to change the value. On the other hand, `aria-hidden` is not applied because touch screen
-          // readers should be able to use the buttons.
-          tabIndex: -1,
-          style: {
-            WebkitUserSelect: 'none',
-            userSelect: 'none',
-          },
-          onTouchStart() {
-            isTouchingButtonRef.current = true;
-          },
-          onTouchEnd() {
-            isTouchingButtonRef.current = false;
-          },
-          onClick(event) {
-            const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
-            if (
-              event.defaultPrevented ||
-              isDisabled ||
-              // If it's not a keyboard/virtual click, ignore.
-              (pointerTypeRef.current === 'touch' ? ignoreClickRef.current : event.detail !== 0)
-            ) {
-              return;
-            }
-
-            commitValue(event.nativeEvent);
-
-            const amount = getStepAmount() ?? DEFAULT_STEP;
-
-            incrementValue(amount, isIncrement ? 1 : -1, undefined, event.nativeEvent);
-          },
-          onPointerDown(event) {
-            const isMainButton = !event.button || event.button === 0;
-            const isDisabled = disabled || (isIncrement ? isMax : isMin);
-            if (event.defaultPrevented || readOnly || !isMainButton || isDisabled) {
-              return;
-            }
-
-            pointerTypeRef.current = event.pointerType;
-            ignoreClickRef.current = false;
-            isPressedRef.current = true;
-            incrementDownCoordsRef.current = { x: event.clientX, y: event.clientY };
-
-            commitValue(event.nativeEvent);
-
-            // Note: "pen" is sometimes returned for mouse usage on Linux Chrome.
-            if (event.pointerType !== 'touch') {
-              event.preventDefault();
-              inputRef.current?.focus();
-              startAutoChange(isIncrement);
-            } else {
-              // We need to check if the pointerdown was intentional, and not the result of a scroll
-              // or pinch-zoom. In that case, we don't want to change the value.
-              intentionalTouchCheckTimeoutRef.current = window.setTimeout(() => {
-                const moves = movesAfterTouchRef.current;
-                movesAfterTouchRef.current = 0;
-                if (moves < MAX_POINTER_MOVES_AFTER_TOUCH) {
-                  ignoreClickRef.current = true;
-                  startAutoChange(isIncrement);
-                } else {
-                  stopAutoChange();
-                }
-              }, TOUCH_TIMEOUT);
-            }
-          },
-          onPointerMove(event) {
-            const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
-            if (isDisabled || event.pointerType !== 'touch' || !isPressedRef.current) {
-              return;
-            }
-
-            movesAfterTouchRef.current += 1;
-
-            const { x, y } = incrementDownCoordsRef.current;
-            const dx = x - event.clientX;
-            const dy = y - event.clientY;
-
-            // An alternative to this technique is to detect when the NumberField's parent container
-            // has been scrolled
-            if (dx ** 2 + dy ** 2 > SCROLLING_POINTER_MOVE_DISTANCE ** 2) {
-              stopAutoChange();
-            }
-          },
-          onMouseEnter(event) {
-            const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
-            if (
-              event.defaultPrevented ||
-              isDisabled ||
-              !isPressedRef.current ||
-              isTouchingButtonRef.current
-            ) {
-              return;
-            }
-
-            startAutoChange(isIncrement);
-          },
-          onMouseLeave() {
-            if (isTouchingButtonRef.current) {
-              return;
-            }
-
-            stopAutoChange();
-          },
-          onMouseUp() {
-            if (isTouchingButtonRef.current) {
-              return;
-            }
-
-            stopAutoChange();
-          },
-        },
-        externalProps,
-      );
-    },
-    [
-      disabled,
-      isMax,
-      isMin,
-      readOnly,
-      id,
-      inputValue,
-      locale,
-      formatOptionsRef,
-      valueRef,
-      setValue,
-      getStepAmount,
-      incrementValue,
-      startAutoChange,
-      stopAutoChange,
-    ],
-  );
-
-  const getIncrementButtonProps: useNumberFieldRoot.ReturnValue['getIncrementButtonProps'] =
-    React.useCallback(
-      (externalProps) => getCommonButtonProps(true, externalProps),
-      [getCommonButtonProps],
-    );
-
-  const getDecrementButtonProps: useNumberFieldRoot.ReturnValue['getDecrementButtonProps'] =
-    React.useCallback(
-      (externalProps) => getCommonButtonProps(false, externalProps),
-      [getCommonButtonProps],
-    );
-
   const getInputProps: useNumberFieldRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeProps<'input'>(
@@ -810,22 +629,52 @@ export function useNumberFieldRoot(
     () => ({
       getGroupProps,
       getInputProps,
-      getIncrementButtonProps,
-      getDecrementButtonProps,
-      inputRef: mergedRef,
+      inputRef,
+      mergedRef,
       inputValue,
       value,
+      startAutoChange,
+      stopAutoChange,
+      minWithDefault,
+      maxWithDefault,
+      disabled,
+      readOnly,
+      id,
+      setValue,
+      incrementValue,
+      getStepAmount,
+      allowInputSyncRef,
+      formatOptionsRef,
+      valueRef,
+      isPressedRef,
+      intentionalTouchCheckTimeoutRef,
+      movesAfterTouchRef,
       ...scrub,
     }),
     [
       getGroupProps,
       getInputProps,
-      getIncrementButtonProps,
-      getDecrementButtonProps,
+      inputRef,
       mergedRef,
       inputValue,
       value,
       scrub,
+      startAutoChange,
+      stopAutoChange,
+      minWithDefault,
+      maxWithDefault,
+      disabled,
+      readOnly,
+      id,
+      setValue,
+      incrementValue,
+      getStepAmount,
+      allowInputSyncRef,
+      formatOptionsRef,
+      valueRef,
+      isPressedRef,
+      intentionalTouchCheckTimeoutRef,
+      movesAfterTouchRef,
     ],
   );
 }
@@ -931,12 +780,6 @@ export namespace useNumberFieldRoot {
     getInputProps: (
       externalProps?: React.ComponentPropsWithRef<'input'>,
     ) => React.ComponentPropsWithRef<'input'>;
-    getIncrementButtonProps: (
-      externalProps?: React.ComponentPropsWithRef<'button'>,
-    ) => React.ComponentPropsWithRef<'button'>;
-    getDecrementButtonProps: (
-      externalProps?: React.ComponentPropsWithRef<'button'>,
-    ) => React.ComponentPropsWithRef<'button'>;
     getScrubAreaProps: (
       externalProps?: React.ComponentPropsWithRef<'span'>,
     ) => React.ComponentPropsWithRef<'span'>;
@@ -946,11 +789,31 @@ export namespace useNumberFieldRoot {
     inputValue: string;
     value: number | null;
     isScrubbing: boolean;
-    isTouchInput: boolean;
-    isPointerLockDenied: boolean;
-    inputRef: ((instance: HTMLInputElement | null) => void) | null;
     scrubHandleRef: React.RefObject<ScrubHandle | null>;
     scrubAreaRef: React.RefObject<HTMLSpanElement | null>;
     scrubAreaCursorRef: React.RefObject<HTMLSpanElement | null>;
+    startAutoChange: (isIncrement: boolean) => void;
+    stopAutoChange: () => void;
+    minWithDefault: number;
+    maxWithDefault: number;
+    disabled: boolean;
+    readOnly: boolean;
+    id: string | undefined;
+    setValue: (unvalidatedValue: number | null, event?: Event) => void;
+    getStepAmount: () => number | undefined;
+    incrementValue: (
+      amount: number,
+      dir: 1 | -1,
+      currentValue?: number | null,
+      event?: Event,
+    ) => void;
+    inputRef: React.RefObject<HTMLInputElement | null>;
+    mergedRef: ((instance: HTMLInputElement | null) => void) | null;
+    allowInputSyncRef: React.RefObject<boolean | null>;
+    formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
+    valueRef: React.RefObject<number | null>;
+    isPressedRef: React.RefObject<boolean | null>;
+    intentionalTouchCheckTimeoutRef: React.RefObject<number | null>;
+    movesAfterTouchRef: React.RefObject<number | null>;
   }
 }

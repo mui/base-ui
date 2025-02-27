@@ -2,9 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
+import { useNumberFieldButton } from '../root/useNumberFieldButton';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 
 /**
  * A stepper button that increases the field value when clicked.
@@ -18,10 +19,58 @@ const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { getIncrementButtonProps, state } = useNumberFieldRootContext();
+  const {
+    state,
+    inputRef,
+    startAutoChange,
+    stopAutoChange,
+    minWithDefault,
+    maxWithDefault,
+    value,
+    inputValue,
+    disabled,
+    readOnly,
+    id,
+    setValue,
+    getStepAmount,
+    incrementValue,
+    allowInputSyncRef,
+    formatOptionsRef,
+    valueRef,
+    isPressedRef,
+    intentionalTouchCheckTimeoutRef,
+    movesAfterTouchRef,
+  } = useNumberFieldRootContext();
+
+  const { getCommonButtonProps } = useNumberFieldButton({
+    inputRef,
+    startAutoChange,
+    stopAutoChange,
+    minWithDefault,
+    maxWithDefault,
+    value,
+    inputValue,
+    disabled,
+    readOnly,
+    id,
+    setValue,
+    getStepAmount,
+    incrementValue,
+    allowInputSyncRef,
+    formatOptionsRef,
+    valueRef,
+    isPressedRef,
+    intentionalTouchCheckTimeoutRef,
+    movesAfterTouchRef,
+  });
+
+  const propGetter = React.useCallback(
+    (externalProps: GenericHTMLProps) => getCommonButtonProps(true, externalProps),
+    [getCommonButtonProps],
+  );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getIncrementButtonProps,
+    propGetter,
     ref: forwardedRef,
     render: render ?? 'button',
     state,
@@ -36,6 +85,8 @@ namespace NumberFieldIncrement {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }
+
+export { NumberFieldIncrement };
 
 NumberFieldIncrement.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -59,5 +110,3 @@ NumberFieldIncrement.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { NumberFieldIncrement };
