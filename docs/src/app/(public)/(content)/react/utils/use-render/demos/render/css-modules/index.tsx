@@ -9,10 +9,10 @@ type TextProps = {
 };
 
 function Text(props: TextProps) {
-  const { render, ...otherProps } = props;
+  const { render =  <p />, ...otherProps } = props;
 
   const { renderElement } = useRender({
-    render: render ?? <p />,
+    render,
     props: { ...otherProps, className: styles.Text },
   });
 
