@@ -21,7 +21,7 @@ function useRender<RenderedElementType extends Element>(
 }
 
 namespace useRender {
-  export type RenderProp<State = Record<string, any>> =
+  export type RenderProp<State = Record<string, unknown>> =
     | ComponentRenderFn<React.HTMLAttributes<any>, State>
     | React.ReactElement<Record<string, unknown>>
     | keyof typeof defaultRenderFunctions;

@@ -4,12 +4,12 @@ import { useRender } from '@base-ui-components/react/use-render';
 import styles from './index.module.css';
 
 type TextProps = {
-  render?: useRender.RenderProp<Record<string, unknown>>;
+  render?: useRender.RenderProp;
   children: React.ReactNode;
 };
 
 function Text(props: TextProps) {
-  const { render =  <p />, ...otherProps } = props;
+  const { render = <p />, ...otherProps } = props;
 
   const { renderElement } = useRender({
     render,
