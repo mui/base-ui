@@ -3,7 +3,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { fieldValidityMapping } from '../../field/utils/constants';
@@ -66,13 +65,11 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     setValue,
     valueRef,
     setInputValue,
+    inputRef: forwardedRef,
   });
-
-  const mergedInputRef = useForkRef(forwardedRef, mergedRef);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getInputProps,
-    ref: mergedInputRef,
     render: render ?? 'input',
     className,
     state,
