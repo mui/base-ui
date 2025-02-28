@@ -11,6 +11,7 @@ import { isWebKit } from '../../utils/detectBrowser';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { UseNumberFieldRoot } from './useNumberFieldRoot';
 import { NumberFieldRootDataAttributes } from './NumberFieldRootDataAttributes';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
  * @ignore - internal hook.
@@ -30,7 +31,6 @@ export function useScrub(params: ScrubParams) {
   const visualScaleRef = React.useRef(1);
 
   const [isScrubbing, setIsScrubbing] = React.useState(false);
-  const [cursorTransform, setCursorTransform] = React.useState('');
 
   React.useEffect(() => {
     return () => {
@@ -46,44 +46,51 @@ export function useScrub(params: ScrubParams) {
     return subscribeToVisualViewportResize(scrubAreaCursorRef.current, visualScaleRef);
   }, [isScrubbing]);
 
-  const onScrub = React.useCallback(({ movementX, movementY }: PointerEvent) => {
-    const virtualCursor = scrubAreaCursorRef.current;
-    const scrubAreaEl = scrubAreaRef.current;
-    const scrubHandle = scrubHandleRef.current;
-
-    if (!virtualCursor || !scrubAreaEl || !scrubHandle) {
-      return;
+  const updateCursorTransform = useEventCallback((x: number, y: number) => {
+    if (scrubAreaCursorRef.current) {
+      scrubAreaCursorRef.current.style.transform = `translate3d(${x}px,${y}px,0) scale(${1 / visualScaleRef.current})`;
     }
+  });
 
-    const rect = getViewportRect(scrubHandle.teleportDistance, scrubAreaEl);
+  const onScrub = React.useCallback(
+    ({ movementX, movementY }: PointerEvent) => {
+      const virtualCursor = scrubAreaCursorRef.current;
+      const scrubAreaEl = scrubAreaRef.current;
+      const scrubHandle = scrubHandleRef.current;
 
-    const coords = virtualCursorCoords.current;
-    const newCoords = {
-      x: Math.round(coords.x + movementX),
-      y: Math.round(coords.y + movementY),
-    };
+      if (!virtualCursor || !scrubAreaEl || !scrubHandle) {
+        return;
+      }
 
-    const cursorWidth = virtualCursor.offsetWidth;
-    const cursorHeight = virtualCursor.offsetHeight;
+      const rect = getViewportRect(scrubHandle.teleportDistance, scrubAreaEl);
 
-    if (newCoords.x + cursorWidth / 2 < rect.x) {
-      newCoords.x = rect.width - cursorWidth / 2;
-    } else if (newCoords.x + cursorWidth / 2 > rect.width) {
-      newCoords.x = rect.x - cursorWidth / 2;
-    }
+      const coords = virtualCursorCoords.current;
+      const newCoords = {
+        x: Math.round(coords.x + movementX),
+        y: Math.round(coords.y + movementY),
+      };
 
-    if (newCoords.y + cursorHeight / 2 < rect.y) {
-      newCoords.y = rect.height - cursorHeight / 2;
-    } else if (newCoords.y + cursorHeight / 2 > rect.height) {
-      newCoords.y = rect.y - cursorHeight / 2;
-    }
+      const cursorWidth = virtualCursor.offsetWidth;
+      const cursorHeight = virtualCursor.offsetHeight;
 
-    virtualCursorCoords.current = newCoords;
+      if (newCoords.x + cursorWidth / 2 < rect.x) {
+        newCoords.x = rect.width - cursorWidth / 2;
+      } else if (newCoords.x + cursorWidth / 2 > rect.width) {
+        newCoords.x = rect.x - cursorWidth / 2;
+      }
 
-    setCursorTransform(
-      `translate3d(${newCoords.x}px,${newCoords.y}px,0) scale(${1 / visualScaleRef.current})`,
-    );
-  }, []);
+      if (newCoords.y + cursorHeight / 2 < rect.y) {
+        newCoords.y = rect.height - cursorHeight / 2;
+      } else if (newCoords.y + cursorHeight / 2 > rect.height) {
+        newCoords.y = rect.y - cursorHeight / 2;
+      }
+
+      virtualCursorCoords.current = newCoords;
+
+      updateCursorTransform(newCoords.x, newCoords.y);
+    },
+    [updateCursorTransform],
+  );
 
   const onScrubbingChange = React.useCallback(
     (scrubbingValue: boolean, { clientX, clientY }: PointerEvent) => {
@@ -103,11 +110,9 @@ export function useScrub(params: ScrubParams) {
 
       virtualCursorCoords.current = initialCoords;
 
-      setCursorTransform(
-        `translate3d(${initialCoords.x}px,${initialCoords.y}px,0) scale(${1 / visualScaleRef.current})`,
-      );
+      updateCursorTransform(initialCoords.x, initialCoords.y);
     },
-    [],
+    [updateCursorTransform],
   );
 
   const getScrubAreaProps: UseNumberFieldRoot.ReturnValue['getScrubAreaProps'] = React.useCallback(
@@ -158,26 +163,17 @@ export function useScrub(params: ScrubParams) {
 
   const getScrubAreaCursorProps: UseNumberFieldRoot.ReturnValue['getScrubAreaCursorProps'] =
     React.useCallback(
-      (externalProps = {}) =>
-        mergeReactProps<'span'>(
-          {
-            ...externalProps,
-            style: {
-              ...externalProps.style,
-              transform: `${cursorTransform} ${externalProps.style?.transform || ''}`.trim(),
-            },
+      (externalProps) =>
+        mergeReactProps<'span'>(externalProps, {
+          role: 'presentation',
+          style: {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            pointerEvents: 'none',
           },
-          {
-            role: 'presentation',
-            style: {
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              pointerEvents: 'none',
-            },
-          },
-        ),
-      [cursorTransform],
+        }),
+      [],
     );
 
   React.useEffect(
