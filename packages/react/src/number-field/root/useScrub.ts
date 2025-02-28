@@ -152,7 +152,7 @@ export function useScrub(params: ScrubParams) {
                 // types in order for the `catch` to work.
                 await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
                 setIsPointerLockDenied(false);
-              } catch (e) {
+              } catch (error) {
                 setIsPointerLockDenied(true);
               }
             }, 20);

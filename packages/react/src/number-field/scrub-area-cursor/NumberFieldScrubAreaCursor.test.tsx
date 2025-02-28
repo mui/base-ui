@@ -62,7 +62,9 @@ describe('<NumberField.ScrubAreaCursor />', () => {
 
     await act(async () => {
       await user.pointer({ target: scrubArea, keys: '[MouseLeft>]', pointerName: 'mouse' });
-      await new Promise((resolve) => setTimeout(resolve, 25));
+      await new Promise((resolve) => {
+        setTimeout(resolve, 25);
+      });
     });
 
     expect(screen.queryByTestId('scrub-area-cursor')).not.to.equal(null);
@@ -81,7 +83,9 @@ describe('<NumberField.ScrubAreaCursor />', () => {
 
     await act(async () => {
       await user.pointer({ target: scrubArea, keys: '[TouchA>]', pointerName: 'touch' });
-      await new Promise((resolve) => setTimeout(resolve, 25));
+      await new Promise((resolve) => {
+        setTimeout(resolve, 25);
+      });
     });
 
     expect(screen.queryByTestId('scrub-area-cursor')).to.equal(null);
@@ -107,7 +111,9 @@ describe('<NumberField.ScrubAreaCursor />', () => {
 
       await act(async () => {
         await user.pointer({ target: scrubArea, keys: '[MouseLeft>]', pointerName: 'mouse' });
-        await new Promise((resolve) => setTimeout(resolve, 25));
+        await new Promise((resolve) => {
+          setTimeout(resolve, 25);
+        });
       });
 
       expect(screen.queryByTestId('scrub-area-cursor')).to.equal(null);
