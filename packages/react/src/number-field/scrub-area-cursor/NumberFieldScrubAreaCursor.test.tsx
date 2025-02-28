@@ -50,24 +50,32 @@ describe('<NumberField.ScrubAreaCursor />', () => {
   });
 
   it('renders when using mouse input', async () => {
-    const { user } = await render(
-      <NumberField.Root>
-        <NumberField.ScrubArea data-testid="scrub-area">
-          <NumberField.ScrubAreaCursor data-testid="scrub-area-cursor" />
-        </NumberField.ScrubArea>
-      </NumberField.Root>,
-    );
+    const originalRequestPointerLock = Element.prototype.requestPointerLock;
 
-    const scrubArea = screen.getByTestId('scrub-area');
+    try {
+      Element.prototype.requestPointerLock = sinon.stub().resolves();
 
-    await act(async () => {
-      await user.pointer({ target: scrubArea, keys: '[MouseLeft>]', pointerName: 'mouse' });
-      await new Promise((resolve) => {
-        setTimeout(resolve, 25);
+      const { user } = await render(
+        <NumberField.Root>
+          <NumberField.ScrubArea data-testid="scrub-area">
+            <NumberField.ScrubAreaCursor data-testid="scrub-area-cursor" />
+          </NumberField.ScrubArea>
+        </NumberField.Root>,
+      );
+
+      const scrubArea = screen.getByTestId('scrub-area');
+
+      await act(async () => {
+        await user.pointer({ target: scrubArea, keys: '[MouseLeft>]', pointerName: 'mouse' });
+        await new Promise((resolve) => {
+          setTimeout(resolve, 25);
+        });
       });
-    });
 
-    expect(screen.queryByTestId('scrub-area-cursor')).not.to.equal(null);
+      expect(screen.queryByTestId('scrub-area-cursor')).not.to.equal(null);
+    } finally {
+      Element.prototype.requestPointerLock = originalRequestPointerLock;
+    }
   });
 
   it('does not render when using touch input', async () => {
