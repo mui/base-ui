@@ -13,13 +13,13 @@ type CounterProps = {
 };
 
 function Counter(props: CounterProps) {
-  const { render, className, ...otherProps } = props;
+  const { render = <button type="button" />, className, ...otherProps } = props;
   const [count, setCount] = React.useState(0);
   const odd = count % 2 === 1;
   const state = React.useMemo(() => ({ odd }), [odd]);
 
   const { renderElement } = useRender({
-    render: render ?? <button type="button" />,
+    render: render,
     state,
     props: {
       ...otherProps,
