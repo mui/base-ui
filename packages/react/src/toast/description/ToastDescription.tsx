@@ -3,7 +3,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-
+import { useToastRootContext } from '../root/ToastRootContext';
+import { useId } from '../../utils/useId';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 const state = {};
 
 /**
@@ -16,14 +18,28 @@ const ToastDescription = React.forwardRef(function ToastDescription(
   props: ToastDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, id: idProp, ...other } = props;
+
+  const id = useId(idProp);
+
+  const { setDescriptionId } = useToastRootContext();
+
+  useEnhancedEffect(() => {
+    setDescriptionId(id);
+    return () => {
+      setDescriptionId(undefined);
+    };
+  }, [id, setDescriptionId]);
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'h2',
     ref: forwardedRef,
     className,
     state,
-    extraProps: other,
+    extraProps: {
+      id,
+      ...other,
+    },
   });
 
   return renderElement();

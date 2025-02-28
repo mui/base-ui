@@ -7,9 +7,10 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useForkRef } from '../../utils/useForkRef';
-import { ownerDocument } from '../../utils/owner';
+import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { ToastViewportContext } from './ToastViewportContext';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
+import { FocusGuard } from './FocusGuard';
 
 const state = {};
 
@@ -23,23 +24,27 @@ const ToastViewport = React.forwardRef(function ToastViewport(
   props: ToastViewport.Props,
   forwardedRef: React.Ref<HTMLDivElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, children, ...other } = props;
 
-  const { pauseTimers, resumeTimers, toasts, prevFocusRef, setHovering, setFocused } =
+  const { pauseTimers, resumeTimers, toasts, prevFocusRef, setHovering, setFocused, viewportRef } =
     useToastContext();
 
-  const viewportRef = React.useRef<HTMLDivElement | null>(null);
+  const handlingFocusGuardRef = React.useRef(false);
 
   const mergedRef = useForkRef(viewportRef, forwardedRef);
 
-  // Listen globally for alt+T (or F6) so we can force-focus the viewport.
+  // Listen globally for F6 so we can force-focus the viewport.
   React.useEffect(() => {
+    if (!viewportRef.current) {
+      return undefined;
+    }
+
     function handleGlobalKeyDown(event: KeyboardEvent) {
       if (toasts.length === 0) {
         return;
       }
 
-      if ((event.altKey && event.code === 'KeyT') || event.key === 'F6') {
+      if (event.key === 'F6') {
         event.preventDefault();
         prevFocusRef.current = activeElement(
           ownerDocument(viewportRef.current),
@@ -48,34 +53,40 @@ const ToastViewport = React.forwardRef(function ToastViewport(
         pauseTimers();
       }
     }
-    window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+
+    const win = ownerWindow(viewportRef.current);
+
+    win.addEventListener('keydown', handleGlobalKeyDown);
+
+    return () => {
+      win.removeEventListener('keydown', handleGlobalKeyDown);
+    };
   }, [pauseTimers, prevFocusRef, toasts.length]);
 
-  function handleKeyDown(event: React.KeyboardEvent<HTMLElement>) {
-    if (event.key === 'Tab') {
-      const container = viewportRef.current;
-      if (!container) {
-        return;
-      }
+  function handleFocusGuard(event: React.FocusEvent) {
+    if (!viewportRef.current) {
+      return;
+    }
 
-      const toastElements = Array.from<HTMLElement>(container.querySelectorAll('[tabindex="0"]'));
+    handlingFocusGuardRef.current = true;
 
-      // If tabbing forward, the first toast is focused
-      if (!event.shiftKey && event.target === container) {
-        event.preventDefault();
-        toastElements[0]?.focus();
-      }
+    // If we're coming off the container, move to the first toast
+    if (event.relatedTarget === viewportRef.current) {
+      const toastElements = Array.from<HTMLElement>(
+        viewportRef.current.querySelectorAll('[data-base-ui-toast]'),
+      );
+      toastElements[0]?.focus();
+    } else {
+      prevFocusRef.current?.focus({ preventScroll: true });
+      resumeTimers();
+    }
+  }
 
-      // If tabbing backward (Shift+Tab) and on the first toast, return focus to the previous element
-      if (event.shiftKey && toastElements.length > 0 && event.target === toastElements[0]) {
-        event.preventDefault();
-        if (prevFocusRef.current) {
-          prevFocusRef.current.focus();
-          prevFocusRef.current = null;
-        }
-        resumeTimers();
-      }
+  function handleKeyDown(event: React.KeyboardEvent) {
+    if (event.key === 'Tab' && event.shiftKey && event.target === viewportRef.current) {
+      event.preventDefault();
+      prevFocusRef.current?.focus({ preventScroll: true });
+      resumeTimers();
     }
   }
 
@@ -90,6 +101,11 @@ const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   function handleFocus() {
+    if (handlingFocusGuardRef.current) {
+      handlingFocusGuardRef.current = false;
+      return;
+    }
+
     setFocused(true);
     pauseTimers();
   }
@@ -112,11 +128,18 @@ const ToastViewport = React.forwardRef(function ToastViewport(
       role: 'region',
       tabIndex: -1,
       'aria-label': `${numToasts} notification${numToasts !== 1 ? 's' : ''}`,
-      onKeyDown: handleKeyDown,
       onMouseEnter: handleMouseEnter,
       onMouseLeave: handleMouseLeave,
       onFocus: handleFocus,
       onBlur: handleBlur,
+      onKeyDown: handleKeyDown,
+      children: (
+        <React.Fragment>
+          <FocusGuard onFocus={handleFocusGuard} />
+          {children}
+          <FocusGuard onFocus={handleFocusGuard} />
+        </React.Fragment>
+      ),
     }),
   });
 
@@ -124,7 +147,10 @@ const ToastViewport = React.forwardRef(function ToastViewport(
 
   return (
     <ToastViewportContext.Provider value={contextValue}>
-      <FloatingPortalLite>{renderElement()}</FloatingPortalLite>
+      <FloatingPortalLite>
+        <FocusGuard onFocus={handleFocusGuard} />
+        {renderElement()}
+      </FloatingPortalLite>
     </ToastViewportContext.Provider>
   );
 });
@@ -146,11 +172,11 @@ ToastViewport.propTypes /* remove-proptypes */ = {
   children: PropTypes.node,
   /**
    * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
+   * returns a class based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Allows you to replace the component’s HTML element
+   * Allows you to replace the component's HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.

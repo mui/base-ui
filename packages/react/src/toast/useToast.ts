@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ToastContext } from './provider/ToastProviderContext';
+import { Toast, ToastContext } from './provider/ToastProviderContext';
 
 /**
  * Returns the array of toasts and methods to create toasts.
@@ -11,15 +11,30 @@ export function useToast(): useToast.ReturnValue {
     throw new Error('Base UI: useToast must be used within <Toast.Provider>.');
   }
 
-  const { toasts, add, promise } = context;
+  const { toasts, add, remove, update, promise } = context;
 
-  return React.useMemo(() => ({ toasts, add, promise }), [toasts, add, promise]);
+  return React.useMemo(
+    () => ({
+      toasts,
+      add,
+      remove,
+      update,
+      promise,
+    }),
+    [toasts, add, remove, update, promise],
+  );
 }
 
 export namespace useToast {
+  export type ToastType<Data = Record<string, unknown>> = Toast<Data>;
+
   export interface ReturnValue {
-    add: ToastContext['add'];
-    promise: ToastContext['promise'];
     toasts: ToastContext['toasts'];
+    add: ToastContext['add'];
+    remove: ToastContext['remove'];
+    update: ToastContext['update'];
+    promise: ToastContext['promise'];
   }
+
+  export interface AddOptions extends Omit<Toast, 'id' | 'animation' | 'height'> {}
 }

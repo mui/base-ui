@@ -12,12 +12,10 @@ import { ToastRootCssVars } from './ToastRootCssVars';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
-const DEFAULT_SWIPE_THRESHOLD = 20;
+const SWIPE_THRESHOLD = 20;
 const OPPOSITE_DIRECTION_DAMPING_FACTOR = 0.5;
-const MAX_MOMENTUM = 3;
 const MIN_DRAG_THRESHOLD = 5;
 
 /**
@@ -30,16 +28,10 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   props: ToastRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    toast,
-    render,
-    className,
-    swipeDirection = 'up',
-    swipeThreshold = DEFAULT_SWIPE_THRESHOLD,
-    ...other
-  } = props;
+  const { toast, render, className, swipeDirection = 'up', ...other } = props;
 
-  const { toasts, finalizeRemove, hovering, focused, setToasts, remove } = useToastContext();
+  const { toasts, finalizeRemove, hovering, focused, setToasts, remove, dismissToast } =
+    useToastContext();
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const mergedRef = useForkRef(rootRef, forwardedRef);
@@ -58,8 +50,9 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   const [isRealDrag, setIsRealDrag] = React.useState(false);
   const [dragOffset, setDragOffset] = React.useState({ x: 0, y: 0 });
   const [dragDismissed, setDragDismissed] = React.useState(false);
-  const [momentum, setMomentum] = React.useState(0);
   const [initialTransform, setInitialTransform] = React.useState({ x: 0, y: 0, scale: 1 });
+  const [titleId, setTitleId] = React.useState<string | undefined>();
+  const [descriptionId, setDescriptionId] = React.useState<string | undefined>();
 
   const dragStartPosRef = React.useRef({ x: 0, y: 0 });
   const initialTransformRef = React.useRef({ x: 0, y: 0, scale: 1 });
@@ -179,7 +172,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     return { x: newDeltaX, y: newDeltaY };
   }
 
-  const handlePointerDown = useEventCallback((event: React.PointerEvent) => {
+  function handlePointerDown(event: React.PointerEvent) {
     // Only handle left clicks or touch
     if (event.button !== 0) {
       return;
@@ -216,9 +209,9 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     if (rootRef.current) {
       rootRef.current.setPointerCapture(event.pointerId);
     }
-  });
+  }
 
-  const handlePointerMove = useEventCallback((event: React.PointerEvent) => {
+  function handlePointerMove(event: React.PointerEvent) {
     if (!isDragging) {
       return;
     }
@@ -258,9 +251,9 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     setDragOffset({ x: newOffsetX, y: newOffsetY });
-  });
+  }
 
-  const handlePointerUp = useEventCallback((event: React.PointerEvent) => {
+  function handlePointerUp(event: React.PointerEvent) {
     if (!isDragging) {
       return;
     }
@@ -280,54 +273,19 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 
     switch (swipeDirection) {
       case 'right':
-        shouldClose = deltaX > swipeThreshold;
+        shouldClose = deltaX > SWIPE_THRESHOLD;
         break;
       case 'left':
-        shouldClose = deltaX < -swipeThreshold;
+        shouldClose = deltaX < -SWIPE_THRESHOLD;
         break;
       case 'down':
-        shouldClose = deltaY > swipeThreshold;
+        shouldClose = deltaY > SWIPE_THRESHOLD;
         break;
       case 'up':
-        shouldClose = deltaY < -swipeThreshold;
+        shouldClose = deltaY < -SWIPE_THRESHOLD;
         break;
       default:
         break;
-    }
-
-    // Calculate momentum if we have enough history
-    if (dragHistoryRef.current.length >= 2) {
-      const recent = dragHistoryRef.current[dragHistoryRef.current.length - 1];
-      const older = dragHistoryRef.current[0];
-      const timeDiff = recent.time - older.time;
-
-      if (timeDiff > 0) {
-        const velocityX = (recent.x - older.x) / timeDiff;
-        const velocityY = (recent.y - older.y) / timeDiff;
-
-        let velocity = 0;
-        switch (swipeDirection) {
-          case 'right':
-            velocity = velocityX;
-            break;
-          case 'left':
-            velocity = -velocityX;
-            break;
-          case 'down':
-            velocity = velocityY;
-            break;
-          case 'up':
-            velocity = -velocityY;
-            break;
-          default:
-            velocity = 0;
-            break;
-        }
-
-        const absVelocity = Math.abs(velocity) * 1000; // Scale for better CSS variable values
-        const normalizedMomentum = Math.min(Math.max(absVelocity, 0.5), MAX_MOMENTUM);
-        setMomentum(normalizedMomentum);
-      }
     }
 
     if (shouldClose) {
@@ -341,7 +299,18 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 
       dragHistoryRef.current = [];
     }
-  });
+  }
+
+  function handleKeyDown(event: React.KeyboardEvent) {
+    if (event.key === 'Escape') {
+      // Check if focus is inside this toast
+      if (!rootRef.current || !rootRef.current.contains(document.activeElement)) {
+        return;
+      }
+
+      dismissToast(toast.id, rootRef.current);
+    }
+  }
 
   // Prevent page scrolling when dragging the toast
   React.useEffect(() => {
@@ -376,7 +345,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 
     return {
       transform: isDragging
-        ? `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${initialTransform.scale})`
+        ? `translate(${dragOffset.x}px,${dragOffset.y}px) scale(${initialTransform.scale})`
         : undefined,
       transition: isDragging ? 'none' : undefined,
       userSelect: isDragging ? 'none' : undefined,
@@ -393,29 +362,41 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     extraProps: mergeReactProps<'div'>(other, {
       role: toast.priority === 'high' ? 'alertdialog' : 'dialog',
       'aria-modal': false,
+      'aria-labelledby': titleId,
+      'aria-describedby': descriptionId,
       tabIndex: 0,
       ['data-base-ui-toast' as string]: '',
       ['data-drag-dismissed' as string]: dragDismissed ? '' : undefined,
       onPointerDown: handlePointerDown,
       onPointerMove: handlePointerMove,
       onPointerUp: handlePointerUp,
+      onKeyDown: handleKeyDown,
       style: {
         ...getDragStyles(),
         [ToastRootCssVars.index as string]: toast.animation === 'ending' ? domIndex : index,
         [ToastRootCssVars.offset as string]: `${offset}px`,
-        [ToastRootCssVars.momentum as string]: momentum,
       },
     }),
   });
 
-  const contextValue = React.useMemo(() => ({ toast, rootRef }), [toast]);
+  const contextValue = React.useMemo(
+    () => ({
+      toast,
+      rootRef,
+      titleId,
+      setTitleId,
+      descriptionId,
+      setDescriptionId,
+    }),
+    [toast, rootRef, titleId, setTitleId, descriptionId, setDescriptionId],
+  );
 
   return (
     <ToastRootContext.Provider value={contextValue}>{renderElement()}</ToastRootContext.Provider>
   );
 });
 
-namespace ToastRoot {
+export namespace ToastRoot {
   export interface State {
     transitionStatus: TransitionStatus;
     expanded: boolean;
@@ -447,11 +428,11 @@ ToastRoot.propTypes /* remove-proptypes */ = {
   children: PropTypes.node,
   /**
    * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
+   * returns a class based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Allows you to replace the component’s HTML element
+   * Allows you to replace the component's HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
