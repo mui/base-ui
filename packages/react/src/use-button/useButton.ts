@@ -118,7 +118,8 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         },
         onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
           if (
-            disabled ||
+            // allow Tabbing away from focusableWhenDisabled buttons
+            (disabled && focusableWhenDisabled && event.key !== 'Tab') ||
             (event.target === event.currentTarget && !isNativeButton() && event.key === ' ')
           ) {
             event.preventDefault();
@@ -177,7 +178,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         ref: mergedRef,
       });
     },
-    [buttonProps, disabled, isNativeButton, isValidLink, mergedRef, type],
+    [buttonProps, disabled, focusableWhenDisabled, isNativeButton, isValidLink, mergedRef, type],
   );
 
   return {
