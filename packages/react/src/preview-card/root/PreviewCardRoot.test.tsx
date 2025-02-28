@@ -385,7 +385,7 @@ describe('<PreviewCard.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('prop: actionsRef', () => {
+  describe.skipIf(!isJSDOM)('prop: actionsRef', () => {
     it('unmounts the preview card when the `unmount` method is called', async () => {
       const actionsRef = {
         current: {
