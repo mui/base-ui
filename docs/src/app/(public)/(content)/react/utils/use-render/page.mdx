@@ -68,8 +68,8 @@ In Base UI, you use `useRender` to implement your own `render` prop. The example
 ```jsx title="Custom render prop with Base UI"
 import { useRender } from '@base-ui-components/react/use-render';
 
-function Button({ render, ...props }) {
-  const { renderElement } = useRender({ render: render ?? <button />, props });
+function Button({ render = <button />, ...props }) {
+  const { renderElement } = useRender({ render, props });
   return renderElement();
 }
 
