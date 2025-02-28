@@ -279,7 +279,7 @@ export function useNumberFieldRoot(
       return;
     }
 
-    const nextInputValue = formatNumber(value, [], formatOptionsRef.current);
+    const nextInputValue = formatNumber(value, locale, formatOptionsRef.current);
 
     if (nextInputValue !== inputValue) {
       setInputValue(nextInputValue);
@@ -404,7 +404,7 @@ export function useNumberFieldRoot(
         allowInputSyncRef.current = true;
 
         // The input may be dirty but not yet blurred, so the value won't have been committed.
-        const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
+        const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
         if (parsedValue !== null) {
           // The increment value function needs to know the current input value to increment it
@@ -538,12 +538,13 @@ export function useNumberFieldRoot(
       isMin,
       readOnly,
       id,
-      getStepAmount,
-      incrementValue,
       inputValue,
+      locale,
       formatOptionsRef,
       valueRef,
       setValue,
+      getStepAmount,
+      incrementValue,
       startAutoChange,
       stopAutoChange,
     ],
@@ -616,7 +617,7 @@ export function useNumberFieldRoot(
             return;
           }
 
-          const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
+          const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
           if (parsedValue !== null) {
             setValue(parsedValue, event.nativeEvent);
@@ -642,7 +643,7 @@ export function useNumberFieldRoot(
             return;
           }
 
-          const parsedValue = parseNumber(targetValue, formatOptionsRef.current);
+          const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
 
           if (parsedValue !== null) {
             setInputValue(targetValue);
@@ -721,7 +722,7 @@ export function useNumberFieldRoot(
           }
 
           // We need to commit the number at this point if the input hasn't been blurred.
-          const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
+          const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
           const amount = getStepAmount() ?? DEFAULT_STEP;
 
@@ -748,7 +749,7 @@ export function useNumberFieldRoot(
 
           const clipboardData = event.clipboardData || window.Clipboard;
           const pastedData = clipboardData.getData('text/plain');
-          const parsedValue = parseNumber(pastedData, formatOptionsRef.current);
+          const parsedValue = parseNumber(pastedData, locale, formatOptionsRef.current);
 
           if (parsedValue !== null) {
             allowInputSyncRef.current = false;
@@ -911,7 +912,7 @@ export namespace useNumberFieldRoot {
      * The locale of the input element.
      * Defaults to the user's runtime locale.
      */
-    locale?: string;
+    locale?: Intl.LocalesArgument;
   }
 
   export interface ReturnValue {

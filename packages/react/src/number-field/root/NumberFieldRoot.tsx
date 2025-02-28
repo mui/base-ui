@@ -207,7 +207,44 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    * The locale of the input element.
    * Defaults to the user's runtime locale.
    */
-  locale: PropTypes.string,
+  locale: PropTypes.oneOfType([
+    PropTypes.arrayOf(
+      PropTypes.oneOfType([
+        PropTypes.shape({
+          baseName: PropTypes.string.isRequired,
+          calendar: PropTypes.string,
+          caseFirst: PropTypes.oneOf(['false', 'lower', 'upper']),
+          collation: PropTypes.string,
+          hourCycle: PropTypes.oneOf(['h11', 'h12', 'h23', 'h24']),
+          language: PropTypes.string.isRequired,
+          maximize: PropTypes.func.isRequired,
+          minimize: PropTypes.func.isRequired,
+          numberingSystem: PropTypes.string,
+          numeric: PropTypes.bool,
+          region: PropTypes.string,
+          script: PropTypes.string,
+          toString: PropTypes.func.isRequired,
+        }),
+        PropTypes.string,
+      ]).isRequired,
+    ),
+    PropTypes.shape({
+      baseName: PropTypes.string.isRequired,
+      calendar: PropTypes.string,
+      caseFirst: PropTypes.oneOf(['false', 'lower', 'upper']),
+      collation: PropTypes.string,
+      hourCycle: PropTypes.oneOf(['h11', 'h12', 'h23', 'h24']),
+      language: PropTypes.string.isRequired,
+      maximize: PropTypes.func.isRequired,
+      minimize: PropTypes.func.isRequired,
+      numberingSystem: PropTypes.string,
+      numeric: PropTypes.bool,
+      region: PropTypes.string,
+      script: PropTypes.string,
+      toString: PropTypes.func.isRequired,
+    }),
+    PropTypes.string,
+  ]),
   /**
    * The maximum value of the input element.
    */

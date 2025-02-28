@@ -9,7 +9,7 @@ export const HAN_RE = new RegExp(`[${HAN_NUMERALS.join('')}]`, 'g');
 export const PERCENT_RE = new RegExp(`[${PERCENTAGES.join('')}]`);
 
 export function getNumberLocaleDetails(
-  locale?: string | string[],
+  locale?: Intl.LocalesArgument,
   options?: Intl.NumberFormatOptions,
 ) {
   const parts = getFormatter(locale, options).formatToParts(1111.1);
@@ -33,7 +33,7 @@ export function getNumberLocaleDetails(
 
 export function parseNumber(
   formattedNumber: string,
-  locale?: string,
+  locale?: Intl.LocalesArgument,
   options?: Intl.NumberFormatOptions,
 ) {
   let computedLocale = locale;
