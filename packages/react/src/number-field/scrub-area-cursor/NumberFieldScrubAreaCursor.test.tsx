@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { screen, fireEvent, act } from '@mui/internal-test-utils';
+import { screen, act } from '@mui/internal-test-utils';
+import sinon from 'sinon';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { isWebKit } from '../../utils/detectBrowser';
 import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
-import sinon from 'sinon';
 
 const defaultTestContext: NumberFieldRootContext = {
   getScrubAreaCursorProps: (externalProps) => externalProps,
