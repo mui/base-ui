@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { Mock } from 'vitest';
 import { Avatar } from '@base-ui-components/react/avatar';
-import { describeConformance, createRenderer } from '#test-utils';
+import { waitFor } from '@mui/internal-test-utils';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { useImageLoadingStatus } from '../image/useImageLoadingStatus';
 
 vi.mock('../image/useImageLoadingStatus');
@@ -30,7 +31,9 @@ describe('<Avatar.Fallback />', () => {
       </Avatar.Root>,
     );
 
-    expect(queryByTestId('fallback')).to.equal(null);
+    await waitFor(() => {
+      expect(queryByTestId('fallback')).to.equal(null);
+    });
   });
 
   it('should render the fallback if the image fails to load', async () => {
@@ -43,10 +46,12 @@ describe('<Avatar.Fallback />', () => {
       </Avatar.Root>,
     );
 
-    expect(queryByText('AC')).to.not.equal(null);
+    await waitFor(() => {
+      expect(queryByText('AC')).not.to.equal(null);
+    });
   });
 
-  describe('prop: delay', () => {
+  describe.skipIf(!isJSDOM)('prop: delay', () => {
     const { clock, render: renderFakeTimers } = createRenderer();
 
     clock.withFakeTimers();

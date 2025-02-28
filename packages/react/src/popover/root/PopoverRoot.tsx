@@ -70,7 +70,7 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
   /**
    * A ref to imperative actions.
    */
-  action: PropTypes.shape({
+  actionsRef: PropTypes.shape({
     current: PropTypes.shape({
       unmount: PropTypes.func.isRequired,
     }).isRequired,

@@ -9,7 +9,7 @@ import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { isWebKit } from '../../utils/detectBrowser';
 import { mergeReactProps } from '../../utils/mergeReactProps';
-import type { UseNumberFieldRoot } from './useNumberFieldRoot';
+import type { useNumberFieldRoot } from './useNumberFieldRoot';
 import { NumberFieldRootDataAttributes } from './NumberFieldRootDataAttributes';
 
 /**
@@ -112,7 +112,7 @@ export function useScrub(params: ScrubParams) {
     [],
   );
 
-  const getScrubAreaProps: UseNumberFieldRoot.ReturnValue['getScrubAreaProps'] = React.useCallback(
+  const getScrubAreaProps: useNumberFieldRoot.ReturnValue['getScrubAreaProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'span'>(externalProps, {
         role: 'presentation',
@@ -162,7 +162,7 @@ export function useScrub(params: ScrubParams) {
     [readOnly, disabled, onScrubbingChange, inputRef, isScrubbing],
   );
 
-  const getScrubAreaCursorProps: UseNumberFieldRoot.ReturnValue['getScrubAreaCursorProps'] =
+  const getScrubAreaCursorProps: useNumberFieldRoot.ReturnValue['getScrubAreaCursorProps'] =
     React.useCallback(
       (externalProps = {}) =>
         mergeReactProps<'span'>(

@@ -150,7 +150,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
   });
 });
 
-export namespace SliderThumb {
+namespace SliderThumb {
   export interface State extends SliderRoot.State {}
 
   export interface Props

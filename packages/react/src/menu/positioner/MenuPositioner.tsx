@@ -119,13 +119,15 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   const mergedRef = useForkRef(forwardedRef, setPositionerElement);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: positioner.getPositionerProps,
     render: render ?? 'div',
     className,
     state,
     customStyleHookMapping: popupStateMapping,
     ref: mergedRef,
-    extraProps: otherProps,
+    extraProps: {
+      ...positioner.positionerProps,
+      ...otherProps,
+    },
   });
 
   return (
@@ -140,7 +142,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   );
 });
 
-export namespace MenuPositioner {
+namespace MenuPositioner {
   export interface State {
     /**
      * Whether the menu is currently open.

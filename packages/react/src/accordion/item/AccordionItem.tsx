@@ -135,7 +135,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
 
 export type AccordionItemValue = any | null;
 
-export namespace AccordionItem {
+namespace AccordionItem {
   export interface State extends AccordionRoot.State {
     index: number;
     open: boolean;
