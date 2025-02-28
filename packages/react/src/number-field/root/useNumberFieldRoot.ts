@@ -884,7 +884,7 @@ export namespace UseNumberFieldRoot {
      */
     value?: number | null;
     /**
-     * The uncontrolled value of the field when it’s initially rendered.
+     * The uncontrolled value of the field when it's initially rendered.
      *
      * To render a controlled number field, use the `value` prop instead.
      */
@@ -929,6 +929,8 @@ export namespace UseNumberFieldRoot {
     inputValue: string;
     value: number | null;
     isScrubbing: boolean;
+    isTouchInput: boolean;
+    isPointerLockDenied: boolean;
     inputRef: ((instance: HTMLInputElement | null) => void) | null;
     scrubHandleRef: React.RefObject<ScrubHandle | null>;
     scrubAreaRef: React.RefObject<HTMLSpanElement | null>;
