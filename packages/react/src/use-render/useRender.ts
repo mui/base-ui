@@ -10,23 +10,27 @@ import { CustomStyleHookMapping } from '../utils/getStyleHookProps';
 function useRender<State extends Record<string, unknown>, RenderedElementType extends Element>(
   settings: useRender.Settings<State, RenderedElementType>,
 ) {
-  const { render, props, state = {} } = settings;
+  const { render, props, state } = settings;
   const { ref, ...extraProps } = props ?? {};
+
+  const customStyleHookMapping = React.useMemo(() => {
+    return Object.keys(state ?? {}).reduce((acc, key) => {
+      acc[key as keyof State] = () => null;
+      return acc;
+    }, {} as CustomStyleHookMapping<State>);
+  }, [state]);
 
   return useComponentRenderer({
     render,
-    state: state as State,
+    state: (state ?? {}) as State,
     ref: ref as React.Ref<RenderedElementType>,
     extraProps,
-    customStyleHookMapping: Object.keys(state).reduce((acc, key) => {
-      acc[key as keyof State] = () => null;
-      return acc;
-    }, {} as CustomStyleHookMapping<State>),
+    customStyleHookMapping,
   });
 }
 
 namespace useRender {
-  export type RenderProp<State> =
+  export type RenderProp<State = Record<string, unknown>> =
     | ComponentRenderFn<React.HTMLAttributes<any>, State>
     | React.ReactElement<Record<string, unknown>>
     | keyof typeof defaultRenderFunctions;

@@ -23,7 +23,7 @@ function Counter(props: CounterProps) {
     state,
     props: {
       ...otherProps,
-      className: `${className} ${styles.Button}`,
+      className: `${styles.Button} ${className ?? ''}`,
       type: 'button',
       children: (
         <React.Fragment>
@@ -42,10 +42,7 @@ export default function ExampleCounter() {
   return (
     <Counter
       render={(props, state) => (
-        <button
-          {...props}
-          className={`${state.odd ? styles.odd : styles.even} ${props.className}`}
-        >
+        <button {...props}>
           {props.children}
           <span className={styles.suffix}>{state.odd ? '👎' : '👍'}</span>
         </button>

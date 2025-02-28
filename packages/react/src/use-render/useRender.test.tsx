@@ -8,7 +8,7 @@ describe('useRender', () => {
 
   it('render props does not overwrite className in a render function when unspecified', async () => {
     function TestComponent(props: {
-      render: useRender.Settings<Element>['render'];
+      render: useRender.Settings<{}, Element>['render'];
       className?: string;
     }) {
       const { render: renderProp, className } = props;
