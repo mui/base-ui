@@ -2,6 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useDialogRootContext } from '../root/DialogRootContext';
+import { useButton } from '../../use-button/useButton';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -17,21 +18,25 @@ const DialogTrigger = React.forwardRef(function DialogTrigger(
   props: DialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, disabled = false, ...other } = props;
   const { open, setTriggerElement, getTriggerProps } = useDialogRootContext();
 
-  const state: DialogTrigger.State = React.useMemo(() => ({ open }), [open]);
+  const state: DialogTrigger.State = React.useMemo(() => ({ disabled, open }), [disabled, open]);
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
+
+  const { getButtonProps } = useButton({
+    disabled,
+    buttonRef: mergedRef,
+  });
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
     className,
     state,
-    propGetter: getTriggerProps,
+    propGetter: (externalProps) => getButtonProps(getTriggerProps(externalProps)),
     extraProps: other,
     customStyleHookMapping: triggerOpenStateMapping,
-    ref: mergedRef,
   });
 
   return renderElement();
@@ -41,6 +46,10 @@ namespace DialogTrigger {
   export interface Props extends BaseUIComponentProps<'button', State> {}
 
   export interface State {
+    /**
+     * Whether the dialog is currently disabled.
+     */
+    disabled: boolean;
     /**
      * Whether the dialog is currently open.
      */
@@ -62,6 +71,10 @@ DialogTrigger.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  disabled: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

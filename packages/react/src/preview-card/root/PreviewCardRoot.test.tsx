@@ -3,7 +3,7 @@ import { PreviewCard } from '@base-ui-components/react/preview-card';
 import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
 function Root(props: PreviewCard.Root.Props) {
@@ -24,6 +24,21 @@ describe('<PreviewCard.Root />', () => {
   });
 
   const { render, clock } = createRenderer();
+
+  popupConformanceTests({
+    createComponent: (props) => (
+      <PreviewCard.Root {...props.root}>
+        <PreviewCard.Trigger {...props.trigger}>Link</PreviewCard.Trigger>
+        <PreviewCard.Portal {...props.portal}>
+          <PreviewCard.Positioner>
+            <PreviewCard.Popup {...props.popup}>Content</PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </PreviewCard.Portal>
+      </PreviewCard.Root>
+    ),
+    render,
+    triggerMouseAction: 'hover',
+  });
 
   describe('uncontrolled open', () => {
     clock.withFakeTimers();
@@ -132,132 +147,6 @@ describe('<PreviewCard.Root />', () => {
       clock.tick(CLOSE_DELAY);
 
       expect(screen.queryByText('Content')).to.equal(null);
-    });
-  });
-
-  describe('controlled open', () => {
-    it('should open when controlled open is true', async () => {
-      await render(
-        <Root open>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
-      );
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-    });
-
-    it('should close when controlled open is false', async () => {
-      await render(
-        <Root open={false}>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
-      );
-
-      expect(screen.queryByText('Content')).to.equal(null);
-    });
-
-    it('should remove the popup when there is no exit animation defined', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
-      function Test() {
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            <button onClick={() => setOpen(false)}>Close</button>
-            <PreviewCard.Root open={open}>
-              <PreviewCard.Portal>
-                <PreviewCard.Positioner>
-                  <PreviewCard.Popup>Content</PreviewCard.Popup>
-                </PreviewCard.Positioner>
-              </PreviewCard.Portal>
-            </PreviewCard.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByText('Content')).to.equal(null);
-      });
-    });
-
-    it('should remove the popup when the animation finishes', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
-      let animationFinished = false;
-      const notifyAnimationFinished = () => {
-        animationFinished = true;
-      };
-
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      function Test() {
-        const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-popup[data-open] {
-            opacity: 1;
-          }
-
-          .animation-test-popup[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
-            <PreviewCard.Root open={open}>
-              <PreviewCard.Portal keepMounted>
-                <PreviewCard.Positioner data-testid="positioner">
-                  <PreviewCard.Popup
-                    className="animation-test-popup"
-                    onAnimationEnd={notifyAnimationFinished}
-                  >
-                    Content
-                  </PreviewCard.Popup>
-                </PreviewCard.Positioner>
-              </PreviewCard.Portal>
-            </PreviewCard.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('positioner')).to.have.attribute('hidden');
-      });
-
-      expect(animationFinished).to.equal(true);
     });
   });
 

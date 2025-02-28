@@ -349,7 +349,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(thumb).to.have.attribute('aria-valuenow', '21');
       expect(thumb).toHaveFocus();
 
-      setProps({ disabled: true });
+      await setProps({ disabled: true });
       expect(thumb).not.toHaveFocus();
       // expect(thumb).not.to.have.class(classes.active);
 
