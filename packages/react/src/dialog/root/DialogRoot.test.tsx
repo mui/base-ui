@@ -597,7 +597,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe('prop: action', () => {
+  describe('prop: actionsRef', () => {
     it('unmounts the dialog when the `unmount` method is called', async () => {
       const actionsRef = {
         current: {
