@@ -17,7 +17,7 @@ const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
   props: NumberFieldDecrement.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, disabled: disabledProp = false, ...otherProps } = props;
 
   const {
     allowInputSyncRef,
@@ -50,7 +50,7 @@ const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
     maxWithDefault,
     value,
     inputValue,
-    disabled,
+    disabled: disabledProp || disabled,
     readOnly,
     id,
     setValue,
@@ -102,6 +102,10 @@ NumberFieldDecrement.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  disabled: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
