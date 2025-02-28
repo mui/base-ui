@@ -18,6 +18,10 @@
       "type": "(value, event) => void",
       "description": "Callback fired when the number value changes."
     },
+    "locale": {
+      "type": "string",
+      "description": "The locale of the input element.\nDefaults to the user's runtime locale."
+    },
     "step": {
       "type": "number",
       "default": "1;",

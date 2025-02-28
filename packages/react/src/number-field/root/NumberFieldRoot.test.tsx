@@ -528,4 +528,19 @@ describe('<NumberField />', () => {
       expect(preventDefaultSpy).to.have.property('callCount', 0);
     });
   });
+
+  describe('prop: locale', () => {
+    it('should set the locale of the input', async () => {
+      await render(<NumberField defaultValue={1000.5} locale="de-DE" />);
+      const input = screen.getByRole('textbox');
+
+      // In German locale, numbers use dot as thousands separator and comma as decimal separator
+      const expectedValue = new Intl.NumberFormat('de-DE').format(1000.5);
+      expect(input).to.have.value(expectedValue);
+
+      // Check that it's different from the default locale format
+      const defaultValue = new Intl.NumberFormat('en-US').format(1000.5);
+      expect(input).not.to.have.value(defaultValue);
+    });
+  });
 });

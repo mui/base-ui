@@ -54,6 +54,7 @@ export function useNumberFieldRoot(
     value: externalValue,
     onValueChange: onValueChangeProp,
     defaultValue,
+    locale,
   } = params;
 
   const {
@@ -146,14 +147,14 @@ export function useNumberFieldRoot(
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
   // rendering an empty input field and then updating it with the formatted value, as the user
   // can still see the value prior to hydration, even if it's not formatted correctly.
-  const [inputValue, setInputValue] = React.useState(() => formatNumber(value, [], format));
+  const [inputValue, setInputValue] = React.useState(() => formatNumber(value, locale, format));
   const [inputMode, setInputMode] = React.useState<'numeric' | 'decimal' | 'text'>('numeric');
 
   const isMin = value != null && value <= minWithDefault;
   const isMax = value != null && value >= maxWithDefault;
 
   const getAllowedNonNumericKeys = useEventCallback(() => {
-    const { decimal, group, currency } = getNumberLocaleDetails([], format);
+    const { decimal, group, currency } = getNumberLocaleDetails(locale, format);
 
     const keys = Array.from(new Set(['.', ',', decimal, group]));
 
@@ -662,7 +663,7 @@ export function useNumberFieldRoot(
           let isAllowedNonNumericKey = allowedNonNumericKeys.includes(event.key);
 
           const { decimal, currency, percentSign } = getNumberLocaleDetails(
-            [],
+            locale,
             formatOptionsRef.current,
           );
 
@@ -778,6 +779,7 @@ export function useNumberFieldRoot(
       valueRef,
       setValue,
       getAllowedNonNumericKeys,
+      locale,
       getStepAmount,
       min,
       max,
@@ -905,6 +907,11 @@ export namespace useNumberFieldRoot {
      * @param {Event} event The event that triggered the change.
      */
     onValueChange?: (value: number | null, event?: Event) => void;
+    /**
+     * The locale of the input element.
+     * Defaults to the user's runtime locale.
+     */
+    locale?: string;
   }
 
   export interface ReturnValue {

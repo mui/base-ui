@@ -31,15 +31,19 @@ export function getNumberLocaleDetails(
   return result;
 }
 
-export function parseNumber(formattedNumber: string, options?: Intl.NumberFormatOptions) {
-  let locale: string | undefined;
+export function parseNumber(
+  formattedNumber: string,
+  locale?: string,
+  options?: Intl.NumberFormatOptions,
+) {
+  let computedLocale = locale;
   if (ARABIC_RE.test(formattedNumber)) {
-    locale = 'ar';
+    computedLocale = 'ar';
   } else if (HAN_RE.test(formattedNumber)) {
-    locale = 'zh';
+    computedLocale = 'zh';
   }
 
-  const { group, decimal, currency, unit } = getNumberLocaleDetails(locale, options);
+  const { group, decimal, currency, unit } = getNumberLocaleDetails(computedLocale, options);
 
   const regexesToReplace = [
     { regex: group ? new RegExp(`\\${group}`, 'g') : null, replacement: '' },

@@ -36,6 +36,7 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     onValueChange,
     allowWheelScrub,
     format,
+    locale,
     render,
     className,
     ...otherProps
@@ -202,6 +203,11 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    * @default 10
    */
   largeStep: PropTypes.number,
+  /**
+   * The locale of the input element.
+   * Defaults to the user's runtime locale.
+   */
+  locale: PropTypes.string,
   /**
    * The maximum value of the input element.
    */
