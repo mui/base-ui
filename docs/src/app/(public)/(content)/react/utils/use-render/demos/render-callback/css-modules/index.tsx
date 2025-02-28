@@ -19,7 +19,7 @@ function Counter(props: CounterProps) {
   const state = React.useMemo(() => ({ odd }), [odd]);
 
   const { renderElement } = useRender({
-    render: render,
+    render,
     state,
     props: {
       ...otherProps,
