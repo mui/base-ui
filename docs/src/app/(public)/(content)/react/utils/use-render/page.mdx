@@ -21,6 +21,11 @@ The `useRender` hook allows you to support the `render` prop to override the def
       description:
         'Props to be spread on the rendered element.\n\nThey are merged with the internal props\n of the component, so that event handlers are merged,\nclass names and styles are joined, and other external props overwrite the internal ones.',
     },
+    state: {
+      type: 'State',
+      description:
+        'The state of the component. It will be used as a parameter for the render callback.',
+    },
   }}
 />
 
@@ -33,6 +38,10 @@ The hook returns a function that when called returns the element that should be 
 This is an example of a Text component supporting the `render` prop.
 
 <Demo path="./demos/render" />
+
+Developers can also use the callback version of the `render` prop.
+
+<Demo path="./demos/render-callback" />
 
 ### Migrating from Radix
 

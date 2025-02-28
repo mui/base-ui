@@ -2,35 +2,44 @@ import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
+import { CustomStyleHookMapping } from '../utils/getStyleHookProps';
 
 /**
  * Returns a function that renders a Base UI component.
  */
-function useRender<RenderedElementType extends Element>(
-  settings: useRender.Settings<RenderedElementType>,
+function useRender<State extends Record<string, unknown>, RenderedElementType extends Element>(
+  settings: useRender.Settings<State, RenderedElementType>,
 ) {
-  const { render, props } = settings;
+  const { render, props, state = {} } = settings;
   const { ref, ...extraProps } = props ?? {};
 
   return useComponentRenderer({
     render,
-    state: {} as Record<string, any>,
+    state: state as State,
     ref: ref as React.Ref<RenderedElementType>,
     extraProps,
+    customStyleHookMapping: Object.keys(state).reduce((acc, key) => {
+      acc[key as keyof State] = () => null;
+      return acc;
+    }, {} as CustomStyleHookMapping<State>),
   });
 }
 
 namespace useRender {
-  export type RenderProp<State = Record<string, unknown>> =
+  export type RenderProp<State> =
     | ComponentRenderFn<React.HTMLAttributes<any>, State>
     | React.ReactElement<Record<string, unknown>>
     | keyof typeof defaultRenderFunctions;
 
-  export interface Settings<RenderedElementType extends Element> {
+  export interface Settings<State, RenderedElementType extends Element> {
     /**
      * The React element or a function that returns one to override the default element.
      */
-    render: RenderProp<Record<string, unknown>>;
+    render: RenderProp<State>;
+    /**
+     * The state of the component. It will be used as a parameter for the render callback.
+     */
+    state?: State;
     /**
      * Props to be spread on the rendered element.
      * They are merged with the internal props of the component, so that event handlers
