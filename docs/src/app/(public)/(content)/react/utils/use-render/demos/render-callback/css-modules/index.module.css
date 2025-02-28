@@ -40,10 +40,6 @@
   }
 }
 
-.odd {
-  color: var(--color-red);
-}
-
 .suffix {
   margin-left: 0.125rem;
 }
