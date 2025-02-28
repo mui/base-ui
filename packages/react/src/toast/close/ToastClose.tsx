@@ -6,7 +6,6 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useToastContext } from '../provider/ToastProviderContext';
-import { useToastViewportContext } from '../viewport/ToastViewportContext';
 
 const state = {};
 
@@ -22,9 +21,8 @@ const ToastClose = React.forwardRef(function ToastClose(
 ) {
   const { render, className, ...other } = props;
 
-  const { remove, prevFocusRef } = useToastContext();
+  const { dismissToast } = useToastContext();
   const { toast, rootRef } = useToastRootContext();
-  const { viewportRef } = useToastViewportContext();
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
@@ -33,30 +31,7 @@ const ToastClose = React.forwardRef(function ToastClose(
     state,
     extraProps: mergeReactProps<'button'>(other, {
       onClick() {
-        const viewport = viewportRef.current;
-        if (!viewport) {
-          return;
-        }
-
-        const currentToastRoot = rootRef.current;
-        if (!currentToastRoot) {
-          return;
-        }
-
-        const toastElements = Array.from<HTMLElement>(
-          viewport.querySelectorAll('[data-base-ui-toast]'),
-        );
-        const currentIndex = toastElements.indexOf(currentToastRoot);
-
-        remove(toast.id);
-
-        const nextToast = toastElements[currentIndex + 1] || toastElements[currentIndex - 1];
-
-        if (nextToast) {
-          nextToast.focus();
-        } else {
-          prevFocusRef.current?.focus();
-        }
+        dismissToast(toast.id, rootRef.current);
       },
     }),
   });
@@ -81,11 +56,11 @@ ToastClose.propTypes /* remove-proptypes */ = {
   children: PropTypes.node,
   /**
    * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
+   * returns a class based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Allows you to replace the component’s HTML element
+   * Allows you to replace the component's HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.

@@ -3,27 +3,29 @@ import { EventEmitter } from '../utils/EventEmitter';
 import type { Toast } from './provider/ToastProviderContext';
 import { resolvePromiseContent, type ToastContent } from './utils/resolvePromiseContent';
 
-export interface ToastOptions extends Omit<Toast, 'id' | 'animation' | 'height'> {
+export interface ToastOptions<Data = Record<string, unknown>>
+  extends Omit<Toast<Data>, 'id' | 'animation' | 'height'> {
   id?: string;
   promise?: boolean;
+  actionProps?: React.ComponentPropsWithoutRef<'button'>;
 }
 
-export interface PromiseToastOptions<Value>
-  extends Omit<ToastOptions, 'type' | 'title' | 'description'> {
+export interface PromiseToastOptions<Value, Data = Record<string, unknown>>
+  extends Omit<ToastOptions<Data>, 'type' | 'title' | 'description'> {
   loading: ToastContent<void>;
   success: ToastContent<Value>;
   error: ToastContent<any>;
 }
 
-export const globalToastEmitter = new EventEmitter<ToastOptions>();
+export const globalToastEmitter = new EventEmitter<ToastOptions<any>>();
 
-export function add(options: ToastOptions): void {
+export function add<Data = Record<string, unknown>>(options: ToastOptions<Data>): void {
   globalToastEmitter.emit(options);
 }
 
-export function promise<Value>(
+export function promise<Value, Data = Record<string, unknown>>(
   promiseValue: Promise<Value>,
-  options: PromiseToastOptions<Value>,
+  options: PromiseToastOptions<Value, Data>,
 ): Promise<Value> {
   const toastId = globalToastEmitter.lastEventId;
 

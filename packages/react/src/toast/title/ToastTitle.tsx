@@ -3,6 +3,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useToastRootContext } from '../root/ToastRootContext';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useId } from '../../utils/useId';
 
 const state = {};
 
@@ -16,14 +19,28 @@ const ToastTitle = React.forwardRef(function ToastTitle(
   props: ToastTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, id: idProp, ...other } = props;
+
+  const id = useId(idProp);
+
+  const { setTitleId } = useToastRootContext();
+
+  useEnhancedEffect(() => {
+    setTitleId(id);
+    return () => {
+      setTitleId(undefined);
+    };
+  }, [id, setTitleId]);
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'h2',
     ref: forwardedRef,
     className,
     state,
-    extraProps: other,
+    extraProps: {
+      id,
+      ...other,
+    },
   });
 
   return renderElement();

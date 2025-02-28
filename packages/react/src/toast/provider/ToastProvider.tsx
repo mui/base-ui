@@ -5,6 +5,9 @@ import { Toast, ToastContext } from './ToastProviderContext';
 import { globalToastEmitter, PromiseToastOptions } from '../globalToast';
 import { generateId } from '../../utils/generateId';
 import { resolvePromiseContent } from '../utils/resolvePromiseContent';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useToast } from '../useToast';
+import { useLatestRef } from '../../utils/useLatestRef';
 
 interface TimerInfo {
   timeoutId?: ReturnType<typeof setTimeout>;
@@ -38,8 +41,12 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
   const timersRef = React.useRef(new Map<string, TimerInfo>());
   const prevFocusRef = React.useRef<HTMLElement | null>(null);
+  const viewportRef = React.useRef<HTMLElement | null>(null);
 
-  const remove = React.useCallback((id: string) => {
+  const hoveringRef = useLatestRef(hovering);
+  const focusedRef = useLatestRef(focused);
+
+  const remove = useEventCallback((id: string) => {
     setToasts((prev) =>
       prev.map((toast) =>
         toast.id === id ? { ...toast, animation: 'ending' as const, height: 0 } : toast,
@@ -51,70 +58,72 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     if (timer && timer.timeoutId) {
       clearTimeout(timer.timeoutId);
     }
-  }, []);
 
-  const finalizeRemove = React.useCallback((id: string) => {
+    const toast = toasts.find((toast) => toast.id === id);
+    toast?.onRemove?.();
+  });
+
+  const finalizeRemove = useEventCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
     timersRef.current.delete(id);
-  }, []);
+    const toast = toasts.find((toast) => toast.id === id);
+    toast?.onRemoveComplete?.();
+  });
 
-  // Helper to schedule auto-dismiss timers.
-  const scheduleTimer = React.useCallback((id: string, delay: number, callback: () => void) => {
+  const scheduleTimer = useEventCallback((id: string, delay: number, callback: () => void) => {
     const start = Date.now();
     const timeoutId = setTimeout(() => {
       timersRef.current.delete(id);
       callback();
     }, delay);
     timersRef.current.set(id, { timeoutId, start, delay, remaining: delay, callback });
-  }, []);
+  });
 
-  const add = React.useCallback(
-    (toast: Omit<Toast, 'id' | 'animation'>): string => {
-      const id = generateId('toast');
-      const toastToAdd = {
-        id,
-        ...toast,
-        animation: 'starting' as const,
-      };
+  const add = useEventCallback((toast: useToast.AddOptions): string => {
+    const id = generateId('toast');
+    const toastToAdd = {
+      id,
+      ...toast,
+      animation: 'starting' as const,
+    };
 
-      setToasts((prev) => {
-        const updatedToasts = [toastToAdd, ...prev];
-        const activeToasts = updatedToasts.filter((t) => t.animation !== 'ending');
+    setToasts((prev) => {
+      const updatedToasts = [toastToAdd, ...prev];
+      const activeToasts = updatedToasts.filter((t) => t.animation !== 'ending');
 
-        // Mark oldest toasts for removal when over limit
-        if (activeToasts.length > limit) {
-          const excessCount = activeToasts.length - limit;
-          const oldestActiveToasts = activeToasts.slice(-excessCount);
+      // Mark oldest toasts for removal when over limit
+      if (activeToasts.length > limit) {
+        const excessCount = activeToasts.length - limit;
+        const oldestActiveToasts = activeToasts.slice(-excessCount);
 
-          oldestActiveToasts.forEach((t) => {
-            const timer = timersRef.current.get(t.id);
-            if (timer && timer.timeoutId) {
-              clearTimeout(timer.timeoutId);
-            }
-          });
+        oldestActiveToasts.forEach((t) => {
+          const timer = timersRef.current.get(t.id);
+          if (timer && timer.timeoutId) {
+            clearTimeout(timer.timeoutId);
+          }
+        });
 
-          return updatedToasts.map((t) =>
-            oldestActiveToasts.some((old) => old.id === t.id)
-              ? { ...t, animation: 'ending' as const, height: 0 }
-              : t,
-          );
-        }
-
-        return updatedToasts;
-      });
-
-      const duration = toastToAdd.timeout ?? timeout;
-      if (toastToAdd.type !== 'loading' && duration > 0) {
-        scheduleTimer(id, duration, () => remove(id));
+        return updatedToasts.map((t) =>
+          oldestActiveToasts.some((old) => old.id === t.id)
+            ? { ...t, animation: 'ending' as const, height: 0 }
+            : t,
+        );
       }
-      return id;
-    },
-    [limit, timeout, remove, scheduleTimer],
-  );
 
-  const update = React.useCallback((id: string, updates: Partial<Omit<Toast, 'id'>>) => {
+      return updatedToasts;
+    });
+
+    const duration = toastToAdd.timeout ?? timeout;
+    if (toastToAdd.type !== 'loading' && duration > 0) {
+      scheduleTimer(id, duration, () => remove(id));
+    }
+
+    return id;
+  });
+
+  const update = useEventCallback((id: string, updates: Partial<Omit<Toast, 'id'>>) => {
     setToasts((prev) => prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)));
-  }, []);
+  });
 
   const promise = React.useCallback(
     <Value,>(promiseValue: Promise<Value>, options: PromiseToastOptions<Value>): Promise<Value> => {
@@ -130,34 +139,44 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
       return promiseValue
         .then((result: Value) => {
-          const successContent = resolvePromiseContent(options.success);
+          const successContent = resolvePromiseContent(options.success, result);
           update(id, {
             ...options,
             title: successContent.title,
             description: successContent.description,
             type: 'success',
           });
-          // Now schedule auto-dismiss on success.
+
           scheduleTimer(id, timeout, () => remove(id));
+
+          if (hoveringRef.current || focusedRef.current) {
+            pauseTimers();
+          }
+
           return result;
         })
         .catch((error) => {
-          const errorContent = resolvePromiseContent(options.error);
+          const errorContent = resolvePromiseContent(options.error, error);
           update(id, {
             ...options,
             title: errorContent.title,
             description: errorContent.description,
             type: 'error',
           });
-          // Schedule auto-dismiss on error.
+
           scheduleTimer(id, timeout, () => remove(id));
+
+          if (hoveringRef.current || focusedRef.current) {
+            pauseTimers();
+          }
+
           return Promise.reject(error);
         });
     },
-    [add, update, remove, timeout, scheduleTimer],
+    [add, update, remove, timeout, scheduleTimer, hoveringRef, focusedRef],
   );
 
-  const pauseTimers = React.useCallback(() => {
+  const pauseTimers = useEventCallback(() => {
     timersRef.current.forEach((timer) => {
       if (timer.timeoutId) {
         const elapsed = Date.now() - timer.start;
@@ -167,9 +186,9 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
         timer.timeoutId = undefined;
       }
     });
-  }, []);
+  });
 
-  const resumeTimers = React.useCallback(() => {
+  const resumeTimers = useEventCallback(() => {
     timersRef.current.forEach((timer, id) => {
       if (timer.timeoutId === undefined && timer.remaining > 0) {
         const newTimeoutId = setTimeout(() => {
@@ -180,7 +199,34 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
         timer.timeoutId = newTimeoutId;
       }
     });
-  }, []);
+  });
+
+  const dismissToast = useEventCallback((toastId: string, toastElement: HTMLElement | null) => {
+    if (!toastElement) {
+      remove(toastId);
+      return;
+    }
+
+    if (!viewportRef.current) {
+      remove(toastId);
+      return;
+    }
+
+    const toastElements = Array.from<HTMLElement>(
+      viewportRef.current.querySelectorAll('[data-base-ui-toast]'),
+    );
+    const currentIndex = toastElements.indexOf(toastElement);
+
+    remove(toastId);
+
+    const nextToast = toastElements[currentIndex + 1] || toastElements[currentIndex - 1];
+
+    if (nextToast) {
+      nextToast.focus();
+    } else {
+      prevFocusRef.current?.focus({ preventScroll: true });
+    }
+  });
 
   React.useEffect(() => {
     const unsubscribe = globalToastEmitter.subscribe((toastOptions) => {
@@ -208,7 +254,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     return unsubscribe;
   }, [add, update, remove, scheduleTimer, timeout]);
 
-  const contextValue = React.useMemo(
+  const contextValue: ToastContext = React.useMemo(
     () => ({
       toasts,
       setToasts,
@@ -224,6 +270,9 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       pauseTimers,
       resumeTimers,
       prevFocusRef,
+      dismissToast,
+      viewportRef,
+      scheduleTimer,
     }),
     [
       toasts,
@@ -236,6 +285,8 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       promise,
       pauseTimers,
       resumeTimers,
+      dismissToast,
+      scheduleTimer,
     ],
   );
 
