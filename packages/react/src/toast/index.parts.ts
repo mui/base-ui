@@ -6,4 +6,4 @@ export { ToastTitle as Title } from './title/ToastTitle';
 export { ToastClose as Close } from './close/ToastClose';
 export { ToastContent as Content } from './content/ToastContent';
 export { useToast } from './useToast';
-export { add, promise } from './globalToast';
+export { add, promise, remove, update, toasts } from './globalToast';

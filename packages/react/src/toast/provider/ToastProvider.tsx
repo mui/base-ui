@@ -8,6 +8,8 @@ import { resolvePromiseContent } from '../utils/resolvePromiseContent';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useToast } from '../useToast';
 import { useLatestRef } from '../../utils/useLatestRef';
+import { activeElement, contains } from '@floating-ui/react/utils';
+import { ownerDocument } from '@base-ui-components/react/utils/owner';
 
 interface TimerInfo {
   timeoutId?: ReturnType<typeof setTimeout>;
@@ -46,21 +48,47 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   const hoveringRef = useLatestRef(hovering);
   const focusedRef = useLatestRef(focused);
 
-  const remove = useEventCallback((id: string) => {
+  const handleFocusManagement = useEventCallback((toastId: string) => {
+    if (
+      !viewportRef.current ||
+      !contains(viewportRef.current, activeElement(ownerDocument(viewportRef.current)))
+    ) {
+      return;
+    }
+
+    const toastElements = Array.from<HTMLElement>(
+      viewportRef.current.querySelectorAll('[data-base-ui-toast]'),
+    );
+    const currentIndex = toastElements.findIndex(
+      (toast) => toast.getAttribute('data-base-ui-toast') === toastId,
+    );
+
+    const nextToast = toastElements[currentIndex + 1] || toastElements[currentIndex - 1];
+
+    if (nextToast) {
+      nextToast.focus();
+    } else {
+      prevFocusRef.current?.focus({ preventScroll: true });
+    }
+  });
+
+  const remove = useEventCallback((toastId: string) => {
     setToasts((prev) =>
       prev.map((toast) =>
-        toast.id === id ? { ...toast, animation: 'ending' as const, height: 0 } : toast,
+        toast.id === toastId ? { ...toast, animation: 'ending' as const, height: 0 } : toast,
       ),
     );
 
     // Don't immediately clear the timeout - wait for animation to complete
-    const timer = timersRef.current.get(id);
+    const timer = timersRef.current.get(toastId);
     if (timer && timer.timeoutId) {
       clearTimeout(timer.timeoutId);
     }
 
-    const toast = toasts.find((toast) => toast.id === id);
+    const toast = toasts.find((toast) => toast.id === toastId);
     toast?.onRemove?.();
+
+    handleFocusManagement(toastId);
   });
 
   const finalizeRemove = useEventCallback((id: string) => {
@@ -117,6 +145,14 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     if (toastToAdd.type !== 'loading' && duration > 0) {
       scheduleTimer(id, duration, () => remove(id));
     }
+
+    // Wait for focus to potentially leave the viewport due to
+    // a removal occurring at the same time
+    setTimeout(() => {
+      if (hoveringRef.current || focusedRef.current) {
+        pauseTimers();
+      }
+    });
 
     return id;
   });
@@ -201,33 +237,6 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     });
   });
 
-  const dismissToast = useEventCallback((toastId: string, toastElement: HTMLElement | null) => {
-    if (!toastElement) {
-      remove(toastId);
-      return;
-    }
-
-    if (!viewportRef.current) {
-      remove(toastId);
-      return;
-    }
-
-    const toastElements = Array.from<HTMLElement>(
-      viewportRef.current.querySelectorAll('[data-base-ui-toast]'),
-    );
-    const currentIndex = toastElements.indexOf(toastElement);
-
-    remove(toastId);
-
-    const nextToast = toastElements[currentIndex + 1] || toastElements[currentIndex - 1];
-
-    if (nextToast) {
-      nextToast.focus();
-    } else {
-      prevFocusRef.current?.focus({ preventScroll: true });
-    }
-  });
-
   React.useEffect(() => {
     const unsubscribe = globalToastEmitter.subscribe((toastOptions) => {
       if (toastOptions.promise && toastOptions.id) {
@@ -270,7 +279,6 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       pauseTimers,
       resumeTimers,
       prevFocusRef,
-      dismissToast,
       viewportRef,
       scheduleTimer,
     }),
@@ -285,7 +293,6 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       promise,
       pauseTimers,
       resumeTimers,
-      dismissToast,
       scheduleTimer,
     ],
   );
