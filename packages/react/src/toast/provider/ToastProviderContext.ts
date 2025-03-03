@@ -75,7 +75,6 @@ export interface ToastContext<Data = Record<string, unknown>> {
   pauseTimers: () => void;
   resumeTimers: () => void;
   finalizeRemove: (id: string) => void;
-  dismissToast: (toastId: string, toastElement: HTMLElement | null) => void;
   prevFocusRef: React.RefObject<HTMLElement | null>;
   viewportRef: React.RefObject<HTMLElement | null>;
   scheduleTimer: (id: string, delay: number, callback: () => void) => void;

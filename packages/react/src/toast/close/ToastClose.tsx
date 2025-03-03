@@ -21,8 +21,8 @@ const ToastClose = React.forwardRef(function ToastClose(
 ) {
   const { render, className, ...other } = props;
 
-  const { dismissToast } = useToastContext();
-  const { toast, rootRef } = useToastRootContext();
+  const { remove } = useToastContext();
+  const { toast } = useToastRootContext();
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
@@ -31,7 +31,7 @@ const ToastClose = React.forwardRef(function ToastClose(
     state,
     extraProps: mergeReactProps<'button'>(other, {
       onClick() {
-        dismissToast(toast.id, rootRef.current);
+        remove(toast.id);
       },
     }),
   });

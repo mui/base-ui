@@ -30,8 +30,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 ) {
   const { toast, render, className, swipeDirection = 'up', ...other } = props;
 
-  const { toasts, finalizeRemove, hovering, focused, setToasts, remove, dismissToast } =
-    useToastContext();
+  const { toasts, hovering, focused, finalizeRemove, setToasts, remove } = useToastContext();
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const mergedRef = useForkRef(rootRef, forwardedRef);
@@ -308,7 +307,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
         return;
       }
 
-      dismissToast(toast.id, rootRef.current);
+      remove(toast.id);
     }
   }
 
@@ -361,11 +360,11 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     customStyleHookMapping: transitionStatusMapping,
     extraProps: mergeReactProps<'div'>(other, {
       role: toast.priority === 'high' ? 'alertdialog' : 'dialog',
+      tabIndex: 0,
       'aria-modal': false,
       'aria-labelledby': titleId,
       'aria-describedby': descriptionId,
-      tabIndex: 0,
-      ['data-base-ui-toast' as string]: '',
+      ['data-base-ui-toast' as string]: toast.id,
       ['data-drag-dismissed' as string]: dragDismissed ? '' : undefined,
       onPointerDown: handlePointerDown,
       onPointerMove: handlePointerMove,
