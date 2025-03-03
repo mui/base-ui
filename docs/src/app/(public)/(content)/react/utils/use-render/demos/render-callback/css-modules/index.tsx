@@ -42,7 +42,7 @@ function Counter(props: CounterProps) {
         </React.Fragment>
       ),
       onClick: handleClick,
-      'aria-label': `Count is ${count}, click to increase.` ?? ariaLabel,
+      'aria-label': ariaLabel ?? `Count is ${count}, click to increase.`,
       ...otherProps,
     },
   });
