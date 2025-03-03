@@ -35,6 +35,10 @@ namespace useRender {
     | React.ReactElement<Record<string, unknown>>
     | keyof typeof defaultRenderFunctions;
 
+  export interface ElementProps<State = Record<string, unknown>> {
+    render?: RenderProp<State>;
+  }
+
   export interface Settings<State, RenderedElementType extends Element> {
     /**
      * The React element or a function that returns one to override the default element.

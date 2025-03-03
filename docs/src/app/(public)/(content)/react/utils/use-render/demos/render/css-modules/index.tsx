@@ -3,10 +3,9 @@ import * as React from 'react';
 import { useRender } from '@base-ui-components/react/use-render';
 import styles from './index.module.css';
 
-type TextProps = {
-  render?: useRender.RenderProp;
+interface TextProps extends useRender.ElementProps {
   children: React.ReactNode;
-};
+}
 
 function Text(props: TextProps) {
   const { render = <p />, ...otherProps } = props;

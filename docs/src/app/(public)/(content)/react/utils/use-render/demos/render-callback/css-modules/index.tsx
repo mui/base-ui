@@ -7,12 +7,11 @@ type CounterState = {
   odd: boolean;
 };
 
-type CounterProps = {
+interface CounterProps extends useRender.ElementProps<CounterState> {
   className?: string;
-  render?: useRender.RenderProp<CounterState>;
   onClick?: (event: React.MouseEvent) => void;
   ['aria-label']?: string;
-};
+}
 
 function Counter(props: CounterProps) {
   const {
