@@ -66,6 +66,10 @@ ToastDescription.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
+   * @ignore
+   */
+  id: PropTypes.string,
+  /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
    *

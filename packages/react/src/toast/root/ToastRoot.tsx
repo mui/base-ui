@@ -428,11 +428,11 @@ ToastRoot.propTypes /* remove-proptypes */ = {
   children: PropTypes.node,
   /**
    * CSS class applied to the element, or a function that
-   * returns a class based on the component's state.
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Allows you to replace the component's HTML element
+   * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
@@ -452,10 +452,14 @@ ToastRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   toast: PropTypes.shape({
+    actionProps: PropTypes.object,
     animation: PropTypes.oneOf(['ending', 'starting']),
+    data: PropTypes.object,
     description: PropTypes.string,
     height: PropTypes.number,
     id: PropTypes.string.isRequired,
+    onRemove: PropTypes.func,
+    onRemoveComplete: PropTypes.func,
     priority: PropTypes.oneOf(['high', 'low']),
     timeout: PropTypes.number,
     title: PropTypes.string.isRequired,

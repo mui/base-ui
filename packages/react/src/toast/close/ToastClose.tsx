@@ -56,11 +56,11 @@ ToastClose.propTypes /* remove-proptypes */ = {
   children: PropTypes.node,
   /**
    * CSS class applied to the element, or a function that
-   * returns a class based on the component's state.
+   * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Allows you to replace the component's HTML element
+   * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
