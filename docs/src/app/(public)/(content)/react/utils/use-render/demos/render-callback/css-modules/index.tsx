@@ -10,19 +10,31 @@ type CounterState = {
 type CounterProps = {
   className?: string;
   render?: useRender.RenderProp<CounterState>;
+  onClick?: (event: React.MouseEvent) => void;
+  ['aria-label']?: string;
 };
 
 function Counter(props: CounterProps) {
-  const { render = <button />, className, ...otherProps } = props;
+  const {
+    render = <button />,
+    className,
+    onClick,
+    'aria-label': ariaLabel,
+    ...otherProps
+  } = props;
   const [count, setCount] = React.useState(0);
   const odd = count % 2 === 1;
   const state = React.useMemo(() => ({ odd }), [odd]);
+
+  const handleClick = (event: React.MouseEvent) => {
+    setCount((prev) => prev + 1);
+    onClick?.(event);
+  };
 
   const { renderElement } = useRender({
     render,
     state,
     props: {
-      ...otherProps,
       className: `${styles.Button} ${className ?? ''}`,
       type: 'button',
       children: (
@@ -30,8 +42,9 @@ function Counter(props: CounterProps) {
           Counter: <span>{count}</span>
         </React.Fragment>
       ),
-      onClick: () => setCount((prev) => prev + 1),
-      'aria-label': `Count is ${count}, click to increase.`,
+      onClick: handleClick,
+      'aria-label': `Count is ${count}, click to increase.` ?? ariaLabel,
+      ...otherProps,
     },
   });
 
