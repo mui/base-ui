@@ -1,0 +1,18 @@
+# Production error
+
+{/**
+@typedef Props
+@property {string} msg The raw error message.
+**/}
+
+<Subtitle>Explanation for minified production error message.</Subtitle>
+<Meta
+  name="description"
+  content="In the production build, error messages are minified to keep your application lightweight."
+/>
+
+For debugging, we recommend using the development build, which provides additional warnings about potential issues. If an exception occurs in the production build, this page will reconstruct the original error message.
+
+The original error you encountered:
+
+<ErrorDisplay msg={props.msg} />
