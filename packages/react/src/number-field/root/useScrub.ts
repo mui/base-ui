@@ -124,6 +124,8 @@ export function useScrub(params: ScrubParams) {
             inputRef.current?.focus();
           }
 
+          isScrubbingRef.current = true;
+
           // WebKit causes significant layout shift with the native message, so we can't use it.
           if (!isWebKit()) {
             try {
@@ -134,7 +136,6 @@ export function useScrub(params: ScrubParams) {
             } catch {
               //
             } finally {
-              isScrubbingRef.current = true;
               ReactDOM.flushSync(() => {
                 onScrubbingChange(true, event.nativeEvent);
               });
