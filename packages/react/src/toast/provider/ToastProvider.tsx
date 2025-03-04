@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { activeElement, contains } from '@floating-ui/react/utils';
 import { Toast, ToastContext } from './ToastProviderContext';
-import type { GlobalPromiseToastOptions } from '../globalToast';
+import type { GlobalPromiseToastOptions } from '../Manager';
 import { generateId } from '../../utils/generateId';
 import { resolvePromiseContent } from '../utils/resolvePromiseContent';
 import { useEventCallback } from '../../utils/useEventCallback';

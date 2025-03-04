@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { PromiseToastOptions } from '../globalToast';
+import { GlobalPromiseToastOptions } from '../Manager';
 
 export interface Toast<Data = Record<string, unknown>> {
   /**
@@ -70,7 +70,7 @@ export interface ToastContext<Data = Record<string, unknown>> {
   ) => void;
   promise: <Value, ToastData extends Data>(
     promise: Promise<Value>,
-    options: PromiseToastOptions<Value, ToastData>,
+    options: GlobalPromiseToastOptions<Value, ToastData>,
   ) => Promise<Value>;
   pauseTimers: () => void;
   resumeTimers: () => void;
