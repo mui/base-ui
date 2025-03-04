@@ -247,13 +247,13 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             ] as number; // navigated cell will never be nullish
           }
 
-          const toEndKeys = {
+          const forwardKeys = {
             horizontal: [horizontalForwardKey],
             vertical: [ARROW_DOWN],
             both: [horizontalForwardKey, ARROW_DOWN],
           }[orientation];
 
-          const toStartKeys = {
+          const backwardKeys = {
             horizontal: [horizontalBackwardKey],
             vertical: [ARROW_UP],
             both: [horizontalBackwardKey, ARROW_UP],
@@ -279,16 +279,16 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
           if (
             nextIndex === highlightedIndex &&
-            [...toEndKeys, ...toStartKeys].includes(event.key)
+            [...forwardKeys, ...backwardKeys].includes(event.key)
           ) {
-            if (loop && nextIndex === maxIndex && toEndKeys.includes(event.key)) {
+            if (loop && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
               nextIndex = minIndex;
-            } else if (loop && nextIndex === minIndex && toStartKeys.includes(event.key)) {
+            } else if (loop && nextIndex === minIndex && backwardKeys.includes(event.key)) {
               nextIndex = maxIndex;
             } else {
               nextIndex = findNonDisabledIndex(elementsRef, {
                 startingIndex: nextIndex,
-                decrement: toStartKeys.includes(event.key),
+                decrement: backwardKeys.includes(event.key),
                 disabledIndices,
               });
             }
