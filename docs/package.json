@@ -59,7 +59,7 @@
     "rehype-pretty-code": "^0.14.0",
     "remark": "^15.0.1",
     "remark-frontmatter": "^5.0.0",
-    "remark-gfm": "^4.0.0",
+    "remark-gfm": "^4.0.1",
     "remark-mdx-frontmatter": "^5.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.1",
