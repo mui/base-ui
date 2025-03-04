@@ -25,8 +25,14 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { isScrubbing, scrubAreaCursorRef, state, getScrubAreaCursorProps } =
-    useNumberFieldRootContext();
+  const {
+    isScrubbing,
+    isTouchInput,
+    isPointerLockDenied,
+    scrubAreaCursorRef,
+    state,
+    getScrubAreaCursorProps,
+  } = useNumberFieldRootContext();
 
   const [element, setElement] = React.useState<Element | null>(null);
 
@@ -41,7 +47,7 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
     extraProps: otherProps,
   });
 
-  if (!isScrubbing || isWebKit()) {
+  if (!isScrubbing || isWebKit() || isTouchInput || isPointerLockDenied) {
     return null;
   }
 

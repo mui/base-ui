@@ -31,6 +31,8 @@ export function useScrub(params: ScrubParams) {
   const visualScaleRef = React.useRef(1);
 
   const [isScrubbing, setIsScrubbing] = React.useState(false);
+  const [isTouchInput, setIsTouchInput] = React.useState(false);
+  const [isPointerLockDenied, setIsPointerLockDenied] = React.useState(false);
 
   React.useEffect(() => {
     return () => {
@@ -131,6 +133,9 @@ export function useScrub(params: ScrubParams) {
             return;
           }
 
+          const isTouch = event.pointerType === 'touch';
+          setIsTouchInput(isTouch);
+
           if (event.pointerType === 'mouse') {
             event.preventDefault();
             inputRef.current?.focus();
@@ -140,7 +145,7 @@ export function useScrub(params: ScrubParams) {
           onScrubbingChange(true, event.nativeEvent);
 
           // WebKit causes significant layout shift with the native message, so we can't use it.
-          if (!isWebKit()) {
+          if (!isTouch && !isWebKit()) {
             // There can be some frames where there's no cursor at all when requesting the pointer lock.
             // This is a workaround to avoid flickering.
             avoidFlickerTimeoutRef.current = window.setTimeout(async () => {
@@ -151,8 +156,9 @@ export function useScrub(params: ScrubParams) {
                 // We need to await it even though it doesn't appear to return a promise in the
                 // types in order for the `catch` to work.
                 await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
-              } catch {
-                //
+                setIsPointerLockDenied(false);
+              } catch (error) {
+                setIsPointerLockDenied(true);
               }
             }, 20);
           }
@@ -271,12 +277,14 @@ export function useScrub(params: ScrubParams) {
   return React.useMemo(
     () => ({
       isScrubbing,
+      isTouchInput,
+      isPointerLockDenied,
       getScrubAreaProps,
       getScrubAreaCursorProps,
       scrubAreaCursorRef,
       scrubAreaRef,
       scrubHandleRef,
     }),
-    [isScrubbing, getScrubAreaProps, getScrubAreaCursorProps],
+    [isScrubbing, isTouchInput, isPointerLockDenied, getScrubAreaProps, getScrubAreaCursorProps],
   );
 }
