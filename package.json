@@ -124,7 +124,7 @@
     "markdownlint-cli2": "^0.17.2",
     "nx": "^18.3.5",
     "piscina": "^4.8.0",
-    "postcss": "^8.5.1",
+    "postcss": "^8.5.3",
     "postcss-loader": "^8.1.1",
     "postcss-styled-syntax": "^0.7.1",
     "prettier": "^3.4.2",
