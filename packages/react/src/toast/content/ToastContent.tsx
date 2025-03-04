@@ -51,10 +51,11 @@ const ToastContent = React.forwardRef(function ToastContent(
             ? { role: 'alert', 'aria-atomic': true }
             : { role: 'status', 'aria-live': 'polite' })}
         >
-          {/* Screen readers won't announce role=status aria-live=polite upon DOM insertion
+          {/* Screen readers won't announce the text upon DOM insertion
           of the component. We need to wait until the next tick to render the children
-          so that screen readers can announce the toast. */}
-          {renderChildren ? props.children : null}
+          so that screen readers can announce the contents. */}
+          <div>{renderChildren && toast.title}</div>
+          <div>{renderChildren && toast.description}</div>
         </div>
       )}
     </React.Fragment>

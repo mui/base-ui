@@ -3,8 +3,10 @@ import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 import styles from './toast.module.css';
 
+const globalToastManager = new Toast.Manager();
+
 function showGlobalToast() {
-  Toast.add({
+  globalToastManager.add({
     title: 'Global toast',
     description: 'This toast was created outside of a React component',
   });
@@ -26,7 +28,7 @@ function fetchUserData() {
 
 export default function Page() {
   return (
-    <Toast.Provider>
+    <Toast.Provider globalManager={globalToastManager}>
       <Toast.Viewport className={styles.viewport}>
         <Toasts />
       </Toast.Viewport>
