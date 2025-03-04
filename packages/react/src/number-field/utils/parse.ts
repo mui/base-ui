@@ -37,10 +37,12 @@ export function parseNumber(
   options?: Intl.NumberFormatOptions,
 ) {
   let computedLocale = locale;
-  if (ARABIC_RE.test(formattedNumber)) {
-    computedLocale = 'ar';
-  } else if (HAN_RE.test(formattedNumber)) {
-    computedLocale = 'zh';
+  if (computedLocale === undefined) {
+    if (ARABIC_RE.test(formattedNumber)) {
+      computedLocale = 'ar';
+    } else if (HAN_RE.test(formattedNumber)) {
+      computedLocale = 'zh';
+    }
   }
 
   const { group, decimal, currency, unit } = getNumberLocaleDetails(computedLocale, options);
