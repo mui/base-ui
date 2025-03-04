@@ -34,8 +34,8 @@ import { useField } from '../../field/useField';
 import type { ScrubHandle } from './useScrub.types';
 
 export function useNumberFieldRoot(
-  params: UseNumberFieldRoot.Parameters,
-): UseNumberFieldRoot.ReturnValue {
+  params: useNumberFieldRoot.Parameters,
+): useNumberFieldRoot.ReturnValue {
   const {
     id: idProp,
     name,
@@ -389,7 +389,7 @@ export function useNumberFieldRoot(
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  const getGroupProps: UseNumberFieldRoot.ReturnValue['getGroupProps'] = React.useCallback(
+  const getGroupProps: useNumberFieldRoot.ReturnValue['getGroupProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps(externalProps, {
         role: 'group',
@@ -548,19 +548,19 @@ export function useNumberFieldRoot(
     ],
   );
 
-  const getIncrementButtonProps: UseNumberFieldRoot.ReturnValue['getIncrementButtonProps'] =
+  const getIncrementButtonProps: useNumberFieldRoot.ReturnValue['getIncrementButtonProps'] =
     React.useCallback(
       (externalProps) => getCommonButtonProps(true, externalProps),
       [getCommonButtonProps],
     );
 
-  const getDecrementButtonProps: UseNumberFieldRoot.ReturnValue['getDecrementButtonProps'] =
+  const getDecrementButtonProps: useNumberFieldRoot.ReturnValue['getDecrementButtonProps'] =
     React.useCallback(
       (externalProps) => getCommonButtonProps(false, externalProps),
       [getCommonButtonProps],
     );
 
-  const getInputProps: UseNumberFieldRoot.ReturnValue['getInputProps'] = React.useCallback(
+  const getInputProps: useNumberFieldRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'input'>(getInputValidationProps(getValidationProps(externalProps)), {
         id,
@@ -818,7 +818,7 @@ export function useNumberFieldRoot(
   );
 }
 
-export namespace UseNumberFieldRoot {
+export namespace useNumberFieldRoot {
   export interface Parameters {
     /**
      * The id of the input element.

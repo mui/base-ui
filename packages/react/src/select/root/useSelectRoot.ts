@@ -22,12 +22,6 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const EMPTY_ARRAY: never[] = [];
 
-function isDisabled(element: HTMLElement | null) {
-  return (
-    element == null || element.hasAttribute('disabled') || element.hasAttribute('data-disabled')
-  );
-}
-
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
     id: idProp,
@@ -198,10 +192,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     },
   });
 
-  const triggerDisabled = isDisabled(triggerElement);
-
   const click = useClick(floatingRootContext, {
-    enabled: !readOnly && !disabled && !triggerDisabled,
+    enabled: !readOnly && !disabled,
     event: 'mousedown',
   });
 

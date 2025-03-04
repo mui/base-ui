@@ -114,7 +114,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   );
 });
 
-export namespace AccordionRoot {
+namespace AccordionRoot {
   export interface State {
     value: AccordionValue;
     /**

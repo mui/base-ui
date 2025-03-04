@@ -265,7 +265,7 @@ describe('<Switch.Root />', () => {
     expect(thumb).to.have.attribute('data-readonly', '');
     expect(thumb).to.have.attribute('data-required', '');
 
-    setProps({ disabled: false, readOnly: false });
+    await setProps({ disabled: false, readOnly: false });
     fireEvent.click(switchElement);
 
     expect(switchElement).to.have.attribute('data-unchecked', '');

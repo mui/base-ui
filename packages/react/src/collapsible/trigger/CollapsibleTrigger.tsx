@@ -18,9 +18,9 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   props: CollapsibleTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, disabled = false, id, render, ...otherProps } = props;
+  const { panelId, open, setOpen, state, disabled: contextDisabled } = useCollapsibleRootContext();
 
-  const { panelId, open, setOpen, state } = useCollapsibleRootContext();
+  const { className, disabled = contextDisabled, id, render, ...otherProps } = props;
 
   const { getRootProps } = useCollapsibleTrigger({
     disabled,

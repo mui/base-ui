@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { UseNumberFieldRoot } from './useNumberFieldRoot';
+import type { useNumberFieldRoot } from './useNumberFieldRoot';
 import type { NumberFieldRoot } from './NumberFieldRoot';
 
-export interface NumberFieldRootContext extends UseNumberFieldRoot.ReturnValue {
+export interface NumberFieldRootContext extends useNumberFieldRoot.ReturnValue {
   state: NumberFieldRoot.State;
 }
 

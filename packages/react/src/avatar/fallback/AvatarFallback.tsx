@@ -54,7 +54,7 @@ const AvatarFallback = React.forwardRef<HTMLSpanElement, AvatarFallback.Props>(
   },
 );
 
-export namespace AvatarFallback {
+namespace AvatarFallback {
   export interface Props extends BaseUIComponentProps<'span', AvatarRoot.State> {
     /**
      * How long to wait before showing the fallback. Specified in milliseconds.

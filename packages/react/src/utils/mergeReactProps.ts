@@ -1,34 +1,72 @@
 import * as React from 'react';
 import type { BaseUIEvent, WithBaseUIEvent } from './types';
 
+type MergableProps<T extends React.ElementType> =
+  | WithBaseUIEvent<React.ComponentPropsWithRef<T>>
+  | ((
+      otherProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>>,
+    ) => WithBaseUIEvent<React.ComponentPropsWithRef<T>>)
+  | undefined;
+
 /**
- * Merges multiple sets of React props such that their event handlers are called in sequence
- * (the leftmost one being called first), and allows the user to prevent the subsequent event handlers from being
+ * Merges multiple sets of React props. It follows the Object.assign pattern where the leftmost object's fields overwrite
+ * the conflicting ones from others. This doesn't apply to event handlers, `className` and `style` props.
+ * Event handlers are merged such that they are called in sequence (the leftmost one being called first),
+ * and allows the user to prevent the subsequent event handlers from being
  * executed by attaching a `preventBaseUIHandler` method.
  * It also merges the `className` and `style` props, whereby the classes are concatenated
  * and the leftmost styles overwrite the subsequent ones.
+ *
+ * Props can either be provided as objects or as functions that take the previous props as an argument.
+ * The function will receive the merged props up to that point (going from right to left):
+ * so in the case of `(obj1, fn, obj2, obj3)`, `fn` will receive the merged props of `obj2` and `obj3`.
+ * The function is responsible for chaining event handlers if needed (i.e. we don't run the merge logic).
+ *
+ * Event handlers returned by the functions are not automatically prevented when `preventBaseUIHandler` is called.
+ * They must check `event.baseUIHandlerPrevented` themselves and bail out if it's true.
+ *
  * @important **`ref` is not merged.**
  * @param props props to merge.
  * @returns the merged props.
  */
 export function mergeReactProps<T extends React.ElementType>(
-  ...props: (WithBaseUIEvent<React.ComponentPropsWithRef<T>> | undefined)[]
+  ...props: MergableProps<T>[]
 ): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
   if (props.length === 0) {
     return {} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
   }
 
   if (props.length === 1) {
-    return props[0] ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
+    return resolvePropsGetter(props[0], {});
   }
 
-  let merged = merge(props[props.length - 2], props[props.length - 1]);
+  let merged = resolvePropsGetter(props[props.length - 1], {});
 
-  for (let i = props.length - 3; i >= 0; i -= 1) {
-    merged = merge(props[i], merged);
+  for (let i = props.length - 2; i >= 0; i -= 1) {
+    const propsOrPropsGetter = props[i];
+    if (!propsOrPropsGetter) {
+      continue;
+    }
+
+    if (isPropsGetter(propsOrPropsGetter)) {
+      merged = propsOrPropsGetter(merged);
+    } else {
+      merged = merge(propsOrPropsGetter as WithBaseUIEvent<React.ComponentPropsWithRef<T>>, merged);
+    }
   }
 
   return merged ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
+}
+
+function resolvePropsGetter<T extends React.ElementType>(
+  propsOrPropsGetter: MergableProps<React.ElementType>,
+  previousProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>>,
+) {
+  if (isPropsGetter(propsOrPropsGetter)) {
+    return propsOrPropsGetter(previousProps);
+  }
+
+  return propsOrPropsGetter ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
 }
 
 /**
@@ -86,19 +124,24 @@ function isEventHandler(key: string, value: unknown) {
   );
 }
 
+function isPropsGetter<T extends React.ComponentType>(
+  propsOrPropsGetter: MergableProps<T>,
+): propsOrPropsGetter is (
+  props: WithBaseUIEvent<React.ComponentPropsWithRef<T>>,
+) => WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
+  return typeof propsOrPropsGetter === 'function';
+}
+
 function mergeEventHandlers(theirHandler: Function, ourHandler: Function) {
   return (event: unknown) => {
     if (isSyntheticEvent(event)) {
-      let isPrevented = false;
       const baseUIEvent = event as BaseUIEvent<typeof event>;
 
-      baseUIEvent.preventBaseUIHandler = () => {
-        isPrevented = true;
-      };
+      makeEventPreventable(baseUIEvent);
 
       const result = theirHandler(baseUIEvent);
 
-      if (!isPrevented) {
+      if (!baseUIEvent.baseUIHandlerPrevented) {
         ourHandler?.(baseUIEvent);
       }
 
@@ -109,6 +152,14 @@ function mergeEventHandlers(theirHandler: Function, ourHandler: Function) {
     ourHandler?.(event);
     return result;
   };
+}
+
+export function makeEventPreventable<T extends React.SyntheticEvent>(event: BaseUIEvent<T>) {
+  event.preventBaseUIHandler = () => {
+    (event.baseUIHandlerPrevented as boolean) = true;
+  };
+
+  return event;
 }
 
 function mergeStyles(

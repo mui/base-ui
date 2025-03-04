@@ -27,3 +27,4 @@ export * from './toast';
 export * from './toggle';
 export * from './toggle-group';
 export * from './tooltip';
+export * as utils from './utils';

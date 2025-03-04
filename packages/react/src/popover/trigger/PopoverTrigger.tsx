@@ -2,6 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
+import { useButton } from '../../use-button/useButton';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -21,13 +22,18 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   props: PopoverTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, disabled = false, ...otherProps } = props;
 
   const { open, setTriggerElement, getRootTriggerProps, openReason } = usePopoverRootContext();
 
-  const state: PopoverTrigger.State = React.useMemo(() => ({ open }), [open]);
+  const state: PopoverTrigger.State = React.useMemo(() => ({ disabled, open }), [disabled, open]);
 
-  const mergedRef = useForkRef(forwardedRef, setTriggerElement);
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    buttonRef: forwardedRef,
+  });
+
+  const mergedRef = useForkRef(buttonRef, setTriggerElement);
 
   const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = React.useMemo(
     () => ({
@@ -43,7 +49,7 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getRootTriggerProps,
+    propGetter: (externalProps) => getButtonProps(getRootTriggerProps(externalProps)),
     render: render ?? 'button',
     className,
     state,
@@ -57,6 +63,10 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
 namespace PopoverTrigger {
   export interface State {
+    /**
+     * Whether the popover is currently disabled.
+     */
+    disabled: boolean;
     /**
      * Whether the popover is currently open.
      */
@@ -80,6 +90,10 @@ PopoverTrigger.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  disabled: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

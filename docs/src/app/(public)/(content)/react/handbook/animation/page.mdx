@@ -183,7 +183,7 @@ function App() {
                     exit={{ scale: 0 }}
                     onAnimationComplete={() => {
                       if (!open) {
-                        action.current.unmount();
+                        actionsRef.current.unmount();
                       }
                     }}
                   />

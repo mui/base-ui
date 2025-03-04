@@ -128,7 +128,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
   propTypes?: any;
 };
 
-export namespace SliderRoot {
+namespace SliderRoot {
   export interface State extends FieldRoot.State {
     /**
      * The index of the active thumb.

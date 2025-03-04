@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { expect } from 'chai';
-import { flushMicrotasks } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -33,6 +32,21 @@ describe('<Collapsible.Root />', () => {
     });
   });
 
+  describe('collapsible status', () => {
+    it('disabled status', async () => {
+      const { getByRole } = await render(
+        <Collapsible.Root disabled>
+          <Collapsible.Trigger />
+          <Collapsible.Panel data-testid="panel" />
+        </Collapsible.Root>,
+      );
+
+      const trigger = getByRole('button');
+
+      expect(trigger).to.have.attribute('data-disabled');
+    });
+  });
+
   describe('open state', () => {
     it('controlled mode', async () => {
       const { queryByText, getByRole, setProps } = await render(
@@ -48,8 +62,7 @@ describe('<Collapsible.Root />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT)).to.equal(null);
 
-      setProps({ open: true });
-      await flushMicrotasks();
+      await setProps({ open: true });
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
 
@@ -58,8 +71,7 @@ describe('<Collapsible.Root />', () => {
       expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
       expect(trigger).to.have.attribute('data-panel-open');
 
-      setProps({ open: false });
-      await flushMicrotasks();
+      await setProps({ open: false });
 
       expect(trigger).to.not.have.attribute('aria-controls');
       expect(trigger).to.have.attribute('aria-expanded', 'false');

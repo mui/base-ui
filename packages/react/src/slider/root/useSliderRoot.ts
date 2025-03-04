@@ -10,6 +10,7 @@ import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { valueToPercent } from '../../utils/valueToPercent';
+import { warn } from '../../utils/warn';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useField } from '../../field/useField';
@@ -216,7 +217,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       thumbIndex: number,
       event: Event,
     ) => {
-      if (areValuesEqual(newValue, valueUnwrapped)) {
+      if (Number.isNaN(newValue) || areValuesEqual(newValue, valueUnwrapped)) {
         return;
       }
 
@@ -375,9 +376,13 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       return;
     }
 
+    if (min >= max) {
+      warn('Slider `max` must be greater than `min`');
+    }
+
     if (typeof valueUnwrapped === 'number') {
       const newPercentageValue = valueToPercent(valueUnwrapped, min, max);
-      if (newPercentageValue !== percentageValues[0]) {
+      if (newPercentageValue !== percentageValues[0] && !Number.isNaN(newPercentageValue)) {
         setPercentageValues([newPercentageValue]);
       }
     } else if (Array.isArray(valueUnwrapped)) {

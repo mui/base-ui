@@ -6,7 +6,7 @@ import { useComponentRenderer } from '../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../utils/types';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useDirection } from '../direction-provider/DirectionContext';
-import { useToggleGroup, type UseToggleGroup } from './useToggleGroup';
+import { useToggleGroup } from './useToggleGroup';
 import { ToggleGroupContext } from './ToggleGroupContext';
 
 const customStyleHookMapping = {
@@ -99,7 +99,7 @@ export { ToggleGroup };
 
 export type ToggleGroupOrientation = 'horizontal' | 'vertical';
 
-export namespace ToggleGroup {
+namespace ToggleGroup {
   export interface State {
     /**
      * Whether the component should ignore user interaction.
@@ -109,7 +109,7 @@ export namespace ToggleGroup {
   }
 
   export interface Props
-    extends Partial<UseToggleGroup.Parameters>,
+    extends Partial<useToggleGroup.Parameters>,
       Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
      * Whether the component should ignore user interaction.

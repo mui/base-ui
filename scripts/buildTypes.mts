@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { cp, readFile } from 'node:fs/promises';
+import { cp, stat, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { $ } from 'execa';
 import { parse } from 'jsonc-parser';
@@ -26,12 +26,11 @@ async function run(options: RunOptions) {
     compilerOptions: { outDir },
   } = tsConfig;
 
-  const promises: Promise<void>[] = [];
-  for (const destination of options.copy) {
-    copyDeclarations(outDir, destination);
-  }
+  const promises: Promise<void>[] = options.copy.map((destination) =>
+    copyDeclarations(outDir, destination),
+  );
 
-  await Promise.allSettled(promises);
+  await Promise.all(promises);
 }
 
 function emitDeclarations(tsconfig: string) {
@@ -50,9 +49,19 @@ async function copyDeclarations(sourceDirectory: string, destinationDirectory: s
 
   console.log(`Copying declarations from ${fullSourceDirectory} to ${fullDestinationDirectory}`);
 
-  return cp(fullSourceDirectory, fullDestinationDirectory, {
+  await cp(fullSourceDirectory, fullDestinationDirectory, {
     recursive: true,
-    filter: (src) => !src.includes('.') || src.endsWith('.d.ts'), // include directories and .d.ts files
+    filter: async (src) => {
+      if (src.startsWith('.')) {
+        // ignore dotfiles
+        return false;
+      }
+      const stats = await stat(src);
+      if (stats.isDirectory()) {
+        return true;
+      }
+      return src.endsWith('.d.ts');
+    },
   });
 }
 

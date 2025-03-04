@@ -167,7 +167,12 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       mounted,
       transitionStatus,
       getTriggerProps: (externalProps?: React.HTMLProps<Element>) =>
-        getReferenceProps(mergeReactProps(externalProps, triggerProps)),
+        getReferenceProps(
+          mergeReactProps(
+            mergeReactProps(externalProps, { 'aria-controls': popupElementId }),
+            triggerProps,
+          ),
+        ),
       getPopupProps: getFloatingProps,
       setTriggerElement,
       setPopupElement,

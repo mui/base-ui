@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useFloatingTree, type FloatingRootContext } from '@floating-ui/react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -17,25 +16,22 @@ export function useMenuPositioner(
 
   const { events: menuEvents } = useFloatingTree()!;
 
-  const getPositionerProps: useMenuPositioner.ReturnValue['getPositionerProps'] = React.useCallback(
-    (externalProps = {}) => {
-      const hiddenStyles: React.CSSProperties = {};
+  const positionerProps = React.useMemo(() => {
+    const hiddenStyles: React.CSSProperties = {};
 
-      if (!open) {
-        hiddenStyles.pointerEvents = 'none';
-      }
+    if (!open) {
+      hiddenStyles.pointerEvents = 'none';
+    }
 
-      return mergeReactProps<'div'>(externalProps, {
-        role: 'presentation',
-        hidden: !mounted,
-        style: {
-          ...positioning.positionerStyles,
-          ...hiddenStyles,
-        },
-      });
-    },
-    [open, mounted, positioning.positionerStyles],
-  );
+    return {
+      role: 'presentation',
+      hidden: !mounted,
+      style: {
+        ...positioning.positionerStyles,
+        ...hiddenStyles,
+      },
+    };
+  }, [open, mounted, positioning.positionerStyles]);
 
   React.useEffect(() => {
     function onMenuOpenChange(event: { open: boolean; nodeId: string; parentNodeId: string }) {
@@ -65,9 +61,9 @@ export function useMenuPositioner(
   return React.useMemo(
     () => ({
       ...positioning,
-      getPositionerProps,
+      positionerProps,
     }),
-    [positioning, getPositionerProps],
+    [positioning, positionerProps],
   );
 }
 
@@ -90,6 +86,6 @@ export namespace useMenuPositioner {
   export interface SharedParameters extends useAnchorPositioning.SharedParameters {}
 
   export interface ReturnValue extends useAnchorPositioning.ReturnValue {
-    getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    positionerProps: GenericHTMLProps;
   }
 }

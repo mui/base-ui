@@ -15,6 +15,55 @@ describe('<Popover.Trigger />', () => {
     },
   }));
 
+  describe('prop: disabled', () => {
+    it('disables the popover', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger disabled />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+      expect(trigger).to.have.attribute('disabled');
+      expect(trigger).to.have.attribute('data-disabled');
+
+      await user.click(trigger);
+      expect(screen.queryByText('Content')).to.equal(null);
+
+      await user.keyboard('[Tab]');
+      expect(document.activeElement).to.not.equal(trigger);
+    });
+
+    it('custom element', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger disabled render={<span />} />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+      expect(trigger).to.not.have.attribute('disabled');
+      expect(trigger).to.have.attribute('data-disabled');
+      expect(trigger).to.have.attribute('aria-disabled', 'true');
+
+      await user.click(trigger);
+      expect(screen.queryByText('Content')).to.equal(null);
+
+      await user.keyboard('[Tab]');
+      expect(document.activeElement).to.not.equal(trigger);
+    });
+  });
+
   describe('style hooks', () => {
     it('should have the data-popup-open and data-pressed attributes when open by clicking', async () => {
       await render(

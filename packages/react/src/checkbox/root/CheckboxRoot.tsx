@@ -7,7 +7,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { type UseCheckboxRoot, useCheckboxRoot } from './useCheckboxRoot';
+import { useCheckboxRoot } from './useCheckboxRoot';
 import { CheckboxRootContext } from './CheckboxRootContext';
 
 /**
@@ -139,7 +139,7 @@ namespace CheckboxRoot {
     indeterminate: boolean;
   }
   export interface Props
-    extends UseCheckboxRoot.Parameters,
+    extends useCheckboxRoot.Parameters,
       Omit<BaseUIComponentProps<'button', State>, 'onChange' | 'value'> {}
 }
 

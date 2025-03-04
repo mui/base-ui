@@ -14,6 +14,9 @@
   "dataAttributes": {
     "data-popup-open": {
       "description": "Present when the corresponding dialog is open."
+    },
+    "data-disabled": {
+      "description": "Present when the trigger is disabled."
     }
   },
   "cssVariables": {}

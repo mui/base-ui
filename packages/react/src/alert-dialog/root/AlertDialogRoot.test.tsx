@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { spy } from 'sinon';
 
 describe('<AlertDialog.Root />', () => {
@@ -10,6 +10,20 @@ describe('<AlertDialog.Root />', () => {
 
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
+  popupConformanceTests({
+    createComponent: (props) => (
+      <AlertDialog.Root {...props.root}>
+        <AlertDialog.Trigger {...props.trigger}>Open dialog</AlertDialog.Trigger>
+        <AlertDialog.Portal {...props.portal}>
+          <AlertDialog.Popup {...props.popup}>Dialog</AlertDialog.Popup>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
+    ),
+    render,
+    triggerMouseAction: 'click',
+    expectedPopupRole: 'alertdialog',
   });
 
   it('ARIA attributes', async () => {
@@ -116,7 +130,7 @@ describe('<AlertDialog.Root />', () => {
     });
   });
 
-  describe('prop: action', () => {
+  describe('prop: actionsRef', () => {
     it('unmounts the alert dialog when the `unmount` method is called', async () => {
       const actionsRef = {
         current: {
