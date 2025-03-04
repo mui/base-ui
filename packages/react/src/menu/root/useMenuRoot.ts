@@ -76,7 +76,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(open && modal, triggerElement);
+  useScrollLock(open && modal && openReason !== 'hover', triggerElement);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -126,9 +126,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   }, [clearStickIfOpenTimeout, open]);
 
   React.useEffect(() => {
-    return () => {
-      clearStickIfOpenTimeout();
-    };
+    return clearStickIfOpenTimeout;
   }, [clearStickIfOpenTimeout]);
 
   const floatingRootContext = useFloatingRootContext({
@@ -147,8 +145,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       }
 
       if (isHover) {
-        // Only allow "patient" clicks to close the popover if it's open.
-        // If they clicked within 500ms of the popover opening, keep it open.
+        // Only allow "patient" clicks to close the menu if it's open.
+        // If they clicked within 500ms of the menu opening, keep it open.
         clearStickIfOpenTimeout();
         stickIfOpenTimeoutRef.current = window.setTimeout(() => {
           setStickIfOpen(false);
