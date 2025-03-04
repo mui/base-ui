@@ -1,0 +1,283 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "mainEntryPointFilePath": "<projectFolder>/build/esm/index.d.ts",
+  //"mainEntryPointFilePath": "<projectFolder>/build/esm/accordion/header/AccordionHeader.d.ts",
+  "bundledPackages": [],
+  "newlineKind": "lf",
+  "enumMemberOrder": "by-name",
+
+  "compiler": {
+    "tsconfigFilePath": "<projectFolder>/tsconfig.build.json"
+    /**
+     * Provides a compiler configuration that will be used instead of reading the tsconfig.json file from disk.
+     * The object must conform to the TypeScript tsconfig schema:
+     *
+     * http://json.schemastore.org/tsconfig
+     *
+     * If omitted, then the tsconfig.json file will be read from the "projectFolder".
+     *
+     * DEFAULT VALUE: no overrideTsconfig section
+     */
+    // "overrideTsconfig": {
+    //   . . .
+    // }
+    /**
+     * This option causes the compiler to be invoked with the --skipLibCheck option. This option is not recommended
+     * and may cause API Extractor to produce incomplete or incorrect declarations, but it may be required when
+     * dependencies contain declarations that are incompatible with the TypeScript engine that API Extractor uses
+     * for its analysis.  Where possible, the underlying issue should be fixed rather than relying on skipLibCheck.
+     *
+     * DEFAULT VALUE: false
+     */
+    // "skipLibCheck": true,
+  },
+
+  /**
+   * Configures how the API report file (*.api.md) will be generated.
+   */
+  "apiReport": {
+    "enabled": true,
+
+    /**
+     * To support different approval requirements for different API levels, multiple "variants" of the API report can
+     * be generated.  The "reportVariants" setting specifies a list of variants to be generated.  If omitted,
+     * by default only the "complete" variant will be generated, which includes all @internal, @alpha, @beta,
+     * and @public items.  Other possible variants are "alpha" (@alpha + @beta + @public), "beta" (@beta + @public),
+     * and "public" (@public only).
+     *
+     * DEFAULT VALUE: [ "complete" ]
+     */
+    // "reportVariants": ["public", "beta"],
+
+    /**
+     * Specifies the folder where the API report file is written.  The file name portion is determined by
+     * the "reportFileName" setting.
+     *
+     * The API report file is normally tracked by Git.  Changes to it can be used to trigger a branch policy,
+     * e.g. for an API review.
+     *
+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,
+     * prepend a folder token such as "<projectFolder>".
+     *
+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
+     * DEFAULT VALUE: "<projectFolder>/etc/"
+     */
+    "reportFolder": "../../docs/reference/api-report",
+
+    /**
+     * Specifies the folder where the temporary report file is written.  The file name portion is determined by
+     * the "reportFileName" setting.
+     *
+     * After the temporary file is written to disk, it is compared with the file in the "reportFolder".
+     * If they are different, a production build will fail.
+     *
+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,
+     * prepend a folder token such as "<projectFolder>".
+     *
+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
+     * DEFAULT VALUE: "<projectFolder>/temp/"
+     */
+    // "reportTempFolder": "<projectFolder>/temp/",
+
+    /**
+     * Whether "forgotten exports" should be included in the API report file. Forgotten exports are declarations
+     * flagged with `ae-forgotten-export` warnings. See https://api-extractor.com/pages/messages/ae-forgotten-export/ to
+     * learn more.
+     *
+     * DEFAULT VALUE: "false"
+     */
+     "includeForgottenExports": true
+  },
+
+  /**
+   * Configures how the doc model file (*.api.json) will be generated.
+   */
+  "docModel": {
+    /**
+     * (REQUIRED) Whether to generate a doc model file.
+     */
+    "enabled": true,
+
+    /**
+     * The output path for the doc model file.  The file extension should be ".api.json".
+     *
+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,
+     * prepend a folder token such as "<projectFolder>".
+     *
+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
+     * DEFAULT VALUE: "<projectFolder>/temp/<unscopedPackageName>.api.json"
+     */
+    "apiJsonFilePath": "../../docs/reference/api-report/<unscopedPackageName>.api.json",
+
+    /**
+     * Whether "forgotten exports" should be included in the doc model file. Forgotten exports are declarations
+     * flagged with `ae-forgotten-export` warnings. See https://api-extractor.com/pages/messages/ae-forgotten-export/ to
+     * learn more.
+     *
+     * DEFAULT VALUE: "false"
+     */
+    // "includeForgottenExports": false,
+
+    /**
+     * The base URL where the project's source code can be viewed on a website such as GitHub or
+     * Azure DevOps. This URL path corresponds to the `<projectFolder>` path on disk.
+     *
+     * This URL is concatenated with the file paths serialized to the doc model to produce URL file paths to individual API items.
+     * For example, if the `projectFolderUrl` is "https://github.com/microsoft/rushstack/tree/main/apps/api-extractor" and an API
+     * item's file path is "api/ExtractorConfig.ts", the full URL file path would be
+     * "https://github.com/microsoft/rushstack/tree/main/apps/api-extractor/api/ExtractorConfig.js".
+     *
+     * This setting can be omitted if you don't need source code links in your API documentation reference.
+     *
+     * SUPPORTED TOKENS: none
+     * DEFAULT VALUE: ""
+     */
+    "projectFolderUrl": "https://github.com/mui/base-ui/tree/master/packages/react"
+  },
+
+  /**
+   * Configures how the .d.ts rollup file will be generated.
+   */
+  "dtsRollup": {
+    /**
+     * (REQUIRED) Whether to generate the .d.ts rollup file.
+     */
+    "enabled": false
+  },
+
+  /**
+   * Configures how the tsdoc-metadata.json file will be generated.
+   */
+  "tsdocMetadata": {
+    /**
+     * Whether to generate the tsdoc-metadata.json file.
+     *
+     * DEFAULT VALUE: true
+     */
+    "enabled": false
+    /**
+     * Specifies where the TSDoc metadata file should be written.
+     *
+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,
+     * prepend a folder token such as "<projectFolder>".
+     *
+     * The default value is "<lookup>", which causes the path to be automatically inferred from the "tsdocMetadata",
+     * "typings" or "main" fields of the project's package.json.  If none of these fields are set, the lookup
+     * falls back to "tsdoc-metadata.json" in the package folder.
+     *
+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
+     * DEFAULT VALUE: "<lookup>"
+     */
+    // "tsdocMetadataFilePath": "<projectFolder>/dist/tsdoc-metadata.json"
+  },
+
+  /**
+   * Configures how API Extractor reports error and warning messages produced during analysis.
+   *
+   * There are three sources of messages:  compiler messages, API Extractor messages, and TSDoc messages.
+   */
+  "messages": {
+    /**
+     * Configures handling of diagnostic messages reported by the TypeScript compiler engine while analyzing
+     * the input .d.ts files.
+     *
+     * TypeScript message identifiers start with "TS" followed by an integer.  For example: "TS2551"
+     *
+     * DEFAULT VALUE:  A single "default" entry with logLevel=warning.
+     */
+    "compilerMessageReporting": {
+      /**
+       * Configures the default routing for messages that don't match an explicit rule in this table.
+       */
+      "default": {
+        /**
+         * Specifies whether the message should be written to the the tool's output log.  Note that
+         * the "addToApiReportFile" property may supersede this option.
+         *
+         * Possible values: "error", "warning", "none"
+         *
+         * Errors cause the build to fail and return a nonzero exit code.  Warnings cause a production build fail
+         * and return a nonzero exit code.  For a non-production build (e.g. when "api-extractor run" includes
+         * the "--local" option), the warning is displayed but the build will not fail.
+         *
+         * DEFAULT VALUE: "warning"
+         */
+        "logLevel": "warning"
+
+        /**
+         * When addToApiReportFile is true:  If API Extractor is configured to write an API report file (.api.md),
+         * then the message will be written inside that file; otherwise, the message is instead logged according to
+         * the "logLevel" option.
+         *
+         * DEFAULT VALUE: false
+         */
+        // "addToApiReportFile": false
+      }
+
+      // "TS2551": {
+      //   "logLevel": "warning",
+      //   "addToApiReportFile": true
+      // },
+      //
+      // . . .
+    },
+
+    /**
+     * Configures handling of messages reported by API Extractor during its analysis.
+     *
+     * API Extractor message identifiers start with "ae-".  For example: "ae-extra-release-tag"
+     *
+     * DEFAULT VALUE: See api-extractor-defaults.json for the complete table of extractorMessageReporting mappings
+     */
+    "extractorMessageReporting": {
+      "default": {
+        "logLevel": "warning"
+        // "addToApiReportFile": false
+      },
+
+      "ae-missing-release-tag": {
+        "logLevel": "none"
+      }
+
+      // "ae-extra-release-tag": {
+      //   "logLevel": "warning",
+      //   "addToApiReportFile": true
+      // },
+      //
+      // . . .
+    },
+
+    /**
+     * Configures handling of messages reported by the TSDoc parser when analyzing code comments.
+     *
+     * TSDoc message identifiers start with "tsdoc-".  For example: "tsdoc-link-tag-unescaped-text"
+     *
+     * DEFAULT VALUE:  A single "default" entry with logLevel=warning.
+     */
+    "tsdocMessageReporting": {
+      "default": {
+        "logLevel": "warning"
+        // "addToApiReportFile": false
+      },
+      "tsdoc-param-tag-missing-hyphen": {
+        "logLevel": "none"
+      },
+      "tsdoc-param-tag-with-invalid-type": {
+        "logLevel": "none"
+      },
+      "tsdoc-escape-right-brace": {
+        "logLevel": "none"
+      },
+      "tsdoc-escape-greater-than": {
+        "logLevel": "none"
+      }
+
+      // "tsdoc-link-tag-unescaped-text": {
+      //   "logLevel": "warning",
+      //   "addToApiReportFile": true
+      // },
+      //
+      // . . .
+    }
+  }
+}

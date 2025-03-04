@@ -1,0 +1,14 @@
+{
+  "name": "api-docs-builder-new",
+  "scripts": {
+    "start": "tsx ./src/index.ts"
+  },
+  "type": "module",
+  "dependencies": {
+    "@microsoft/api-extractor-model": "^7.30.3"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.5",
+    "tsx": "^4.19.3"
+  }
+}
