@@ -9,7 +9,7 @@ export const HAN_RE = new RegExp(`[${HAN_NUMERALS.join('')}]`, 'g');
 export const PERCENT_RE = new RegExp(`[${PERCENTAGES.join('')}]`);
 
 export function getNumberLocaleDetails(
-  locale?: string | string[],
+  locale?: Intl.LocalesArgument,
   options?: Intl.NumberFormatOptions,
 ) {
   const parts = getFormatter(locale, options).formatToParts(1111.1);
@@ -31,15 +31,21 @@ export function getNumberLocaleDetails(
   return result;
 }
 
-export function parseNumber(formattedNumber: string, options?: Intl.NumberFormatOptions) {
-  let locale: string | undefined;
-  if (ARABIC_RE.test(formattedNumber)) {
-    locale = 'ar';
-  } else if (HAN_RE.test(formattedNumber)) {
-    locale = 'zh';
+export function parseNumber(
+  formattedNumber: string,
+  locale?: Intl.LocalesArgument,
+  options?: Intl.NumberFormatOptions,
+) {
+  let computedLocale = locale;
+  if (computedLocale === undefined) {
+    if (ARABIC_RE.test(formattedNumber)) {
+      computedLocale = 'ar';
+    } else if (HAN_RE.test(formattedNumber)) {
+      computedLocale = 'zh';
+    }
   }
 
-  const { group, decimal, currency, unit } = getNumberLocaleDetails(locale, options);
+  const { group, decimal, currency, unit } = getNumberLocaleDetails(computedLocale, options);
 
   const regexesToReplace = [
     { regex: group ? new RegExp(`\\${group}`, 'g') : null, replacement: '' },

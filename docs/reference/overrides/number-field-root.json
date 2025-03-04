@@ -4,6 +4,9 @@
     "format": {
       "type": "Intl.NumberFormatOptions"
     },
+    "locale": {
+      "type": "Intl.LocalesArgument"
+    },
     "onValueChange": {
       "type": "(value, event) => void"
     }
