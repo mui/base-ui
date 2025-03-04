@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { visuallyHidden } from '../../utils/visuallyHidden';
+import { useToastContext } from '../provider/ToastProviderContext';
 
 const state = {};
 
@@ -18,8 +19,9 @@ const ToastContent = React.forwardRef(function ToastContent(
   props: ToastContent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children, ...other } = props;
+  const { render, className, ...other } = props;
 
+  const { focused } = useToastContext();
   const { toast } = useToastRootContext();
 
   const [renderChildren, setRenderChildren] = React.useState(false);
@@ -29,21 +31,7 @@ const ToastContent = React.forwardRef(function ToastContent(
     ref: forwardedRef,
     className,
     state,
-    extraProps: mergeReactProps<'div'>(other, {
-      ...(toast.priority === 'high'
-        ? {
-            role: 'alert',
-            'aria-atomic': true,
-          }
-        : {
-            role: 'status',
-            'aria-live': 'polite',
-          }),
-      // Screen readers won't announce role=status aria-live=polite upon DOM insertion
-      // of the component. We need to wait until the next tick to render the children
-      // so that screen readers can announce the toast.
-      children: renderChildren ? children : null,
-    }),
+    extraProps: other,
   });
 
   React.useEffect(() => {
@@ -56,7 +44,19 @@ const ToastContent = React.forwardRef(function ToastContent(
   return (
     <React.Fragment>
       {renderElement()}
-      {!renderChildren && <div aria-hidden>{children}</div>}
+      {!focused && (
+        <div
+          style={visuallyHidden}
+          {...(toast.priority === 'high'
+            ? { role: 'alert', 'aria-atomic': true }
+            : { role: 'status', 'aria-live': 'polite' })}
+        >
+          {/* Screen readers won't announce role=status aria-live=polite upon DOM insertion
+          of the component. We need to wait until the next tick to render the children
+          so that screen readers can announce the toast. */}
+          {renderChildren ? props.children : null}
+        </div>
+      )}
     </React.Fragment>
   );
 });

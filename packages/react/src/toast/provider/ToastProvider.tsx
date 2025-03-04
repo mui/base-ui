@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { activeElement, contains } from '@floating-ui/react/utils';
 import { Toast, ToastContext } from './ToastProviderContext';
 import { globalToastEmitter, PromiseToastOptions } from '../globalToast';
 import { generateId } from '../../utils/generateId';
@@ -8,8 +9,8 @@ import { resolvePromiseContent } from '../utils/resolvePromiseContent';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useToast } from '../useToast';
 import { useLatestRef } from '../../utils/useLatestRef';
-import { activeElement, contains } from '@floating-ui/react/utils';
-import { ownerDocument } from '@base-ui-components/react/utils/owner';
+import { ownerDocument } from '../../utils/owner';
+import { isFocusVisible } from '../utils/focusVisible';
 
 interface TimerInfo {
   timeoutId?: ReturnType<typeof setTimeout>;
@@ -49,9 +50,11 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   const focusedRef = useLatestRef(focused);
 
   const handleFocusManagement = useEventCallback((toastId: string) => {
+    const activeEl = activeElement(ownerDocument(viewportRef.current));
     if (
       !viewportRef.current ||
-      !contains(viewportRef.current, activeElement(ownerDocument(viewportRef.current)))
+      !contains(viewportRef.current, activeEl) ||
+      !isFocusVisible(activeEl)
     ) {
       return;
     }
@@ -72,6 +75,31 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     }
   });
 
+  const pauseTimers = useEventCallback(() => {
+    timersRef.current.forEach((timer) => {
+      if (timer.timeoutId) {
+        const elapsed = Date.now() - timer.start;
+        const remaining = timer.delay - elapsed;
+        clearTimeout(timer.timeoutId);
+        timer.remaining = remaining > 0 ? remaining : 0;
+        timer.timeoutId = undefined;
+      }
+    });
+  });
+
+  const resumeTimers = useEventCallback(() => {
+    timersRef.current.forEach((timer, id) => {
+      if (timer.timeoutId === undefined && timer.remaining > 0) {
+        const newTimeoutId = setTimeout(() => {
+          timersRef.current.delete(id);
+          timer.callback();
+        }, timer.remaining);
+        timer.start = Date.now();
+        timer.timeoutId = newTimeoutId;
+      }
+    });
+  });
+
   const remove = useEventCallback((toastId: string) => {
     setToasts((prev) =>
       prev.map((toast) =>
@@ -85,7 +113,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       clearTimeout(timer.timeoutId);
     }
 
-    const toast = toasts.find((toast) => toast.id === toastId);
+    const toast = toasts.find((t) => t.id === toastId);
     toast?.onRemove?.();
 
     handleFocusManagement(toastId);
@@ -94,7 +122,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   const finalizeRemove = useEventCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
     timersRef.current.delete(id);
-    const toast = toasts.find((toast) => toast.id === id);
+    const toast = toasts.find((t) => t.id === id);
     toast?.onRemoveComplete?.();
   });
 
@@ -209,45 +237,15 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
           return Promise.reject(error);
         });
     },
-    [add, update, remove, timeout, scheduleTimer, hoveringRef, focusedRef],
+    [add, update, scheduleTimer, timeout, hoveringRef, focusedRef, remove, pauseTimers],
   );
-
-  const pauseTimers = useEventCallback(() => {
-    timersRef.current.forEach((timer) => {
-      if (timer.timeoutId) {
-        const elapsed = Date.now() - timer.start;
-        const remaining = timer.delay - elapsed;
-        clearTimeout(timer.timeoutId);
-        timer.remaining = remaining > 0 ? remaining : 0;
-        timer.timeoutId = undefined;
-      }
-    });
-  });
-
-  const resumeTimers = useEventCallback(() => {
-    timersRef.current.forEach((timer, id) => {
-      if (timer.timeoutId === undefined && timer.remaining > 0) {
-        const newTimeoutId = setTimeout(() => {
-          timersRef.current.delete(id);
-          timer.callback();
-        }, timer.remaining);
-        timer.start = Date.now();
-        timer.timeoutId = newTimeoutId;
-      }
-    });
-  });
 
   React.useEffect(() => {
     const unsubscribe = globalToastEmitter.subscribe((toastOptions) => {
-      if (toastOptions.promise && toastOptions.id) {
-        // Handle updates for promise toasts
-        update(toastOptions.id, {
-          title: toastOptions.title,
-          type: toastOptions.type,
-          description: toastOptions.description,
-        });
+      const id = toastOptions.id;
 
-        const id = toastOptions.id;
+      if (toastOptions.promise && id) {
+        update(id, toastOptions);
 
         // Schedule auto-dismiss for resolved/rejected promises
         if (toastOptions.type !== 'loading' && id) {
@@ -255,7 +253,6 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
           scheduleTimer(id, duration, () => remove(id));
         }
       } else {
-        // Regular toast creation
         add(toastOptions);
       }
     });

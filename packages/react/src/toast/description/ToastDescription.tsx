@@ -6,6 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+
 const state = {};
 
 /**
@@ -32,7 +33,7 @@ const ToastDescription = React.forwardRef(function ToastDescription(
   }, [id, setDescriptionId]);
 
   const { renderElement } = useComponentRenderer({
-    render: render ?? 'h2',
+    render: render ?? 'p',
     ref: forwardedRef,
     className,
     state,

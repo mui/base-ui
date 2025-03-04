@@ -4,13 +4,14 @@ import PropTypes from 'prop-types';
 import { activeElement, contains } from '@floating-ui/react/utils';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useForkRef } from '../../utils/useForkRef';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { ToastViewportContext } from './ToastViewportContext';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 import { FocusGuard } from './FocusGuard';
+import { isFocusVisible } from '../utils/focusVisible';
 
 const state = {};
 
@@ -44,7 +45,7 @@ const ToastViewport = React.forwardRef(function ToastViewport(
         return;
       }
 
-      if (event.key === 'F6') {
+      if (event.key === 'F6' && event.target !== viewportRef.current) {
         event.preventDefault();
         prevFocusRef.current = activeElement(
           ownerDocument(viewportRef.current),
@@ -61,7 +62,7 @@ const ToastViewport = React.forwardRef(function ToastViewport(
     return () => {
       win.removeEventListener('keydown', handleGlobalKeyDown);
     };
-  }, [pauseTimers, prevFocusRef, toasts.length]);
+  }, [pauseTimers, prevFocusRef, toasts.length, viewportRef]);
 
   function handleFocusGuard(event: React.FocusEvent) {
     if (!viewportRef.current) {
@@ -96,6 +97,11 @@ const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   function handleMouseLeave() {
+    const activeEl = activeElement(ownerDocument(viewportRef.current));
+    if (contains(viewportRef.current, activeEl) && isFocusVisible(activeEl)) {
+      return;
+    }
+
     resumeTimers();
     setHovering(false);
   }
@@ -135,20 +141,20 @@ const ToastViewport = React.forwardRef(function ToastViewport(
       onKeyDown: handleKeyDown,
       children: (
         <React.Fragment>
-          <FocusGuard onFocus={handleFocusGuard} />
+          {numToasts > 0 && <FocusGuard onFocus={handleFocusGuard} />}
           {children}
-          <FocusGuard onFocus={handleFocusGuard} />
+          {numToasts > 0 && <FocusGuard onFocus={handleFocusGuard} />}
         </React.Fragment>
       ),
     }),
   });
 
-  const contextValue = React.useMemo(() => ({ viewportRef }), [viewportRef]);
+  const contextValue: ToastViewportContext = React.useMemo(() => ({ viewportRef }), [viewportRef]);
 
   return (
     <ToastViewportContext.Provider value={contextValue}>
       <FloatingPortalLite>
-        <FocusGuard onFocus={handleFocusGuard} />
+        {numToasts > 0 && <FocusGuard onFocus={handleFocusGuard} />}
         {renderElement()}
       </FloatingPortalLite>
     </ToastViewportContext.Provider>

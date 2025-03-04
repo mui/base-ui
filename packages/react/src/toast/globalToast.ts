@@ -14,7 +14,7 @@ export interface PromiseToastOptions<Value, Data = Record<string, unknown>>
   extends Omit<ToastOptions<Data>, 'type' | 'title' | 'description'> {
   loading: ToastContent<void>;
   success: ToastContent<Value>;
-  error: ToastContent<Value>;
+  error: ToastContent<any>;
 }
 
 export const globalToastEmitter = new EventEmitter<ToastOptions<any>>();
