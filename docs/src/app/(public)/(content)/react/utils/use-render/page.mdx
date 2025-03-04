@@ -43,6 +43,25 @@ Developers can also use the callback version of the `render` prop to access the 
 
 <Demo path="./demos/render-callback" />
 
+### Merging the props
+
+You can use the `mergeProp` utility to safely merge the props.
+It takes care of concatenating the class names, as well as merging the style prop and the event handlers.
+You can use it both in the `useRender` hook and the callback version of the render prop, e.g.
+
+```jsx {7-7} title="Using mergeProps in the render callback"
+import { mergeProps } from '@base-ui-components/react/merge-props';
+import styles from './index.module.css';
+
+function Button() {
+  return (
+    <Component
+      render={(props, state) => <button {...mergeProps(props, { className: styles.Button })} />}
+    />
+  );
+}
+```
+
 ### Migrating from Radix
 
 Radix and Base UI take different approaches to customizing the rendered element within a component. Radix uses the `asChild` prop, while Base UI uses the `render` prop. Learn more about how composition works in Base UI in the [composition guide](/react/handbook/composition).

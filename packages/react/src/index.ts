@@ -11,6 +11,7 @@ export * from './fieldset';
 export * from './form';
 export * from './input';
 export * from './menu';
+export * from './merge-props';
 export * from './number-field';
 export * from './popover';
 export * from './preview-card';

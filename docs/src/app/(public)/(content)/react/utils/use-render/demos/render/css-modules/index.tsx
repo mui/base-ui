@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useRender } from '@base-ui-components/react/use-render';
+import { mergeProps } from '@base-ui-components/react/merge-props';
 import styles from './index.module.css';
 
 interface TextProps extends useRender.ElementProps {
@@ -12,7 +13,7 @@ function Text(props: TextProps) {
 
   const { renderElement } = useRender({
     render,
-    props: { ...otherProps, className: styles.Text },
+    props: mergeProps({ className: styles.Text, otherProps }),
   });
 
   return renderElement();
