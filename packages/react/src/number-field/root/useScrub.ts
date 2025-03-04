@@ -24,19 +24,12 @@ export function useScrub(params: ScrubParams) {
   const scrubHandleRef = React.useRef<ScrubHandle>(null);
   const scrubAreaRef = React.useRef<HTMLSpanElement>(null);
 
-  const avoidFlickerTimeoutRef = React.useRef(-1);
   const isScrubbingRef = React.useRef(false);
   const scrubAreaCursorRef = React.useRef<HTMLSpanElement>(null);
   const virtualCursorCoords = React.useRef({ x: 0, y: 0 });
   const visualScaleRef = React.useRef(1);
 
   const [isScrubbing, setIsScrubbing] = React.useState(false);
-
-  React.useEffect(() => {
-    return () => {
-      clearTimeout(avoidFlickerTimeoutRef.current);
-    };
-  }, []);
 
   React.useEffect(() => {
     if (!isScrubbing || !scrubAreaCursorRef.current) {
@@ -125,7 +118,7 @@ export function useScrub(params: ScrubParams) {
           WebkitUserSelect: 'none',
           userSelect: 'none',
         },
-        onPointerDown(event) {
+        async onPointerDown(event) {
           const isMainButton = !event.button || event.button === 0;
           if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
             return;
@@ -137,24 +130,21 @@ export function useScrub(params: ScrubParams) {
           }
 
           isScrubbingRef.current = true;
-          onScrubbingChange(true, event.nativeEvent);
 
           // WebKit causes significant layout shift with the native message, so we can't use it.
           if (!isWebKit()) {
-            // There can be some frames where there's no cursor at all when requesting the pointer lock.
-            // This is a workaround to avoid flickering.
-            avoidFlickerTimeoutRef.current = window.setTimeout(async () => {
-              try {
-                // Avoid non-deterministic errors in testing environments. This error sometimes
-                // appears:
-                // "The root document of this element is not valid for pointer lock."
-                // We need to await it even though it doesn't appear to return a promise in the
-                // types in order for the `catch` to work.
-                await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
-              } catch {
-                //
-              }
-            }, 20);
+            try {
+              // Avoid non-deterministic errors in testing environments. This error sometimes
+              // appears:
+              // "The root document of this element is not valid for pointer lock."
+              await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
+            } catch {
+              //
+            } finally {
+              ReactDOM.flushSync(() => {
+                onScrubbingChange(true, event.nativeEvent);
+              });
+            }
           }
         },
       }),
@@ -185,18 +175,15 @@ export function useScrub(params: ScrubParams) {
       let cumulativeDelta = 0;
 
       function handleScrubPointerUp(event: PointerEvent) {
-        clearTimeout(avoidFlickerTimeoutRef.current);
-
-        isScrubbingRef.current = false;
-
-        onScrubbingChange(false, event);
-
         if (!isWebKit()) {
           try {
             // Avoid errors in testing environments.
             ownerDocument(scrubAreaRef.current).exitPointerLock();
           } catch {
             //
+          } finally {
+            isScrubbingRef.current = false;
+            onScrubbingChange(false, event);
           }
         }
       }
