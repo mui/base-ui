@@ -2,9 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
 /**
  * Groups the input with the increment and decrement buttons.
@@ -18,7 +19,15 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { getGroupProps, state } = useNumberFieldRootContext();
+  const { state } = useNumberFieldRootContext();
+
+  const getGroupProps = React.useCallback(
+    (externalProps = {}) =>
+      mergeReactProps(externalProps, {
+        role: 'group',
+      }),
+    [],
+  );
 
   const { renderElement } = useComponentRenderer({
     propGetter: getGroupProps,
@@ -36,6 +45,8 @@ namespace NumberFieldGroup {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
+
+export { NumberFieldGroup };
 
 NumberFieldGroup.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -59,5 +70,3 @@ NumberFieldGroup.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { NumberFieldGroup };

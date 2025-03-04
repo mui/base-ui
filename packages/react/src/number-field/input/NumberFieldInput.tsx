@@ -3,10 +3,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { fieldValidityMapping } from '../../field/utils/constants';
+import { useNumberFieldInput } from './useNumberFieldInput';
 
 /**
  * The native input control in the number field.
@@ -20,13 +20,56 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { getInputProps, inputRef, state } = useNumberFieldRootContext();
+  const {
+    allowInputSyncRef,
+    autoFocus,
+    disabled,
+    formatOptionsRef,
+    getAllowedNonNumericKeys,
+    getStepAmount,
+    id,
+    incrementValue,
+    inputMode,
+    inputValue,
+    invalid,
+    max,
+    mergedRef,
+    min,
+    name,
+    readOnly,
+    required,
+    setValue,
+    state,
+    valueRef,
+    setInputValue,
+  } = useNumberFieldRootContext();
 
-  const mergedInputRef = useForkRef(forwardedRef, inputRef);
+  const { getInputProps } = useNumberFieldInput({
+    allowInputSyncRef,
+    autoFocus,
+    disabled,
+    formatOptionsRef,
+    getAllowedNonNumericKeys,
+    getStepAmount,
+    id,
+    incrementValue,
+    inputMode,
+    inputValue,
+    invalid,
+    max,
+    mergedRef,
+    min,
+    name,
+    readOnly,
+    required,
+    setValue,
+    valueRef,
+    setInputValue,
+    inputRef: forwardedRef,
+  });
 
   const { renderElement } = useComponentRenderer({
     propGetter: getInputProps,
-    ref: mergedInputRef,
     render: render ?? 'input',
     className,
     state,

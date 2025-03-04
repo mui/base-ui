@@ -1,20 +1,69 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { screen, fireEvent, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
+import { NOOP } from '../../utils/noop';
 import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
 
 const testContext = {
-  getDecrementButtonProps: (externalProps) => externalProps,
+  allowInputSyncRef: { current: false },
+  autoFocus: false,
+  disabled: false,
+  formatOptionsRef: { current: undefined },
+  getAllowedNonNumericKeys: () => [],
+  getScrubAreaProps: (externalProps) => externalProps,
+  getScrubAreaCursorProps: (externalProps) => externalProps,
+  getStepAmount: NOOP,
+  id: 'id',
+  incrementValue: NOOP,
+  inputMode: 'numeric',
+  inputRef: { current: null },
+  inputValue: '',
+  intentionalTouchCheckTimeoutRef: { current: -1 },
+  invalid: false,
+  isPressedRef: { current: false },
+  isScrubbing: false,
+  max: undefined,
+  maxWithDefault: 100,
+  mergedRef: (_node) => {},
+  min: undefined,
+  minWithDefault: 0,
+  name: 'NumberField',
+  movesAfterTouchRef: { current: 0 },
+  readOnly: false,
+  required: false,
+  scrubAreaRef: { current: null },
+  scrubAreaCursorRef: { current: null },
+  scrubHandleRef: {
+    current: {
+      direction: 'horizontal',
+      pixelSensitivity: 0,
+      teleportDistance: 0,
+    },
+  },
+  setInputValue: NOOP,
+  setValue: NOOP,
   state: {
     value: null,
     required: false,
     disabled: false,
     invalid: false,
     readOnly: false,
+    scrubbing: false,
+    touched: false,
+    dirty: false,
+    inputValue: '',
+    valid: true,
+    filled: false,
+    focused: false,
   },
+  startAutoChange: NOOP,
+  stopAutoChange: NOOP,
+  value: null,
+  valueRef: { current: null },
 } as NumberFieldRootContext;
 
 describe('<NumberField.Decrement />', () => {
@@ -226,19 +275,6 @@ describe('<NumberField.Decrement />', () => {
     });
   });
 
-  it('should not decrement when disabled', async () => {
-    await render(
-      <NumberField.Root disabled>
-        <NumberField.Decrement />
-        <NumberField.Input />
-      </NumberField.Root>,
-    );
-
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
-    expect(screen.getByRole('textbox')).to.have.value('');
-  });
-
   it('should not decrement when readOnly', async () => {
     await render(
       <NumberField.Root readOnly>
@@ -314,5 +350,40 @@ describe('<NumberField.Decrement />', () => {
     fireEvent.click(button, { detail: 1 });
 
     expect(input).to.have.value('-2');
+  });
+
+  describe('disabled state', () => {
+    it('should not decrement when root is disabled', async () => {
+      const handleValueChange = spy();
+      await render(
+        <NumberField.Root disabled onValueChange={handleValueChange}>
+          <NumberField.Decrement />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      fireEvent.click(button);
+      expect(screen.getByRole('textbox')).to.have.value('');
+      expect(handleValueChange.callCount).to.equal(0);
+    });
+
+    it('should not decrement when button is disabled', async () => {
+      const handleValueChange = spy();
+      await render(
+        <NumberField.Root defaultValue={0} onValueChange={handleValueChange}>
+          <NumberField.Decrement disabled />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+      const input = screen.getByRole('textbox');
+      const button = screen.getByRole('button');
+      expect(button).to.have.attribute('disabled');
+      expect(input).to.have.value('0');
+
+      fireEvent.pointerDown(button);
+      expect(handleValueChange.callCount).to.equal(0);
+      expect(input).to.have.value('0');
+    });
   });
 });
