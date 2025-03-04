@@ -62,13 +62,16 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     () => toasts.filter((t) => t.animation !== 'ending').indexOf(toast),
     [toast, toasts],
   );
+  const hasDifferingHeights = React.useMemo(() => {
+    return toasts.some((t) => t.height !== 0 && toast.height !== 0 && t.height !== toast.height);
+  }, [toast, toasts]);
 
   const state: ToastRoot.State = React.useMemo(
     () => ({
       transitionStatus: toast.animation,
-      expanded: hovering || focused,
+      expanded: hovering || focused || hasDifferingHeights,
     }),
-    [toast.animation, hovering, focused],
+    [toast.animation, hovering, focused, hasDifferingHeights],
   );
 
   useEnhancedEffect(() => {
@@ -408,11 +411,6 @@ export namespace ToastRoot {
      * @default 'up'
      */
     swipeDirection?: 'up' | 'down' | 'left' | 'right';
-    /**
-     * Threshold in pixels to determine if swipe should close toast or cancel.
-     * @default 20
-     */
-    swipeThreshold?: number;
   }
 }
 
@@ -442,11 +440,6 @@ ToastRoot.propTypes /* remove-proptypes */ = {
    * @default 'up'
    */
   swipeDirection: PropTypes.oneOf(['down', 'left', 'right', 'up']),
-  /**
-   * Threshold in pixels to determine if swipe should close toast or cancel.
-   * @default 20
-   */
-  swipeThreshold: PropTypes.number,
   /**
    * @ignore
    */

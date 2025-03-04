@@ -7,11 +7,6 @@
       "default": "'up'",
       "description": "Direction in which the toast can be swiped to dismiss."
     },
-    "swipeThreshold": {
-      "type": "number",
-      "default": "20",
-      "description": "Threshold in pixels to determine if swipe should close toast or cancel."
-    },
     "className": {
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

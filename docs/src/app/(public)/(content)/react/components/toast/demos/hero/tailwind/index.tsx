@@ -2,8 +2,6 @@
 import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 
-const position = 'top';
-
 export default function ExampleToast() {
   return (
     <Toast.Provider>
@@ -19,7 +17,7 @@ export default function ExampleToast() {
           data-[position=bottom-left]:bottom-4 data-[position=bottom-left]:left-4 data-[position=bottom-left]:top-auto data-[position=bottom-left]:items-start
           data-[position=bottom-right]:bottom-4 data-[position=bottom-right]:right-4 data-[position=bottom-right]:top-auto data-[position=bottom-right]:items-end
         "
-        data-position={position}
+        data-position="top"
       >
         <ToastList />
       </Toast.Viewport>
@@ -57,8 +55,8 @@ function ToastList() {
     <Toast.Root
       key={toast.id}
       toast={toast}
-      data-position={position}
-      swipeDirection={position.startsWith('top') ? 'up' : 'down'}
+      data-position="top"
+      swipeDirection="up"
       // prettier-ignore
       className="
         absolute left-0 right-0 mx-auto
