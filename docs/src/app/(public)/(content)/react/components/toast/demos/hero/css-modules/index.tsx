@@ -42,7 +42,6 @@ function ToastList() {
       toast={toast}
       className={styles.Toast}
       data-position="top"
-      swipeDirection="up"
     >
       <Toast.Content className={styles.Content}>
         {toast.title && (

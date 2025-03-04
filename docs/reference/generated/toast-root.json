@@ -3,7 +3,7 @@
   "description": "Groups all parts of an individual toast.\nRenders a `<div>` element.",
   "props": {
     "swipeDirection": {
-      "type": "'down' | 'left' | 'right' | 'up'",
+      "type": "'down' | 'left' | 'right' | 'up' | Array<'down' | 'left' | 'right' | 'up'>",
       "default": "'up'",
       "description": "Direction in which the toast can be swiped to dismiss."
     },
