@@ -78,7 +78,7 @@ describe('<Toolbar.Input />', () => {
         await user.keyboard(`[${nextKey}]`);
         expect(input).toHaveFocus();
 
-        expect(document.getSelection().toString()).to.equal('abcd');
+        expect(document.getSelection()?.toString()).to.equal('abcd');
 
         await user.keyboard(`[${ARROW_RIGHT}]`);
         await user.keyboard(`[${nextKey}]`);
