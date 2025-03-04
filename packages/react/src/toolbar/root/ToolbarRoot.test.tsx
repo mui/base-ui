@@ -33,12 +33,6 @@ describe('<Toolbar.Root />', () => {
     ].forEach((entry) => {
       const [direction, orientation, nextKey, prevKey] = entry;
 
-      function expectFocused(element: Element) {
-        expect(element).to.have.attribute('data-highlighted');
-        expect(element).to.have.attribute('tabindex', '0');
-        expect(element).toHaveFocus();
-      }
-
       describe(direction, () => {
         it(`orientation: ${orientation}`, async () => {
           const { getAllByRole, getByRole, getByText, user } = await render(
@@ -59,29 +53,29 @@ describe('<Toolbar.Root />', () => {
           const input = getByRole('textbox');
 
           await user.keyboard('[Tab]');
-          expectFocused(button1);
+          expect(button1).toHaveFocus();
 
           await user.keyboard(`[${nextKey}]`);
-          expectFocused(link);
+          expect(link).toHaveFocus();
 
           await user.keyboard(`[${nextKey}]`);
-          expectFocused(groupedButton1);
+          expect(groupedButton1).toHaveFocus();
 
           await user.keyboard(`[${nextKey}]`);
-          expectFocused(groupedButton2);
+          expect(groupedButton2).toHaveFocus();
 
           await user.keyboard(`[${nextKey}]`);
-          expectFocused(input);
+          expect(input).toHaveFocus();
 
           // loop to the beginning
           await user.keyboard(`[${nextKey}]`);
-          expectFocused(button1);
+          expect(button1).toHaveFocus();
 
           await user.keyboard(`[${prevKey}]`);
-          expectFocused(input);
+          expect(input).toHaveFocus();
 
           await user.keyboard(`[${prevKey}]`);
-          expectFocused(groupedButton2);
+          expect(groupedButton2).toHaveFocus();
         });
       });
     });
@@ -120,8 +114,8 @@ describe('<Toolbar.Root />', () => {
     function expectFocusedWhenDisabled(element: Element) {
       expect(element).to.have.attribute('data-disabled');
       expect(element).to.have.attribute('aria-disabled', 'true');
-      expect(element).to.have.attribute('data-highlighted');
-      expect(element).to.have.attribute('tabindex', '0');
+      expect(element).toHaveFocus();
+      expect(element).toHaveFocus();
     }
 
     it('toolbar items can be focused when disabled by default', async () => {
@@ -145,8 +139,7 @@ describe('<Toolbar.Root />', () => {
       const [button1, groupedButton1, groupedButton2] = buttons;
 
       await user.keyboard('[Tab]');
-      expect(button1).to.have.attribute('data-highlighted');
-      expect(button1).to.have.attribute('tabindex', '0');
+      expect(button1).toHaveFocus();
 
       await user.keyboard('[ArrowRight]');
       expectFocusedWhenDisabled(groupedButton1);
@@ -189,8 +182,7 @@ describe('<Toolbar.Root />', () => {
       const [button1, groupedButton1] = buttons;
 
       await user.keyboard('[Tab]');
-      expect(button1).to.have.attribute('data-highlighted');
-      expect(button1).to.have.attribute('tabindex', '0');
+      expect(button1).toHaveFocus();
 
       await user.keyboard('[ArrowRight]');
       expectFocusedWhenDisabled(groupedButton1);

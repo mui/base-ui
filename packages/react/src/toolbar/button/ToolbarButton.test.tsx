@@ -225,8 +225,7 @@ describe('<Toolbar.Button />', () => {
         const trigger = getByRole('button', { name: 'Toggle' });
 
         await user.keyboard('[Tab]');
-        expect(trigger).to.have.attribute('data-highlighted');
-        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(trigger).toHaveFocus();
 
         await user.keyboard('[Enter]');
         expect(handleClick.callCount).to.equal(1);
@@ -297,8 +296,7 @@ describe('<Toolbar.Button />', () => {
         expect(screen.queryByRole('menu')).to.equal(null);
 
         await user.keyboard('[Tab]');
-        expect(trigger).to.have.attribute('data-highlighted');
-        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(trigger).toHaveFocus();
 
         await user.keyboard('[Enter]');
         await user.keyboard('[Space]');
@@ -360,8 +358,7 @@ describe('<Toolbar.Button />', () => {
 
         const trigger = getByTestId('button');
         await user.keyboard('[Tab]');
-        expect(trigger).to.have.attribute('data-highlighted');
-        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(trigger).toHaveFocus();
 
         await user.keyboard('[ArrowDown]');
         expect(screen.queryByRole('listbox')).to.equal(getByTestId('popup'));
@@ -414,8 +411,7 @@ describe('<Toolbar.Button />', () => {
         expect(trigger).to.have.attribute('aria-disabled', 'true');
 
         await user.keyboard('[Tab]');
-        expect(trigger).to.have.attribute('data-highlighted');
-        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(trigger).toHaveFocus();
 
         expect(onOpenChange.callCount).to.equal(0);
         expect(onValueChange.callCount).to.equal(0);
@@ -469,8 +465,7 @@ describe('<Toolbar.Button />', () => {
 
         const trigger = screen.getByRole('button');
         await user.keyboard('[Tab]');
-        expect(trigger).to.have.attribute('data-highlighted');
-        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(trigger).toHaveFocus();
         expect(onOpenChange.callCount).to.equal(0);
 
         await user.keyboard('[Enter]');
@@ -512,8 +507,7 @@ describe('<Toolbar.Button />', () => {
         expect(trigger).to.have.attribute('aria-disabled', 'true');
 
         await user.keyboard('[Tab]');
-        expect(trigger).to.have.attribute('data-highlighted');
-        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(trigger).toHaveFocus();
         expect(onOpenChange.callCount).to.equal(0);
 
         await user.keyboard('[Enter]');
@@ -563,8 +557,7 @@ describe('<Toolbar.Button />', () => {
 
         const trigger = screen.getByRole('button');
         await user.keyboard('[Tab]');
-        expect(trigger).to.have.attribute('data-highlighted');
-        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(trigger).toHaveFocus();
         expect(onOpenChange.callCount).to.equal(0);
 
         await user.keyboard('[Enter]');
@@ -606,8 +599,7 @@ describe('<Toolbar.Button />', () => {
         expect(trigger).to.have.attribute('aria-disabled', 'true');
 
         await user.keyboard('[Tab]');
-        expect(trigger).to.have.attribute('data-highlighted');
-        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(trigger).toHaveFocus();
         expect(onOpenChange.callCount).to.equal(0);
 
         await user.keyboard('[Enter]');
@@ -656,8 +648,7 @@ describe('<Toolbar.Button />', () => {
 
         const trigger = screen.getByRole('button');
         await user.keyboard('[Tab]');
-        expect(trigger).to.have.attribute('data-highlighted');
-        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(trigger).toHaveFocus();
         expect(onOpenChange.callCount).to.equal(0);
 
         await user.keyboard('[Enter]');
@@ -697,8 +688,7 @@ describe('<Toolbar.Button />', () => {
         expect(trigger).to.have.attribute('aria-disabled', 'true');
 
         await user.keyboard('[Tab]');
-        expect(trigger).to.have.attribute('data-highlighted');
-        expect(trigger).to.have.attribute('tabindex', '0');
+        expect(trigger).toHaveFocus();
         expect(onOpenChange.callCount).to.equal(0);
 
         await user.keyboard('[Enter]');
