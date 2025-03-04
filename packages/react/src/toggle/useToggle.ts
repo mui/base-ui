@@ -38,19 +38,15 @@ export function useToggle(parameters: useToggle.Parameters): useToggle.ReturnVal
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps(
-        externalProps,
-        {
-          'aria-pressed': pressed,
-          onClick(event: React.MouseEvent) {
-            const nextPressed = !pressed;
-            setPressedState(nextPressed);
-            onPressedChange(nextPressed, event.nativeEvent);
-          },
-          ref: buttonRef,
+      return mergeReactProps(getButtonProps, externalProps, {
+        'aria-pressed': pressed,
+        onClick(event: React.MouseEvent) {
+          const nextPressed = !pressed;
+          setPressedState(nextPressed);
+          onPressedChange(nextPressed, event.nativeEvent);
         },
-        getButtonProps(),
-      );
+        ref: buttonRef,
+      });
     },
     [getButtonProps, buttonRef, onPressedChange, pressed, setPressedState],
   );

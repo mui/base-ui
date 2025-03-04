@@ -25,5 +25,6 @@ export * from './switch';
 export * from './tabs';
 export * from './toggle';
 export * from './toggle-group';
+export * from './toolbar';
 export * from './tooltip';
 export * as utils from './utils';

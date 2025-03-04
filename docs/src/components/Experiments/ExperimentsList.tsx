@@ -38,10 +38,12 @@ for (const key of allExperimentFiles) {
     groups[group] = [];
   }
 
-  groups[group].push({
-    name: camelToSentenceCase(name.replace('.tsx', '').replace(/-/g, ' ')),
-    path: key.replace('.tsx', ''),
-  });
+  if (!name.startsWith('_')) {
+    groups[group].push({
+      name: camelToSentenceCase(name.replace('.tsx', '').replace(/-/g, ' ')),
+      path: key.replace('.tsx', ''),
+    });
+  }
 }
 
 export function ExperimentsList(props: React.HTMLAttributes<HTMLDivElement>) {
