@@ -3,13 +3,11 @@ import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 import styles from './index.module.css';
 
-const position = 'top';
-
 export default function UndoToastExample() {
   return (
     <Toast.Provider>
       <SaveForm />
-      <Toast.Viewport className={styles.Viewport} data-position={position}>
+      <Toast.Viewport className={styles.Viewport} data-position="top">
         <ToastList />
       </Toast.Viewport>
     </Toast.Provider>
@@ -51,8 +49,8 @@ function ToastList() {
       key={toast.id}
       toast={toast}
       className={styles.Toast}
-      data-position={position}
-      swipeDirection={position.startsWith('top') ? 'up' : 'down'}
+      data-position="top"
+      swipeDirection="up"
     >
       <Toast.Content className={styles.Content}>
         {toast.title && (
