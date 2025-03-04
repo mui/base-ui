@@ -15,7 +15,7 @@ import { fieldValidityMapping } from '../../field/utils/constants';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectTrigger = React.forwardRef(function SelectTrigger(
+export const SelectTrigger = React.forwardRef(function SelectTrigger(
   props: SelectTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -61,7 +61,7 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
   return renderElement();
 });
 
-namespace SelectTrigger {
+export namespace SelectTrigger {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
@@ -106,5 +106,3 @@ SelectTrigger.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { SelectTrigger };

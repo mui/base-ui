@@ -12,7 +12,7 @@ import { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
-const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
+export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
   props: NumberFieldDecrement.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -32,7 +32,7 @@ const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
   return renderElement();
 });
 
-namespace NumberFieldDecrement {
+export namespace NumberFieldDecrement {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }
@@ -59,5 +59,3 @@ NumberFieldDecrement.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { NumberFieldDecrement };

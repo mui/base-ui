@@ -3,7 +3,7 @@ import * as React from 'react';
 import { mergeReactProps } from '../../utils/mergeReactProps';
 import { valueToPercent } from '../../utils/valueToPercent';
 
-function useProgressIndicator(
+export function useProgressIndicator(
   parameters: useProgressIndicator.Parameters,
 ): useProgressIndicator.ReturnValue {
   const { max = 100, min = 0, value } = parameters;
@@ -36,7 +36,7 @@ function useProgressIndicator(
   };
 }
 
-namespace useProgressIndicator {
+export namespace useProgressIndicator {
   export interface Parameters {
     /**
      * The maximum value
@@ -60,5 +60,3 @@ namespace useProgressIndicator {
     ) => React.ComponentPropsWithRef<'span'>;
   }
 }
-
-export { useProgressIndicator };

@@ -14,7 +14,7 @@ import { useSliderIndicator } from './useSliderIndicator';
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderIndicator = React.forwardRef(function SliderIndicator(
+export const SliderIndicator = React.forwardRef(function SliderIndicator(
   props: SliderIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -41,11 +41,9 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
   return renderElement();
 });
 
-namespace SliderIndicator {
+export namespace SliderIndicator {
   export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
 }
-
-export { SliderIndicator };
 
 SliderIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

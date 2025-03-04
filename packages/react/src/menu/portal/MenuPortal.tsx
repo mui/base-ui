@@ -12,7 +12,7 @@ import { HTMLElementType, refType } from '../../utils/proptypes';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-function MenuPortal(props: MenuPortal.Props) {
+export const MenuPortal: React.FC<MenuPortal.Props> = function MenuPortal(props) {
   const { children, keepMounted = false, container } = props;
 
   const { mounted } = useMenuRootContext();
@@ -27,9 +27,9 @@ function MenuPortal(props: MenuPortal.Props) {
       <FloatingPortal root={container}>{children}</FloatingPortal>
     </MenuPortalContext.Provider>
   );
-}
+};
 
-namespace MenuPortal {
+export namespace MenuPortal {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -63,5 +63,3 @@ MenuPortal.propTypes /* remove-proptypes */ = {
    */
   keepMounted: PropTypes.bool,
 } as any;
-
-export { MenuPortal };

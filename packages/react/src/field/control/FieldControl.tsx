@@ -18,7 +18,7 @@ import { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
-const FieldControl = React.forwardRef(function FieldControl(
+export const FieldControl = React.forwardRef(function FieldControl(
   props: FieldControl.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
@@ -66,7 +66,7 @@ const FieldControl = React.forwardRef(function FieldControl(
   return renderElement();
 });
 
-namespace FieldControl {
+export namespace FieldControl {
   export type State = FieldRoot.State;
 
   export interface Props extends BaseUIComponentProps<'input', State> {
@@ -131,5 +131,3 @@ FieldControl.propTypes /* remove-proptypes */ = {
     PropTypes.string,
   ]),
 } as any;
-
-export { FieldControl };

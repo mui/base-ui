@@ -13,7 +13,7 @@ import { avatarStyleHookMapping } from '../root/styleHooks';
  *
  * Documentation: [Base UI Avatar](https://base-ui.com/react/components/avatar)
  */
-const AvatarFallback = React.forwardRef<HTMLSpanElement, AvatarFallback.Props>(
+export const AvatarFallback = React.forwardRef<HTMLSpanElement, AvatarFallback.Props>(
   function AvatarFallback(props: AvatarFallback.Props, forwardedRef) {
     const { className, render, delay, ...otherProps } = props;
 
@@ -54,7 +54,7 @@ const AvatarFallback = React.forwardRef<HTMLSpanElement, AvatarFallback.Props>(
   },
 );
 
-namespace AvatarFallback {
+export namespace AvatarFallback {
   export interface Props extends BaseUIComponentProps<'span', AvatarRoot.State> {
     /**
      * How long to wait before showing the fallback. Specified in milliseconds.
@@ -62,8 +62,6 @@ namespace AvatarFallback {
     delay?: number;
   }
 }
-
-export { AvatarFallback };
 
 AvatarFallback.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

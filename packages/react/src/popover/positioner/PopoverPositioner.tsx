@@ -18,7 +18,7 @@ import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverPositioner = React.forwardRef(function PopoverPositioner(
+export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   props: PopoverPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -89,7 +89,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   );
 });
 
-namespace PopoverPositioner {
+export namespace PopoverPositioner {
   export interface State {
     /**
      * Whether the popover is currently open.
@@ -223,5 +223,3 @@ PopoverPositioner.propTypes /* remove-proptypes */ = {
    */
   trackAnchor: PropTypes.bool,
 } as any;
-
-export { PopoverPositioner };

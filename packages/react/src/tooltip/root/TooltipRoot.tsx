@@ -11,7 +11,7 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
+export const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
   const {
     defaultOpen = false,
     onOpenChange,
@@ -55,7 +55,7 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
   );
 };
 
-namespace TooltipRoot {
+export namespace TooltipRoot {
   export interface State {}
 
   export interface Props extends useTooltipRoot.Parameters {
@@ -122,5 +122,3 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   trackCursorAxis: PropTypes.oneOf(['both', 'none', 'x', 'y']),
 } as any;
-
-export { TooltipRoot };

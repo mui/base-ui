@@ -6,7 +6,7 @@ import type { TabPanelMetadata } from '../panel/useTabsPanel';
 import type { TabMetadata } from '../tab/useTabsTab';
 import type { TabActivationDirection, TabValue } from './TabsRoot';
 
-function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValue {
+export function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValue {
   const { value: valueProp, defaultValue, onValueChange: onValueChangeProp } = parameters;
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
@@ -129,7 +129,7 @@ function useTabsRoot(parameters: useTabsRoot.Parameters): useTabsRoot.ReturnValu
   };
 }
 
-namespace useTabsRoot {
+export namespace useTabsRoot {
   export interface Parameters {
     /**
      * The value of the currently selected `Tab`.
@@ -191,5 +191,3 @@ namespace useTabsRoot {
     value: TabValue;
   }
 }
-
-export { useTabsRoot, TabMetadata };

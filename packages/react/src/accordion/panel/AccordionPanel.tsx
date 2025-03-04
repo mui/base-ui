@@ -20,7 +20,7 @@ import { AccordionPanelCssVars } from './AccordionPanelCssVars';
  *
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
-const AccordionPanel = React.forwardRef(function AccordionPanel(
+export const AccordionPanel = React.forwardRef(function AccordionPanel(
   props: AccordionPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -93,13 +93,11 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   return renderElement();
 });
 
-namespace AccordionPanel {
+export namespace AccordionPanel {
   export interface Props
     extends BaseUIComponentProps<'div', AccordionItem.State>,
       Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
 }
-
-export { AccordionPanel };
 
 AccordionPanel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

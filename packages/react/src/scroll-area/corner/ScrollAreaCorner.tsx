@@ -15,7 +15,7 @@ const state = {};
  *
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
-const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
+export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
   props: ScrollAreaCorner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -48,7 +48,7 @@ const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
   return renderElement();
 });
 
-namespace ScrollAreaCorner {
+export namespace ScrollAreaCorner {
   export interface State {}
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
@@ -76,5 +76,3 @@ ScrollAreaCorner.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { ScrollAreaCorner };
