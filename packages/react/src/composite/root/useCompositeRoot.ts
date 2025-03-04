@@ -96,8 +96,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
 
-  const arrowKeyTravelDirectionRef = React.useRef<'end' | 'start'>(null);
-
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
       mergeReactProps<'div'>(externalProps, {
@@ -108,15 +106,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           if (!element || !isNativeInput(event.target)) {
             return;
           }
-          if (arrowKeyTravelDirectionRef.current == null) {
-            return;
-          }
-          const textContentLength = event.target.value.length ?? 0;
-          if (arrowKeyTravelDirectionRef.current === 'end') {
-            event.target.setSelectionRange(0, 0);
-          } else if (textContentLength && arrowKeyTravelDirectionRef.current === 'start') {
-            event.target.setSelectionRange(textContentLength, textContentLength);
-          }
+          event.target.setSelectionRange(0, event.target.value.length ?? 0);
         },
         onKeyDown(event) {
           const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
@@ -151,13 +141,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             vertical: ARROW_UP,
             both: horizontalBackwardKey,
           }[orientation];
-
-          if (event.key === forwardKey) {
-            arrowKeyTravelDirectionRef.current = 'end';
-          }
-          if (event.key === backwardKey) {
-            arrowKeyTravelDirectionRef.current = 'start';
-          }
 
           if (isNativeInput(event.target) && !isElementDisabled(event.target)) {
             const selectionStart = event.target.selectionStart;

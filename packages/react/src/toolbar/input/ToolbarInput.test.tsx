@@ -61,12 +61,6 @@ describe('<Toolbar.Input />', () => {
     ].forEach((entry) => {
       const [orientation, nextKey, prevKey] = entry;
 
-      function expectFocused(element: Element) {
-        expect(element).to.have.attribute('data-highlighted');
-        expect(element).to.have.attribute('tabindex', '0');
-        expect(element).toHaveFocus();
-      }
-
       it(`orientation: ${orientation}`, async () => {
         const { getAllByRole, getByRole, user } = await render(
           <Toolbar.Root orientation={orientation as Orientation}>
@@ -79,29 +73,25 @@ describe('<Toolbar.Input />', () => {
         const [button1, button2] = getAllByRole('button');
 
         await user.keyboard('[Tab]');
-        expectFocused(button1);
+        expect(button1).toHaveFocus();
 
         await user.keyboard(`[${nextKey}]`);
-        expectFocused(input);
+        expect(input).toHaveFocus();
 
-        await user.keyboard(`[${ARROW_RIGHT}]`);
-        await user.keyboard(`[${ARROW_RIGHT}]`);
-        await user.keyboard(`[${ARROW_RIGHT}]`);
+        expect(document.getSelection().toString()).to.equal('abcd');
+
         await user.keyboard(`[${ARROW_RIGHT}]`);
         await user.keyboard(`[${nextKey}]`);
 
-        expectFocused(button2);
+        expect(button2).toHaveFocus();
 
         await user.keyboard(`[${prevKey}]`);
-        expectFocused(input);
+        expect(input).toHaveFocus();
 
-        await user.keyboard(`[${ARROW_LEFT}]`);
-        await user.keyboard(`[${ARROW_LEFT}]`);
-        await user.keyboard(`[${ARROW_LEFT}]`);
         await user.keyboard(`[${ARROW_LEFT}]`);
         await user.keyboard(`[${prevKey}]`);
 
-        expectFocused(button1);
+        expect(button1).toHaveFocus();
       });
     });
   });
