@@ -5,7 +5,12 @@
     "swipeDirection": {
       "type": "'down' | 'left' | 'right' | 'up' | Array<'down' | 'left' | 'right' | 'up'>",
       "default": "'up'",
-      "description": "Direction in which the toast can be swiped to dismiss."
+      "description": "Direction(s) in which the toast can be swiped to dismiss."
+    },
+    "toast": {
+      "type": "{ actionProps?: object, animation?: 'ending' | 'starting', data?: any, description?: string, height?: number, id: string, onRemove?: func, onRemoveComplete?: func, priority?: 'high' | 'low', timeout?: number, title: string, type?: string }",
+      "required": true,
+      "description": "The toast to render."
     },
     "className": {
       "type": "string | (state) => string",

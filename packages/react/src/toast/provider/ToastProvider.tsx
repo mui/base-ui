@@ -2,14 +2,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { activeElement, contains } from '@floating-ui/react/utils';
-import { Toast, ToastContext } from './ToastProviderContext';
-import type { GlobalPromiseToastOptions } from '../Manager';
+import { ToastContext } from './ToastProviderContext';
 import { generateId } from '../../utils/generateId';
-import { resolvePromiseContent } from '../utils/resolvePromiseContent';
+import { resolvePromiseOptions } from '../utils/resolvePromiseOptions';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useToast } from '../useToast';
+import { useToast, type Toast } from '../useToast';
 import { useLatestRef } from '../../utils/useLatestRef';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
+import { ownerDocument } from '../../utils/owner';
 import { isFocusVisible } from '../utils/focusVisible';
 import { Manager } from '../Manager';
 
@@ -27,9 +26,9 @@ interface TimerInfo {
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
 const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
-  const { children, timeout = 5000, limit = 3, globalManager } = props;
+  const { children, timeout = 5000, limit = 3, toastManager } = props;
 
-  const [toasts, setToasts] = React.useState<Toast[]>([]);
+  const [toasts, setToasts] = React.useState<Toast<any>[]>([]);
   const [hovering, setHovering] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
 
@@ -151,7 +150,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     });
   });
 
-  const add = useEventCallback((toast: useToast.AddOptions): string => {
+  const add = useEventCallback(<Data extends object>(toast: useToast.AddOptions<Data>): string => {
     const id = generateId('toast');
     const toastToAdd = {
       id,
@@ -201,31 +200,31 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     return id;
   });
 
-  const update = useEventCallback((id: string, updates: Partial<Omit<Toast, 'id'>>) => {
-    setToasts((prev) => prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)));
-  });
+  const update = useEventCallback(
+    <Data extends object>(id: string, updates: useToast.UpdateOptions<Data>) => {
+      setToasts((prev) =>
+        prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
+      );
+    },
+  );
 
-  const promise = React.useCallback(
-    <Value,>(
+  const promise = useEventCallback(
+    <Value, Data extends object>(
       promiseValue: Promise<Value>,
-      options: GlobalPromiseToastOptions<Value>,
+      options: useToast.PromiseOptions<Value, Data>,
     ): Promise<Value> => {
       // Create a loading toast (which does not auto-dismiss).
-      const loadingContent = resolvePromiseContent(options.loading);
-
+      const loadingOptions = resolvePromiseOptions(options.loading);
       const id = add({
-        ...options,
-        title: loadingContent.title,
-        description: loadingContent.description,
+        ...loadingOptions,
+        title: loadingOptions.title || '',
         type: 'loading',
       });
 
       return promiseValue
         .then((result: Value) => {
-          const successContent = resolvePromiseContent(options.success, result);
           update(id, {
-            title: successContent.title,
-            description: successContent.description,
+            ...resolvePromiseOptions(options.success, result),
             type: 'success',
           });
 
@@ -238,10 +237,8 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
           return result;
         })
         .catch((error) => {
-          const errorContent = resolvePromiseContent(options.error, error);
           update(id, {
-            title: errorContent.title,
-            description: errorContent.description,
+            ...resolvePromiseOptions(options.error, error),
             type: 'error',
           });
 
@@ -254,53 +251,14 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
           return Promise.reject(error);
         });
     },
-    [
-      add,
-      update,
-      scheduleTimer,
-      timeout,
-      hoveringRef,
-      focusedRef,
-      windowFocusedRef,
-      remove,
-      pauseTimers,
-    ],
   );
 
   React.useEffect(() => {
-    if (!viewportRef.current) {
+    if (!toastManager) {
       return undefined;
     }
 
-    const win = ownerWindow(viewportRef.current);
-
-    function handleWindowBlur() {
-      windowFocusedRef.current = false;
-      pauseTimers();
-    }
-
-    function handleWindowFocus() {
-      windowFocusedRef.current = true;
-      if (!hoveringRef.current && !focusedRef.current) {
-        resumeTimers();
-      }
-    }
-
-    win.addEventListener('blur', handleWindowBlur);
-    win.addEventListener('focus', handleWindowFocus);
-
-    return () => {
-      win.removeEventListener('blur', handleWindowBlur);
-      win.removeEventListener('focus', handleWindowFocus);
-    };
-  }, [pauseTimers, resumeTimers, hoveringRef, focusedRef]);
-
-  React.useEffect(() => {
-    if (!globalManager) {
-      return undefined;
-    }
-
-    const unsubscribe = globalManager.subscribe((toastOptions) => {
+    const unsubscribe = toastManager.subscribe((toastOptions) => {
       const id = toastOptions.id;
 
       if (toastOptions.promise && id) {
@@ -317,9 +275,9 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     });
 
     return unsubscribe;
-  }, [add, update, remove, scheduleTimer, timeout, globalManager]);
+  }, [add, update, remove, scheduleTimer, timeout, toastManager]);
 
-  const contextValue: ToastContext = React.useMemo(
+  const contextValue = React.useMemo(
     () => ({
       toasts,
       setToasts,
@@ -351,7 +309,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       resumeTimers,
       scheduleTimer,
     ],
-  );
+  ) as ToastContext<any>;
 
   return <ToastContext.Provider value={contextValue}>{children}</ToastContext.Provider>;
 };
@@ -373,7 +331,7 @@ namespace ToastProvider {
     /**
      * A global manager for toasts to use outside of a React component.
      */
-    globalManager?: Manager<any>;
+    toastManager?: Manager;
   }
 }
 
@@ -387,12 +345,22 @@ ToastProvider.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
+   * The maximum number of toasts that can be displayed at once.
+   * When the limit is reached, the oldest toast will be removed to make room for the new one.
+   * @default 3
+   */
+  limit: PropTypes.number,
+  /**
+   * The default amount of time (in ms) before a toast is auto dismissed.
+   * @default 5000
+   */
+  timeout: PropTypes.number,
+  /**
    * A global manager for toasts to use outside of a React component.
    */
-  globalManager: PropTypes.shape({
+  toastManager: PropTypes.shape({
     add: PropTypes.func.isRequired,
     emit: PropTypes.func.isRequired,
-    lastEventId: PropTypes.string.isRequired,
     listeners: PropTypes.arrayOf(PropTypes.func).isRequired,
     promise: PropTypes.func.isRequired,
     remove: PropTypes.func.isRequired,
@@ -415,17 +383,6 @@ ToastProvider.propTypes /* remove-proptypes */ = {
     ).isRequired,
     update: PropTypes.func.isRequired,
   }),
-  /**
-   * The maximum number of toasts that can be displayed at once.
-   * When the limit is reached, the oldest toast will be removed to make room for the new one.
-   * @default 3
-   */
-  limit: PropTypes.number,
-  /**
-   * The default amount of time (in ms) before a toast is auto dismissed.
-   * @default 5000
-   */
-  timeout: PropTypes.number,
 } as any;
 
 export { ToastProvider };

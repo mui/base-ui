@@ -3,10 +3,16 @@ import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 import styles from './index.module.css';
 
-export default function PromiseToastExample() {
+function isCustomToast(
+  toast: Toast.useToast.ToastType<CustomToastData>,
+): toast is Toast.useToast.ToastType<CustomToastData> {
+  return toast.data?.userId !== undefined;
+}
+
+export default function CustomToastExample() {
   return (
     <Toast.Provider>
-      <PromiseDemo />
+      <CustomToast />
       <Toast.Viewport className={styles.Viewport} data-position="top">
         <ToastList />
       </Toast.Viewport>
@@ -14,33 +20,32 @@ export default function PromiseToastExample() {
   );
 }
 
-function PromiseDemo() {
+interface CustomToastData {
+  userId: string;
+  onNotify: () => void;
+}
+
+function CustomToast() {
   const toast = Toast.useToast();
 
-  function runPromise() {
-    toast.promise(
-      // Simulate an API request with a promise that resolves after 2 seconds
-      new Promise<string>((resolve, reject) => {
-        const shouldSucceed = Math.random() > 0.3; // 70% success rate
-        setTimeout(() => {
-          if (shouldSucceed) {
-            resolve('operation completed');
-          } else {
-            reject(new Error('operation failed'));
-          }
-        }, 2000);
-      }),
-      {
-        loading: 'Loading data...',
-        success: (data: string) => `Success: ${data}`,
-        error: (err: Error) => `Error: ${err.message}`,
+  function action() {
+    const data: CustomToastData = {
+      userId: '123',
+      onNotify() {
+        // eslint-disable-next-line no-alert
+        alert('Notified 123');
       },
-    );
+    };
+
+    toast.add({
+      title: 'Toast with custom data',
+      data,
+    });
   }
 
   return (
-    <button type="button" onClick={runPromise} className={styles.Button}>
-      Run promise
+    <button type="button" onClick={action} className={styles.Button}>
+      Create custom toast
     </button>
   );
 }
@@ -53,7 +58,6 @@ function ToastList() {
       key={toast.id}
       toast={toast}
       className={styles.Toast}
-      data-type={toast.type}
       data-position="top"
       swipeDirection="up"
     >
@@ -65,6 +69,15 @@ function ToastList() {
           <Toast.Description className={styles.Description}>
             {toast.description}
           </Toast.Description>
+        )}
+        {isCustomToast(toast) && toast.data && (
+          <button
+            type="button"
+            className={styles.Button}
+            onClick={toast.data.onNotify}
+          >
+            Notify userId {toast.data.userId}
+          </button>
         )}
       </Toast.Content>
       <Toast.Close className={styles.Close} aria-label="Close">

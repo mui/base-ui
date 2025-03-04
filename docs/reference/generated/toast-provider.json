@@ -2,14 +2,14 @@
   "name": "ToastProvider",
   "description": "Provides a context for creating and managing toasts.",
   "props": {
-    "globalManager": {
-      "type": "{ add: func, emit: func, lastEventId: string, listeners: Array<func>, promise: func, remove: func, subscribe: func, toasts: Array<{ actionProps?: object, animation?: 'ending' | 'starting', data?: any, description?: string, height?: number, id: string, onRemove?: func, onRemoveComplete?: func, priority?: 'high' | 'low', timeout?: number, title: string, type?: string }>, update: func }",
-      "description": "A global manager for toasts to use outside of a React component."
-    },
     "limit": {
       "type": "number",
       "default": "3",
       "description": "The maximum number of toasts that can be displayed at once.\nWhen the limit is reached, the oldest toast will be removed to make room for the new one."
+    },
+    "toastManager": {
+      "type": "Toast.Manager",
+      "description": "A global manager for toasts to use outside of a React component."
     },
     "timeout": {
       "type": "number",

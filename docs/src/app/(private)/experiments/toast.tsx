@@ -28,7 +28,7 @@ function fetchUserData() {
 
 export default function Page() {
   return (
-    <Toast.Provider globalManager={globalToastManager}>
+    <Toast.Provider toastManager={globalToastManager}>
       <Toast.Viewport className={styles.viewport}>
         <Toasts />
       </Toast.Viewport>

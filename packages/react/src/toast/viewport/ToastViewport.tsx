@@ -27,10 +27,20 @@ const ToastViewport = React.forwardRef(function ToastViewport(
 ) {
   const { render, className, children, ...other } = props;
 
-  const { pauseTimers, resumeTimers, toasts, prevFocusRef, setHovering, setFocused, viewportRef } =
-    useToastContext();
+  const {
+    toasts,
+    prevFocusRef,
+    pauseTimers,
+    resumeTimers,
+    setHovering,
+    setFocused,
+    viewportRef,
+    focused,
+    hovering,
+  } = useToastContext();
 
   const handlingFocusGuardRef = React.useRef(false);
+  const windowFocusedRef = React.useRef(true);
 
   const mergedRef = useForkRef(viewportRef, forwardedRef);
 
@@ -63,6 +73,45 @@ const ToastViewport = React.forwardRef(function ToastViewport(
       win.removeEventListener('keydown', handleGlobalKeyDown);
     };
   }, [pauseTimers, prevFocusRef, toasts.length, viewportRef]);
+
+  React.useEffect(() => {
+    if (!viewportRef.current) {
+      return undefined;
+    }
+
+    const win = ownerWindow(viewportRef.current);
+
+    function handleWindowBlur() {
+      windowFocusedRef.current = false;
+      pauseTimers();
+    }
+
+    function handleWindowFocus() {
+      windowFocusedRef.current = true;
+      if (!hovering && !focused) {
+        resumeTimers();
+      }
+    }
+
+    win.addEventListener('blur', handleWindowBlur);
+    win.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      win.removeEventListener('blur', handleWindowBlur);
+      win.removeEventListener('focus', handleWindowFocus);
+    };
+  }, [
+    pauseTimers,
+    resumeTimers,
+    hovering,
+    focused,
+    viewportRef,
+    // `viewportRef.current` isn't available on the first render,
+    // since the portal node hasn't yet been created.
+    // By adding this dependency, we ensure the window listeners
+    // are added when toasts have been created, once the ref is available.
+    toasts.length,
+  ]);
 
   function handleFocusGuard(event: React.FocusEvent) {
     if (!viewportRef.current) {

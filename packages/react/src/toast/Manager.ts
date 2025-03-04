@@ -1,16 +1,16 @@
 import { generateId } from '../utils/generateId';
-import { Toast, GlobalPromiseToastOptions, GlobalToastOptions } from './types';
-import { resolvePromiseContent } from './utils/resolvePromiseContent';
+import { Toast, useToast } from './useToast';
+import { resolvePromiseOptions } from './utils/resolvePromiseOptions';
 
 /**
  * Creates a new toast manager.
  */
-export class Manager<T> {
-  private listeners: ((data: T) => void)[] = [];
+export class Manager {
+  private listeners: ((data: any) => void)[] = [];
 
-  public toasts: Toast<T>[] = [];
+  public toasts: Toast<any>[] = [];
 
-  subscribe(listener: (data: T) => void) {
+  subscribe(listener: (data: any) => void) {
     this.listeners.push(listener);
     return () => {
       const index = this.listeners.indexOf(listener);
@@ -20,28 +20,20 @@ export class Manager<T> {
     };
   }
 
-  emit(data: T) {
+  emit(data: any) {
     this.listeners.forEach((listener) => listener(data));
   }
 
-  add<Data = Record<string, unknown>>(options: GlobalToastOptions<Data>): void {
-    this.emit(options as T);
-
-    if (options.id) {
-      this.toasts = this.toasts.map((toast) =>
-        toast.id === options.id ? ({ ...toast, ...options, id: options.id } as Toast<T>) : toast,
-      );
-    }
+  add<Data extends object>(options: useToast.AddOptions<Data> & { id: string }): string {
+    this.emit(options);
+    return options.id;
   }
 
   remove(id: string): void {
     this.toasts = this.toasts.filter((toast) => toast.id !== id);
   }
 
-  update<Data = Record<string, unknown>>(
-    id: string,
-    updates: Partial<Omit<Toast<Data>, 'id'>>,
-  ): void {
+  update<Data extends object>(id: string, updates: useToast.UpdateOptions<Data>): void {
     const existingToast = this.toasts.find((toast) => toast.id === id);
 
     if (existingToast) {
@@ -53,45 +45,38 @@ export class Manager<T> {
         promise: true,
       };
 
-      this.emit(updatedToast as T);
+      this.emit(updatedToast);
       this.toasts = this.toasts.map((toast) =>
-        toast.id === id ? ({ ...toast, ...updates, id } as Toast<T>) : toast,
+        toast.id === id ? ({ ...toast, ...updates, id } as Toast<any>) : toast,
       );
     }
   }
 
-  promise<Value, Data = Record<string, unknown>>(
+  promise<Value, Data extends object>(
     promiseValue: Promise<Value>,
-    options: GlobalPromiseToastOptions<Value, Data>,
+    options: useToast.PromiseOptions<Value, Data>,
   ): Promise<Value> {
     const id = generateId('toast');
-    const loadingContent = resolvePromiseContent(options.loading);
 
-    this.add({
-      ...options,
+    const loadingOptions = resolvePromiseOptions(options.loading);
+    const toastId = this.add({
+      ...loadingOptions,
       id,
-      title: loadingContent.title,
-      description: loadingContent.description,
+      title: loadingOptions.title || '',
       type: 'loading',
     });
 
     return promiseValue
       .then((result: Value) => {
-        const successContent = resolvePromiseContent(options.success, result);
-        this.update(id, {
-          ...options,
-          title: successContent.title,
-          description: successContent.description,
+        this.update(toastId, {
+          ...resolvePromiseOptions(options.success, result),
           type: 'success',
         });
         return result;
       })
       .catch((error) => {
-        const errorContent = resolvePromiseContent(options.error, error);
-        this.update(id, {
-          ...options,
-          title: errorContent.title,
-          description: errorContent.description,
+        this.update(toastId, {
+          ...resolvePromiseOptions(options.error, error),
           type: 'error',
         });
         return Promise.reject(error);
