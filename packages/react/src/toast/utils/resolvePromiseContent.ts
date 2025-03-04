@@ -1,9 +1,4 @@
-export interface ToastContentConfig<Value> {
-  title: string | ((result: Value) => string);
-  description?: string | ((result: Value) => string);
-}
-
-export type ToastContent<Value> = string | ((result: Value) => string) | ToastContentConfig<Value>;
+import { ToastContent } from '../types';
 
 export function resolvePromiseContent<T>(
   content: ToastContent<T>,

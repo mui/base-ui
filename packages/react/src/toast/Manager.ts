@@ -1,20 +1,6 @@
 import { generateId } from '../utils/generateId';
-import { Toast } from './provider/ToastProviderContext';
-import { resolvePromiseContent, type ToastContent } from './utils/resolvePromiseContent';
-
-export interface GlobalToastOptions<Data = Record<string, unknown>>
-  extends Omit<Toast<Data>, 'id' | 'animation' | 'height'> {
-  id?: string;
-  promise?: boolean;
-  actionProps?: React.ComponentPropsWithRef<'button'>;
-}
-
-export interface GlobalPromiseToastOptions<Value, Data = Record<string, unknown>>
-  extends Omit<GlobalToastOptions<Data>, 'type' | 'title' | 'description'> {
-  loading: ToastContent<void>;
-  success: ToastContent<Value>;
-  error: ToastContent<any>;
-}
+import { Toast, GlobalPromiseToastOptions, GlobalToastOptions } from './types';
+import { resolvePromiseContent } from './utils/resolvePromiseContent';
 
 /**
  * Creates a new toast manager.
