@@ -1,0 +1,8 @@
+{
+  "name": "ToastProvider",
+  "props": {
+    "toastManager": {
+      "type": "Toast.Manager"
+    }
+  }
+}

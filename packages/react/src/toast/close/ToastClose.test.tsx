@@ -3,6 +3,7 @@ import { Toast } from '@base-ui-components/react/toast';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
+import { List, Button } from '../utils/test-utils';
 
 describe('<Toast.Close />', () => {
   const { render } = createRenderer();
@@ -26,33 +27,6 @@ describe('<Toast.Close />', () => {
   }));
 
   it('closes the toast when clicked', async () => {
-    function Button() {
-      const { add } = Toast.useToast();
-      return (
-        <button
-          type="button"
-          onClick={() => {
-            add({
-              title: 'title',
-            });
-          }}
-        >
-          add
-        </button>
-      );
-    }
-
-    function List() {
-      return Toast.useToast().toasts.map((toastItem) => (
-        <Toast.Root key={toastItem.id} toast={toastItem}>
-          <Toast.Content>
-            <Toast.Title data-testid="title">{toastItem.title}</Toast.Title>
-          </Toast.Content>
-          <Toast.Close aria-label="close" />
-        </Toast.Root>
-      ));
-    }
-
     const { user } = await render(
       <Toast.Provider>
         <Toast.Viewport>

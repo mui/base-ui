@@ -2,8 +2,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { activeElement, contains, getTarget } from '@floating-ui/react/utils';
-import { useToastContext, type Toast } from '../provider/ToastProviderContext';
+import { useToastContext } from '../provider/ToastProviderContext';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { Toast } from '../useToast';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { ToastRootContext } from './ToastRootContext';
 import { useForkRef } from '../../utils/useForkRef';
@@ -470,9 +471,12 @@ export namespace ToastRoot {
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {
-    toast: Toast;
     /**
-     * Direction in which the toast can be swiped to dismiss.
+     * The toast to render.
+     */
+    toast: Toast<any>;
+    /**
+     * Direction(s) in which the toast can be swiped to dismiss.
      * @default 'up'
      */
     swipeDirection?: 'up' | 'down' | 'left' | 'right' | ('up' | 'down' | 'left' | 'right')[];
@@ -501,7 +505,7 @@ ToastRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
-   * Direction in which the toast can be swiped to dismiss.
+   * Direction(s) in which the toast can be swiped to dismiss.
    * @default 'up'
    */
   swipeDirection: PropTypes.oneOfType([
@@ -509,12 +513,12 @@ ToastRoot.propTypes /* remove-proptypes */ = {
     PropTypes.arrayOf(PropTypes.oneOf(['down', 'left', 'right', 'up']).isRequired),
   ]),
   /**
-   * @ignore
+   * The toast to render.
    */
   toast: PropTypes.shape({
     actionProps: PropTypes.object,
     animation: PropTypes.oneOf(['ending', 'starting']),
-    data: PropTypes.object,
+    data: PropTypes.any,
     description: PropTypes.string,
     height: PropTypes.number,
     id: PropTypes.string.isRequired,
