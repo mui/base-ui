@@ -633,7 +633,7 @@ importers:
         version: 19.0.2(@types/react@19.0.10)
       '@types/sinon':
         specifier: ^17.0.3
-        version: 17.0.3
+        version: 17.0.4
       '@types/use-sync-external-store':
         specifier: ^0.0.6
         version: 0.0.6
@@ -696,8 +696,8 @@ importers:
         specifier: ^19.0.2
         version: 19.0.2(@types/react@19.0.10)
       '@types/sinon':
-        specifier: ^17.0.3
-        version: 17.0.3
+        specifier: ^17.0.4
+        version: 17.0.4
       chai:
         specifier: ^4.5.0
         version: 4.5.0
@@ -3151,8 +3151,8 @@ packages:
   '@types/semver@7.5.8':
     resolution: {integrity: sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==}
 
-  '@types/sinon@17.0.3':
-    resolution: {integrity: sha512-j3uovdn8ewky9kRBG19bOwaZbexJu/XjtkHyjvUgt4xfPFz18dcORIMqnYh66Fx3Powhcr85NT5+er3+oViapw==}
+  '@types/sinon@17.0.4':
+    resolution: {integrity: sha512-RHnIrhfPO3+tJT0s7cFaXGZvsL4bbR3/k7z3P312qMS4JaS2Tk+KiwiLx1S0rQ56ERj00u1/BtdyVd0FY+Pdew==}
 
   '@types/sinonjs__fake-timers@8.1.5':
     resolution: {integrity: sha512-mQkU2jY8jJEF7YHjHvsQO8+3ughTL1mcnn96igfhONmR+fUPSKIkefQYpSe8bsly2Ep7oQbn/6VG5/9/0qcArQ==}
@@ -11841,7 +11841,7 @@ snapshots:
 
   '@types/semver@7.5.8': {}
 
-  '@types/sinon@17.0.3':
+  '@types/sinon@17.0.4':
     dependencies:
       '@types/sinonjs__fake-timers': 8.1.5
 
