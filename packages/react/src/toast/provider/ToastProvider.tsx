@@ -3,14 +3,15 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { activeElement, contains } from '@floating-ui/react/utils';
 import { Toast, ToastContext } from './ToastProviderContext';
-import { globalToastEmitter, PromiseToastOptions } from '../globalToast';
+import type { GlobalPromiseToastOptions } from '../globalToast';
 import { generateId } from '../../utils/generateId';
 import { resolvePromiseContent } from '../utils/resolvePromiseContent';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useToast } from '../useToast';
 import { useLatestRef } from '../../utils/useLatestRef';
-import { ownerDocument } from '../../utils/owner';
+import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { isFocusVisible } from '../utils/focusVisible';
+import { Manager } from '../Manager';
 
 interface TimerInfo {
   timeoutId?: ReturnType<typeof setTimeout>;
@@ -26,7 +27,7 @@ interface TimerInfo {
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
 const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
-  const { children, timeout = 5000, limit = 3 } = props;
+  const { children, timeout = 5000, limit = 3, globalManager } = props;
 
   const [toasts, setToasts] = React.useState<Toast[]>([]);
   const [hovering, setHovering] = React.useState(false);
@@ -45,6 +46,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   const timersRef = React.useRef(new Map<string, TimerInfo>());
   const prevFocusRef = React.useRef<HTMLElement | null>(null);
   const viewportRef = React.useRef<HTMLElement | null>(null);
+  const windowFocusedRef = React.useRef(true);
 
   const hoveringRef = useLatestRef(hovering);
   const focusedRef = useLatestRef(focused);
@@ -128,11 +130,25 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
   const scheduleTimer = useEventCallback((id: string, delay: number, callback: () => void) => {
     const start = Date.now();
-    const timeoutId = setTimeout(() => {
-      timersRef.current.delete(id);
-      callback();
-    }, delay);
-    timersRef.current.set(id, { timeoutId, start, delay, remaining: delay, callback });
+
+    // Only set up an active timer if the window is focused and not hovering/focused on toasts
+    const shouldStartActive =
+      windowFocusedRef.current && !hoveringRef.current && !focusedRef.current;
+
+    const timeoutId = shouldStartActive
+      ? setTimeout(() => {
+          timersRef.current.delete(id);
+          callback();
+        }, delay)
+      : undefined;
+
+    timersRef.current.set(id, {
+      timeoutId,
+      start: shouldStartActive ? start : 0,
+      delay,
+      remaining: delay,
+      callback,
+    });
   });
 
   const add = useEventCallback((toast: useToast.AddOptions): string => {
@@ -177,7 +193,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     // Wait for focus to potentially leave the viewport due to
     // a removal occurring at the same time
     setTimeout(() => {
-      if (hoveringRef.current || focusedRef.current) {
+      if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
         pauseTimers();
       }
     });
@@ -190,7 +206,10 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   });
 
   const promise = React.useCallback(
-    <Value,>(promiseValue: Promise<Value>, options: PromiseToastOptions<Value>): Promise<Value> => {
+    <Value,>(
+      promiseValue: Promise<Value>,
+      options: GlobalPromiseToastOptions<Value>,
+    ): Promise<Value> => {
       // Create a loading toast (which does not auto-dismiss).
       const loadingContent = resolvePromiseContent(options.loading);
 
@@ -205,7 +224,6 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
         .then((result: Value) => {
           const successContent = resolvePromiseContent(options.success, result);
           update(id, {
-            ...options,
             title: successContent.title,
             description: successContent.description,
             type: 'success',
@@ -213,7 +231,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
           scheduleTimer(id, timeout, () => remove(id));
 
-          if (hoveringRef.current || focusedRef.current) {
+          if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
             pauseTimers();
           }
 
@@ -222,7 +240,6 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
         .catch((error) => {
           const errorContent = resolvePromiseContent(options.error, error);
           update(id, {
-            ...options,
             title: errorContent.title,
             description: errorContent.description,
             type: 'error',
@@ -230,18 +247,60 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
           scheduleTimer(id, timeout, () => remove(id));
 
-          if (hoveringRef.current || focusedRef.current) {
+          if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
             pauseTimers();
           }
 
           return Promise.reject(error);
         });
     },
-    [add, update, scheduleTimer, timeout, hoveringRef, focusedRef, remove, pauseTimers],
+    [
+      add,
+      update,
+      scheduleTimer,
+      timeout,
+      hoveringRef,
+      focusedRef,
+      windowFocusedRef,
+      remove,
+      pauseTimers,
+    ],
   );
 
   React.useEffect(() => {
-    const unsubscribe = globalToastEmitter.subscribe((toastOptions) => {
+    if (!viewportRef.current) {
+      return undefined;
+    }
+
+    const win = ownerWindow(viewportRef.current);
+
+    function handleWindowBlur() {
+      windowFocusedRef.current = false;
+      pauseTimers();
+    }
+
+    function handleWindowFocus() {
+      windowFocusedRef.current = true;
+      if (!hoveringRef.current && !focusedRef.current) {
+        resumeTimers();
+      }
+    }
+
+    win.addEventListener('blur', handleWindowBlur);
+    win.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      win.removeEventListener('blur', handleWindowBlur);
+      win.removeEventListener('focus', handleWindowFocus);
+    };
+  }, [pauseTimers, resumeTimers, hoveringRef, focusedRef]);
+
+  React.useEffect(() => {
+    if (!globalManager) {
+      return undefined;
+    }
+
+    const unsubscribe = globalManager.subscribe((toastOptions) => {
       const id = toastOptions.id;
 
       if (toastOptions.promise && id) {
@@ -258,7 +317,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     });
 
     return unsubscribe;
-  }, [add, update, remove, scheduleTimer, timeout]);
+  }, [add, update, remove, scheduleTimer, timeout, globalManager]);
 
   const contextValue: ToastContext = React.useMemo(
     () => ({
@@ -311,6 +370,10 @@ namespace ToastProvider {
      * @default 3
      */
     limit?: number;
+    /**
+     * A global manager for toasts to use outside of a React component.
+     */
+    globalManager?: Manager<any>;
   }
 }
 
@@ -323,6 +386,35 @@ ToastProvider.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   children: PropTypes.node,
+  /**
+   * A global manager for toasts to use outside of a React component.
+   */
+  globalManager: PropTypes.shape({
+    add: PropTypes.func.isRequired,
+    emit: PropTypes.func.isRequired,
+    lastEventId: PropTypes.string.isRequired,
+    listeners: PropTypes.arrayOf(PropTypes.func).isRequired,
+    promise: PropTypes.func.isRequired,
+    remove: PropTypes.func.isRequired,
+    subscribe: PropTypes.func.isRequired,
+    toasts: PropTypes.arrayOf(
+      PropTypes.shape({
+        actionProps: PropTypes.object,
+        animation: PropTypes.oneOf(['ending', 'starting']),
+        data: PropTypes.any,
+        description: PropTypes.string,
+        height: PropTypes.number,
+        id: PropTypes.string.isRequired,
+        onRemove: PropTypes.func,
+        onRemoveComplete: PropTypes.func,
+        priority: PropTypes.oneOf(['high', 'low']),
+        timeout: PropTypes.number,
+        title: PropTypes.string.isRequired,
+        type: PropTypes.string,
+      }),
+    ).isRequired,
+    update: PropTypes.func.isRequired,
+  }),
   /**
    * The maximum number of toasts that can be displayed at once.
    * When the limit is reached, the oldest toast will be removed to make room for the new one.

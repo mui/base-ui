@@ -17,7 +17,7 @@ const state = {};
  */
 const ToastClose = React.forwardRef(function ToastClose(
   props: ToastClose.Props,
-  ref: React.ForwardedRef<HTMLButtonElement>,
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, ...other } = props;
 
@@ -26,7 +26,7 @@ const ToastClose = React.forwardRef(function ToastClose(
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
-    ref,
+    ref: forwardedRef,
     className,
     state,
     extraProps: mergeReactProps<'button'>(other, {

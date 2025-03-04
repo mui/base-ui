@@ -101,12 +101,16 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     setHeights();
-    const resizeObserver = new ResizeObserver(setHeights);
 
-    resizeObserver.observe(rootRef.current);
-    return () => {
-      resizeObserver.disconnect();
-    };
+    if (typeof ResizeObserver === 'function') {
+      const resizeObserver = new ResizeObserver(setHeights);
+      resizeObserver.observe(rootRef.current);
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }
+
+    return undefined;
   }, [toast.id, setToasts]);
 
   // Calculate offset based on heights of previous toasts
