@@ -35,9 +35,14 @@ const ToastContent = React.forwardRef(function ToastContent(
   });
 
   React.useEffect(() => {
-    const timeout = setTimeout(() => {
-      setRenderChildren(true);
-    });
+    const timeout = setTimeout(
+      () => {
+        setRenderChildren(true);
+      },
+      // macOS Safari needs some time to pass after the status node has been
+      // created before changing its text content to reliably announce the toast
+      50,
+    );
     return () => clearTimeout(timeout);
   }, []);
 
