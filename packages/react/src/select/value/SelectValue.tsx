@@ -5,7 +5,7 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 
 /**
  * A text label of the currently selected item.

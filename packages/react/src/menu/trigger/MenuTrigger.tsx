@@ -6,7 +6,7 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 
 /**
  * A button that opens the menu.

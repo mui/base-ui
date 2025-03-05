@@ -8,7 +8,7 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 
 /**
  * Displays an element positioned against the preview card anchor.

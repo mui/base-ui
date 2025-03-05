@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { clamp } from '../../utils/clamp';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { MIN_THUMB_SIZE } from '../constants';

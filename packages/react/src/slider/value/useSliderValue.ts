@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { formatNumber } from '../../utils/formatNumber';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
 export function useSliderValue(parameters: useSliderValue.Parameters): useSliderValue.ReturnValue {

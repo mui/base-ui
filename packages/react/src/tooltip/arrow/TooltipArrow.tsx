@@ -7,7 +7,7 @@ import { useTooltipPositionerContext } from '../positioner/TooltipPositionerCont
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 
 /**
  * Displays an element positioned against the tooltip anchor.

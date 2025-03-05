@@ -17,7 +17,7 @@ import { OPEN_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import {
   translateOpenChangeReason,

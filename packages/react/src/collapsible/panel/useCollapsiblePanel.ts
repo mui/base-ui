@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { hasComputedStyleMapSupport } from '../../utils/hasComputedStyleMapSupport';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { ownerWindow } from '../../utils/owner';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';

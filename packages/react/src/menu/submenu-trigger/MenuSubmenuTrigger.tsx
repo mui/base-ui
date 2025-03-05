@@ -10,7 +10,7 @@ import { useMenuSubmenuTrigger } from './useMenuSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 
 /**
  * A menu item that opens a submenu.

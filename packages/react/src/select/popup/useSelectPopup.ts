@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { ownerDocument, ownerWindow } from '../../utils/owner';

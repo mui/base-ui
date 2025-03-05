@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { getOffset } from '../utils/getOffset';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';

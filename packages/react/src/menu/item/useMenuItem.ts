@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../use-button';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps, BaseUIEvent } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 

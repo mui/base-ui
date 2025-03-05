@@ -2,7 +2,7 @@ import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
 import type { GenericHTMLProps } from '../../utils/types';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';

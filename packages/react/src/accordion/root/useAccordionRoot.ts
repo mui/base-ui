@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useControlled } from '../../utils/useControlled';
 import { ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT } from '../../composite/composite';
 

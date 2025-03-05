@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useMenuItem } from '../item/useMenuItem';
 import { GenericHTMLProps } from '../../utils/types';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 
 export function useMenuRadioItem(
   params: useMenuRadioItem.Parameters,

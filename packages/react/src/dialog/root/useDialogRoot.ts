@@ -16,7 +16,7 @@ import { useTransitionStatus, type TransitionStatus } from '../../utils/useTrans
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import {
   type OpenChangeReason,

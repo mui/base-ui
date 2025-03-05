@@ -4,7 +4,7 @@ import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 

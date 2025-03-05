@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';

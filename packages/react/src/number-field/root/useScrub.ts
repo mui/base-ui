@@ -8,7 +8,7 @@ import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewp
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { isWebKit } from '../../utils/detectBrowser';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import type { useNumberFieldRoot } from './useNumberFieldRoot';
 import { NumberFieldRootDataAttributes } from './NumberFieldRootDataAttributes';
 import { useEventCallback } from '../../utils/useEventCallback';

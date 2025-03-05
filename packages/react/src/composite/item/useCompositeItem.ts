@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useCompositeRootContext } from '../root/CompositeRootContext';
 import { useCompositeListItem } from '../list/useCompositeListItem';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 
 export interface UseCompositeItemParameters<Metadata> {
   metadata?: Metadata;

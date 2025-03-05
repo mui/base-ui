@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';

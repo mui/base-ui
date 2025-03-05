@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';

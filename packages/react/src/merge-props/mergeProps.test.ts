@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { mergeProps } from './mergeProps';
-import type { BaseUIEvent } from './types';
+import { mergeProps } from '@base-ui-components/react/merge-props';
+import type { BaseUIEvent } from '../utils/types';
 
 describe('mergeProps', () => {
   it('merges event handlers', () => {

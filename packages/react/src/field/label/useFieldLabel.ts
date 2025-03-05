@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useFieldRootContext } from '../root/FieldRootContext';
 
 export function useFieldLabel() {

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../utils/mergeProps';
+import { mergeProps } from '../merge-props';
 import { useControlled } from '../utils/useControlled';
 import { useEventCallback } from '../utils/useEventCallback';
 import type { GenericHTMLProps } from '../utils/types';

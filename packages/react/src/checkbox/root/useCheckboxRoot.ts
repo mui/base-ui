@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';

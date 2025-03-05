@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { formatNumber } from '../../utils/formatNumber';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useLatestRef } from '../../utils/useLatestRef';
 
 export type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';

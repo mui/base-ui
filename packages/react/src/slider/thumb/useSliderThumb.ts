@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { formatNumber } from '../../utils/formatNumber';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { visuallyHidden } from '../../utils/visuallyHidden';

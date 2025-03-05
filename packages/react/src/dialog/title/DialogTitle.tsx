@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';

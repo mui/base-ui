@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useButton } from '../../use-button';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import type { SelectRootContext } from '../root/SelectRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectIndexContext } from '../root/SelectIndexContext';

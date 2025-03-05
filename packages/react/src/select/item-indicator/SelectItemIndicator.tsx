@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSelectItemContext } from '../item/SelectItemContext';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useForkRef } from '../../utils/useForkRef';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';

@@ -12,7 +12,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 

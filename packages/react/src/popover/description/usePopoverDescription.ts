@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 

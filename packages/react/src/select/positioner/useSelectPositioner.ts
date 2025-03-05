@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
 import { Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 

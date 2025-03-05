@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../utils/noop';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { BaseUIComponentProps } from '../../utils/types';

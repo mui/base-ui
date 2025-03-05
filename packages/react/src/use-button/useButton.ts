@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useForkRef } from '../utils/useForkRef';
-import { makeEventPreventable, mergeProps } from '../utils/mergeProps';
+import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRootElementName } from '../utils/useRootElementName';
 import { BaseUIEvent, GenericHTMLProps } from '../utils/types';

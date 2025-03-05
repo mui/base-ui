@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import type { GenericHTMLProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { InteractionType } from '../../utils/useEnhancedClickHandler';

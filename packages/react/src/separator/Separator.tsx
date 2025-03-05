@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../utils/types';
-import { mergeProps } from '../utils/mergeProps';
+import { mergeProps } from '../merge-props';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 
 /**

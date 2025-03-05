@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import type { GenericHTMLProps } from '../../utils/types';
 
 export function usePreviewCardPopup(

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldsetRootContext } from '../root/FieldsetRootContext';

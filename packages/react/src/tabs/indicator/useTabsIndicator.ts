@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { TabsListContext } from '../list/TabsListContext';
 import type { TabsRootContext } from '../root/TabsRootContext';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';

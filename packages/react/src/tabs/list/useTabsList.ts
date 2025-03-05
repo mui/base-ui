@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { TabsRootContext } from '../root/TabsRootContext';
 import { type TabsOrientation, type TabActivationDirection } from '../root/TabsRoot';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';

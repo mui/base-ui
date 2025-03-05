@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { GenericHTMLProps } from '../../utils/types';

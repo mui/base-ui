@@ -11,7 +11,7 @@ import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 
 const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuCheckboxItemProps,

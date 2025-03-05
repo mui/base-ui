@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import {

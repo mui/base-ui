@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 
 export function useFieldsetRoot() {
   const [legendId, setLegendId] = React.useState<string | undefined>(undefined);

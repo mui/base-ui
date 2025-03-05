@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useMenuItem } from '../item/useMenuItem';
 import { useControlled } from '../../utils/useControlled';
 import { GenericHTMLProps } from '../../utils/types';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 
 export function useMenuCheckboxItem(
   params: useMenuCheckboxItem.Parameters,

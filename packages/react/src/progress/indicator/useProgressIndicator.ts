@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { valueToPercent } from '../../utils/valueToPercent';
 
 function useProgressIndicator(

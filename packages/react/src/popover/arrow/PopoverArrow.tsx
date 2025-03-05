@@ -8,7 +8,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 
 /**
  * Displays an element positioned against the popover anchor.

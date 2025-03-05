@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { SCROLL_TIMEOUT } from '../constants';
 import { getOffset } from '../utils/getOffset';

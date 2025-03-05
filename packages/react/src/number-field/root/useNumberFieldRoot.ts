@@ -19,7 +19,7 @@ import {
   TOUCH_TIMEOUT,
 } from '../utils/constants';
 import { isIOS } from '../../utils/detectBrowser';
-import { mergeProps } from '../../utils/mergeProps';
+import { mergeProps } from '../../merge-props';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';

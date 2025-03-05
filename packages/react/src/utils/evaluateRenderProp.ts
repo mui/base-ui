@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from './types';
-import { mergeProps } from './mergeProps';
+import { mergeProps } from '../merge-props';
 
 export function evaluateRenderProp<ElementType extends React.ElementType, State>(
   render: BaseUIComponentProps<ElementType, State>['render'],

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
-import { mergeProps } from '../utils/mergeProps';
+import { mergeProps } from '../merge-props';
 import { useControlled } from '../utils/useControlled';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { useBaseUiId } from '../utils/useBaseUiId';
