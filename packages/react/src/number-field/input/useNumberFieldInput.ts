@@ -6,6 +6,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { InputMode } from '../root/useNumberFieldRoot';
 import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useForkRef } from '../../utils/useForkRef';
 
 export function useNumberFieldInput(
   params: useNumberFieldInput.Parameters,
@@ -32,14 +33,21 @@ export function useNumberFieldInput(
     allowInputSyncRef,
     setInputValue,
     locale,
+    inputRef: externalInputRef,
   } = params;
 
   const { labelId, validationMode, setTouched, setFocused } = useFieldRootContext();
 
-  const { getInputValidationProps, getValidationProps, commitValidation } =
-    useFieldControlValidation();
+  const {
+    getInputValidationProps,
+    getValidationProps,
+    commitValidation,
+    inputRef: inputValidationRef,
+  } = useFieldControlValidation();
 
   const hasTouchedInputRef = React.useRef(false);
+
+  const handleInputRef = useForkRef(externalInputRef, inputValidationRef, mergedRef);
 
   const getInputProps = React.useCallback(
     (externalProps = {}) =>
@@ -52,7 +60,7 @@ export function useNumberFieldInput(
         readOnly,
         inputMode,
         value: inputValue,
-        ref: mergedRef,
+        ref: handleInputRef,
         type: 'text',
         autoComplete: 'off',
         autoCorrect: 'off',
@@ -248,7 +256,6 @@ export function useNumberFieldInput(
       readOnly,
       inputMode,
       inputValue,
-      mergedRef,
       invalid,
       labelId,
       setFocused,
@@ -266,6 +273,7 @@ export function useNumberFieldInput(
       setInputValue,
       allowInputSyncRef,
       locale,
+      handleInputRef,
     ],
   );
 
@@ -305,6 +313,7 @@ export namespace useNumberFieldInput {
     allowInputSyncRef: React.RefObject<boolean | null>;
     setInputValue: React.Dispatch<React.SetStateAction<string>>;
     locale?: Intl.LocalesArgument;
+    inputRef: React.Ref<HTMLInputElement>;
   }
 
   export interface ReturnValue {
