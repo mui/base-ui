@@ -1,0 +1,24 @@
+{
+  "name": "CompositeList",
+  "description": "Provides context for a list of items in a composite component.",
+  "props": {
+    "elementsRef": {
+      "type": "React.RefObject",
+      "required": true,
+      "description": "A ref to the list of HTML elements, ordered by their index.\n`useListNavigation`'s `listRef` prop."
+    },
+    "labelsRef": {
+      "type": "React.RefObject",
+      "description": "A ref to the list of element labels, ordered by their index.\n`useTypeahead`'s `listRef` prop."
+    },
+    "onMapChange": {
+      "type": "function"
+    },
+    "children": {
+      "type": "ReactNode",
+      "required": true
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

@@ -2,23 +2,27 @@
   "name": "PopoverPositioner",
   "description": "Positions the popover against the trigger.\nRenders a `<div>` element.",
   "props": {
+    "open": {
+      "type": "boolean",
+      "description": "Whether the popup is currently open."
+    },
     "align": {
-      "type": "'start' | 'center' | 'end'",
+      "type": "\"center\" | \"end\" | \"start\"",
       "default": "'center'",
       "description": "How to align the popup relative to the specified side."
     },
     "alignOffset": {
-      "type": "number | (data) => number",
+      "type": "number | ((data: { side, align, anchor, positioner }) => number)",
       "default": "0",
       "description": "Additional offset along the alignment axis in pixels.\nAlso accepts a function that returns the offset to read the dimensions of the anchor\nand positioner elements, along with its side and alignment.\n\n- `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n- `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.\n- `data.side`: which side of the anchor element the positioner is aligned against.\n- `data.align`: how the positioner is aligned relative to the specified side."
     },
     "side": {
-      "type": "'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
+      "type": "\"left\" | \"right\" | \"bottom\" | \"top\" | \"inline-end\" | \"inline-start\"",
       "default": "'bottom'",
       "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions."
     },
     "sideOffset": {
-      "type": "number | (data) => number",
+      "type": "number | ((data: { side, align, anchor, positioner }) => number)",
       "default": "0",
       "description": "Distance between the anchor and the popup in pixels.\nAlso accepts a function that returns the distance to read the dimensions of the anchor\nand positioner elements, along with its side and alignment.\n\n- `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n- `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.\n- `data.side`: which side of the anchor element the positioner is aligned against.\n- `data.align`: how the positioner is aligned relative to the specified side."
     },
@@ -28,16 +32,16 @@
       "description": "Minimum distance to maintain between the arrow and the edges of the popup.\n\nUse it to prevent the arrow element from hanging out of the rounded corners of a popup."
     },
     "anchor": {
-      "type": "React.Ref | Element | VirtualElement | (() => Element | VirtualElement | null) | null",
+      "type": "null | Element | React.RefObject | \"D:/Development/MUI/base-ui/node_modules/.pnpm/@floating-ui+dom@1.6.12/node_modules/@floating-ui/dom/dist/floating-ui.dom\".VirtualElement | (() => null | Element | \"D:/Development/MUI/base-ui/node_modules/.pnpm/@floating-ui+dom@1.6.12/node_modules/@floating-ui/dom/dist/floating-ui.dom\".VirtualElement)",
       "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
     },
     "collisionBoundary": {
-      "type": "'clipping-ancestors' | Element | Element[] | Rect",
+      "type": "Element | \"clipping-ancestors\" | Array | __type",
       "default": "'clipping-ancestors'",
       "description": "An element or a rectangle that delimits the area that the popup is confined to."
     },
     "collisionPadding": {
-      "type": "number | Rect",
+      "type": "number | __type",
       "default": "5",
       "description": "Additional space to maintain from the edge of the collision boundary."
     },
@@ -47,7 +51,7 @@
       "description": "Whether to maintain the popup in the viewport after\nthe anchor element was scrolled out of view."
     },
     "positionMethod": {
-      "type": "'absolute' | 'fixed'",
+      "type": "\"fixed\" | \"absolute\"",
       "default": "'absolute'",
       "description": "Determines which CSS `position` property to use."
     },
@@ -57,11 +61,11 @@
       "description": "Whether the popup tracks any layout shift of its positioning anchor."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: { open, side, align, anchorHidden }) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "React.ReactElement | ((props: unknown, state: { open, side, align, anchorHidden }) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
@@ -76,30 +80,24 @@
       "description": "Present when the anchor is hidden."
     },
     "data-side": {
-      "description": "Indicates which side the popup is positioned relative to the trigger.",
-      "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
+      "description": "Indicates which side the popup is positioned relative to the trigger."
     }
   },
   "cssVariables": {
     "--anchor-height": {
-      "description": "The anchor's height.",
-      "type": "number"
+      "description": "The anchor's height."
     },
     "--anchor-width": {
-      "description": "The anchor's width.",
-      "type": "number"
+      "description": "The anchor's width."
     },
     "--available-height": {
-      "description": "The available height between the trigger and the edge of the viewport.",
-      "type": "number"
+      "description": "The available height between the trigger and the edge of the viewport."
     },
     "--available-width": {
-      "description": "The available width between the trigger and the edge of the viewport.",
-      "type": "number"
+      "description": "The available width between the trigger and the edge of the viewport."
     },
     "--transform-origin": {
-      "description": "The coordinates that this element is anchored to. Used for animations and transitions.",
-      "type": "string"
+      "description": "The coordinates that this element is anchored to. Used for animations and transitions."
     }
   }
 }

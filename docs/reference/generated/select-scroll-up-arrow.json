@@ -3,7 +3,7 @@
   "description": "An element that scrolls the select menu down when hovered.\nRenders a `<div>` element.",
   "props": {
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: unknown) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
@@ -12,18 +12,16 @@
       "description": "Whether to keep the HTML element in the DOM while the select menu is not scrollable."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "React.ReactElement | ((props: unknown, state: unknown) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
   "dataAttributes": {
     "data-direction": {
-      "description": "Indicates the direction of the arrow.",
-      "type": "'up'"
+      "description": "Indicates the direction of the arrow."
     },
     "data-side": {
-      "description": "Indicates which side the arrow is positioned relative to the select.",
-      "type": "'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
+      "description": "Indicates which side the arrow is positioned relative to the select."
     },
     "data-visible": {
       "description": "Present when the arrow is visible."

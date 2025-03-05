@@ -1,0 +1,34 @@
+{
+  "name": "SelectScrollArrow",
+  "props": {
+    "direction": {
+      "type": "\"up\" | \"down\"",
+      "required": true
+    },
+    "className": {
+      "type": "string | ((state: { direction, visible, side, transitionStatus }) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to keep the HTML element in the DOM while the select menu is not scrollable."
+    },
+    "render": {
+      "type": "React.ReactElement | ((props: unknown, state: { direction, visible, side, transitionStatus }) => React.ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-direction": {
+      "description": "Indicates the direction of the arrow."
+    },
+    "data-side": {
+      "description": "Indicates which side the arrow is positioned relative to the select."
+    },
+    "data-visible": {
+      "description": "Present when the arrow is visible."
+    }
+  },
+  "cssVariables": {}
+}

@@ -11,16 +11,16 @@
       "description": "The uncontrolled value of the field when it’s initially rendered.\n\nTo render a controlled number field, use the `value` prop instead."
     },
     "value": {
-      "type": "number",
+      "type": "null | number",
       "description": "The raw numeric value of the field."
     },
     "onValueChange": {
-      "type": "(value, event) => void",
+      "type": "((value: null | number, event: Event | undefined) => void)",
       "description": "Callback fired when the number value changes."
     },
     "locale": {
-      "type": "Intl.LocalesArgument",
-      "description": "The locale of the input element.\nDefaults to the user's runtime locale."
+      "type": "LocalesArgument",
+      "required": true
     },
     "step": {
       "type": "number",
@@ -84,11 +84,11 @@
       "description": "The id of the input element."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: { value, inputValue, required, disabled, invalid, readOnly, scrubbing, touched, dirty, valid, filled, focused }) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "React.ReactElement | ((props: unknown, state: { value, inputValue, required, disabled, invalid, readOnly, scrubbing, touched, dirty, valid, filled, focused }) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

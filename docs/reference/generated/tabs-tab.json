@@ -7,11 +7,11 @@
       "description": "The value of the Tab.\nWhen not specified, the value is the child position index."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: { disabled, selected, orientation }) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "React.ReactElement | ((props: unknown, state: { disabled, selected, orientation }) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
@@ -23,15 +23,13 @@
       "description": "Present when the tab is highlighted."
     },
     "data-orientation": {
-      "description": "Indicates the orientation of the tabs.",
-      "type": "'horizontal' | 'vertical'"
+      "description": "Indicates the orientation of the tabs."
     },
     "data-disabled": {
       "description": "Present when the tab is disabled."
     },
     "data-activation-direction": {
-      "description": "Indicates the direction of the activation (based on the previous selected tab).",
-      "type": "'left' | 'right' | 'up' | 'down' | 'none'"
+      "description": "Indicates the direction of the activation (based on the previous selected tab)."
     }
   },
   "cssVariables": {}

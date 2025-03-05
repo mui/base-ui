@@ -7,16 +7,16 @@
       "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
-      "type": "any",
+      "type": "null | any",
       "default": "null",
       "description": "The uncontrolled value of the select when it’s initially rendered.\n\nTo render a controlled select, use the `value` prop instead."
     },
     "value": {
-      "type": "any",
+      "type": "null | any",
       "description": "The value of the select."
     },
     "onValueChange": {
-      "type": "(value, event) => void",
+      "type": "function",
       "description": "Callback fired when the value of the select changes. Use when controlled."
     },
     "defaultOpen": {
@@ -29,11 +29,11 @@
       "description": "Whether the select menu is currently open."
     },
     "onOpenChange": {
-      "type": "(open, event) => void",
+      "type": "function",
       "description": "Event handler called when the select menu is opened or closed."
     },
     "actionsRef": {
-      "type": "{ current: { unmount: func } }",
+      "type": "React.RefObject",
       "description": "A ref to imperative actions."
     },
     "alignItemToTrigger": {
@@ -47,8 +47,12 @@
       "description": "Whether the select should prevent outside clicks and lock page scroll when open."
     },
     "onOpenChangeComplete": {
-      "type": "(open) => void",
+      "type": "function",
       "description": "Event handler called after any animations complete when the select menu is opened or closed."
+    },
+    "transitionStatus": {
+      "type": "\"starting\" | \"ending\"",
+      "description": "The transition status of the Select."
     },
     "disabled": {
       "type": "boolean",
@@ -64,6 +68,14 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the user must choose a value before submitting a form."
+    },
+    "id": {
+      "type": "string",
+      "description": "The id of the Select."
+    },
+    "children": {
+      "type": "ReactNode",
+      "required": true
     }
   },
   "dataAttributes": {},

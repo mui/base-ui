@@ -2,21 +2,26 @@
   "name": "AccordionItem",
   "description": "Groups an accordion header with the corresponding panel.\nRenders a `<div>` element.",
   "props": {
+    "value": {
+      "type": "any"
+    },
     "onOpenChange": {
-      "type": "(open) => void",
+      "type": "((open: boolean) => void) | undefined",
+      "required": true,
       "description": "Event handler called when the panel is opened or closed."
     },
     "disabled": {
-      "type": "boolean",
+      "type": "boolean | undefined",
       "default": "false",
+      "required": true,
       "description": "Whether the component should ignore user interaction."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: { index, open, transitionStatus, value, disabled, orientation }) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "React.ReactElement | ((props: unknown, state: { index, open, transitionStatus, value, disabled, orientation }) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
@@ -28,8 +33,7 @@
       "description": "Present when the accordion item is disabled."
     },
     "data-index": {
-      "description": "Indicates the index of the accordion item.",
-      "type": "number"
+      "description": "Indicates the index of the accordion item."
     }
   },
   "cssVariables": {}
