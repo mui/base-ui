@@ -319,6 +319,7 @@ namespace ToastProvider {
     children?: React.ReactNode;
     /**
      * The default amount of time (in ms) before a toast is auto dismissed.
+     * A value of `0` will prevent the toast from being dismissed automatically.
      * @default 5000
      */
     timeout?: number;
@@ -352,6 +353,7 @@ ToastProvider.propTypes /* remove-proptypes */ = {
   limit: PropTypes.number,
   /**
    * The default amount of time (in ms) before a toast is auto dismissed.
+   * A value of `0` will prevent the toast from being dismissed automatically.
    * @default 5000
    */
   timeout: PropTypes.number,
