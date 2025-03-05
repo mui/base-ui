@@ -553,4 +553,84 @@ describe('<Select.Root />', () => {
       expect(onOpenChangeComplete.callCount).to.equal(0);
     });
   });
+
+  describe('prop: disabled', () => {
+    it('sets the disabled state', async () => {
+      const handleOpenChange = spy();
+      const { user } = await render(
+        <Select.Root defaultValue="b" onOpenChange={handleOpenChange} disabled>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).to.have.attribute('data-disabled');
+
+      await user.keyboard('[Tab]');
+
+      expect(expect(document.activeElement)).to.not.equal(trigger);
+
+      await user.click(trigger);
+      expect(handleOpenChange.callCount).to.equal(0);
+    });
+
+    it('updates the disabled state when the disabled prop changes', async () => {
+      const handleOpenChange = spy();
+      function App() {
+        const [disabled, setDisabled] = React.useState(true);
+        return (
+          <React.Fragment>
+            <button onClick={() => setDisabled(!disabled)}>toggle</button>
+            <Select.Root defaultValue="b" onOpenChange={handleOpenChange} disabled={disabled}>
+              <Select.Trigger>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>
+        );
+      }
+      const { user } = await render(<App />);
+
+      const trigger = screen.getByRole('combobox');
+      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).to.have.attribute('data-disabled');
+
+      await user.keyboard('[Tab]');
+
+      expect(expect(document.activeElement)).to.not.equal(trigger);
+
+      await user.click(trigger);
+      expect(handleOpenChange.callCount).to.equal(0);
+
+      await user.click(screen.getByRole('button', { name: 'toggle' }));
+
+      expect(trigger).to.not.have.attribute('aria-disabled');
+      expect(trigger).to.not.have.attribute('data-disabled');
+
+      await user.keyboard('[Tab]');
+      expect(trigger).toHaveFocus();
+
+      await user.click(trigger);
+      expect(handleOpenChange.callCount).to.equal(1);
+    });
+  });
 });
