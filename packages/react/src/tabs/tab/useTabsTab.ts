@@ -86,7 +86,7 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
       return mergeReactProps<'button'>(
-        mergeReactProps(getItemProps(), getButtonProps()),
+        mergeReactProps(getButtonProps(), getItemProps()),
         {
           role: 'tab',
           'aria-controls': tabPanelId,
