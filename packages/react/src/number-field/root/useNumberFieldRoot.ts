@@ -937,6 +937,8 @@ export namespace useNumberFieldRoot {
     inputValue: string;
     value: number | null;
     isScrubbing: boolean;
+    isTouchInput: boolean;
+    isPointerLockDenied: boolean;
     inputRef: ((instance: HTMLInputElement | null) => void) | null;
     scrubHandleRef: React.RefObject<ScrubHandle | null>;
     scrubAreaRef: React.RefObject<HTMLSpanElement | null>;
