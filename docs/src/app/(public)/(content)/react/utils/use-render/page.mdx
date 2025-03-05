@@ -47,7 +47,9 @@ Developers can also use the callback version of the `render` prop to access the 
 
 You can use the `mergeProp` utility to safely merge the props.
 It takes care of concatenating the class names, as well as merging the style prop and the event handlers.
-You can use it both in the `useRender` hook and the callback version of the render prop, e.g.
+It merges objects from left to right. Subsequent sources overwrite property assignments of previous sources.
+
+You can use it both in the `useRender` hook and the callback version of the render prop.
 
 ```jsx {7-7} title="Using mergeProps in the render callback"
 import { mergeProps } from '@base-ui-components/react/merge-props';
