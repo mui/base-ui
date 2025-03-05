@@ -543,6 +543,8 @@ export namespace useNumberFieldRoot {
     inputValue: string;
     value: number | null;
     isScrubbing: boolean;
+    isTouchInput: boolean;
+    isPointerLockDenied: boolean;
     scrubHandleRef: React.RefObject<ScrubHandle | null>;
     scrubAreaRef: React.RefObject<HTMLSpanElement | null>;
     scrubAreaCursorRef: React.RefObject<HTMLSpanElement | null>;
@@ -578,5 +580,6 @@ export namespace useNumberFieldRoot {
     min: number | undefined;
     max: number | undefined;
     setInputValue: React.Dispatch<React.SetStateAction<string>>;
+    locale?: Intl.LocalesArgument;
   }
 }

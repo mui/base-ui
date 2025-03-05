@@ -43,6 +43,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     state,
     valueRef,
     setInputValue,
+    locale,
   } = useNumberFieldRootContext();
 
   const { getInputProps } = useNumberFieldInput({
@@ -66,6 +67,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     setValue,
     valueRef,
     setInputValue,
+    locale,
   });
 
   const mergedInputRef = useForkRef(forwardedRef, mergedRef);

@@ -40,6 +40,7 @@ const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
     isPressedRef,
     intentionalTouchCheckTimeoutRef,
     movesAfterTouchRef,
+    locale,
   } = useNumberFieldRootContext();
 
   const { getCommonButtonProps } = useNumberFieldButton({
@@ -62,6 +63,7 @@ const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
     isPressedRef,
     intentionalTouchCheckTimeoutRef,
     movesAfterTouchRef,
+    locale,
   });
 
   const propGetter = React.useCallback(
