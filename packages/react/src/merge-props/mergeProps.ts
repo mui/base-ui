@@ -58,6 +58,10 @@ export function mergeProps<T extends React.ElementType>(
   return merged ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
 }
 
+namespace mergeProps {
+  export type Props<T extends React.ElementType> = React.ComponentPropsWithoutRef<T>;
+}
+
 function resolvePropsGetter<T extends React.ElementType>(
   propsOrPropsGetter: MergableProps<React.ElementType>,
   previousProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>>,
