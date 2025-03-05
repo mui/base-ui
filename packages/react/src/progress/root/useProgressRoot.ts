@@ -49,7 +49,7 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
 
   const getRootProps: useProgressRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeReactProps<'div'>(
         {
           'aria-label': getAriaLabel ? getAriaLabel(value) : ariaLabel,
           'aria-labelledby': ariaLabelledby,

@@ -27,7 +27,7 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(
+      return mergeReactProps<'div'>(
         {
           style: arrowStyles,
           'aria-hidden': true,

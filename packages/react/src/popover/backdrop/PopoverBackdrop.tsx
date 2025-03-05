@@ -42,7 +42,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     className,
     state,
     ref: forwardedRef,
-    extraProps: mergeReactProps(
+    extraProps: mergeReactProps<'div'>(
       {
         role: 'presentation',
         hidden: !mounted,

@@ -51,7 +51,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeReactProps<'div'>(
         {
           role: 'radiogroup',
           'aria-disabled': disabled || undefined,

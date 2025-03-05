@@ -180,7 +180,7 @@ export function useScrollAreaRoot() {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeReactProps<'div'>(
         {
           onPointerEnter: handlePointerEnterOrMove,
           onPointerMove: handlePointerEnterOrMove,

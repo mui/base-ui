@@ -42,7 +42,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
     className,
     state,
     ref: forwardedRef,
-    extraProps: mergeReactProps(
+    extraProps: mergeReactProps<'div'>(
       {
         role: 'presentation',
         hidden: !mounted,

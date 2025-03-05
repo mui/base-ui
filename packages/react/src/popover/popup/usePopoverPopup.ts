@@ -11,7 +11,7 @@ export function usePopoverPopup(params: usePopoverPopup.Parameters): usePopoverP
 
   const getPopupProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(
+      return mergeReactProps<'div'>(
         {
           'aria-labelledby': titleId,
           'aria-describedby': descriptionId,

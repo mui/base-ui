@@ -27,7 +27,7 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeReactProps<'div'>(
         {
           style: arrowStyles,
           'aria-hidden': true,

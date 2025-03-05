@@ -60,7 +60,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   const getScrollArrowProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeReactProps<'div'>(
         {
           'aria-hidden': true,
           children: direction === 'down' ? '▼' : '▲',

@@ -96,7 +96,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeReactProps<'div'>(
         {
           'aria-orientation': orientation === 'both' ? undefined : orientation,
           ref: mergedRef,

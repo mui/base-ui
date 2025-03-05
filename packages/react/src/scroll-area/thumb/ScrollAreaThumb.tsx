@@ -42,7 +42,7 @@ const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
     ref: mergedRef,
     className,
     state,
-    extraProps: mergeReactProps(
+    extraProps: mergeReactProps<'div'>(
       {
         onPointerDown: handlePointerDown,
         onPointerMove: handlePointerMove,

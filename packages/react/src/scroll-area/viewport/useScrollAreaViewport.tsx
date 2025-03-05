@@ -178,7 +178,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
   const getViewportProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeReactProps<'div'>(
         {
           ...(rootId && { 'data-id': `${rootId}-viewport` }),
           // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/

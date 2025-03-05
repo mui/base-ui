@@ -59,7 +59,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
   }, [id, setPopupElementId]);
 
   const getRootProps = (externalProps: React.HTMLAttributes<any>) =>
-    mergeReactProps(
+    mergeReactProps<'div'>(
       {
         'aria-labelledby': titleElementId ?? undefined,
         'aria-describedby': descriptionElementId ?? undefined,

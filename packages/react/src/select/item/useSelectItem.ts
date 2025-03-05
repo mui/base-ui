@@ -47,7 +47,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return getButtonProps(
-        mergeReactProps(
+        mergeReactProps<'div'>(
           {
             'aria-disabled': disabled || undefined,
             tabIndex: highlighted ? 0 : -1,

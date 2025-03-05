@@ -235,7 +235,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
   const getPopupProps: useSelectPopup.ReturnValue['getPopupProps'] = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(
+      return mergeReactProps<'div'>(
         {
           ['data-id' as string]: `${id}-popup`,
           onScroll(event) {

@@ -20,7 +20,7 @@ export function usePreviewCardPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps(
+        return mergeReactProps<'div'>(
           {
             role: 'presentation',
 

@@ -20,7 +20,7 @@ export function usePopoverPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps(
+        return mergeReactProps<'div'>(
           {
             role: 'presentation',
             hidden: !mounted,

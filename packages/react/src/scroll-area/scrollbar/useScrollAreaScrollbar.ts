@@ -76,7 +76,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
 
   const getScrollbarProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeReactProps<'div'>(
         {
           ...(rootId && { 'data-id': `${rootId}-scrollbar` }),
           onPointerDown(event) {

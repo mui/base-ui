@@ -41,7 +41,7 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
     className,
     state,
     ref: forwardedRef,
-    extraProps: mergeReactProps(
+    extraProps: mergeReactProps<'div'>(
       {
         role: 'presentation',
         hidden: !mounted,
