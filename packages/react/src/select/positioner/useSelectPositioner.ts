@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
 import { Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 
@@ -31,7 +31,7 @@ export function useSelectPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps<'div'>(
+        return mergeProps<'div'>(
           {
             role: 'presentation',
             hidden: !mounted,

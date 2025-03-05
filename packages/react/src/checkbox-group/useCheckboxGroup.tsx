@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import { mergeProps } from '../utils/mergeProps';
 import { useControlled } from '../utils/useControlled';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
@@ -34,7 +34,7 @@ export function useCheckboxGroup(
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(
+      mergeProps<'div'>(
         {
           role: 'group',
           'aria-labelledby': labelId,

@@ -8,7 +8,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 
 /**
  * Displays an element positioned against the popover anchor.
@@ -27,7 +27,7 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'div'>(
+      return mergeProps<'div'>(
         {
           style: arrowStyles,
           'aria-hidden': true,

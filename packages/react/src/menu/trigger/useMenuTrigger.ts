@@ -4,7 +4,7 @@ import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 
@@ -40,7 +40,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps(
+      return mergeProps(
         {
           'aria-haspopup': 'menu' as const,
           tabIndex: 0, // this is needed to make the button focused after click in Safari

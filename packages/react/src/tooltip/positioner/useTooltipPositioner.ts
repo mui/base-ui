@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
@@ -24,7 +24,7 @@ export function useTooltipPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps<'div'>(
+        return mergeProps<'div'>(
           {
             role: 'presentation',
             hidden: !mounted,

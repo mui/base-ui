@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldRootContext } from '../root/FieldRootContext';
@@ -68,7 +68,7 @@ export function useFieldControl(params: useFieldControl.Parameters) {
 
   const getControlProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(
+      mergeProps<'input'>(
         {
           id,
           disabled,

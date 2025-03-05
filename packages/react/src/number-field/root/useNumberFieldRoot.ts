@@ -19,7 +19,7 @@ import {
   TOUCH_TIMEOUT,
 } from '../utils/constants';
 import { isIOS } from '../../utils/detectBrowser';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -392,7 +392,7 @@ export function useNumberFieldRoot(
 
   const getGroupProps: useNumberFieldRoot.ReturnValue['getGroupProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeProps(
         {
           role: 'group',
         },
@@ -417,7 +417,7 @@ export function useNumberFieldRoot(
         }
       }
 
-      return mergeReactProps<'button'>(
+      return mergeProps<'button'>(
         {
           disabled: disabled || (isIncrement ? isMax : isMin),
           type: 'button',
@@ -570,7 +570,7 @@ export function useNumberFieldRoot(
 
   const getInputProps: useNumberFieldRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(
+      mergeProps<'input'>(
         {
           id,
           required,

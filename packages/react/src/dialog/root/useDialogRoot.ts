@@ -16,7 +16,7 @@ import { useTransitionStatus, type TransitionStatus } from '../../utils/useTrans
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import {
   type OpenChangeReason,
@@ -168,9 +168,9 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       transitionStatus,
       getTriggerProps: (externalProps?: React.HTMLProps<Element>) =>
         getReferenceProps(
-          mergeReactProps(
+          mergeProps(
             triggerProps,
-            mergeReactProps({ 'aria-controls': popupElementId }, externalProps),
+            mergeProps({ 'aria-controls': popupElementId }, externalProps),
           ),
         ),
       getPopupProps: getFloatingProps,

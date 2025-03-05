@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
 import { useForkRef } from '../../utils/useForkRef';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -80,7 +80,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
 
   const getButtonProps = React.useCallback(
     (otherProps = {}) =>
-      mergeReactProps<'button'>(
+      mergeProps<'button'>(
         {
           id,
           ref: buttonRef,
@@ -132,7 +132,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
 
   const getInputProps = React.useCallback(
     (otherProps = {}) =>
-      mergeReactProps<'input'>(
+      mergeProps<'input'>(
         {
           checked,
           disabled,

@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { SelectGroupContext } from './SelectGroupContext';
 
 const state = {};
@@ -24,7 +24,7 @@ const SelectGroup = React.forwardRef(function SelectGroup(
 
   const getSelectItemGroupProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeProps(
         {
           role: 'group',
           'aria-labelledby': labelId,

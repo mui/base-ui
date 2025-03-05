@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -91,7 +91,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
 
   const getButtonProps: useCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'button'>(
+      mergeProps<'button'>(
         {
           id,
           ref: buttonRef,
@@ -148,7 +148,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
 
   const getInputProps: useCheckboxRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(
+      mergeProps<'input'>(
         {
           checked,
           disabled,

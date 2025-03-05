@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import { mergeProps } from '../utils/mergeProps';
 import { NOOP } from '../utils/noop';
 import { GenericHTMLProps } from '../utils/types';
 import { useControlled } from '../utils/useControlled';
@@ -38,7 +38,7 @@ export function useToggle(parameters: useToggle.Parameters): useToggle.ReturnVal
 
   const getRootProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps(
+      return mergeProps(
         getButtonProps(),
         {
           'aria-pressed': pressed,

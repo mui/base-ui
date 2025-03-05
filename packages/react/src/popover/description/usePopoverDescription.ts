@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 
@@ -12,7 +12,7 @@ export function usePopoverDescription(
 
   const getDescriptionProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'p'>(
+      return mergeProps<'p'>(
         {
           id,
         },

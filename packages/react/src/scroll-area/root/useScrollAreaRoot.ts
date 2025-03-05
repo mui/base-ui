@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { SCROLL_TIMEOUT } from '../constants';
 import { getOffset } from '../utils/getOffset';
@@ -180,7 +180,7 @@ export function useScrollAreaRoot() {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(
+      mergeProps<'div'>(
         {
           onPointerEnter: handlePointerEnterOrMove,
           onPointerMove: handlePointerEnterOrMove,

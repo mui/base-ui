@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useProgressRootContext } from '../root/ProgressRootContext';
@@ -25,7 +25,7 @@ const ProgressValue = React.forwardRef(function ProgressValue(
     (externalProps = {}) => {
       const formattedValueArg = value == null ? 'indeterminate' : formattedValue;
       const formattedValueDisplay = value == null ? null : formattedValue;
-      return mergeReactProps(
+      return mergeProps(
         {
           'aria-hidden': true,
           children:

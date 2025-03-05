@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { useFieldRootContext } from '../root/FieldRootContext';
 
 export function useFieldLabel() {
@@ -8,7 +8,7 @@ export function useFieldLabel() {
 
   const getLabelProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'label'>(
+      mergeProps<'label'>(
         {
           id: labelId,
           htmlFor: controlId,

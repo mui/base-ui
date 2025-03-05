@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { clamp } from '../../utils/clamp';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { MIN_THUMB_SIZE } from '../constants';
@@ -178,7 +178,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
   const getViewportProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(
+      mergeProps<'div'>(
         {
           ...(rootId && { 'data-id': `${rootId}-viewport` }),
           // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/

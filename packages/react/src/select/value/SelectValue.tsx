@@ -5,7 +5,7 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 
 /**
  * A text label of the currently selected item.
@@ -27,7 +27,7 @@ const SelectValue = React.forwardRef(function SelectValue(
 
   const getValueProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeProps(
         {
           children: typeof children === 'function' ? children(label) : label || placeholder,
         },

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../utils/types';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import { mergeProps } from '../utils/mergeProps';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 
 /**
@@ -21,7 +21,7 @@ const Separator = React.forwardRef(function SeparatorComponent(
 
   const getSeparatorProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeProps(
         {
           'aria-orientation': orientation,
         },

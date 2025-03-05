@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { GenericHTMLProps } from '../../utils/types';
@@ -12,7 +12,7 @@ export function usePopoverTitle(params: usePopoverTitle.Parameters): usePopoverT
 
   const getTitleProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'h2'>(
+      return mergeProps<'h2'>(
         {
           id,
         },

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
@@ -54,7 +54,7 @@ export function useSliderIndicator(
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(
+      return mergeProps(
         {
           style: internalStyles,
         },

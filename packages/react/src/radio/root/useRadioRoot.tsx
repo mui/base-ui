@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -38,7 +38,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
 
   const getRootProps: useRadioRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps) =>
-      mergeReactProps<'button'>(
+      mergeProps<'button'>(
         {
           role: 'radio',
           type: 'button',
@@ -80,7 +80,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
 
   const getInputProps: useRadioRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps) =>
-      mergeReactProps<'input'>(
+      mergeProps<'input'>(
         {
           type: 'radio',
           ref: inputRef,

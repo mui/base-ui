@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../utils/types';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import { mergeProps } from '../utils/mergeProps';
 import { FormContext } from './FormContext';
 import { useEventCallback } from '../utils/useEventCallback';
 
@@ -36,7 +36,7 @@ const Form = React.forwardRef(function Form(
 
   const getFormProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'form'>(
+      mergeProps<'form'>(
         {
           noValidate: true,
           onSubmit(event) {

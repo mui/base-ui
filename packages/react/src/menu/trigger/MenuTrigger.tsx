@@ -6,7 +6,7 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 
 /**
  * A button that opens the menu.
@@ -44,7 +44,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const propGetter = React.useCallback(
     (externalProps: GenericHTMLProps) =>
-      mergeReactProps(rootTriggerProps, externalProps, getTriggerProps),
+      mergeProps(rootTriggerProps, externalProps, getTriggerProps),
     [getTriggerProps, rootTriggerProps],
   );
 

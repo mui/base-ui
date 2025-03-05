@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useMenuItem } from '../item/useMenuItem';
 import { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 
 export function useMenuRadioItem(
   params: useMenuRadioItem.Parameters,
@@ -12,7 +12,7 @@ export function useMenuRadioItem(
 
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps(
+      return mergeProps(
         {
           role: 'menuitemradio',
           'aria-checked': checked,

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { TabsListContext } from '../list/TabsListContext';
 import type { TabsRootContext } from '../root/TabsRootContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
@@ -113,7 +113,7 @@ export function useTabsIndicator(
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'span'>(
+      return mergeProps<'span'>(
         {
           role: 'presentation',
           style,

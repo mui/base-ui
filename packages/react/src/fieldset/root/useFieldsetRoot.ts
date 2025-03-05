@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 
 export function useFieldsetRoot() {
   const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeProps(
         {
           'aria-labelledby': legendId,
         },

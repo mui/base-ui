@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { getOffset } from '../utils/getOffset';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
@@ -76,7 +76,7 @@ export function useScrollAreaScrollbar(params: useScrollAreaScrollbar.Parameters
 
   const getScrollbarProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(
+      mergeProps<'div'>(
         {
           ...(rootId && { 'data-id': `${rootId}-scrollbar` }),
           onPointerDown(event) {

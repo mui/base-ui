@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { ownerDocument } from '../../utils/owner';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
@@ -85,8 +85,8 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'button'>(
-        mergeReactProps(getButtonProps(), getItemProps()),
+      return mergeProps<'button'>(
+        mergeProps(getButtonProps(), getItemProps()),
         {
           role: 'tab',
           'aria-controls': tabPanelId,

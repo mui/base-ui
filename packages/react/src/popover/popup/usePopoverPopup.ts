@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import type { GenericHTMLProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { InteractionType } from '../../utils/useEnhancedClickHandler';
@@ -11,7 +11,7 @@ export function usePopoverPopup(params: usePopoverPopup.Parameters): usePopoverP
 
   const getPopupProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'div'>(
+      return mergeProps<'div'>(
         {
           'aria-labelledby': titleId,
           'aria-describedby': descriptionId,

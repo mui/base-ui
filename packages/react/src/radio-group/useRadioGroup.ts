@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import { mergeProps } from '../utils/mergeProps';
 import { useControlled } from '../utils/useControlled';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { useBaseUiId } from '../utils/useBaseUiId';
@@ -51,7 +51,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(
+      mergeProps<'div'>(
         {
           role: 'radiogroup',
           'aria-disabled': disabled || undefined,
@@ -104,7 +104,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
 
   const getInputProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(
+      mergeProps<'input'>(
         {
           value: serializedCheckedValue,
           ref: fieldControlValidation.inputRef,

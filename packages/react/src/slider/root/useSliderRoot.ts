@@ -3,7 +3,7 @@ import * as React from 'react';
 import { activeElement } from '@floating-ui/react/utils';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { clamp } from '../../utils/clamp';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import { ownerDocument } from '../../utils/owner';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useControlled } from '../../utils/useControlled';
@@ -410,7 +410,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const getRootProps: useSliderRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeProps(
         {
           'aria-labelledby': ariaLabelledby,
           id,

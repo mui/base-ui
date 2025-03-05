@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { formatNumber } from '../../utils/formatNumber';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../utils/mergeProps';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
 export function useSliderValue(parameters: useSliderValue.Parameters): useSliderValue.ReturnValue {
@@ -27,7 +27,7 @@ export function useSliderValue(parameters: useSliderValue.Parameters): useSlider
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(
+      return mergeProps(
         {
           // off by default because it will keep announcing when the slider is being dragged
           // and also when the value is changing (but not yet committed)
