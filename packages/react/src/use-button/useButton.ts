@@ -103,8 +103,6 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       } = externalProps;
 
       return mergeReactProps(
-        otherExternalProps,
-        buttonProps,
         {
           type,
           onClick(event: React.MouseEvent) {

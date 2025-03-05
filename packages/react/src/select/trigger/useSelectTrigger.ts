@@ -74,10 +74,6 @@ export function useSelectTrigger(
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return mergeReactProps<'button'>(
-        // ensure nested useButton does not overwrite the combobox role:
-        // <Toolbar.Button render={<Select.Trigger />} />
-        { role: 'combobox' },
-        getButtonProps,
         {
           'aria-labelledby': labelId,
           'aria-readonly': readOnly || undefined,
@@ -148,6 +144,10 @@ export function useSelectTrigger(
           },
         },
         fieldControlValidation.getValidationProps(externalProps),
+        getButtonProps,
+        // ensure nested useButton does not overwrite the combobox role:
+        // <Toolbar.Button render={<Select.Trigger />} />
+        { role: 'combobox' },
       );
     },
     [
