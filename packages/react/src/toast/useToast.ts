@@ -61,7 +61,8 @@ export interface Toast<Data extends object> {
    */
   title: string;
   /**
-   * The type of the toast.
+   * The type of the toast. Used to conditionally style the toast,
+   * including conditionally rendering elements based on the type.
    */
   type?: string;
   /**
@@ -70,6 +71,7 @@ export interface Toast<Data extends object> {
   description?: string;
   /**
    * The amount of time (in ms) before the toast is auto dismissed.
+   * A value of `0` will prevent the toast from being dismissed automatically.
    */
   timeout?: number;
   /**
