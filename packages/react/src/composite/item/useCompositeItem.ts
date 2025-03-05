@@ -16,7 +16,7 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
   const getItemProps = React.useCallback(
     <T extends React.ElementType = 'div'>(externalProps = {}) =>
       mergeProps<T>(
-        //@ts-ignore tabIndex as number
+        // @ts-ignore tabIndex as number
         {
           tabIndex: isHighlighted ? 0 : -1,
           onFocus() {
