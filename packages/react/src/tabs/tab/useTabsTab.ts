@@ -85,22 +85,21 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'button'>(
-        mergeReactProps(getButtonProps(), getItemProps()),
+      return mergeReactProps(
         {
           role: 'tab',
           'aria-controls': tabPanelId,
           'aria-selected': selected,
           id,
           ref: handleRef,
-          onClick(event) {
+          onClick(event: React.MouseEvent<HTMLButtonElement>) {
             if (selected || disabled) {
               return;
             }
 
             onTabActivation(tabValue, event.nativeEvent);
           },
-          onFocus(event) {
+          onFocus(event: React.FocusEvent<HTMLButtonElement>) {
             if (selected) {
               return;
             }
@@ -120,7 +119,7 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
               onTabActivation(tabValue, event.nativeEvent);
             }
           },
-          onPointerDown(event) {
+          onPointerDown(event: React.PointerEvent<HTMLButtonElement>) {
             if (selected || disabled) {
               return;
             }
@@ -141,6 +140,8 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
           },
         },
         externalProps,
+        getButtonProps,
+        getItemProps,
       );
     },
     [
