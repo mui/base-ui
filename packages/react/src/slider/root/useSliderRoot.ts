@@ -3,13 +3,14 @@ import * as React from 'react';
 import { activeElement } from '@floating-ui/react/utils';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { clamp } from '../../utils/clamp';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { valueToPercent } from '../../utils/valueToPercent';
+import { warn } from '../../utils/warn';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useField } from '../../field/useField';
@@ -216,7 +217,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       thumbIndex: number,
       event: Event,
     ) => {
-      if (areValuesEqual(newValue, valueUnwrapped)) {
+      if (Number.isNaN(newValue) || areValuesEqual(newValue, valueUnwrapped)) {
         return;
       }
 
@@ -375,9 +376,13 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       return;
     }
 
+    if (min >= max) {
+      warn('Slider `max` must be greater than `min`');
+    }
+
     if (typeof valueUnwrapped === 'number') {
       const newPercentageValue = valueToPercent(valueUnwrapped, min, max);
-      if (newPercentageValue !== percentageValues[0]) {
+      if (newPercentageValue !== percentageValues[0] && !Number.isNaN(newPercentageValue)) {
         setPercentageValues([newPercentageValue]);
       }
     } else if (Array.isArray(valueUnwrapped)) {
@@ -405,12 +410,15 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const getRootProps: useSliderRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(getValidationProps(externalProps), {
-        'aria-labelledby': ariaLabelledby,
-        id,
-        ref: handleRootRef,
-        role: 'group',
-      }),
+      mergeProps(
+        {
+          'aria-labelledby': ariaLabelledby,
+          id,
+          ref: handleRootRef,
+          role: 'group',
+        },
+        getValidationProps(externalProps),
+      ),
     [ariaLabelledby, getValidationProps, handleRootRef, id],
   );
 

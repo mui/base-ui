@@ -134,7 +134,7 @@ A big thanks to the 10 contributors who made this release possible. Here are som
 - [core] Allow Renovate to update pnpm (#446) @michaldudak
 - [core] Encapsulate the common rendering logic in `useComponentRenderer` (#408) @michaldudak
 - [core] Fix event naming convention @oliviertassinari
-- [core] Improve performance of `mergeReactProps` (#456) @marcpachecog
+- [core] Improve performance of `mergeProps` (#456) @marcpachecog
 - [core] Improve Tooltip and Popover consistency (#463) @atomiks
 - [core] Link GH issue for import/prefer-default-export @oliviertassinari
 - [core] Make pnpm version permissive (#529) @atomiks

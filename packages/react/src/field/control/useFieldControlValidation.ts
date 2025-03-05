@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
@@ -110,45 +110,51 @@ export function useFieldControlValidation() {
 
   const getValidationProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        ...(messageIds.length && { 'aria-describedby': messageIds.join(' ') }),
-        ...(state.valid === false && { 'aria-invalid': true }),
-      }),
+      mergeProps(
+        {
+          ...(messageIds.length && { 'aria-describedby': messageIds.join(' ') }),
+          ...(state.valid === false && { 'aria-invalid': true }),
+        },
+        externalProps,
+      ),
     [messageIds, state.valid],
   );
 
   const getInputValidationProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(getValidationProps(externalProps), {
-        onChange(event) {
-          // Workaround for https://github.com/facebook/react/issues/9023
-          if (event.nativeEvent.defaultPrevented) {
-            return;
-          }
+      mergeProps<'input'>(
+        {
+          onChange(event) {
+            // Workaround for https://github.com/facebook/react/issues/9023
+            if (event.nativeEvent.defaultPrevented) {
+              return;
+            }
 
-          if (invalid || validationMode !== 'onChange') {
-            return;
-          }
+            if (invalid || validationMode !== 'onChange') {
+              return;
+            }
 
-          const element = event.currentTarget;
+            const element = event.currentTarget;
 
-          if (element.value === '') {
-            // Ignore the debounce time for empty values.
-            commitValidation(element.value);
-            return;
-          }
-
-          window.clearTimeout(timeoutRef.current);
-
-          if (validationDebounceTime) {
-            timeoutRef.current = window.setTimeout(() => {
+            if (element.value === '') {
+              // Ignore the debounce time for empty values.
               commitValidation(element.value);
-            }, validationDebounceTime);
-          } else {
-            commitValidation(element.value);
-          }
+              return;
+            }
+
+            window.clearTimeout(timeoutRef.current);
+
+            if (validationDebounceTime) {
+              timeoutRef.current = window.setTimeout(() => {
+                commitValidation(element.value);
+              }, validationDebounceTime);
+            } else {
+              commitValidation(element.value);
+            }
+          },
         },
-      }),
+        getValidationProps(externalProps),
+      ),
     [getValidationProps, invalid, validationMode, validationDebounceTime, commitValidation],
   );
 

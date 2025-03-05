@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import type { GenericHTMLProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { InteractionType } from '../../utils/useEnhancedClickHandler';
@@ -11,10 +11,13 @@ export function usePopoverPopup(params: usePopoverPopup.Parameters): usePopoverP
 
   const getPopupProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'div'>(getProps(externalProps), {
-        'aria-labelledby': titleId,
-        'aria-describedby': descriptionId,
-      });
+      return mergeProps<'div'>(
+        {
+          'aria-labelledby': titleId,
+          'aria-describedby': descriptionId,
+        },
+        getProps(externalProps),
+      );
     },
     [getProps, titleId, descriptionId],
   );
