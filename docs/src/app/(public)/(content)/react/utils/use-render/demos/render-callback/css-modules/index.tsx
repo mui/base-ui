@@ -20,23 +20,22 @@ function Counter(props: CounterProps) {
   const odd = count % 2 === 1;
   const state = React.useMemo(() => ({ odd }), [odd]);
 
+  const defaultProps: mergeProps.Props<'button'> = {
+    className: styles.Button,
+    type: 'button',
+    children: (
+      <React.Fragment>
+        Counter: <span>{count}</span>
+      </React.Fragment>
+    ),
+    onClick: () => setCount((prev) => prev + 1),
+    'aria-label': `Count is ${count}, click to increase.`,
+  };
+
   const { renderElement } = useRender({
     render,
     state,
-    props: mergeProps(
-      {
-        className: styles.Button,
-        type: 'button',
-        children: (
-          <React.Fragment>
-            Counter: <span>{count}</span>
-          </React.Fragment>
-        ),
-        onClick: () => setCount((prev) => prev + 1),
-        'aria-label': `Count is ${count}, click to increase.`,
-      },
-      otherProps,
-    ),
+    props: mergeProps(defaultProps, otherProps),
   });
 
   return renderElement();
