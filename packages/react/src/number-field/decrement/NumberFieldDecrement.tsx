@@ -40,6 +40,7 @@ const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
     stopAutoChange,
     value,
     valueRef,
+    locale,
   } = useNumberFieldRootContext();
 
   const { getCommonButtonProps } = useNumberFieldButton({
@@ -62,6 +63,7 @@ const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
     isPressedRef,
     intentionalTouchCheckTimeoutRef,
     movesAfterTouchRef,
+    locale,
   });
 
   const propGetter = React.useCallback(

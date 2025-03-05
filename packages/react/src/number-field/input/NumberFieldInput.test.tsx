@@ -24,6 +24,8 @@ const testContext = {
   invalid: false,
   isPressedRef: { current: false },
   isScrubbing: false,
+  isTouchInput: false,
+  isPointerLockDenied: false,
   max: undefined,
   maxWithDefault: 100,
   mergedRef: (_node) => {},

@@ -31,6 +31,7 @@ export function useNumberFieldInput(
     max,
     allowInputSyncRef,
     setInputValue,
+    locale,
   } = params;
 
   const { labelId, validationMode, setTouched, setFocused } = useFieldRootContext();
@@ -95,7 +96,7 @@ export function useNumberFieldInput(
             return;
           }
 
-          const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
+          const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
           if (parsedValue !== null) {
             setValue(parsedValue, event.nativeEvent);
@@ -121,7 +122,7 @@ export function useNumberFieldInput(
             return;
           }
 
-          const parsedValue = parseNumber(targetValue, formatOptionsRef.current);
+          const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
 
           if (parsedValue !== null) {
             setInputValue(targetValue);
@@ -200,7 +201,7 @@ export function useNumberFieldInput(
           }
 
           // We need to commit the number at this point if the input hasn't been blurred.
-          const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
+          const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
           const amount = getStepAmount() ?? DEFAULT_STEP;
 
@@ -227,7 +228,7 @@ export function useNumberFieldInput(
 
           const clipboardData = event.clipboardData || window.Clipboard;
           const pastedData = clipboardData.getData('text/plain');
-          const parsedValue = parseNumber(pastedData, formatOptionsRef.current);
+          const parsedValue = parseNumber(pastedData, locale, formatOptionsRef.current);
 
           if (parsedValue !== null) {
             allowInputSyncRef.current = false;
@@ -264,6 +265,7 @@ export function useNumberFieldInput(
       incrementValue,
       setInputValue,
       allowInputSyncRef,
+      locale,
     ],
   );
 
@@ -302,6 +304,7 @@ export namespace useNumberFieldInput {
     max: number | undefined;
     allowInputSyncRef: React.RefObject<boolean | null>;
     setInputValue: React.Dispatch<React.SetStateAction<string>>;
+    locale?: Intl.LocalesArgument;
   }
 
   export interface ReturnValue {

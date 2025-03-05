@@ -33,6 +33,7 @@ export function useNumberFieldButton(
     movesAfterTouchRef,
     intentionalTouchCheckTimeoutRef,
     isPressedRef,
+    locale,
   } = params;
 
   const incrementDownCoordsRef = React.useRef({ x: 0, y: 0 });
@@ -49,7 +50,7 @@ export function useNumberFieldButton(
         allowInputSyncRef.current = true;
 
         // The input may be dirty but not yet blurred, so the value won't have been committed.
-        const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
+        const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
         if (parsedValue !== null) {
           // The increment value function needs to know the current input value to increment it
@@ -192,6 +193,7 @@ export function useNumberFieldButton(
       isMax,
       isMin,
       isPressedRef,
+      locale,
       movesAfterTouchRef,
       readOnly,
       setValue,
@@ -226,6 +228,7 @@ namespace useNumberFieldButton {
     inputValue: string;
     intentionalTouchCheckTimeoutRef: React.RefObject<number | null>;
     isPressedRef: React.RefObject<boolean | null>;
+    locale?: Intl.LocalesArgument;
     maxWithDefault: number;
     minWithDefault: number;
     movesAfterTouchRef: React.RefObject<number | null>;
