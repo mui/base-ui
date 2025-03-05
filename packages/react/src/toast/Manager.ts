@@ -24,9 +24,9 @@ export class Manager {
     this.listeners.forEach((listener) => listener(data));
   }
 
-  add<Data extends object>(options: useToast.AddOptions<Data> & { id: string }): string {
+  add<Data extends object>(options: useToast.AddOptions<Data> & { id?: string }): string {
     this.emit(options);
-    return options.id;
+    return options.id || generateId('toast');
   }
 
   remove(id: string): void {

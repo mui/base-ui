@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 import { createRenderer, describeConformance } from '#test-utils';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 
 const toast = {
@@ -69,10 +69,8 @@ describe('<Toast.Content />', () => {
     const status = screen.getByRole('status');
     expect(status).not.to.have.text('titledescription');
 
-    await new Promise((resolve) => {
-      setTimeout(resolve, 0);
+    await waitFor(() => {
+      expect(status).to.have.text('titledescription');
     });
-
-    expect(status).to.have.text('titledescription');
   });
 });

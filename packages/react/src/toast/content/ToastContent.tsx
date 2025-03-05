@@ -54,8 +54,12 @@ const ToastContent = React.forwardRef(function ToastContent(
           {/* Screen readers won't announce the text upon DOM insertion
           of the component. We need to wait until the next tick to render the children
           so that screen readers can announce the contents. */}
-          <div>{renderChildren && toast.title}</div>
-          <div>{renderChildren && toast.description}</div>
+          {renderChildren && (
+            <React.Fragment>
+              <div>{toast.title}</div>
+              <div>{toast.description}</div>
+            </React.Fragment>
+          )}
         </div>
       )}
     </React.Fragment>
