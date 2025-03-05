@@ -119,66 +119,72 @@ export function useScrub(params: ScrubParams) {
 
   const getScrubAreaProps: useNumberFieldRoot.ReturnValue['getScrubAreaProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'span'>({
-        role: 'presentation',
-        [NumberFieldRootDataAttributes.scrubbing as string]: isScrubbing || undefined,
-        style: {
-          touchAction: 'none',
-          WebkitUserSelect: 'none',
-          userSelect: 'none',
+      mergeReactProps<'span'>(
+        {
+          role: 'presentation',
+          [NumberFieldRootDataAttributes.scrubbing as string]: isScrubbing || undefined,
+          style: {
+            touchAction: 'none',
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
+          },
+          onPointerDown(event) {
+            const isMainButton = !event.button || event.button === 0;
+            if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
+              return;
+            }
+
+            const isTouch = event.pointerType === 'touch';
+            setIsTouchInput(isTouch);
+
+            if (event.pointerType === 'mouse') {
+              event.preventDefault();
+              inputRef.current?.focus();
+            }
+
+            isScrubbingRef.current = true;
+            onScrubbingChange(true, event.nativeEvent);
+
+            // WebKit causes significant layout shift with the native message, so we can't use it.
+            if (!isTouch && !isWebKit()) {
+              // There can be some frames where there's no cursor at all when requesting the pointer lock.
+              // This is a workaround to avoid flickering.
+              avoidFlickerTimeoutRef.current = window.setTimeout(async () => {
+                try {
+                  // Avoid non-deterministic errors in testing environments. This error sometimes
+                  // appears:
+                  // "The root document of this element is not valid for pointer lock."
+                  // We need to await it even though it doesn't appear to return a promise in the
+                  // types in order for the `catch` to work.
+                  await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
+                  setIsPointerLockDenied(false);
+                } catch (error) {
+                  setIsPointerLockDenied(true);
+                }
+              }, 20);
+            }
+          },
         },
-        onPointerDown(event) {
-          const isMainButton = !event.button || event.button === 0;
-          if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
-            return;
-          }
-
-          const isTouch = event.pointerType === 'touch';
-          setIsTouchInput(isTouch);
-
-          if (event.pointerType === 'mouse') {
-            event.preventDefault();
-            inputRef.current?.focus();
-          }
-
-          isScrubbingRef.current = true;
-          onScrubbingChange(true, event.nativeEvent);
-
-          // WebKit causes significant layout shift with the native message, so we can't use it.
-          if (!isTouch && !isWebKit()) {
-            // There can be some frames where there's no cursor at all when requesting the pointer lock.
-            // This is a workaround to avoid flickering.
-            avoidFlickerTimeoutRef.current = window.setTimeout(async () => {
-              try {
-                // Avoid non-deterministic errors in testing environments. This error sometimes
-                // appears:
-                // "The root document of this element is not valid for pointer lock."
-                // We need to await it even though it doesn't appear to return a promise in the
-                // types in order for the `catch` to work.
-                await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
-                setIsPointerLockDenied(false);
-              } catch (error) {
-                setIsPointerLockDenied(true);
-              }
-            }, 20);
-          }
-        },
-      }, externalProps),
+        externalProps,
+      ),
     [readOnly, disabled, onScrubbingChange, inputRef, isScrubbing],
   );
 
   const getScrubAreaCursorProps: useNumberFieldRoot.ReturnValue['getScrubAreaCursorProps'] =
     React.useCallback(
       (externalProps) =>
-        mergeReactProps<'span'>({
-          role: 'presentation',
-          style: {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            pointerEvents: 'none',
+        mergeReactProps<'span'>(
+          {
+            role: 'presentation',
+            style: {
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              pointerEvents: 'none',
+            },
           },
-        }, externalProps),
+          externalProps,
+        ),
       [],
     );
 
