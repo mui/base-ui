@@ -169,24 +169,6 @@ export function useScrub(params: useScrub.Parameters) {
     [readOnly, disabled, onScrubbingChange, inputRef, isScrubbing],
   );
 
-  const getScrubAreaCursorProps: useNumberFieldRoot.ReturnValue['getScrubAreaCursorProps'] =
-    React.useCallback(
-      (externalProps) =>
-        mergeProps<'span'>(
-          {
-            role: 'presentation',
-            style: {
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              pointerEvents: 'none',
-            },
-          },
-          externalProps,
-        ),
-      [],
-    );
-
   React.useEffect(
     function registerGlobalScrubbingEventListeners() {
       if (!inputRef.current || disabled || readOnly) {
@@ -285,12 +267,11 @@ export function useScrub(params: useScrub.Parameters) {
       isTouchInput,
       isPointerLockDenied,
       getScrubAreaProps,
-      getScrubAreaCursorProps,
       scrubAreaCursorRef,
       scrubAreaRef,
       scrubHandleRef,
     }),
-    [isScrubbing, isTouchInput, isPointerLockDenied, getScrubAreaProps, getScrubAreaCursorProps],
+    [isScrubbing, isTouchInput, isPointerLockDenied, getScrubAreaProps],
   );
 }
 

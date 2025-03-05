@@ -537,9 +537,6 @@ export namespace useNumberFieldRoot {
     getScrubAreaProps: (
       externalProps?: React.ComponentPropsWithRef<'span'>,
     ) => React.ComponentPropsWithRef<'span'>;
-    getScrubAreaCursorProps: (
-      externalProps?: React.ComponentPropsWithRef<'span'>,
-    ) => React.ComponentPropsWithRef<'span'>;
     inputValue: string;
     value: number | null;
     isScrubbing: boolean;

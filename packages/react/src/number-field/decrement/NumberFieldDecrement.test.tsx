@@ -15,7 +15,6 @@ const testContext = {
   formatOptionsRef: { current: undefined },
   getAllowedNonNumericKeys: () => [],
   getScrubAreaProps: (externalProps) => externalProps,
-  getScrubAreaCursorProps: (externalProps) => externalProps,
   getStepAmount: NOOP,
   id: 'id',
   incrementValue: NOOP,
