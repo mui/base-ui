@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import {
@@ -96,7 +96,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(
+      mergeProps<'div'>(
         {
           'aria-orientation': orientation === 'both' ? undefined : orientation,
           ref: mergedRef,

@@ -8,7 +8,7 @@ import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewp
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { isWebKit } from '../../utils/detectBrowser';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import type { useNumberFieldRoot } from './useNumberFieldRoot';
 import { NumberFieldRootDataAttributes } from './NumberFieldRootDataAttributes';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -119,7 +119,7 @@ export function useScrub(params: ScrubParams) {
 
   const getScrubAreaProps: useNumberFieldRoot.ReturnValue['getScrubAreaProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'span'>(
+      mergeProps<'span'>(
         {
           role: 'presentation',
           [NumberFieldRootDataAttributes.scrubbing as string]: isScrubbing || undefined,
@@ -173,7 +173,7 @@ export function useScrub(params: ScrubParams) {
   const getScrubAreaCursorProps: useNumberFieldRoot.ReturnValue['getScrubAreaCursorProps'] =
     React.useCallback(
       (externalProps) =>
-        mergeReactProps<'span'>(
+        mergeProps<'span'>(
           {
             role: 'presentation',
             style: {

@@ -8,7 +8,7 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 
 /**
  * Displays an element positioned against the preview card anchor.
@@ -27,7 +27,7 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(
+      mergeProps<'div'>(
         {
           style: arrowStyles,
           'aria-hidden': true,

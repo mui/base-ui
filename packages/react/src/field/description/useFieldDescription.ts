@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../root/FieldRootContext';
@@ -26,7 +26,7 @@ export function useFieldDescription(params: useFieldDescription.Parameters) {
 
   const getDescriptionProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'span'>(
+      mergeProps<'span'>(
         {
           id,
         },

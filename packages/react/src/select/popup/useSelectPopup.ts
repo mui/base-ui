@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
@@ -235,7 +235,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
   const getPopupProps: useSelectPopup.ReturnValue['getPopupProps'] = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'div'>(
+      return mergeProps<'div'>(
         {
           ['data-id' as string]: `${id}-popup`,
           onScroll(event) {

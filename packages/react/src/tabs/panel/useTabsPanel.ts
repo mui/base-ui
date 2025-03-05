@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
@@ -50,7 +50,7 @@ function useTabsPanel(parameters: useTabsPanel.Parameters): useTabsPanel.ReturnV
     (
       externalProps: React.ComponentPropsWithoutRef<'div'> = {},
     ): React.ComponentPropsWithRef<'div'> => {
-      return mergeReactProps(
+      return mergeProps(
         {
           'aria-labelledby': correspondingTabId,
           hidden,

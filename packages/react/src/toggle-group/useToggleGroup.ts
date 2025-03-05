@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import { mergeProps } from '../merge-props';
 import { useControlled } from '../utils/useControlled';
 import { useEventCallback } from '../utils/useEventCallback';
 import type { GenericHTMLProps } from '../utils/types';
@@ -35,7 +35,7 @@ export function useToggleGroup(parameters: useToggleGroup.Parameters): useToggle
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(
+      mergeProps<'div'>(
         {
           role: 'group',
         },

@@ -17,7 +17,7 @@ import { OPEN_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import {
   translateOpenChangeReason,
@@ -177,7 +177,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       descriptionId,
       setDescriptionId,
       getRootTriggerProps: (externalProps?: React.HTMLProps<Element>) =>
-        getReferenceProps(mergeReactProps(triggerProps, externalProps)),
+        getReferenceProps(mergeProps(triggerProps, externalProps)),
       getRootPopupProps: getFloatingProps,
       floatingRootContext: context,
       instantType,

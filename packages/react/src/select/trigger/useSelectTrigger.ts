@@ -2,7 +2,7 @@ import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
 import type { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
@@ -74,7 +74,7 @@ export function useSelectTrigger(
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return getButtonProps(
-        mergeReactProps<'button'>(
+        mergeProps<'button'>(
           {
             'aria-labelledby': labelId,
             'aria-readonly': readOnly || undefined,

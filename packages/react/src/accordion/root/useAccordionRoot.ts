@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useControlled } from '../../utils/useControlled';
 import { ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT } from '../../composite/composite';
 
@@ -79,7 +79,7 @@ export function useAccordionRoot(
     (externalProps = {}) => {
       const isRtl = direction === 'rtl';
       const isHorizontal = orientation === 'horizontal';
-      return mergeReactProps(
+      return mergeProps(
         {
           dir: direction,
           role: 'region',

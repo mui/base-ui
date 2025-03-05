@@ -5,7 +5,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useScrollAreaScrollbarContext } from '../scrollbar/ScrollAreaScrollbarContext';
 import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssVars';
 
@@ -42,7 +42,7 @@ const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
     ref: mergedRef,
     className,
     state,
-    extraProps: mergeReactProps<'div'>(
+    extraProps: mergeProps<'div'>(
       {
         onPointerDown: handlePointerDown,
         onPointerMove: handlePointerMove,

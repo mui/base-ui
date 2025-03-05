@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
@@ -201,7 +201,7 @@ export function useSliderControl(
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(
+      return mergeProps(
         {
           onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
             if (disabled) {

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { TabsRootContext } from '../root/TabsRootContext';
 import { type TabsOrientation, type TabActivationDirection } from '../root/TabsRoot';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
@@ -37,7 +37,7 @@ function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValu
 
   const getRootProps = React.useCallback(
     (otherProps = {}): React.ComponentPropsWithRef<'div'> => {
-      return mergeReactProps(
+      return mergeProps(
         {
           'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
           ref: handleRef,
