@@ -25,13 +25,16 @@ const ProgressValue = React.forwardRef(function ProgressValue(
     (externalProps = {}) => {
       const formattedValueArg = value == null ? 'indeterminate' : formattedValue;
       const formattedValueDisplay = value == null ? null : formattedValue;
-      return mergeReactProps(externalProps, {
-        'aria-hidden': true,
-        children:
-          typeof children === 'function'
-            ? children(formattedValueArg, value)
-            : formattedValueDisplay,
-      });
+      return mergeReactProps(
+        {
+          'aria-hidden': true,
+          children:
+            typeof children === 'function'
+              ? children(formattedValueArg, value)
+              : formattedValueDisplay,
+        },
+        externalProps,
+      );
     },
     [children, value, formattedValue],
   );

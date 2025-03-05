@@ -80,39 +80,42 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
 
   const getButtonProps = React.useCallback(
     (otherProps = {}) =>
-      mergeReactProps<'button'>(getValidationProps(otherProps), {
-        id,
-        ref: buttonRef,
-        type: 'button',
-        role: 'switch',
-        disabled,
-        'aria-checked': checked,
-        'aria-readonly': readOnly,
-        'aria-labelledby': labelId,
-        onFocus() {
-          setFocused(true);
-        },
-        onBlur() {
-          const element = inputRef.current;
-          if (!element) {
-            return;
-          }
+      mergeReactProps<'button'>(
+        {
+          id,
+          ref: buttonRef,
+          type: 'button',
+          role: 'switch',
+          disabled,
+          'aria-checked': checked,
+          'aria-readonly': readOnly,
+          'aria-labelledby': labelId,
+          onFocus() {
+            setFocused(true);
+          },
+          onBlur() {
+            const element = inputRef.current;
+            if (!element) {
+              return;
+            }
 
-          setTouched(true);
-          setFocused(false);
+            setTouched(true);
+            setFocused(false);
 
-          if (validationMode === 'onBlur') {
-            commitValidation(element.checked);
-          }
-        },
-        onClick(event) {
-          if (event.defaultPrevented || readOnly) {
-            return;
-          }
+            if (validationMode === 'onBlur') {
+              commitValidation(element.checked);
+            }
+          },
+          onClick(event) {
+            if (event.defaultPrevented || readOnly) {
+              return;
+            }
 
-          inputRef.current?.click();
+            inputRef.current?.click();
+          },
         },
-      }),
+        getValidationProps(otherProps),
+      ),
     [
       getValidationProps,
       id,
@@ -129,34 +132,37 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
 
   const getInputProps = React.useCallback(
     (otherProps = {}) =>
-      mergeReactProps<'input'>(getInputValidationProps(otherProps), {
-        checked,
-        disabled,
-        name,
-        required,
-        style: visuallyHidden,
-        tabIndex: -1,
-        type: 'checkbox',
-        'aria-hidden': true,
-        ref: handleInputRef,
-        onChange(event) {
-          // Workaround for https://github.com/facebook/react/issues/9023
-          if (event.nativeEvent.defaultPrevented) {
-            return;
-          }
+      mergeReactProps<'input'>(
+        {
+          checked,
+          disabled,
+          name,
+          required,
+          style: visuallyHidden,
+          tabIndex: -1,
+          type: 'checkbox',
+          'aria-hidden': true,
+          ref: handleInputRef,
+          onChange(event) {
+            // Workaround for https://github.com/facebook/react/issues/9023
+            if (event.nativeEvent.defaultPrevented) {
+              return;
+            }
 
-          const nextChecked = event.target.checked;
+            const nextChecked = event.target.checked;
 
-          setDirty(nextChecked !== validityData.initialValue);
-          setFilled(nextChecked);
-          setCheckedState(nextChecked);
-          onCheckedChange?.(nextChecked, event.nativeEvent);
+            setDirty(nextChecked !== validityData.initialValue);
+            setFilled(nextChecked);
+            setCheckedState(nextChecked);
+            onCheckedChange?.(nextChecked, event.nativeEvent);
 
-          if (validationMode === 'onChange') {
-            commitValidation(nextChecked);
-          }
+            if (validationMode === 'onChange') {
+              commitValidation(nextChecked);
+            }
+          },
         },
-      }),
+        getInputValidationProps(otherProps),
+      ),
     [
       getInputValidationProps,
       checked,

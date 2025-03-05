@@ -21,9 +21,12 @@ const Separator = React.forwardRef(function SeparatorComponent(
 
   const getSeparatorProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        'aria-orientation': orientation,
-      }),
+      mergeReactProps(
+        {
+          'aria-orientation': orientation,
+        },
+        externalProps,
+      ),
     [orientation],
   );
 

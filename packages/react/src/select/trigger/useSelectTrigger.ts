@@ -78,7 +78,6 @@ export function useSelectTrigger(
         // <Toolbar.Button render={<Select.Trigger />} />
         { role: 'combobox' },
         getButtonProps,
-        fieldControlValidation.getValidationProps(externalProps),
         {
           'aria-labelledby': labelId,
           'aria-readonly': readOnly || undefined,
@@ -148,6 +147,7 @@ export function useSelectTrigger(
             });
           },
         },
+        fieldControlValidation.getValidationProps(externalProps),
       );
     },
     [

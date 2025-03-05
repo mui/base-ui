@@ -39,9 +39,6 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
   const getRootProps: useRadioRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps) =>
       mergeReactProps<'button'>(
-        fieldControlValidation
-          ? fieldControlValidation.getValidationProps(externalProps)
-          : externalProps,
         {
           role: 'radio',
           type: 'button',
@@ -74,43 +71,49 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
             setTouched(false);
           },
         },
+        fieldControlValidation
+          ? fieldControlValidation.getValidationProps(externalProps)
+          : externalProps,
       ),
     [fieldControlValidation, checked, required, disabled, readOnly, touched, setTouched],
   );
 
   const getInputProps: useRadioRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps) =>
-      mergeReactProps<'input'>(externalProps, {
-        type: 'radio',
-        ref: inputRef,
-        tabIndex: -1,
-        style: visuallyHidden,
-        'aria-hidden': true,
-        disabled,
-        checked,
-        required,
-        readOnly,
-        onChange(event) {
-          // Workaround for https://github.com/facebook/react/issues/9023
-          if (event.nativeEvent.defaultPrevented) {
-            return;
-          }
+      mergeReactProps<'input'>(
+        {
+          type: 'radio',
+          ref: inputRef,
+          tabIndex: -1,
+          style: visuallyHidden,
+          'aria-hidden': true,
+          disabled,
+          checked,
+          required,
+          readOnly,
+          onChange(event) {
+            // Workaround for https://github.com/facebook/react/issues/9023
+            if (event.nativeEvent.defaultPrevented) {
+              return;
+            }
 
-          if (disabled || readOnly || value == null) {
-            return;
-          }
+            if (disabled || readOnly || value == null) {
+              return;
+            }
 
-          setFieldTouched(true);
-          setDirty(value !== validityData.initialValue);
-          setCheckedValue(value);
-          setFilled(true);
-          onValueChange?.(value, event.nativeEvent);
+            setFieldTouched(true);
+            setDirty(value !== validityData.initialValue);
+            setCheckedValue(value);
+            setFilled(true);
+            onValueChange?.(value, event.nativeEvent);
 
-          if (validationMode === 'onChange') {
-            fieldControlValidation?.commitValidation(value);
-          }
+            if (validationMode === 'onChange') {
+              fieldControlValidation?.commitValidation(value);
+            }
+          },
         },
-      }),
+        externalProps,
+      ),
     [
       disabled,
       checked,

@@ -25,9 +25,12 @@ function useProgressIndicator(
 
   const getRootProps: useProgressIndicator.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'span'>(externalProps, {
-        style: getStyles(),
-      }),
+      mergeReactProps<'span'>(
+        {
+          style: getStyles(),
+        },
+        externalProps,
+      ),
     [getStyles],
   );
 

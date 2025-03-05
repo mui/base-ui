@@ -54,9 +54,12 @@ export function useSliderIndicator(
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(externalProps, {
-        style: internalStyles,
-      });
+      return mergeReactProps(
+        {
+          style: internalStyles,
+        },
+        externalProps,
+      );
     },
     [internalStyles],
   );

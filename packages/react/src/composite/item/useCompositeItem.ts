@@ -15,12 +15,15 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
 
   const getItemProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
-        tabIndex: isHighlighted ? 0 : -1,
-        onFocus() {
-          onHighlightedIndexChange(index);
+      mergeReactProps<'div'>(
+        {
+          tabIndex: isHighlighted ? 0 : -1,
+          onFocus() {
+            onHighlightedIndexChange(index);
+          },
         },
-      }),
+        externalProps,
+      ),
     [isHighlighted, index, onHighlightedIndexChange],
   );
 

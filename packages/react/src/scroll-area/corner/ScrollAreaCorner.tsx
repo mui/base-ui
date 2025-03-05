@@ -30,15 +30,18 @@ const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
     ref: mergedRef,
     className,
     state,
-    extraProps: mergeReactProps(otherProps, {
-      style: {
-        position: 'absolute',
-        bottom: 0,
-        insetInlineEnd: 0,
-        width: cornerSize.width,
-        height: cornerSize.height,
+    extraProps: mergeReactProps(
+      {
+        style: {
+          position: 'absolute',
+          bottom: 0,
+          insetInlineEnd: 0,
+          width: cornerSize.width,
+          height: cornerSize.height,
+        },
       },
-    }),
+      otherProps,
+    ),
   });
 
   if (hiddenState.cornerHidden) {

@@ -7,9 +7,12 @@ export function useFieldsetRoot() {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        'aria-labelledby': legendId,
-      }),
+      mergeReactProps(
+        {
+          'aria-labelledby': legendId,
+        },
+        externalProps,
+      ),
     [legendId],
   );
 

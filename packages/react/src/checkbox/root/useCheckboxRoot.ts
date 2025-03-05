@@ -91,41 +91,44 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
 
   const getButtonProps: useCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'button'>(getValidationProps(externalProps), {
-        id,
-        ref: buttonRef,
-        type: 'button',
-        role: 'checkbox',
-        disabled,
-        'aria-checked': indeterminate ? 'mixed' : checked,
-        'aria-readonly': readOnly || undefined,
-        'aria-labelledby': labelId,
-        onFocus() {
-          setFocused(true);
+      mergeReactProps<'button'>(
+        {
+          id,
+          ref: buttonRef,
+          type: 'button',
+          role: 'checkbox',
+          disabled,
+          'aria-checked': indeterminate ? 'mixed' : checked,
+          'aria-readonly': readOnly || undefined,
+          'aria-labelledby': labelId,
+          onFocus() {
+            setFocused(true);
+          },
+          onBlur() {
+            const element = inputRef.current;
+            if (!element) {
+              return;
+            }
+
+            setTouched(true);
+            setFocused(false);
+
+            if (validationMode === 'onBlur') {
+              commitValidation(groupContext ? groupValue : element.checked);
+            }
+          },
+          onClick(event) {
+            if (event.defaultPrevented || readOnly) {
+              return;
+            }
+
+            event.preventDefault();
+
+            inputRef.current?.click();
+          },
         },
-        onBlur() {
-          const element = inputRef.current;
-          if (!element) {
-            return;
-          }
-
-          setTouched(true);
-          setFocused(false);
-
-          if (validationMode === 'onBlur') {
-            commitValidation(groupContext ? groupValue : element.checked);
-          }
-        },
-        onClick(event) {
-          if (event.defaultPrevented || readOnly) {
-            return;
-          }
-
-          event.preventDefault();
-
-          inputRef.current?.click();
-        },
-      }),
+        getValidationProps(externalProps),
+      ),
     [
       getValidationProps,
       id,
@@ -145,54 +148,57 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
 
   const getInputProps: useCheckboxRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(getInputValidationProps(externalProps), {
-        checked,
-        disabled,
-        name,
-        // React <19 sets an empty value if `undefined` is passed explicitly
-        // To avoid this, we only set the value if it's defined
-        ...(value !== undefined ? { value } : {}),
-        required,
-        autoFocus,
-        ref: mergedInputRef,
-        style: visuallyHidden,
-        tabIndex: -1,
-        type: 'checkbox',
-        'aria-hidden': true,
-        onChange(event) {
-          // Workaround for https://github.com/facebook/react/issues/9023
-          if (event.nativeEvent.defaultPrevented) {
-            return;
-          }
-
-          const nextChecked = event.target.checked;
-
-          setDirty(nextChecked !== validityData.initialValue);
-          setCheckedState(nextChecked);
-          onCheckedChange?.(nextChecked, event.nativeEvent);
-
-          if (!groupContext) {
-            setFilled(nextChecked);
-
-            if (validationMode === 'onChange') {
-              commitValidation(nextChecked);
+      mergeReactProps<'input'>(
+        {
+          checked,
+          disabled,
+          name,
+          // React <19 sets an empty value if `undefined` is passed explicitly
+          // To avoid this, we only set the value if it's defined
+          ...(value !== undefined ? { value } : {}),
+          required,
+          autoFocus,
+          ref: mergedInputRef,
+          style: visuallyHidden,
+          tabIndex: -1,
+          type: 'checkbox',
+          'aria-hidden': true,
+          onChange(event) {
+            // Workaround for https://github.com/facebook/react/issues/9023
+            if (event.nativeEvent.defaultPrevented) {
+              return;
             }
-          }
 
-          if (name && groupValue && setGroupValue) {
-            const nextGroupValue = nextChecked
-              ? [...groupValue, name]
-              : groupValue.filter((item) => item !== name);
+            const nextChecked = event.target.checked;
 
-            setGroupValue(nextGroupValue, event.nativeEvent);
-            setFilled(nextGroupValue.length > 0);
+            setDirty(nextChecked !== validityData.initialValue);
+            setCheckedState(nextChecked);
+            onCheckedChange?.(nextChecked, event.nativeEvent);
 
-            if (validationMode === 'onChange') {
-              commitValidation(nextGroupValue);
+            if (!groupContext) {
+              setFilled(nextChecked);
+
+              if (validationMode === 'onChange') {
+                commitValidation(nextChecked);
+              }
             }
-          }
+
+            if (name && groupValue && setGroupValue) {
+              const nextGroupValue = nextChecked
+                ? [...groupValue, name]
+                : groupValue.filter((item) => item !== name);
+
+              setGroupValue(nextGroupValue, event.nativeEvent);
+              setFilled(nextGroupValue.length > 0);
+
+              if (validationMode === 'onChange') {
+                commitValidation(nextGroupValue);
+              }
+            }
+          },
         },
-      }),
+        getInputValidationProps(externalProps),
+      ),
     [
       getInputValidationProps,
       checked,

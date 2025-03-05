@@ -86,9 +86,9 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     className,
     state,
     extraProps: mergeReactProps(
-      other,
-      popupProps,
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJ,
+      popupProps,
+      other,
     ),
     customStyleHookMapping,
     ref: mergedRef,

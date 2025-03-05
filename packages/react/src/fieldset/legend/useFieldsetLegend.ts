@@ -21,9 +21,12 @@ export function useFieldsetLegend(params: useFieldsetLegend.Parameters) {
 
   const getLegendProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        id,
-      }),
+      mergeReactProps(
+        {
+          id,
+        },
+        externalProps,
+      ),
     [id],
   );
 
