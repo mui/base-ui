@@ -180,21 +180,24 @@ export function useScrollAreaRoot() {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
-        onPointerEnter: handlePointerEnterOrMove,
-        onPointerMove: handlePointerEnterOrMove,
-        onPointerDown({ pointerType }) {
-          setTouchModality(pointerType === 'touch');
+      mergeReactProps<'div'>(
+        {
+          onPointerEnter: handlePointerEnterOrMove,
+          onPointerMove: handlePointerEnterOrMove,
+          onPointerDown({ pointerType }) {
+            setTouchModality(pointerType === 'touch');
+          },
+          onPointerLeave() {
+            setHovering(false);
+          },
+          style: {
+            position: 'relative',
+            [ScrollAreaRootCssVars.scrollAreaCornerHeight as string]: `${cornerSize.height}px`,
+            [ScrollAreaRootCssVars.scrollAreaCornerWidth as string]: `${cornerSize.width}px`,
+          },
         },
-        onPointerLeave() {
-          setHovering(false);
-        },
-        style: {
-          position: 'relative',
-          [ScrollAreaRootCssVars.scrollAreaCornerHeight as string]: `${cornerSize.height}px`,
-          [ScrollAreaRootCssVars.scrollAreaCornerWidth as string]: `${cornerSize.width}px`,
-        },
-      }),
+        externalProps,
+      ),
     [cornerSize, handlePointerEnterOrMove],
   );
 

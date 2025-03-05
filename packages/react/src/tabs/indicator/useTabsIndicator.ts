@@ -113,11 +113,14 @@ export function useTabsIndicator(
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'span'>(externalProps, {
-        role: 'presentation',
-        style,
-        hidden: !displayIndicator, // do not display the indicator before the layout is settled
-      });
+      return mergeReactProps<'span'>(
+        {
+          role: 'presentation',
+          style,
+          hidden: !displayIndicator, // do not display the indicator before the layout is settled
+        },
+        externalProps,
+      );
     },
     [style, displayIndicator],
   );

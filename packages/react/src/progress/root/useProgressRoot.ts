@@ -49,17 +49,20 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
 
   const getRootProps: useProgressRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
-        'aria-label': getAriaLabel ? getAriaLabel(value) : ariaLabel,
-        'aria-labelledby': ariaLabelledby,
-        'aria-valuemax': max,
-        'aria-valuemin': min,
-        'aria-valuenow': value ?? undefined,
-        'aria-valuetext': getAriaValueText
-          ? getAriaValueText(formattedValue, value)
-          : (ariaValuetext ?? getDefaultAriaValueText(formattedValue, value)),
-        role: 'progressbar',
-      }),
+      mergeReactProps<'div'>(
+        {
+          'aria-label': getAriaLabel ? getAriaLabel(value) : ariaLabel,
+          'aria-labelledby': ariaLabelledby,
+          'aria-valuemax': max,
+          'aria-valuemin': min,
+          'aria-valuenow': value ?? undefined,
+          'aria-valuetext': getAriaValueText
+            ? getAriaValueText(formattedValue, value)
+            : (ariaValuetext ?? getDefaultAriaValueText(formattedValue, value)),
+          role: 'progressbar',
+        },
+        externalProps,
+      ),
     [
       ariaLabel,
       ariaLabelledby,

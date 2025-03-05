@@ -178,36 +178,39 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
   const getViewportProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
-        ...(rootId && { 'data-id': `${rootId}-viewport` }),
-        // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
-        ...((!hiddenState.scrollbarXHidden || !hiddenState.scrollbarYHidden) && { tabIndex: 0 }),
-        style: {
-          overflow: 'scroll',
-        },
-        onScroll() {
-          if (!viewportRef.current) {
-            return;
-          }
+      mergeReactProps<'div'>(
+        {
+          ...(rootId && { 'data-id': `${rootId}-viewport` }),
+          // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
+          ...((!hiddenState.scrollbarXHidden || !hiddenState.scrollbarYHidden) && { tabIndex: 0 }),
+          style: {
+            overflow: 'scroll',
+          },
+          onScroll() {
+            if (!viewportRef.current) {
+              return;
+            }
 
-          computeThumb();
+            computeThumb();
 
-          handleScroll({
-            x: viewportRef.current.scrollLeft,
-            y: viewportRef.current.scrollTop,
-          });
+            handleScroll({
+              x: viewportRef.current.scrollLeft,
+              y: viewportRef.current.scrollTop,
+            });
+          },
+          children: (
+            <div
+              ref={contentWrapperRef}
+              style={{
+                minWidth: 'fit-content',
+              }}
+            >
+              {children}
+            </div>
+          ),
         },
-        children: (
-          <div
-            ref={contentWrapperRef}
-            style={{
-              minWidth: 'fit-content',
-            }}
-          >
-            {children}
-          </div>
-        ),
-      }),
+        externalProps,
+      ),
     [
       rootId,
       hiddenState.scrollbarXHidden,

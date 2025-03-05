@@ -20,10 +20,13 @@ const SelectIcon = React.forwardRef(function SelectIcon(
   const state: SelectIcon.State = React.useMemo(() => ({}), []);
 
   const getIconProps = React.useCallback((externalProps: React.ComponentProps<'span'>) => {
-    return mergeReactProps(externalProps, {
-      'aria-hidden': true,
-      children: '▼',
-    });
+    return mergeReactProps(
+      {
+        'aria-hidden': true,
+        children: '▼',
+      },
+      externalProps,
+    );
   }, []);
 
   const { renderElement } = useComponentRenderer({

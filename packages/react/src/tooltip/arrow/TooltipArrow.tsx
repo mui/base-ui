@@ -26,10 +26,13 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'div'>(externalProps, {
-        style: arrowStyles,
-        'aria-hidden': true,
-      });
+      return mergeReactProps<'div'>(
+        {
+          style: arrowStyles,
+          'aria-hidden': true,
+        },
+        externalProps,
+      );
     },
     [arrowStyles],
   );

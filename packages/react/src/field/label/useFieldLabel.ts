@@ -8,21 +8,24 @@ export function useFieldLabel() {
 
   const getLabelProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'label'>(externalProps, {
-        id: labelId,
-        htmlFor: controlId,
-        onMouseDown(event) {
-          const selection = window.getSelection();
+      mergeReactProps<'label'>(
+        {
+          id: labelId,
+          htmlFor: controlId,
+          onMouseDown(event) {
+            const selection = window.getSelection();
 
-          // If text is selected elsewhere on the document when clicking the label, it will not
-          // activate. Ensure the selection is not the label text so that selection remains.
-          if (selection && !selection.anchorNode?.contains(event.currentTarget)) {
-            selection.empty();
-          }
+            // If text is selected elsewhere on the document when clicking the label, it will not
+            // activate. Ensure the selection is not the label text so that selection remains.
+            if (selection && !selection.anchorNode?.contains(event.currentTarget)) {
+              selection.empty();
+            }
 
-          event.preventDefault();
+            event.preventDefault();
+          },
         },
-      }),
+        externalProps,
+      ),
     [controlId, labelId],
   );
 

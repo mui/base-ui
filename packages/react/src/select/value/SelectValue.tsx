@@ -27,9 +27,12 @@ const SelectValue = React.forwardRef(function SelectValue(
 
   const getValueProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        children: typeof children === 'function' ? children(label) : label || placeholder,
-      }),
+      mergeReactProps(
+        {
+          children: typeof children === 'function' ? children(label) : label || placeholder,
+        },
+        externalProps,
+      ),
     [children, label, placeholder],
   );
 

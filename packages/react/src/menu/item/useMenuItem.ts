@@ -28,29 +28,33 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
 
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps(getButtonProps, externalProps, {
-        id,
-        role: 'menuitem',
-        tabIndex: highlighted ? 0 : -1,
-        onKeyUp: (event: BaseUIEvent<React.KeyboardEvent>) => {
-          if (event.key === ' ' && typingRef.current) {
-            event.preventBaseUIHandler();
-          }
+      return mergeReactProps(
+        {
+          id,
+          role: 'menuitem',
+          tabIndex: highlighted ? 0 : -1,
+          onKeyUp: (event: BaseUIEvent<React.KeyboardEvent>) => {
+            if (event.key === ' ' && typingRef.current) {
+              event.preventBaseUIHandler();
+            }
+          },
+          onClick: (event: React.MouseEvent | React.KeyboardEvent) => {
+            if (closeOnClick) {
+              menuEvents.emit('close', event);
+            }
+          },
+          onMouseUp: (event: React.MouseEvent) => {
+            if (itemRef.current && allowMouseUpTriggerRef.current) {
+              // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
+              // We trigger the click and override the `closeOnClick` preference to always close the menu.
+              itemRef.current.click();
+              menuEvents.emit('close', event);
+            }
+          },
         },
-        onClick: (event: React.MouseEvent | React.KeyboardEvent) => {
-          if (closeOnClick) {
-            menuEvents.emit('close', event);
-          }
-        },
-        onMouseUp: (event: React.MouseEvent) => {
-          if (itemRef.current && allowMouseUpTriggerRef.current) {
-            // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
-            // We trigger the click and override the `closeOnClick` preference to always close the menu.
-            itemRef.current.click();
-            menuEvents.emit('close', event);
-          }
-        },
-      });
+        externalProps,
+        getButtonProps,
+      );
     },
     [getButtonProps, id, highlighted, typingRef, closeOnClick, menuEvents, allowMouseUpTriggerRef],
   );

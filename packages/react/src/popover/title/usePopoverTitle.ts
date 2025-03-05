@@ -12,9 +12,12 @@ export function usePopoverTitle(params: usePopoverTitle.Parameters): usePopoverT
 
   const getTitleProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'h2'>(externalProps, {
-        id,
-      });
+      return mergeReactProps<'h2'>(
+        {
+          id,
+        },
+        externalProps,
+      );
     },
     [id],
   );

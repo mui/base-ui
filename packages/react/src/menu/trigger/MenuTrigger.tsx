@@ -44,7 +44,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const propGetter = React.useCallback(
     (externalProps: GenericHTMLProps) =>
-      mergeReactProps(getTriggerProps, externalProps, rootTriggerProps),
+      mergeReactProps(rootTriggerProps, externalProps, getTriggerProps),
     [getTriggerProps, rootTriggerProps],
   );
 

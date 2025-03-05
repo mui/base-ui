@@ -135,16 +135,19 @@ const SliderThumb = React.forwardRef(function SliderThumb(
   const children = thumbProps.children ?? renderPropsChildren;
 
   return React.cloneElement(render, {
-    ...mergeReactProps(otherRenderProps, {
-      ...thumbProps,
-      children: (
-        <React.Fragment>
-          {/* @ts-ignore */}
-          {typeof children === 'function' ? children() : children}
-          <input {...inputProps} />
-        </React.Fragment>
-      ),
-    }),
+    ...mergeReactProps(
+      {
+        ...thumbProps,
+        children: (
+          <React.Fragment>
+            {/* @ts-ignore */}
+            {typeof children === 'function' ? children() : children}
+            <input {...inputProps} />
+          </React.Fragment>
+        ),
+      },
+      otherRenderProps,
+    ),
     // @ts-ignore
     ref: thumbProps.ref,
   });

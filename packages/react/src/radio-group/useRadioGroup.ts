@@ -51,32 +51,35 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(fieldControlValidation.getValidationProps(externalProps), {
-        role: 'radiogroup',
-        'aria-disabled': disabled || undefined,
-        'aria-readonly': readOnly || undefined,
-        'aria-labelledby': labelId,
-        onFocus() {
-          setFocused(true);
-        },
-        onBlur(event) {
-          if (!contains(event.currentTarget, event.relatedTarget)) {
-            setFieldTouched(true);
-            setFocused(false);
-
-            if (validationMode === 'onBlur') {
-              fieldControlValidation.commitValidation(checkedValue);
-            }
-          }
-        },
-        onKeyDownCapture(event) {
-          if (event.key.startsWith('Arrow')) {
-            setFieldTouched(true);
-            setTouched(true);
+      mergeReactProps<'div'>(
+        {
+          role: 'radiogroup',
+          'aria-disabled': disabled || undefined,
+          'aria-readonly': readOnly || undefined,
+          'aria-labelledby': labelId,
+          onFocus() {
             setFocused(true);
-          }
+          },
+          onBlur(event) {
+            if (!contains(event.currentTarget, event.relatedTarget)) {
+              setFieldTouched(true);
+              setFocused(false);
+
+              if (validationMode === 'onBlur') {
+                fieldControlValidation.commitValidation(checkedValue);
+              }
+            }
+          },
+          onKeyDownCapture(event) {
+            if (event.key.startsWith('Arrow')) {
+              setFieldTouched(true);
+              setTouched(true);
+              setFocused(true);
+            }
+          },
         },
-      }),
+        fieldControlValidation.getValidationProps(externalProps),
+      ),
     [
       fieldControlValidation,
       disabled,
@@ -101,18 +104,21 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
 
   const getInputProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(fieldControlValidation.getInputValidationProps(externalProps), {
-        value: serializedCheckedValue,
-        ref: fieldControlValidation.inputRef,
-        id,
-        name,
-        disabled,
-        readOnly,
-        required,
-        'aria-hidden': true,
-        tabIndex: -1,
-        style: visuallyHidden,
-      }),
+      mergeReactProps<'input'>(
+        {
+          value: serializedCheckedValue,
+          ref: fieldControlValidation.inputRef,
+          id,
+          name,
+          disabled,
+          readOnly,
+          required,
+          'aria-hidden': true,
+          tabIndex: -1,
+          style: visuallyHidden,
+        },
+        fieldControlValidation.getInputValidationProps(externalProps),
+      ),
     [fieldControlValidation, serializedCheckedValue, id, name, disabled, readOnly, required],
   );
 

@@ -34,9 +34,12 @@ const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
 
   const getProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        id,
-      }),
+      mergeReactProps(
+        {
+          id,
+        },
+        externalProps,
+      ),
     [id],
   );
 

@@ -32,9 +32,12 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
   const getSelectItemGroupLabelProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        id,
-      }),
+      mergeReactProps(
+        {
+          id,
+        },
+        externalProps,
+      ),
     [id],
   );
 

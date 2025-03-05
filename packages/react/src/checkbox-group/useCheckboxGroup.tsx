@@ -34,10 +34,13 @@ export function useCheckboxGroup(
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
-        role: 'group',
-        'aria-labelledby': labelId,
-      }),
+      mergeReactProps<'div'>(
+        {
+          role: 'group',
+          'aria-labelledby': labelId,
+        },
+        externalProps,
+      ),
     [labelId],
   );
 

@@ -26,20 +26,23 @@ export function useFieldError(params: useFieldError.Parameters) {
 
   const getErrorProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'span'>(externalProps, {
-        id,
-        children:
-          formError ||
-          (validityData.errors.length > 1
-            ? React.createElement(
-                'ul',
-                {},
-                validityData.errors.map((message) =>
-                  React.createElement('li', { key: message }, message),
-                ),
-              )
-            : validityData.error),
-      }),
+      mergeReactProps<'span'>(
+        {
+          id,
+          children:
+            formError ||
+            (validityData.errors.length > 1
+              ? React.createElement(
+                  'ul',
+                  {},
+                  validityData.errors.map((message) =>
+                    React.createElement('li', { key: message }, message),
+                  ),
+                )
+              : validityData.error),
+        },
+        externalProps,
+      ),
     [id, formError, validityData],
   );
 

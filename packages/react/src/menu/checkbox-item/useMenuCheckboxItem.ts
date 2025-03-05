@@ -20,14 +20,18 @@ export function useMenuCheckboxItem(
 
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps(getMenuItemProps, externalProps, {
-        role: 'menuitemcheckbox',
-        'aria-checked': checked,
-        onClick: (event: React.MouseEvent) => {
-          setChecked((currentlyChecked) => !currentlyChecked);
-          onCheckedChange?.(!checked, event.nativeEvent);
+      return mergeReactProps(
+        {
+          role: 'menuitemcheckbox',
+          'aria-checked': checked,
+          onClick: (event: React.MouseEvent) => {
+            setChecked((currentlyChecked) => !currentlyChecked);
+            onCheckedChange?.(!checked, event.nativeEvent);
+          },
         },
-      });
+        externalProps,
+        getMenuItemProps,
+      );
     },
     [checked, getMenuItemProps, onCheckedChange, setChecked],
   );
