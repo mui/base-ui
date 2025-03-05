@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { BaseUIEvent, WithBaseUIEvent } from './types';
+import type { BaseUIEvent, WithBaseUIEvent } from '../utils/types';
 
 type MergableProps<T extends React.ElementType> =
   | WithBaseUIEvent<React.ComponentPropsWithRef<T>>
