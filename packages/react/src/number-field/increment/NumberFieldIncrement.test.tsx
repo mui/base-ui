@@ -277,19 +277,6 @@ describe('<NumberField.Increment />', () => {
     });
   });
 
-  it('should not increment when disabled', async () => {
-    await render(
-      <NumberField.Root disabled>
-        <NumberField.Increment />
-        <NumberField.Input />
-      </NumberField.Root>,
-    );
-
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
-    expect(screen.getByRole('textbox')).to.have.value('');
-  });
-
   it('should not increment when readOnly', async () => {
     await render(
       <NumberField.Root readOnly>
@@ -367,21 +354,38 @@ describe('<NumberField.Increment />', () => {
     expect(input).to.have.value('2');
   });
 
-  it('prop: disabled', async () => {
-    const handleValueChange = spy();
-    await render(
-      <NumberField.Root defaultValue={0} onValueChange={handleValueChange}>
-        <NumberField.Increment disabled />
-        <NumberField.Input />
-      </NumberField.Root>,
-    );
-    const input = screen.getByRole('textbox');
-    const button = screen.getByRole('button');
-    expect(button).to.have.attribute('disabled');
-    expect(input).to.have.value('0');
+  describe('disabled state', () => {
+    it('should not increment when root is disabled', async () => {
+      const handleValueChange = spy();
+      await render(
+        <NumberField.Root disabled onValueChange={handleValueChange}>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
 
-    fireEvent.pointerDown(button);
-    expect(handleValueChange.callCount).to.equal(0);
-    expect(input).to.have.value('0');
+      const button = screen.getByRole('button');
+      fireEvent.click(button);
+      expect(screen.getByRole('textbox')).to.have.value('');
+      expect(handleValueChange.callCount).to.equal(0);
+    });
+
+    it('should not increment when button is disabled', async () => {
+      const handleValueChange = spy();
+      await render(
+        <NumberField.Root defaultValue={0} onValueChange={handleValueChange}>
+          <NumberField.Increment disabled />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+      const input = screen.getByRole('textbox');
+      const button = screen.getByRole('button');
+      expect(button).to.have.attribute('disabled');
+      expect(input).to.have.value('0');
+
+      fireEvent.pointerDown(button);
+      expect(handleValueChange.callCount).to.equal(0);
+      expect(input).to.have.value('0');
+    });
   });
 });
