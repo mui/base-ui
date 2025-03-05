@@ -41,11 +41,14 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
     className,
     state,
     ref: forwardedRef,
-    extraProps: mergeReactProps<'div'>(other, {
-      role: 'presentation',
-      hidden: !mounted,
-      style: openReason === 'hover' ? { pointerEvents: 'none' } : {},
-    }),
+    extraProps: mergeReactProps(
+      {
+        role: 'presentation',
+        hidden: !mounted,
+        style: openReason === 'hover' ? { pointerEvents: 'none' } : {},
+      },
+      other,
+    ),
     customStyleHookMapping,
   });
 

@@ -74,68 +74,72 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         ...otherExternalProps
       } = externalProps;
 
-      return mergeReactProps(otherExternalProps, buttonProps, {
-        type,
-        onClick(event: React.MouseEvent) {
-          if (!disabled) {
-            externalOnClick?.(event);
-          }
+      return mergeReactProps(
+        {
+          type,
+          onClick(event: React.MouseEvent) {
+            if (!disabled) {
+              externalOnClick?.(event);
+            }
+          },
+          onMouseDown(event: React.MouseEvent) {
+            if (!disabled) {
+              externalOnMouseDown?.(event);
+            }
+          },
+          onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+            if (event.target === event.currentTarget && !isNativeButton() && event.key === ' ') {
+              event.preventDefault();
+            }
+
+            if (!disabled) {
+              makeEventPreventable(event);
+              externalOnKeyDown?.(event);
+            }
+
+            if (event.baseUIHandlerPrevented) {
+              return;
+            }
+
+            // Keyboard accessibility for non interactive elements
+            if (
+              event.target === event.currentTarget &&
+              !isNativeButton() &&
+              !isValidLink() &&
+              event.key === 'Enter' &&
+              !disabled
+            ) {
+              externalOnClick?.(event);
+              event.preventDefault();
+            }
+          },
+          onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
+            // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
+            // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
+            // Keyboard accessibility for non interactive elements
+            if (!disabled) {
+              makeEventPreventable(event);
+              externalOnKeyUp?.(event);
+            }
+
+            if (event.baseUIHandlerPrevented) {
+              return;
+            }
+
+            if (
+              event.target === event.currentTarget &&
+              !isNativeButton() &&
+              !disabled &&
+              event.key === ' '
+            ) {
+              externalOnClick?.(event);
+            }
+          },
+          ref: mergedRef,
         },
-        onMouseDown(event: React.MouseEvent) {
-          if (!disabled) {
-            externalOnMouseDown?.(event);
-          }
-        },
-        onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-          if (event.target === event.currentTarget && !isNativeButton() && event.key === ' ') {
-            event.preventDefault();
-          }
-
-          if (!disabled) {
-            makeEventPreventable(event);
-            externalOnKeyDown?.(event);
-          }
-
-          if (event.baseUIHandlerPrevented) {
-            return;
-          }
-
-          // Keyboard accessibility for non interactive elements
-          if (
-            event.target === event.currentTarget &&
-            !isNativeButton() &&
-            !isValidLink() &&
-            event.key === 'Enter' &&
-            !disabled
-          ) {
-            externalOnClick?.(event);
-            event.preventDefault();
-          }
-        },
-        onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
-          // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
-          // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
-          // Keyboard accessibility for non interactive elements
-          if (!disabled) {
-            makeEventPreventable(event);
-            externalOnKeyUp?.(event);
-          }
-
-          if (event.baseUIHandlerPrevented) {
-            return;
-          }
-
-          if (
-            event.target === event.currentTarget &&
-            !isNativeButton() &&
-            !disabled &&
-            event.key === ' '
-          ) {
-            externalOnClick?.(event);
-          }
-        },
-        ref: mergedRef,
-      });
+        buttonProps,
+        otherExternalProps,
+      );
     },
     [buttonProps, disabled, isNativeButton, isValidLink, mergedRef, type],
   );

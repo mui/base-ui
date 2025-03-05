@@ -49,7 +49,7 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
     render: render || 'div',
     className,
     state,
-    propGetter: (externalProps) => mergeReactProps(getItemProps, externalProps, itemProps),
+    propGetter: (externalProps) => mergeReactProps(itemProps, externalProps, getItemProps),
     extraProps: other,
   });
 

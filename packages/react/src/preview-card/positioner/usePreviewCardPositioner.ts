@@ -20,15 +20,18 @@ export function usePreviewCardPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps<'div'>(externalProps, {
-          role: 'presentation',
+        return mergeReactProps(
+          {
+            role: 'presentation',
 
-          hidden: !mounted,
-          style: {
-            ...positioning.positionerStyles,
-            ...hiddenStyles,
+            hidden: !mounted,
+            style: {
+              ...positioning.positionerStyles,
+              ...hiddenStyles,
+            },
           },
-        });
+          externalProps,
+        );
       },
       [open, mounted, positioning.positionerStyles],
     );

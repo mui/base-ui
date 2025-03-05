@@ -13,7 +13,7 @@ describe('mergeReactProps', () => {
       onClick: spy(),
       onPaste: spy(),
     };
-    const mergedProps = mergeReactProps<'button'>(theirProps, ourProps);
+    const mergedProps = mergeReactProps<'button'>(ourProps, theirProps);
 
     mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
     mergedProps.onKeyDown?.({ nativeEvent: new KeyboardEvent('keydown') } as any);
@@ -32,7 +32,7 @@ describe('mergeReactProps', () => {
     const mergedProps = mergeReactProps<'button'>(
       {
         onClick() {
-          log.push('1');
+          log.push('3');
         },
       },
       {
@@ -42,7 +42,7 @@ describe('mergeReactProps', () => {
       },
       {
         onClick() {
-          log.push('3');
+          log.push('1');
         },
       },
     );
@@ -58,7 +58,7 @@ describe('mergeReactProps', () => {
     const ourProps = {
       style: { color: 'blue', backgroundColor: 'blue' },
     };
-    const mergedProps = mergeReactProps<'div'>(theirProps, ourProps);
+    const mergedProps = mergeReactProps<'div'>(ourProps, theirProps);
 
     expect(mergedProps.style).to.deep.equal({
       color: 'red',
@@ -72,7 +72,7 @@ describe('mergeReactProps', () => {
     };
     const ourProps = {};
 
-    const mergedProps = mergeReactProps<'button'>(theirProps, ourProps);
+    const mergedProps = mergeReactProps<'button'>(ourProps, theirProps);
 
     expect(mergedProps.style).to.deep.equal({
       color: 'red',
@@ -82,7 +82,7 @@ describe('mergeReactProps', () => {
   it('does not merge styles if both are undefined', () => {
     const theirProps = {};
     const ourProps = {};
-    const mergedProps = mergeReactProps<'button'>(theirProps, ourProps);
+    const mergedProps = mergeReactProps<'button'>(ourProps, theirProps);
 
     expect(mergedProps.style).to.equal(undefined);
   });
@@ -111,8 +111,8 @@ describe('mergeReactProps', () => {
 
     const mergedProps = mergeReactProps<'button'>(
       {
-        onClick: function onClick1(event) {
-          event.preventBaseUIHandler();
+        onClick: function onClick3() {
+          ran = true;
         },
       },
       {
@@ -121,8 +121,8 @@ describe('mergeReactProps', () => {
         },
       },
       {
-        onClick: function onClick3() {
-          ran = true;
+        onClick: function onClick1(event) {
+          event.preventBaseUIHandler();
         },
       },
     );
@@ -139,7 +139,7 @@ describe('mergeReactProps', () => {
     const mergedProps = mergeReactProps(
       {
         onClick() {
-          log.push('0');
+          log.push('2');
         },
       },
       {
@@ -150,7 +150,7 @@ describe('mergeReactProps', () => {
       },
       {
         onClick() {
-          log.push('2');
+          log.push('0');
         },
       },
     );
@@ -167,12 +167,12 @@ describe('mergeReactProps', () => {
       const mergedProps = mergeReactProps(
         {
           onValueChange() {
-            log.push('0');
+            log.push('1');
           },
         },
         {
           onValueChange() {
-            log.push('1');
+            log.push('0');
           },
         },
       );
@@ -185,13 +185,13 @@ describe('mergeReactProps', () => {
 
   it('merges internal props so that the ones defined first override the ones defined later', () => {
     const mergedProps = mergeReactProps<'button'>(
-      {},
-      {
-        title: 'internal title 1',
-      },
       {
         title: 'internal title 2',
       },
+      {
+        title: 'internal title 1',
+      },
+      {},
     );
 
     expect(mergedProps.title).to.equal('internal title 1');
@@ -202,13 +202,13 @@ describe('mergeReactProps', () => {
       const propsGetter = spy((props) => props);
       mergeReactProps(
         {
-          id: '1',
-          role: 'button',
+          id: '2',
+          className: 'test-class',
         },
         propsGetter,
         {
-          id: '2',
-          className: 'test-class',
+          id: '1',
+          role: 'button',
         },
       );
 
@@ -220,15 +220,15 @@ describe('mergeReactProps', () => {
       const propsGetter = spy((props) => props);
       mergeReactProps(
         {
-          id: 'one',
+          role: 'button',
+          className: 'test-class',
         },
-        propsGetter,
         {
           role: 'tab',
         },
+        propsGetter,
         {
-          role: 'button',
-          className: 'test-class',
+          id: 'one',
         },
       );
 
@@ -241,7 +241,7 @@ describe('mergeReactProps', () => {
 
     it('calls the props getter with an empty object if no props are defined after it', () => {
       const propsGetter = spy((props) => props);
-      mergeReactProps({ id: '1' }, propsGetter);
+      mergeReactProps(propsGetter, { id: '1' });
 
       expect(propsGetter.calledOnce).to.equal(true);
       expect(propsGetter.firstCall.args[0]).to.deep.equal({});
@@ -250,14 +250,14 @@ describe('mergeReactProps', () => {
     it('accepts the result of the props getter', () => {
       const propsGetter = () => ({ className: 'test-class' });
       const result = mergeReactProps(
-        propsGetter,
-        {
-          id: 'one',
-        },
         {
           id: 'two',
           role: 'tab',
         },
+        {
+          id: 'one',
+        },
+        propsGetter,
       );
 
       expect(result).to.deep.equal({

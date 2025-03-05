@@ -12,9 +12,12 @@ export function usePopoverDescription(
 
   const getDescriptionProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'p'>(externalProps, {
-        id,
-      });
+      return mergeReactProps<'p'>(
+        {
+          id,
+        },
+        externalProps,
+      );
     },
     [id],
   );

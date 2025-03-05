@@ -40,60 +40,64 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps(getButtonProps, externalProps, {
-        'aria-haspopup': 'menu' as const,
-        tabIndex: 0, // this is needed to make the button focused after click in Safari
-        ref: handleRef,
-        onMouseDown: (event: React.MouseEvent) => {
-          if (open) {
-            return;
-          }
-
-          // mousedown -> mouseup on menu item should not trigger it within 200ms.
-          allowMouseUpTriggerTimeoutRef.current = window.setTimeout(() => {
-            allowMouseUpTriggerRef.current = true;
-          }, 200);
-
-          const doc = ownerDocument(event.currentTarget);
-
-          function handleMouseUp(mouseEvent: MouseEvent) {
-            if (!triggerRef.current) {
+      return mergeReactProps(
+        {
+          'aria-haspopup': 'menu' as const,
+          tabIndex: 0, // this is needed to make the button focused after click in Safari
+          ref: handleRef,
+          onMouseDown: (event: React.MouseEvent) => {
+            if (open) {
               return;
             }
 
-            if (allowMouseUpTriggerTimeoutRef.current !== -1) {
-              clearTimeout(allowMouseUpTriggerTimeoutRef.current);
-              allowMouseUpTriggerTimeoutRef.current = -1;
+            // mousedown -> mouseup on menu item should not trigger it within 200ms.
+            allowMouseUpTriggerTimeoutRef.current = window.setTimeout(() => {
+              allowMouseUpTriggerRef.current = true;
+            }, 200);
+
+            const doc = ownerDocument(event.currentTarget);
+
+            function handleMouseUp(mouseEvent: MouseEvent) {
+              if (!triggerRef.current) {
+                return;
+              }
+
+              if (allowMouseUpTriggerTimeoutRef.current !== -1) {
+                clearTimeout(allowMouseUpTriggerTimeoutRef.current);
+                allowMouseUpTriggerTimeoutRef.current = -1;
+              }
+              allowMouseUpTriggerRef.current = false;
+
+              const mouseUpTarget = mouseEvent.target as Element | null;
+
+              if (
+                contains(triggerRef.current, mouseUpTarget) ||
+                contains(positionerRef.current, mouseUpTarget) ||
+                mouseUpTarget === triggerRef.current
+              ) {
+                return;
+              }
+
+              const bounds = getPseudoElementBounds(triggerRef.current);
+
+              if (
+                mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
+                mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
+                mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
+                mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
+              ) {
+                return;
+              }
+
+              setOpen(false, mouseEvent);
             }
-            allowMouseUpTriggerRef.current = false;
 
-            const mouseUpTarget = mouseEvent.target as Element | null;
-
-            if (
-              contains(triggerRef.current, mouseUpTarget) ||
-              contains(positionerRef.current, mouseUpTarget) ||
-              mouseUpTarget === triggerRef.current
-            ) {
-              return;
-            }
-
-            const bounds = getPseudoElementBounds(triggerRef.current);
-
-            if (
-              mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
-              mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
-              mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
-              mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
-            ) {
-              return;
-            }
-
-            setOpen(false, mouseEvent);
-          }
-
-          doc.addEventListener('mouseup', handleMouseUp, { once: true });
+            doc.addEventListener('mouseup', handleMouseUp, { once: true });
+          },
         },
-      });
+        externalProps,
+        getButtonProps,
+      );
     },
     [getButtonProps, handleRef, open, setOpen, positionerRef, allowMouseUpTriggerRef],
   );

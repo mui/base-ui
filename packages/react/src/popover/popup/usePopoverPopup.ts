@@ -11,10 +11,13 @@ export function usePopoverPopup(params: usePopoverPopup.Parameters): usePopoverP
 
   const getPopupProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'div'>(getProps(externalProps), {
-        'aria-labelledby': titleId,
-        'aria-describedby': descriptionId,
-      });
+      return mergeReactProps(
+        {
+          'aria-labelledby': titleId,
+          'aria-describedby': descriptionId,
+        },
+        getProps(externalProps),
+      );
     },
     [getProps, titleId, descriptionId],
   );

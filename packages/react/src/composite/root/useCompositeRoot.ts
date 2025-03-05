@@ -96,161 +96,165 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
-        'aria-orientation': orientation === 'both' ? undefined : orientation,
-        ref: mergedRef,
-        onKeyDown(event) {
-          const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
-          if (!RELEVANT_KEYS.includes(event.key)) {
-            return;
-          }
-
-          const element = rootRef.current;
-          if (!element) {
-            return;
-          }
-
-          if (textDirectionRef?.current == null) {
-            textDirectionRef.current = getTextDirection(element);
-          }
-          const isRtl = textDirectionRef.current === 'rtl';
-
-          let nextIndex = highlightedIndex;
-          const minIndex = getMinIndex(elementsRef, disabledIndices);
-          const maxIndex = getMaxIndex(elementsRef, disabledIndices);
-
-          if (isGrid) {
-            const sizes =
-              itemSizes ||
-              Array.from({ length: elementsRef.current.length }, () => ({
-                width: 1,
-                height: 1,
-              }));
-            // To calculate movements on the grid, we use hypothetical cell indices
-            // as if every item was 1x1, then convert back to real indices.
-            const cellMap = buildCellMap(sizes, cols, dense);
-            const minGridIndex = cellMap.findIndex(
-              (index) => index != null && !isDisabled(elementsRef.current, index, disabledIndices),
-            );
-            // last enabled index
-            const maxGridIndex = cellMap.reduce(
-              (foundIndex: number, index, cellIndex) =>
-                index != null && !isDisabled(elementsRef.current, index, disabledIndices)
-                  ? cellIndex
-                  : foundIndex,
-              -1,
-            );
-
-            nextIndex = cellMap[
-              getGridNavigatedIndex(
-                {
-                  current: cellMap.map((itemIndex) =>
-                    itemIndex ? elementsRef.current[itemIndex] : null,
-                  ),
-                },
-                {
-                  event,
-                  orientation,
-                  loop,
-                  cols,
-                  // treat undefined (empty grid spaces) as disabled indices so we
-                  // don't end up in them
-                  disabledIndices: getCellIndices(
-                    [
-                      ...(disabledIndices ||
-                        elementsRef.current.map((_, index) =>
-                          isDisabled(elementsRef.current, index) ? index : undefined,
-                        )),
-                      undefined,
-                    ],
-                    cellMap,
-                  ),
-                  minIndex: minGridIndex,
-                  maxIndex: maxGridIndex,
-                  prevIndex: getCellIndexOfCorner(
-                    highlightedIndex > maxIndex ? minIndex : highlightedIndex,
-                    sizes,
-                    cellMap,
-                    cols,
-                    // use a corner matching the edge closest to the direction we're
-                    // moving in so we don't end up in the same item. Prefer
-                    // top/left over bottom/right.
-                    // eslint-disable-next-line no-nested-ternary
-                    event.key === ARROW_DOWN ? 'bl' : event.key === ARROW_RIGHT ? 'tr' : 'tl',
-                  ),
-                  rtl: isRtl,
-                },
-              )
-            ] as number; // navigated cell will never be nullish
-          }
-
-          const horizontalEndKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
-          const toEndKeys = {
-            horizontal: [horizontalEndKey],
-            vertical: [ARROW_DOWN],
-            both: [horizontalEndKey, ARROW_DOWN],
-          }[orientation];
-
-          const horizontalStartKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
-          const toStartKeys = {
-            horizontal: [horizontalStartKey],
-            vertical: [ARROW_UP],
-            both: [horizontalStartKey, ARROW_UP],
-          }[orientation];
-
-          const preventedKeys = isGrid
-            ? RELEVANT_KEYS
-            : {
-                horizontal: enableHomeAndEndKeys
-                  ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS
-                  : HORIZONTAL_KEYS,
-                vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
-                both: RELEVANT_KEYS,
-              }[orientation];
-
-          if (enableHomeAndEndKeys) {
-            if (event.key === HOME) {
-              nextIndex = minIndex;
-            } else if (event.key === END) {
-              nextIndex = maxIndex;
+      mergeReactProps(
+        {
+          'aria-orientation': orientation === 'both' ? undefined : orientation,
+          ref: mergedRef,
+          onKeyDown(event) {
+            const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
+            if (!RELEVANT_KEYS.includes(event.key)) {
+              return;
             }
-          }
 
-          if (
-            nextIndex === highlightedIndex &&
-            [...toEndKeys, ...toStartKeys].includes(event.key)
-          ) {
-            if (loop && nextIndex === maxIndex && toEndKeys.includes(event.key)) {
-              nextIndex = minIndex;
-            } else if (loop && nextIndex === minIndex && toStartKeys.includes(event.key)) {
-              nextIndex = maxIndex;
-            } else {
-              nextIndex = findNonDisabledIndex(elementsRef, {
-                startingIndex: nextIndex,
-                decrement: toStartKeys.includes(event.key),
-                disabledIndices,
+            const element = rootRef.current;
+            if (!element) {
+              return;
+            }
+
+            if (textDirectionRef?.current == null) {
+              textDirectionRef.current = getTextDirection(element);
+            }
+            const isRtl = textDirectionRef.current === 'rtl';
+
+            let nextIndex = highlightedIndex;
+            const minIndex = getMinIndex(elementsRef, disabledIndices);
+            const maxIndex = getMaxIndex(elementsRef, disabledIndices);
+
+            if (isGrid) {
+              const sizes =
+                itemSizes ||
+                Array.from({ length: elementsRef.current.length }, () => ({
+                  width: 1,
+                  height: 1,
+                }));
+              // To calculate movements on the grid, we use hypothetical cell indices
+              // as if every item was 1x1, then convert back to real indices.
+              const cellMap = buildCellMap(sizes, cols, dense);
+              const minGridIndex = cellMap.findIndex(
+                (index) =>
+                  index != null && !isDisabled(elementsRef.current, index, disabledIndices),
+              );
+              // last enabled index
+              const maxGridIndex = cellMap.reduce(
+                (foundIndex: number, index, cellIndex) =>
+                  index != null && !isDisabled(elementsRef.current, index, disabledIndices)
+                    ? cellIndex
+                    : foundIndex,
+                -1,
+              );
+
+              nextIndex = cellMap[
+                getGridNavigatedIndex(
+                  {
+                    current: cellMap.map((itemIndex) =>
+                      itemIndex ? elementsRef.current[itemIndex] : null,
+                    ),
+                  },
+                  {
+                    event,
+                    orientation,
+                    loop,
+                    cols,
+                    // treat undefined (empty grid spaces) as disabled indices so we
+                    // don't end up in them
+                    disabledIndices: getCellIndices(
+                      [
+                        ...(disabledIndices ||
+                          elementsRef.current.map((_, index) =>
+                            isDisabled(elementsRef.current, index) ? index : undefined,
+                          )),
+                        undefined,
+                      ],
+                      cellMap,
+                    ),
+                    minIndex: minGridIndex,
+                    maxIndex: maxGridIndex,
+                    prevIndex: getCellIndexOfCorner(
+                      highlightedIndex > maxIndex ? minIndex : highlightedIndex,
+                      sizes,
+                      cellMap,
+                      cols,
+                      // use a corner matching the edge closest to the direction we're
+                      // moving in so we don't end up in the same item. Prefer
+                      // top/left over bottom/right.
+                      // eslint-disable-next-line no-nested-ternary
+                      event.key === ARROW_DOWN ? 'bl' : event.key === ARROW_RIGHT ? 'tr' : 'tl',
+                    ),
+                    rtl: isRtl,
+                  },
+                )
+              ] as number; // navigated cell will never be nullish
+            }
+
+            const horizontalEndKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
+            const toEndKeys = {
+              horizontal: [horizontalEndKey],
+              vertical: [ARROW_DOWN],
+              both: [horizontalEndKey, ARROW_DOWN],
+            }[orientation];
+
+            const horizontalStartKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
+            const toStartKeys = {
+              horizontal: [horizontalStartKey],
+              vertical: [ARROW_UP],
+              both: [horizontalStartKey, ARROW_UP],
+            }[orientation];
+
+            const preventedKeys = isGrid
+              ? RELEVANT_KEYS
+              : {
+                  horizontal: enableHomeAndEndKeys
+                    ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS
+                    : HORIZONTAL_KEYS,
+                  vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
+                  both: RELEVANT_KEYS,
+                }[orientation];
+
+            if (enableHomeAndEndKeys) {
+              if (event.key === HOME) {
+                nextIndex = minIndex;
+              } else if (event.key === END) {
+                nextIndex = maxIndex;
+              }
+            }
+
+            if (
+              nextIndex === highlightedIndex &&
+              [...toEndKeys, ...toStartKeys].includes(event.key)
+            ) {
+              if (loop && nextIndex === maxIndex && toEndKeys.includes(event.key)) {
+                nextIndex = minIndex;
+              } else if (loop && nextIndex === minIndex && toStartKeys.includes(event.key)) {
+                nextIndex = maxIndex;
+              } else {
+                nextIndex = findNonDisabledIndex(elementsRef, {
+                  startingIndex: nextIndex,
+                  decrement: toStartKeys.includes(event.key),
+                  disabledIndices,
+                });
+              }
+            }
+
+            if (nextIndex !== highlightedIndex && !isIndexOutOfBounds(elementsRef, nextIndex)) {
+              if (stopEventPropagation) {
+                event.stopPropagation();
+              }
+
+              if (preventedKeys.includes(event.key)) {
+                event.preventDefault();
+              }
+
+              onHighlightedIndexChange(nextIndex);
+
+              // Wait for FocusManager `returnFocus` to execute.
+              queueMicrotask(() => {
+                elementsRef.current[nextIndex]?.focus();
               });
             }
-          }
-
-          if (nextIndex !== highlightedIndex && !isIndexOutOfBounds(elementsRef, nextIndex)) {
-            if (stopEventPropagation) {
-              event.stopPropagation();
-            }
-
-            if (preventedKeys.includes(event.key)) {
-              event.preventDefault();
-            }
-
-            onHighlightedIndexChange(nextIndex);
-
-            // Wait for FocusManager `returnFocus` to execute.
-            queueMicrotask(() => {
-              elementsRef.current[nextIndex]?.focus();
-            });
-          }
+          },
         },
-      }),
+        externalProps,
+      ),
     [
       cols,
       dense,

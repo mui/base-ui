@@ -42,13 +42,16 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
     className,
     state,
     ref: forwardedRef,
-    extraProps: mergeReactProps<'div'>(other, {
-      role: 'presentation',
-      hidden: !mounted,
-      style: {
-        pointerEvents: 'none',
+    extraProps: mergeReactProps(
+      {
+        role: 'presentation',
+        hidden: !mounted,
+        style: {
+          pointerEvents: 'none',
+        },
       },
-    }),
+      other,
+    ),
     customStyleHookMapping,
   });
 

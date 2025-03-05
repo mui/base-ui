@@ -11,9 +11,12 @@ export function usePopoverClose(
 
   const getCloseProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'button'>(externalProps, {
-        onClick: onClose,
-      });
+      return mergeReactProps<'button'>(
+        {
+          onClick: onClose,
+        },
+        externalProps,
+      );
     },
     [onClose],
   );

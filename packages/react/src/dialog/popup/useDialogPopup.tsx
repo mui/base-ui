@@ -59,17 +59,20 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
   }, [id, setPopupElementId]);
 
   const getRootProps = (externalProps: React.HTMLAttributes<any>) =>
-    mergeReactProps<'div'>(externalProps, {
-      'aria-labelledby': titleElementId ?? undefined,
-      'aria-describedby': descriptionElementId ?? undefined,
-      'aria-modal': mounted && modal ? true : undefined,
-      role: 'dialog',
-      tabIndex: -1,
-      ...getPopupProps(),
-      id,
-      ref: handleRef,
-      hidden: !mounted,
-    });
+    mergeReactProps(
+      {
+        'aria-labelledby': titleElementId ?? undefined,
+        'aria-describedby': descriptionElementId ?? undefined,
+        'aria-modal': mounted && modal ? true : undefined,
+        role: 'dialog',
+        tabIndex: -1,
+        ...getPopupProps(),
+        id,
+        ref: handleRef,
+        hidden: !mounted,
+      },
+      externalProps,
+    );
 
   return {
     getRootProps,

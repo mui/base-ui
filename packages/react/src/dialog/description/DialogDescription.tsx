@@ -34,9 +34,12 @@ const DialogDescription = React.forwardRef(function DialogDescription(
 
   const getProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        id,
-      }),
+      mergeReactProps(
+        {
+          id,
+        },
+        externalProps,
+      ),
     [id],
   );
 

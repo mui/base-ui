@@ -42,27 +42,30 @@ const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
     ref: mergedRef,
     className,
     state,
-    extraProps: mergeReactProps<'div'>(otherProps, {
-      onPointerDown: handlePointerDown,
-      onPointerMove: handlePointerMove,
-      onPointerUp(event) {
-        if (orientation === 'vertical') {
-          setScrollingY(false);
-        }
-        if (orientation === 'horizontal') {
-          setScrollingX(false);
-        }
-        handlePointerUp(event);
+    extraProps: mergeReactProps(
+      {
+        onPointerDown: handlePointerDown,
+        onPointerMove: handlePointerMove,
+        onPointerUp(event) {
+          if (orientation === 'vertical') {
+            setScrollingY(false);
+          }
+          if (orientation === 'horizontal') {
+            setScrollingX(false);
+          }
+          handlePointerUp(event);
+        },
+        style: {
+          ...(orientation === 'vertical' && {
+            height: `var(${ScrollAreaScrollbarCssVars.scrollAreaThumbHeight})`,
+          }),
+          ...(orientation === 'horizontal' && {
+            width: `var(${ScrollAreaScrollbarCssVars.scrollAreaThumbWidth})`,
+          }),
+        },
       },
-      style: {
-        ...(orientation === 'vertical' && {
-          height: `var(${ScrollAreaScrollbarCssVars.scrollAreaThumbHeight})`,
-        }),
-        ...(orientation === 'horizontal' && {
-          width: `var(${ScrollAreaScrollbarCssVars.scrollAreaThumbWidth})`,
-        }),
-      },
-    }),
+      otherProps,
+    ),
   });
 
   return renderElement();

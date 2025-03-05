@@ -68,45 +68,48 @@ export function useFieldControl(params: useFieldControl.Parameters) {
 
   const getControlProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(getValidationProps(getInputValidationProps(externalProps)), {
-        id,
-        disabled,
-        name,
-        ref: inputRef,
-        'aria-labelledby': labelId,
-        value,
-        onChange(event) {
-          if (value != null) {
-            setValue(event.currentTarget.value, event.nativeEvent);
-          }
+      mergeReactProps<'input'>(
+        {
+          id,
+          disabled,
+          name,
+          ref: inputRef,
+          'aria-labelledby': labelId,
+          value,
+          onChange(event) {
+            if (value != null) {
+              setValue(event.currentTarget.value, event.nativeEvent);
+            }
 
-          setDirty(event.currentTarget.value !== validityData.initialValue);
-          setFilled(event.currentTarget.value !== '');
+            setDirty(event.currentTarget.value !== validityData.initialValue);
+            setFilled(event.currentTarget.value !== '');
 
-          if (name && {}.hasOwnProperty.call(errors, name)) {
-            const nextErrors = { ...errors };
-            delete nextErrors[name];
-            onClearErrors(nextErrors);
-          }
-        },
-        onFocus() {
-          setFocused(true);
-        },
-        onBlur(event) {
-          setTouched(true);
-          setFocused(false);
-
-          if (validationMode === 'onBlur') {
-            commitValidation(event.currentTarget.value);
-          }
-        },
-        onKeyDown(event) {
-          if (event.currentTarget.tagName === 'INPUT' && event.key === 'Enter') {
+            if (name && {}.hasOwnProperty.call(errors, name)) {
+              const nextErrors = { ...errors };
+              delete nextErrors[name];
+              onClearErrors(nextErrors);
+            }
+          },
+          onFocus() {
+            setFocused(true);
+          },
+          onBlur(event) {
             setTouched(true);
-            commitValidation(event.currentTarget.value);
-          }
+            setFocused(false);
+
+            if (validationMode === 'onBlur') {
+              commitValidation(event.currentTarget.value);
+            }
+          },
+          onKeyDown(event) {
+            if (event.currentTarget.tagName === 'INPUT' && event.key === 'Enter') {
+              setTouched(true);
+              commitValidation(event.currentTarget.value);
+            }
+          },
         },
-      }),
+        getValidationProps(getInputValidationProps(externalProps)),
+      ),
     [
       getValidationProps,
       getInputValidationProps,

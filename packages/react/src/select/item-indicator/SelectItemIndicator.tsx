@@ -30,10 +30,13 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
 
   const getItemProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        'aria-hidden': true,
-        children: '✔️',
-      }),
+      mergeReactProps(
+        {
+          'aria-hidden': true,
+          children: '✔️',
+        },
+        externalProps,
+      ),
     [],
   );
 

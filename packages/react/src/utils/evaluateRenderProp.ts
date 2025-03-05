@@ -9,5 +9,5 @@ export function evaluateRenderProp<ElementType extends React.ElementType, State>
 ): React.ReactElement<Record<string, unknown>> {
   return typeof render === 'function'
     ? render(props, state)
-    : React.cloneElement(render, { ...mergeReactProps(render.props, props), ref: props.ref });
+    : React.cloneElement(render, { ...mergeReactProps(props, render.props), ref: props.ref });
 }

@@ -27,12 +27,15 @@ export function useSliderValue(parameters: useSliderValue.Parameters): useSlider
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(externalProps, {
-        // off by default because it will keep announcing when the slider is being dragged
-        // and also when the value is changing (but not yet committed)
-        'aria-live': ariaLive,
-        htmlFor: outputFor,
-      });
+      return mergeReactProps(
+        {
+          // off by default because it will keep announcing when the slider is being dragged
+          // and also when the value is changing (but not yet committed)
+          'aria-live': ariaLive,
+          htmlFor: outputFor,
+        },
+        externalProps,
+      );
     },
     [ariaLive, outputFor],
   );

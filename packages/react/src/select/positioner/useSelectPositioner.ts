@@ -31,14 +31,17 @@ export function useSelectPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps<'div'>(externalProps, {
-          role: 'presentation',
-          hidden: !mounted,
-          style: {
-            ...positionerStyles,
-            ...hiddenStyles,
+        return mergeReactProps(
+          {
+            role: 'presentation',
+            hidden: !mounted,
+            style: {
+              ...positionerStyles,
+              ...hiddenStyles,
+            },
           },
-        });
+          externalProps,
+        );
       },
       [open, mounted, positionerStyles],
     );

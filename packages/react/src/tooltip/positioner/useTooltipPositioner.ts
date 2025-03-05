@@ -24,14 +24,17 @@ export function useTooltipPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps<'div'>(externalProps, {
-          role: 'presentation',
-          hidden: !mounted,
-          style: {
-            ...positioning.positionerStyles,
-            ...hiddenStyles,
+        return mergeReactProps(
+          {
+            role: 'presentation',
+            hidden: !mounted,
+            style: {
+              ...positioning.positionerStyles,
+              ...hiddenStyles,
+            },
           },
-        });
+          externalProps,
+        );
       },
       [open, trackCursorAxis, mounted, positioning.positionerStyles],
     );

@@ -9,12 +9,15 @@ export function usePreviewCardPopup(
 
   const getPopupProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'div'>(getProps(externalProps), {
-        style: {
-          // <Popover.Arrow> must be relative to the <Popover.Popup> element.
-          position: 'relative',
+      return mergeReactProps(
+        {
+          style: {
+            // <Popover.Arrow> must be relative to the <Popover.Popup> element.
+            position: 'relative',
+          },
         },
-      });
+        getProps(externalProps),
+      );
     },
     [getProps],
   );

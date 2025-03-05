@@ -405,12 +405,15 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const getRootProps: useSliderRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(getValidationProps(externalProps), {
-        'aria-labelledby': ariaLabelledby,
-        id,
-        ref: handleRootRef,
-        role: 'group',
-      }),
+      mergeReactProps(
+        {
+          'aria-labelledby': ariaLabelledby,
+          id,
+          ref: handleRootRef,
+          role: 'group',
+        },
+        getValidationProps(externalProps),
+      ),
     [ariaLabelledby, getValidationProps, handleRootRef, id],
   );
 

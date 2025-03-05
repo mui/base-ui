@@ -26,9 +26,12 @@ export function useFieldDescription(params: useFieldDescription.Parameters) {
 
   const getDescriptionProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'span'>(externalProps, {
-        id,
-      }),
+      mergeReactProps<'span'>(
+        {
+          id,
+        },
+        externalProps,
+      ),
     [id],
   );
 

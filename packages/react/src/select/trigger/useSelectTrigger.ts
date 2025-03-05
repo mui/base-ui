@@ -74,75 +74,78 @@ export function useSelectTrigger(
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return getButtonProps(
-        mergeReactProps<'button'>(fieldControlValidation.getValidationProps(externalProps), {
-          'aria-labelledby': labelId,
-          'aria-readonly': readOnly || undefined,
-          tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
-          ref: handleRef,
-          onFocus() {
-            setFocused(true);
-            // The popup element shouldn't obscure the focused trigger.
-            if (open && alignItemToTrigger) {
-              setOpen(false);
-            }
-          },
-          onBlur() {
-            setTouched(true);
-            setFocused(false);
+        mergeReactProps<'button'>(
+          {
+            'aria-labelledby': labelId,
+            'aria-readonly': readOnly || undefined,
+            tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
+            ref: handleRef,
+            onFocus() {
+              setFocused(true);
+              // The popup element shouldn't obscure the focused trigger.
+              if (open && alignItemToTrigger) {
+                setOpen(false);
+              }
+            },
+            onBlur() {
+              setTouched(true);
+              setFocused(false);
 
-            if (validationMode === 'onBlur') {
-              fieldControlValidation.commitValidation(value);
-            }
-          },
-          onPointerMove({ pointerType }) {
-            setTouchModality(pointerType === 'touch');
-          },
-          onPointerDown({ pointerType }) {
-            setTouchModality(pointerType === 'touch');
-          },
-          onMouseDown(event) {
-            if (open) {
-              return;
-            }
-
-            const doc = ownerDocument(event.currentTarget);
-
-            function handleMouseUp(mouseEvent: MouseEvent) {
-              if (!triggerRef.current) {
+              if (validationMode === 'onBlur') {
+                fieldControlValidation.commitValidation(value);
+              }
+            },
+            onPointerMove({ pointerType }) {
+              setTouchModality(pointerType === 'touch');
+            },
+            onPointerDown({ pointerType }) {
+              setTouchModality(pointerType === 'touch');
+            },
+            onMouseDown(event) {
+              if (open) {
                 return;
               }
 
-              const mouseUpTarget = mouseEvent.target as Element | null;
+              const doc = ownerDocument(event.currentTarget);
 
-              // Early return if clicked on trigger element or its children
-              if (
-                contains(triggerRef.current, mouseUpTarget) ||
-                contains(positionerElement, mouseUpTarget) ||
-                mouseUpTarget === triggerRef.current
-              ) {
-                return;
+              function handleMouseUp(mouseEvent: MouseEvent) {
+                if (!triggerRef.current) {
+                  return;
+                }
+
+                const mouseUpTarget = mouseEvent.target as Element | null;
+
+                // Early return if clicked on trigger element or its children
+                if (
+                  contains(triggerRef.current, mouseUpTarget) ||
+                  contains(positionerElement, mouseUpTarget) ||
+                  mouseUpTarget === triggerRef.current
+                ) {
+                  return;
+                }
+
+                const bounds = getPseudoElementBounds(triggerRef.current);
+
+                if (
+                  mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
+                  mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
+                  mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
+                  mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
+                ) {
+                  return;
+                }
+
+                setOpen(false, mouseEvent);
               }
 
-              const bounds = getPseudoElementBounds(triggerRef.current);
-
-              if (
-                mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
-                mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
-                mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
-                mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
-              ) {
-                return;
-              }
-
-              setOpen(false, mouseEvent);
-            }
-
-            // Firefox can fire this upon mousedown
-            timeoutRef.current = window.setTimeout(() => {
-              doc.addEventListener('mouseup', handleMouseUp, { once: true });
-            });
+              // Firefox can fire this upon mousedown
+              timeoutRef.current = window.setTimeout(() => {
+                doc.addEventListener('mouseup', handleMouseUp, { once: true });
+              });
+            },
           },
-        }),
+          fieldControlValidation.getValidationProps(externalProps),
+        ),
       );
     },
     [

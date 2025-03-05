@@ -35,9 +35,12 @@ export function useToggleGroup(parameters: useToggleGroup.Parameters): useToggle
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
-        role: 'group',
-      }),
+      mergeReactProps(
+        {
+          role: 'group',
+        },
+        externalProps,
+      ),
     [],
   );
 

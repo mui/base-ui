@@ -24,10 +24,13 @@ const SelectGroup = React.forwardRef(function SelectGroup(
 
   const getSelectItemGroupProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        role: 'group',
-        'aria-labelledby': labelId,
-      }),
+      mergeReactProps(
+        {
+          role: 'group',
+          'aria-labelledby': labelId,
+        },
+        externalProps,
+      ),
     [labelId],
   );
 

@@ -37,11 +37,14 @@ function useTabsList(parameters: useTabsList.Parameters): useTabsList.ReturnValu
 
   const getRootProps = React.useCallback(
     (otherProps = {}): React.ComponentPropsWithRef<'div'> => {
-      return mergeReactProps(otherProps, {
-        'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
-        ref: handleRef,
-        role: 'tablist',
-      });
+      return mergeReactProps(
+        {
+          'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
+          ref: handleRef,
+          role: 'tablist',
+        },
+        otherProps,
+      );
     },
     [handleRef, orientation],
   );

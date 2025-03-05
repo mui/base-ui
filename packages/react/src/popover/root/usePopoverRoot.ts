@@ -177,7 +177,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       descriptionId,
       setDescriptionId,
       getRootTriggerProps: (externalProps?: React.HTMLProps<Element>) =>
-        getReferenceProps(mergeReactProps(externalProps, triggerProps)),
+        getReferenceProps(mergeReactProps(triggerProps, externalProps)),
       getRootPopupProps: getFloatingProps,
       floatingRootContext: context,
       instantType,
