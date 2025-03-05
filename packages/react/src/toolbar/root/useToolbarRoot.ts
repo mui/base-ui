@@ -24,10 +24,13 @@ export function useToolbarRoot(parameters: useToolbarRoot.Parameters): useToolba
 
   const getRootProps = React.useCallback(
     (externalProps = {}): React.ComponentPropsWithRef<'div'> => {
-      return mergeReactProps(externalProps, {
-        'aria-orientation': orientation,
-        role: 'toolbar',
-      });
+      return mergeReactProps(
+        {
+          'aria-orientation': orientation,
+          role: 'toolbar',
+        },
+        externalProps,
+      );
     },
     [orientation],
   );
