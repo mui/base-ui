@@ -8,7 +8,7 @@ import type { Toast } from '../useToast';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { ToastRootContext } from './ToastRootContext';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { ToastRootCssVars } from './ToastRootCssVars';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
@@ -427,24 +427,27 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     className,
     state,
     customStyleHookMapping: transitionStatusMapping,
-    extraProps: mergeReactProps<'div'>(other, {
-      role: toast.priority === 'high' ? 'alertdialog' : 'dialog',
-      tabIndex: 0,
-      'aria-modal': false,
-      'aria-labelledby': titleId,
-      'aria-describedby': descriptionId,
-      ['data-base-ui-toast' as string]: toast.id,
-      ['data-drag-dismissed' as string]: dragDismissed ? '' : undefined,
-      onPointerDown: handlePointerDown,
-      onPointerMove: handlePointerMove,
-      onPointerUp: handlePointerUp,
-      onKeyDown: handleKeyDown,
-      style: {
-        ...getDragStyles(),
-        [ToastRootCssVars.index as string]: toast.animation === 'ending' ? domIndex : index,
-        [ToastRootCssVars.offset as string]: `${offset}px`,
+    extraProps: mergeProps(
+      {
+        role: toast.priority === 'high' ? 'alertdialog' : 'dialog',
+        tabIndex: 0,
+        'aria-modal': false,
+        'aria-labelledby': titleId,
+        'aria-describedby': descriptionId,
+        ['data-base-ui-toast' as string]: toast.id,
+        ['data-drag-dismissed' as string]: dragDismissed ? '' : undefined,
+        onPointerDown: handlePointerDown,
+        onPointerMove: handlePointerMove,
+        onPointerUp: handlePointerUp,
+        onKeyDown: handleKeyDown,
+        style: {
+          ...getDragStyles(),
+          [ToastRootCssVars.index as string]: toast.animation === 'ending' ? domIndex : index,
+          [ToastRootCssVars.offset as string]: `${offset}px`,
+        },
       },
-    }),
+      other,
+    ),
   });
 
   const contextValue = React.useMemo(
