@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { stub } from 'sinon';
-import { fireEvent } from '@mui/internal-test-utils';
+import { fireEvent, screen } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui-components/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { SliderRootContext } from '../root/SliderRootContext';
@@ -94,14 +94,16 @@ describe('<Slider.Thumb />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
+  /**
+   * Browser tests render with 1024px width by default, so most tests here set
+   * the component to `width: 100px` to make the asserted values more readable.
+   */
   describe.skipIf(isJSDOM)('positioning styles', () => {
     describe('positions the thumb when dragged', () => {
       it('single thumb', async () => {
         const { getByTestId } = await render(
           <Slider.Root
             style={{
-              // browser tests render with 1024px width by default
-              // this is just to make the values asserted more readable
               width: '1000px',
             }}
           >
@@ -153,8 +155,6 @@ describe('<Slider.Thumb />', () => {
           <Slider.Root
             defaultValue={[20, 40]}
             style={{
-              // browser tests render with 1024px width by default
-              // this is just to make the values asserted more readable
               width: '1000px',
             }}
           >
@@ -218,8 +218,6 @@ describe('<Slider.Thumb />', () => {
                 value={val}
                 onValueChange={(newVal) => setVal(newVal as number)}
                 style={{
-                  // browser tests render with 1024px width by default
-                  // this is just to make the values asserted more readable
                   width: '100px',
                 }}
               >
@@ -252,8 +250,6 @@ describe('<Slider.Thumb />', () => {
                 value={val}
                 onValueChange={(newVal) => setVal(newVal as number[])}
                 style={{
-                  // browser tests render with 1024px width by default
-                  // this is just to make the values asserted more readable
                   width: '100px',
                 }}
               >
@@ -282,6 +278,42 @@ describe('<Slider.Thumb />', () => {
         expect(computedStyles.thumb1.getPropertyValue('left')).to.equal('33px');
         expect(computedStyles.thumb2.getPropertyValue('left')).to.equal('72px');
       });
+    });
+
+    it('thumb should not go out of bounds when the controlled value goes out of bounds', async () => {
+      function App() {
+        const [val, setVal] = React.useState(50);
+        return (
+          <React.Fragment>
+            <button onClick={() => setVal(119.9)}>max</button>
+            <button onClick={() => setVal(-7.31)}>min</button>
+            <Slider.Root
+              value={val}
+              onValueChange={setVal}
+              min={0}
+              max={100}
+              style={{ width: '100px' }}
+            >
+              <Slider.Control data-testid="control">
+                <Slider.Track>
+                  <Slider.Indicator />
+                  <Slider.Thumb data-testid="thumb" />
+                </Slider.Track>
+              </Slider.Control>
+            </Slider.Root>
+          </React.Fragment>
+        );
+      }
+      const { user } = await render(<App />);
+
+      const thumbStyles = getComputedStyle(screen.getByTestId('thumb'));
+      expect(thumbStyles.getPropertyValue('left')).to.equal('50px');
+
+      await user.click(screen.getByRole('button', { name: 'max' }));
+      expect(thumbStyles.getPropertyValue('left')).to.equal('100px');
+
+      await user.click(screen.getByRole('button', { name: 'min' }));
+      expect(thumbStyles.getPropertyValue('left')).to.equal('0px');
     });
   });
 });
