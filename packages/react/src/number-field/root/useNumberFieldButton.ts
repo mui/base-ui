@@ -6,7 +6,7 @@ import {
   SCROLLING_POINTER_MOVE_DISTANCE,
   TOUCH_TIMEOUT,
 } from '../utils/constants';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { parseNumber } from '../utils/parse';
 import { GenericHTMLProps } from '../../utils/types';
 
@@ -60,7 +60,7 @@ export function useNumberFieldButton(
         }
       }
 
-      return mergeReactProps<'button'>(
+      return mergeProps<'button'>(
         {
           disabled: disabled || (isIncrement ? isMax : isMin),
           type: 'button',
