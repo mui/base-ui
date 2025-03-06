@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useButton } from '../../use-button';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import type { SelectRootContext } from '../root/SelectRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectIndexContext } from '../root/SelectIndexContext';
@@ -46,7 +46,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps<'div'>(
+      return mergeProps<'div'>(
         {
           'aria-disabled': disabled || undefined,
           tabIndex: highlighted ? 0 : -1,

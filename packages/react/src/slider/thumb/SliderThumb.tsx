@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../utils/noop';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -135,7 +135,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
   const children = thumbProps.children ?? renderPropsChildren;
 
   return React.cloneElement(render, {
-    ...mergeReactProps(
+    ...mergeProps(
       {
         ...thumbProps,
         children: (

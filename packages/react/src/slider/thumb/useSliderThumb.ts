@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { formatNumber } from '../../utils/formatNumber';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { visuallyHidden } from '../../utils/visuallyHidden';
@@ -135,7 +135,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
 
   const getRootProps: useSliderThumb.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(
+      return mergeProps(
         {
           'data-index': index,
           id: thumbId,
@@ -254,7 +254,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
         cssWritingMode = isRtl ? 'vertical-rl' : 'vertical-lr';
       }
 
-      return mergeReactProps(
+      return mergeProps(
         {
           'aria-label': getAriaLabel != null ? getAriaLabel(index) : ariaLabel,
           'aria-labelledby': ariaLabelledby,

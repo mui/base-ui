@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { GenericHTMLProps } from '../../utils/types';
@@ -59,7 +59,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
   }, [id, setPopupElementId]);
 
   const getRootProps = (externalProps: React.HTMLAttributes<any>) =>
-    mergeReactProps<'div'>(
+    mergeProps<'div'>(
       {
         'aria-labelledby': titleElementId ?? undefined,
         'aria-describedby': descriptionElementId ?? undefined,

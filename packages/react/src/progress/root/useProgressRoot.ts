@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { formatNumber } from '../../utils/formatNumber';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useLatestRef } from '../../utils/useLatestRef';
 
 export type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
@@ -49,7 +49,7 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
 
   const getRootProps: useProgressRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(
+      mergeProps<'div'>(
         {
           'aria-label': getAriaLabel ? getAriaLabel(value) : ariaLabel,
           'aria-labelledby': ariaLabelledby,

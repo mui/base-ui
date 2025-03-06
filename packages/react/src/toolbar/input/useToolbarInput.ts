@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { ARROW_LEFT, ARROW_RIGHT } from '../../composite/composite';
@@ -20,7 +20,7 @@ export function useToolbarInput(
 
   const getInputProps = React.useCallback(
     (externalProps: GenericHTMLProps = {}) =>
-      mergeReactProps<'input'>(
+      mergeProps<'input'>(
         {
           onClick(event) {
             if (disabled) {

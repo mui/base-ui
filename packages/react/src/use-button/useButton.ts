@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useForkRef } from '../utils/useForkRef';
-import { makeEventPreventable, mergeReactProps } from '../utils/mergeReactProps';
+import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRootElementName } from '../utils/useRootElementName';
@@ -102,7 +102,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         ...otherExternalProps
       } = externalProps;
 
-      return mergeReactProps(
+      return mergeProps(
         {
           type,
           onClick(event: React.MouseEvent) {

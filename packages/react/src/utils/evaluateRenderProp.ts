@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from './types';
-import { mergeReactProps } from './mergeReactProps';
+import { mergeProps } from '../merge-props';
 
 export function evaluateRenderProp<ElementType extends React.ElementType, State>(
   render: BaseUIComponentProps<ElementType, State>['render'],
@@ -9,5 +9,5 @@ export function evaluateRenderProp<ElementType extends React.ElementType, State>
 ): React.ReactElement<Record<string, unknown>> {
   return typeof render === 'function'
     ? render(props, state)
-    : React.cloneElement(render, { ...mergeReactProps(props, render.props), ref: props.ref });
+    : React.cloneElement(render, { ...mergeProps(props, render.props), ref: props.ref });
 }

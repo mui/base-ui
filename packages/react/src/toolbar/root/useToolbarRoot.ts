@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps, Orientation } from '../../utils/types';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { ToolbarItemMetadata } from './ToolbarRoot';
@@ -24,7 +24,7 @@ export function useToolbarRoot(parameters: useToolbarRoot.Parameters): useToolba
 
   const getRootProps = React.useCallback(
     (externalProps = {}): React.ComponentPropsWithRef<'div'> => {
-      return mergeReactProps(
+      return mergeProps(
         {
           'aria-orientation': orientation,
           role: 'toolbar',

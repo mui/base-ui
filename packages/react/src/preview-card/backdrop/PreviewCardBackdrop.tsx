@@ -8,7 +8,7 @@ import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 
 const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.State> = {
   ...baseMapping,
@@ -42,7 +42,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
     className,
     state,
     ref: forwardedRef,
-    extraProps: mergeReactProps<'div'>(
+    extraProps: mergeProps<'div'>(
       {
         role: 'presentation',
         hidden: !mounted,

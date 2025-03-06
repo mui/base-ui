@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { BaseUIEvent, WithBaseUIEvent } from './types';
+import type { BaseUIEvent, WithBaseUIEvent } from '../utils/types';
 
 type MergableProps<T extends React.ElementType> =
   | WithBaseUIEvent<React.ComponentPropsWithRef<T>>
@@ -29,7 +29,7 @@ type MergableProps<T extends React.ElementType> =
  * @param props props to merge.
  * @returns the merged props.
  */
-export function mergeReactProps<T extends React.ElementType>(
+export function mergeProps<T extends React.ElementType>(
   ...props: MergableProps<T>[]
 ): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
   if (props.length === 0) {
@@ -56,6 +56,10 @@ export function mergeReactProps<T extends React.ElementType>(
   }
 
   return merged ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
+}
+
+namespace mergeProps {
+  export type Props<T extends React.ElementType> = React.ComponentPropsWithoutRef<T>;
 }
 
 function resolvePropsGetter<T extends React.ElementType>(
