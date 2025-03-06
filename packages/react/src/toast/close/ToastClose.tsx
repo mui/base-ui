@@ -6,6 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { mergeProps } from '../../merge-props';
 import { useToastContext } from '../provider/ToastProviderContext';
+import { useButton } from '../../use-button/useButton';
 
 const state = {};
 
@@ -19,10 +20,15 @@ const ToastClose = React.forwardRef(function ToastClose(
   props: ToastClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, disabled, ...other } = props;
 
   const { remove } = useToastContext();
   const { toast } = useToastRootContext();
+
+  const { getButtonProps } = useButton({
+    disabled,
+    buttonRef: forwardedRef,
+  });
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
@@ -36,6 +42,7 @@ const ToastClose = React.forwardRef(function ToastClose(
         },
       },
       other,
+      getButtonProps,
     ),
   });
 
@@ -62,6 +69,10 @@ ToastClose.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  disabled: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
