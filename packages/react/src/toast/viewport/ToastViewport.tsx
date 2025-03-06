@@ -5,7 +5,7 @@ import { activeElement, contains } from '@floating-ui/react/utils';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useForkRef } from '../../utils/useForkRef';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { ToastViewportContext } from './ToastViewportContext';
@@ -179,23 +179,26 @@ const ToastViewport = React.forwardRef(function ToastViewport(
     ref: mergedRef,
     className,
     state,
-    extraProps: mergeReactProps<'div'>(other, {
-      role: 'region',
-      tabIndex: -1,
-      'aria-label': `${numToasts} notification${numToasts !== 1 ? 's' : ''}`,
-      onMouseEnter: handleMouseEnter,
-      onMouseLeave: handleMouseLeave,
-      onFocus: handleFocus,
-      onBlur: handleBlur,
-      onKeyDown: handleKeyDown,
-      children: (
-        <React.Fragment>
-          {numToasts > 0 && <FocusGuard onFocus={handleFocusGuard} />}
-          {children}
-          {numToasts > 0 && <FocusGuard onFocus={handleFocusGuard} />}
-        </React.Fragment>
-      ),
-    }),
+    extraProps: mergeProps(
+      {
+        role: 'region',
+        tabIndex: -1,
+        'aria-label': `${numToasts} notification${numToasts !== 1 ? 's' : ''}`,
+        onMouseEnter: handleMouseEnter,
+        onMouseLeave: handleMouseLeave,
+        onFocus: handleFocus,
+        onBlur: handleBlur,
+        onKeyDown: handleKeyDown,
+        children: (
+          <React.Fragment>
+            {numToasts > 0 && <FocusGuard onFocus={handleFocusGuard} />}
+            {children}
+            {numToasts > 0 && <FocusGuard onFocus={handleFocusGuard} />}
+          </React.Fragment>
+        ),
+      },
+      other,
+    ),
   });
 
   const contextValue: ToastViewportContext = React.useMemo(() => ({ viewportRef }), [viewportRef]);

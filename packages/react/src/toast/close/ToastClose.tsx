@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useToastContext } from '../provider/ToastProviderContext';
 
 const state = {};
@@ -29,11 +29,14 @@ const ToastClose = React.forwardRef(function ToastClose(
     ref: forwardedRef,
     className,
     state,
-    extraProps: mergeReactProps<'button'>(other, {
-      onClick() {
-        remove(toast.id);
+    extraProps: mergeProps<'button'>(
+      {
+        onClick() {
+          remove(toast.id);
+        },
       },
-    }),
+      other,
+    ),
   });
 
   return renderElement();
