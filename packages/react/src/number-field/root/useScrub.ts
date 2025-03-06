@@ -137,7 +137,7 @@ export function useScrub(params: ScrubParams) {
 
             isScrubbingRef.current = true;
             onScrubbingChange(true, event.nativeEvent);
-            
+
             // WebKit causes significant layout shift with the native message, so we can't use it.
             if (!isTouch && !isWebKit()) {
               try {
