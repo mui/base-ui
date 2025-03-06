@@ -35,7 +35,7 @@ describe('<Accordion.Root />', () => {
 
       expect(root).to.have.attribute('role', 'region');
       expect(trigger).to.have.attribute('id');
-      expect(trigger).to.have.attribute('aria-controls', 'Panel1');
+      expect(trigger).to.have.attribute('aria-controls', panel.getAttribute('id'));
       expect(panel).to.have.attribute('role', 'region');
       expect(panel).to.have.attribute('aria-labelledby', trigger.getAttribute('id'));
     });
