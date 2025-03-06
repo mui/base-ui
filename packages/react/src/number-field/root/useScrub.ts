@@ -121,7 +121,7 @@ export function useScrub(params: ScrubParams) {
             WebkitUserSelect: 'none',
             userSelect: 'none',
           },
-          onPointerDown(event) {
+          async onPointerDown(event) {
             const isMainButton = !event.button || event.button === 0;
             if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
               return;
