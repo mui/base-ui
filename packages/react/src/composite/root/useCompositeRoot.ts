@@ -94,7 +94,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
 
-  const defaultProps = {
+  const defaultProps = React.useMemo(() => ({
     'aria-orientation': orientation === 'both' ? undefined : orientation,
     ref: mergedRef,
     onKeyDown(event: React.KeyboardEvent<HTMLElement>) {
@@ -243,25 +243,25 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         });
       }
     },
-  };
+  }), [
+    cols,
+    dense,
+    disabledIndices,
+    elementsRef,
+    enableHomeAndEndKeys,
+    highlightedIndex,
+    isGrid,
+    itemSizes,
+    loop,
+    mergedRef,
+    onHighlightedIndexChange,
+    orientation,
+    stopEventPropagation,
+  ]);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => mergeProps<'div'>(defaultProps, externalProps),
-    [
-      cols,
-      dense,
-      disabledIndices,
-      elementsRef,
-      enableHomeAndEndKeys,
-      highlightedIndex,
-      isGrid,
-      itemSizes,
-      loop,
-      mergedRef,
-      onHighlightedIndexChange,
-      orientation,
-      stopEventPropagation,
-    ],
+    [defaultProps],
   );
 
   return React.useMemo(

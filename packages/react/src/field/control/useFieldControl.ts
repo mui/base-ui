@@ -66,7 +66,7 @@ export function useFieldControl(params: useFieldControl.Parameters) {
     controlRef: inputRef,
   });
 
-  const defaultProps = {
+  const defaultProps = React.useMemo(() => ({
     id,
     disabled,
     name,
@@ -104,30 +104,32 @@ export function useFieldControl(params: useFieldControl.Parameters) {
         commitValidation(event.currentTarget.value);
       }
     },
-  };
+  }), [
+    id,
+    disabled,
+    name,
+    inputRef,
+    labelId,
+    value,
+    setDirty,
+    validityData.initialValue,
+    setFilled,
+    errors,
+    setValue,
+    onClearErrors,
+    setFocused,
+    setTouched,
+    validationMode,
+    commitValidation,
+  ]);
 
   const getControlProps = React.useCallback(
     (externalProps = {}) =>
       mergeProps<'input'>(defaultProps, getValidationProps(getInputValidationProps(externalProps))),
     [
+      defaultProps,
       getValidationProps,
       getInputValidationProps,
-      id,
-      disabled,
-      name,
-      inputRef,
-      labelId,
-      value,
-      setDirty,
-      validityData.initialValue,
-      setFilled,
-      errors,
-      setValue,
-      onClearErrors,
-      setFocused,
-      setTouched,
-      validationMode,
-      commitValidation,
     ],
   );
 
