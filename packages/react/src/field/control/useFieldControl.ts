@@ -66,71 +66,70 @@ export function useFieldControl(params: useFieldControl.Parameters) {
     controlRef: inputRef,
   });
 
-  const defaultProps = React.useMemo(() => ({
-    id,
-    disabled,
-    name,
-    ref: inputRef,
-    'aria-labelledby': labelId,
-    value,
-    onChange(event: React.ChangeEvent<HTMLInputElement>) {
-      if (value != null) {
-        setValue(event.currentTarget.value, event.nativeEvent);
-      }
+  const defaultProps = React.useMemo(
+    () => ({
+      id,
+      disabled,
+      name,
+      ref: inputRef,
+      'aria-labelledby': labelId,
+      value,
+      onChange(event: React.ChangeEvent<HTMLInputElement>) {
+        if (value != null) {
+          setValue(event.currentTarget.value, event.nativeEvent);
+        }
 
-      setDirty(event.currentTarget.value !== validityData.initialValue);
-      setFilled(event.currentTarget.value !== '');
+        setDirty(event.currentTarget.value !== validityData.initialValue);
+        setFilled(event.currentTarget.value !== '');
 
-      if (name && {}.hasOwnProperty.call(errors, name)) {
-        const nextErrors = { ...errors };
-        delete nextErrors[name];
-        onClearErrors(nextErrors);
-      }
-    },
-    onFocus() {
-      setFocused(true);
-    },
-    onBlur(event: React.FocusEvent<HTMLInputElement>) {
-      setTouched(true);
-      setFocused(false);
-
-      if (validationMode === 'onBlur') {
-        commitValidation(event.currentTarget.value);
-      }
-    },
-    onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-      if (event.currentTarget.tagName === 'INPUT' && event.key === 'Enter') {
+        if (name && {}.hasOwnProperty.call(errors, name)) {
+          const nextErrors = { ...errors };
+          delete nextErrors[name];
+          onClearErrors(nextErrors);
+        }
+      },
+      onFocus() {
+        setFocused(true);
+      },
+      onBlur(event: React.FocusEvent<HTMLInputElement>) {
         setTouched(true);
-        commitValidation(event.currentTarget.value);
-      }
-    },
-  }), [
-    id,
-    disabled,
-    name,
-    inputRef,
-    labelId,
-    value,
-    setDirty,
-    validityData.initialValue,
-    setFilled,
-    errors,
-    setValue,
-    onClearErrors,
-    setFocused,
-    setTouched,
-    validationMode,
-    commitValidation,
-  ]);
+        setFocused(false);
+
+        if (validationMode === 'onBlur') {
+          commitValidation(event.currentTarget.value);
+        }
+      },
+      onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+        if (event.currentTarget.tagName === 'INPUT' && event.key === 'Enter') {
+          setTouched(true);
+          commitValidation(event.currentTarget.value);
+        }
+      },
+    }),
+    [
+      id,
+      disabled,
+      name,
+      inputRef,
+      labelId,
+      value,
+      setDirty,
+      validityData.initialValue,
+      setFilled,
+      errors,
+      setValue,
+      onClearErrors,
+      setFocused,
+      setTouched,
+      validationMode,
+      commitValidation,
+    ],
+  );
 
   const getControlProps = React.useCallback(
     (externalProps = {}) =>
       mergeProps<'input'>(defaultProps, getValidationProps(getInputValidationProps(externalProps))),
-    [
-      defaultProps,
-      getValidationProps,
-      getInputValidationProps,
-    ],
+    [defaultProps, getValidationProps, getInputValidationProps],
   );
 
   return React.useMemo(
