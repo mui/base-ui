@@ -9,7 +9,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { ownerDocument } from '../../utils/owner';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 
 /**
  * A custom element to display instead of the native cursor while using the scrub area.
@@ -35,7 +35,7 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
 
   const propGetter = React.useCallback(
     (externalProps: GenericHTMLProps) =>
-      mergeReactProps<'span'>(externalProps, {
+      mergeProps<'span'>(externalProps, {
         role: 'presentation',
         style: {
           position: 'fixed',

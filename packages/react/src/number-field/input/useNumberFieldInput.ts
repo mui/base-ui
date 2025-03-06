@@ -5,7 +5,7 @@ import { ARABIC_RE, HAN_RE, getNumberLocaleDetails, parseNumber } from '../utils
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { InputMode } from '../root/useNumberFieldRoot';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useForkRef } from '../../utils/useForkRef';
 
 export function useNumberFieldInput(
@@ -51,7 +51,7 @@ export function useNumberFieldInput(
 
   const getInputProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(
+      mergeProps<'input'>(
         {
           id,
           required,

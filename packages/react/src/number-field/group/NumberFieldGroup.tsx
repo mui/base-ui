@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
@@ -23,7 +23,7 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
 
   const getGroupProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
+      mergeProps(externalProps, {
         role: 'group',
       }),
     [],
