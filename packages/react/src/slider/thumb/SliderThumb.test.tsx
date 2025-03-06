@@ -73,7 +73,6 @@ const testRootContext: SliderRootContext = {
   registerSliderControl: NOOP,
   setActive: NOOP,
   setDragging: NOOP,
-  setPercentageValues: NOOP,
   setThumbMap: NOOP,
   setValue: NOOP,
   step: 1,
