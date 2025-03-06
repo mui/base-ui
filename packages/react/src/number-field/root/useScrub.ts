@@ -145,7 +145,7 @@ export function useScrub(params: ScrubParams) {
                 // appears:
                 // "The root document of this element is not valid for pointer lock."
                 await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
-              setIsPointerLockDenied(false);
+                setIsPointerLockDenied(false);
               } catch (error) {
                 setIsPointerLockDenied(true);
               } finally {
