@@ -22,9 +22,9 @@ describe('<Accordion.Root />', () => {
         <Accordion.Root defaultValue={[0]}>
           <Accordion.Item>
             <Accordion.Header>
-              <Accordion.Trigger id="Trigger1">Trigger 1</Accordion.Trigger>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel id="Panel1">{PANEL_CONTENT_1}</Accordion.Panel>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );
@@ -34,11 +34,10 @@ describe('<Accordion.Root />', () => {
       const panel = queryByText(PANEL_CONTENT_1);
 
       expect(root).to.have.attribute('role', 'region');
-      expect(trigger).to.have.attribute('id', 'Trigger1');
+      expect(trigger).to.have.attribute('id');
       expect(trigger).to.have.attribute('aria-controls', 'Panel1');
       expect(panel).to.have.attribute('role', 'region');
-      expect(panel).to.have.attribute('id', 'Panel1');
-      expect(panel).to.have.attribute('aria-labelledby', 'Trigger1');
+      expect(panel).to.have.attribute('aria-labelledby', trigger.getAttribute('id'));
     });
   });
 
