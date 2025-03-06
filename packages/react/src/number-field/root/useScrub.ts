@@ -8,7 +8,7 @@ import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewp
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { isWebKit } from '../../utils/detectBrowser';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import type { useNumberFieldRoot } from './useNumberFieldRoot';
 import { NumberFieldRootDataAttributes } from './NumberFieldRootDataAttributes';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -112,63 +112,70 @@ export function useScrub(params: ScrubParams) {
 
   const getScrubAreaProps: useNumberFieldRoot.ReturnValue['getScrubAreaProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'span'>(externalProps, {
-        role: 'presentation',
-        [NumberFieldRootDataAttributes.scrubbing as string]: isScrubbing || undefined,
-        style: {
-          touchAction: 'none',
-          WebkitUserSelect: 'none',
-          userSelect: 'none',
-        },
-        async onPointerDown(event) {
-          const isMainButton = !event.button || event.button === 0;
-          if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
-            return;
-          }
-
-          const isTouch = event.pointerType === 'touch';
-          setIsTouchInput(isTouch);
-
-          if (event.pointerType === 'mouse') {
-            event.preventDefault();
-            inputRef.current?.focus();
-          }
-
-          isScrubbingRef.current = true;
-
-          // WebKit causes significant layout shift with the native message, so we can't use it.
-          if (!isTouch && !isWebKit()) {
-            try {
-              // Avoid non-deterministic errors in testing environments. This error sometimes
-              // appears:
-              // "The root document of this element is not valid for pointer lock."
-              await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
-              setIsPointerLockDenied(false);
-            } catch (error) {
-              setIsPointerLockDenied(true);
-            } finally {
-              ReactDOM.flushSync(() => {
-                onScrubbingChange(true, event.nativeEvent);
-              });
+      mergeProps<'span'>(
+        {
+          role: 'presentation',
+          [NumberFieldRootDataAttributes.scrubbing as string]: isScrubbing || undefined,
+          style: {
+            touchAction: 'none',
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
+          },
+          onPointerDown(event) {
+            const isMainButton = !event.button || event.button === 0;
+            if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
+              return;
             }
-          }
+
+            const isTouch = event.pointerType === 'touch';
+            setIsTouchInput(isTouch);
+
+            if (event.pointerType === 'mouse') {
+              event.preventDefault();
+              inputRef.current?.focus();
+            }
+
+            isScrubbingRef.current = true;
+            onScrubbingChange(true, event.nativeEvent);
+            
+            // WebKit causes significant layout shift with the native message, so we can't use it.
+            if (!isTouch && !isWebKit()) {
+              try {
+                // Avoid non-deterministic errors in testing environments. This error sometimes
+                // appears:
+                // "The root document of this element is not valid for pointer lock."
+                await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
+              setIsPointerLockDenied(false);
+              } catch (error) {
+                setIsPointerLockDenied(true);
+              } finally {
+                ReactDOM.flushSync(() => {
+                  onScrubbingChange(true, event.nativeEvent);
+                });
+              }
+            }
+          },
         },
-      }),
+        externalProps,
+      ),
     [readOnly, disabled, onScrubbingChange, inputRef, isScrubbing],
   );
 
   const getScrubAreaCursorProps: useNumberFieldRoot.ReturnValue['getScrubAreaCursorProps'] =
     React.useCallback(
       (externalProps) =>
-        mergeReactProps<'span'>(externalProps, {
-          role: 'presentation',
-          style: {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            pointerEvents: 'none',
+        mergeProps<'span'>(
+          {
+            role: 'presentation',
+            style: {
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              pointerEvents: 'none',
+            },
           },
-        }),
+          externalProps,
+        ),
       [],
     );
 

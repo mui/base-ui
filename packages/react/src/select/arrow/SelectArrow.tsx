@@ -5,7 +5,7 @@ import { useSelectPositionerContext } from '../positioner/SelectPositionerContex
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
@@ -27,10 +27,13 @@ const SelectArrow = React.forwardRef(function SelectArrow(
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
-        style: arrowStyles,
-        'aria-hidden': true,
-      }),
+      mergeProps<'div'>(
+        {
+          style: arrowStyles,
+          'aria-hidden': true,
+        },
+        externalProps,
+      ),
     [arrowStyles],
   );
 

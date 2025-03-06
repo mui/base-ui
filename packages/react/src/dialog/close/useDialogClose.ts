@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useButton } from '../../use-button/useButton';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -21,7 +21,7 @@ export function useDialogClose(params: useDialogClose.Parameters): useDialogClos
   });
 
   const getRootProps = (externalProps: GenericHTMLProps) =>
-    mergeReactProps(getButtonProps, externalProps, { onClick: handleClick });
+    mergeProps({ onClick: handleClick }, externalProps, getButtonProps);
 
   return {
     getRootProps,

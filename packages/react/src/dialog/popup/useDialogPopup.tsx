@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { GenericHTMLProps } from '../../utils/types';
@@ -59,17 +59,20 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
   }, [id, setPopupElementId]);
 
   const getRootProps = (externalProps: React.HTMLAttributes<any>) =>
-    mergeReactProps<'div'>(externalProps, {
-      'aria-labelledby': titleElementId ?? undefined,
-      'aria-describedby': descriptionElementId ?? undefined,
-      'aria-modal': mounted && modal ? true : undefined,
-      role: 'dialog',
-      tabIndex: -1,
-      ...getPopupProps(),
-      id,
-      ref: handleRef,
-      hidden: !mounted,
-    });
+    mergeProps<'div'>(
+      {
+        'aria-labelledby': titleElementId ?? undefined,
+        'aria-describedby': descriptionElementId ?? undefined,
+        'aria-modal': mounted && modal ? true : undefined,
+        role: 'dialog',
+        tabIndex: -1,
+        ...getPopupProps(),
+        id,
+        ref: handleRef,
+        hidden: !mounted,
+      },
+      externalProps,
+    );
 
   return {
     getRootProps,
