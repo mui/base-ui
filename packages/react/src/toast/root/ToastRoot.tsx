@@ -93,6 +93,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
           t.id === toast.id
             ? {
                 ...t,
+                ref: rootRef,
                 height,
                 animation: undefined,
               }
@@ -468,6 +469,8 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 });
 
 export namespace ToastRoot {
+  export type ToastType<Data extends object = any> = Toast<Data>;
+
   export interface State {
     transitionStatus: TransitionStatus;
     expanded: boolean;
@@ -529,7 +532,7 @@ ToastRoot.propTypes /* remove-proptypes */ = {
     onRemoveComplete: PropTypes.func,
     priority: PropTypes.oneOf(['high', 'low']),
     timeout: PropTypes.number,
-    title: PropTypes.string.isRequired,
+    title: PropTypes.string,
     type: PropTypes.string,
   }).isRequired,
 } as any;

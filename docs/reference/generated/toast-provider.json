@@ -8,7 +8,7 @@
       "description": "The maximum number of toasts that can be displayed at once.\nWhen the limit is reached, the oldest toast will be removed to make room for the new one."
     },
     "toastManager": {
-      "type": "Toast.Manager",
+      "type": "createToastManager.ToastManager",
       "description": "A global manager for toasts to use outside of a React component."
     },
     "timeout": {

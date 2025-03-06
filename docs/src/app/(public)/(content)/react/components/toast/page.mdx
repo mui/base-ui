@@ -11,7 +11,7 @@
 
 ## Usage
 
-- Wrap `<Toast.Provider>` around your entire app. No matter where you queue a toast from, they will stack in the same viewport.
+- It's generally recommended to wrap `<Toast.Provider>` around your entire app. All toasts will be rendered in the same viewport.
 - `<Toast.Viewport>` is positioned with your own CSS. The example above specifies `data-position` attributes for the CSS to adjust the position of the viewport container—the available positions in the example are `top`, `top-left`, `top-right`, `bottom`, `bottom-left`, and `bottom-right`, but you're free to change the CSS as needed.
 
 ## API reference
@@ -219,10 +219,10 @@ const toastId = toast.promise(
 
 A global toast manager can be created by passing the `toastManager` prop to the `Toast.Provider`. This enables you to queue a toast from anywhere in the app (such as in functions outside the React tree) while still using the same toast renderer.
 
-The created object has the same properties and methods as the `Toast.useToast()` hook.
+The created `toastManager` object has the same properties and methods as the `Toast.useToast()` hook.
 
 ```tsx
-const toastManager = new Toast.Manager();
+const toastManager = Toast.createToastManager();
 ```
 
 ```jsx

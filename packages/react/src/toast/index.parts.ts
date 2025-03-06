@@ -6,4 +6,4 @@ export { ToastTitle as Title } from './title/ToastTitle';
 export { ToastClose as Close } from './close/ToastClose';
 export { ToastContent as Content } from './content/ToastContent';
 export { useToast } from './useToast';
-export { Manager } from './Manager';
+export { createToastManager } from './createToastManager';

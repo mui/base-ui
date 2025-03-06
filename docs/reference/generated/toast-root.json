@@ -8,7 +8,7 @@
       "description": "Direction(s) in which the toast can be swiped to dismiss."
     },
     "toast": {
-      "type": "{ actionProps?: object, animation?: 'ending' | 'starting', data?: any, description?: string, height?: number, id: string, onRemove?: func, onRemoveComplete?: func, priority?: 'high' | 'low', timeout?: number, title: string, type?: string }",
+      "type": "Toast",
       "required": true,
       "description": "The toast to render."
     },

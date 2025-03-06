@@ -2,7 +2,7 @@
   "name": "ToastProvider",
   "props": {
     "toastManager": {
-      "type": "Toast.Manager"
+      "type": "createToastManager.ToastManager"
     }
   }
 }

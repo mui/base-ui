@@ -3,12 +3,13 @@ import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 import styles from './toast.module.css';
 
-const globalToastManager = new Toast.Manager();
+const globalToastManager = Toast.createToastManager();
 
 function showGlobalToast() {
-  globalToastManager.add({
-    title: 'Global toast',
-    description: 'This toast was created outside of a React component',
+  globalToastManager.promise(fetchUserData(), {
+    error: 'Failed to fetch user data',
+    success: 'User data loaded!',
+    loading: 'Fetching user data...',
   });
 }
 

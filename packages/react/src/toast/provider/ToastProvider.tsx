@@ -10,7 +10,7 @@ import { useToast, type Toast } from '../useToast';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { ownerDocument } from '../../utils/owner';
 import { isFocusVisible } from '../utils/focusVisible';
-import { Manager } from '../Manager';
+import { createToastManager } from '../createToastManager';
 
 interface TimerInfo {
   timeoutId?: ReturnType<typeof setTimeout>;
@@ -60,13 +60,10 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       return;
     }
 
-    const toastElements = Array.from<HTMLElement>(
-      viewportRef.current.querySelectorAll('[data-base-ui-toast]'),
-    );
-    const currentIndex = toastElements.findIndex(
-      (toast) => toast.getAttribute('data-base-ui-toast') === toastId,
-    );
-
+    const toastElements = toasts
+      .filter((toast) => toast.animation !== 'ending')
+      .map((toast) => toast.ref?.current);
+    const currentIndex = toasts.findIndex((toast) => toast.id === toastId);
     const nextToast = toastElements[currentIndex + 1] || toastElements[currentIndex - 1];
 
     if (nextToast) {
@@ -83,14 +80,13 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
         const remaining = timer.delay - elapsed;
         clearTimeout(timer.timeoutId);
         timer.remaining = remaining > 0 ? remaining : 0;
-        timer.timeoutId = undefined;
       }
     });
   });
 
   const resumeTimers = useEventCallback(() => {
     timersRef.current.forEach((timer, id) => {
-      if (timer.timeoutId === undefined && timer.remaining > 0) {
+      if (timer.remaining > 0) {
         const newTimeoutId = setTimeout(() => {
           timersRef.current.delete(id);
           timer.callback();
@@ -108,10 +104,10 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       ),
     );
 
-    // Don't immediately clear the timeout - wait for animation to complete
     const timer = timersRef.current.get(toastId);
     if (timer && timer.timeoutId) {
       clearTimeout(timer.timeoutId);
+      timersRef.current.delete(toastId);
     }
 
     const toast = toasts.find((t) => t.id === toastId);
@@ -122,7 +118,6 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
   const finalizeRemove = useEventCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    timersRef.current.delete(id);
     const toast = toasts.find((t) => t.id === id);
     toast?.onRemoveComplete?.();
   });
@@ -151,10 +146,10 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   });
 
   const add = useEventCallback(<Data extends object>(toast: useToast.AddOptions<Data>): string => {
-    const id = generateId('toast');
+    const id = toast.id || generateId('toast');
     const toastToAdd = {
-      id,
       ...toast,
+      id,
       animation: 'starting' as const,
     };
 
@@ -176,7 +171,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
         return updatedToasts.map((t) =>
           oldestActiveToasts.some((old) => old.id === t.id)
-            ? { ...t, animation: 'ending' as const, height: 0 }
+            ? { ...t, animation: 'ending' as const }
             : t,
         );
       }
@@ -217,11 +212,10 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       const loadingOptions = resolvePromiseOptions(options.loading);
       const id = add({
         ...loadingOptions,
-        title: loadingOptions.title || '',
         type: 'loading',
       });
 
-      return promiseValue
+      const handledPromise = promiseValue
         .then((result: Value) => {
           update(id, {
             ...resolvePromiseOptions(options.success, result),
@@ -250,6 +244,14 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
           return Promise.reject(error);
         });
+
+      // Private API used exclusively by `Manager` to handoff the promise
+      // back to the manager after it's handled here.
+      if ({}.hasOwnProperty.call(options, 'setPromise')) {
+        (options as any).setPromise(handledPromise);
+      }
+
+      return handledPromise;
     },
   );
 
@@ -258,24 +260,22 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       return undefined;
     }
 
-    const unsubscribe = toastManager.subscribe((toastOptions) => {
-      const id = toastOptions.id;
+    const unsubscribe = toastManager[' subscribe'](({ action, options }) => {
+      const id = options.id;
 
-      if (toastOptions.promise && id) {
-        update(id, toastOptions);
-
-        // Schedule auto-dismiss for resolved/rejected promises
-        if (toastOptions.type !== 'loading' && id) {
-          const duration = toastOptions.timeout ?? timeout;
-          scheduleTimer(id, duration, () => remove(id));
-        }
+      if (action === 'promise' && options.promise) {
+        promise(options.promise, options);
+      } else if (action === 'update' && id) {
+        update(id, options);
+      } else if (action === 'remove' && id) {
+        remove(id);
       } else {
-        add(toastOptions);
+        add(options);
       }
     });
 
     return unsubscribe;
-  }, [add, update, remove, scheduleTimer, timeout, toastManager]);
+  }, [add, update, remove, scheduleTimer, timeout, toastManager, promise]);
 
   const contextValue = React.useMemo(
     () => ({
@@ -332,7 +332,7 @@ namespace ToastProvider {
     /**
      * A global manager for toasts to use outside of a React component.
      */
-    toastManager?: Manager;
+    toastManager?: createToastManager.ToastManager;
   }
 }
 
@@ -361,28 +361,10 @@ ToastProvider.propTypes /* remove-proptypes */ = {
    * A global manager for toasts to use outside of a React component.
    */
   toastManager: PropTypes.shape({
+    ' subscribe': PropTypes.func.isRequired,
     add: PropTypes.func.isRequired,
-    emit: PropTypes.func.isRequired,
-    listeners: PropTypes.arrayOf(PropTypes.func).isRequired,
     promise: PropTypes.func.isRequired,
     remove: PropTypes.func.isRequired,
-    subscribe: PropTypes.func.isRequired,
-    toasts: PropTypes.arrayOf(
-      PropTypes.shape({
-        actionProps: PropTypes.object,
-        animation: PropTypes.oneOf(['ending', 'starting']),
-        data: PropTypes.any,
-        description: PropTypes.string,
-        height: PropTypes.number,
-        id: PropTypes.string.isRequired,
-        onRemove: PropTypes.func,
-        onRemoveComplete: PropTypes.func,
-        priority: PropTypes.oneOf(['high', 'low']),
-        timeout: PropTypes.number,
-        title: PropTypes.string.isRequired,
-        type: PropTypes.string,
-      }),
-    ).isRequired,
     update: PropTypes.func.isRequired,
   }),
 } as any;
