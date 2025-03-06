@@ -104,14 +104,11 @@ export function useFieldControl(params: useFieldControl.Parameters) {
         commitValidation(event.currentTarget.value);
       }
     },
-  }
+  };
 
   const getControlProps = React.useCallback(
     (externalProps = {}) =>
-      mergeProps<'input'>(
-        defaultProps,
-        getValidationProps(getInputValidationProps(externalProps)),
-      ),
+      mergeProps<'input'>(defaultProps, getValidationProps(getInputValidationProps(externalProps))),
     [
       getValidationProps,
       getInputValidationProps,

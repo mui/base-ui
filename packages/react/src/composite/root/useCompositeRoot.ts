@@ -128,8 +128,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         // as if every item was 1x1, then convert back to real indices.
         const cellMap = buildCellMap(sizes, cols, dense);
         const minGridIndex = cellMap.findIndex(
-          (index) =>
-            index != null && !isDisabled(elementsRef.current, index, disabledIndices),
+          (index) => index != null && !isDisabled(elementsRef.current, index, disabledIndices),
         );
         // last enabled index
         const maxGridIndex = cellMap.reduce(
@@ -200,9 +199,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       const preventedKeys = isGrid
         ? RELEVANT_KEYS
         : {
-            horizontal: enableHomeAndEndKeys
-              ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS
-              : HORIZONTAL_KEYS,
+            horizontal: enableHomeAndEndKeys ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS : HORIZONTAL_KEYS,
             vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
             both: RELEVANT_KEYS,
           }[orientation];
@@ -215,10 +212,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         }
       }
 
-      if (
-        nextIndex === highlightedIndex &&
-        [...toEndKeys, ...toStartKeys].includes(event.key)
-      ) {
+      if (nextIndex === highlightedIndex && [...toEndKeys, ...toStartKeys].includes(event.key)) {
         if (loop && nextIndex === maxIndex && toEndKeys.includes(event.key)) {
           nextIndex = minIndex;
         } else if (loop && nextIndex === minIndex && toStartKeys.includes(event.key)) {
@@ -252,11 +246,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   };
 
   const getRootProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'div'>(
-        defaultProps,
-        externalProps,
-      ),
+    (externalProps = {}) => mergeProps<'div'>(defaultProps, externalProps),
     [
       cols,
       dense,
