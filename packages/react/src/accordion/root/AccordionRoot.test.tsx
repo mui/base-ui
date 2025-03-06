@@ -34,10 +34,9 @@ describe('<Accordion.Root />', () => {
       const panel = queryByText(PANEL_CONTENT_1);
 
       expect(root).to.have.attribute('role', 'region');
-      expect(trigger).to.have.attribute('id');
-      expect(trigger).to.have.attribute('aria-controls', panel.getAttribute('id'));
+      expect(panel?.getAttribute('id')).to.equal(trigger?.getAttribute('aria-controls'));
       expect(panel).to.have.attribute('role', 'region');
-      expect(panel).to.have.attribute('aria-labelledby', trigger.getAttribute('id'));
+      expect(trigger?.getAttribute('id')).to.equal(panel?.getAttribute('aria-labelledby'));
     });
   });
 
