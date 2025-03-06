@@ -26,8 +26,6 @@ export function useToast(): useToast.ReturnValue {
 }
 
 export namespace useToast {
-  export type ToastType<Data extends object> = Toast<Data>;
-
   export interface ReturnValue {
     toasts: ToastContext<any>['toasts'];
     add: <Data extends object>(options: AddOptions<Data>) => string;
@@ -40,7 +38,9 @@ export namespace useToast {
   }
 
   export interface AddOptions<Data extends object>
-    extends Omit<Toast<Data>, 'id' | 'animation' | 'height'> {}
+    extends Omit<Toast<Data>, 'id' | 'animation' | 'height' | 'ref'> {
+    id?: string;
+  }
 
   export interface UpdateOptions<Data extends object> extends Partial<AddOptions<Data>> {}
 
@@ -57,9 +57,13 @@ export interface Toast<Data extends object> {
    */
   id: string;
   /**
+   * The ref for the toast.
+   */
+  ref?: React.RefObject<HTMLElement | null>;
+  /**
    * The title of the toast.
    */
-  title: string;
+  title?: string;
   /**
    * The type of the toast. Used to conditionally style the toast,
    * including conditionally rendering elements based on the type.

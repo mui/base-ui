@@ -95,7 +95,7 @@ describe('useToast', () => {
         function CustomList() {
           const { toasts } = useToast();
           return toasts.map((t) => (
-            <Toast.Root toast={t} data-testid="root">
+            <Toast.Root key={t.id} toast={t} data-testid="root">
               <Toast.Content>
                 <Toast.Title data-testid="title">{t.title}</Toast.Title>
               </Toast.Content>
@@ -140,7 +140,7 @@ describe('useToast', () => {
         function CustomList() {
           const { toasts } = useToast();
           return toasts.map((t) => (
-            <Toast.Root toast={t} data-testid="root">
+            <Toast.Root key={t.id} toast={t} data-testid="root">
               <Toast.Content>
                 <Toast.Description data-testid="description">{t.description}</Toast.Description>
               </Toast.Content>
@@ -174,7 +174,7 @@ describe('useToast', () => {
         function CustomList() {
           const { toasts } = useToast();
           return toasts.map((t) => (
-            <Toast.Root toast={t} data-testid="root">
+            <Toast.Root key={t.id} toast={t} data-testid="root">
               <Toast.Content>
                 <Toast.Title data-testid="title">{t.title}</Toast.Title>
               </Toast.Content>
@@ -209,7 +209,7 @@ describe('useToast', () => {
     function CustomList() {
       const { toasts } = useToast();
       return toasts.map((t) => (
-        <Toast.Root toast={t} data-testid="root">
+        <Toast.Root key={t.id} toast={t} data-testid="root">
           <Toast.Content>
             <Toast.Title data-testid="title">{t.title}</Toast.Title>
             <Toast.Description data-testid="description">{t.description}</Toast.Description>
@@ -439,6 +439,8 @@ describe('useToast', () => {
 
       expect(screen.getByTestId('title')).to.have.text('loading title');
       expect(screen.getByTestId('description')).to.have.text('loading description');
+
+      await flushMicrotasks();
     });
   });
 
@@ -450,7 +452,7 @@ describe('useToast', () => {
     function CustomList() {
       const { toasts } = useToast();
       return toasts.map((t) => (
-        <Toast.Root toast={t} data-testid="root">
+        <Toast.Root key={t.id} toast={t} data-testid="root">
           <Toast.Content>
             <Toast.Title data-testid="title">{t.title}</Toast.Title>
           </Toast.Content>
@@ -515,7 +517,7 @@ describe('useToast', () => {
     function CustomList() {
       const { toasts } = useToast();
       return toasts.map((t) => (
-        <Toast.Root toast={t} data-testid="root">
+        <Toast.Root key={t.id} toast={t} data-testid="root">
           <Toast.Content>
             <Toast.Title data-testid="title">{t.title}</Toast.Title>
           </Toast.Content>

@@ -3,9 +3,14 @@ import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 import styles from './index.module.css';
 
+interface CustomToastData {
+  userId: string;
+  onNotify: () => void;
+}
+
 function isCustomToast(
-  toast: Toast.useToast.ToastType<CustomToastData>,
-): toast is Toast.useToast.ToastType<CustomToastData> {
+  toast: Toast.Root.ToastType,
+): toast is Toast.Root.ToastType<CustomToastData> {
   return toast.data?.userId !== undefined;
 }
 
@@ -18,11 +23,6 @@ export default function CustomToastExample() {
       </Toast.Viewport>
     </Toast.Provider>
   );
-}
-
-interface CustomToastData {
-  userId: string;
-  onNotify: () => void;
 }
 
 function CustomToast() {
