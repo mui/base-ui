@@ -77,6 +77,8 @@ function getDisallowedModifierKeys(modifierKeys: ModifierKey[]) {
   return MODIFIER_KEYS.filter((key) => !set.has(key));
 }
 
+const EMPTY_ARRAY: never[] = [];
+
 /**
  * @ignore - internal hook.
  */
@@ -94,7 +96,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     enableHomeAndEndKeys = false,
     stopEventPropagation = false,
     disabledIndices,
-    modifierKeys = [],
+    modifierKeys = EMPTY_ARRAY,
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
