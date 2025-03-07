@@ -83,7 +83,11 @@ export function useComponentRenderer<
     resolvedRenderProp = renderProp;
   }
 
-  const refs = ref !== undefined ? (Array.isArray(ref) ? ref : [ref]) : [];
+  let refs: React.Ref<RenderedElementType>[] = [];
+
+  if (ref !== undefined) {
+    refs = Array.isArray(ref) ? ref : [ref];
+  }
 
   const renderedElementProps = propGetter(ownProps);
   const propsWithRef: React.HTMLAttributes<any> & React.RefAttributes<any> = {
