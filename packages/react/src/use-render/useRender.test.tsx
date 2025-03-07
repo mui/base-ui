@@ -60,21 +60,10 @@ describe('useRender', () => {
       return renderElement();
     }
 
-    const WrapperComponent = () => {
-      const ref = React.useRef<HTMLElement>(null);
-      React.useEffect(() => {
-        refs[2] = ref;
-      }, []);
-      return (
-        <TestComponent
-          ref={ref}
-          render={(props: any, state: any) => <span {...props} {...state} />}
-        />
-      );
-    };
-
-    const { container } = await render(<WrapperComponent />);
-    expect(refs.length).to.equal(3);
+    const { container } = await render(
+      <TestComponent render={(props: any, state: any) => <span {...props} {...state} />} />,
+    );
+    expect(refs.length).to.equal(2);
 
     refs.map((ref) => {
       expect(ref).to.deep.equal({ current: container.firstElementChild });
