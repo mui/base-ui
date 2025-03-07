@@ -35,15 +35,18 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
 
   const propGetter = React.useCallback(
     (externalProps: GenericHTMLProps) =>
-      mergeProps<'span'>(externalProps, {
-        role: 'presentation',
-        style: {
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          pointerEvents: 'none',
+      mergeProps<'span'>(
+        {
+          role: 'presentation',
+          style: {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            pointerEvents: 'none',
+          },
         },
-      }),
+        externalProps,
+      ),
     [],
   );
 
