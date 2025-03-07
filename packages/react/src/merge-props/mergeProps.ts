@@ -29,7 +29,7 @@ type MergableProps<T extends React.ElementType> =
  * @param props props to merge.
  * @returns the merged props.
  */
-export function mergeProps<T extends React.ElementType>(
+function mergeProps<T extends React.ElementType>(
   ...props: MergableProps<T>[]
 ): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
   if (props.length === 0) {
@@ -193,3 +193,5 @@ function mergeClassNames(ourClassName: string | undefined, theirClassName: strin
 function isSyntheticEvent(event: unknown): event is React.SyntheticEvent {
   return event != null && typeof event === 'object' && 'nativeEvent' in event;
 }
+
+export { mergeProps };
