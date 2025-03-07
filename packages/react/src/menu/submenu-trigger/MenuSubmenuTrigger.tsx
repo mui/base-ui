@@ -10,7 +10,7 @@ import { useMenuSubmenuTrigger } from './useMenuSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 
 /**
  * A menu item that opens a submenu.
@@ -69,7 +69,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     className,
     state,
     propGetter: (externalProps: GenericHTMLProps) =>
-      mergeReactProps(getTriggerProps, externalProps, itemProps, rootTriggerProps),
+      mergeProps(rootTriggerProps, itemProps, externalProps, getTriggerProps),
     customStyleHookMapping: triggerOpenStateMapping,
     extraProps: other,
   });

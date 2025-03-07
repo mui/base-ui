@@ -12,7 +12,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
@@ -78,9 +78,12 @@ const SelectPopup = React.forwardRef(function SelectPopup(
     customStyleHookMapping,
     extraProps:
       transitionStatus === 'starting'
-        ? mergeReactProps(otherProps, {
-            style: { transition: 'none' },
-          })
+        ? mergeProps(
+            {
+              style: { transition: 'none' },
+            },
+            otherProps,
+          )
         : otherProps,
   });
 

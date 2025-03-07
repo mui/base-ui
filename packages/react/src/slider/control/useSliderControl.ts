@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
@@ -201,52 +201,61 @@ export function useSliderControl(
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(externalProps, {
-        onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
-          if (disabled) {
-            return;
-          }
-
-          if (event.defaultPrevented) {
-            return;
-          }
-
-          // Only handle left clicks
-          if (event.button !== 0) {
-            return;
-          }
-
-          // Avoid text selection
-          event.preventDefault();
-
-          const fingerPosition = trackFinger(event, touchIdRef);
-
-          if (fingerPosition != null) {
-            const finger = getFingerState(fingerPosition, true);
-
-            if (finger == null) {
+      return mergeProps(
+        {
+          onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
+            if (disabled) {
               return;
             }
 
-            focusThumb(finger.thumbIndex, controlRef, setActive);
-
-            // if the event lands on a thumb, don't change the value, just get the
-            // percentageValue difference represented by the distance between the click origin
-            // and the coordinates of the value on the track area
-            if (thumbRefs.current.includes(event.target as HTMLElement)) {
-              offsetRef.current = percentageValues[finger.thumbIndex] / 100 - finger.valueRescaled;
-            } else {
-              setValue(finger.value, finger.percentageValues, finger.thumbIndex, event.nativeEvent);
+            if (event.defaultPrevented) {
+              return;
             }
-          }
 
-          moveCountRef.current = 0;
-          const doc = ownerDocument(controlRef.current);
-          doc.addEventListener('pointermove', handleTouchMove, { passive: true });
-          doc.addEventListener('pointerup', handleTouchEnd);
+            // Only handle left clicks
+            if (event.button !== 0) {
+              return;
+            }
+
+            // Avoid text selection
+            event.preventDefault();
+
+            const fingerPosition = trackFinger(event, touchIdRef);
+
+            if (fingerPosition != null) {
+              const finger = getFingerState(fingerPosition, true);
+
+              if (finger == null) {
+                return;
+              }
+
+              focusThumb(finger.thumbIndex, controlRef, setActive);
+
+              // if the event lands on a thumb, don't change the value, just get the
+              // percentageValue difference represented by the distance between the click origin
+              // and the coordinates of the value on the track area
+              if (thumbRefs.current.includes(event.target as HTMLElement)) {
+                offsetRef.current =
+                  percentageValues[finger.thumbIndex] / 100 - finger.valueRescaled;
+              } else {
+                setValue(
+                  finger.value,
+                  finger.percentageValues,
+                  finger.thumbIndex,
+                  event.nativeEvent,
+                );
+              }
+            }
+
+            moveCountRef.current = 0;
+            const doc = ownerDocument(controlRef.current);
+            doc.addEventListener('pointermove', handleTouchMove, { passive: true });
+            doc.addEventListener('pointerup', handleTouchEnd);
+          },
+          ref: handleRootRef,
         },
-        ref: handleRootRef,
-      });
+        externalProps,
+      );
     },
     [
       disabled,

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
@@ -24,14 +24,17 @@ export function useTooltipPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps<'div'>(externalProps, {
-          role: 'presentation',
-          hidden: !mounted,
-          style: {
-            ...positioning.positionerStyles,
-            ...hiddenStyles,
+        return mergeProps<'div'>(
+          {
+            role: 'presentation',
+            hidden: !mounted,
+            style: {
+              ...positioning.positionerStyles,
+              ...hiddenStyles,
+            },
           },
-        });
+          externalProps,
+        );
       },
       [open, trackCursorAxis, mounted, positioning.positionerStyles],
     );
