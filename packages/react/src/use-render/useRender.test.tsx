@@ -48,8 +48,8 @@ describe('useRender', () => {
       const ref2 = React.useRef<HTMLElement>(null);
 
       React.useEffect(() => {
-        refs.push(ref1);
-        refs.push(ref2);
+        refs[0] = ref1;
+        refs[1] = ref2;
       }, []);
 
       const { renderElement } = useRender({
@@ -63,7 +63,7 @@ describe('useRender', () => {
     const WrapperComponent = () => {
       const ref = React.useRef<HTMLElement>(null);
       React.useEffect(() => {
-        refs.push(ref);
+        refs[2] = ref;
       }, []);
       return (
         <TestComponent
@@ -74,7 +74,6 @@ describe('useRender', () => {
     };
 
     const { container } = await render(<WrapperComponent />);
-
     expect(refs.length).to.equal(3);
 
     refs.map((ref) => {
