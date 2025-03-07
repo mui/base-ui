@@ -5,7 +5,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldLabel } from './useFieldLabel';
-import { STYLE_HOOK_MAPPING } from '../utils/constants';
+import { fieldValidityMapping } from '../utils/constants';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -42,7 +42,7 @@ const FieldLabel = React.forwardRef(function FieldLabel(
     className,
     state,
     extraProps: otherProps,
-    customStyleHookMapping: STYLE_HOOK_MAPPING,
+    customStyleHookMapping: fieldValidityMapping,
   });
 
   return renderElement();

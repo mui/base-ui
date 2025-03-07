@@ -1,15 +1,24 @@
 'use client';
 import * as React from 'react';
 import { formatNumber } from '../../utils/formatNumber';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import { visuallyHidden } from '../../utils/visuallyHidden';
+import {
+  ARROW_DOWN,
+  ARROW_UP,
+  ARROW_RIGHT,
+  ARROW_LEFT,
+  HOME,
+  END,
+} from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
+import { roundValueToStep } from '../utils/roundValueToStep';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
 export interface ThumbMetadata {
@@ -52,14 +61,13 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
-    changeValue,
-    direction,
+    handleInputChange,
     disabled,
     format,
-    getAriaLabel,
-    getAriaValueText,
-    id: idParam,
-    inputId: inputIdParam,
+    getAriaLabel = null,
+    getAriaValueText = null,
+    id: thumbId,
+    inputId,
     largeStep,
     max,
     min,
@@ -69,24 +77,21 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     percentageValues,
     rootRef: externalRef,
     step,
-    tabIndex,
+    tabIndex: externalTabIndex,
     values: sliderValues,
   } = parameters;
 
-  const { setTouched } = useFieldRootContext();
+  const direction = useDirection();
+  const { setTouched, setFocused, validationMode } = useFieldRootContext();
   const {
     getInputValidationProps,
     inputRef: inputValidationRef,
     commitValidation,
   } = useFieldControlValidation();
 
-  const thumbId = useBaseUiId(idParam);
-
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useForkRef(inputRef, inputValidationRef);
-
-  const inputId = useBaseUiId(inputIdParam);
 
   const thumbMetadata = React.useMemo(
     () => ({
@@ -131,98 +136,114 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
 
   const getRootProps: useSliderThumb.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(externalProps, {
-        'data-index': index,
-        id: thumbId,
-        onBlur() {
-          if (!thumbRef.current) {
-            return;
-          }
-          setTouched(true);
-          commitValidation(
-            getSliderValue({
-              valueInput: thumbValue,
-              min,
-              max,
-              index,
-              range: sliderValues.length > 1,
-              values: sliderValues,
-            }),
-          );
-        },
-        onKeyDown(event: React.KeyboardEvent) {
-          let newValue = null;
-          const isRange = sliderValues.length > 1;
-          switch (event.key) {
-            case 'ArrowUp':
-              newValue = getNewValue(thumbValue, event.shiftKey ? largeStep : step, 1, min, max);
-              break;
-            case 'ArrowRight':
-              newValue = getNewValue(
-                thumbValue,
-                event.shiftKey ? largeStep : step,
-                isRtl ? -1 : 1,
-                min,
-                max,
+      return mergeProps(
+        {
+          'data-index': index,
+          id: thumbId,
+          onFocus() {
+            setFocused(true);
+          },
+          onBlur() {
+            if (!thumbRef.current) {
+              return;
+            }
+
+            setTouched(true);
+            setFocused(false);
+
+            if (validationMode === 'onBlur') {
+              commitValidation(
+                getSliderValue(thumbValue, index, min, max, sliderValues.length > 1, sliderValues),
               );
-              break;
-            case 'ArrowDown':
-              newValue = getNewValue(thumbValue, event.shiftKey ? largeStep : step, -1, min, max);
-              break;
-            case 'ArrowLeft':
-              newValue = getNewValue(
-                thumbValue,
-                event.shiftKey ? largeStep : step,
-                isRtl ? 1 : -1,
-                min,
-                max,
-              );
-              break;
-            case 'PageUp':
-              newValue = getNewValue(thumbValue, largeStep, 1, min, max);
-              break;
-            case 'PageDown':
-              newValue = getNewValue(thumbValue, largeStep, -1, min, max);
-              break;
-            case 'End':
-              newValue = max;
+            }
+          },
+          onKeyDown(event: React.KeyboardEvent) {
+            let newValue = null;
+            const isRange = sliderValues.length > 1;
+            const roundedValue = roundValueToStep(thumbValue, step, min);
+            switch (event.key) {
+              case ARROW_UP:
+                newValue = getNewValue(
+                  roundedValue,
+                  event.shiftKey ? largeStep : step,
+                  1,
+                  min,
+                  max,
+                );
+                break;
+              case ARROW_RIGHT:
+                newValue = getNewValue(
+                  roundedValue,
+                  event.shiftKey ? largeStep : step,
+                  isRtl ? -1 : 1,
+                  min,
+                  max,
+                );
+                break;
+              case ARROW_DOWN:
+                newValue = getNewValue(
+                  roundedValue,
+                  event.shiftKey ? largeStep : step,
+                  -1,
+                  min,
+                  max,
+                );
+                break;
+              case ARROW_LEFT:
+                newValue = getNewValue(
+                  roundedValue,
+                  event.shiftKey ? largeStep : step,
+                  isRtl ? 1 : -1,
+                  min,
+                  max,
+                );
+                break;
+              case 'PageUp':
+                newValue = getNewValue(roundedValue, largeStep, 1, min, max);
+                break;
+              case 'PageDown':
+                newValue = getNewValue(roundedValue, largeStep, -1, min, max);
+                break;
+              case END:
+                newValue = max;
 
-              if (isRange) {
-                newValue = Number.isFinite(sliderValues[index + 1])
-                  ? sliderValues[index + 1] - step * minStepsBetweenValues
-                  : max;
-              }
-              break;
-            case 'Home':
-              newValue = min;
+                if (isRange) {
+                  newValue = Number.isFinite(sliderValues[index + 1])
+                    ? sliderValues[index + 1] - step * minStepsBetweenValues
+                    : max;
+                }
+                break;
+              case HOME:
+                newValue = min;
 
-              if (isRange) {
-                newValue = Number.isFinite(sliderValues[index - 1])
-                  ? sliderValues[index - 1] + step * minStepsBetweenValues
-                  : min;
-              }
-              break;
-            default:
-              break;
-          }
+                if (isRange) {
+                  newValue = Number.isFinite(sliderValues[index - 1])
+                    ? sliderValues[index - 1] + step * minStepsBetweenValues
+                    : min;
+                }
+                break;
+              default:
+                break;
+            }
 
-          if (newValue !== null) {
-            changeValue(newValue, index, event);
-            event.preventDefault();
-          }
+            if (newValue !== null) {
+              handleInputChange(newValue, index, event);
+              event.preventDefault();
+            }
+          },
+          ref: mergedThumbRef,
+          style: getThumbStyle(),
+          tabIndex: externalTabIndex ?? (disabled ? undefined : 0),
         },
-        ref: mergedThumbRef,
-        style: {
-          ...getThumbStyle(),
-        },
-        tabIndex: tabIndex ?? (disabled ? undefined : 0),
-      });
+        externalProps,
+      );
     },
     [
-      changeValue,
       commitValidation,
       disabled,
+      externalTabIndex,
       getThumbStyle,
+      handleInputChange,
       index,
       isRtl,
       largeStep,
@@ -230,12 +251,13 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       mergedThumbRef,
       min,
       minStepsBetweenValues,
+      setFocused,
       setTouched,
       sliderValues,
       step,
-      tabIndex,
       thumbId,
       thumbValue,
+      validationMode,
     ],
   );
 
@@ -246,46 +268,52 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
         cssWritingMode = isRtl ? 'vertical-rl' : 'vertical-lr';
       }
 
-      return mergeReactProps(getInputValidationProps(externalProps), {
-        'aria-label': getAriaLabel ? getAriaLabel(index) : ariaLabel,
-        'aria-labelledby': ariaLabelledby,
-        'aria-orientation': orientation,
-        'aria-valuemax': max,
-        'aria-valuemin': min,
-        'aria-valuenow': thumbValue,
-        'aria-valuetext': getAriaValueText
-          ? getAriaValueText(formatNumber(thumbValue, [], format), thumbValue, index)
-          : (ariaValuetext ?? getDefaultAriaValueText(sliderValues, index, format)),
-        'data-index': index,
-        disabled,
-        id: inputId,
-        max,
-        min,
-        name,
-        onChange(event: React.ChangeEvent) {
-          // @ts-ignore
-          changeValue(event.target.valueAsNumber, index, event);
+      return mergeProps(
+        {
+          'aria-label': getAriaLabel != null ? getAriaLabel(index) : ariaLabel,
+          'aria-labelledby': ariaLabelledby,
+          'aria-orientation': orientation,
+          'aria-valuemax': max,
+          'aria-valuemin': min,
+          'aria-valuenow': thumbValue,
+          'aria-valuetext':
+            getAriaValueText != null
+              ? getAriaValueText(
+                  formatNumber(thumbValue, [], format ?? undefined),
+                  thumbValue,
+                  index,
+                )
+              : ariaValuetext || getDefaultAriaValueText(sliderValues, index, format ?? undefined),
+          'data-index': index,
+          disabled,
+          id: inputId,
+          max,
+          min,
+          name,
+          onChange(event: React.ChangeEvent<HTMLInputElement>) {
+            handleInputChange(event.target.valueAsNumber, index, event);
+          },
+          ref: mergedInputRef,
+          step,
+          style: {
+            ...visuallyHidden,
+            // So that VoiceOver's focus indicator matches the thumb's dimensions
+            width: '100%',
+            height: '100%',
+            writingMode: cssWritingMode,
+          },
+          tabIndex: -1,
+          type: 'range',
+          value: thumbValue ?? '',
         },
-        ref: mergedInputRef,
-        step,
-        style: {
-          ...visuallyHidden,
-          direction: isRtl ? 'rtl' : 'ltr',
-          // So that VoiceOver's focus indicator matches the thumb's dimensions
-          width: '100%',
-          height: '100%',
-          writingMode: cssWritingMode,
-        },
-        tabIndex: -1,
-        type: 'range',
-        value: thumbValue ?? '',
-      });
+        getInputValidationProps(externalProps),
+      );
     },
     [
       ariaLabel,
       ariaLabelledby,
       ariaValuetext,
-      changeValue,
+      handleInputChange,
       disabled,
       format,
       getAriaLabel,
@@ -322,8 +350,7 @@ export namespace useSliderThumb {
       useSliderRoot.ReturnValue,
       | 'active'
       | 'aria-labelledby'
-      | 'changeValue'
-      | 'direction'
+      | 'handleInputChange'
       | 'largeStep'
       | 'max'
       | 'min'
@@ -332,27 +359,28 @@ export namespace useSliderThumb {
       | 'orientation'
       | 'percentageValues'
       | 'step'
-      | 'tabIndex'
       | 'values'
     > {
     /**
      * The label for the input element.
      */
-    'aria-label'?: string;
+    'aria-label': string;
     /**
      * A string value that provides a user-friendly name for the current value of the slider.
      */
-    'aria-valuetext'?: string;
+    'aria-valuetext': string;
     /**
      * Options to format the input value.
+     * @default null
      */
-    format?: Intl.NumberFormatOptions;
+    format: Intl.NumberFormatOptions | null;
     /**
      * Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb
      * @param {number} index The index of the input
      * @returns {string}
+     * @type {((index: number) => string) | null}
      */
-    getAriaLabel?: (index: number) => string;
+    getAriaLabel?: ((index: number) => string) | null;
     /**
      * Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.
      * This is important for screen reader users.
@@ -360,15 +388,21 @@ export namespace useSliderThumb {
      * @param {number} value The thumb's numerical value.
      * @param {number} index The thumb's index.
      * @returns {string}
+     * @type {((formattedValue: string, value: number, index: number) => string) | null}
      */
-    getAriaValueText?: (formattedValue: string, value: number, index: number) => string;
-    id?: React.HTMLAttributes<Element>['id'];
-    inputId?: React.HTMLAttributes<Element>['id'];
+    getAriaValueText: ((formattedValue: string, value: number, index: number) => string) | null;
+    id: string;
+    inputId: string;
     disabled: boolean;
-    onBlur?: React.FocusEventHandler;
-    onFocus?: React.FocusEventHandler;
-    onKeyDown?: React.KeyboardEventHandler;
+    onBlur: React.FocusEventHandler;
+    onFocus: React.FocusEventHandler;
+    onKeyDown: React.KeyboardEventHandler;
     rootRef?: React.Ref<Element>;
+    /**
+     * Optional tab index attribute for the thumb components.
+     * @default null
+     */
+    tabIndex: number | null;
   }
 
   export interface ReturnValue {

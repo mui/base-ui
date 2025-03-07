@@ -69,12 +69,13 @@
     display: flex;
     align-items: center;
     min-height: 2.25rem;
-    padding: 0.5rem 0.75rem 0.5rem;
+    padding: 0.5rem 0.75rem;
 
     /* Make individual cells scrollable */
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
+
     &::-webkit-scrollbar {
       display: none;
     }

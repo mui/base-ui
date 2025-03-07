@@ -8,6 +8,7 @@ import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { mergeProps } from '../../merge-props';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
   ...baseMapping,
@@ -24,8 +25,8 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   props: MenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, ...other } = props;
-  const { open, mounted, transitionStatus } = useMenuRootContext();
+  const { className, render, ...other } = props;
+  const { open, mounted, transitionStatus, openReason } = useMenuRootContext();
 
   const state: MenuBackdrop.State = React.useMemo(
     () => ({
@@ -40,14 +41,16 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
     className,
     state,
     ref: forwardedRef,
-    extraProps: { role: 'presentation', hidden: !mounted, ...other },
+    extraProps: mergeProps<'div'>(
+      {
+        role: 'presentation',
+        hidden: !mounted,
+        style: openReason === 'hover' ? { pointerEvents: 'none' } : {},
+      },
+      other,
+    ),
     customStyleHookMapping,
   });
-
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
 
   return renderElement();
 });
@@ -61,13 +64,7 @@ namespace MenuBackdrop {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to keep the HTML element in the DOM while the menu is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
 MenuBackdrop.propTypes /* remove-proptypes */ = {
@@ -84,11 +81,6 @@ MenuBackdrop.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether to keep the HTML element in the DOM while the menu is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

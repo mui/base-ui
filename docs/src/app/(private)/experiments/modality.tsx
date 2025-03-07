@@ -41,22 +41,24 @@ function SelectDemo({ modal, withBackdrop }: Props) {
 
       {withBackdrop && <Select.Backdrop render={<Backdrop />} />}
 
-      <Select.Positioner sideOffset={5} render={<Positioner />}>
-        <SelectPopup>
-          <SelectItem value="system">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>System font</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="arial">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Arial</Select.ItemText>
-          </SelectItem>
-          <SelectItem value="roboto">
-            <SelectItemIndicator render={<CheckIcon />} />
-            <Select.ItemText>Roboto</Select.ItemText>
-          </SelectItem>
-        </SelectPopup>
-      </Select.Positioner>
+      <Select.Portal>
+        <Select.Positioner sideOffset={5} render={<Positioner />}>
+          <SelectPopup>
+            <SelectItem value="system">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>System font</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="arial">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Arial</Select.ItemText>
+            </SelectItem>
+            <SelectItem value="roboto">
+              <SelectItemIndicator render={<CheckIcon />} />
+              <Select.ItemText>Roboto</Select.ItemText>
+            </SelectItem>
+          </SelectPopup>
+        </Select.Positioner>
+      </Select.Portal>
     </Select.Root>
   );
 }
@@ -68,11 +70,15 @@ function MenuDemo({ modal, withBackdrop }: Props) {
 
       {withBackdrop && <Menu.Backdrop render={<Backdrop />} />}
 
-      <Menu.Positioner align="start" sideOffset={8} render={<Positioner />}>
-        <MenuPopup>
-          <MenuItem onClick={() => console.log('Log out clicked')}>Log out</MenuItem>
-        </MenuPopup>
-      </Menu.Positioner>
+      <Menu.Portal>
+        <Menu.Positioner align="start" sideOffset={8} render={<Positioner />}>
+          <MenuPopup>
+            <MenuItem onClick={() => console.log('Log out clicked')}>
+              Log out
+            </MenuItem>
+          </MenuPopup>
+        </Menu.Positioner>
+      </Menu.Portal>
     </Menu.Root>
   );
 }
@@ -84,16 +90,18 @@ function DialogDemo({ modal, withBackdrop }: Props) {
 
       {withBackdrop && <Dialog.Backdrop render={<Backdrop />} />}
 
-      <DialogPopup>
-        <Dialog.Title>Subscribe</Dialog.Title>
-        <Dialog.Description>
-          Enter your email address to subscribe to our newsletter.
-        </Dialog.Description>
-        <DialogControls>
-          <DialogCloseButton>Subscribe</DialogCloseButton>
-          <DialogCloseButton>Cancel</DialogCloseButton>
-        </DialogControls>
-      </DialogPopup>
+      <Dialog.Portal>
+        <DialogPopup>
+          <Dialog.Title>Subscribe</Dialog.Title>
+          <Dialog.Description>
+            Enter your email address to subscribe to our newsletter.
+          </Dialog.Description>
+          <DialogControls>
+            <DialogCloseButton>Subscribe</DialogCloseButton>
+            <DialogCloseButton>Cancel</DialogCloseButton>
+          </DialogControls>
+        </DialogPopup>
+      </Dialog.Portal>
     </Dialog.Root>
   );
 }
@@ -263,7 +271,7 @@ const MenuPopup = styled(Menu.Popup)(
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
   color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
-  box-shadow: 0px 4px 30px ${theme.palette.mode === 'dark' ? grey[900] : grey[200]};
+  box-shadow: 0 4px 30px ${theme.palette.mode === 'dark' ? grey[900] : grey[200]};
   z-index: 1;
   transform-origin: var(--transform-origin);
   opacity: 1;
@@ -315,7 +323,7 @@ const DialogPopup = styled(Dialog.Popup)(
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[100]};
   min-width: 400px;
   border-radius: 4px;
-  box-shadow: rgba(0, 0, 0, 0.2) 0px 18px 50px -10px;
+  box-shadow: rgb(0 0 0 / 0.2) 0 18px 50px -10px;
   position: fixed;
   top: 50%;
   left: 50%;

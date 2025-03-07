@@ -16,14 +16,16 @@ describe('<Tooltip.Provider />', () => {
         <Tooltip.Provider delay={10_000}>
           <Tooltip.Root>
             <Tooltip.Trigger />
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Tooltip.Root>
         </Tooltip.Provider>,
       );
 
-      const trigger = document.querySelector('button')!;
+      const trigger = screen.getByRole('button');
 
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
@@ -40,6 +42,30 @@ describe('<Tooltip.Provider />', () => {
 
       expect(screen.queryByText('Content')).not.to.equal(null);
     });
+
+    it('respects delay=0', async () => {
+      await render(
+        <Tooltip.Provider delay={0}>
+          <Tooltip.Root>
+            <Tooltip.Trigger />
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </Tooltip.Provider>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(0);
+
+      expect(screen.queryByText('Content')).not.to.equal(null);
+    });
   });
 
   describe('prop: closeDelay', () => {
@@ -50,14 +76,16 @@ describe('<Tooltip.Provider />', () => {
         <Tooltip.Provider closeDelay={400}>
           <Tooltip.Root>
             <Tooltip.Trigger />
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
           </Tooltip.Root>
         </Tooltip.Provider>,
       );
 
-      const trigger = document.querySelector('button')!;
+      const trigger = screen.getByRole('button');
 
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);

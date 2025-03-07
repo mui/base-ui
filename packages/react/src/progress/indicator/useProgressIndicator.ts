@@ -1,10 +1,7 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-
-function valueToPercent(value: number, min: number, max: number) {
-  return ((value - min) * 100) / (max - min);
-}
+import { mergeProps } from '../../merge-props';
+import { valueToPercent } from '../../utils/valueToPercent';
 
 function useProgressIndicator(
   parameters: useProgressIndicator.Parameters,
@@ -28,9 +25,12 @@ function useProgressIndicator(
 
   const getRootProps: useProgressIndicator.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'span'>(externalProps, {
-        style: getStyles(),
-      }),
+      mergeProps<'span'>(
+        {
+          style: getStyles(),
+        },
+        externalProps,
+      ),
     [getStyles],
   );
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import type { GenericHTMLProps } from '../../utils/types';
 
 export function usePreviewCardPopup(
@@ -9,12 +9,15 @@ export function usePreviewCardPopup(
 
   const getPopupProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'div'>(getProps(externalProps), {
-        style: {
-          // <Popover.Arrow> must be relative to the <Popover.Popup> element.
-          position: 'relative',
+      return mergeProps<'div'>(
+        {
+          style: {
+            // <Popover.Arrow> must be relative to the <Popover.Popup> element.
+            position: 'relative',
+          },
         },
-      });
+        getProps(externalProps),
+      );
     },
     [getProps],
   );

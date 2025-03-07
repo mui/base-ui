@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { useForkRef } from '../../utils/useForkRef';
 
@@ -21,7 +21,7 @@ const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { dir, cornerRef, cornerSize, hiddenState } = useScrollAreaRootContext();
+  const { cornerRef, cornerSize, hiddenState } = useScrollAreaRootContext();
 
   const mergedRef = useForkRef(cornerRef, forwardedRef);
 
@@ -30,15 +30,18 @@ const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
     ref: mergedRef,
     className,
     state,
-    extraProps: mergeReactProps(otherProps, {
-      style: {
-        position: 'absolute',
-        bottom: 0,
-        [dir === 'rtl' ? 'left' : 'right']: 0,
-        width: cornerSize.width,
-        height: cornerSize.height,
+    extraProps: mergeProps(
+      {
+        style: {
+          position: 'absolute',
+          bottom: 0,
+          insetInlineEnd: 0,
+          width: cornerSize.width,
+          height: cornerSize.height,
+        },
       },
-    }),
+      otherProps,
+    ),
   });
 
   if (hiddenState.cornerHidden) {

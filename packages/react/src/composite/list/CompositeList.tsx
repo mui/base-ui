@@ -2,9 +2,8 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { fastObjectShallowCompare } from '../../utils/fastObjectShallowCompare';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { CompositeListContext } from './CompositeListContext';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
 function sortByDocumentPosition(a: Node, b: Node) {
   const position = a.compareDocumentPosition(b);
@@ -24,26 +23,6 @@ function sortByDocumentPosition(a: Node, b: Node) {
 }
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
-
-function areMapsEqual<Metadata>(
-  map1: Map<Node, CompositeMetadata<Metadata> | null>,
-  map2: Map<Node, CompositeMetadata<Metadata> | null>,
-) {
-  if (map1.size !== map2.size) {
-    return false;
-  }
-  for (const [key, value] of map1.entries()) {
-    const value2 = map2.get(key);
-    // compare the index before comparing everything else
-    if (value?.index !== value2?.index) {
-      return false;
-    }
-    if (value2 !== undefined && !fastObjectShallowCompare(value, value2)) {
-      return false;
-    }
-  }
-  return true;
-}
 
 /**
  * Provides context for a list of items in a composite component.
@@ -66,26 +45,25 @@ function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     });
   }, []);
 
-  useEnhancedEffect(() => {
-    const newMap = new Map(map);
+  const sortedMap = React.useMemo(() => {
+    const newMap = new Map<Node, CompositeMetadata<Metadata>>();
+    const sortedNodes = Array.from(map.keys()).sort(sortByDocumentPosition);
 
-    const nodes = Array.from(newMap.keys()).sort(sortByDocumentPosition);
-
-    nodes.forEach((node, index) => {
+    sortedNodes.forEach((node, index) => {
       const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
-
       newMap.set(node, { ...metadata, index });
     });
 
-    if (!areMapsEqual(map, newMap)) {
-      setMap(newMap);
-      onMapChange?.(newMap);
-    }
-  }, [map, onMapChange]);
+    return newMap;
+  }, [map]);
+
+  useEnhancedEffect(() => {
+    onMapChange?.(sortedMap);
+  }, [sortedMap, onMapChange]);
 
   const contextValue = React.useMemo(
-    () => ({ register, unregister, map, elementsRef, labelsRef }),
-    [register, unregister, map, elementsRef, labelsRef],
+    () => ({ register, unregister, map: sortedMap, elementsRef, labelsRef }),
+    [register, unregister, sortedMap, elementsRef, labelsRef],
   );
 
   return (

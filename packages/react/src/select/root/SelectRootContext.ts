@@ -51,6 +51,8 @@ export interface SelectRootContext {
   id: string | undefined;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
   modal: boolean;
+  registerSelectedItem: (index: number) => void;
+  onOpenChangeComplete?: (open: boolean) => void;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

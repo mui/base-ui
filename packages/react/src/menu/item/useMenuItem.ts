@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../use-button';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps, BaseUIEvent } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 
@@ -26,10 +26,10 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     buttonRef: useForkRef(externalRef, itemRef),
   });
 
-  const getRootProps = React.useCallback(
+  const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return getButtonProps(
-        mergeReactProps(externalProps, {
+      return mergeProps(
+        {
           id,
           role: 'menuitem',
           tabIndex: highlighted ? 0 : -1,
@@ -51,7 +51,9 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
               menuEvents.emit('close', event);
             }
           },
-        }),
+        },
+        externalProps,
+        getButtonProps,
       );
     },
     [getButtonProps, id, highlighted, typingRef, closeOnClick, menuEvents, allowMouseUpTriggerRef],
@@ -59,10 +61,10 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
 
   return React.useMemo(
     () => ({
-      getRootProps,
+      getItemProps,
       rootRef: mergedRef,
     }),
-    [getRootProps, mergedRef],
+    [getItemProps, mergedRef],
   );
 }
 
@@ -108,7 +110,7 @@ export namespace useMenuItem {
      * @param externalProps event handlers for the root slot
      * @returns props that should be spread on the root slot
      */
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     /**
      * The ref to the component's root DOM element.
      */

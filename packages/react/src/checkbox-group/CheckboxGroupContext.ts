@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { UseCheckboxGroupParent } from './useCheckboxGroupParent';
+import { useCheckboxGroupParent } from './useCheckboxGroupParent';
 
 export interface CheckboxGroupContext {
   value: string[] | undefined;
   defaultValue: string[] | undefined;
   setValue: (value: string[], event: Event) => void;
   allValues: string[] | undefined;
-  parent: UseCheckboxGroupParent.ReturnValue;
+  parent: useCheckboxGroupParent.ReturnValue;
   disabled: boolean;
 }
 

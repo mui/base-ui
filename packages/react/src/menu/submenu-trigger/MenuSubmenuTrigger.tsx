@@ -10,6 +10,7 @@ import { useMenuSubmenuTrigger } from './useMenuSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { mergeProps } from '../../merge-props';
 
 /**
  * A menu item that opens a submenu.
@@ -21,23 +22,24 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   props: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, disabled = false, label, id: idProp, ...other } = props;
+  const { render, className, label, id: idProp, ...other } = props;
   const id = useBaseUiId(idProp);
 
   const {
-    getTriggerProps,
+    triggerProps: rootTriggerProps,
     parentContext,
     setTriggerElement,
     allowMouseUpTriggerRef,
     open,
     typingRef,
+    disabled,
   } = useMenuRootContext();
 
   if (parentContext === undefined) {
     throw new Error('Base UI: ItemTrigger must be placed in a nested Menu.');
   }
 
-  const { activeIndex, getItemProps } = parentContext;
+  const { activeIndex, itemProps } = parentContext;
   const item = useCompositeListItem();
 
   const highlighted = activeIndex === item.index;
@@ -46,7 +48,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
 
   const { events: menuEvents } = useFloatingTree()!;
 
-  const { getRootProps } = useMenuSubmenuTrigger({
+  const { getTriggerProps } = useMenuSubmenuTrigger({
     id,
     highlighted,
     ref: mergedRef,
@@ -67,7 +69,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     className,
     state,
     propGetter: (externalProps: GenericHTMLProps) =>
-      getTriggerProps(getItemProps(getRootProps(externalProps))),
+      mergeProps(rootTriggerProps, itemProps, externalProps, getTriggerProps),
     customStyleHookMapping: triggerOpenStateMapping,
     extraProps: other,
   });
@@ -79,11 +81,6 @@ namespace MenuSubmenuTrigger {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
     /**
      * Overrides the text label to use when the item is matched during keyboard text navigation.
      */
@@ -121,11 +118,6 @@ MenuSubmenuTrigger.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
   /**
    * @ignore
    */

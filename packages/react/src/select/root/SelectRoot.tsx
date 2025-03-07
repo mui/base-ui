@@ -6,7 +6,6 @@ import { SelectRootContext } from './SelectRootContext';
 import { SelectIndexContext } from './SelectIndexContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the select.
@@ -30,6 +29,8 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly = false,
     required = false,
     modal = true,
+    actionsRef,
+    onOpenChangeComplete,
   } = props;
 
   const selectRoot = useSelectRoot<Value>({
@@ -45,9 +46,11 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly,
     required,
     modal,
+    actionsRef,
+    onOpenChangeComplete,
   });
 
-  const { setDirty, validityData } = useFieldRootContext();
+  const { setDirty, validityData, validationMode } = useFieldRootContext();
 
   const { rootContext } = selectRoot;
   const value = rootContext.value;
@@ -65,9 +68,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
   return (
     <SelectRootContext.Provider value={selectRoot.rootContext}>
       <SelectIndexContext.Provider value={selectRoot.indexContext}>
-        <PortalContext.Provider value={rootContext.mounted}>
-          {props.children}
-        </PortalContext.Provider>
+        {props.children}
         <input
           {...rootContext.fieldControlValidation.getInputValidationProps({
             onFocus() {
@@ -92,6 +93,10 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
               if (exactValue != null) {
                 setDirty(exactValue !== validityData.initialValue);
                 rootContext.setValue?.(exactValue, event.nativeEvent);
+
+                if (validationMode === 'onChange') {
+                  selectRoot.rootContext.fieldControlValidation.commitValidation(exactValue);
+                }
               }
             },
             id: rootContext.id,
@@ -111,11 +116,34 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
   );
 };
 
+namespace SelectRoot {
+  export interface Props<Value> extends useSelectRoot.Parameters<Value> {
+    children?: React.ReactNode;
+  }
+
+  export interface State {}
+
+  export type Actions = useSelectRoot.Actions;
+}
+
+interface SelectRoot {
+  <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
+  propTypes?: any;
+}
+
 SelectRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  actionsRef: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * Determines if the selected item inside the popup should align to the trigger element.
    * @default true
@@ -158,6 +186,10 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   onOpenChange: PropTypes.func,
   /**
+   * Event handler called after any animations complete when the select menu is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
+  /**
    * Callback fired when the value of the select changes. Use when controlled.
    */
   onValueChange: PropTypes.func,
@@ -182,16 +214,3 @@ SelectRoot.propTypes /* remove-proptypes */ = {
 } as any;
 
 export { SelectRoot };
-
-namespace SelectRoot {
-  export interface Props<Value> extends useSelectRoot.Parameters<Value> {
-    children?: React.ReactNode;
-  }
-
-  export interface State {}
-}
-
-interface SelectRoot {
-  <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
-  propTypes?: any;
-}

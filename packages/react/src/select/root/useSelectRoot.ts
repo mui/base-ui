@@ -18,7 +18,9 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+
+const EMPTY_ARRAY: never[] = [];
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
@@ -28,9 +30,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     required = false,
     alignItemToTrigger: alignItemToTriggerParam = true,
     modal = false,
+    onOpenChangeComplete,
   } = params;
 
-  const { setDirty, validityData, validationMode, setControlId } = useFieldRootContext();
+  const { setDirty, validityData, validationMode, setControlId, setFilled } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId(idProp);
@@ -55,6 +58,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     name: 'Select',
     state: 'open',
   });
+
+  useEnhancedEffect(() => {
+    setFilled(value !== null);
+  }, [setFilled, value]);
 
   const [controlledAlignItemToTrigger, setcontrolledAlignItemToTrigger] =
     React.useState(alignItemToTriggerParam);
@@ -116,14 +123,24 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }
   });
 
-  useAfterExitAnimation({
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+    setActiveIndex(null);
+    onOpenChangeComplete?.(false);
+  });
+
+  useOpenChangeComplete({
+    enabled: !params.actionsRef,
     open,
-    animatedElementRef: popupRef,
-    onFinished() {
-      setMounted(false);
-      setActiveIndex(null);
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        handleUnmount();
+      }
     },
   });
+
+  React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
     params.onValueChange?.(nextValue, event);
@@ -140,20 +157,31 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     setLabel(labelsRef.current[index] ?? '');
   });
 
+  const hasRegisteredRef = React.useRef(false);
+
+  const registerSelectedItem = useEventCallback((suppliedIndex: number | undefined) => {
+    if (suppliedIndex !== undefined) {
+      hasRegisteredRef.current = true;
+    }
+
+    const stringValue = typeof value === 'string' || value === null ? value : JSON.stringify(value);
+    const index = suppliedIndex ?? valuesRef.current.indexOf(stringValue);
+
+    if (index !== -1) {
+      setSelectedIndex(index);
+      setLabel(labelsRef.current[index] ?? '');
+    } else if (value) {
+      warn(`The value \`${stringValue}\` is not present in the select items.`);
+    }
+  });
+
   useEnhancedEffect(() => {
-    // Wait for the items to have registered their values in `valuesRef`.
-    queueMicrotask(() => {
-      const stringValue =
-        typeof value === 'string' || value === null ? value : JSON.stringify(value);
-      const index = valuesRef.current.indexOf(stringValue);
-      if (index !== -1) {
-        setSelectedIndex(index);
-        setLabel(labelsRef.current[index] ?? '');
-      } else if (value) {
-        warn(`The value \`${stringValue}\` is not present in the select items.`);
-      }
-    });
-  }, [value]);
+    if (!hasRegisteredRef.current) {
+      return;
+    }
+
+    registerSelectedItem(undefined);
+  }, [value, registerSelectedItem]);
 
   const floatingRootContext = useFloatingRootContext({
     open,
@@ -165,7 +193,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
 
   const click = useClick(floatingRootContext, {
-    enabled: !readOnly,
+    enabled: !readOnly && !disabled,
     event: 'mousedown',
   });
 
@@ -179,10 +207,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
 
   const listNavigation = useListNavigation(floatingRootContext, {
-    enabled: !readOnly,
+    enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
     selectedIndex,
+    disabledIndices: EMPTY_ARRAY,
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
@@ -196,8 +225,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     focusItemOnHover: false,
   });
 
-  const typehaead = useTypeahead(floatingRootContext, {
-    enabled: !readOnly,
+  const typeahead = useTypeahead(floatingRootContext, {
+    enabled: !readOnly && !disabled,
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
@@ -219,7 +248,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     getReferenceProps: getRootTriggerProps,
     getFloatingProps: getRootPositionerProps,
     getItemProps,
-  } = useInteractions([click, dismiss, role, listNavigation, typehaead]);
+  } = useInteractions([click, dismiss, role, listNavigation, typeahead]);
 
   const rootContext = React.useMemo(
     () => ({
@@ -263,6 +292,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       transitionStatus,
       fieldControlValidation,
       modal,
+      registerSelectedItem,
+      onOpenChangeComplete,
     }),
     [
       id,
@@ -290,6 +321,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       transitionStatus,
       fieldControlValidation,
       modal,
+      registerSelectedItem,
+      onOpenChangeComplete,
     ],
   );
 
@@ -364,6 +397,10 @@ export namespace useSelectRoot {
      */
     onOpenChange?: (open: boolean, event: Event | undefined) => void;
     /**
+     * Event handler called after any animations complete when the select menu is opened or closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
+    /**
      * Whether the select menu is currently open.
      */
     open?: boolean;
@@ -381,10 +418,18 @@ export namespace useSelectRoot {
      * @default true
      */
     modal?: boolean;
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
     rootContext: SelectRootContext;
     indexContext: SelectIndexContext;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

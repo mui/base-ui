@@ -12,8 +12,9 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -32,10 +33,27 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { id, open, popupRef, transitionStatus, alignItemToTrigger, mounted, modal } =
-    useSelectRootContext();
-
+  const {
+    id,
+    open,
+    popupRef,
+    transitionStatus,
+    alignItemToTrigger,
+    mounted,
+    modal,
+    onOpenChangeComplete,
+  } = useSelectRootContext();
   const positioner = useSelectPositionerContext();
+
+  useOpenChangeComplete({
+    open,
+    ref: popupRef,
+    onComplete() {
+      if (open) {
+        onOpenChangeComplete?.(true);
+      }
+    },
+  });
 
   const { getPopupProps } = useSelectPopup();
 
@@ -60,9 +78,12 @@ const SelectPopup = React.forwardRef(function SelectPopup(
     customStyleHookMapping,
     extraProps:
       transitionStatus === 'starting'
-        ? mergeReactProps(otherProps, {
-            style: { transition: 'none' },
-          })
+        ? mergeProps(
+            {
+              style: { transition: 'none' },
+            },
+            otherProps,
+          )
         : otherProps,
   });
 
@@ -84,7 +105,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
         />
       )}
       <FloatingFocusManager
-        context={positioner.positionerContext}
+        context={positioner.context}
         modal={false}
         disabled={!mounted}
         visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}

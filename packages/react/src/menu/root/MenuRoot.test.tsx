@@ -5,28 +5,48 @@ import { DirectionProvider } from '@base-ui-components/react/direction-provider'
 import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 
 describe('<Menu.Root />', () => {
   beforeEach(() => {
-    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   const { render } = createRenderer();
   const user = userEvent.setup();
+
+  popupConformanceTests({
+    createComponent: (props) => (
+      <Menu.Root {...props.root}>
+        <Menu.Trigger {...props.trigger}>Open menu</Menu.Trigger>
+        <Menu.Portal {...props.portal}>
+          <Menu.Positioner>
+            <Menu.Popup {...props.popup}>
+              <Menu.Item>Item</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    ),
+    render,
+    triggerMouseAction: 'click',
+    expectedPopupRole: 'menu',
+  });
 
   describe('keyboard navigation', () => {
     it('changes the highlighted item using the arrow keys', async () => {
       const { getByRole, getByTestId } = await render(
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item data-testid="item-1">1</Menu.Item>
-              <Menu.Item data-testid="item-2">2</Menu.Item>
-              <Menu.Item data-testid="item-3">3</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item data-testid="item-1">1</Menu.Item>
+                <Menu.Item data-testid="item-2">2</Menu.Item>
+                <Menu.Item data-testid="item-3">3</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -65,13 +85,15 @@ describe('<Menu.Root />', () => {
       const { getByRole, getByTestId } = await render(
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item data-testid="item-1">1</Menu.Item>
-              <Menu.Item data-testid="item-2">2</Menu.Item>
-              <Menu.Item data-testid="item-3">3</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item data-testid="item-1">1</Menu.Item>
+                <Menu.Item data-testid="item-2">2</Menu.Item>
+                <Menu.Item data-testid="item-3">3</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -103,14 +125,16 @@ describe('<Menu.Root />', () => {
       const { getByRole, getByTestId } = await render(
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item data-testid="item-1">1</Menu.Item>
-              <Menu.Item disabled data-testid="item-2">
-                2
-              </Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item data-testid="item-1">1</Menu.Item>
+                <Menu.Item disabled data-testid="item-2">
+                  2
+                </Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -128,7 +152,7 @@ describe('<Menu.Root />', () => {
         expect(item1).toHaveFocus();
       });
 
-      await userEvent.keyboard('[ArrowDown]');
+      await userEvent.keyboard('{ArrowDown}');
 
       await waitFor(() => {
         expect(item2).toHaveFocus();
@@ -138,27 +162,27 @@ describe('<Menu.Root />', () => {
     });
 
     describe('text navigation', () => {
-      it('changes the highlighted item', async function test(t = {}) {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+      it('changes the highlighted item', async ({ skip }) => {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Aa</Menu.Item>
-                <Menu.Item>Ba</Menu.Item>
-                <Menu.Item>Bb</Menu.Item>
-                <Menu.Item>Ca</Menu.Item>
-                <Menu.Item>Cb</Menu.Item>
-                <Menu.Item>Cd</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Aa</Menu.Item>
+                  <Menu.Item>Ba</Menu.Item>
+                  <Menu.Item>Bb</Menu.Item>
+                  <Menu.Item>Ca</Menu.Item>
+                  <Menu.Item>Cb</Menu.Item>
+                  <Menu.Item>Cd</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -183,25 +207,25 @@ describe('<Menu.Root />', () => {
         expect(getByText('Cd')).to.have.attribute('tabindex', '0');
       });
 
-      it('changes the highlighted item using text navigation on label prop', async function test(t = {}) {
-        if (!/jsdom/.test(window.navigator.userAgent)) {
+      it('changes the highlighted item using text navigation on label prop', async ({ skip }) => {
+        if (!isJSDOM) {
           // This test is very flaky in real browsers
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const { getByRole, getAllByRole } = await render(
           <Menu.Root>
             <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item label="Aa">1</Menu.Item>
-                <Menu.Item label="Ba">2</Menu.Item>
-                <Menu.Item label="Bb">3</Menu.Item>
-                <Menu.Item label="Ca">4</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item label="Aa">1</Menu.Item>
+                  <Menu.Item label="Ba">2</Menu.Item>
+                  <Menu.Item label="Bb">3</Menu.Item>
+                  <Menu.Item label="Ca">4</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -238,30 +262,30 @@ describe('<Menu.Root />', () => {
         });
       });
 
-      it('skips the non-stringifiable items', async function test(t = {}) {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+      it('skips the non-stringifiable items', async ({ skip }) => {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Aa</Menu.Item>
-                <Menu.Item>Ba</Menu.Item>
-                <Menu.Item />
-                <Menu.Item>
-                  <div>Nested Content</div>
-                </Menu.Item>
-                <Menu.Item>{undefined}</Menu.Item>
-                <Menu.Item>{null}</Menu.Item>
-                <Menu.Item>Bc</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Aa</Menu.Item>
+                  <Menu.Item>Ba</Menu.Item>
+                  <Menu.Item />
+                  <Menu.Item>
+                    <div>Nested Content</div>
+                  </Menu.Item>
+                  <Menu.Item>{undefined}</Menu.Item>
+                  <Menu.Item>{null}</Menu.Item>
+                  <Menu.Item>Bc</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -284,25 +308,25 @@ describe('<Menu.Root />', () => {
         expect(getByText('Bc')).to.have.attribute('tabindex', '0');
       });
 
-      it('navigate to options with diacritic characters', async function test(t = {}) {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+      it('navigate to options with diacritic characters', async ({ skip }) => {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Aa</Menu.Item>
-                <Menu.Item>Ba</Menu.Item>
-                <Menu.Item>Bb</Menu.Item>
-                <Menu.Item>Bą</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Aa</Menu.Item>
+                  <Menu.Item>Ba</Menu.Item>
+                  <Menu.Item>Bb</Menu.Item>
+                  <Menu.Item>Bą</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -325,25 +349,25 @@ describe('<Menu.Root />', () => {
         expect(getByText('Bą')).to.have.attribute('tabindex', '0');
       });
 
-      it('navigate to next options beginning with diacritic characters', async function test(t = {}) {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+      it('navigate to next options beginning with diacritic characters', async ({ skip }) => {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const { getByText, getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Aa</Menu.Item>
-                <Menu.Item>ąa</Menu.Item>
-                <Menu.Item>ąb</Menu.Item>
-                <Menu.Item>ąc</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Aa</Menu.Item>
+                  <Menu.Item>ąa</Menu.Item>
+                  <Menu.Item>ąb</Menu.Item>
+                  <Menu.Item>ąc</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -360,26 +384,28 @@ describe('<Menu.Root />', () => {
         expect(getByText('ąa')).to.have.attribute('tabindex', '0');
       });
 
-      it('does not trigger the onClick event when Space is pressed during text navigation', async function test(t = {}) {
-        if (/jsdom/.test(window.navigator.userAgent)) {
+      it('does not trigger the onClick event when Space is pressed during text navigation', async ({
+        skip,
+      }) => {
+        if (isJSDOM) {
           // useMenuPopup Text navigation match menu items using HTMLElement.innerText
           // innerText is not supported by JSDOM
-          // @ts-expect-error to support mocha and vitest
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          this?.skip?.() || t?.skip();
+          skip();
         }
 
         const handleClick = spy();
 
         const { getAllByRole } = await render(
           <Menu.Root open>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item onClick={() => handleClick()}>Item One</Menu.Item>
-                <Menu.Item onClick={() => handleClick()}>Item Two</Menu.Item>
-                <Menu.Item onClick={() => handleClick()}>Item Three</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item onClick={() => handleClick()}>Item One</Menu.Item>
+                  <Menu.Item onClick={() => handleClick()}>Item Two</Menu.Item>
+                  <Menu.Item onClick={() => handleClick()}>Item Three</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>,
         );
 
@@ -413,20 +439,24 @@ describe('<Menu.Root />', () => {
         const { getByTestId, queryByTestId } = await render(
           <DirectionProvider direction={direction}>
             <Menu.Root open orientation={orientation}>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                  <Menu.Root orientation={orientation}>
-                    <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
-                    <Menu.Positioner>
-                      <Menu.Popup data-testid="submenu">
-                        <Menu.Item data-testid="submenu-item-1">2.1</Menu.Item>
-                        <Menu.Item>2.2</Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Root>
-                </Menu.Popup>
-              </Menu.Positioner>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Root orientation={orientation}>
+                      <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup data-testid="submenu">
+                            <Menu.Item data-testid="submenu-item-1">2.1</Menu.Item>
+                            <Menu.Item>2.2</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.Root>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
             </Menu.Root>
           </DirectionProvider>,
         );
@@ -463,13 +493,15 @@ describe('<Menu.Root />', () => {
       return (
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Item>2</Menu.Item>
-              <Menu.Item>3</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Item>2</Menu.Item>
+                <Menu.Item>3</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>
       );
     }
@@ -539,11 +571,13 @@ describe('<Menu.Root />', () => {
           <input type="text" />
           <Menu.Root>
             <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Close</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Close</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
           <input type="text" />
         </div>,
@@ -558,12 +592,10 @@ describe('<Menu.Root />', () => {
       expect(button).toHaveFocus();
     });
 
-    it('focuses the trigger after the menu is closed but not unmounted', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+    it('focuses the trigger after the menu is closed but not unmounted', async ({ skip }) => {
+      if (isJSDOM) {
         // TODO: this stopped working in vitest JSDOM mode
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       const { getByRole } = await render(
@@ -571,11 +603,13 @@ describe('<Menu.Root />', () => {
           <input type="text" />
           <Menu.Root>
             <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Positioner keepMounted>
-              <Menu.Popup>
-                <Menu.Item>Close</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
+            <Menu.Portal keepMounted>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Close</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
           </Menu.Root>
           <input type="text" />
         </div>,
@@ -598,20 +632,24 @@ describe('<Menu.Root />', () => {
       const { getByRole, queryByRole } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item>1</Menu.Item>
-              <Menu.Root>
-                <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.Item>2.1</Menu.Item>
-                    <Menu.Item>2.2</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Root>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Root>
+                  <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>2.1</Menu.Item>
+                        <Menu.Item>2.2</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -645,20 +683,24 @@ describe('<Menu.Root />', () => {
       const { getByRole, queryAllByRole } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Positioner>
-            <Menu.Popup id="parent-menu">
-              <Menu.Item>1</Menu.Item>
-              <Menu.Root closeParentOnEsc={false}>
-                <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
-                <Menu.Positioner>
-                  <Menu.Popup id="submenu">
-                    <Menu.Item>2.1</Menu.Item>
-                    <Menu.Item>2.2</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Root>
-            </Menu.Popup>
-          </Menu.Positioner>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup id="parent-menu">
+                <Menu.Item>1</Menu.Item>
+                <Menu.Root closeParentOnEsc={false}>
+                  <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup id="submenu">
+                        <Menu.Item>2.1</Menu.Item>
+                        <Menu.Item>2.2</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -690,102 +732,6 @@ describe('<Menu.Root />', () => {
       });
 
       expect(menus[0].id).to.equal('parent-menu');
-    });
-  });
-
-  describe('controlled mode', () => {
-    it('should remove the popup when and there is no exit animation defined', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
-      }
-
-      function Test() {
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Menu.Root open={open} modal={false}>
-              <Menu.Positioner>
-                <Menu.Popup />
-              </Menu.Positioner>
-            </Menu.Root>
-          </div>
-        );
-      }
-
-      await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
-      });
-    });
-
-    it('should remove the popup when the animation finishes', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
-      }
-
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
-
-      let animationFinished = false;
-      const notifyAnimationFinished = () => {
-        animationFinished = true;
-      };
-
-      function Test() {
-        const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-popup[data-open] {
-            opacity: 1;
-          }
-
-          .animation-test-popup[data-ending-style] {
-            animation: test-anim 50ms;
-          }
-        `;
-
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Menu.Root open={open} modal={false}>
-              <Menu.Positioner keepMounted>
-                <Menu.Popup
-                  className="animation-test-popup"
-                  onAnimationEnd={notifyAnimationFinished}
-                />
-              </Menu.Positioner>
-            </Menu.Root>
-          </div>
-        );
-      }
-
-      await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
-      });
-
-      expect(animationFinished).to.equal(true);
     });
   });
 
@@ -850,6 +796,362 @@ describe('<Menu.Root />', () => {
 
       // eslint-disable-next-line testing-library/no-node-access
       expect(positioner.previousElementSibling).to.equal(null);
+    });
+  });
+
+  describe('prop: actionsRef', () => {
+    it('unmounts the menu when the `unmount` method is called', async () => {
+      const actionsRef = {
+        current: {
+          unmount: spy(),
+        },
+      };
+
+      await render(
+        <Menu.Root actionsRef={actionsRef}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      await act(async () => actionsRef.current.unmount());
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).to.equal(null);
+      });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Menu.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup" />
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-indicator[data-ending-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Menu.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="animation-test-indicator" data-testid="popup" />
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.to.equal(null);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+    });
+
+    it('is called on open when there is no enter animation defined', async () => {
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Menu.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup" />
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.callCount).to.equal(2);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+    });
+
+    it('is called on open when the enter animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            from {
+              opacity: 0;
+            }
+          }
+  
+          .animation-test-indicator[data-starting-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Menu.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="animation-test-indicator" data-testid="popup" />
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
+
+      expect(screen.queryByTestId('popup')).not.to.equal(null);
+    });
+
+    it('does not get called on mount when not open', async () => {
+      const onOpenChangeComplete = spy();
+
+      await render(
+        <Menu.Root onOpenChangeComplete={onOpenChangeComplete}>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(onOpenChangeComplete.callCount).to.equal(0);
+    });
+  });
+
+  describe('prop: openOnHover', () => {
+    it('should open the menu when the trigger is hovered', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root openOnHover delay={0}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await userEvent.hover(trigger);
+
+      await waitFor(() => {
+        expect(queryByRole('menu')).not.to.equal(null);
+      });
+    });
+
+    it.skipIf(!isJSDOM)('should close the menu when the trigger is no longer hovered', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root openOnHover delay={0} modal={false}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await userEvent.hover(trigger);
+
+      await waitFor(() => {
+        expect(queryByRole('menu')).not.to.equal(null);
+      });
+
+      await userEvent.unhover(trigger);
+
+      await waitFor(() => {
+        expect(queryByRole('menu')).to.equal(null);
+      });
+    });
+
+    it('should not close when submenu is hovered after root menu is hovered', async () => {
+      const { getByRole, getByTestId } = await render(
+        <Menu.Root openOnHover delay={0}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="menu">
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Root delay={0}>
+                  <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner data-testid="submenu">
+                      <Menu.Popup>
+                        <Menu.Item>2.1</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await userEvent.hover(trigger);
+
+      await waitFor(() => {
+        expect(getByTestId('menu')).not.to.equal(null);
+      });
+
+      const menu = getByTestId('menu');
+
+      await userEvent.hover(menu);
+
+      const submenuTrigger = getByRole('menuitem', { name: '2' });
+
+      await userEvent.hover(submenuTrigger);
+
+      await waitFor(() => {
+        expect(getByTestId('menu')).not.to.equal(null);
+      });
+      await waitFor(() => {
+        expect(getByTestId('submenu')).not.to.equal(null);
+      });
+
+      const submenu = getByTestId('submenu');
+
+      await userEvent.unhover(menu);
+      await userEvent.hover(submenu);
+
+      await waitFor(() => {
+        expect(getByTestId('menu')).not.to.equal(null);
+      });
+      await waitFor(() => {
+        expect(getByTestId('submenu')).not.to.equal(null);
+      });
     });
   });
 });

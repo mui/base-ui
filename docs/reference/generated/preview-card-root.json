@@ -15,6 +15,14 @@
       "type": "(open, event, reason) => void",
       "description": "Event handler called when the preview card is opened or closed."
     },
+    "actionsRef": {
+      "type": "{ current: { unmount: func } }",
+      "description": "A ref to imperative actions."
+    },
+    "onOpenChangeComplete": {
+      "type": "(open) => void",
+      "description": "Event handler called after any animations complete when the preview card is opened or closed."
+    },
     "delay": {
       "type": "number",
       "default": "600",

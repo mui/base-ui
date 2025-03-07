@@ -8,7 +8,7 @@
     },
     "keepMounted": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "Whether to keep the HTML element in the DOM when the radio button is inactive."
     },
     "render": {
@@ -43,6 +43,12 @@
     },
     "data-touched": {
       "description": "Present when the radio has been touched (when wrapped in Field.Root)."
+    },
+    "data-filled": {
+      "description": "Present when the radio is checked (when wrapped in Field.Root)."
+    },
+    "data-focused": {
+      "description": "Present when the radio is focused (when wrapped in Field.Root)."
     }
   },
   "cssVariables": {}

@@ -5,10 +5,9 @@
 
     @media (prefers-color-scheme: light) {
       /* Use filter for the shadow in order to catch the arrow part */
-      filter: drop-shadow(0px 0px 1px var(--color-gray-200))
-        drop-shadow(0px 0.5px 1px var(--color-gray-200))
-        drop-shadow(0px 1px 2px var(--color-gray-200))
-        drop-shadow(0px 3px 8px var(--color-gray-300));
+      filter: drop-shadow(0 0 1px var(--color-gray-200))
+        drop-shadow(0 0.5px 1px var(--color-gray-200)) drop-shadow(0 1px 2px var(--color-gray-200))
+        drop-shadow(0 3px 8px var(--color-gray-300));
     }
   }
 
@@ -20,7 +19,6 @@
     background-color: var(--color-popup);
     overflow: hidden;
     cursor: default;
-    -webkit-user-select: none;
     user-select: none;
     padding-block: 0.25rem;
 
@@ -81,6 +79,7 @@
     &[data-side='bottom'] {
       top: -6px;
     }
+
     &[data-side='top'] {
       bottom: -6px;
       transform: scaleY(-1);

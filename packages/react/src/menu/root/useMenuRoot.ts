@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {
   safePolygon,
   useClick,
@@ -10,17 +11,20 @@ import {
   useListNavigation,
   useRole,
   useTypeahead,
-  FloatingRootContext,
+  type FloatingRootContext,
 } from '@floating-ui/react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 import { GenericHTMLProps } from '../../utils/types';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useControlled } from '../../utils/useControlled';
-import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { PATIENT_CLICK_THRESHOLD, TYPEAHEAD_RESET_MS } from '../../utils/constants';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
+import {
+  type OpenChangeReason,
+  translateOpenChangeReason,
+} from '../../utils/translateOpenChangeReason';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -29,6 +33,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     open: openParam,
     defaultOpen,
     onOpenChange,
+    onOpenChangeComplete,
     orientation,
     direction,
     disabled,
@@ -45,10 +50,15 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const [positionerElement, setPositionerElementUnwrapped] = React.useState<HTMLElement | null>(
     null,
   );
-  const popupRef = React.useRef<HTMLElement>(null);
-  const positionerRef = React.useRef<HTMLElement | null>(null);
+  const [instantType, setInstantType] = React.useState<'dismiss' | 'click'>();
   const [hoverEnabled, setHoverEnabled] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+  const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
+  const [stickIfOpen, setStickIfOpen] = React.useState(true);
+
+  const popupRef = React.useRef<HTMLElement>(null);
+  const positionerRef = React.useRef<HTMLElement | null>(null);
+  const stickIfOpenTimeoutRef = React.useRef(-1);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
@@ -68,16 +78,58 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   useScrollLock(open && modal, triggerElement);
 
-  const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
-    onOpenChange?.(nextOpen, event);
-    setOpenUnwrapped(nextOpen);
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
+      onOpenChange?.(nextOpen, event);
+      setOpenUnwrapped(nextOpen);
+
+      if (nextOpen) {
+        setOpenReason(reason ?? null);
+      }
+    },
+  );
+
+  if (!open && !hoverEnabled) {
+    setHoverEnabled(true);
+  }
+
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+    setOpenReason(null);
+    setStickIfOpen(true);
+    onOpenChangeComplete?.(false);
   });
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
+    enabled: !parameters.actionsRef,
     open,
-    animatedElementRef: popupRef,
-    onFinished: () => setMounted(false),
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        handleUnmount();
+      }
+    },
   });
+
+  React.useImperativeHandle(parameters.actionsRef, () => ({ unmount: handleUnmount }), [
+    handleUnmount,
+  ]);
+
+  const clearStickIfOpenTimeout = useEventCallback(() => {
+    clearTimeout(stickIfOpenTimeoutRef.current);
+  });
+
+  React.useEffect(() => {
+    if (!open) {
+      clearStickIfOpenTimeout();
+    }
+  }, [clearStickIfOpenTimeout, open]);
+
+  React.useEffect(() => {
+    return () => {
+      clearStickIfOpenTimeout();
+    };
+  }, [clearStickIfOpenTimeout]);
 
   const floatingRootContext = useFloatingRootContext({
     elements: {
@@ -85,13 +137,41 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       floating: positionerElement,
     },
     open,
-    onOpenChange: setOpen,
+    onOpenChange(openValue, eventValue, reasonValue) {
+      const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
+      const isKeyboardClick = reasonValue === 'click' && (eventValue as MouseEvent).detail === 0;
+      const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
+
+      function changeState() {
+        setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+      }
+
+      if (isHover) {
+        // Only allow "patient" clicks to close the popover if it's open.
+        // If they clicked within 500ms of the popover opening, keep it open.
+        clearStickIfOpenTimeout();
+        stickIfOpenTimeoutRef.current = window.setTimeout(() => {
+          setStickIfOpen(false);
+        }, PATIENT_CLICK_THRESHOLD);
+
+        ReactDOM.flushSync(changeState);
+      } else {
+        changeState();
+      }
+
+      if (isKeyboardClick || isDismissClose) {
+        setInstantType(isKeyboardClick ? 'click' : 'dismiss');
+      } else {
+        setInstantType(undefined);
+      }
+    },
   });
 
   const hover = useHover(floatingRootContext, {
-    enabled: hoverEnabled && openOnHover && !disabled,
+    enabled: hoverEnabled && openOnHover && !disabled && openReason !== 'click',
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
+    move: false,
     delay: {
       open: delay,
     },
@@ -102,6 +182,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     event: 'mousedown',
     toggle: !nested,
     ignoreMouse: nested,
+    stickIfOpen,
   });
 
   const dismiss = useDismiss(floatingRootContext, {
@@ -149,38 +230,43 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     typeahead,
   ]);
 
-  const getTriggerProps = React.useCallback(
-    (externalProps?: GenericHTMLProps) =>
-      getReferenceProps(
-        mergeReactProps(externalProps, {
-          onMouseEnter: () => {
-            setHoverEnabled(true);
-          },
-        }),
-      ),
+  const triggerProps = React.useMemo(
+    () =>
+      getReferenceProps({
+        onMouseEnter() {
+          setHoverEnabled(true);
+        },
+      }),
     [getReferenceProps],
   );
 
-  const getPopupProps = React.useCallback(
-    (externalProps?: GenericHTMLProps) =>
-      getFloatingProps(
-        mergeReactProps(externalProps, {
-          onMouseEnter: () => {
+  const popupProps = React.useMemo(
+    () =>
+      getFloatingProps({
+        onMouseEnter() {
+          if (!openOnHover || nested) {
             setHoverEnabled(false);
-          },
-        }),
-      ),
-    [getFloatingProps],
+          }
+        },
+        onClick() {
+          if (openOnHover) {
+            setHoverEnabled(false);
+          }
+        },
+      }),
+    [getFloatingProps, openOnHover, nested],
   );
+
+  const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
 
   return React.useMemo(
     () => ({
       activeIndex,
       allowMouseUpTriggerRef,
       floatingRootContext,
-      getItemProps,
-      getPopupProps,
-      getTriggerProps,
+      itemProps,
+      popupProps,
+      triggerProps,
       itemDomElements,
       itemLabels,
       mounted,
@@ -191,13 +277,17 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       setPositionerElement,
       setTriggerElement,
       transitionStatus,
+      openReason,
+      instantType,
+      onOpenChangeComplete,
+      setHoverEnabled,
     }),
     [
       activeIndex,
       floatingRootContext,
-      getItemProps,
-      getPopupProps,
-      getTriggerProps,
+      itemProps,
+      popupProps,
+      triggerProps,
       itemDomElements,
       itemLabels,
       mounted,
@@ -206,6 +296,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       setOpen,
       transitionStatus,
       setPositionerElement,
+      openReason,
+      instantType,
+      onOpenChangeComplete,
     ],
   );
 }
@@ -221,7 +314,11 @@ export namespace useMenuRoot {
     /**
      * Event handler called when the menu is opened or closed.
      */
-    onOpenChange: ((open: boolean, event?: Event) => void) | undefined;
+    onOpenChange: ((open: boolean, event?: Event, reason?: OpenChangeReason) => void) | undefined;
+    /**
+     * Event handler called after any animations complete when the menu is opened or closed.
+     */
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
     /**
      * Whether the menu is initially open.
      *
@@ -270,14 +367,18 @@ export namespace useMenuRoot {
      */
     onTypingChange: (typing: boolean) => void;
     modal: boolean;
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef: React.RefObject<Actions> | undefined;
   }
 
   export interface ReturnValue {
     activeIndex: number | null;
     floatingRootContext: FloatingRootContext;
-    getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    itemProps: GenericHTMLProps;
+    popupProps: GenericHTMLProps;
+    triggerProps: GenericHTMLProps;
     itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
     itemLabels: React.MutableRefObject<(string | null)[]>;
     mounted: boolean;
@@ -289,5 +390,13 @@ export namespace useMenuRoot {
     setTriggerElement: (element: HTMLElement | null) => void;
     transitionStatus: TransitionStatus;
     allowMouseUpTriggerRef: React.RefObject<boolean>;
+    openReason: OpenChangeReason | null;
+    instantType: 'dismiss' | 'click' | undefined;
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
+    setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

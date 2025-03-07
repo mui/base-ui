@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -12,12 +12,12 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useField } from '../../field/useField';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 
-export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckboxRoot.ReturnValue {
+export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckboxRoot.ReturnValue {
   const {
     id: idProp,
     checked: externalChecked,
     inputRef: externalInputRef,
-    onCheckedChange: onCheckedChangeProp = () => {},
+    onCheckedChange: onCheckedChangeProp,
     name,
     value,
     defaultChecked = false,
@@ -40,7 +40,16 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     state: 'checked',
   });
 
-  const { labelId, setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
+  const {
+    labelId,
+    setControlId,
+    setTouched,
+    setDirty,
+    validityData,
+    setFilled,
+    setFocused,
+    validationMode,
+  } = useFieldRootContext();
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
@@ -71,90 +80,125 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useForkRef(externalInputRef, inputRef, inputValidationRef);
 
-  React.useEffect(() => {
+  useEnhancedEffect(() => {
     if (inputRef.current) {
       inputRef.current.indeterminate = indeterminate;
+      if (checked) {
+        setFilled(true);
+      }
     }
-  }, [indeterminate]);
+  }, [checked, indeterminate, setFilled]);
 
-  const getButtonProps: UseCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
+  const getButtonProps: useCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'button'>(getValidationProps(externalProps), {
-        id,
-        ref: buttonRef,
-        type: 'button',
-        role: 'checkbox',
-        disabled,
-        'aria-checked': indeterminate ? 'mixed' : checked,
-        'aria-readonly': readOnly || undefined,
-        'aria-labelledby': labelId,
-        onBlur() {
-          const element = inputRef.current;
-          if (!element) {
-            return;
-          }
-          setTouched(true);
-          commitValidation(element.checked);
-        },
-        onClick(event) {
-          if (event.defaultPrevented || readOnly) {
-            return;
-          }
+      mergeProps<'button'>(
+        {
+          id,
+          ref: buttonRef,
+          type: 'button',
+          role: 'checkbox',
+          disabled,
+          'aria-checked': indeterminate ? 'mixed' : checked,
+          'aria-readonly': readOnly || undefined,
+          'aria-labelledby': labelId,
+          onFocus() {
+            setFocused(true);
+          },
+          onBlur() {
+            const element = inputRef.current;
+            if (!element) {
+              return;
+            }
 
-          event.preventDefault();
+            setTouched(true);
+            setFocused(false);
 
-          inputRef.current?.click();
+            if (validationMode === 'onBlur') {
+              commitValidation(groupContext ? groupValue : element.checked);
+            }
+          },
+          onClick(event) {
+            if (event.defaultPrevented || readOnly) {
+              return;
+            }
+
+            event.preventDefault();
+
+            inputRef.current?.click();
+          },
         },
-      }),
+        getValidationProps(externalProps),
+      ),
     [
-      id,
       getValidationProps,
+      id,
+      disabled,
       indeterminate,
       checked,
-      disabled,
       readOnly,
       labelId,
+      setFocused,
       setTouched,
+      validationMode,
       commitValidation,
+      groupContext,
+      groupValue,
     ],
   );
 
-  const getInputProps: UseCheckboxRoot.ReturnValue['getInputProps'] = React.useCallback(
+  const getInputProps: useCheckboxRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(getInputValidationProps(externalProps), {
-        checked,
-        disabled,
-        name,
-        // React <19 sets an empty value if `undefined` is passed explicitly
-        // To avoid this, we only set the value if it's defined
-        ...(value !== undefined ? { value } : {}),
-        required,
-        autoFocus,
-        ref: mergedInputRef,
-        style: visuallyHidden,
-        tabIndex: -1,
-        type: 'checkbox',
-        'aria-hidden': true,
-        onChange(event) {
-          // Workaround for https://github.com/facebook/react/issues/9023
-          if (event.nativeEvent.defaultPrevented) {
-            return;
-          }
+      mergeProps<'input'>(
+        {
+          checked,
+          disabled,
+          name,
+          // React <19 sets an empty value if `undefined` is passed explicitly
+          // To avoid this, we only set the value if it's defined
+          ...(value !== undefined ? { value } : {}),
+          required,
+          autoFocus,
+          ref: mergedInputRef,
+          style: visuallyHidden,
+          tabIndex: -1,
+          type: 'checkbox',
+          'aria-hidden': true,
+          onChange(event) {
+            // Workaround for https://github.com/facebook/react/issues/9023
+            if (event.nativeEvent.defaultPrevented) {
+              return;
+            }
 
-          const nextChecked = event.target.checked;
+            const nextChecked = event.target.checked;
 
-          setDirty(nextChecked !== validityData.initialValue);
-          setCheckedState(nextChecked);
-          onCheckedChange?.(nextChecked, event.nativeEvent);
+            setDirty(nextChecked !== validityData.initialValue);
+            setCheckedState(nextChecked);
+            onCheckedChange?.(nextChecked, event.nativeEvent);
 
-          if (name && groupValue && setGroupValue) {
-            const nextGroupValue = nextChecked
-              ? [...groupValue, name]
-              : groupValue.filter((item) => item !== name);
-            setGroupValue(nextGroupValue, event.nativeEvent);
-          }
+            if (!groupContext) {
+              setFilled(nextChecked);
+
+              if (validationMode === 'onChange') {
+                commitValidation(nextChecked);
+              }
+            }
+
+            if (name && groupValue && setGroupValue) {
+              const nextGroupValue = nextChecked
+                ? [...groupValue, name]
+                : groupValue.filter((item) => item !== name);
+
+              setGroupValue(nextGroupValue, event.nativeEvent);
+              setFilled(nextGroupValue.length > 0);
+
+              if (validationMode === 'onChange') {
+                commitValidation(nextGroupValue);
+              }
+            }
+          },
         },
-      }),
+        getInputValidationProps(externalProps),
+      ),
     [
       getInputValidationProps,
       checked,
@@ -164,12 +208,16 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
       required,
       autoFocus,
       mergedInputRef,
+      groupContext,
       setDirty,
       validityData.initialValue,
       setCheckedState,
       onCheckedChange,
+      validationMode,
       groupValue,
       setGroupValue,
+      commitValidation,
+      setFilled,
     ],
   );
 
@@ -183,7 +231,7 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   );
 }
 
-export namespace UseCheckboxRoot {
+export namespace useCheckboxRoot {
   export interface Parameters {
     /**
      * The id of the input element.

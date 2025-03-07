@@ -1,33 +1,35 @@
 import * as React from 'react';
 import { useMenuItem } from '../item/useMenuItem';
 import { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 
 export function useMenuRadioItem(
   params: useMenuRadioItem.Parameters,
 ): useMenuRadioItem.ReturnValue {
   const { checked, setChecked, ...other } = params;
 
-  const { getRootProps: getMenuItemRootProps, ...menuItem } = useMenuItem(other);
+  const { getItemProps: getMenuItemProps, ...menuItem } = useMenuItem(other);
 
-  const getRootProps = React.useCallback(
+  const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return getMenuItemRootProps(
-        mergeReactProps(externalProps, {
+      return mergeProps(
+        {
           role: 'menuitemradio',
           'aria-checked': checked,
           onClick: (event: React.MouseEvent) => {
             setChecked(event.nativeEvent);
           },
-        }),
+        },
+        externalProps,
+        getMenuItemProps,
       );
     },
-    [checked, getMenuItemRootProps, setChecked],
+    [checked, getMenuItemProps, setChecked],
   );
 
   return {
     ...menuItem,
-    getRootProps,
+    getItemProps,
     checked,
   };
 }
