@@ -1,9 +1,10 @@
 # useRender
 
-<Subtitle>Utility for supporting a render prop in custom components.</Subtitle>
-<Meta name="description" content="Utility for supporting a render prop in custom components." />
+<Subtitle>Hook for enabling a render prop in custom components.</Subtitle>
 
-The `useRender` hook allows you to support the `render` prop to override the default rendered element (similar to `asChild` from Radix) in your custom components.
+<Meta name="description" content="Hook for enabling a render prop in custom components." />
+
+The `useRender` hook enables custom components to provide a `render` prop to override the default rendered element.
 
 ## API reference
 
@@ -31,25 +32,31 @@ The `useRender` hook allows you to support the `render` prop to override the def
 
 ### Return value
 
-The hook returns a function that when called returns the element that should be rendered.
+The hook returns a `renderElement` function that returns the element to be rendered when called.
 
 ## Examples
 
-This is an example of a Text component supporting the `render` prop.
+A `render` prop for a custom Text component lets consumers use the `render` prop to replace the default rendered `p` element with a different element tag.
 
 <Demo path="./demos/render" />
 
-Developers can also use the callback version of the `render` prop to access the internal `state` of a component.
+The callback version of the `render` prop also enables accessing the `state` of a component.
 
 <Demo path="./demos/render-callback" />
 
-### Merging the props
+### Merging props
 
-You can use the `mergeProp` utility to safely merge the props.
-It takes care of concatenating the class names, as well as merging the style prop and the event handlers.
-It merges objects from left to right. Subsequent sources overwrite property assignments of previous sources.
+The `mergeProps` function merges two or more sets of React props together. It safely merges three types of props:
 
-You can use it both in the `useRender` hook and the callback version of the render prop.
+1. Event handlers, so that all are invoked
+2. `className` strings
+3. `style` properties
+
+The `ref` prop is not handled by `mergeProps`, but refs are handled when the ref is contained within the `props` object passed to `useRender`.
+
+`mergeProps` merges objects from left to right, so that subsequent objects' propertes in the arguments overwrite previous ones' properties.
+
+Merging props is useful in custom components, as well as the callback version of the `render` prop for any Base UI component.
 
 ```jsx {7-7} title="Using mergeProps in the render callback"
 import { mergeProps } from '@base-ui-components/react/merge-props';
@@ -66,9 +73,9 @@ function Button() {
 
 ### Migrating from Radix
 
-Radix and Base UI take different approaches to customizing the rendered element within a component. Radix uses the `asChild` prop, while Base UI uses the `render` prop. Learn more about how composition works in Base UI in the [composition guide](/react/handbook/composition).
+Radix uses the `asChild` prop, while Base UI uses the `render` prop. Learn more about how composition works in Base UI in the [composition guide](/react/handbook/composition).
 
-In Radix, you'd use the `Slot` component to implement your own `asChild` prop.
+In Radix, the `Slot` component lets you implement an `asChild` prop.
 
 ```jsx title="Custom asChild prop with Radix"
 import { Slot } from 'radix-ui';
@@ -84,7 +91,7 @@ function Button({ asChild, ...props }) {
 </Button>;
 ```
 
-In Base UI, you use `useRender` to implement your own `render` prop. The example below is the equivalent implementation to the Radix example above.
+In Base UI `useRender` lets you implement a `render` prop. The example below is the equivalent implementation to the Radix example above.
 
 ```jsx title="Custom render prop with Base UI"
 import { useRender } from '@base-ui-components/react/use-render';

@@ -4,6 +4,8 @@ import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
 import { CustomStyleHookMapping } from '../utils/getStyleHookProps';
 
+const defaultState = {};
+
 /**
  * Returns a function that renders a Base UI component.
  */
@@ -22,7 +24,7 @@ function useRender<State extends Record<string, unknown>, RenderedElementType ex
 
   return useComponentRenderer({
     render,
-    state: (state ?? {}) as State,
+    state: (state ?? defaultState) as State,
     ref: ref as React.Ref<RenderedElementType>,
     extraProps,
     customStyleHookMapping,

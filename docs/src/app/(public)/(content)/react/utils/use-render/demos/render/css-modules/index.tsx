@@ -8,16 +8,22 @@ interface TextProps extends useRender.ElementProps {
   children: React.ReactNode;
 }
 
-function Text(props: TextProps) {
+const Text = React.forwardRef(function Text(
+  props: TextProps,
+  ref: React.ForwardedRef<HTMLParagraphElement>,
+) {
   const { render = <p />, ...otherProps } = props;
 
   const { renderElement } = useRender({
     render,
-    props: mergeProps({ className: styles.Text }, otherProps),
+    props: {
+      ref,
+      ...mergeProps({ className: styles.Text }, otherProps),
+    },
   });
 
   return renderElement();
-}
+});
 
 export default function ExampleText() {
   return (
