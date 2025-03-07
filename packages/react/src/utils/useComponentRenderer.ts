@@ -26,7 +26,7 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
   /**
    * The ref to apply to the rendered element.
    */
-  ref?: React.Ref<RenderedElementType>;
+  ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
   /**
    * A function that returns props for the rendered element.
    * It should accept and merge additional props.
@@ -83,10 +83,12 @@ export function useComponentRenderer<
     resolvedRenderProp = renderProp;
   }
 
+  const refs = ref !== undefined ? (Array.isArray(ref) ? ref : [ref]) : [];
+
   const renderedElementProps = propGetter(ownProps);
   const propsWithRef: React.HTMLAttributes<any> & React.RefAttributes<any> = {
     ...renderedElementProps,
-    ref: useRenderPropForkRef(resolvedRenderProp, ref as React.Ref<any>, renderedElementProps.ref),
+    ref: useRenderPropForkRef(resolvedRenderProp, renderedElementProps.ref, ...refs),
   };
   if (className !== undefined) {
     propsWithRef.className = className;

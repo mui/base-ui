@@ -12,7 +12,7 @@ const defaultState = {};
 function useRender<State extends Record<string, unknown>, RenderedElementType extends Element>(
   settings: useRender.Settings<State, RenderedElementType>,
 ) {
-  const { render, props, state } = settings;
+  const { render, props, state, refs } = settings;
   const { ref, ...extraProps } = props ?? {};
 
   const customStyleHookMapping = React.useMemo(() => {
@@ -22,10 +22,14 @@ function useRender<State extends Record<string, unknown>, RenderedElementType ex
     }, {} as CustomStyleHookMapping<State>);
   }, [state]);
 
+  const refsArray = React.useMemo(() => {
+    return [...(refs ?? []), ref].filter(Boolean);
+  }, [refs, ref]) as React.Ref<RenderedElementType>[];
+
   return useComponentRenderer({
     render,
     state: (state ?? defaultState) as State,
-    ref: ref as React.Ref<RenderedElementType>,
+    ref: refsArray,
     extraProps,
     customStyleHookMapping,
   });
@@ -46,6 +50,10 @@ namespace useRender {
      * The React element or a function that returns one to override the default element.
      */
     render: RenderProp<State>;
+    /**
+     * The refs to apply to the rendered element.
+     */
+    refs?: React.Ref<RenderedElementType>[];
     /**
      * The state of the component. It will be used as a parameter for the render callback.
      */
