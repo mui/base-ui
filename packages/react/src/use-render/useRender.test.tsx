@@ -50,7 +50,7 @@ describe('useRender', () => {
       React.useEffect(() => {
         refs.push(ref1);
         refs.push(ref2);
-      });
+      }, []);
 
       const { renderElement } = useRender({
         render: renderProp,
@@ -64,7 +64,7 @@ describe('useRender', () => {
       const ref = React.useRef<HTMLElement>(null);
       React.useEffect(() => {
         refs.push(ref);
-      });
+      }, []);
       return (
         <TestComponent
           ref={ref}
