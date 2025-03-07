@@ -10,6 +10,14 @@
 
 <Demo path="./demos/hero" />
 
+## Accessibility guidelines
+
+To ensure that tooltips are accessible and helpful, follow these guidelines:
+
+- **Provide an accessible name for the trigger**: The tooltip's trigger must have a meaningful label. This can be its visible text or an `aria-label`/`aria-labelledby` attribute. The label should closely match the tooltip's content to ensure consistency for screen reader users.
+- **Avoid tooltips for critical information**: Tooltips work well for enhancing UI clarity (like labeling icon buttons) but should not be the sole means of conveying important information. Since tooltips do not appear on touch devices, consider using a [Popover](/react/components/popover) for essential content.
+- **Avoid tooltips for "infotips"**: If your tooltip is attached to an "info icon" button whose only purpose is to show the tooltip, opt for [Popover](/react/components/popover) and add the `openOnHover` prop instead. Tooltips should describe an element that performs an action separate from opening the tooltip itself.
+
 ## API reference
 
 Import the component and assemble its parts:

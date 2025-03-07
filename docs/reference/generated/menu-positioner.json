@@ -4,21 +4,23 @@
   "props": {
     "align": {
       "type": "'start' | 'center' | 'end'",
+      "default": "'center'",
       "description": "How to align the popup relative to the specified side."
     },
     "alignOffset": {
-      "type": "number",
+      "type": "number | (data) => number",
       "default": "0",
-      "description": "Additional offset along the alignment axis of the element."
+      "description": "Additional offset along the alignment axis in pixels.\nAlso accepts a function that returns the offset to read the dimensions of the anchor\nand positioner elements, along with its side and alignment.\n\n- `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n- `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.\n- `data.side`: which side of the anchor element the positioner is aligned against.\n- `data.align`: how the positioner is aligned relative to the specified side."
     },
     "side": {
       "type": "'bottom' | 'inline-end' | 'inline-start' | 'left' | 'right' | 'top'",
+      "default": "'bottom'",
       "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions."
     },
     "sideOffset": {
-      "type": "number",
+      "type": "number | (data) => number",
       "default": "0",
-      "description": "Distance between the anchor and the popup."
+      "description": "Distance between the anchor and the popup in pixels.\nAlso accepts a function that returns the distance to read the dimensions of the anchor\nand positioner elements, along with its side and alignment.\n\n- `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n- `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.\n- `data.side`: which side of the anchor element the positioner is aligned against.\n- `data.align`: how the positioner is aligned relative to the specified side."
     },
     "arrowPadding": {
       "type": "number",
@@ -42,21 +44,21 @@
     "sticky": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to maintain the menu in the viewport after\nthe anchor element is scrolled out of view."
+      "description": "Whether to maintain the popup in the viewport after\nthe anchor element was scrolled out of view."
     },
     "positionMethod": {
       "type": "'absolute' | 'fixed'",
       "default": "'absolute'",
       "description": "Determines which CSS `position` property to use."
     },
+    "trackAnchor": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the popup tracks any layout shift of its positioning anchor."
+    },
     "className": {
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
-    },
-    "keepMounted": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether to keep the HTML element in the DOM while the menu is hidden."
     },
     "render": {
       "type": "React.ReactElement | (props, state) => React.ReactElement",

@@ -2,6 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
+import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -31,7 +32,19 @@ const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
     };
   }, [id, setTitleElementId]);
 
+  const getProps = React.useCallback(
+    (externalProps = {}) =>
+      mergeProps(
+        {
+          id,
+        },
+        externalProps,
+      ),
+    [id],
+  );
+
   const { renderElement } = useComponentRenderer({
+    propGetter: getProps,
     render: render ?? 'h2',
     className,
     state,

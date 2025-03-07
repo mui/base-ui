@@ -4,10 +4,13 @@ import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
+import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
+  const BOUNDARY_OFFSET = 2;
+
   const {
     disabled = false,
     rootRef: externalRef,
@@ -30,26 +33,14 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
   const handleRef = useForkRef(buttonRef, setTriggerElement);
 
   React.useEffect(() => {
-    if (open) {
-      // mousedown -> mouseup on menu item should not trigger it within 200ms.
-      allowMouseUpTriggerTimeoutRef.current = window.setTimeout(() => {
-        allowMouseUpTriggerRef.current = true;
-      }, 200);
-
-      return () => {
-        clearTimeout(allowMouseUpTriggerTimeoutRef.current);
-      };
+    if (!open) {
+      allowMouseUpTriggerRef.current = false;
     }
-
-    allowMouseUpTriggerRef.current = false;
-
-    return undefined;
   }, [allowMouseUpTriggerRef, open]);
 
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps(
-        externalProps,
+      return mergeProps(
         {
           'aria-haspopup': 'menu' as const,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
@@ -59,6 +50,11 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
               return;
             }
 
+            // mousedown -> mouseup on menu item should not trigger it within 200ms.
+            allowMouseUpTriggerTimeoutRef.current = window.setTimeout(() => {
+              allowMouseUpTriggerRef.current = true;
+            }, 200);
+
             const doc = ownerDocument(event.currentTarget);
 
             function handleMouseUp(mouseEvent: MouseEvent) {
@@ -66,23 +62,29 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
                 return;
               }
 
-              clearTimeout(allowMouseUpTriggerTimeoutRef.current);
+              if (allowMouseUpTriggerTimeoutRef.current !== -1) {
+                clearTimeout(allowMouseUpTriggerTimeoutRef.current);
+                allowMouseUpTriggerTimeoutRef.current = -1;
+              }
               allowMouseUpTriggerRef.current = false;
 
               const mouseUpTarget = mouseEvent.target as Element | null;
 
-              const triggerRect = triggerRef.current.getBoundingClientRect();
+              if (
+                contains(triggerRef.current, mouseUpTarget) ||
+                contains(positionerRef.current, mouseUpTarget) ||
+                mouseUpTarget === triggerRef.current
+              ) {
+                return;
+              }
 
-              const isInsideTrigger =
-                mouseEvent.clientX >= triggerRect.left &&
-                mouseEvent.clientX <= triggerRect.right &&
-                mouseEvent.clientY >= triggerRect.top &&
-                mouseEvent.clientY <= triggerRect.bottom;
+              const bounds = getPseudoElementBounds(triggerRef.current);
 
               if (
-                isInsideTrigger ||
-                contains(positionerRef.current, mouseUpTarget) ||
-                contains(triggerRef.current, mouseUpTarget)
+                mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
+                mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
+                mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
+                mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
               ) {
                 return;
               }
@@ -93,7 +95,8 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
             doc.addEventListener('mouseup', handleMouseUp, { once: true });
           },
         },
-        getButtonProps(),
+        externalProps,
+        getButtonProps,
       );
     },
     [getButtonProps, handleRef, open, setOpen, positionerRef, allowMouseUpTriggerRef],

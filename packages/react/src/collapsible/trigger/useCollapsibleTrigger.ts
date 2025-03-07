@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
 import { useButton } from '../../use-button';
@@ -20,9 +20,8 @@ export function useCollapsibleTrigger(
 
   const getRootProps: useCollapsibleTrigger.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps: GenericHTMLProps = {}) =>
-      mergeReactProps(
-        externalProps,
-        mergeReactProps(
+      getButtonProps(
+        mergeProps(
           {
             type: 'button',
             'aria-controls': panelId,
@@ -33,7 +32,7 @@ export function useCollapsibleTrigger(
             },
             ref: handleRef,
           },
-          getButtonProps(),
+          externalProps,
         ),
       ),
     [panelId, disabled, getButtonProps, handleRef, open, setOpen],

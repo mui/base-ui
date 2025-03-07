@@ -14,8 +14,9 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { refType } from '../../utils/proptypes';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
   ...baseMapping,
@@ -44,8 +45,19 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     popupRef,
     mounted,
     openReason,
+    onOpenChangeComplete,
   } = usePopoverRootContext();
   const positioner = usePopoverPositionerContext();
+
+  useOpenChangeComplete({
+    open,
+    ref: popupRef,
+    onComplete() {
+      if (open) {
+        onOpenChangeComplete?.(true);
+      }
+    },
+  });
 
   const { getPopupProps, resolvedInitialFocus } = usePopoverPopup({
     getProps: getRootPopupProps,
@@ -75,16 +87,19 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     state,
     extraProps:
       transitionStatus === 'starting'
-        ? mergeReactProps(otherProps, {
-            style: { transition: 'none' },
-          })
+        ? mergeProps(
+            {
+              style: { transition: 'none' },
+            },
+            otherProps,
+          )
         : otherProps,
     customStyleHookMapping,
   });
 
   return (
     <FloatingFocusManager
-      context={positioner.positionerContext}
+      context={positioner.context}
       modal={false}
       disabled={!mounted || openReason === 'hover'}
       initialFocus={resolvedInitialFocus}

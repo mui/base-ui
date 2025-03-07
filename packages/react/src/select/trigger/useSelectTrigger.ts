@@ -2,15 +2,18 @@ import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
 import type { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 
 export function useSelectTrigger(
   parameters: useSelectTrigger.Parameters,
 ): useSelectTrigger.ReturnValue {
+  const BOUNDARY_OFFSET = 2;
+
   const { disabled = false, rootRef: externalRef } = parameters;
 
   const {
@@ -26,7 +29,7 @@ export function useSelectTrigger(
     readOnly,
   } = useSelectRootContext();
 
-  const { labelId, setTouched } = useFieldRootContext();
+  const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const timeoutRef = React.useRef(-1);
@@ -70,83 +73,96 @@ export function useSelectTrigger(
 
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps<'button'>(
-        fieldControlValidation.getValidationProps(externalProps),
-        {
-          'aria-labelledby': labelId,
-          'aria-readonly': readOnly || undefined,
-          tabIndex: 0, // this is needed to make the button focused after click in Safari
-          ref: handleRef,
-          onFocus() {
-            // The popup element shouldn't obscure the focused trigger.
-            if (open && alignItemToTrigger) {
-              setOpen(false);
-            }
-          },
-          onBlur() {
-            setTouched(true);
-            fieldControlValidation.commitValidation(value);
-          },
-          onPointerMove({ pointerType }) {
-            setTouchModality(pointerType === 'touch');
-          },
-          onPointerDown({ pointerType }) {
-            setTouchModality(pointerType === 'touch');
-          },
-          onMouseDown(event) {
-            if (open) {
-              return;
-            }
+      return getButtonProps(
+        mergeProps<'button'>(
+          {
+            'aria-labelledby': labelId,
+            'aria-readonly': readOnly || undefined,
+            tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
+            ref: handleRef,
+            onFocus() {
+              setFocused(true);
+              // The popup element shouldn't obscure the focused trigger.
+              if (open && alignItemToTrigger) {
+                setOpen(false);
+              }
+            },
+            onBlur() {
+              setTouched(true);
+              setFocused(false);
 
-            const doc = ownerDocument(event.currentTarget);
-
-            function handleMouseUp(mouseEvent: MouseEvent) {
-              if (!triggerRef.current) {
+              if (validationMode === 'onBlur') {
+                fieldControlValidation.commitValidation(value);
+              }
+            },
+            onPointerMove({ pointerType }) {
+              setTouchModality(pointerType === 'touch');
+            },
+            onPointerDown({ pointerType }) {
+              setTouchModality(pointerType === 'touch');
+            },
+            onMouseDown(event) {
+              if (open) {
                 return;
               }
 
-              const mouseUpTarget = mouseEvent.target as Element | null;
+              const doc = ownerDocument(event.currentTarget);
 
-              const triggerRect = triggerRef.current.getBoundingClientRect();
+              function handleMouseUp(mouseEvent: MouseEvent) {
+                if (!triggerRef.current) {
+                  return;
+                }
 
-              const isInsideTrigger =
-                mouseEvent.clientX >= triggerRect.left &&
-                mouseEvent.clientX <= triggerRect.right &&
-                mouseEvent.clientY >= triggerRect.top &&
-                mouseEvent.clientY <= triggerRect.bottom;
+                const mouseUpTarget = mouseEvent.target as Element | null;
 
-              if (
-                isInsideTrigger ||
-                contains(positionerElement, mouseUpTarget) ||
-                contains(triggerRef.current, mouseUpTarget)
-              ) {
-                return;
+                // Early return if clicked on trigger element or its children
+                if (
+                  contains(triggerRef.current, mouseUpTarget) ||
+                  contains(positionerElement, mouseUpTarget) ||
+                  mouseUpTarget === triggerRef.current
+                ) {
+                  return;
+                }
+
+                const bounds = getPseudoElementBounds(triggerRef.current);
+
+                if (
+                  mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
+                  mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
+                  mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
+                  mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
+                ) {
+                  return;
+                }
+
+                setOpen(false, mouseEvent);
               }
 
-              setOpen(false, mouseEvent);
-            }
-
-            // Firefox can fire this upon mousedown
-            timeoutRef.current = window.setTimeout(() => {
-              doc.addEventListener('mouseup', handleMouseUp, { once: true });
-            });
+              // Firefox can fire this upon mousedown
+              timeoutRef.current = window.setTimeout(() => {
+                doc.addEventListener('mouseup', handleMouseUp, { once: true });
+              });
+            },
           },
-        },
-        getButtonProps(),
+          fieldControlValidation.getValidationProps(externalProps),
+        ),
       );
     },
     [
+      getButtonProps,
       fieldControlValidation,
       labelId,
       readOnly,
+      disabled,
       handleRef,
-      getButtonProps,
+      setFocused,
       open,
       alignItemToTrigger,
       setOpen,
       setTouched,
-      value,
       setTouchModality,
+      validationMode,
+      value,
       positionerElement,
     ],
   );

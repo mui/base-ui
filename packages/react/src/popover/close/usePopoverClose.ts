@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useEventCallback } from '../../utils/useEventCallback';
 
 export function usePopoverClose(
@@ -11,9 +11,12 @@ export function usePopoverClose(
 
   const getCloseProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'button'>(externalProps, {
-        onClick: onClose,
-      });
+      return mergeProps<'button'>(
+        {
+          onClick: onClose,
+        },
+        externalProps,
+      );
     },
     [onClose],
   );

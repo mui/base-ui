@@ -6,11 +6,12 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 import type { CheckboxRoot } from '../root/CheckboxRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { fieldValidityMapping } from '../../field/utils/constants';
 
 /**
  * Indicates whether the checkbox is ticked.
@@ -28,7 +29,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
   const rendered = rootState.checked || rootState.indeterminate;
 
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
+  const { transitionStatus, setMounted } = useTransitionStatus(rendered);
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
   const mergedRef = useForkRef(forwardedRef, indicatorRef);
@@ -41,11 +42,13 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     [rootState, transitionStatus],
   );
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open: rendered,
-    animatedElementRef: indicatorRef,
-    onFinished() {
-      setMounted(false);
+    ref: indicatorRef,
+    onComplete() {
+      if (!rendered) {
+        setMounted(false);
+      }
     },
   });
 
@@ -55,6 +58,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     () => ({
       ...baseStyleHookMapping,
       ...transitionStatusMapping,
+      ...fieldValidityMapping,
     }),
     [baseStyleHookMapping],
   );
@@ -65,10 +69,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     state,
     className,
     customStyleHookMapping,
-    extraProps: {
-      hidden: !mounted,
-      ...otherProps,
-    },
+    extraProps: otherProps,
   });
 
   const shouldRender = keepMounted || rendered;

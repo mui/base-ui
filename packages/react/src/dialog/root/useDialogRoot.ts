@@ -8,20 +8,22 @@ import {
   useInteractions,
   type OpenChangeReason as FloatingUIOpenChangeReason,
 } from '@floating-ui/react';
+import { getTarget } from '@floating-ui/react/utils';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { mergeProps } from '../../merge-props';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import {
   type OpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 
-export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
+export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
     defaultOpen,
     dismissible,
@@ -30,7 +32,8 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     onNestedDialogOpen,
     onOpenChange: onOpenChangeParameter,
     open: openParam,
-  } = parameters;
+    onOpenChangeComplete,
+  } = params;
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
@@ -39,7 +42,9 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     state: 'open',
   });
 
-  const popupRef = React.useRef<HTMLElement>(null);
+  const popupRef = React.useRef<HTMLElement | null>(null);
+  const backdropRef = React.useRef<HTMLDivElement | null>(null);
+  const internalBackdropRef = React.useRef<HTMLDivElement | null>(null);
 
   const [titleElementId, setTitleElementId] = React.useState<string | undefined>(undefined);
   const [descriptionElementId, setDescriptionElementId] = React.useState<string | undefined>(
@@ -58,11 +63,25 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     },
   );
 
-  useAfterExitAnimation({
-    open,
-    animatedElementRef: popupRef,
-    onFinished: () => setMounted(false),
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+    onOpenChangeComplete?.(false);
   });
+
+  useOpenChangeComplete({
+    enabled: !params.actionsRef,
+    open,
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        handleUnmount();
+      }
+    },
+  });
+
+  React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+
+  useScrollLock(open && modal, popupElement);
 
   const handleFloatingUIOpenChange = (
     nextOpen: boolean,
@@ -83,7 +102,22 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   const click = useClick(context);
   const dismiss = useDismiss(context, {
     outsidePressEvent: 'mousedown',
-    outsidePress: isTopmost && dismissible,
+    outsidePress(event) {
+      const target = getTarget(event) as Element | null;
+      if (isTopmost && dismissible) {
+        const backdrop = target as HTMLDivElement | null;
+        // Only close if the click occurred on the dialog's owning backdrop.
+        // This supports multiple modal dialogs that aren't nested in the React tree:
+        // https://github.com/mui/base-ui/issues/1320
+        if (modal) {
+          return backdrop
+            ? [internalBackdropRef.current, backdropRef.current].includes(backdrop)
+            : false;
+        }
+        return true;
+      }
+      return false;
+    },
     escapeKey: isTopmost,
   });
 
@@ -101,10 +135,6 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
     return () => {
       if (onNestedDialogClose && open) {
         onNestedDialogClose();
-      }
-
-      if (onNestedDialogOpen && !open) {
-        onNestedDialogOpen(ownNestedOpenDialogs);
       }
     };
   }, [open, onNestedDialogClose, onNestedDialogOpen, ownNestedOpenDialogs]);
@@ -137,11 +167,15 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
       mounted,
       transitionStatus,
       getTriggerProps: (externalProps?: React.HTMLProps<Element>) =>
-        getReferenceProps(mergeReactProps(externalProps, triggerProps)),
+        getReferenceProps(
+          mergeProps(triggerProps, mergeProps({ 'aria-controls': popupElementId }, externalProps)),
+        ),
       getPopupProps: getFloatingProps,
       setTriggerElement,
       setPopupElement,
       popupRef,
+      backdropRef,
+      internalBackdropRef,
       floatingRootContext: context,
     } satisfies useDialogRoot.ReturnValue;
   }, [
@@ -167,7 +201,7 @@ export function useDialogRoot(parameters: useDialogRoot.Parameters): useDialogRo
   ]);
 }
 
-export interface CommonParameters {
+export interface SharedParameters {
   /**
    * Whether the dialog is currently open.
    */
@@ -193,14 +227,26 @@ export interface CommonParameters {
     reason: OpenChangeReason | undefined,
   ) => void;
   /**
+   * Event handler called after any animations complete when the dialog is opened or closed.
+   */
+  onOpenChangeComplete?: (open: boolean) => void;
+  /**
    * Determines whether the dialog should close on outside clicks.
    * @default true
    */
   dismissible?: boolean;
+  /**
+   * A ref to imperative actions.
+   */
+  actionsRef?: React.RefObject<{ unmount: () => void }>;
 }
 
 export namespace useDialogRoot {
-  export interface Parameters extends RequiredExcept<CommonParameters, 'open' | 'onOpenChange'> {
+  export interface Parameters
+    extends RequiredExcept<
+      SharedParameters,
+      'open' | 'onOpenChange' | 'onOpenChangeComplete' | 'actionsRef'
+    > {
     /**
      * Callback to invoke when a nested dialog is opened.
      */
@@ -209,6 +255,10 @@ export namespace useDialogRoot {
      * Callback to invoke when a nested dialog is closed.
      */
     onNestedDialogClose?: () => void;
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
@@ -297,8 +347,20 @@ export namespace useDialogRoot {
      */
     popupRef: React.RefObject<HTMLElement | null>;
     /**
+     * A ref to the backdrop element.
+     */
+    backdropRef: React.RefObject<HTMLDivElement | null>;
+    /**
+     * A ref to the internal backdrop element.
+     */
+    internalBackdropRef: React.RefObject<HTMLDivElement | null>;
+    /**
      * The Floating UI root context.
      */
     floatingRootContext: FloatingRootContext;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

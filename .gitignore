@@ -10,7 +10,6 @@
 *.log
 *.tsbuildinfo
 /.eslintcache
-/.nyc_output
 /coverage
 /docs/.env.local
 /docs/.next

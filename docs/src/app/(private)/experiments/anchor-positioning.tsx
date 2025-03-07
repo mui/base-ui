@@ -37,7 +37,7 @@ export default function AnchorPositioning() {
     positionerStyles,
     arrowStyles,
     arrowRef,
-    renderedSide,
+    side: renderedSide,
     arrowUncentered,
   } = useAnchorPositioning({
     side,
@@ -49,6 +49,7 @@ export default function AnchorPositioning() {
     arrowPadding,
     trackAnchor,
     mounted: true,
+    keepMounted: true,
   });
 
   const handleInitialScroll = React.useCallback((node: HTMLDivElement | null) => {

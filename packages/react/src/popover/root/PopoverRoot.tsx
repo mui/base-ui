@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { PopoverRootContext } from './PopoverRootContext';
 import { usePopoverRoot } from './usePopoverRoot';
 import { OPEN_DELAY } from '../utils/constants';
-import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the popover.
@@ -13,103 +12,54 @@ import { PortalContext } from '../../portal/PortalContext';
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
-  const { openOnHover = false, delay, closeDelay = 0 } = props;
+  const {
+    defaultOpen = false,
+    onOpenChange,
+    open,
+    openOnHover = false,
+    delay,
+    closeDelay = 0,
+    actionsRef,
+    onOpenChangeComplete,
+  } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
 
-  const {
+  const popoverRoot = usePopoverRoot({
+    ...props,
+    defaultOpen,
+    onOpenChange,
     open,
-    setOpen,
-    mounted,
-    setMounted,
-    setTriggerElement,
-    positionerElement,
-    setPositionerElement,
-    popupRef,
-    instantType,
-    transitionStatus,
-    floatingRootContext,
-    getRootTriggerProps,
-    getRootPopupProps,
-    titleId,
-    setTitleId,
-    descriptionId,
-    setDescriptionId,
-    openMethod,
-    openReason,
-  } = usePopoverRoot({
     openOnHover,
+    onOpenChangeComplete,
     delay: delayWithDefault,
     closeDelay,
-    open: props.open,
-    onOpenChange: props.onOpenChange,
-    defaultOpen: props.defaultOpen,
+    actionsRef,
   });
 
   const contextValue: PopoverRootContext = React.useMemo(
     () => ({
+      ...popoverRoot,
       openOnHover,
       delay: delayWithDefault,
       closeDelay,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      transitionStatus,
-      titleId,
-      setTitleId,
-      descriptionId,
-      setDescriptionId,
-      floatingRootContext,
-      getRootPopupProps,
-      getRootTriggerProps,
-      openMethod,
-      openReason,
     }),
-    [
-      openOnHover,
-      delayWithDefault,
-      closeDelay,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      transitionStatus,
-      titleId,
-      setTitleId,
-      descriptionId,
-      setDescriptionId,
-      floatingRootContext,
-      getRootPopupProps,
-      getRootTriggerProps,
-      openMethod,
-      openReason,
-    ],
+    [popoverRoot, openOnHover, delayWithDefault, closeDelay],
   );
 
   return (
-    <PopoverRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
-    </PopoverRootContext.Provider>
+    <PopoverRootContext.Provider value={contextValue}>{props.children}</PopoverRootContext.Provider>
   );
 };
 
 namespace PopoverRoot {
   export interface State {}
 
-  export interface Props extends Omit<usePopoverRoot.Parameters, 'floatingRootContext'> {
+  export interface Props extends usePopoverRoot.Parameters {
     children?: React.ReactNode;
   }
+
+  export type Actions = usePopoverRoot.Actions;
 }
 
 PopoverRoot.propTypes /* remove-proptypes */ = {
@@ -117,6 +67,14 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  actionsRef: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * @ignore
    */
@@ -147,6 +105,10 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    * Event handler called when the popover is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the popover is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Whether the popover is currently open.
    */

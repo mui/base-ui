@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { NumberFieldRootContext } from './NumberFieldRootContext';
-import { UseNumberFieldRoot, useNumberFieldRoot } from './useNumberFieldRoot';
+import { useNumberFieldRoot } from './useNumberFieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -36,6 +36,7 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     onValueChange,
     allowWheelScrub,
     format,
+    locale,
     render,
     className,
     ...otherProps
@@ -92,9 +93,9 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   );
 });
 
-export namespace NumberFieldRoot {
+namespace NumberFieldRoot {
   export interface Props
-    extends UseNumberFieldRoot.Parameters,
+    extends useNumberFieldRoot.Parameters,
       Omit<BaseUIComponentProps<'div', State>, 'onChange' | 'defaultValue'> {}
 
   export interface State extends FieldRoot.State {
@@ -202,6 +203,48 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    * @default 10
    */
   largeStep: PropTypes.number,
+  /**
+   * The locale of the input element.
+   * Defaults to the user's runtime locale.
+   */
+  locale: PropTypes.oneOfType([
+    PropTypes.arrayOf(
+      PropTypes.oneOfType([
+        PropTypes.shape({
+          baseName: PropTypes.string.isRequired,
+          calendar: PropTypes.string,
+          caseFirst: PropTypes.oneOf(['false', 'lower', 'upper']),
+          collation: PropTypes.string,
+          hourCycle: PropTypes.oneOf(['h11', 'h12', 'h23', 'h24']),
+          language: PropTypes.string.isRequired,
+          maximize: PropTypes.func.isRequired,
+          minimize: PropTypes.func.isRequired,
+          numberingSystem: PropTypes.string,
+          numeric: PropTypes.bool,
+          region: PropTypes.string,
+          script: PropTypes.string,
+          toString: PropTypes.func.isRequired,
+        }),
+        PropTypes.string,
+      ]).isRequired,
+    ),
+    PropTypes.shape({
+      baseName: PropTypes.string.isRequired,
+      calendar: PropTypes.string,
+      caseFirst: PropTypes.oneOf(['false', 'lower', 'upper']),
+      collation: PropTypes.string,
+      hourCycle: PropTypes.oneOf(['h11', 'h12', 'h23', 'h24']),
+      language: PropTypes.string.isRequired,
+      maximize: PropTypes.func.isRequired,
+      minimize: PropTypes.func.isRequired,
+      numberingSystem: PropTypes.string,
+      numeric: PropTypes.bool,
+      region: PropTypes.string,
+      script: PropTypes.string,
+      toString: PropTypes.func.isRequired,
+    }),
+    PropTypes.string,
+  ]),
   /**
    * The maximum value of the input element.
    */

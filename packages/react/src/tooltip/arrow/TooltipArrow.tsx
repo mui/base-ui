@@ -7,7 +7,7 @@ import { useTooltipPositionerContext } from '../positioner/TooltipPositionerCont
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 
 /**
  * Displays an element positioned against the tooltip anchor.
@@ -26,10 +26,13 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'div'>(externalProps, {
-        style: arrowStyles,
-        'aria-hidden': true,
-      });
+      return mergeProps<'div'>(
+        {
+          style: arrowStyles,
+          'aria-hidden': true,
+        },
+        externalProps,
+      );
     },
     [arrowStyles],
   );

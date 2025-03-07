@@ -35,4 +35,12 @@ export enum RadioIndicatorDataAttributes {
    * Present when the radio's value has changed (when wrapped in Field.Root).
    */
   dirty = 'data-dirty',
+  /**
+   * Present when the radio is checked (when wrapped in Field.Root).
+   */
+  filled = 'data-filled',
+  /**
+   * Present when the radio is focused (when wrapped in Field.Root).
+   */
+  focused = 'data-focused',
 }

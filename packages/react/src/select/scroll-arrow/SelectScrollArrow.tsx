@@ -3,13 +3,13 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { Side } from '../../utils/useAnchorPositioning';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useForkRef } from '../../utils/useForkRef';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 /**
  * @ignore - internal component.
@@ -38,11 +38,13 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open: visible,
-    animatedElementRef: scrollArrowRef,
-    onFinished() {
-      setMounted(false);
+    ref: scrollArrowRef,
+    onComplete() {
+      if (!visible) {
+        setMounted(false);
+      }
     },
   });
 
@@ -58,70 +60,73 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   const getScrollArrowProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
-        'aria-hidden': true,
-        children: direction === 'down' ? '▼' : '▲',
-        style: {
-          position: 'absolute',
-        },
-        onMouseEnter() {
-          if (!alignItemToTrigger) {
-            return;
-          }
-
-          let prevNow = Date.now();
-
-          function handleFrame() {
-            const popupElement = popupRef.current;
-            if (!popupElement) {
+      mergeProps<'div'>(
+        {
+          'aria-hidden': true,
+          children: direction === 'down' ? '▼' : '▲',
+          style: {
+            position: 'absolute',
+          },
+          onMouseEnter() {
+            if (!alignItemToTrigger) {
               return;
             }
 
-            const currentNow = Date.now();
-            const msElapsed = currentNow - prevNow;
-            prevNow = currentNow;
+            let prevNow = Date.now();
 
-            const pixelsLeftToScroll =
-              direction === 'up'
-                ? popupElement.scrollTop
-                : popupElement.scrollHeight - popupElement.clientHeight - popupElement.scrollTop;
-            const pixelsToScroll = Math.min(pixelsLeftToScroll, msElapsed / 2);
-
-            const isScrolledToTop = popupElement.scrollTop === 0;
-            const isScrolledToBottom =
-              Math.round(popupElement.scrollTop + popupElement.clientHeight) >=
-              popupElement.scrollHeight;
-
-            if (msElapsed > 0) {
-              if (direction === 'up') {
-                setScrollUpArrowVisible(!isScrolledToTop);
-              } else if (direction === 'down') {
-                setScrollDownArrowVisible(!isScrolledToBottom);
-              }
-
-              if (
-                (direction === 'up' && isScrolledToTop) ||
-                (direction === 'down' && isScrolledToBottom)
-              ) {
+            function handleFrame() {
+              const popupElement = popupRef.current;
+              if (!popupElement) {
                 return;
               }
-            }
 
-            const scrollDirection = direction === 'up' ? -1 : 1;
+              const currentNow = Date.now();
+              const msElapsed = currentNow - prevNow;
+              prevNow = currentNow;
 
-            if (popupRef.current) {
-              popupRef.current.scrollTop += scrollDirection * pixelsToScroll;
+              const pixelsLeftToScroll =
+                direction === 'up'
+                  ? popupElement.scrollTop
+                  : popupElement.scrollHeight - popupElement.clientHeight - popupElement.scrollTop;
+              const pixelsToScroll = Math.min(pixelsLeftToScroll, msElapsed / 2);
+
+              const isScrolledToTop = popupElement.scrollTop === 0;
+              const isScrolledToBottom =
+                Math.round(popupElement.scrollTop + popupElement.clientHeight) >=
+                popupElement.scrollHeight;
+
+              if (msElapsed > 0) {
+                if (direction === 'up') {
+                  setScrollUpArrowVisible(!isScrolledToTop);
+                } else if (direction === 'down') {
+                  setScrollDownArrowVisible(!isScrolledToBottom);
+                }
+
+                if (
+                  (direction === 'up' && isScrolledToTop) ||
+                  (direction === 'down' && isScrolledToBottom)
+                ) {
+                  return;
+                }
+              }
+
+              const scrollDirection = direction === 'up' ? -1 : 1;
+
+              if (popupRef.current) {
+                popupRef.current.scrollTop += scrollDirection * pixelsToScroll;
+              }
+
+              frameRef.current = requestAnimationFrame(handleFrame);
             }
 
             frameRef.current = requestAnimationFrame(handleFrame);
-          }
-
-          frameRef.current = requestAnimationFrame(handleFrame);
+          },
+          onMouseLeave() {
+            cancelAnimationFrame(frameRef.current);
+          },
         },
-        onMouseLeave() {
-          cancelAnimationFrame(frameRef.current);
-        },
-      }),
+        externalProps,
+      ),
     [direction, alignItemToTrigger, popupRef, setScrollUpArrowVisible, setScrollDownArrowVisible],
   );
 

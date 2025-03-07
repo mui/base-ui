@@ -5,7 +5,7 @@ import { FloatingTree } from '@floating-ui/react';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot } from './useMenuRoot';
-import { PortalContext } from '../../portal/PortalContext';
+import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 /**
  * Groups all parts of the menu.
@@ -26,6 +26,8 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     orientation = 'vertical',
     delay = 100,
     openOnHover: openOnHoverProp,
+    actionsRef,
+    onOpenChangeComplete,
   } = props;
 
   const direction = useDirection();
@@ -54,6 +56,8 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     delay,
     onTypingChange,
     modal,
+    actionsRef,
+    onOpenChangeComplete,
   });
 
   const context: MenuRootContext = React.useMemo(
@@ -74,18 +78,12 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     // set up a FloatingTree to provide the context to nested menus
     return (
       <FloatingTree>
-        <MenuRootContext.Provider value={context}>
-          <PortalContext.Provider value={context.mounted}>{children}</PortalContext.Provider>
-        </MenuRootContext.Provider>
+        <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>
       </FloatingTree>
     );
   }
 
-  return (
-    <MenuRootContext.Provider value={context}>
-      <PortalContext.Provider value={context.mounted}>{children}</PortalContext.Provider>
-    </MenuRootContext.Provider>
-  );
+  return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
 };
 
 namespace MenuRoot {
@@ -112,7 +110,11 @@ namespace MenuRoot {
     /**
      * Event handler called when the menu is opened or closed.
      */
-    onOpenChange?: (open: boolean, event?: Event) => void;
+    onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    /**
+     * Event handler called after any animations complete when the menu is closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
     /**
      * Whether the menu is currently open.
      */
@@ -147,6 +149,14 @@ namespace MenuRoot {
      * Defaults to `true` for nested menus.
      */
     openOnHover?: boolean;
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef?: React.RefObject<{ unmount: () => void }>;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }
 
@@ -155,6 +165,14 @@ MenuRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  actionsRef: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * @ignore
    */
@@ -199,6 +217,10 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    * Event handler called when the menu is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the menu is closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Whether the menu is currently open.
    */

@@ -6,19 +6,20 @@ const CURRENT_DIR = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = resolve(CURRENT_DIR, './');
 const environment = process.env.VITEST_ENV;
 
-type ProjectConfig = UserWorkspaceConfig['test'] & {};
+type BrowserModeConfig = (UserWorkspaceConfig['test'] & {})['browser'];
 
-const browserConfig: ProjectConfig['browser'] =
+const browserConfig: BrowserModeConfig =
   environment === 'chromium' || environment === 'firefox'
     ? {
         enabled: true,
-        name: environment,
         provider: 'playwright',
+        instances: [
+          {
+            browser: environment,
+          },
+        ],
         headless: !!process.env.CI,
-        viewport: {
-          width: 1024,
-          height: 896,
-        },
+        screenshotFailures: false,
       }
     : undefined;
 

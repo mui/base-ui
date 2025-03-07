@@ -3,7 +3,7 @@ import { Popover } from '@base-ui-components/react/popover';
 import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { PATIENT_CLICK_THRESHOLD } from '../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 describe('<Popover.Trigger />', () => {
   const { render } = createRenderer();
@@ -14,6 +14,55 @@ describe('<Popover.Trigger />', () => {
       return render(<Popover.Root open>{node}</Popover.Root>);
     },
   }));
+
+  describe('prop: disabled', () => {
+    it('disables the popover', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger disabled />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+      expect(trigger).to.have.attribute('disabled');
+      expect(trigger).to.have.attribute('data-disabled');
+
+      await user.click(trigger);
+      expect(screen.queryByText('Content')).to.equal(null);
+
+      await user.keyboard('[Tab]');
+      expect(document.activeElement).to.not.equal(trigger);
+    });
+
+    it('custom element', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger disabled render={<span />} />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+      expect(trigger).to.not.have.attribute('disabled');
+      expect(trigger).to.have.attribute('data-disabled');
+      expect(trigger).to.have.attribute('aria-disabled', 'true');
+
+      await user.click(trigger);
+      expect(screen.queryByText('Content')).to.equal(null);
+
+      await user.keyboard('[Tab]');
+      expect(document.activeElement).to.not.equal(trigger);
+    });
+  });
 
   describe('style hooks', () => {
     it('should have the data-popup-open and data-pressed attributes when open by clicking', async () => {
@@ -99,13 +148,11 @@ describe('<Popover.Trigger />', () => {
 
       const trigger = screen.getByRole('button');
 
-      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
 
       clock.tick(PATIENT_CLICK_THRESHOLD - 1);
 
-      await act(async () => {
-        trigger.click();
-      });
+      fireEvent.click(trigger);
 
       expect(trigger).to.have.attribute('data-popup-open');
     });
@@ -123,9 +170,26 @@ describe('<Popover.Trigger />', () => {
 
       clock.tick(PATIENT_CLICK_THRESHOLD);
 
-      await act(async () => {
-        trigger.click();
-      });
+      fireEvent.click(trigger);
+
+      expect(trigger).not.to.have.attribute('data-popup-open');
+    });
+
+    it('does not stick if the user clicks patiently', async () => {
+      await renderFakeTimers(
+        <Popover.Root delay={0} openOnHover>
+          <Popover.Trigger />
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD);
+
+      fireEvent.click(trigger);
+      fireEvent.mouseLeave(trigger);
 
       expect(trigger).not.to.have.attribute('data-popup-open');
     });

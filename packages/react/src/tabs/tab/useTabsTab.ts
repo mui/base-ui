@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
+import { ownerDocument } from '../../utils/owner';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -57,11 +58,15 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
     return valueParam === selectedTabValue;
   }, [index, selectedTabValue, valueParam]);
 
-  // when activateOnFocus is `true`, ensure the active item in Composite's roving
-  // focus group matches the selected Tab
+  const isSelectionSyncedWithHighlightRef = React.useRef(false);
+
   useEnhancedEffect(() => {
+    if (isSelectionSyncedWithHighlightRef.current === true) {
+      return;
+    }
     if (activateOnFocus && selected && index > -1 && highlightedTabIndex !== index) {
       setHighlightedTabIndex(index);
+      isSelectionSyncedWithHighlightRef.current = true;
     }
   }, [activateOnFocus, highlightedTabIndex, index, selected, setHighlightedTabIndex]);
 
@@ -75,32 +80,68 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
 
   const tabPanelId = index > -1 ? getTabPanelIdByTabValueOrIndex(valueParam, index) : undefined;
 
+  const isPressingRef = React.useRef(false);
+  const isMainButtonRef = React.useRef(false);
+
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'button'>(
-        externalProps,
-        mergeReactProps<'button'>(
-          {
-            role: 'tab',
-            'aria-controls': tabPanelId,
-            'aria-selected': selected,
-            id,
-            ref: handleRef,
-            onClick(event) {
-              onTabActivation(tabValue, event.nativeEvent);
-            },
-            onFocus(event) {
-              if (!activateOnFocus) {
-                return;
-              }
+      return mergeProps<'button'>(
+        {
+          role: 'tab',
+          'aria-controls': tabPanelId,
+          'aria-selected': selected,
+          id,
+          ref: handleRef,
+          onClick(event) {
+            if (selected || disabled) {
+              return;
+            }
 
-              if (selectedTabValue !== tabValue) {
-                onTabActivation(tabValue, event.nativeEvent);
-              }
-            },
+            onTabActivation(tabValue, event.nativeEvent);
           },
-          mergeReactProps(getItemProps(), getButtonProps()),
-        ),
+          onFocus(event) {
+            if (selected) {
+              return;
+            }
+
+            if (index > 1 && index !== highlightedTabIndex) {
+              setHighlightedTabIndex(index);
+            }
+
+            if (disabled) {
+              return;
+            }
+
+            if (
+              (activateOnFocus && !isPressingRef.current) || // keyboard focus
+              (isPressingRef.current && isMainButtonRef.current) // focus caused by pointerdown
+            ) {
+              onTabActivation(tabValue, event.nativeEvent);
+            }
+          },
+          onPointerDown(event) {
+            if (selected || disabled) {
+              return;
+            }
+
+            isPressingRef.current = true;
+
+            function handlePointerUp() {
+              isPressingRef.current = false;
+              isMainButtonRef.current = false;
+            }
+
+            if (!event.button || event.button === 0) {
+              isMainButtonRef.current = true;
+
+              const doc = ownerDocument(event.currentTarget);
+              doc.addEventListener('pointerup', handlePointerUp, { once: true });
+            }
+          },
+        },
+        externalProps,
+        getButtonProps,
+        getItemProps<'button'>,
       );
     },
     [
@@ -111,9 +152,12 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
       id,
       onTabActivation,
       selected,
-      selectedTabValue,
       tabPanelId,
       tabValue,
+      disabled,
+      index,
+      setHighlightedTabIndex,
+      highlightedTabIndex,
     ],
   );
 

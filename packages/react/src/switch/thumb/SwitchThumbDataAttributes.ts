@@ -35,4 +35,12 @@ export enum SwitchThumbDataAttributes {
    * Present when the switch's value has changed (when wrapped in Field.Root).
    */
   dirty = 'data-dirty',
+  /**
+   * Present when the switch is active (when wrapped in Field.Root).
+   */
+  filled = 'data-filled',
+  /**
+   * Present when the switch is focused (when wrapped in Field.Root).
+   */
+  focused = 'data-focused',
 }

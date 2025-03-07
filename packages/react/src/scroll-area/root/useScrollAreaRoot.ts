@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { SCROLL_TIMEOUT } from '../constants';
 import { getOffset } from '../utils/getOffset';
@@ -12,9 +11,7 @@ interface Size {
   height: number;
 }
 
-export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
-  const { dir: dirParam } = params;
-
+export function useScrollAreaRoot() {
   const [hovering, setHovering] = React.useState(false);
   const [scrollingX, setScrollingX] = React.useState(false);
   const [scrollingY, setScrollingY] = React.useState(false);
@@ -46,15 +43,6 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
     scrollbarXHidden: false,
     cornerHidden: false,
   });
-
-  const [autoDir, setAutoDir] = React.useState(dirParam);
-  const dir = dirParam ?? autoDir;
-
-  useEnhancedEffect(() => {
-    if (dirParam === undefined && viewportRef.current) {
-      setAutoDir(getComputedStyle(viewportRef.current).direction);
-    }
-  }, [dirParam]);
 
   React.useEffect(() => {
     return () => {
@@ -192,23 +180,25 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
-        dir,
-        onPointerEnter: handlePointerEnterOrMove,
-        onPointerMove: handlePointerEnterOrMove,
-        onPointerDown({ pointerType }) {
-          setTouchModality(pointerType === 'touch');
+      mergeProps<'div'>(
+        {
+          onPointerEnter: handlePointerEnterOrMove,
+          onPointerMove: handlePointerEnterOrMove,
+          onPointerDown({ pointerType }) {
+            setTouchModality(pointerType === 'touch');
+          },
+          onPointerLeave() {
+            setHovering(false);
+          },
+          style: {
+            position: 'relative',
+            [ScrollAreaRootCssVars.scrollAreaCornerHeight as string]: `${cornerSize.height}px`,
+            [ScrollAreaRootCssVars.scrollAreaCornerWidth as string]: `${cornerSize.width}px`,
+          },
         },
-        onPointerLeave() {
-          setHovering(false);
-        },
-        style: {
-          position: 'relative',
-          [ScrollAreaRootCssVars.scrollAreaCornerHeight as string]: `${cornerSize.height}px`,
-          [ScrollAreaRootCssVars.scrollAreaCornerWidth as string]: `${cornerSize.width}px`,
-        },
-      }),
-    [cornerSize, dir, handlePointerEnterOrMove],
+        externalProps,
+      ),
+    [cornerSize, handlePointerEnterOrMove],
   );
 
   return React.useMemo(
@@ -266,8 +256,4 @@ export function useScrollAreaRoot(params: useScrollAreaRoot.Parameters) {
   );
 }
 
-export namespace useScrollAreaRoot {
-  export interface Parameters {
-    dir: string | undefined;
-  }
-}
+export namespace useScrollAreaRoot {}

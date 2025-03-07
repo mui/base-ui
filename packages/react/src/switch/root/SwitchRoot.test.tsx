@@ -4,7 +4,7 @@ import { spy } from 'sinon';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui-components/react/switch';
 import { userEvent } from '@testing-library/user-event';
-import { describeConformance, createRenderer } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Switch.Root />', () => {
   const { render } = createRenderer();
@@ -207,12 +207,10 @@ describe('<Switch.Root />', () => {
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
 
-    it('should include the switch value in the form submission', async function test(t = {}) {
-      if (/jsdom/.test(window.navigator.userAgent)) {
+    it('should include the switch value in the form submission', async ({ skip }) => {
+      if (isJSDOM) {
         // FormData is not available in JSDOM
-        // @ts-expect-error to support mocha and vitest
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this?.skip?.() || t?.skip();
+        skip();
       }
 
       let stringifiedFormData = '';
@@ -267,7 +265,7 @@ describe('<Switch.Root />', () => {
     expect(thumb).to.have.attribute('data-readonly', '');
     expect(thumb).to.have.attribute('data-required', '');
 
-    setProps({ disabled: false, readOnly: false });
+    await setProps({ disabled: false, readOnly: false });
     fireEvent.click(switchElement);
 
     expect(switchElement).to.have.attribute('data-unchecked', '');

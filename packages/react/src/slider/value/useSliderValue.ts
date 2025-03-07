@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { formatNumber } from '../../utils/formatNumber';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
 export function useSliderValue(parameters: useSliderValue.Parameters): useSliderValue.ReturnValue {
-  const { 'aria-live': ariaLive = 'off', format: formatParam, thumbMap, values } = parameters;
+  const { 'aria-live': ariaLive, format: formatParam, thumbMap, values } = parameters;
 
   const outputFor = React.useMemo(() => {
     let htmlFor = '';
@@ -20,21 +20,22 @@ export function useSliderValue(parameters: useSliderValue.Parameters): useSlider
   const formattedValues = React.useMemo(() => {
     const arr = [];
     for (let i = 0; i < values.length; i += 1) {
-      arr.push(
-        formatNumber(values[i], [], Array.isArray(formatParam) ? formatParam[i] : formatParam),
-      );
+      arr.push(formatNumber(values[i], [], formatParam ?? undefined));
     }
     return arr;
   }, [formatParam, values]);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(externalProps, {
-        // off by default because it will keep announcing when the slider is being dragged
-        // and also when the value is changing (but not yet committed)
-        'aria-live': ariaLive,
-        htmlFor: outputFor,
-      });
+      return mergeProps(
+        {
+          // off by default because it will keep announcing when the slider is being dragged
+          // and also when the value is changing (but not yet committed)
+          'aria-live': ariaLive,
+          htmlFor: outputFor,
+        },
+        externalProps,
+      );
     },
     [ariaLive, outputFor],
   );
@@ -50,11 +51,12 @@ export function useSliderValue(parameters: useSliderValue.Parameters): useSlider
 
 export namespace useSliderValue {
   export interface Parameters extends Pick<useSliderRoot.ReturnValue, 'thumbMap' | 'values'> {
-    'aria-live'?: React.AriaAttributes['aria-live'];
+    'aria-live': React.AriaAttributes['aria-live'];
     /**
      * Options to format the input value.
+     * @default null
      */
-    format?: Intl.NumberFormatOptions | Intl.NumberFormatOptions[];
+    format: Intl.NumberFormatOptions | null;
   }
 
   export interface ReturnValue {

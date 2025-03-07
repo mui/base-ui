@@ -18,6 +18,10 @@
       "type": "(value, event) => void",
       "description": "Callback fired when the number value changes."
     },
+    "locale": {
+      "type": "Intl.LocalesArgument",
+      "description": "The locale of the input element.\nDefaults to the user's runtime locale."
+    },
     "step": {
       "type": "number",
       "default": "1;",
@@ -109,6 +113,12 @@
     },
     "data-touched": {
       "description": "Present when the number field has been touched (when wrapped in Field.Root)."
+    },
+    "data-filled": {
+      "description": "Present when the number field is filled (when wrapped in Field.Root)."
+    },
+    "data-focused": {
+      "description": "Present when the number field is focused (when wrapped in Field.Root)."
     },
     "data-scrubbing": {
       "description": "Present while scrubbing."

@@ -19,7 +19,7 @@ import {
   TOUCH_TIMEOUT,
 } from '../utils/constants';
 import { isIOS } from '../../utils/detectBrowser';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -34,8 +34,8 @@ import { useField } from '../../field/useField';
 import type { ScrubHandle } from './useScrub.types';
 
 export function useNumberFieldRoot(
-  params: UseNumberFieldRoot.Parameters,
-): UseNumberFieldRoot.ReturnValue {
+  params: useNumberFieldRoot.Parameters,
+): useNumberFieldRoot.ReturnValue {
   const {
     id: idProp,
     name,
@@ -52,8 +52,9 @@ export function useNumberFieldRoot(
     allowWheelScrub = false,
     format,
     value: externalValue,
-    onValueChange: onValueChangeProp = () => {},
+    onValueChange: onValueChangeProp,
     defaultValue,
+    locale,
   } = params;
 
   const {
@@ -65,6 +66,8 @@ export function useNumberFieldRoot(
     validityData,
     setValidityData,
     disabled: fieldDisabled,
+    setFocused,
+    setFilled,
   } = useFieldRootContext();
 
   const {
@@ -103,6 +106,10 @@ export function useNumberFieldRoot(
   const value = valueUnwrapped ?? null;
   const valueRef = useLatestRef(value);
 
+  useEnhancedEffect(() => {
+    setFilled(value !== null);
+  }, [setFilled, value]);
+
   useField({
     id,
     commitValidation,
@@ -127,6 +134,8 @@ export function useNumberFieldRoot(
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
   const isTouchingButtonRef = React.useRef(false);
   const hasTouchedInputRef = React.useRef(false);
+  const ignoreClickRef = React.useRef(false);
+  const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen' | ''>('');
 
   useEnhancedEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {
@@ -138,14 +147,14 @@ export function useNumberFieldRoot(
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
   // rendering an empty input field and then updating it with the formatted value, as the user
   // can still see the value prior to hydration, even if it's not formatted correctly.
-  const [inputValue, setInputValue] = React.useState(() => formatNumber(value, [], format));
+  const [inputValue, setInputValue] = React.useState(() => formatNumber(value, locale, format));
   const [inputMode, setInputMode] = React.useState<'numeric' | 'decimal' | 'text'>('numeric');
 
   const isMin = value != null && value <= minWithDefault;
   const isMax = value != null && value >= maxWithDefault;
 
   const getAllowedNonNumericKeys = useEventCallback(() => {
-    const { decimal, group, currency } = getNumberLocaleDetails([], format);
+    const { decimal, group, currency } = getNumberLocaleDetails(locale, format);
 
     const keys = Array.from(new Set(['.', ',', decimal, group]));
 
@@ -270,7 +279,7 @@ export function useNumberFieldRoot(
       return;
     }
 
-    const nextInputValue = formatNumber(value, [], formatOptionsRef.current);
+    const nextInputValue = formatNumber(value, locale, formatOptionsRef.current);
 
     if (nextInputValue !== inputValue) {
       setInputValue(nextInputValue);
@@ -381,11 +390,14 @@ export function useNumberFieldRoot(
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  const getGroupProps: UseNumberFieldRoot.ReturnValue['getGroupProps'] = React.useCallback(
+  const getGroupProps: useNumberFieldRoot.ReturnValue['getGroupProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        role: 'group',
-      }),
+      mergeProps(
+        {
+          role: 'group',
+        },
+        externalProps,
+      ),
     [],
   );
 
@@ -395,7 +407,7 @@ export function useNumberFieldRoot(
         allowInputSyncRef.current = true;
 
         // The input may be dirty but not yet blurred, so the value won't have been committed.
-        const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
+        const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
         if (parsedValue !== null) {
           // The increment value function needs to know the current input value to increment it
@@ -405,120 +417,126 @@ export function useNumberFieldRoot(
         }
       }
 
-      return mergeReactProps<'button'>(externalProps, {
-        disabled: disabled || (isIncrement ? isMax : isMin),
-        type: 'button',
-        'aria-readonly': readOnly || undefined,
-        'aria-label': isIncrement ? 'Increase' : 'Decrease',
-        'aria-controls': id,
-        // Keyboard users shouldn't have access to the buttons, since they can use the input element
-        // to change the value. On the other hand, `aria-hidden` is not applied because touch screen
-        // readers should be able to use the buttons.
-        tabIndex: -1,
-        style: {
-          WebkitUserSelect: 'none',
-          userSelect: 'none',
-        },
-        onTouchStart() {
-          isTouchingButtonRef.current = true;
-        },
-        onTouchEnd() {
-          isTouchingButtonRef.current = false;
-        },
-        onClick(event) {
-          const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
-          if (
-            event.defaultPrevented ||
-            isDisabled ||
-            // If it's not a keyboard/virtual click, ignore.
-            event.detail !== 0
-          ) {
-            return;
-          }
+      return mergeProps<'button'>(
+        {
+          disabled: disabled || (isIncrement ? isMax : isMin),
+          type: 'button',
+          'aria-readonly': readOnly || undefined,
+          'aria-label': isIncrement ? 'Increase' : 'Decrease',
+          'aria-controls': id,
+          // Keyboard users shouldn't have access to the buttons, since they can use the input element
+          // to change the value. On the other hand, `aria-hidden` is not applied because touch screen
+          // readers should be able to use the buttons.
+          tabIndex: -1,
+          style: {
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
+          },
+          onTouchStart() {
+            isTouchingButtonRef.current = true;
+          },
+          onTouchEnd() {
+            isTouchingButtonRef.current = false;
+          },
+          onClick(event) {
+            const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
+            if (
+              event.defaultPrevented ||
+              isDisabled ||
+              // If it's not a keyboard/virtual click, ignore.
+              (pointerTypeRef.current === 'touch' ? ignoreClickRef.current : event.detail !== 0)
+            ) {
+              return;
+            }
 
-          commitValue(event.nativeEvent);
+            commitValue(event.nativeEvent);
 
-          const amount = getStepAmount() ?? DEFAULT_STEP;
+            const amount = getStepAmount() ?? DEFAULT_STEP;
 
-          incrementValue(amount, isIncrement ? 1 : -1, undefined, event.nativeEvent);
-        },
-        onPointerDown(event) {
-          const isMainButton = !event.button || event.button === 0;
-          const isDisabled = disabled || (isIncrement ? isMax : isMin);
-          if (event.defaultPrevented || readOnly || !isMainButton || isDisabled) {
-            return;
-          }
+            incrementValue(amount, isIncrement ? 1 : -1, undefined, event.nativeEvent);
+          },
+          onPointerDown(event) {
+            const isMainButton = !event.button || event.button === 0;
+            const isDisabled = disabled || (isIncrement ? isMax : isMin);
+            if (event.defaultPrevented || readOnly || !isMainButton || isDisabled) {
+              return;
+            }
 
-          isPressedRef.current = true;
-          incrementDownCoordsRef.current = { x: event.clientX, y: event.clientY };
+            pointerTypeRef.current = event.pointerType;
+            ignoreClickRef.current = false;
+            isPressedRef.current = true;
+            incrementDownCoordsRef.current = { x: event.clientX, y: event.clientY };
 
-          commitValue(event.nativeEvent);
+            commitValue(event.nativeEvent);
 
-          // Note: "pen" is sometimes returned for mouse usage on Linux Chrome.
-          if (event.pointerType !== 'touch') {
-            event.preventDefault();
-            inputRef.current?.focus();
+            // Note: "pen" is sometimes returned for mouse usage on Linux Chrome.
+            if (event.pointerType !== 'touch') {
+              event.preventDefault();
+              inputRef.current?.focus();
+              startAutoChange(isIncrement);
+            } else {
+              // We need to check if the pointerdown was intentional, and not the result of a scroll
+              // or pinch-zoom. In that case, we don't want to change the value.
+              intentionalTouchCheckTimeoutRef.current = window.setTimeout(() => {
+                const moves = movesAfterTouchRef.current;
+                movesAfterTouchRef.current = 0;
+                if (moves < MAX_POINTER_MOVES_AFTER_TOUCH) {
+                  ignoreClickRef.current = true;
+                  startAutoChange(isIncrement);
+                } else {
+                  stopAutoChange();
+                }
+              }, TOUCH_TIMEOUT);
+            }
+          },
+          onPointerMove(event) {
+            const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
+            if (isDisabled || event.pointerType !== 'touch' || !isPressedRef.current) {
+              return;
+            }
+
+            movesAfterTouchRef.current += 1;
+
+            const { x, y } = incrementDownCoordsRef.current;
+            const dx = x - event.clientX;
+            const dy = y - event.clientY;
+
+            // An alternative to this technique is to detect when the NumberField's parent container
+            // has been scrolled
+            if (dx ** 2 + dy ** 2 > SCROLLING_POINTER_MOVE_DISTANCE ** 2) {
+              stopAutoChange();
+            }
+          },
+          onMouseEnter(event) {
+            const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
+            if (
+              event.defaultPrevented ||
+              isDisabled ||
+              !isPressedRef.current ||
+              isTouchingButtonRef.current
+            ) {
+              return;
+            }
+
             startAutoChange(isIncrement);
-          } else {
-            // We need to check if the pointerdown was intentional, and not the result of a scroll
-            // or pinch-zoom. In that case, we don't want to change the value.
-            intentionalTouchCheckTimeoutRef.current = window.setTimeout(() => {
-              const moves = movesAfterTouchRef.current;
-              movesAfterTouchRef.current = 0;
-              if (moves < MAX_POINTER_MOVES_AFTER_TOUCH) {
-                startAutoChange(isIncrement);
-              } else {
-                stopAutoChange();
-              }
-            }, TOUCH_TIMEOUT);
-          }
-        },
-        onPointerMove(event) {
-          const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
-          if (isDisabled || event.pointerType !== 'touch' || !isPressedRef.current) {
-            return;
-          }
+          },
+          onMouseLeave() {
+            if (isTouchingButtonRef.current) {
+              return;
+            }
 
-          movesAfterTouchRef.current += 1;
-
-          const { x, y } = incrementDownCoordsRef.current;
-          const dx = x - event.clientX;
-          const dy = y - event.clientY;
-
-          // An alternative to this technique is to detect when the NumberField's parent container
-          // has been scrolled
-          if (dx ** 2 + dy ** 2 > SCROLLING_POINTER_MOVE_DISTANCE ** 2) {
             stopAutoChange();
-          }
-        },
-        onMouseEnter(event) {
-          const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
-          if (
-            event.defaultPrevented ||
-            isDisabled ||
-            !isPressedRef.current ||
-            isTouchingButtonRef.current
-          ) {
-            return;
-          }
+          },
+          onMouseUp() {
+            if (isTouchingButtonRef.current) {
+              return;
+            }
 
-          startAutoChange(isIncrement);
+            stopAutoChange();
+          },
         },
-        onMouseLeave() {
-          if (isTouchingButtonRef.current) {
-            return;
-          }
-
-          stopAutoChange();
-        },
-        onMouseUp() {
-          if (isTouchingButtonRef.current) {
-            return;
-          }
-
-          stopAutoChange();
-        },
-      });
+        externalProps,
+      );
     },
     [
       disabled,
@@ -526,220 +544,229 @@ export function useNumberFieldRoot(
       isMin,
       readOnly,
       id,
-      getStepAmount,
-      incrementValue,
       inputValue,
+      locale,
       formatOptionsRef,
       valueRef,
       setValue,
+      getStepAmount,
+      incrementValue,
       startAutoChange,
       stopAutoChange,
     ],
   );
 
-  const getIncrementButtonProps: UseNumberFieldRoot.ReturnValue['getIncrementButtonProps'] =
+  const getIncrementButtonProps: useNumberFieldRoot.ReturnValue['getIncrementButtonProps'] =
     React.useCallback(
       (externalProps) => getCommonButtonProps(true, externalProps),
       [getCommonButtonProps],
     );
 
-  const getDecrementButtonProps: UseNumberFieldRoot.ReturnValue['getDecrementButtonProps'] =
+  const getDecrementButtonProps: useNumberFieldRoot.ReturnValue['getDecrementButtonProps'] =
     React.useCallback(
       (externalProps) => getCommonButtonProps(false, externalProps),
       [getCommonButtonProps],
     );
 
-  const getInputProps: UseNumberFieldRoot.ReturnValue['getInputProps'] = React.useCallback(
+  const getInputProps: useNumberFieldRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(getInputValidationProps(getValidationProps(externalProps)), {
-        id,
-        required,
-        autoFocus,
-        name,
-        disabled,
-        readOnly,
-        inputMode,
-        value: inputValue,
-        ref: mergedRef,
-        type: 'text',
-        autoComplete: 'off',
-        autoCorrect: 'off',
-        spellCheck: 'false',
-        'aria-roledescription': 'Number field',
-        'aria-invalid': invalid || undefined,
-        'aria-labelledby': labelId,
-        // If the server's locale does not match the client's locale, the formatting may not match,
-        // causing a hydration mismatch.
-        suppressHydrationWarning: true,
-        onFocus(event) {
-          if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
-            return;
-          }
-
-          hasTouchedInputRef.current = true;
-
-          // Browsers set selection at the start of the input field by default. We want to set it at
-          // the end for the first focus.
-          const target = event.currentTarget;
-          const length = target.value.length;
-          target.setSelectionRange(length, length);
-        },
-        onBlur(event) {
-          if (event.defaultPrevented || readOnly || disabled) {
-            return;
-          }
-
-          setTouched(true);
-          commitValidation(valueRef.current);
-
-          allowInputSyncRef.current = true;
-
-          if (inputValue.trim() === '') {
-            setValue(null);
-            return;
-          }
-
-          const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
-
-          if (parsedValue !== null) {
-            setValue(parsedValue, event.nativeEvent);
-          }
-        },
-        onChange(event) {
-          // Workaround for https://github.com/facebook/react/issues/9023
-          if (event.nativeEvent.defaultPrevented) {
-            return;
-          }
-
-          allowInputSyncRef.current = false;
-          const targetValue = event.target.value;
-
-          if (targetValue.trim() === '') {
-            setInputValue(targetValue);
-            setValue(null, event.nativeEvent);
-            return;
-          }
-
-          if (event.isTrusted) {
-            setInputValue(targetValue);
-            return;
-          }
-
-          const parsedValue = parseNumber(targetValue, formatOptionsRef.current);
-
-          if (parsedValue !== null) {
-            setInputValue(targetValue);
-            setValue(parsedValue, event.nativeEvent);
-          }
-        },
-        onKeyDown(event) {
-          if (event.defaultPrevented || readOnly || disabled) {
-            return;
-          }
-
-          const nativeEvent = event.nativeEvent;
-
-          allowInputSyncRef.current = true;
-
-          const allowedNonNumericKeys = getAllowedNonNumericKeys();
-
-          let isAllowedNonNumericKey = allowedNonNumericKeys.includes(event.key);
-
-          const { decimal, currency, percentSign } = getNumberLocaleDetails(
-            [],
-            formatOptionsRef.current,
-          );
-
-          const selectionStart = event.currentTarget.selectionStart;
-          const selectionEnd = event.currentTarget.selectionEnd;
-          const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
-
-          // Allow the minus key only if there isn't already a plus or minus sign, or if all the text
-          // is selected, or if only the minus sign is highlighted.
-          if (event.key === '-' && allowedNonNumericKeys.includes('-')) {
-            const isMinusHighlighted =
-              selectionStart === 0 && selectionEnd === 1 && inputValue[0] === '-';
-            isAllowedNonNumericKey =
-              !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
-          }
-
-          // Only allow one of each symbol.
-          [decimal, currency, percentSign].forEach((symbol) => {
-            if (event.key === symbol) {
-              const symbolIndex = inputValue.indexOf(symbol);
-              const isSymbolHighlighted =
-                selectionStart === symbolIndex && selectionEnd === symbolIndex + 1;
-              isAllowedNonNumericKey =
-                !inputValue.includes(symbol) || isAllSelected || isSymbolHighlighted;
+      mergeProps<'input'>(
+        {
+          id,
+          required,
+          autoFocus,
+          name,
+          disabled,
+          readOnly,
+          inputMode,
+          value: inputValue,
+          ref: mergedRef,
+          type: 'text',
+          autoComplete: 'off',
+          autoCorrect: 'off',
+          spellCheck: 'false',
+          'aria-roledescription': 'Number field',
+          'aria-invalid': invalid || undefined,
+          'aria-labelledby': labelId,
+          // If the server's locale does not match the client's locale, the formatting may not match,
+          // causing a hydration mismatch.
+          suppressHydrationWarning: true,
+          onFocus(event) {
+            if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
+              return;
             }
-          });
 
-          const isLatinNumeral = /^[0-9]$/.test(event.key);
-          const isArabicNumeral = ARABIC_RE.test(event.key);
-          const isHanNumeral = HAN_RE.test(event.key);
-          const isNavigateKey = [
-            'Backspace',
-            'Delete',
-            'ArrowLeft',
-            'ArrowRight',
-            'Tab',
-            'Enter',
-          ].includes(event.key);
+            hasTouchedInputRef.current = true;
+            setFocused(true);
 
-          if (
-            // Allow composition events (e.g., pinyin)
-            // event.nativeEvent.isComposing does not work in Safari:
-            // https://bugs.webkit.org/show_bug.cgi?id=165004
-            event.which === 229 ||
-            event.altKey ||
-            event.ctrlKey ||
-            event.metaKey ||
-            isAllowedNonNumericKey ||
-            isLatinNumeral ||
-            isArabicNumeral ||
-            isHanNumeral ||
-            isNavigateKey
-          ) {
-            return;
-          }
+            // Browsers set selection at the start of the input field by default. We want to set it at
+            // the end for the first focus.
+            const target = event.currentTarget;
+            const length = target.value.length;
+            target.setSelectionRange(length, length);
+          },
+          onBlur(event) {
+            if (event.defaultPrevented || readOnly || disabled) {
+              return;
+            }
 
-          // We need to commit the number at this point if the input hasn't been blurred.
-          const parsedValue = parseNumber(inputValue, formatOptionsRef.current);
+            setTouched(true);
+            setFocused(false);
 
-          const amount = getStepAmount() ?? DEFAULT_STEP;
+            if (validationMode === 'onBlur') {
+              commitValidation(valueRef.current);
+            }
 
-          // Prevent insertion of text or caret from moving.
-          event.preventDefault();
+            allowInputSyncRef.current = true;
 
-          if (event.key === 'ArrowUp') {
-            incrementValue(amount, 1, parsedValue, nativeEvent);
-          } else if (event.key === 'ArrowDown') {
-            incrementValue(amount, -1, parsedValue, nativeEvent);
-          } else if (event.key === 'Home' && min != null) {
-            setValue(min, nativeEvent);
-          } else if (event.key === 'End' && max != null) {
-            setValue(max, nativeEvent);
-          }
-        },
-        onPaste(event) {
-          if (event.defaultPrevented || readOnly || disabled) {
-            return;
-          }
+            if (inputValue.trim() === '') {
+              setValue(null);
+              return;
+            }
 
-          // Prevent `onChange` from being called.
-          event.preventDefault();
+            const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
-          const clipboardData = event.clipboardData || window.Clipboard;
-          const pastedData = clipboardData.getData('text/plain');
-          const parsedValue = parseNumber(pastedData, formatOptionsRef.current);
+            if (parsedValue !== null) {
+              setValue(parsedValue, event.nativeEvent);
+            }
+          },
+          onChange(event) {
+            // Workaround for https://github.com/facebook/react/issues/9023
+            if (event.nativeEvent.defaultPrevented) {
+              return;
+            }
 
-          if (parsedValue !== null) {
             allowInputSyncRef.current = false;
-            setValue(parsedValue, event.nativeEvent);
-            setInputValue(pastedData);
-          }
+            const targetValue = event.target.value;
+
+            if (targetValue.trim() === '') {
+              setInputValue(targetValue);
+              setValue(null, event.nativeEvent);
+              return;
+            }
+
+            if (event.isTrusted) {
+              setInputValue(targetValue);
+              return;
+            }
+
+            const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
+
+            if (parsedValue !== null) {
+              setInputValue(targetValue);
+              setValue(parsedValue, event.nativeEvent);
+            }
+          },
+          onKeyDown(event) {
+            if (event.defaultPrevented || readOnly || disabled) {
+              return;
+            }
+
+            const nativeEvent = event.nativeEvent;
+
+            allowInputSyncRef.current = true;
+
+            const allowedNonNumericKeys = getAllowedNonNumericKeys();
+
+            let isAllowedNonNumericKey = allowedNonNumericKeys.includes(event.key);
+
+            const { decimal, currency, percentSign } = getNumberLocaleDetails(
+              locale,
+              formatOptionsRef.current,
+            );
+
+            const selectionStart = event.currentTarget.selectionStart;
+            const selectionEnd = event.currentTarget.selectionEnd;
+            const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
+
+            // Allow the minus key only if there isn't already a plus or minus sign, or if all the text
+            // is selected, or if only the minus sign is highlighted.
+            if (event.key === '-' && allowedNonNumericKeys.includes('-')) {
+              const isMinusHighlighted =
+                selectionStart === 0 && selectionEnd === 1 && inputValue[0] === '-';
+              isAllowedNonNumericKey =
+                !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
+            }
+
+            // Only allow one of each symbol.
+            [decimal, currency, percentSign].forEach((symbol) => {
+              if (event.key === symbol) {
+                const symbolIndex = inputValue.indexOf(symbol);
+                const isSymbolHighlighted =
+                  selectionStart === symbolIndex && selectionEnd === symbolIndex + 1;
+                isAllowedNonNumericKey =
+                  !inputValue.includes(symbol) || isAllSelected || isSymbolHighlighted;
+              }
+            });
+
+            const isLatinNumeral = /^[0-9]$/.test(event.key);
+            const isArabicNumeral = ARABIC_RE.test(event.key);
+            const isHanNumeral = HAN_RE.test(event.key);
+            const isNavigateKey = [
+              'Backspace',
+              'Delete',
+              'ArrowLeft',
+              'ArrowRight',
+              'Tab',
+              'Enter',
+            ].includes(event.key);
+
+            if (
+              // Allow composition events (e.g., pinyin)
+              // event.nativeEvent.isComposing does not work in Safari:
+              // https://bugs.webkit.org/show_bug.cgi?id=165004
+              event.which === 229 ||
+              event.altKey ||
+              event.ctrlKey ||
+              event.metaKey ||
+              isAllowedNonNumericKey ||
+              isLatinNumeral ||
+              isArabicNumeral ||
+              isHanNumeral ||
+              isNavigateKey
+            ) {
+              return;
+            }
+
+            // We need to commit the number at this point if the input hasn't been blurred.
+            const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+
+            const amount = getStepAmount() ?? DEFAULT_STEP;
+
+            // Prevent insertion of text or caret from moving.
+            event.preventDefault();
+
+            if (event.key === 'ArrowUp') {
+              incrementValue(amount, 1, parsedValue, nativeEvent);
+            } else if (event.key === 'ArrowDown') {
+              incrementValue(amount, -1, parsedValue, nativeEvent);
+            } else if (event.key === 'Home' && min != null) {
+              setValue(min, nativeEvent);
+            } else if (event.key === 'End' && max != null) {
+              setValue(max, nativeEvent);
+            }
+          },
+          onPaste(event) {
+            if (event.defaultPrevented || readOnly || disabled) {
+              return;
+            }
+
+            // Prevent `onChange` from being called.
+            event.preventDefault();
+
+            const clipboardData = event.clipboardData || window.Clipboard;
+            const pastedData = clipboardData.getData('text/plain');
+            const parsedValue = parseNumber(pastedData, locale, formatOptionsRef.current);
+
+            if (parsedValue !== null) {
+              allowInputSyncRef.current = false;
+              setValue(parsedValue, event.nativeEvent);
+              setInputValue(pastedData);
+            }
+          },
         },
-      }),
+        getInputValidationProps(getValidationProps(externalProps)),
+      ),
     [
       getInputValidationProps,
       getValidationProps,
@@ -754,12 +781,15 @@ export function useNumberFieldRoot(
       mergedRef,
       invalid,
       labelId,
+      setFocused,
       setTouched,
+      validationMode,
       formatOptionsRef,
       commitValidation,
       valueRef,
       setValue,
       getAllowedNonNumericKeys,
+      locale,
       getStepAmount,
       min,
       max,
@@ -800,7 +830,7 @@ export function useNumberFieldRoot(
   );
 }
 
-export namespace UseNumberFieldRoot {
+export namespace useNumberFieldRoot {
   export interface Parameters {
     /**
      * The id of the input element.
@@ -887,6 +917,11 @@ export namespace UseNumberFieldRoot {
      * @param {Event} event The event that triggered the change.
      */
     onValueChange?: (value: number | null, event?: Event) => void;
+    /**
+     * The locale of the input element.
+     * Defaults to the user's runtime locale.
+     */
+    locale?: Intl.LocalesArgument;
   }
 
   export interface ReturnValue {
@@ -911,6 +946,8 @@ export namespace UseNumberFieldRoot {
     inputValue: string;
     value: number | null;
     isScrubbing: boolean;
+    isTouchInput: boolean;
+    isPointerLockDenied: boolean;
     inputRef: ((instance: HTMLInputElement | null) => void) | null;
     scrubHandleRef: React.RefObject<ScrubHandle | null>;
     scrubAreaRef: React.RefObject<HTMLSpanElement | null>;

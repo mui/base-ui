@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useSelectGroupContext } from '../group/SelectGroupContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -32,9 +32,12 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
   const getSelectItemGroupLabelProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        id,
-      }),
+      mergeProps(
+        {
+          id,
+        },
+        externalProps,
+      ),
     [id],
   );
 

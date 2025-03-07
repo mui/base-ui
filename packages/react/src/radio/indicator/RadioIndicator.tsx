@@ -5,7 +5,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useRadioRootContext } from '../root/RadioRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useForkRef } from '../../utils/useForkRef';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 
@@ -19,13 +19,13 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
   props: RadioIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = true, ...otherProps } = props;
+  const { render, className, keepMounted = false, ...otherProps } = props;
 
   const rootState = useRadioRootContext();
 
   const rendered = rootState.checked;
 
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
+  const { transitionStatus, setMounted } = useTransitionStatus(rendered);
 
   const state: RadioIndicator.State = React.useMemo(
     () => ({
@@ -43,18 +43,17 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
     ref: mergedRef,
     className,
     state,
-    extraProps: {
-      hidden: !mounted,
-      ...otherProps,
-    },
+    extraProps: otherProps,
     customStyleHookMapping,
   });
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open: rendered,
-    animatedElementRef: indicatorRef,
-    onFinished() {
-      setMounted(false);
+    ref: indicatorRef,
+    onComplete() {
+      if (!rendered) {
+        setMounted(false);
+      }
     },
   });
 
@@ -70,7 +69,7 @@ namespace RadioIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * Whether to keep the HTML element in the DOM when the radio button is inactive.
-     * @default true
+     * @default false
      */
     keepMounted?: boolean;
   }
@@ -100,7 +99,7 @@ RadioIndicator.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * Whether to keep the HTML element in the DOM when the radio button is inactive.
-   * @default true
+   * @default false
    */
   keepMounted: PropTypes.bool,
   /**

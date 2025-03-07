@@ -17,12 +17,13 @@ const SliderValue = React.forwardRef(function SliderValue(
   props: SliderValue.Props,
   forwardedRef: React.ForwardedRef<HTMLOutputElement>,
 ) {
-  const { render, className, children, ...otherProps } = props;
+  const { 'aria-live': ariaLive = 'off', render, className, children, ...otherProps } = props;
 
   const { thumbMap, state, values, format } = useSliderRootContext();
 
   const { getRootProps, formattedValues } = useSliderValue({
-    format,
+    'aria-live': ariaLive,
+    format: format ?? null,
     thumbMap,
     values,
   });
@@ -52,9 +53,13 @@ const SliderValue = React.forwardRef(function SliderValue(
   return renderElement();
 });
 
-export namespace SliderValue {
+namespace SliderValue {
   export interface Props
     extends Omit<BaseUIComponentProps<'output', SliderRoot.State>, 'children'> {
+    /**
+     * @default 'off'
+     */
+    'aria-live'?: React.AriaAttributes['aria-live'];
     children?:
       | null
       | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode);
@@ -68,6 +73,10 @@ SliderValue.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @default 'off'
+   */
+  'aria-live': PropTypes.oneOf(['assertive', 'off', 'polite']),
   /**
    * @ignore
    */

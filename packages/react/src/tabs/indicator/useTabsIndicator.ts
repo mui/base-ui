@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { TabsListContext } from '../list/TabsListContext';
 import type { TabsRootContext } from '../root/TabsRootContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
@@ -83,6 +83,17 @@ export function useTabsIndicator(
     [left, right, top, bottom, isTabSelected],
   );
 
+  const activeTabSize = React.useMemo(
+    () =>
+      isTabSelected
+        ? {
+            width,
+            height,
+          }
+        : null,
+    [width, height, isTabSelected],
+  );
+
   const style = React.useMemo(() => {
     if (!isTabSelected) {
       return undefined;
@@ -102,11 +113,14 @@ export function useTabsIndicator(
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'span'>(externalProps, {
-        role: 'presentation',
-        style,
-        hidden: !displayIndicator, // do not display the indicator before the layout is settled
-      });
+      return mergeProps<'span'>(
+        {
+          role: 'presentation',
+          style,
+          hidden: !displayIndicator, // do not display the indicator before the layout is settled
+        },
+        externalProps,
+      );
     },
     [style, displayIndicator],
   );
@@ -114,6 +128,7 @@ export function useTabsIndicator(
   return {
     getRootProps,
     activeTabPosition,
+    activeTabSize,
   };
 }
 
@@ -122,6 +137,11 @@ export interface ActiveTabPosition {
   right: number;
   top: number;
   bottom: number;
+}
+
+export interface ActiveTabSize {
+  width: number;
+  height: number;
 }
 
 export namespace useTabsIndicator {
@@ -137,5 +157,6 @@ export namespace useTabsIndicator {
      */
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     activeTabPosition: ActiveTabPosition | null;
+    activeTabSize: ActiveTabSize | null;
   }
 }

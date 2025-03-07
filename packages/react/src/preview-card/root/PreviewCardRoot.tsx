@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { usePreviewCardRoot } from './usePreviewCardRoot';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import { PortalContext } from '../../portal/PortalContext';
 
 /**
  * Groups all parts of the preview card.
@@ -13,28 +12,16 @@ import { PortalContext } from '../../portal/PortalContext';
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(props) {
-  const { delay, closeDelay } = props;
+  const { delay, closeDelay, onOpenChangeComplete, actionsRef } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
 
-  const {
-    open,
-    setOpen,
-    mounted,
-    setMounted,
-    setTriggerElement,
-    positionerElement,
-    setPositionerElement,
-    popupRef,
-    instantType,
-    getRootTriggerProps,
-    getRootPopupProps,
-    floatingRootContext,
-    transitionStatus,
-  } = usePreviewCardRoot({
+  const previewCardRoot = usePreviewCardRoot({
     delay,
     closeDelay,
+    actionsRef,
+    onOpenChangeComplete,
     open: props.open,
     onOpenChange: props.onOpenChange,
     defaultOpen: props.defaultOpen,
@@ -42,44 +29,16 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
 
   const contextValue = React.useMemo(
     () => ({
+      ...previewCardRoot,
       delay: delayWithDefault,
       closeDelay: closeDelayWithDefault,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      getRootTriggerProps,
-      getRootPopupProps,
-      floatingRootContext,
-      transitionStatus,
     }),
-    [
-      delayWithDefault,
-      closeDelayWithDefault,
-      open,
-      setOpen,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      mounted,
-      setMounted,
-      instantType,
-      getRootTriggerProps,
-      getRootPopupProps,
-      floatingRootContext,
-      transitionStatus,
-    ],
+    [closeDelayWithDefault, delayWithDefault, previewCardRoot],
   );
 
   return (
     <PreviewCardRootContext.Provider value={contextValue}>
-      <PortalContext.Provider value={mounted}>{props.children}</PortalContext.Provider>
+      {props.children}
     </PreviewCardRootContext.Provider>
   );
 };
@@ -90,6 +49,8 @@ namespace PreviewCardRoot {
   export interface Props extends usePreviewCardRoot.Parameters {
     children?: React.ReactNode;
   }
+
+  export type Actions = usePreviewCardRoot.Actions;
 }
 
 PreviewCardRoot.propTypes /* remove-proptypes */ = {
@@ -97,6 +58,14 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * A ref to imperative actions.
+   */
+  actionsRef: PropTypes.shape({
+    current: PropTypes.shape({
+      unmount: PropTypes.func.isRequired,
+    }).isRequired,
+  }),
   /**
    * @ignore
    */
@@ -122,6 +91,10 @@ PreviewCardRoot.propTypes /* remove-proptypes */ = {
    * Event handler called when the preview card is opened or closed.
    */
   onOpenChange: PropTypes.func,
+  /**
+   * Event handler called after any animations complete when the preview card is opened or closed.
+   */
+  onOpenChangeComplete: PropTypes.func,
   /**
    * Whether the preview card is currently open.
    */

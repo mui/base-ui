@@ -67,7 +67,7 @@ const Toggle = React.forwardRef(function Toggle(
 
 export { Toggle };
 
-export namespace Toggle {
+namespace Toggle {
   export interface State {
     pressed: boolean;
     /**
