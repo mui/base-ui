@@ -3,7 +3,7 @@
   "description": "Used to display a custom message based on the field’s validity.\nRequires `children` to be a function that accepts field validity state as an argument.",
   "props": {
     "children": {
-      "type": "(validity) => React.ReactNode",
+      "type": "((state: { validity, value, error, errors, initialValue }) => React.ReactNode | undefined)",
       "required": true,
       "description": "A function that accepts the field validity state as an argument.\n\n```jsx\n<Field.Validity>\n  {(validity) => {\n    return <div>...</div>\n  }}\n</Field.Validity>\n```"
     }

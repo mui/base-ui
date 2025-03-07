@@ -3,7 +3,7 @@
   "description": "An interactive area where the user can click and drag to change the field value.\nRenders a `<div>` element.",
   "props": {
     "direction": {
-      "type": "'horizontal' | 'vertical'",
+      "type": "\"horizontal\" | \"vertical\"",
       "default": "'horizontal'",
       "description": "Cursor movement direction in the scrub area."
     },
@@ -17,11 +17,11 @@
       "description": "If specified, determines the distance that the cursor may move from the center\nof the scrub area before it will loop back around."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: { value, inputValue, required, disabled, invalid, readOnly, scrubbing, touched, dirty, valid, filled, focused }) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "React.ReactElement | ((props: unknown, state: { value, inputValue, required, disabled, invalid, readOnly, scrubbing, touched, dirty, valid, filled, focused }) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

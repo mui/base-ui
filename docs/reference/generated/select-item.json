@@ -16,12 +16,16 @@
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
+    "children": {
+      "type": "ReactNode",
+      "required": true
+    },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: { disabled, highlighted, selected, open }) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "React.ReactElement | ((props: unknown, state: { disabled, highlighted, selected, open }) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

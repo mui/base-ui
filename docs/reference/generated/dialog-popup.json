@@ -3,19 +3,19 @@
   "description": "A container for the dialog contents.\nRenders a `<div>` element.",
   "props": {
     "initialFocus": {
-      "type": "React.Ref | (interactionType => HTMLElement | null)",
+      "type": "React.RefObject | ((interactionType: \"\" | \"mouse\" | \"pen\" | \"touch\" | \"keyboard\") => React.RefObject)",
       "description": "Determines the element to focus when the dialog is opened.\nBy default, the first focusable element is focused."
     },
     "finalFocus": {
-      "type": "React.Ref",
+      "type": "React.RefObject",
       "description": "Determines the element to focus when the dialog is closed.\nBy default, focus returns to the trigger."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: { open, transitionStatus, nested, hasNestedDialogs }) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "React.ReactElement | ((props: unknown, state: { open, transitionStatus, nested, hasNestedDialogs }) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
@@ -41,8 +41,7 @@
   },
   "cssVariables": {
     "--nested-dialogs": {
-      "description": "Indicates how many dialogs are nested within.",
-      "type": "number"
+      "description": "Indicates how many dialogs are nested within."
     }
   }
 }

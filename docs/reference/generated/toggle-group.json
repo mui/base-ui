@@ -3,20 +3,22 @@
   "description": "Provides a shared state to a series of toggle buttons.",
   "props": {
     "defaultValue": {
-      "type": "array",
+      "type": "ReadonlyArray",
       "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s.\nThis is the uncontrolled counterpart of `value`."
     },
     "value": {
-      "type": "array",
+      "type": "ReadonlyArray",
       "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s\nThis is the controlled counterpart of `defaultValue`."
     },
     "onValueChange": {
-      "type": "function(groupValue: Array<any>, event: Event) => void",
+      "type": "((groupValue: Array, event: Event) => void) | undefined",
+      "required": true,
       "description": "Callback fired when the pressed states of the ToggleGroup changes."
     },
     "toggleMultiple": {
-      "type": "boolean",
+      "type": "boolean | undefined",
       "default": "false",
+      "required": true,
       "description": "When `false` only one item in the group can be pressed. If any item in\nthe group becomes pressed, the others will become unpressed.\nWhen `true` multiple items can be pressed."
     },
     "disabled": {
@@ -29,19 +31,22 @@
       "default": "true",
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
+    "orientation": {
+      "type": "\"horizontal\" | \"vertical\"",
+      "default": "'horizontal'"
+    },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: { disabled, multiple }) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "React.ReactElement | ((props: unknown, state: { disabled, multiple }) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
   "dataAttributes": {
     "data-orientation": {
-      "description": "Indicates the orientation of the toggle group.",
-      "type": "'horizontal' | 'vertical'"
+      "description": "Indicates the orientation of the toggle group."
     },
     "data-disabled": {
       "description": "Present when the toggle group is disabled."

@@ -1,0 +1,15 @@
+{
+  "name": "FloatingPortalLite",
+  "description": "`FloatingPortal` includes tabbable logic handling for focus management.\nFor components that don't need tabbable logic, use `FloatingPortalLite`.",
+  "props": {
+    "root": {
+      "type": "null | HTMLElement | React.RefObject"
+    },
+    "children": {
+      "type": "ReactNode",
+      "required": true
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

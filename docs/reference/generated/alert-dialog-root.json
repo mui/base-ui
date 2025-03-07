@@ -12,16 +12,20 @@
       "description": "Whether the dialog is currently open."
     },
     "onOpenChange": {
-      "type": "(open, event, reason) => void",
+      "type": "function",
       "description": "Event handler called when the dialog is opened or closed."
     },
     "actionsRef": {
-      "type": "{ current: { unmount: func } }",
+      "type": "React.RefObject",
       "description": "A ref to imperative actions."
     },
     "onOpenChangeComplete": {
-      "type": "(open) => void",
+      "type": "function",
       "description": "Event handler called after any animations complete when the dialog is opened or closed."
+    },
+    "children": {
+      "type": "ReactNode",
+      "required": true
     }
   },
   "dataAttributes": {},

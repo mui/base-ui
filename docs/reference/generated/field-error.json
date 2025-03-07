@@ -3,7 +3,7 @@
   "description": "An error message displayed if the field control fails validation.\nRenders a `<div>` element.",
   "props": {
     "match": {
-      "type": "'badInput' | 'customError' | 'patternMismatch' | 'rangeOverflow' | 'rangeUnderflow' | 'stepMismatch' | 'tooLong' | 'tooShort' | 'typeMismatch' | 'valid' | 'valueMissing'",
+      "type": "\"valid\" | \"badInput\" | \"customError\" | \"patternMismatch\" | \"rangeOverflow\" | \"rangeUnderflow\" | \"stepMismatch\" | \"tooLong\" | \"tooShort\" | \"typeMismatch\" | \"valueMissing\"",
       "description": "Determines whether to show the error message according to the field’s\n[ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState)."
     },
     "forceShow": {
@@ -11,11 +11,11 @@
       "description": "Whether the error message should be shown regardless of the field’s validity."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: { disabled, touched, dirty, valid, filled, focused }) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "React.ReactElement | ((props: unknown, state: { disabled, touched, dirty, valid, filled, focused }) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

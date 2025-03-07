@@ -12,19 +12,19 @@
       "description": "Whether the tooltip is currently open."
     },
     "onOpenChange": {
-      "type": "(open, event, reason) => void",
+      "type": "function",
       "description": "Event handler called when the tooltip is opened or closed."
     },
     "actionsRef": {
-      "type": "{ current: { unmount: func } }",
+      "type": "React.RefObject",
       "description": "A ref to imperative actions."
     },
     "onOpenChangeComplete": {
-      "type": "(open) => void",
+      "type": "function",
       "description": "Event handler called after any animations complete when the tooltip is opened or closed."
     },
     "trackCursorAxis": {
-      "type": "'none' | 'x' | 'y' | 'both'",
+      "type": "\"none\" | \"both\" | \"x\" | \"y\"",
       "default": "'none'",
       "description": "Determines which axis the tooltip should track the cursor on."
     },
@@ -42,6 +42,10 @@
       "type": "boolean",
       "default": "true",
       "description": "Whether the tooltip contents can be hovered without closing the tooltip."
+    },
+    "children": {
+      "type": "ReactNode",
+      "required": true
     }
   },
   "dataAttributes": {},

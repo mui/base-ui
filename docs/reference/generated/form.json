@@ -3,19 +3,19 @@
   "description": "A native form element with consolidated error handling.\nRenders a `<form>` element.",
   "props": {
     "errors": {
-      "type": "Record<string, string | string[]>",
+      "type": "__type",
       "description": "An object where the keys correspond to the `name` attribute of the form fields,\nand the values correspond to the error(s) related to that field."
     },
     "onClearErrors": {
-      "type": "(errors) => void",
+      "type": "((errors: __type) => void)",
       "description": "Event handler called when the `errors` object is cleared."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: unknown) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "React.ReactElement | ((props: unknown, state: unknown) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

@@ -1,0 +1,12 @@
+{
+  "name": "InternalBackdrop",
+  "props": {
+    "inert": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the backdrop should be inert (not block pointer events)."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
