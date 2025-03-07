@@ -647,4 +647,71 @@ describe('Composite', () => {
       expect(item3).toHaveFocus();
     });
   });
+
+  describe('prop: modifierKeys', () => {
+    it('prevents arrow key navigation when any modifier key is pressed by default', async () => {
+      const { getByTestId } = render(
+        <CompositeRoot>
+          <CompositeItem data-testid="1">1</CompositeItem>
+          <CompositeItem data-testid="2">2</CompositeItem>
+        </CompositeRoot>,
+      );
+
+      const item1 = getByTestId('1');
+
+      act(() => item1.focus());
+
+      expect(item1).toHaveFocus();
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown', shiftKey: true });
+      await flushMicrotasks();
+      expect(item1).toHaveFocus();
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown', ctrlKey: true });
+      await flushMicrotasks();
+      expect(item1).toHaveFocus();
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown', altKey: true });
+      await flushMicrotasks();
+      expect(item1).toHaveFocus();
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown', metaKey: true });
+      await flushMicrotasks();
+      expect(item1).toHaveFocus();
+    });
+
+    it('specifies allowed modifier keys that do not prevent arrow key navigation when pressed', async () => {
+      const { getByTestId } = render(
+        <CompositeRoot modifierKeys={['Alt', 'Meta']}>
+          <CompositeItem data-testid="1">1</CompositeItem>
+          <CompositeItem data-testid="2">2</CompositeItem>
+          <CompositeItem data-testid="3">3</CompositeItem>
+        </CompositeRoot>,
+      );
+
+      const item1 = getByTestId('1');
+      const item2 = getByTestId('2');
+      const item3 = getByTestId('3');
+
+      act(() => item1.focus());
+
+      expect(item1).toHaveFocus();
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown', shiftKey: true });
+      await flushMicrotasks();
+      expect(item1).toHaveFocus();
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown', ctrlKey: true });
+      await flushMicrotasks();
+      expect(item1).toHaveFocus();
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown', altKey: true });
+      await flushMicrotasks();
+      expect(item2).toHaveFocus();
+
+      fireEvent.keyDown(item2, { key: 'ArrowDown', metaKey: true });
+      await flushMicrotasks();
+      expect(item3).toHaveFocus();
+    });
+  });
 });
