@@ -3,7 +3,6 @@
   "files.trimTrailingWhitespace": true,
 
   // Root workspace only
-  "typescript.surveys.enabled": false,
   "grammarly.selectors": [
     {
       "language": "markdown",
