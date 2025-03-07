@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -34,9 +34,12 @@ const DialogDescription = React.forwardRef(function DialogDescription(
 
   const getProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        id,
-      }),
+      mergeProps(
+        {
+          id,
+        },
+        externalProps,
+      ),
     [id],
   );
 

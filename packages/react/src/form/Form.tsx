@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../utils/types';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
-import { mergeReactProps } from '../utils/mergeReactProps';
+import { mergeProps } from '../merge-props';
 import { FormContext } from './FormContext';
 import { useEventCallback } from '../utils/useEventCallback';
 
@@ -36,29 +36,32 @@ const Form = React.forwardRef(function Form(
 
   const getFormProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'form'>(externalProps, {
-        noValidate: true,
-        onSubmit(event) {
-          let values = Array.from(formRef.current.fields.values());
+      mergeProps<'form'>(
+        {
+          noValidate: true,
+          onSubmit(event) {
+            let values = Array.from(formRef.current.fields.values());
 
-          // Async validation isn't supported to stop the submit event.
-          values.forEach((field) => {
-            field.validate();
-          });
+            // Async validation isn't supported to stop the submit event.
+            values.forEach((field) => {
+              field.validate();
+            });
 
-          values = Array.from(formRef.current.fields.values());
+            values = Array.from(formRef.current.fields.values());
 
-          const invalidFields = values.filter((field) => !field.validityData.state.valid);
+            const invalidFields = values.filter((field) => !field.validityData.state.valid);
 
-          if (invalidFields.length) {
-            event.preventDefault();
-            invalidFields[0]?.controlRef.current?.focus();
-          } else {
-            submittedRef.current = true;
-            onSubmit(event as any);
-          }
+            if (invalidFields.length) {
+              event.preventDefault();
+              invalidFields[0]?.controlRef.current?.focus();
+            } else {
+              submittedRef.current = true;
+              onSubmit(event as any);
+            }
+          },
         },
-      }),
+        externalProps,
+      ),
     [onSubmit],
   );
 

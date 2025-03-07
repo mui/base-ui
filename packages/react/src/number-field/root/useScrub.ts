@@ -8,9 +8,10 @@ import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewp
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { isWebKit } from '../../utils/detectBrowser';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import type { useNumberFieldRoot } from './useNumberFieldRoot';
 import { NumberFieldRootDataAttributes } from './NumberFieldRootDataAttributes';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
  * @ignore - internal hook.
@@ -30,7 +31,8 @@ export function useScrub(params: ScrubParams) {
   const visualScaleRef = React.useRef(1);
 
   const [isScrubbing, setIsScrubbing] = React.useState(false);
-  const [cursorTransform, setCursorTransform] = React.useState('');
+  const [isTouchInput, setIsTouchInput] = React.useState(false);
+  const [isPointerLockDenied, setIsPointerLockDenied] = React.useState(false);
 
   React.useEffect(() => {
     return () => {
@@ -46,44 +48,51 @@ export function useScrub(params: ScrubParams) {
     return subscribeToVisualViewportResize(scrubAreaCursorRef.current, visualScaleRef);
   }, [isScrubbing]);
 
-  const onScrub = React.useCallback(({ movementX, movementY }: PointerEvent) => {
-    const virtualCursor = scrubAreaCursorRef.current;
-    const scrubAreaEl = scrubAreaRef.current;
-    const scrubHandle = scrubHandleRef.current;
-
-    if (!virtualCursor || !scrubAreaEl || !scrubHandle) {
-      return;
+  const updateCursorTransform = useEventCallback((x: number, y: number) => {
+    if (scrubAreaCursorRef.current) {
+      scrubAreaCursorRef.current.style.transform = `translate3d(${x}px,${y}px,0) scale(${1 / visualScaleRef.current})`;
     }
+  });
 
-    const rect = getViewportRect(scrubHandle.teleportDistance, scrubAreaEl);
+  const onScrub = React.useCallback(
+    ({ movementX, movementY }: PointerEvent) => {
+      const virtualCursor = scrubAreaCursorRef.current;
+      const scrubAreaEl = scrubAreaRef.current;
+      const scrubHandle = scrubHandleRef.current;
 
-    const coords = virtualCursorCoords.current;
-    const newCoords = {
-      x: Math.round(coords.x + movementX),
-      y: Math.round(coords.y + movementY),
-    };
+      if (!virtualCursor || !scrubAreaEl || !scrubHandle) {
+        return;
+      }
 
-    const cursorWidth = virtualCursor.offsetWidth;
-    const cursorHeight = virtualCursor.offsetHeight;
+      const rect = getViewportRect(scrubHandle.teleportDistance, scrubAreaEl);
 
-    if (newCoords.x + cursorWidth / 2 < rect.x) {
-      newCoords.x = rect.width - cursorWidth / 2;
-    } else if (newCoords.x + cursorWidth / 2 > rect.width) {
-      newCoords.x = rect.x - cursorWidth / 2;
-    }
+      const coords = virtualCursorCoords.current;
+      const newCoords = {
+        x: Math.round(coords.x + movementX),
+        y: Math.round(coords.y + movementY),
+      };
 
-    if (newCoords.y + cursorHeight / 2 < rect.y) {
-      newCoords.y = rect.height - cursorHeight / 2;
-    } else if (newCoords.y + cursorHeight / 2 > rect.height) {
-      newCoords.y = rect.y - cursorHeight / 2;
-    }
+      const cursorWidth = virtualCursor.offsetWidth;
+      const cursorHeight = virtualCursor.offsetHeight;
 
-    virtualCursorCoords.current = newCoords;
+      if (newCoords.x + cursorWidth / 2 < rect.x) {
+        newCoords.x = rect.width - cursorWidth / 2;
+      } else if (newCoords.x + cursorWidth / 2 > rect.width) {
+        newCoords.x = rect.x - cursorWidth / 2;
+      }
 
-    setCursorTransform(
-      `translate3d(${newCoords.x}px,${newCoords.y}px,0) scale(${1 / visualScaleRef.current})`,
-    );
-  }, []);
+      if (newCoords.y + cursorHeight / 2 < rect.y) {
+        newCoords.y = rect.height - cursorHeight / 2;
+      } else if (newCoords.y + cursorHeight / 2 > rect.height) {
+        newCoords.y = rect.y - cursorHeight / 2;
+      }
+
+      virtualCursorCoords.current = newCoords;
+
+      updateCursorTransform(newCoords.x, newCoords.y);
+    },
+    [updateCursorTransform],
+  );
 
   const onScrubbingChange = React.useCallback(
     (scrubbingValue: boolean, { clientX, clientY }: PointerEvent) => {
@@ -103,70 +112,68 @@ export function useScrub(params: ScrubParams) {
 
       virtualCursorCoords.current = initialCoords;
 
-      setCursorTransform(
-        `translate3d(${initialCoords.x}px,${initialCoords.y}px,0) scale(${1 / visualScaleRef.current})`,
-      );
+      updateCursorTransform(initialCoords.x, initialCoords.y);
     },
-    [],
+    [updateCursorTransform],
   );
 
   const getScrubAreaProps: useNumberFieldRoot.ReturnValue['getScrubAreaProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'span'>(externalProps, {
-        role: 'presentation',
-        [NumberFieldRootDataAttributes.scrubbing as string]: isScrubbing || undefined,
-        style: {
-          touchAction: 'none',
-          WebkitUserSelect: 'none',
-          userSelect: 'none',
+      mergeProps<'span'>(
+        {
+          role: 'presentation',
+          [NumberFieldRootDataAttributes.scrubbing as string]: isScrubbing || undefined,
+          style: {
+            touchAction: 'none',
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
+          },
+          onPointerDown(event) {
+            const isMainButton = !event.button || event.button === 0;
+            if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
+              return;
+            }
+
+            const isTouch = event.pointerType === 'touch';
+            setIsTouchInput(isTouch);
+
+            if (event.pointerType === 'mouse') {
+              event.preventDefault();
+              inputRef.current?.focus();
+            }
+
+            isScrubbingRef.current = true;
+            onScrubbingChange(true, event.nativeEvent);
+
+            // WebKit causes significant layout shift with the native message, so we can't use it.
+            if (!isTouch && !isWebKit()) {
+              // There can be some frames where there's no cursor at all when requesting the pointer lock.
+              // This is a workaround to avoid flickering.
+              avoidFlickerTimeoutRef.current = window.setTimeout(async () => {
+                try {
+                  // Avoid non-deterministic errors in testing environments. This error sometimes
+                  // appears:
+                  // "The root document of this element is not valid for pointer lock."
+                  // We need to await it even though it doesn't appear to return a promise in the
+                  // types in order for the `catch` to work.
+                  await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
+                  setIsPointerLockDenied(false);
+                } catch (error) {
+                  setIsPointerLockDenied(true);
+                }
+              }, 20);
+            }
+          },
         },
-        onPointerDown(event) {
-          const isMainButton = !event.button || event.button === 0;
-          if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
-            return;
-          }
-
-          if (event.pointerType === 'mouse') {
-            event.preventDefault();
-            inputRef.current?.focus();
-          }
-
-          isScrubbingRef.current = true;
-          onScrubbingChange(true, event.nativeEvent);
-
-          // WebKit causes significant layout shift with the native message, so we can't use it.
-          if (!isWebKit()) {
-            // There can be some frames where there's no cursor at all when requesting the pointer lock.
-            // This is a workaround to avoid flickering.
-            avoidFlickerTimeoutRef.current = window.setTimeout(async () => {
-              try {
-                // Avoid non-deterministic errors in testing environments. This error sometimes
-                // appears:
-                // "The root document of this element is not valid for pointer lock."
-                // We need to await it even though it doesn't appear to return a promise in the
-                // types in order for the `catch` to work.
-                await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
-              } catch {
-                //
-              }
-            }, 20);
-          }
-        },
-      }),
+        externalProps,
+      ),
     [readOnly, disabled, onScrubbingChange, inputRef, isScrubbing],
   );
 
   const getScrubAreaCursorProps: useNumberFieldRoot.ReturnValue['getScrubAreaCursorProps'] =
     React.useCallback(
-      (externalProps = {}) =>
-        mergeReactProps<'span'>(
-          {
-            ...externalProps,
-            style: {
-              ...externalProps.style,
-              transform: `${cursorTransform} ${externalProps.style?.transform || ''}`.trim(),
-            },
-          },
+      (externalProps) =>
+        mergeProps<'span'>(
           {
             role: 'presentation',
             style: {
@@ -176,8 +183,9 @@ export function useScrub(params: ScrubParams) {
               pointerEvents: 'none',
             },
           },
+          externalProps,
         ),
-      [cursorTransform],
+      [],
     );
 
   React.useEffect(
@@ -275,12 +283,14 @@ export function useScrub(params: ScrubParams) {
   return React.useMemo(
     () => ({
       isScrubbing,
+      isTouchInput,
+      isPointerLockDenied,
       getScrubAreaProps,
       getScrubAreaCursorProps,
       scrubAreaCursorRef,
       scrubAreaRef,
       scrubHandleRef,
     }),
-    [isScrubbing, getScrubAreaProps, getScrubAreaCursorProps],
+    [isScrubbing, isTouchInput, isPointerLockDenied, getScrubAreaProps, getScrubAreaCursorProps],
   );
 }
