@@ -23,9 +23,12 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
 
   const getGroupProps = React.useCallback(
     (externalProps = {}) =>
-      mergeProps(externalProps, {
-        role: 'group',
-      }),
+      mergeProps(
+        {
+          role: 'group',
+        },
+        externalProps,
+      ),
     [],
   );
 
