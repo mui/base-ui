@@ -18,6 +18,7 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
+import { roundValueToStep } from '../utils/roundValueToStep';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
 export interface ThumbMetadata {
@@ -159,13 +160,20 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
           onKeyDown(event: React.KeyboardEvent) {
             let newValue = null;
             const isRange = sliderValues.length > 1;
+            const roundedValue = roundValueToStep(thumbValue, step, min);
             switch (event.key) {
               case ARROW_UP:
-                newValue = getNewValue(thumbValue, event.shiftKey ? largeStep : step, 1, min, max);
+                newValue = getNewValue(
+                  roundedValue,
+                  event.shiftKey ? largeStep : step,
+                  1,
+                  min,
+                  max,
+                );
                 break;
               case ARROW_RIGHT:
                 newValue = getNewValue(
-                  thumbValue,
+                  roundedValue,
                   event.shiftKey ? largeStep : step,
                   isRtl ? -1 : 1,
                   min,
@@ -173,11 +181,17 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
                 );
                 break;
               case ARROW_DOWN:
-                newValue = getNewValue(thumbValue, event.shiftKey ? largeStep : step, -1, min, max);
+                newValue = getNewValue(
+                  roundedValue,
+                  event.shiftKey ? largeStep : step,
+                  -1,
+                  min,
+                  max,
+                );
                 break;
               case ARROW_LEFT:
                 newValue = getNewValue(
-                  thumbValue,
+                  roundedValue,
                   event.shiftKey ? largeStep : step,
                   isRtl ? 1 : -1,
                   min,
@@ -185,10 +199,10 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
                 );
                 break;
               case 'PageUp':
-                newValue = getNewValue(thumbValue, largeStep, 1, min, max);
+                newValue = getNewValue(roundedValue, largeStep, 1, min, max);
                 break;
               case 'PageDown':
-                newValue = getNewValue(thumbValue, largeStep, -1, min, max);
+                newValue = getNewValue(roundedValue, largeStep, -1, min, max);
                 break;
               case END:
                 newValue = max;

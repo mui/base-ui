@@ -59,7 +59,7 @@ function findClosest(values: readonly number[], currentValue: number) {
 function valueArrayToPercentages(values: number[], min: number, max: number) {
   const output = [];
   for (let i = 0; i < values.length; i += 1) {
-    output.push(valueToPercent(values[i], min, max));
+    output.push(clamp(valueToPercent(values[i], min, max), 0, 100));
   }
   return output;
 }
@@ -381,7 +381,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     }
 
     if (typeof valueUnwrapped === 'number') {
-      const newPercentageValue = valueToPercent(valueUnwrapped, min, max);
+      const newPercentageValue = clamp(valueToPercent(valueUnwrapped, min, max), 0, 100);
       if (newPercentageValue !== percentageValues[0] && !Number.isNaN(newPercentageValue)) {
         setPercentageValues([newPercentageValue]);
       }
@@ -445,7 +445,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       registerSliderControl,
       setActive,
       setDragging,
-      setPercentageValues,
       setThumbMap,
       setValue,
       step,
@@ -475,7 +474,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       registerSliderControl,
       setActive,
       setDragging,
-      setPercentageValues,
       setThumbMap,
       setValue,
       step,
@@ -640,7 +638,6 @@ export namespace useSliderRoot {
     registerSliderControl: (element: HTMLElement | null) => void;
     setActive: React.Dispatch<React.SetStateAction<number>>;
     setDragging: React.Dispatch<React.SetStateAction<boolean>>;
-    setPercentageValues: React.Dispatch<React.SetStateAction<readonly number[]>>;
     setThumbMap: React.Dispatch<
       React.SetStateAction<Map<Node, CompositeMetadata<ThumbMetadata> | null>>
     >;
