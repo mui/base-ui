@@ -12,7 +12,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
-const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
+export const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
   props: NumberFieldGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -32,7 +32,7 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
   return renderElement();
 });
 
-namespace NumberFieldGroup {
+export namespace NumberFieldGroup {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
@@ -59,5 +59,3 @@ NumberFieldGroup.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { NumberFieldGroup };

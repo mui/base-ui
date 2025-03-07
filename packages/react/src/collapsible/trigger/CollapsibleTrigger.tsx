@@ -14,7 +14,7 @@ import { useCollapsibleTrigger } from './useCollapsibleTrigger';
  *
  * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
  */
-const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
+export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   props: CollapsibleTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -42,9 +42,7 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   return renderElement();
 });
 
-export { CollapsibleTrigger };
-
-namespace CollapsibleTrigger {
+export namespace CollapsibleTrigger {
   export interface Props extends BaseUIComponentProps<'button', CollapsibleRoot.State> {}
 }
 

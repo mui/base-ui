@@ -15,7 +15,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
-const FieldError = React.forwardRef(function FieldError(
+export const FieldError = React.forwardRef(function FieldError(
   props: FieldError.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -55,7 +55,7 @@ const FieldError = React.forwardRef(function FieldError(
   return renderElement();
 });
 
-namespace FieldError {
+export namespace FieldError {
   export type State = FieldRoot.State;
 
   export interface Props extends BaseUIComponentProps<'div', State> {
@@ -118,5 +118,3 @@ FieldError.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { FieldError };

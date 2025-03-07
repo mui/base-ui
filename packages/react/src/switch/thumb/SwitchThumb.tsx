@@ -14,7 +14,7 @@ import { styleHookMapping } from '../styleHooks';
  *
  * Documentation: [Base UI Switch](https://base-ui.com/react/components/switch)
  */
-const SwitchThumb = React.forwardRef(function SwitchThumb(
+export const SwitchThumb = React.forwardRef(function SwitchThumb(
   props: SwitchThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -37,7 +37,7 @@ const SwitchThumb = React.forwardRef(function SwitchThumb(
   return renderElement();
 });
 
-namespace SwitchThumb {
+export namespace SwitchThumb {
   export interface Props extends BaseUIComponentProps<'span', State> {}
 
   export interface State extends SwitchRoot.State {}
@@ -65,5 +65,3 @@ SwitchThumb.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { SwitchThumb };

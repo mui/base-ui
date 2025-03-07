@@ -16,7 +16,7 @@ const state = {};
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
+export const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
   props: AlertDialogDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
@@ -55,7 +55,7 @@ const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
   return renderElement();
 });
 
-namespace AlertDialogDescription {
+export namespace AlertDialogDescription {
   export interface Props extends BaseUIComponentProps<'p', State> {}
 
   export interface State {}
@@ -87,5 +87,3 @@ AlertDialogDescription.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { AlertDialogDescription };

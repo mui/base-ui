@@ -14,7 +14,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-const TabsPanel = React.forwardRef(function TabPanel(
+export const TabsPanel = React.forwardRef(function TabPanel(
   props: TabsPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -55,7 +55,7 @@ const TabsPanel = React.forwardRef(function TabPanel(
   return renderElement();
 });
 
-namespace TabsPanel {
+export namespace TabsPanel {
   export interface State extends TabsRoot.State {
     hidden: boolean;
   }
@@ -74,8 +74,6 @@ namespace TabsPanel {
     keepMounted?: boolean;
   }
 }
-
-export { TabsPanel };
 
 TabsPanel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

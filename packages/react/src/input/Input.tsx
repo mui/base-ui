@@ -10,7 +10,7 @@ import { Field } from '../field';
  *
  * Documentation: [Base UI Input](https://base-ui.com/react/components/input)
  */
-const Input = React.forwardRef(function Input(
+export const Input = React.forwardRef(function Input(
   props: Input.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
@@ -18,7 +18,7 @@ const Input = React.forwardRef(function Input(
   return <Field.Control ref={forwardedRef} render={render} className={className} {...otherProps} />;
 });
 
-namespace Input {
+export namespace Input {
   export interface Props extends BaseUIComponentProps<'input', State> {}
 
   export interface State {}
@@ -46,5 +46,3 @@ Input.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { Input };

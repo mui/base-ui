@@ -166,7 +166,7 @@ const MemoizedInnerMenuCheckboxItem = React.memo(InnerMenuCheckboxItem);
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
+export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   props: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -210,7 +210,7 @@ interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   closeOnClick: boolean;
 }
 
-namespace MenuCheckboxItem {
+export namespace MenuCheckboxItem {
   export type State = {
     /**
      * Whether the component should ignore user interaction.
@@ -328,5 +328,3 @@ MenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { MenuCheckboxItem };

@@ -15,7 +15,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuArrow = React.forwardRef(function MenuArrow(
+export const MenuArrow = React.forwardRef(function MenuArrow(
   props: MenuArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -52,7 +52,7 @@ const MenuArrow = React.forwardRef(function MenuArrow(
   return renderElement();
 });
 
-namespace MenuArrow {
+export namespace MenuArrow {
   export interface State {
     /**
      * Whether the menu is currently open.
@@ -88,5 +88,3 @@ MenuArrow.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { MenuArrow };

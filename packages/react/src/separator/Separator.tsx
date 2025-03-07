@@ -11,7 +11,7 @@ import { useComponentRenderer } from '../utils/useComponentRenderer';
  *
  * Documentation: [Base UI Separator](https://base-ui.com/react/components/separator)
  */
-const Separator = React.forwardRef(function SeparatorComponent(
+export const Separator = React.forwardRef(function SeparatorComponent(
   props: Separator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -44,7 +44,7 @@ const Separator = React.forwardRef(function SeparatorComponent(
 
 type Orientation = 'horizontal' | 'vertical';
 
-namespace Separator {
+export namespace Separator {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The orientation of the separator.
@@ -60,8 +60,6 @@ namespace Separator {
     orientation: Orientation;
   }
 }
-
-export { Separator };
 
 Separator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
