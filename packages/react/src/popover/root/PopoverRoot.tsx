@@ -21,6 +21,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     closeDelay = 0,
     actionsRef,
     onOpenChangeComplete,
+    modal = false,
   } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -35,6 +36,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     delay: delayWithDefault,
     closeDelay,
     actionsRef,
+    modal,
   });
 
   const contextValue: PopoverRootContext = React.useMemo(
@@ -43,8 +45,9 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
       openOnHover,
       delay: delayWithDefault,
       closeDelay,
+      modal,
     }),
-    [popoverRoot, openOnHover, delayWithDefault, closeDelay],
+    [popoverRoot, openOnHover, delayWithDefault, closeDelay, modal],
   );
 
   return (
@@ -101,6 +104,11 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    * @default 300
    */
   delay: PropTypes.number,
+  /**
+   * Whether the popover should prevent outside clicks and lock page scroll when open.
+   * @default false
+   */
+  modal: PropTypes.bool,
   /**
    * Event handler called when the popover is opened or closed.
    */

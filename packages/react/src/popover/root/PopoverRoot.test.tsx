@@ -448,6 +448,64 @@ describe('<Popover.Root />', () => {
     });
   });
 
+  describe('prop: modal', () => {
+    it('should render an internal backdrop when `true`', async () => {
+      const { user } = await render(
+        <div>
+          <Popover.Root modal>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner data-testid="positioner">
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button>Outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      const positioner = screen.getByTestId('positioner');
+
+      expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
+    });
+
+    it('should not render an internal backdrop when `false`', async () => {
+      const { user } = await render(
+        <div>
+          <Popover.Root modal={false}>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner data-testid="positioner">
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button>Outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      const positioner = screen.getByTestId('positioner');
+
+      expect(positioner.previousElementSibling).to.equal(null);
+    });
+  });
+
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       const onOpenChangeComplete = spy();
