@@ -12,16 +12,18 @@
       "description": "Whether to keep the HTML element in the DOM while the select menu is not scrollable."
     },
     "render": {
-      "type": "React.ReactElement | ((props: unknown, state: unknown) => React.ReactElement)",
+      "type": "React.ReactElement | ((props: GenericHTMLProps, state: unknown) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
   "dataAttributes": {
     "data-direction": {
-      "description": "Indicates the direction of the arrow."
+      "description": "Indicates the direction of the arrow.",
+      "type": "'up'"
     },
     "data-side": {
-      "description": "Indicates which side the arrow is positioned relative to the select."
+      "description": "Indicates which side the arrow is positioned relative to the select.",
+      "type": "'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
     },
     "data-visible": {
       "description": "Present when the arrow is visible."

@@ -8,40 +8,48 @@
       "description": "Whether to render itself before React hydrates.\nThis minimizes the time that the indicator isn’t visible after server-side rendering."
     },
     "className": {
-      "type": "string | ((state: { selectedTabPosition, selectedTabSize, orientation, tabActivationDirection }) => string)",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | ((props: unknown, state: { selectedTabPosition, selectedTabSize, orientation, tabActivationDirection }) => React.ReactElement)",
+      "type": "React.ReactElement | ((props: GenericHTMLProps, state: State) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
   "dataAttributes": {
     "data-orientation": {
-      "description": "Indicates the orientation of the tabs."
+      "description": "Indicates the orientation of the tabs.",
+      "type": "'horizontal' | 'vertical'"
     },
     "data-activation-direction": {
-      "description": "Indicates the direction of the activation (based on the previous selected tab)."
+      "description": "Indicates the direction of the activation (based on the previous selected tab).",
+      "type": "'left' | 'right' | 'up' | 'down' | 'none'"
     }
   },
   "cssVariables": {
     "--active-tab-bottom": {
-      "description": "Indicates the distance on the bottom side from the parent's container if the tab is active."
+      "description": "Indicates the distance on the bottom side from the parent's container if the tab is active.",
+      "type": "number"
     },
     "--active-tab-height": {
-      "description": "Indicates the width of the tab if it is active."
+      "description": "Indicates the width of the tab if it is active.",
+      "type": "number"
     },
     "--active-tab-left": {
-      "description": "Indicates the distance on the left side from the parent's container if the tab is active."
+      "description": "Indicates the distance on the left side from the parent's container if the tab is active.",
+      "type": "number"
     },
     "--active-tab-right": {
-      "description": "Indicates the distance on the right side from the parent's container if the tab is active."
+      "description": "Indicates the distance on the right side from the parent's container if the tab is active.",
+      "type": "number"
     },
     "--active-tab-top": {
-      "description": "Indicates the distance on the top side from the parent's container if the tab is active."
+      "description": "Indicates the distance on the top side from the parent's container if the tab is active.",
+      "type": "number"
     },
     "--active-tab-width": {
-      "description": "Indicates the width of the tab if it is active."
+      "description": "Indicates the width of the tab if it is active.",
+      "type": "number"
     }
   }
 }

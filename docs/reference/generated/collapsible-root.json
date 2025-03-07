@@ -23,11 +23,11 @@
       "description": "Whether the component should ignore user interaction."
     },
     "className": {
-      "type": "string | ((state: { open, transitionStatus, disabled }) => string)",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "null | React.ReactElement | ((props: unknown, state: { open, transitionStatus, disabled }) => React.ReactElement)"
+      "type": "null | React.ReactElement | ((props: GenericHTMLProps, state: State) => React.ReactElement)"
     }
   },
   "dataAttributes": {},

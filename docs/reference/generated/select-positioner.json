@@ -61,11 +61,11 @@
       "description": "Whether the popup tracks any layout shift of its positioning anchor."
     },
     "className": {
-      "type": "string | ((state: { open, side, align, anchorHidden }) => string)",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | ((props: unknown, state: { open, side, align, anchorHidden }) => React.ReactElement)",
+      "type": "React.ReactElement | ((props: GenericHTMLProps, state: State) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
@@ -80,24 +80,30 @@
       "description": "Present when the anchor is hidden."
     },
     "data-side": {
-      "description": "Indicates which side the select is positioned relative to the trigger."
+      "description": "Indicates which side the select is positioned relative to the trigger.",
+      "type": "'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
     }
   },
   "cssVariables": {
     "--anchor-height": {
-      "description": "The anchor's height."
+      "description": "The anchor's height.",
+      "type": "number"
     },
     "--anchor-width": {
-      "description": "The anchor's width."
+      "description": "The anchor's width.",
+      "type": "number"
     },
     "--available-height": {
-      "description": "The available height between the trigger and the edge of the viewport."
+      "description": "The available height between the trigger and the edge of the viewport.",
+      "type": "number"
     },
     "--available-width": {
-      "description": "The available width between the trigger and the edge of the viewport."
+      "description": "The available width between the trigger and the edge of the viewport.",
+      "type": "number"
     },
     "--transform-origin": {
-      "description": "The coordinates that this element is anchored to. Used for animations and transitions."
+      "description": "The coordinates that this element is anchored to. Used for animations and transitions.",
+      "type": "string"
     }
   }
 }

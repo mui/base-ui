@@ -11,11 +11,11 @@
       "description": "Determines the element to focus when the dialog is closed.\nBy default, focus returns to the trigger."
     },
     "className": {
-      "type": "string | ((state: { open, transitionStatus, nested, hasNestedDialogs }) => string)",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | ((props: unknown, state: { open, transitionStatus, nested, hasNestedDialogs }) => React.ReactElement)",
+      "type": "React.ReactElement | ((props: GenericHTMLProps, state: State) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
@@ -41,7 +41,8 @@
   },
   "cssVariables": {
     "--nested-dialogs": {
-      "description": "Indicates how many dialogs are nested within."
+      "description": "Indicates how many dialogs are nested within.",
+      "type": "number"
     }
   }
 }

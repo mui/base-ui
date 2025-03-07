@@ -3,11 +3,11 @@
   "description": "Displays an element positioned against the preview card anchor.\nRenders a `<div>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: { open, side, align, uncentered }) => string)",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | ((props: unknown, state: { open, side, align, uncentered }) => React.ReactElement)",
+      "type": "React.ReactElement | ((props: GenericHTMLProps, state: State) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
@@ -25,7 +25,8 @@
       "description": "Present when the anchor is hidden."
     },
     "data-side": {
-      "description": "Indicates which side the preview card is positioned relative to the trigger."
+      "description": "Indicates which side the preview card is positioned relative to the trigger.",
+      "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
     }
   },
   "cssVariables": {}

@@ -7,17 +7,19 @@
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | ((props: unknown, state: unknown) => React.ReactElement)",
+      "type": "React.ReactElement | ((props: GenericHTMLProps, state: unknown) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
   "dataAttributes": {},
   "cssVariables": {
     "--scroll-area-corner-height": {
-      "description": "The scroll area's corner height."
+      "description": "The scroll area's corner height.",
+      "type": "number"
     },
     "--scroll-area-corner-width": {
-      "description": "The scroll area's corner width."
+      "description": "The scroll area's corner width.",
+      "type": "number"
     }
   }
 }

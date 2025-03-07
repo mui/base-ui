@@ -3,11 +3,11 @@
   "description": "Contains the slider indicator and represents the entire range of the slider.\nRenders a `<div>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: { activeThumbIndex, disabled, dragging, max, min, minStepsBetweenValues, orientation, step, values, touched, dirty, valid, filled, focused }) => string)",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | ((props: unknown, state: { activeThumbIndex, disabled, dragging, max, min, minStepsBetweenValues, orientation, step, values, touched, dirty, valid, filled, focused }) => React.ReactElement)",
+      "type": "React.ReactElement | ((props: GenericHTMLProps, state: State) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
@@ -16,7 +16,8 @@
       "description": "Present while the user is dragging."
     },
     "data-orientation": {
-      "description": "Indicates the orientation of the slider."
+      "description": "Indicates the orientation of the slider.",
+      "type": "'horizontal' | 'vertical'"
     },
     "data-disabled": {
       "description": "Present when the slider is disabled."

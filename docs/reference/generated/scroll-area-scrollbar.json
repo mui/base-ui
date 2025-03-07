@@ -8,7 +8,7 @@
       "description": "Whether the scrollbar controls vertical or horizontal scroll."
     },
     "className": {
-      "type": "string | ((state: { hovering, scrolling, orientation }) => string)",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
@@ -17,13 +17,14 @@
       "description": "Whether to keep the HTML element in the DOM when the viewport isn’t scrollable."
     },
     "render": {
-      "type": "React.ReactElement | ((props: unknown, state: { hovering, scrolling, orientation }) => React.ReactElement)",
+      "type": "React.ReactElement | ((props: GenericHTMLProps, state: State) => React.ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
   "dataAttributes": {
     "data-orientation": {
-      "description": "Indicates the orientation of the scrollbar."
+      "description": "Indicates the orientation of the scrollbar.",
+      "type": "'horizontal' | 'vertical'"
     },
     "data-hovering": {
       "description": "Present when the pointer is over the scroll area."
@@ -34,10 +35,12 @@
   },
   "cssVariables": {
     "--scroll-area-thumb-height": {
-      "description": "The scroll area thumb's height."
+      "description": "The scroll area thumb's height.",
+      "type": "number"
     },
     "--scroll-area-thumb-width": {
-      "description": "The scroll area thumb's width."
+      "description": "The scroll area thumb's width.",
+      "type": "number"
     }
   }
 }

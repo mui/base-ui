@@ -107,14 +107,14 @@ function formatEnum(enumNode: rae.EnumNode) {
   for (const member of _.sortBy(enumNode.members, 'value')) {
     result[member.value] = {
       description: member.documentation?.description,
-      // TODO: Add type
+      type: member.documentation?.tags?.find((tag) => tag.tag === 'type')?.value,
     };
   }
 
   return result;
 }
 
-function formatType(type: rae.TypeNode, removeUndefined: boolean) {
+function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
   if (rae.isReferenceNode(type)) {
     return type.typeName;
   }
@@ -135,13 +135,17 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean) {
   }
 
   if (rae.isInterfaceNode(type)) {
+    if (type.name) {
+      return type.name;
+    }
+
     return `{ ${orderMembers(type.members)
       .map((m) => `${m.name}`)
       .join(', ')} }`;
   }
 
   if (rae.isLiteralNode(type)) {
-    return type.value;
+    return type.value as string;
   }
 
   if (rae.isFunctionTypeNode(type)) {
