@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 describe('<Popover.Trigger />', () => {
@@ -215,6 +215,38 @@ describe('<Popover.Trigger />', () => {
       fireEvent.mouseLeave(trigger);
 
       expect(trigger).not.to.have.attribute('data-popup-open');
+    });
+
+    it('should keep the popover open when re-hovered and clicked within the patient threshold', async () => {
+      await render(
+        <Popover.Root openOnHover delay={100}>
+          <Popover.Trigger>Open</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.getByText('Content')).not.to.equal(null);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD);
+
+      fireEvent.mouseLeave(trigger);
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      fireEvent.click(trigger);
+      expect(screen.getByText('Content')).not.to.equal(null);
     });
   });
 });

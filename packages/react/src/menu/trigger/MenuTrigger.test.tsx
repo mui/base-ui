@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
@@ -243,6 +243,38 @@ describe('<Menu.Trigger />', () => {
       fireEvent.mouseLeave(trigger);
 
       expect(trigger).not.to.have.attribute('data-popup-open');
+    });
+
+    it('should keep the menu open when re-hovered and clicked within the patient threshold', async () => {
+      await render(
+        <Menu.Root openOnHover delay={100}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>Content</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.getByText('Content')).not.to.equal(null);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD);
+
+      fireEvent.mouseLeave(trigger);
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      fireEvent.click(trigger);
+      expect(screen.getByText('Content')).not.to.equal(null);
     });
   });
 
