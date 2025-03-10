@@ -65,7 +65,7 @@ describe('useRender', () => {
     );
     expect(refs.length).to.equal(2);
 
-    refs.map((ref) => {
+    refs.forEach((ref) => {
       expect(ref).to.deep.equal({ current: container.firstElementChild });
     });
   });
