@@ -74,7 +74,7 @@
       "description": "The id of the Select."
     },
     "children": {
-      "type": "ReactNode",
+      "type": "React.ReactNode",
       "required": true
     }
   },

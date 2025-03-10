@@ -3,7 +3,7 @@
   "description": "Groups related menu items with the corresponding label.\nRenders a `<div>` element.",
   "props": {
     "children": {
-      "type": "ReactNode",
+      "type": "React.ReactNode",
       "required": true
     },
     "className": {

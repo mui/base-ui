@@ -3,15 +3,15 @@
   "description": "Groups all parts of the accordion.\nRenders a `<div>` element.",
   "props": {
     "defaultValue": {
-      "type": "Array",
+      "type": "\"D:/Development/MUI/base-ui/packages/react/src/accordion/root/useAccordionRoot\".AccordionValue",
       "description": "The uncontrolled value of the item(s) that should be initially expanded.\n\nTo render a controlled accordion, use the `value` prop instead."
     },
     "value": {
-      "type": "Array",
+      "type": "\"D:/Development/MUI/base-ui/packages/react/src/accordion/root/useAccordionRoot\".AccordionValue",
       "description": "The controlled value of the item(s) that should be expanded.\n\nTo render an uncontrolled accordion, use the `defaultValue` prop instead."
     },
     "onValueChange": {
-      "type": "((value: Array) => void)",
+      "type": "((value: \"D:/Development/MUI/base-ui/packages/react/src/accordion/root/useAccordionRoot\".AccordionValue) => void)",
       "description": "Event handler called when an accordion item is expanded or collapsed.\nProvides the new value as an argument."
     },
     "hiddenUntilFound": {

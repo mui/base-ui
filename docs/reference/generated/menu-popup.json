@@ -6,7 +6,7 @@
       "type": "string"
     },
     "children": {
-      "type": "ReactNode",
+      "type": "React.ReactNode",
       "required": true
     },
     "className": {

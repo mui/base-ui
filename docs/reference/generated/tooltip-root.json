@@ -44,7 +44,7 @@
       "description": "Whether the tooltip contents can be hovered without closing the tooltip."
     },
     "children": {
-      "type": "ReactNode",
+      "type": "React.ReactNode",
       "required": true
     }
   },

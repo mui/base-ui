@@ -19,7 +19,7 @@
       "description": "Callback fired when the number value changes."
     },
     "locale": {
-      "type": "LocalesArgument",
+      "type": "Intl.LocalesArgument",
       "required": true
     },
     "step": {

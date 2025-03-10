@@ -58,7 +58,7 @@
       "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys."
     },
     "children": {
-      "type": "ReactNode",
+      "type": "React.ReactNode",
       "required": true
     }
   },

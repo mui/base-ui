@@ -12,7 +12,7 @@
       "description": "Value of the radio item.\nThis is the value that will be set in the MenuRadioGroup when the item is selected."
     },
     "onClick": {
-      "type": "__type.bivarianceHack",
+      "type": "React.MouseEventHandler",
       "description": "The click handler for the menu item."
     },
     "closeOnClick": {
@@ -29,7 +29,7 @@
       "type": "string"
     },
     "children": {
-      "type": "ReactNode",
+      "type": "React.ReactNode",
       "required": true
     },
     "className": {

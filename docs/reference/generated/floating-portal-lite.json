@@ -6,7 +6,7 @@
       "type": "null | HTMLElement | React.RefObject"
     },
     "children": {
-      "type": "ReactNode",
+      "type": "React.ReactNode",
       "required": true
     }
   },

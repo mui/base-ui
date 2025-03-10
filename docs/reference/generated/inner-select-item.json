@@ -42,7 +42,7 @@
       "required": true
     },
     "setActiveIndex": {
-      "type": "Dispatch",
+      "type": "React.Dispatch",
       "required": true
     },
     "setOpen": {
@@ -63,7 +63,7 @@
       "description": "Whether the component should ignore user interaction."
     },
     "children": {
-      "type": "ReactNode",
+      "type": "React.ReactNode",
       "required": true
     },
     "className": {

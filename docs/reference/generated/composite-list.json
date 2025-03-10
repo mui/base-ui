@@ -15,7 +15,7 @@
       "type": "function"
     },
     "children": {
-      "type": "ReactNode",
+      "type": "React.ReactNode",
       "required": true
     }
   },

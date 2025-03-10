@@ -7,7 +7,7 @@
       "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
     },
     "onClick": {
-      "type": "__type.bivarianceHack",
+      "type": "React.MouseEventHandler",
       "description": "The click handler for the menu item."
     },
     "closeOnClick": {
@@ -24,7 +24,7 @@
       "type": "string"
     },
     "children": {
-      "type": "ReactNode",
+      "type": "React.ReactNode",
       "required": true
     },
     "className": {

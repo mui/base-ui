@@ -35,19 +35,19 @@
       "type": "string"
     },
     "onBlur": {
-      "type": "__type.bivarianceHack"
+      "type": "React.FocusEventHandler"
     },
     "onFocus": {
-      "type": "__type.bivarianceHack"
+      "type": "React.FocusEventHandler"
     },
     "onKeyDown": {
-      "type": "__type.bivarianceHack"
+      "type": "React.KeyboardEventHandler"
     },
     "onPointerLeave": {
-      "type": "__type.bivarianceHack"
+      "type": "React.PointerEventHandler"
     },
     "onPointerOver": {
-      "type": "__type.bivarianceHack"
+      "type": "React.PointerEventHandler"
     },
     "percentageValues": {
       "type": "ReadonlyArray",
