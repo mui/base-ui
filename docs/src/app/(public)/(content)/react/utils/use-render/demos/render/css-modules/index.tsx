@@ -4,8 +4,7 @@ import { useRender } from '@base-ui-components/react/use-render';
 import { mergeProps } from '@base-ui-components/react/merge-props';
 import styles from './index.module.css';
 
-// Make sure to extend the `useRender.RenderProp` interface,
-// as it contains the 'render' prop type.
+// ElementProps contains the 'render' prop type
 interface TextProps extends useRender.ElementProps {
   children: React.ReactNode;
 }

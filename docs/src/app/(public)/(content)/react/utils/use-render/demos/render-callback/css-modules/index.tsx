@@ -20,7 +20,7 @@ function Counter(props: CounterProps) {
   const odd = count % 2 === 1;
   const state = React.useMemo(() => ({ odd }), [odd]);
 
-  // The mergeProps.Props<'button'> type is an alias of React.ComponentPropsWithoutRef<T>
+  // The Props type is an alias of React.ComponentPropsWithoutRef
   const defaultProps: mergeProps.Props<'button'> = {
     className: styles.Button,
     type: 'button',
