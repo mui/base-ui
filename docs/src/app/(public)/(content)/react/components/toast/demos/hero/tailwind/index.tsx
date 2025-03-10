@@ -10,6 +10,7 @@ export default function ExampleToast() {
         // prettier-ignore
         className="
           fixed mx-auto flex w-full max-w-[320px]
+
           data-[position=top]:top-4 data-[position=top]:right-0 data-[position=top]:left-0
           data-[position=bottom]:bottom-4 data-[position=bottom]:right-0 data-[position=bottom]:left-0
           data-[position=top-left]:top-4 data-[position=top-left]:left-4 data-[position=top-left]:items-start
@@ -65,53 +66,57 @@ function ToastList() {
         w-[300px]
         shadow-lg
         rounded-lg
-        z-[calc(2147483647-var(--toast-index))]
-        transition-transform transition-opacity duration-500
-        ease-[cubic-bezier(0.22,1,0.36,1)]
         select-none
         border border-gray-200
-
-        data-[position^=bottom]:bottom-0
-        data-[ending-style]:duration-200 data-[ending-style]:ease-in
+        z-[calc(1000-var(--toast-index))]
+        transition-all [transition-property:opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
+        data-[ending-style]:duration-200 data-[ending-style]:ease-in data-[ending-style]:opacity-0
 
         after:content-[''] after:absolute after:left-0 after:w-full after:h-[calc(var(--gap)+1px)]
         data-[position^=top]:after:top-full
         data-[position^=bottom]:after:bottom-full
 
-        data-[position^=top]:origin-top-center
-        data-[position^=bottom]:origin-bottom-center
+        data-[position^=bottom]:bottom-0
+
         data-[position$=left]:right-auto data-[position$=left]:ml-0
         data-[position$=right]:left-auto data-[position$=right]:mr-0
        
-        data-[position^=top]:data-[expanded]:[transform:translateY(calc(var(--toast-offset)+calc(var(--toast-index)*var(--gap))))]
-        data-[position^=bottom]:data-[expanded]:[transform:translateY(calc(var(--toast-offset)*-1+calc(var(--toast-index)*var(--gap)*-1)))]
+        data-[position^=top]:data-[expanded]:[transform:translate(var(--toast-swipe-move-x),calc(var(--toast-offset)+calc(var(--toast-index)*var(--gap))+var(--toast-swipe-move-y)))]
+        data-[position^=bottom]:data-[expanded]:[transform:translate(var(--toast-swipe-move-x),calc(var(--toast-offset)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-move-y)))]
 
-        data-[position^=top]:[transform:translateY(calc(var(--toast-index)*20%))_scale(calc(1-(var(--toast-index)*0.1)))]
-        data-[position^=bottom]:[transform:translateY(calc(var(--toast-index)*-20%))_scale(calc(1-(var(--toast-index)*0.1)))]
+        data-[position^=top]:[transform:translate(var(--toast-swipe-move-x),calc(var(--toast-swipe-move-y)+calc(var(--toast-index)*20%)))_scale(calc(1-(var(--toast-index)*0.1)))]
+        data-[position^=bottom]:[transform:translate(var(--toast-swipe-move-x),calc(var(--toast-swipe-move-y)+calc(var(--toast-index)*-20%)))_scale(calc(1-(var(--toast-index)*0.1)))]
 
         data-[position^=top]:data-[starting-style]:[transform:translateY(-150%)]
-        data-[position^=bottom]:data-[starting-style]:[transform:translateY(150%)]
-
         data-[position^=top]:data-[ending-style]:[transform:translateY(-150%)]
         data-[position^=top]:data-[expanded]:data-[ending-style]:[transform:translateY(-150%)]
-        
+
+        data-[position^=bottom]:data-[starting-style]:[transform:translateY(150%)]
         data-[position^=bottom]:data-[ending-style]:[transform:translateY(150%)]
         data-[position^=bottom]:data-[expanded]:data-[ending-style]:[transform:translateY(150%)]
+
+        data-[position^=top]:data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-move-y)-100%))]
+        data-[position^=top]:data-[ending-style]:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-move-x)-100%))]
+        data-[position^=top]:data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-move-x)+100%))]
+        data-[position^=top]:data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-move-y)+100%))]
+        
+        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-move-y)-100%))]
+        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-move-x)-100%))]
+        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-move-x)+100%))]
+        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-move-y)+100%))]
       "
       style={{ '--gap': '10px' } as React.CSSProperties}
     >
-      <Toast.Content>
-        {toast.title && (
-          <Toast.Title className="text-[0.975rem] leading-5 font-semibold">
-            {toast.title}
-          </Toast.Title>
-        )}
-        {toast.description && (
-          <Toast.Description className="text-[0.925rem] leading-5 text-gray-700">
-            {toast.description}
-          </Toast.Description>
-        )}
-      </Toast.Content>
+      {toast.title && (
+        <Toast.Title className="text-[0.975rem] leading-5 font-medium">
+          {toast.title}
+        </Toast.Title>
+      )}
+      {toast.description && (
+        <Toast.Description className="text-[0.925rem] leading-5 text-gray-700">
+          {toast.description}
+        </Toast.Description>
+      )}
       <Toast.Close
         className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded border-none bg-transparent text-gray-500 hover:bg-gray-100 hover:text-gray-700"
         aria-label="Close"

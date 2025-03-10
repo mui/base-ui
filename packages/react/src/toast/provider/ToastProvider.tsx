@@ -31,6 +31,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   const [toasts, setToasts] = React.useState<Toast<any>[]>([]);
   const [hovering, setHovering] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
+  const [prevFocusElement, setPrevFocusElement] = React.useState<HTMLElement | null>(null);
 
   if (toasts.length === 0) {
     if (hovering) {
@@ -43,7 +44,6 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   }
 
   const timersRef = React.useRef(new Map<string, TimerInfo>());
-  const prevFocusRef = React.useRef<HTMLElement | null>(null);
   const viewportRef = React.useRef<HTMLElement | null>(null);
   const windowFocusedRef = React.useRef(true);
 
@@ -69,16 +69,16 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     if (nextToast) {
       nextToast.focus();
     } else {
-      prevFocusRef.current?.focus({ preventScroll: true });
+      prevFocusElement?.focus({ preventScroll: true });
     }
   });
 
   const pauseTimers = useEventCallback(() => {
     timersRef.current.forEach((timer) => {
       if (timer.timeoutId) {
+        clearTimeout(timer.timeoutId);
         const elapsed = Date.now() - timer.start;
         const remaining = timer.delay - elapsed;
-        clearTimeout(timer.timeoutId);
         timer.remaining = remaining > 0 ? remaining : 0;
       }
     });
@@ -86,14 +86,12 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
   const resumeTimers = useEventCallback(() => {
     timersRef.current.forEach((timer, id) => {
-      if (timer.remaining > 0) {
-        const newTimeoutId = setTimeout(() => {
-          timersRef.current.delete(id);
-          timer.callback();
-        }, timer.remaining);
-        timer.start = Date.now();
-        timer.timeoutId = newTimeoutId;
-      }
+      timer.remaining = timer.remaining > 0 ? timer.remaining : timer.delay;
+      timer.timeoutId = setTimeout(() => {
+        timersRef.current.delete(id);
+        timer.callback();
+      }, timer.remaining);
+      timer.start = Date.now();
     });
   });
 
@@ -292,9 +290,11 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       promise,
       pauseTimers,
       resumeTimers,
-      prevFocusRef,
+      prevFocusElement,
+      setPrevFocusElement,
       viewportRef,
       scheduleTimer,
+      windowFocusedRef,
     }),
     [
       toasts,
@@ -307,6 +307,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       promise,
       pauseTimers,
       resumeTimers,
+      prevFocusElement,
       scheduleTimer,
     ],
   ) as ToastContext<any>;

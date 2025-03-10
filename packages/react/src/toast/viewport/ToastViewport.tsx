@@ -12,6 +12,7 @@ import { ToastViewportContext } from './ToastViewportContext';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 import { FocusGuard } from './FocusGuard';
 import { isFocusVisible } from '../utils/focusVisible';
+import { useLatestRef } from '../../utils/useLatestRef';
 
 const state = {};
 
@@ -29,18 +30,20 @@ const ToastViewport = React.forwardRef(function ToastViewport(
 
   const {
     toasts,
-    prevFocusRef,
     pauseTimers,
     resumeTimers,
     setHovering,
     setFocused,
     viewportRef,
     focused,
-    hovering,
+    windowFocusedRef,
+    prevFocusElement,
+    setPrevFocusElement,
   } = useToastContext();
 
   const handlingFocusGuardRef = React.useRef(false);
-  const windowFocusedRef = React.useRef(true);
+
+  const focusedRef = useLatestRef(focused);
 
   const mergedRef = useForkRef(viewportRef, forwardedRef);
 
@@ -57,11 +60,12 @@ const ToastViewport = React.forwardRef(function ToastViewport(
 
       if (event.key === 'F6' && event.target !== viewportRef.current) {
         event.preventDefault();
-        prevFocusRef.current = activeElement(
-          ownerDocument(viewportRef.current),
-        ) as HTMLElement | null;
+        setPrevFocusElement(
+          activeElement(ownerDocument(viewportRef.current)) as HTMLElement | null,
+        );
         viewportRef.current?.focus();
         pauseTimers();
+        setFocused(true);
       }
     }
 
@@ -72,7 +76,7 @@ const ToastViewport = React.forwardRef(function ToastViewport(
     return () => {
       win.removeEventListener('keydown', handleGlobalKeyDown);
     };
-  }, [pauseTimers, prevFocusRef, toasts.length, viewportRef]);
+  }, [pauseTimers, setFocused, setPrevFocusElement, toasts.length, viewportRef]);
 
   React.useEffect(() => {
     if (!viewportRef.current) {
@@ -81,31 +85,41 @@ const ToastViewport = React.forwardRef(function ToastViewport(
 
     const win = ownerWindow(viewportRef.current);
 
-    function handleWindowBlur() {
+    function handleWindowBlur(event: FocusEvent) {
+      if (event.relatedTarget) {
+        return;
+      }
+
       windowFocusedRef.current = false;
       pauseTimers();
     }
 
-    function handleWindowFocus() {
+    function handleWindowFocus(event: FocusEvent) {
+      if (event.relatedTarget || event.target === win) {
+        return;
+      }
+
       windowFocusedRef.current = true;
-      if (!hovering && !focused) {
+
+      if (!contains(viewportRef.current, event.target as HTMLElement | null)) {
         resumeTimers();
       }
     }
 
-    win.addEventListener('blur', handleWindowBlur);
-    win.addEventListener('focus', handleWindowFocus);
+    win.addEventListener('blur', handleWindowBlur, true);
+    win.addEventListener('focus', handleWindowFocus, true);
 
     return () => {
-      win.removeEventListener('blur', handleWindowBlur);
-      win.removeEventListener('focus', handleWindowFocus);
+      win.removeEventListener('blur', handleWindowBlur, true);
+      win.removeEventListener('focus', handleWindowFocus, true);
     };
   }, [
     pauseTimers,
     resumeTimers,
-    hovering,
-    focused,
     viewportRef,
+    windowFocusedRef,
+    setFocused,
+    focusedRef,
     // `viewportRef.current` isn't available on the first render,
     // since the portal node hasn't yet been created.
     // By adding this dependency, we ensure the window listeners
@@ -123,19 +137,18 @@ const ToastViewport = React.forwardRef(function ToastViewport(
     // If we're coming off the container, move to the first toast
     if (event.relatedTarget === viewportRef.current) {
       const toastElements = Array.from<HTMLElement>(
-        viewportRef.current.querySelectorAll('[data-base-ui-toast]'),
+        viewportRef.current.querySelectorAll(`[data-base-ui-toast]`),
       );
       toastElements[0]?.focus();
     } else {
-      prevFocusRef.current?.focus({ preventScroll: true });
-      resumeTimers();
+      prevFocusElement?.focus({ preventScroll: true });
     }
   }
 
   function handleKeyDown(event: React.KeyboardEvent) {
     if (event.key === 'Tab' && event.shiftKey && event.target === viewportRef.current) {
       event.preventDefault();
-      prevFocusRef.current?.focus({ preventScroll: true });
+      prevFocusElement?.focus({ preventScroll: true });
       resumeTimers();
     }
   }
@@ -161,15 +174,21 @@ const ToastViewport = React.forwardRef(function ToastViewport(
       return;
     }
 
+    if (focused) {
+      return;
+    }
+
     setFocused(true);
     pauseTimers();
   }
 
   function handleBlur(event: React.FocusEvent) {
-    if (!contains(viewportRef.current, event.relatedTarget as HTMLElement | null)) {
-      setFocused(false);
-      resumeTimers();
+    if (!focused || contains(viewportRef.current, event.relatedTarget as HTMLElement | null)) {
+      return;
     }
+
+    setFocused(false);
+    resumeTimers();
   }
 
   const numToasts = toasts.length;
@@ -183,7 +202,7 @@ const ToastViewport = React.forwardRef(function ToastViewport(
       {
         role: 'region',
         tabIndex: -1,
-        'aria-label': `${numToasts} notification${numToasts !== 1 ? 's' : ''}`,
+        'aria-label': `${numToasts} notification${numToasts !== 1 ? 's' : ''} (F6)`,
         onMouseEnter: handleMouseEnter,
         onMouseLeave: handleMouseLeave,
         onFocus: handleFocus,
@@ -191,9 +210,9 @@ const ToastViewport = React.forwardRef(function ToastViewport(
         onKeyDown: handleKeyDown,
         children: (
           <React.Fragment>
-            {numToasts > 0 && <FocusGuard onFocus={handleFocusGuard} />}
+            {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
             {children}
-            {numToasts > 0 && <FocusGuard onFocus={handleFocusGuard} />}
+            {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
           </React.Fragment>
         ),
       },
@@ -206,7 +225,7 @@ const ToastViewport = React.forwardRef(function ToastViewport(
   return (
     <ToastViewportContext.Provider value={contextValue}>
       <FloatingPortalLite>
-        {numToasts > 0 && <FocusGuard onFocus={handleFocusGuard} />}
+        {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
         {renderElement()}
       </FloatingPortalLite>
     </ToastViewportContext.Provider>
@@ -230,11 +249,11 @@ ToastViewport.propTypes /* remove-proptypes */ = {
   children: PropTypes.node,
   /**
    * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
+   * returns a class based on the component's state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * Allows you to replace the component’s HTML element
+   * Allows you to replace the component's HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.

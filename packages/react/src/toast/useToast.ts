@@ -128,7 +128,9 @@ export interface ToastContextValue<Data extends object> {
   pauseTimers: () => void;
   resumeTimers: () => void;
   finalizeRemove: (id: string) => void;
-  prevFocusRef: React.RefObject<HTMLElement | null>;
+  prevFocusElement: HTMLElement | null;
+  setPrevFocusElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   viewportRef: React.RefObject<HTMLElement | null>;
+  windowFocusedRef: React.RefObject<boolean>;
   scheduleTimer: (id: string, delay: number, callback: () => void) => void;
 }

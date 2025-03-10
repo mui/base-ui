@@ -49,8 +49,7 @@
     transition-timing-function: ease-in;
   }
 
-  /* Apply momentum-based animation for drag-dismissed toasts */
-  &[data-drag-dismissed][data-ending-style] {
+  &[data-swipe='end'][data-ending-style] {
     transition-duration: calc(0.3s / var(--toast-momentum, 1));
     transition-timing-function: linear;
   }

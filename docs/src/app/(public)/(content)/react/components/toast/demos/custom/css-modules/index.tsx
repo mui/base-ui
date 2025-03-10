@@ -5,7 +5,6 @@ import styles from './index.module.css';
 
 interface CustomToastData {
   userId: string;
-  onNotify: () => void;
 }
 
 function isCustomToast(
@@ -31,10 +30,6 @@ function CustomToast() {
   function action() {
     const data: CustomToastData = {
       userId: '123',
-      onNotify() {
-        // eslint-disable-next-line no-alert
-        alert('Notified 123');
-      },
     };
 
     toast.add({
@@ -61,25 +56,19 @@ function ToastList() {
       data-position="top"
       swipeDirection="up"
     >
-      <Toast.Content className={styles.Content}>
-        {toast.title && (
-          <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
-        )}
-        {toast.description && (
-          <Toast.Description className={styles.Description}>
-            {toast.description}
-          </Toast.Description>
-        )}
-        {isCustomToast(toast) && toast.data && (
-          <button
-            type="button"
-            className={styles.Button}
-            onClick={toast.data.onNotify}
-          >
-            Notify userId {toast.data.userId}
-          </button>
-        )}
-      </Toast.Content>
+      {toast.title && (
+        <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
+      )}
+      {toast.description && (
+        <Toast.Description className={styles.Description}>
+          {toast.description}
+        </Toast.Description>
+      )}
+      {isCustomToast(toast) && toast.data && (
+        <span className={styles.NotifyButton}>
+          `data.userId` is {toast.data.userId}
+        </span>
+      )}
       <Toast.Close className={styles.Close} aria-label="Close">
         <XIcon className={styles.Icon} />
       </Toast.Close>

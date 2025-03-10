@@ -11,8 +11,10 @@
 
 ## Usage
 
-- It's generally recommended to wrap `<Toast.Provider>` around your entire app. All toasts will be rendered in the same viewport.
+- `<Toast.Provider>` can be wrapped around your entire app, ensuring all toasts are rendered in the same viewport.
 - `<Toast.Viewport>` is positioned with your own CSS. The example above specifies `data-position` attributes for the CSS to adjust the position of the viewport container—the available positions in the example are `top`, `top-left`, `top-right`, `bottom`, `bottom-left`, and `bottom-right`, but you're free to change the CSS as needed.
+- <kbd>F6</kbd> lets users jump into the toast viewport landmark region to navigate toasts with
+  their keyboard.
 
 ## API reference
 
@@ -24,17 +26,15 @@ import { Toast } from '@base-ui-components/react/toast';
 <Toast.Provider>
   <Toast.Viewport>
     <Toast.Root>
-      <Toast.Content>
-        <Toast.Title />
-        <Toast.Description />
-      </Toast.Content>
+      <Toast.Title />
+      <Toast.Description />
       <Toast.Close />
     </Toast.Root>
   </Toast.Viewport>
 </Toast.Provider>;
 ```
 
-<Reference component="Toast" parts="Provider, Viewport, Root, Title, Description, Content, Close" />
+<Reference component="Toast" parts="Provider, Viewport, Root, Title, Description, Close" />
 
 ## useToast
 
@@ -245,6 +245,6 @@ An asynchronous toast can be created with three possible states for the toast's 
 
 ### Custom
 
-A toast with custom data can be created by passing any typed object interface to the `data` option. This enables you to pass any data you need to the toast and access it in the toast's rendering logic.
+A toast with custom data can be created by passing any typed object interface to the `data` option. This enables you to pass any data (including functions) you need to the toast and access it in the toast's rendering logic.
 
 <Demo path="./demos/custom" />

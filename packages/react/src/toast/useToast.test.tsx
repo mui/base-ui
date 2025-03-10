@@ -96,9 +96,7 @@ describe('useToast', () => {
           const { toasts } = useToast();
           return toasts.map((t) => (
             <Toast.Root key={t.id} toast={t} data-testid="root">
-              <Toast.Content>
-                <Toast.Title data-testid="title">{t.title}</Toast.Title>
-              </Toast.Content>
+              <Toast.Title data-testid="title">{t.title}</Toast.Title>
             </Toast.Root>
           ));
         }
@@ -141,9 +139,7 @@ describe('useToast', () => {
           const { toasts } = useToast();
           return toasts.map((t) => (
             <Toast.Root key={t.id} toast={t} data-testid="root">
-              <Toast.Content>
-                <Toast.Description data-testid="description">{t.description}</Toast.Description>
-              </Toast.Content>
+              <Toast.Description data-testid="description">{t.description}</Toast.Description>
             </Toast.Root>
           ));
         }
@@ -175,9 +171,7 @@ describe('useToast', () => {
           const { toasts } = useToast();
           return toasts.map((t) => (
             <Toast.Root key={t.id} toast={t} data-testid="root">
-              <Toast.Content>
-                <Toast.Title data-testid="title">{t.title}</Toast.Title>
-              </Toast.Content>
+              <Toast.Title data-testid="title">{t.title}</Toast.Title>
               <span>{t.type}</span>
             </Toast.Root>
           ));
@@ -210,10 +204,8 @@ describe('useToast', () => {
       const { toasts } = useToast();
       return toasts.map((t) => (
         <Toast.Root key={t.id} toast={t} data-testid="root">
-          <Toast.Content>
-            <Toast.Title data-testid="title">{t.title}</Toast.Title>
-            <Toast.Description data-testid="description">{t.description}</Toast.Description>
-          </Toast.Content>
+          <Toast.Title data-testid="title">{t.title}</Toast.Title>
+          <Toast.Description data-testid="description">{t.description}</Toast.Description>
           <span>{t.type}</span>
         </Toast.Root>
       ));
@@ -453,9 +445,7 @@ describe('useToast', () => {
       const { toasts } = useToast();
       return toasts.map((t) => (
         <Toast.Root key={t.id} toast={t} data-testid="root">
-          <Toast.Content>
-            <Toast.Title data-testid="title">{t.title}</Toast.Title>
-          </Toast.Content>
+          <Toast.Title data-testid="title">{t.title}</Toast.Title>
         </Toast.Root>
       ));
     }
@@ -518,9 +508,7 @@ describe('useToast', () => {
       const { toasts } = useToast();
       return toasts.map((t) => (
         <Toast.Root key={t.id} toast={t} data-testid="root">
-          <Toast.Content>
-            <Toast.Title data-testid="title">{t.title}</Toast.Title>
-          </Toast.Content>
+          <Toast.Title data-testid="title">{t.title}</Toast.Title>
         </Toast.Root>
       ));
     }

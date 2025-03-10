@@ -43,16 +43,14 @@ function ToastList() {
       className={styles.Toast}
       data-position="top"
     >
-      <Toast.Content className={styles.Content}>
-        {toast.title && (
-          <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
-        )}
-        {toast.description && (
-          <Toast.Description className={styles.Description}>
-            {toast.description}
-          </Toast.Description>
-        )}
-      </Toast.Content>
+      {toast.title && (
+        <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
+      )}
+      {toast.description && (
+        <Toast.Description className={styles.Description}>
+          {toast.description}
+        </Toast.Description>
+      )}
       <Toast.Close className={styles.Close} aria-label="Close">
         <XIcon className={styles.Icon} />
       </Toast.Close>
