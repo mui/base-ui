@@ -20,7 +20,7 @@
       "description": "Event handler called when the checkbox item is ticked or unticked."
     },
     "onClick": {
-      "type": "React.MouseEventHandler",
+      "type": "React.MouseEventHandler<HTMLElement>",
       "description": "The click handler for the menu item."
     },
     "closeOnClick": {
@@ -37,8 +37,7 @@
       "type": "string"
     },
     "children": {
-      "type": "React.ReactNode",
-      "required": true
+      "type": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: State) => string)",

@@ -3,8 +3,7 @@
   "description": "Indicates whether the select item is selected.\nRenders a `<div>` element.",
   "props": {
     "children": {
-      "type": "React.ReactNode",
-      "required": true
+      "type": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: State) => string)",

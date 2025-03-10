@@ -9,11 +9,12 @@
     },
     "fallback": {
       "type": "React.ReactNode",
-      "required": true
+      "default": "null",
+      "description": "The fallback content to display."
     },
     "children": {
       "type": "React.ReactNode",
-      "required": true
+      "description": "You can wrap a node."
     }
   },
   "dataAttributes": {},

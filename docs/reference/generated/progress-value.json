@@ -3,7 +3,7 @@
   "description": "A text label displaying the current value.\nRenders a `<span>` element.",
   "props": {
     "children": {
-      "type": "null | ((formattedValue: null | string, value: null | number) => React.ReactNode | undefined)"
+      "type": "null | ((formattedValue: null | string, value: null | number) => React.ReactNode)"
     },
     "className": {
       "type": "string | ((state: State) => string)",

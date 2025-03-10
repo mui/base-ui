@@ -24,8 +24,7 @@
       "description": "Event handler called after any animations complete when the dialog is opened or closed."
     },
     "children": {
-      "type": "React.ReactNode",
-      "required": true
+      "type": "React.ReactNode"
     }
   },
   "dataAttributes": {},

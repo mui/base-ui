@@ -6,7 +6,7 @@
       "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
     },
     "onClick": {
-      "type": "React.MouseEventHandler",
+      "type": "React.MouseEventHandler<HTMLElement>",
       "description": "The click handler for the menu item."
     },
     "closeOnClick": {
@@ -43,8 +43,7 @@
       "type": "string"
     },
     "children": {
-      "type": "React.ReactNode",
-      "required": true
+      "type": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: State) => string)",

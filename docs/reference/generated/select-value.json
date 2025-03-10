@@ -7,7 +7,7 @@
       "description": "A placeholder value to display when no value is selected.\n\nYou can use this prop to pre-render the displayed text\nduring SSR in order to avoid the hydration flash."
     },
     "children": {
-      "type": "null | ((value: string) => React.ReactNode | undefined)"
+      "type": "null | ((value: string) => React.ReactNode)"
     },
     "className": {
       "type": "string | ((state: unknown) => string)",

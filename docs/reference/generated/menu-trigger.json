@@ -8,8 +8,7 @@
       "description": "Whether the component should ignore user interaction."
     },
     "children": {
-      "type": "React.ReactNode",
-      "required": true
+      "type": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: State) => string)",

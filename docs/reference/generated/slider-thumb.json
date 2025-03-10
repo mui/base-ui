@@ -35,19 +35,19 @@
       "type": "string"
     },
     "onBlur": {
-      "type": "React.FocusEventHandler"
+      "type": "React.FocusEventHandler<Element>"
     },
     "onFocus": {
-      "type": "React.FocusEventHandler"
+      "type": "React.FocusEventHandler<Element>"
     },
     "onKeyDown": {
-      "type": "React.KeyboardEventHandler"
+      "type": "React.KeyboardEventHandler<Element>"
     },
     "onPointerLeave": {
-      "type": "React.PointerEventHandler"
+      "type": "React.PointerEventHandler<Element>"
     },
     "onPointerOver": {
-      "type": "React.PointerEventHandler"
+      "type": "React.PointerEventHandler<Element>"
     },
     "percentageValues": {
       "type": "ReadonlyArray",
@@ -85,7 +85,7 @@
       "description": "The maximum allowed value of the slider."
     },
     "format": {
-      "type": "null | NumberFormatOptions",
+      "type": "null | Intl.NumberFormatOptions",
       "default": "null",
       "description": "Options to format the input value."
     },
@@ -105,7 +105,7 @@
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "((props: DetailedHTMLProps, inputProps: DetailedHTMLProps, state: State) => React.ReactElement) | { type, props, key }",
+      "type": "((props: React.DetailedHTMLProps<React.HTMLAttributes, HTMLDivElement>, inputProps: React.DetailedHTMLProps<React.InputHTMLAttributes, HTMLInputElement>, state: State) => React.ReactElement) | { type, props, key }",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

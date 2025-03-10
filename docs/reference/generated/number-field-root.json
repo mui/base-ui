@@ -20,7 +20,7 @@
     },
     "locale": {
       "type": "Intl.LocalesArgument",
-      "required": true
+      "description": "The locale of the input element.\nDefaults to the user's runtime locale."
     },
     "step": {
       "type": "number",
@@ -51,7 +51,7 @@
       "description": "Whether to allow the user to scrub the input value with the mouse wheel while focused and\nhovering over the input."
     },
     "format": {
-      "type": "NumberFormatOptions",
+      "type": "Intl.NumberFormatOptions",
       "description": "Options to format the input value."
     },
     "autoFocus": {

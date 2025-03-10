@@ -7,14 +7,13 @@
       "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
     },
     "onClick": {
-      "type": "React.MouseEventHandler"
+      "type": "React.MouseEventHandler<HTMLElement>"
     },
     "id": {
       "type": "string"
     },
     "children": {
-      "type": "React.ReactNode",
-      "required": true
+      "type": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: State) => string)",

@@ -22,7 +22,7 @@
     },
     "children": {
       "type": "React.ReactNode",
-      "required": true
+      "description": "The content of the component."
     },
     "className": {
       "type": "string | ((state: State) => string)",

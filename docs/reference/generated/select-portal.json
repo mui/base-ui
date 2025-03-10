@@ -7,8 +7,7 @@
       "description": "A parent element to render the portal element into."
     },
     "children": {
-      "type": "React.ReactNode",
-      "required": true
+      "type": "React.ReactNode"
     }
   },
   "dataAttributes": {},

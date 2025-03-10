@@ -678,8 +678,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       react-api-extractor:
-        specifier: https://muidevpackages.blob.core.windows.net/packages/react-api-extractor-1.0.0-alpha.1-dev.202503100948.tgz
-        version: https://muidevpackages.blob.core.windows.net/packages/react-api-extractor-1.0.0-alpha.1-dev.202503100948.tgz
+        specifier: https://muidevpackages.blob.core.windows.net/packages/react-api-extractor-1.0.0-alpha.1-dev.202503102004.tgz
+        version: https://muidevpackages.blob.core.windows.net/packages/react-api-extractor-1.0.0-alpha.1-dev.202503102004.tgz
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -7555,9 +7555,9 @@ packages:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
 
-  react-api-extractor@https://muidevpackages.blob.core.windows.net/packages/react-api-extractor-1.0.0-alpha.1-dev.202503100948.tgz:
-    resolution: {tarball: https://muidevpackages.blob.core.windows.net/packages/react-api-extractor-1.0.0-alpha.1-dev.202503100948.tgz}
-    version: 1.0.0-alpha.1-dev.202503100948
+  react-api-extractor@https://muidevpackages.blob.core.windows.net/packages/react-api-extractor-1.0.0-alpha.1-dev.202503102004.tgz:
+    resolution: {tarball: https://muidevpackages.blob.core.windows.net/packages/react-api-extractor-1.0.0-alpha.1-dev.202503102004.tgz}
+    version: 1.0.0-alpha.1-dev.202503102004
     engines: {node: '>=18'}
 
   react-docgen@5.4.3:
@@ -17160,7 +17160,7 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  react-api-extractor@https://muidevpackages.blob.core.windows.net/packages/react-api-extractor-1.0.0-alpha.1-dev.202503100948.tgz:
+  react-api-extractor@https://muidevpackages.blob.core.windows.net/packages/react-api-extractor-1.0.0-alpha.1-dev.202503102004.tgz:
     dependencies:
       lodash: 4.17.21
       typescript: 5.8.2
