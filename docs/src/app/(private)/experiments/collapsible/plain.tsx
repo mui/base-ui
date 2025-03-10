@@ -5,17 +5,61 @@ import classes from './plain.module.css';
 
 import { useAnimationsFinished } from '../../../../../../packages/react/src/utils/useAnimationsFinished';
 import { useEventCallback } from '../../../../../../packages/react/src/utils/useEventCallback';
+import { useForkRef } from '../../../../../../packages/react/src/utils/useForkRef';
 
-function PlainCollapsible(props: { keepMounted?: boolean }) {
-  const { keepMounted = true } = props;
+const DEFAULT_OPEN = true;
 
-  const [open, setOpen] = React.useState(false);
+function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
+  const { keepMounted = true, defaultOpen = false } = props;
+
+  const [open, setOpen] = React.useState(defaultOpen);
 
   const [mounted, setMounted] = React.useState(open);
 
+  const [height, setHeight] = React.useState<number | undefined>(undefined);
+
+  const isInitiallyOpen = React.useRef(open);
+
+  const isHidden = React.useMemo(() => {
+    if (keepMounted) {
+      return !open;
+    }
+
+    return !open && !mounted;
+  }, [keepMounted, open, mounted]);
+
   const panelRef: React.RefObject<HTMLElement | null> = React.useRef(null);
 
-  const [height, setHeight] = React.useState(0);
+  const handlePanelRef = useEventCallback((element: HTMLElement) => {
+    if (!element) {
+      return;
+    }
+
+    element.style.setProperty('display', 'block', 'important');
+
+    if (height === undefined) {
+      setHeight(element.scrollHeight);
+
+      if (isInitiallyOpen.current) {
+        element.style.transitionDuration = '0s';
+
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            element.style.transitionDuration = '';
+            if (!keepMounted) {
+              isInitiallyOpen.current = false;
+            }
+          });
+        });
+      }
+    }
+  });
+
+  const mergedRef = useForkRef(panelRef, handlePanelRef);
+
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+
+  const runOnceAnimationsFinish = useAnimationsFinished(panelRef, false);
 
   const handleTrigger = useEventCallback(() => {
     const nextOpen = !open;
@@ -33,11 +77,15 @@ function PlainCollapsible(props: { keepMounted?: boolean }) {
       return;
     }
 
-    // panel.style.display = 'block';
-
     // const targetHeight = panel.clientHeight;
+    panel.style.setProperty('display', 'block', 'important');
 
     if (nextOpen) {
+      if (abortControllerRef.current != null) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+
       /* opening */
       panel.style.opacity = '0';
       panel.style.height = '0px';
@@ -50,21 +98,23 @@ function PlainCollapsible(props: { keepMounted?: boolean }) {
     } else {
       /* closing */
       requestAnimationFrame(() => {
-        // console.log('closing, scrollHeight', panel.scrollHeight);
         panel.style.opacity = '0';
         setHeight(0);
       });
+
+      abortControllerRef.current = new AbortController();
+
+      runOnceAnimationsFinish(() => {
+        panel.style.setProperty('display', 'none');
+      }, abortControllerRef.current.signal);
     }
   });
-
-  const runOnceAnimationsFinish = useAnimationsFinished(panelRef);
 
   useEnhancedEffect(() => {
     // This only matters when `keepMounted={false}`
     if (keepMounted) {
       return;
     }
-    // console.log('useEnhancedEffect open', open, 'mounted', mounted);
 
     const panel = panelRef.current;
     if (!panel) {
@@ -72,6 +122,13 @@ function PlainCollapsible(props: { keepMounted?: boolean }) {
     }
 
     if (open) {
+      // console.log('mounted?', mounted);
+
+      if (abortControllerRef.current != null) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+
       /* opening */
       panel.style.opacity = '0';
       panel.style.height = '0px';
@@ -81,34 +138,30 @@ function PlainCollapsible(props: { keepMounted?: boolean }) {
         panel.style.height = '';
         setHeight(panel.scrollHeight);
       });
+
+      setMounted(true);
     } else {
       /* closing */
       requestAnimationFrame(() => {
-        console.log('closing, scrollHeight', panel.scrollHeight);
         panel.style.opacity = '0';
         setHeight(0);
       });
 
+      abortControllerRef.current = new AbortController();
+
       runOnceAnimationsFinish(() => {
         setMounted(false);
-      });
+      }, abortControllerRef.current.signal);
     }
   }, [keepMounted, open, mounted, setMounted, runOnceAnimationsFinish]);
-
-  const isHidden = React.useMemo(() => {
-    if (keepMounted) {
-      return !open;
-    }
-
-    return !open && !mounted;
-  }, [keepMounted, open, mounted]);
 
   return (
     <div
       className={classes.Root}
       style={{
         // @ts-ignore
-        '--collapsible-panel-height': `${height}px`,
+        '--collapsible-panel-height':
+          height !== undefined ? `${height}px` : undefined,
       }}
     >
       <button
@@ -124,7 +177,7 @@ function PlainCollapsible(props: { keepMounted?: boolean }) {
       {(keepMounted || (!keepMounted && mounted)) && (
         <div
           // @ts-ignore
-          ref={panelRef}
+          ref={mergedRef}
           className={classes.Panel}
           {...{ [open ? 'data-open' : 'data-closed']: '' }}
           hidden={isHidden}
@@ -147,9 +200,9 @@ function PlainCollapsible(props: { keepMounted?: boolean }) {
 export default function App() {
   return (
     <div className={classes.wrapper}>
-      <PlainCollapsible />
+      <PlainCollapsible defaultOpen={DEFAULT_OPEN} />
 
-      <PlainCollapsible keepMounted={false} />
+      <PlainCollapsible keepMounted={false} defaultOpen={DEFAULT_OPEN} />
     </div>
   );
 }
