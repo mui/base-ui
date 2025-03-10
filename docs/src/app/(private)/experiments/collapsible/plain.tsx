@@ -1,0 +1,99 @@
+'use client';
+import * as React from 'react';
+import classes from './plain.module.css';
+
+export default function DomCollapsible() {
+  const [open, setOpen] = React.useState(false);
+
+  const panelRef: React.RefObject<HTMLElement | null> = React.useRef(null);
+
+  const [height, setHeight] = React.useState(0);
+
+  const handleTrigger = () => {
+    const panel = panelRef.current;
+    if (!panel) {
+      return;
+    }
+
+    const nextOpen = !open;
+
+    panel.style.display = 'block';
+    // const targetHeight = panel.clientHeight;
+
+    if (nextOpen) {
+      /* opening */
+      panel.style.opacity = '0';
+      panel.style.height = '0px';
+
+      requestAnimationFrame(() => {
+        panel.style.opacity = '1';
+        panel.style.height = '';
+        setHeight(panel.scrollHeight);
+      });
+    } else {
+      /* closing */
+      requestAnimationFrame(() => {
+        console.log('closing, scrollHeight', panel.scrollHeight);
+        panel.style.opacity = '0';
+        setHeight(0);
+      });
+    }
+
+    setOpen(!open);
+  };
+
+  return (
+    <div className={classes.wrapper}>
+      <div
+        className={classes.Root}
+        style={{
+          // @ts-ignore
+          '--collapsible-panel-height': `${height}px`,
+        }}
+      >
+        <button
+          type="button"
+          className={classes.Trigger}
+          data-panel-open={open || undefined}
+          onClick={handleTrigger}
+        >
+          <ExpandMoreIcon className={classes.Icon} />
+          Trigger
+        </button>
+
+        <div
+          // @ts-ignore
+          ref={panelRef}
+          className={classes.Panel}
+          {...{ [open ? 'data-open' : 'data-closed']: '' }}
+          // hidden={!open}
+        >
+          <div className={classes.Content}>
+            <p>
+              He rubbed his eyes, and came close to the picture, and examined it
+              again. There were no signs of any change when he looked into the actual
+              painting, and yet there was no doubt that the whole expression had
+              altered. It was not a mere fancy of his own. The thing was horribly
+              apparent.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ExpandMoreIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z" fill="currentColor" />
+    </svg>
+  );
+}
