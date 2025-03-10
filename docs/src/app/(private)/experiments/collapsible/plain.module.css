@@ -1,17 +1,17 @@
 .wrapper {
-  --width: 320px;
-  --duration: 2000ms;
-
   font-family: system-ui, sans-serif;
   line-height: 1.4;
   display: flex;
   flex-flow: column nowrap;
   align-items: stretch;
-  gap: 3rem;
+  gap: 1rem;
   align-self: flex-start;
 }
 
 .Root {
+  --width: 320px;
+  --duration: 1000ms;
+
   width: var(--width);
 }
 
@@ -38,13 +38,14 @@
 .Panel {
   overflow: hidden;
   box-sizing: border-box;
-  width: var(--width);
+  width: 100%;
 
-  transition: all var(--duration) ease-out;
+  transition:
+    height var(--duration) ease-out,
+    opacity var(--duration) ease-out;
 
   &[data-open] {
     height: var(--collapsible-panel-height);
-    /*    height: auto;*/
     opacity: 1;
   }
 
