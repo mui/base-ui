@@ -3,25 +3,21 @@
   "description": "The draggable part of the the slider at the tip of the indicator.\nRenders a `<div>` element.",
   "props": {
     "aria-label": {
-      "type": "string | undefined",
-      "required": true,
+      "type": "string",
       "description": "The label for the input element."
     },
     "aria-labelledby": {
       "type": "string"
     },
     "name": {
-      "type": "string | undefined",
-      "required": true
+      "type": "string"
     },
     "active": {
-      "type": "number | undefined",
-      "required": true,
+      "type": "number",
       "description": "The index of the active thumb."
     },
     "aria-valuetext": {
-      "type": "string | undefined",
-      "required": true,
+      "type": "string",
       "description": "A string value that provides a user-friendly name for the current value of the slider."
     },
     "getAriaLabel": {
@@ -29,17 +25,14 @@
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb"
     },
     "getAriaValueText": {
-      "type": "null | ((formattedValue: string, value: number, index: number) => string) | undefined",
-      "required": true,
+      "type": "null | ((formattedValue: string, value: number, index: number) => string)",
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.\nThis is important for screen reader users."
     },
     "handleInputChange": {
-      "type": "((valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => void) | undefined",
-      "required": true
+      "type": "((valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => void)"
     },
     "inputId": {
-      "type": "string | undefined",
-      "required": true
+      "type": "string"
     },
     "onBlur": {
       "type": "__type.bivarianceHack"
@@ -57,67 +50,55 @@
       "type": "__type.bivarianceHack"
     },
     "percentageValues": {
-      "type": "ReadonlyArray | undefined",
-      "required": true,
+      "type": "ReadonlyArray",
       "description": "The value(s) of the slider as percentages"
     },
     "tabIndex": {
-      "type": "null | number | undefined",
+      "type": "null | number",
       "default": "null",
-      "required": true,
       "description": "Optional tab index attribute for the thumb components."
     },
     "values": {
-      "type": "ReadonlyArray | undefined",
-      "required": true,
+      "type": "ReadonlyArray",
       "description": "The value(s) of the slider"
     },
     "step": {
-      "type": "number | undefined",
+      "type": "number",
       "default": "1",
-      "required": true,
       "description": "The step increment of the slider when incrementing or decrementing. It will snap\nto multiples of this value. Decimal values are supported."
     },
     "largeStep": {
-      "type": "number | undefined",
+      "type": "number",
       "default": "10",
-      "required": true,
       "description": "The large step value of the slider when incrementing or decrementing while the shift key is held,\nor when using Page-Up or Page-Down keys. Snaps to multiples of this value."
     },
     "minStepsBetweenValues": {
-      "type": "number | undefined",
-      "required": true,
+      "type": "number",
       "description": "The minimum steps between values in a range slider."
     },
     "min": {
-      "type": "number | undefined",
-      "required": true,
+      "type": "number",
       "description": "The minimum allowed value of the slider."
     },
     "max": {
-      "type": "number | undefined",
-      "required": true,
+      "type": "number",
       "description": "The maximum allowed value of the slider."
     },
     "format": {
-      "type": "null | Intl.NumberFormatOptions | undefined",
+      "type": "null | NumberFormatOptions",
       "default": "null",
-      "required": true,
       "description": "Options to format the input value."
     },
     "disabled": {
-      "type": "boolean | undefined",
-      "required": true
+      "type": "boolean"
     },
     "orientation": {
-      "type": "\"horizontal\" | \"vertical\" | undefined",
+      "type": "\"horizontal\" | \"vertical\"",
       "default": "'horizontal'",
-      "required": true,
       "description": "The component orientation."
     },
     "id": {
-      "type": "string | undefined",
-      "required": true
+      "type": "string"
     },
     "className": {
       "type": "string | ((state: State) => string)",

@@ -12,14 +12,12 @@
       "description": "Whether the collapsible panel is currently open.\n\nTo render an uncontrolled collapsible, use the `defaultOpen` prop instead."
     },
     "onOpenChange": {
-      "type": "((open: boolean) => void) | undefined",
-      "required": true,
+      "type": "((open: boolean) => void)",
       "description": "Event handler called when the panel is opened or closed."
     },
     "disabled": {
-      "type": "boolean | undefined",
+      "type": "boolean",
       "default": "false",
-      "required": true,
       "description": "Whether the component should ignore user interaction."
     },
     "className": {

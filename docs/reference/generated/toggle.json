@@ -11,8 +11,7 @@
       "description": "An id or space-separated list of ids of elements that label the Toggle."
     },
     "value": {
-      "type": "string | undefined",
-      "required": true,
+      "type": "string",
       "description": "A unique string that identifies the component when used\ninside a ToggleGroup."
     },
     "defaultPressed": {
@@ -25,14 +24,12 @@
       "description": "Whether the toggle button is currently active."
     },
     "onPressedChange": {
-      "type": "((pressed: boolean, event: Event) => void) | undefined",
-      "required": true,
+      "type": "((pressed: boolean, event: Event) => void)",
       "description": "Callback fired when the pressed state is changed."
     },
     "disabled": {
-      "type": "boolean | undefined",
+      "type": "boolean",
       "default": "false",
-      "required": true,
       "description": "Whether the component should ignore user interaction."
     },
     "className": {

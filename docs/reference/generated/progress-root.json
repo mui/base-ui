@@ -39,7 +39,7 @@
       "description": "The maximum value."
     },
     "format": {
-      "type": "Intl.NumberFormatOptions",
+      "type": "NumberFormatOptions",
       "description": "Options to format the value."
     },
     "className": {

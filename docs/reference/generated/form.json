@@ -3,11 +3,11 @@
   "description": "A native form element with consolidated error handling.\nRenders a `<form>` element.",
   "props": {
     "errors": {
-      "type": "__type",
+      "type": "unknown",
       "description": "An object where the keys correspond to the `name` attribute of the form fields,\nand the values correspond to the error(s) related to that field."
     },
     "onClearErrors": {
-      "type": "((errors: __type) => void)",
+      "type": "((errors: unknown) => void)",
       "description": "Event handler called when the `errors` object is cleared."
     },
     "className": {
