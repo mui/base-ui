@@ -33,7 +33,8 @@ function PlainCollapsible(props: { keepMounted?: boolean }) {
       return;
     }
 
-    panel.style.display = 'block';
+    // panel.style.display = 'block';
+
     // const targetHeight = panel.clientHeight;
 
     if (nextOpen) {
@@ -94,6 +95,14 @@ function PlainCollapsible(props: { keepMounted?: boolean }) {
     }
   }, [keepMounted, open, mounted, setMounted, runOnceAnimationsFinish]);
 
+  const isHidden = React.useMemo(() => {
+    if (keepMounted) {
+      return !open;
+    }
+
+    return !open && !mounted;
+  }, [keepMounted, open, mounted]);
+
   return (
     <div
       className={classes.Root}
@@ -118,7 +127,7 @@ function PlainCollapsible(props: { keepMounted?: boolean }) {
           ref={panelRef}
           className={classes.Panel}
           {...{ [open ? 'data-open' : 'data-closed']: '' }}
-          // hidden={!open}
+          hidden={isHidden}
         >
           <div className={classes.Content}>
             <p>
