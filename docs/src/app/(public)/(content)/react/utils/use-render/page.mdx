@@ -56,7 +56,7 @@ The `mergeProps` function merges two or more sets of React props together. It sa
 2. `className` strings
 3. `style` properties
 
-`mergeProps` merges objects from left to right, so that subsequent objects' properties in the arguments overwrite previous ones. Merging props is useful when creating custom components, as well as inside the callback version of the `render` prop for any Base UI component. 
+`mergeProps` merges objects from left to right, so that subsequent objects' properties in the arguments overwrite previous ones. Merging props is useful when creating custom components, as well as inside the callback version of the `render` prop for any Base UI component.
 
 The `ref` prop is merged separately using the `refs` option in `useRender`, which holds an array of refs.
 
@@ -70,14 +70,14 @@ function Text({ render = <p />, ...props }: TextProps) {
     props,
     refs: [internalRef],
   });
-  
+
   return renderElement();
 }
 
 // React 17 and 18
 const Text = React.forwardRef(function Text(
-  { render = <p />, ...props }: TextProps, 
-  forwardedRef: React.ForwardedRef<HTMLElement>
+  { render = <p />, ...props }: TextProps,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const internalRef = React.useRef<HTMLElement | null>(null);
 
@@ -86,7 +86,7 @@ const Text = React.forwardRef(function Text(
     props,
     refs: [forwardedRef, internalRef],
   });
-  
+
   return renderElement();
 });
 ```
