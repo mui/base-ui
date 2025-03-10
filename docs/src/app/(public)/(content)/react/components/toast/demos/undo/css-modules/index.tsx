@@ -52,25 +52,23 @@ function ToastList() {
       data-position="top"
       swipeDirection="up"
     >
-      <Toast.Content className={styles.Content}>
-        {toast.title && (
-          <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
-        )}
-        {toast.description && (
-          <Toast.Description className={styles.Description}>
-            {toast.description}
-          </Toast.Description>
-        )}
-        {toast.actionProps && (
-          <div className={styles.Actions}>
-            <button
-              {...toast.actionProps}
-              type="button"
-              className={styles.UndoButton}
-            />
-          </div>
-        )}
-      </Toast.Content>
+      {toast.title && (
+        <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
+      )}
+      {toast.description && (
+        <Toast.Description className={styles.Description}>
+          {toast.description}
+        </Toast.Description>
+      )}
+      {toast.actionProps && (
+        <div className={styles.Actions}>
+          <button
+            {...toast.actionProps}
+            type="button"
+            className={styles.UndoButton}
+          />
+        </div>
+      )}
       <Toast.Close className={styles.Close} aria-label="Close">
         <XIcon className={styles.Icon} />
       </Toast.Close>

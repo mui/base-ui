@@ -21,6 +21,36 @@
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
-  "dataAttributes": {},
-  "cssVariables": {}
+  "dataAttributes": {
+    "data-swipe": {
+      "description": "Indicates the current swipe state.",
+      "type": "'start' | 'move' | 'end' | 'cancel'"
+    },
+    "data-swipe-direction": {
+      "description": "Indicates the direction of the swipe.",
+      "type": "'up' | 'down' | 'left' | 'right'"
+    }
+  },
+  "cssVariables": {
+    "--toast-index": {
+      "description": "Indicates the index of the toast in the list.",
+      "type": "number"
+    },
+    "--toast-offset": {
+      "description": "Indicates the offset of the toast in the list.",
+      "type": "number"
+    },
+    "--toast-swipe-direction": {
+      "description": "Indicates the direction the toast is swiped.",
+      "type": "'up' | 'down' | 'left' | 'right'"
+    },
+    "--toast-swipe-move-x": {
+      "description": "Indicates the horizontal swipe movement of the toast.",
+      "type": "number"
+    },
+    "--toast-swipe-move-y": {
+      "description": "Indicates the vertical swipe movement of the toast.",
+      "type": "number"
+    }
+  }
 }

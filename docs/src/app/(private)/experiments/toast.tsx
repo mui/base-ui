@@ -83,21 +83,19 @@ function Toasts() {
   const { toasts } = Toast.useToast();
   return toasts.map((toast) => (
     <Toast.Root key={toast.id} toast={toast} className={styles.root}>
-      <Toast.Content>
-        {toast.title && <Toast.Title>{toast.title}</Toast.Title>}
-        {toast.description && (
-          <Toast.Description>{toast.description}</Toast.Description>
-        )}
-        {toast.type === 'undo' && (
-          <button
-            className={styles.button}
-            type="button"
-            onClick={() => alert('Action undone')}
-          >
-            Undo
-          </button>
-        )}
-      </Toast.Content>
+      {toast.title && <Toast.Title>{toast.title}</Toast.Title>}
+      {toast.description && (
+        <Toast.Description>{toast.description}</Toast.Description>
+      )}
+      {toast.type === 'undo' && (
+        <button
+          className={styles.button}
+          type="button"
+          onClick={() => alert('Action undone')}
+        >
+          Undo
+        </button>
+      )}
       <Toast.Close className={styles.close} aria-label="Close">
         x
       </Toast.Close>

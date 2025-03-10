@@ -15,10 +15,12 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ownerDocument } from '../../utils/owner';
+import { visuallyHidden } from '../../utils/visuallyHidden';
+import { ToastRootDataAttributes } from './ToastRootDataAttributes';
 
-const SWIPE_THRESHOLD = 20;
+const SWIPE_THRESHOLD = 15;
 const OPPOSITE_DIRECTION_DAMPING_FACTOR = 0.5;
-const MIN_DRAG_THRESHOLD = 5;
+const MIN_DRAG_THRESHOLD = 0;
 
 /**
  * Groups all parts of an individual toast.
@@ -30,11 +32,13 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   props: ToastRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { toast, render, className, swipeDirection = 'up', ...other } = props;
+  const { toast, render, className, children, swipeDirection = 'up', ...other } = props;
 
   const swipeDirections = Array.isArray(swipeDirection) ? swipeDirection : [swipeDirection];
 
   const { toasts, hovering, focused, finalizeRemove, setToasts, remove } = useToastContext();
+
+  const [renderChildren, setRenderChildren] = React.useState(false);
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const mergedRef = useForkRef(rootRef, forwardedRef);
@@ -53,6 +57,9 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   const [isRealDrag, setIsRealDrag] = React.useState(false);
   const [dragOffset, setDragOffset] = React.useState({ x: 0, y: 0 });
   const [dragDismissed, setDragDismissed] = React.useState(false);
+  const [swipeState, setSwipeState] = React.useState<'start' | 'move' | 'end' | 'cancel' | null>(
+    null,
+  );
   const [initialTransform, setInitialTransform] = React.useState({ x: 0, y: 0, scale: 1 });
   const [titleId, setTitleId] = React.useState<string | undefined>();
   const [descriptionId, setDescriptionId] = React.useState<string | undefined>();
@@ -69,6 +76,9 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     () => toasts.filter((t) => t.animation !== 'ending').indexOf(toast),
     [toast, toasts],
   );
+  // It's not possible to stack a smaller height toast onto a larger height toast, but
+  // the reverse is possible. For simplicity, we'll enforce the expanded state if the
+  // toasts aren't all the same height.
   const hasDifferingHeights = React.useMemo(() => {
     return toasts.some((t) => t.height !== 0 && toast.height !== 0 && t.height !== toast.height);
   }, [toast, toasts]);
@@ -227,6 +237,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     setIsDragging(true);
     setIsRealDrag(false);
     setLockedDirection(null);
+    setSwipeState('start');
 
     if (rootRef.current) {
       rootRef.current.setPointerCapture(event.pointerId);
@@ -256,6 +267,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
       const movementDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       if (movementDistance >= MIN_DRAG_THRESHOLD) {
         setIsRealDrag(true);
+        setSwipeState('move');
 
         if (lockedDirection === null) {
           // Only lock a direction if multiple directions are allowed
@@ -318,11 +330,12 @@ const ToastRoot = React.forwardRef(function ToastRoot(
       rootRef.current.releasePointerCapture(event.pointerId);
     }
 
-    // Check if swipe exceeds threshold in any of the allowed directions
+    // Check if swipe exceeds threshold in any of the allowed directions.
+    // Use the dragOffset (which respects the locked direction and damping) rather than raw event coordinates.
     let shouldClose = false;
 
-    const deltaX = event.clientX - dragStartPosRef.current.x;
-    const deltaY = event.clientY - dragStartPosRef.current.y;
+    const deltaX = dragOffset.x - initialTransform.x;
+    const deltaY = dragOffset.y - initialTransform.y;
 
     for (const direction of swipeDirections) {
       switch (direction) {
@@ -357,13 +370,14 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 
     if (shouldClose) {
       setDragDismissed(true);
+      setSwipeState('end');
       remove(toast.id);
     } else {
       setDragOffset({
         x: initialTransform.x,
         y: initialTransform.y,
       });
-
+      setSwipeState('cancel');
       dragHistoryRef.current = [];
     }
   }
@@ -402,6 +416,19 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     };
   }, []);
 
+  // Add the effect from ToastContent for screen reader announcements
+  React.useEffect(() => {
+    const timeout = setTimeout(
+      () => {
+        setRenderChildren(true);
+      },
+      // macOS Safari needs some time to pass after the status node has been
+      // created before changing its text content to reliably announce the toast
+      50,
+    );
+    return () => clearTimeout(timeout);
+  }, []);
+
   function getDragStyles() {
     if (
       !isDragging &&
@@ -409,17 +436,51 @@ const ToastRoot = React.forwardRef(function ToastRoot(
       dragOffset.y === initialTransform.y &&
       !dragDismissed
     ) {
-      return {};
+      return {
+        [ToastRootCssVars.swipeMoveX]: '0px',
+        [ToastRootCssVars.swipeMoveY]: '0px',
+      };
+    }
+
+    const deltaX = dragOffset.x - initialTransform.x;
+    const deltaY = dragOffset.y - initialTransform.y;
+
+    // Determine primary swipe direction based on movement
+    let currentSwipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      currentSwipeDirection = deltaX > 0 ? 'right' : 'left';
+    } else {
+      currentSwipeDirection = deltaY > 0 ? 'down' : 'up';
+    }
+
+    // Only use a direction that's allowed
+    if (currentSwipeDirection && !swipeDirections.includes(currentSwipeDirection)) {
+      currentSwipeDirection = undefined;
     }
 
     return {
-      transform: isDragging
-        ? `translate(${dragOffset.x}px,${dragOffset.y}px) scale(${initialTransform.scale})`
-        : undefined,
       transition: isDragging ? 'none' : undefined,
       userSelect: isDragging ? 'none' : undefined,
       touchAction: 'none',
+      [ToastRootCssVars.swipeMoveX]: `${deltaX}px`,
+      [ToastRootCssVars.swipeMoveY]: `${deltaY}px`,
     } as const;
+  }
+
+  function getSwipeDirection(): 'up' | 'down' | 'left' | 'right' | undefined {
+    if (!isRealDrag && !dragDismissed) {
+      return undefined;
+    }
+
+    const deltaX = dragOffset.x - initialTransform.x;
+    const deltaY = dragOffset.y - initialTransform.y;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      return deltaX > 0 ? 'right' : 'left';
+    }
+
+    return deltaY > 0 ? 'down' : 'up';
   }
 
   const { renderElement } = useComponentRenderer({
@@ -435,17 +496,41 @@ const ToastRoot = React.forwardRef(function ToastRoot(
         'aria-modal': false,
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
-        ['data-base-ui-toast' as string]: toast.id,
-        ['data-drag-dismissed' as string]: dragDismissed ? '' : undefined,
+        'data-base-ui-toast': toast.id,
+        [ToastRootDataAttributes.swipe]: swipeState,
+        [ToastRootDataAttributes.swipeDirection]: getSwipeDirection(),
         onPointerDown: handlePointerDown,
         onPointerMove: handlePointerMove,
         onPointerUp: handlePointerUp,
         onKeyDown: handleKeyDown,
         style: {
           ...getDragStyles(),
-          [ToastRootCssVars.index as string]: toast.animation === 'ending' ? domIndex : index,
-          [ToastRootCssVars.offset as string]: `${offset}px`,
+          [ToastRootCssVars.index]: toast.animation === 'ending' ? domIndex : index,
+          [ToastRootCssVars.offset]: `${offset}px`,
         },
+        // Screen readers won't announce the text upon DOM insertion
+        // of the component. We need to wait until the next tick to render the children
+        // so that screen readers can announce the contents.
+        children: (
+          <React.Fragment>
+            {children}
+            {!focused && (
+              <div
+                style={visuallyHidden}
+                {...(toast.priority === 'high'
+                  ? { role: 'alert', 'aria-atomic': true }
+                  : { role: 'status', 'aria-live': 'polite' })}
+              >
+                {renderChildren && (
+                  <React.Fragment>
+                    <div>{toast.title}</div>
+                    <div>{toast.description}</div>
+                  </React.Fragment>
+                )}
+              </div>
+            )}
+          </React.Fragment>
+        ),
       },
       other,
     ),
