@@ -3,9 +3,17 @@ import * as React from 'react';
 import { isElementDisabled } from '../../utils/isElementDisabled';
 import { mergeProps } from '../../merge-props';
 import { useControlled } from '../../utils/useControlled';
-import { ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT } from '../../composite/composite';
+import {
+  ARROW_DOWN,
+  ARROW_UP,
+  ARROW_RIGHT,
+  ARROW_LEFT,
+  HOME,
+  END,
+  isElementDisabled,
+} from '../../composite/composite';
 
-const SUPPORTED_KEYS = [ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, 'Home', 'End'];
+const SUPPORTED_KEYS = [ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END];
 
 function getActiveTriggers(accordionItemRefs: {
   current: (HTMLElement | null)[];
