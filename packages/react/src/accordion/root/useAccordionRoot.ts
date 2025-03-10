@@ -10,7 +10,6 @@ import {
   ARROW_LEFT,
   HOME,
   END,
-  isElementDisabled,
 } from '../../composite/composite';
 
 const SUPPORTED_KEYS = [ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END];

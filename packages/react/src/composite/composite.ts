@@ -352,14 +352,6 @@ export function getCellIndices(indices: (number | undefined)[], cellMap: (number
   return cellMap.flatMap((index, cellIndex) => (indices.includes(index) ? [cellIndex] : []));
 }
 
-export function isElementDisabled(element: HTMLElement | null) {
-  return (
-    element == null ||
-    element.hasAttribute('disabled') ||
-    element.getAttribute('aria-disabled') === 'true'
-  );
-}
-
 export function isDisabled(
   list: Array<HTMLElement | null>,
   index: number,
