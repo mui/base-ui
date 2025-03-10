@@ -50,7 +50,6 @@
   }
 
   &[data-closed] {
-    display: none;
     height: 0;
     opacity: 0;
   }
