@@ -9,7 +9,7 @@ const defaultState = {};
 /**
  * Returns a function that renders a Base UI component.
  */
-function useRender<State extends Record<string, unknown>, RenderedElementType extends Element>(
+export function useRender<State extends Record<string, unknown>, RenderedElementType extends Element>(
   settings: useRender.Settings<State, RenderedElementType>,
 ) {
   const { render, props, state, refs } = settings;
@@ -35,7 +35,7 @@ function useRender<State extends Record<string, unknown>, RenderedElementType ex
   });
 }
 
-namespace useRender {
+export namespace useRender {
   export type RenderProp<State = Record<string, unknown>> =
     | ComponentRenderFn<React.HTMLAttributes<any>, State>
     | React.ReactElement<Record<string, unknown>>
@@ -67,5 +67,3 @@ namespace useRender {
     props?: Record<string, unknown> & { ref?: React.Ref<RenderedElementType> };
   }
 }
-
-export { useRender };
