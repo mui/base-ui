@@ -9,18 +9,12 @@ const defaultState = {};
 /**
  * Returns a function that renders a Base UI component.
  */
-export function useRender<State extends Record<string, unknown>, RenderedElementType extends Element>(
-  settings: useRender.Settings<State, RenderedElementType>,
-) {
+export function useRender<
+  State extends Record<string, unknown>,
+  RenderedElementType extends Element,
+>(settings: useRender.Settings<State, RenderedElementType>) {
   const { render, props, state, refs } = settings;
   const { ref, ...extraProps } = props ?? {};
-
-  const customStyleHookMapping = React.useMemo(() => {
-    return Object.keys(state ?? {}).reduce((acc, key) => {
-      acc[key as keyof State] = () => null;
-      return acc;
-    }, {} as CustomStyleHookMapping<State>);
-  }, [state]);
 
   const refsArray = React.useMemo(() => {
     return [...(refs ?? []), ref].filter(Boolean);
@@ -31,7 +25,7 @@ export function useRender<State extends Record<string, unknown>, RenderedElement
     state: (state ?? defaultState) as State,
     ref: refsArray,
     extraProps,
-    customStyleHookMapping,
+    skipGeneratingStyleHooks: true,
   });
 }
 
