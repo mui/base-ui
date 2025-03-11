@@ -46,4 +46,30 @@ describe('<Toast.Description />', () => {
     expect(rootElement).to.not.equal(null);
     expect(rootElement.getAttribute('aria-describedby')).to.equal(descriptionId);
   });
+
+  it('does not render if it has no children', async () => {
+    function AddButton() {
+      const { add } = Toast.useToast();
+      return (
+        <button type="button" onClick={() => add({ description: undefined })}>
+          add
+        </button>
+      );
+    }
+
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <List />
+        </Toast.Viewport>
+        <AddButton />
+      </Toast.Provider>,
+    );
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const descriptionElement = screen.queryByTestId('description');
+    expect(descriptionElement).to.equal(null);
+  });
 });

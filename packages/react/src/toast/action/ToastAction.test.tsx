@@ -13,7 +13,7 @@ describe('<Toast.Action />', () => {
     title: 'title',
   };
 
-  describeConformance(<Toast.Action />, () => ({
+  describeConformance(<Toast.Action>action</Toast.Action>, () => ({
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(
@@ -41,5 +41,40 @@ describe('<Toast.Action />', () => {
     await user.click(button);
 
     expect(screen.getByTestId('action').id).to.equal('action');
+  });
+
+  it('does not render if it has no children', async () => {
+    function AddButton() {
+      const { add } = Toast.useToast();
+      return (
+        <button
+          type="button"
+          onClick={() =>
+            add({
+              actionProps: {
+                children: undefined,
+              },
+            })
+          }
+        >
+          add
+        </button>
+      );
+    }
+
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <List />
+        </Toast.Viewport>
+        <AddButton />
+      </Toast.Provider>,
+    );
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const actionElement = screen.queryByTestId('action');
+    expect(actionElement).to.equal(null);
   });
 });

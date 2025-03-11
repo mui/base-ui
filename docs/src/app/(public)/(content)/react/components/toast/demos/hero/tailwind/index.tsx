@@ -68,7 +68,7 @@ function ToastList() {
         border border-gray-200
         z-[calc(1000-var(--toast-index))]
         transition-all [transition-property:opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
-        data-[ending-style]:duration-200 data-[ending-style]:ease-in data-[ending-style]:opacity-0
+        data-[ending-style]:opacity-0
 
         after:content-[''] after:absolute after:left-0 after:w-full after:h-[calc(var(--gap)+1px)]
         data-[position^=top]:after:top-full
@@ -78,30 +78,30 @@ function ToastList() {
 
         data-[position$=left]:right-auto data-[position$=left]:ml-0
         data-[position$=right]:left-auto data-[position$=right]:mr-0
-       
-        data-[position^=top]:data-[expanded]:[transform:translate(var(--toast-swipe-move-x),calc(var(--toast-offset)+calc(var(--toast-index)*var(--gap))+var(--toast-swipe-move-y)))]
-        data-[position^=bottom]:data-[expanded]:[transform:translate(var(--toast-swipe-move-x),calc(var(--toast-offset)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-move-y)))]
 
-        data-[position^=top]:[transform:translate(var(--toast-swipe-move-x),calc(var(--toast-swipe-move-y)+calc(var(--toast-index)*20%)))_scale(calc(1-(var(--toast-index)*0.1)))]
-        data-[position^=bottom]:[transform:translate(var(--toast-swipe-move-x),calc(var(--toast-swipe-move-y)+calc(var(--toast-index)*-20%)))_scale(calc(1-(var(--toast-index)*0.1)))]
+        data-[position^=top]:data-[expanded]:[transform:translateX(var(--toast-swipe-move-x))_translateY(calc(var(--toast-offset)+calc(var(--toast-index)*var(--gap))+var(--toast-swipe-move-y)))]
+        data-[position^=bottom]:data-[expanded]:[transform:translateX(var(--toast-swipe-move-x))_translateY(calc(var(--toast-offset)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-move-y)))]
+
+        data-[position^=top]:[transform:translateX(var(--toast-swipe-move-x))_translateY(calc(var(--toast-swipe-move-y)+calc(var(--toast-index)*15px)))_scale(calc(1-(var(--toast-index)*0.1)))]
+        data-[position^=bottom]:[transform:translateX(var(--toast-swipe-move-x))_translateY(calc(var(--toast-swipe-move-y)+calc(var(--toast-index)*-15px)))_scale(calc(1-(var(--toast-index)*0.1)))]
 
         data-[position^=top]:data-[starting-style]:[transform:translateY(-150%)]
-        data-[position^=top]:data-[ending-style]:[transform:translateY(-150%)]
+        data-[position^=bottom]:data-[ending-style]:[not([data-limited])]:[transform:translateY(-150%)]
         data-[position^=top]:data-[expanded]:data-[ending-style]:[transform:translateY(-150%)]
 
         data-[position^=bottom]:data-[starting-style]:[transform:translateY(150%)]
-        data-[position^=bottom]:data-[ending-style]:[transform:translateY(150%)]
+        data-[position^=bottom]:data-[ending-style]:[not([data-limited])]:[transform:translateY(150%)]
         data-[position^=bottom]:data-[expanded]:data-[ending-style]:[transform:translateY(150%)]
 
-        data-[position^=top]:data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-move-y)-100%))]
-        data-[position^=top]:data-[ending-style]:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-move-x)-100%))]
-        data-[position^=top]:data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-move-x)+100%))]
-        data-[position^=top]:data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-move-y)+100%))]
-        
-        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-move-y)-100%))]
-        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-move-x)-100%))]
-        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-move-x)+100%))]
-        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-move-y)+100%))]
+        data-[position^=top]:data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-move-y)-150%))]
+        data-[position^=top]:data-[ending-style]:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-move-x)-150%))]
+        data-[position^=top]:data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-move-x)+150%))]
+        data-[position^=top]:data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-move-y)+150%))]
+
+        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-move-y)-150%))]
+        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-move-x)-150%))]
+        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-move-x)+150%))]
+        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-move-y)+150%))]
       "
       style={{ '--gap': '10px' } as React.CSSProperties}
     >

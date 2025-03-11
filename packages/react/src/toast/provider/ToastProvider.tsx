@@ -60,14 +60,33 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       return;
     }
 
-    const toastElements = toasts
-      .filter((toast) => toast.animation !== 'ending')
-      .map((toast) => toast.ref?.current);
     const currentIndex = toasts.findIndex((toast) => toast.id === toastId);
-    const nextToast = toastElements[currentIndex + 1] || toastElements[currentIndex - 1];
+    let nextToast: ToastObject<any> | null = null;
+
+    // Try to find the next toast that isn't animating out
+    let index = currentIndex + 1;
+    while (index < toasts.length) {
+      if (toasts[index].transitionStatus !== 'ending') {
+        nextToast = toasts[index];
+        break;
+      }
+      index += 1;
+    }
+
+    // Go backwards if no next toast is found
+    if (!nextToast) {
+      index = currentIndex - 1;
+      while (index >= 0) {
+        if (toasts[index].transitionStatus !== 'ending') {
+          nextToast = toasts[index];
+          break;
+        }
+        index -= 1;
+      }
+    }
 
     if (nextToast) {
-      nextToast.focus();
+      nextToast.ref?.current?.focus();
     } else {
       prevFocusElement?.focus({ preventScroll: true });
     }
@@ -98,7 +117,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   const close = useEventCallback((toastId: string) => {
     setToasts((prev) =>
       prev.map((toast) =>
-        toast.id === toastId ? { ...toast, animation: 'ending' as const } : toast,
+        toast.id === toastId ? { ...toast, transitionStatus: 'ending' as const, height: 0 } : toast,
       ),
     );
 
@@ -114,9 +133,9 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     handleFocusManagement(toastId);
   });
 
-  const remove = useEventCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    const toast = toasts.find((t) => t.id === id);
+  const remove = useEventCallback((toastId: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== toastId));
+    const toast = toasts.find((t) => t.id === toastId);
     toast?.onRemove?.();
   });
 
@@ -145,15 +164,15 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
   const add = useEventCallback(<Data extends object>(toast: useToast.AddOptions<Data>): string => {
     const id = toast.id || generateId('toast');
-    const toastToAdd = {
+    const toastToAdd: ToastObject<Data> = {
       ...toast,
       id,
-      animation: 'starting' as const,
+      transitionStatus: 'starting',
     };
 
     setToasts((prev) => {
       const updatedToasts = [toastToAdd, ...prev];
-      const activeToasts = updatedToasts.filter((t) => t.animation !== 'ending');
+      const activeToasts = updatedToasts.filter((t) => t.transitionStatus !== 'ending');
 
       // Mark oldest toasts for removal when over limit
       if (activeToasts.length > limit) {
@@ -165,11 +184,12 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
           if (timer && timer.timeoutId) {
             clearTimeout(timer.timeoutId);
           }
+          timersRef.current.delete(t.id);
         });
 
         return updatedToasts.map((t) =>
           oldestActiveToasts.some((old) => old.id === t.id)
-            ? { ...t, animation: 'ending' as const }
+            ? { ...t, transitionStatus: 'ending' as const, limited: true }
             : t,
         );
       }

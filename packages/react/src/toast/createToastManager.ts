@@ -1,5 +1,5 @@
 import { generateId } from '../utils/generateId';
-import { useToast } from './useToast';
+import { type ToastObject, useToast } from './useToast';
 
 export interface ToastManagerEvent {
   action: 'add' | 'close' | 'update' | 'promise';
@@ -31,10 +31,10 @@ export function createToastManager(): createToastManager.ToastManager {
 
     add<Data extends object>(options: useToast.AddOptions<Data>): string {
       const id = options.id || generateId('toast');
-      const toastToAdd = {
+      const toastToAdd: ToastObject<Data> = {
         ...options,
         id,
-        animation: 'starting' as const,
+        transitionStatus: 'starting',
       };
 
       emit({

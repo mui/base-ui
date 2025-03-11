@@ -97,7 +97,9 @@
     transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.5s;
   user-select: none;
-  z-index: calc(2147483647 - var(--toast-index));
+  -webkit-user-select: none;
+  cursor: default;
+  z-index: calc(1000 - var(--toast-index));
 
   --gap: 10px;
 
@@ -109,64 +111,57 @@
     height: calc(var(--gap) + 1px);
   }
 
-  &[data-type='success'] {
-    background-color: lightgreen;
-  }
+  &[data-ending-style] {
+    opacity: 0;
 
-  &[data-type='error'] {
-    background-color: lightpink;
+    &:not([data-limited]) {
+      transition-duration: calc(0.6s + (var(--toast-index) * 0.15s));
+    }
   }
 
   &[data-position^='top'] {
-    transform: translate(
-        var(--toast-swipe-move-x),
-        calc(var(--toast-swipe-move-y) + calc(var(--toast-index) * 20%))
-      )
-      scale(calc(1 - (var(--toast-index) * 0.1)));
+    transform: translateX(var(--toast-swipe-move-x))
+      translateY(calc(var(--toast-index) * 15px + var(--toast-swipe-move-y)))
+      scale(calc(1 - var(--toast-index) * 0.1));
 
     &::after {
       top: 100%;
     }
 
     &[data-expanded] {
-      transform: translate(
-        var(--toast-swipe-move-x),
-        calc(
-          calc(var(--toast-offset) + calc(var(--toast-index) * var(--gap))) +
-            var(--toast-swipe-move-y)
-        )
-      );
+      transform: translateX(var(--toast-swipe-move-x))
+        translateY(
+          calc(var(--toast-offset) + (var(--toast-index) * var(--gap)) + var(--toast-swipe-move-y))
+        );
     }
 
     &[data-starting-style],
-    &[data-ending-style] {
+    &[data-ending-style]:not([data-limited]) {
       transform: translateY(-150%);
     }
 
     &[data-ending-style] {
       &[data-swipe-direction='up'] {
-        transform: translateY(calc(var(--toast-swipe-move-y) - 100%));
+        transform: translateY(calc(var(--toast-swipe-move-y) - 150%));
       }
 
       &[data-swipe-direction='left'] {
-        transform: translateX(calc(var(--toast-swipe-move-x) - 100%));
+        transform: translateX(calc(var(--toast-swipe-move-x) - 150%));
       }
 
       &[data-swipe-direction='right'] {
-        transform: translateX(calc(var(--toast-swipe-move-x) + 100%));
+        transform: translateX(calc(var(--toast-swipe-move-x) + 150%));
       }
 
       &[data-swipe-direction='down'] {
-        transform: translateY(calc(var(--toast-swipe-move-y) + 100%));
+        transform: translateY(calc(var(--toast-swipe-move-y) + 150%));
       }
     }
   }
 
   &[data-position^='bottom'] {
-    transform: translate(
-        var(--toast-swipe-move-x),
-        calc(var(--toast-swipe-move-y) + calc(var(--toast-index) * -20%))
-      )
+    transform: translateX(var(--toast-swipe-move-x))
+      translateY(calc(var(--toast-swipe-move-y) + (var(--toast-index) * -20%)))
       scale(calc(1 - (var(--toast-index) * 0.1)));
     bottom: 0;
 
@@ -175,35 +170,35 @@
     }
 
     &[data-expanded] {
-      transform: translate(
-        var(--toast-swipe-move-x),
-        calc(
-          calc(var(--toast-offset) * -1 + calc(var(--toast-index) * var(--gap) * -1)) +
-            var(--toast-swipe-move-y)
-        )
-      );
+      transform: translateX(var(--toast-swipe-move-x))
+        translateY(
+          calc(
+            var(--toast-offset) * -1 + (var(--toast-index) * var(--gap) * -1) +
+              var(--toast-swipe-move-y)
+          )
+        );
     }
 
     &[data-starting-style],
-    &[data-ending-style] {
+    &[data-ending-style]:not([data-limited]) {
       transform: translateY(150%);
     }
 
     &[data-ending-style] {
       &[data-swipe-direction='up'] {
-        transform: translateY(calc(var(--toast-swipe-move-y) - 100%));
+        transform: translateY(calc(var(--toast-swipe-move-y) - 150%));
       }
 
       &[data-swipe-direction='left'] {
-        transform: translateX(calc(var(--toast-swipe-move-x) - 100%));
+        transform: translateX(calc(var(--toast-swipe-move-x) - 150%));
       }
 
       &[data-swipe-direction='right'] {
-        transform: translateX(calc(var(--toast-swipe-move-x) + 100%));
+        transform: translateX(calc(var(--toast-swipe-move-x) + 150%));
       }
 
       &[data-swipe-direction='down'] {
-        transform: translateY(calc(var(--toast-swipe-move-y) + 100%));
+        transform: translateY(calc(var(--toast-swipe-move-y) + 150%));
       }
     }
   }
@@ -216,12 +211,6 @@
   &[data-position$='right'] {
     left: auto;
     margin-right: 0;
-  }
-
-  &[data-ending-style] {
-    transition-duration: 0.2s;
-    transition-timing-function: ease-in;
-    opacity: 0;
   }
 }
 
