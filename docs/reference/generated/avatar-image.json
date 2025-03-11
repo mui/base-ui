@@ -3,7 +3,7 @@
   "description": "The image to be displayed in the avatar.\nRenders an `<img>` element.",
   "props": {
     "onLoadingStatusChange": {
-      "type": "((status: \"idle\" | \"loading\" | \"loaded\" | \"error\") => void)",
+      "type": "((status: ImageLoadingStatus) => void)",
       "description": "Callback fired when the loading status changes."
     },
     "className": {

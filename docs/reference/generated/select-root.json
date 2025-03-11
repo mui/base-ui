@@ -51,7 +51,7 @@
       "description": "Event handler called after any animations complete when the select menu is opened or closed."
     },
     "transitionStatus": {
-      "type": "\"starting\" | \"ending\"",
+      "type": "TransitionStatus",
       "description": "The transition status of the Select."
     },
     "disabled": {

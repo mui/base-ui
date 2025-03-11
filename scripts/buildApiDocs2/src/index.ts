@@ -124,6 +124,10 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
   }
 
   if (rae.isUnionNode(type)) {
+    if (type.name) {
+      return type.name;
+    }
+
     if (removeUndefined) {
       const types = type.types.filter((t) => !(rae.isIntrinsicNode(t) && t.type === 'undefined'));
       return types.map((t) => formatType(t, removeUndefined)).join(' | ');
@@ -146,6 +150,10 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
 
   if (rae.isLiteralNode(type)) {
     return type.value as string;
+  }
+
+  if (rae.isArrayNode(type)) {
+    return `${formatType(type.type, false)}[]`;
   }
 
   if (rae.isFunctionTypeNode(type)) {

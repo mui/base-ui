@@ -3,7 +3,7 @@
   "description": "A container for the alert dialog contents.\nRenders a `<div>` element.",
   "props": {
     "initialFocus": {
-      "type": "React.RefObject | ((interactionType: \"\" | \"mouse\" | \"pen\" | \"touch\" | \"keyboard\") => React.RefObject)",
+      "type": "React.RefObject | ((interactionType: InteractionType) => React.RefObject)",
       "description": "Determines the element to focus when the dialog is opened.\nBy default, the first focusable element is focused."
     },
     "finalFocus": {
