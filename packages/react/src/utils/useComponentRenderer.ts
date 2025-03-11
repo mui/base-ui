@@ -48,6 +48,8 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
   skipGeneratingStyleHooks?: boolean;
 }
 
+const emptyObject = {};
+
 /**
  * Returns a function that renders a Base UI component.
  *
@@ -71,7 +73,7 @@ export function useComponentRenderer<
   const className = resolveClassName(classNameProp, state);
   const styleHooks = React.useMemo(() => {
     if (skipGeneratingStyleHooks) {
-      return {};
+      return emptyObject;
     }
     return getStyleHookProps(state, customStyleHookMapping);
   }, [state, customStyleHookMapping, skipGeneratingStyleHooks]);

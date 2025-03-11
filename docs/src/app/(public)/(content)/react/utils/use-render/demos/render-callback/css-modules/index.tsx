@@ -8,7 +8,7 @@ type CounterState = {
   odd: boolean;
 };
 
-interface CounterProps extends useRender.ElementProps<CounterState> {
+interface CounterProps extends useRender.ElementProps<'button', CounterState> {
   className?: string;
   onClick?: (event: React.MouseEvent) => void;
   ['aria-label']?: string;

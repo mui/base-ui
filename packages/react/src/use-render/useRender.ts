@@ -2,8 +2,9 @@ import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
+import { GenericHTMLProps } from '../utils/types';
 
-const defaultState = {};
+const emptyObject = {};
 
 /**
  * Returns a function that renders a Base UI component.
@@ -11,7 +12,7 @@ const defaultState = {};
 export function useRender<
   State extends Record<string, unknown>,
   RenderedElementType extends Element,
->(settings: useRender.Settings<State, RenderedElementType>) {
+>(settings: useRender.Parameters<State, RenderedElementType>) {
   const { render, props, state, refs } = settings;
   const { ref, ...extraProps } = props ?? {};
 
@@ -21,7 +22,7 @@ export function useRender<
 
   return useComponentRenderer({
     render,
-    state: (state ?? defaultState) as State,
+    state: (state ?? emptyObject) as State,
     ref: refsArray,
     extraProps,
     skipGeneratingStyleHooks: true,
@@ -34,11 +35,23 @@ export namespace useRender {
     | React.ReactElement<Record<string, unknown>>
     | keyof typeof defaultRenderFunctions;
 
-  export interface ElementProps<State = Record<string, unknown>> {
-    render?: RenderProp<State>;
-  }
+  export type ElementProps<
+    ElementType extends React.ElementType,
+    State = {},
+    RenderFunctionProps = GenericHTMLProps,
+  > = React.ComponentPropsWithRef<ElementType> & {
+    /**
+     * Allows you to replace the component’s HTML element
+     * with a different tag, or compose it with another component.
+     *
+     * Accepts a `ReactElement` or a function that returns the element to render.
+     */
+    render?:
+      | ComponentRenderFn<RenderFunctionProps, State>
+      | React.ReactElement<Record<string, unknown>>;
+  };
 
-  export interface Settings<State, RenderedElementType extends Element> {
+  export interface Parameters<State, RenderedElementType extends Element> {
     /**
      * The React element or a function that returns one to override the default element.
      */

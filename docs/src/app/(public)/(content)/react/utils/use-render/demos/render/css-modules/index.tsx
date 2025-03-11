@@ -5,15 +5,12 @@ import { mergeProps } from '@base-ui-components/react/merge-props';
 import styles from './index.module.css';
 
 // ElementProps contains the 'render' prop type
-interface TextProps extends useRender.ElementProps {
+interface TextProps extends useRender.ElementProps<'p'> {
   children: React.ReactNode;
 }
 
-const Text = React.forwardRef(function Text(
-  props: TextProps,
-  ref: React.ForwardedRef<HTMLParagraphElement>,
-) {
-  const { render = <p />, ...otherProps } = props;
+function Text(props: TextProps) {
+  const { render = <p />, ref, ...otherProps } = props;
 
   const { renderElement } = useRender({
     render,
@@ -24,7 +21,7 @@ const Text = React.forwardRef(function Text(
   });
 
   return renderElement();
-});
+}
 
 export default function ExampleText() {
   return (
