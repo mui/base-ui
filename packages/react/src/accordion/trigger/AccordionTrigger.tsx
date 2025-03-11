@@ -36,7 +36,9 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   const { state, setTriggerId, triggerId } = useAccordionItemContext();
 
   useEnhancedEffect(() => {
-    setTriggerId(id);
+    if (id) {
+      setTriggerId(id);
+    }
     return () => {
       setTriggerId(undefined);
     };

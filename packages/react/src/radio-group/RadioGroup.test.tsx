@@ -307,6 +307,33 @@ describe('<RadioGroup />', () => {
 
           expect(c).toHaveFocus();
         });
+
+        describe('modifier keys', () => {
+          it('when Shift is pressed arrow keys move focus normally', async () => {
+            const { user } = await render(
+              <DirectionProvider direction={direction as TextDirection}>
+                <RadioGroup>
+                  <Radio.Root value="a" data-testid="a" />
+                  <Radio.Root value="b" data-testid="b" />
+                  <Radio.Root value="c" data-testid="c" />
+                </RadioGroup>
+              </DirectionProvider>,
+            );
+
+            const a = screen.getByTestId('a');
+            const b = screen.getByTestId('b');
+            const c = screen.getByTestId('c');
+
+            await user.keyboard('{Tab}');
+            expect(a).toHaveFocus();
+
+            await user.keyboard(`{Shift>}{${horizontalNextKey}}`);
+            expect(b).toHaveFocus();
+
+            await user.keyboard('{Shift>}{ArrowDown}');
+            expect(c).toHaveFocus();
+          });
+        });
       });
     });
   });

@@ -777,6 +777,46 @@ describe('<Tabs.Root />', () => {
               expect(thirdTab).toHaveFocus();
             });
           });
+
+          describe('modifier keys', () => {
+            ['Shift', 'Control', 'Alt', 'Meta'].forEach((modifierKey) => {
+              it(`does not move focus when modifier key: ${modifierKey} is pressed`, async () => {
+                const handleChange = spy();
+                const handleKeyDown = spy();
+                const { getAllByRole, user } = await render(
+                  <DirectionProvider direction={direction as TextDirection}>
+                    <Tabs.Root
+                      onValueChange={handleChange}
+                      onKeyDown={handleKeyDown}
+                      orientation={orientation as Tabs.Root.Props['orientation']}
+                      value={0}
+                    >
+                      <Tabs.List>
+                        <Tabs.Tab value={0} />
+                        <Tabs.Tab value={1} />
+                        <Tabs.Tab value={2} />
+                      </Tabs.List>
+                    </Tabs.Root>
+                  </DirectionProvider>,
+                );
+
+                const [firstTab] = getAllByRole('tab');
+
+                await user.keyboard('[Tab]');
+                expect(firstTab).toHaveFocus();
+
+                await user.keyboard(`{${modifierKey}>}{${nextItemKey}}`);
+                expect(firstTab).toHaveFocus();
+                expect(handleChange.callCount).to.equal(0);
+                expect(handleKeyDown.callCount).to.equal(2);
+
+                await user.keyboard(`{${modifierKey}>}{${previousItemKey}}`);
+                expect(firstTab).toHaveFocus();
+                expect(handleChange.callCount).to.equal(0);
+                expect(handleKeyDown.callCount).to.equal(4);
+              });
+            });
+          });
         },
       );
     });

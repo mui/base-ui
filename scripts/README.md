@@ -17,7 +17,7 @@ A typical release goes like this:
    - Set **Public Repositories (read-only)** in Repository access.
    - Organization permissions are not required.
 
-### Prepare
+### Prepare the release of the packages
 
 1. Generate the changelog with `pnpm release:changelog`
    The output must be prepended to the top level `CHANGELOG.md`
@@ -30,23 +30,24 @@ A typical release goes like this:
 6. Open a PR with changes and wait for review and green CI.
 7. Merge the PR once the CI is green and it has been approved.
 
-### Release
+### Release the packages
 
 1. Checkout the last version of the release branch.
 2. `pnpm install && pnpm release:build` (make sure you have the latest dependencies installed, and build the packages).
 3. `pnpm release:publish` (release the versions on npm, you need your 2FA device).
 4. `pnpm release:tag` (push the newly created tag).
 
+> Tip: You can use `release:publish:dry-run` to test the release process without actually publishing the packages.
+> Make sure to have [verdaccio](https://verdaccio.org/) (local npm registry) installed before doing it.
+
 ### Publish the documentation
 
 The documentation must be updated on the `docs-vX` branch (`docs-v1` for `v1.X` releases, `docs-v2` for `v2.X` releases, etc.)
 
-Push the working branch to the documentation release branch to deploy the documentation with the latest changes.
-
-<!-- #default-branch-switch -->
+Push the working branch to the documentation release branch to deploy the documentation with the latest changes:
 
 ```bash
-git push -f upstream master:docs-v1
+pnpm docs:deploy
 ```
 
 You can follow the deployment process [on the Netlify Dashboard](https://app.netlify.com/sites/base-ui/deploys?filter=docs-v1)

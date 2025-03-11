@@ -2,6 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../utils/types';
+import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { useEventCallback } from '../utils/useEventCallback';
@@ -11,6 +12,8 @@ import { RadioGroupContext } from './RadioGroupContext';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../field/utils/constants';
 import type { FieldRoot } from '../field/root/FieldRoot';
+
+const MODIFIER_KEYS = [SHIFT];
 
 /**
  * Provides a shared state to a series of radio buttons.
@@ -77,7 +80,12 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 
   return (
     <RadioGroupContext.Provider value={contextValue}>
-      <CompositeRoot direction={direction} enableHomeAndEndKeys={false} render={renderElement()} />
+      <CompositeRoot
+        direction={direction}
+        enableHomeAndEndKeys={false}
+        modifierKeys={MODIFIER_KEYS}
+        render={renderElement()}
+      />
       <input {...radioGroup.getInputProps()} />
     </RadioGroupContext.Provider>
   );

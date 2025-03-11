@@ -8,7 +8,7 @@ import { refType } from '../../utils/proptypes';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
-import type { Dimensions } from '../composite';
+import type { Dimensions, ModifierKey } from '../composite';
 
 /**
  * @ignore - internal component.
@@ -30,6 +30,7 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
     stopEventPropagation,
     rootRef,
     disabledIndices,
+    modifierKeys,
     ...otherProps
   } = props;
 
@@ -47,6 +48,7 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
       enableHomeAndEndKeys,
       direction,
       disabledIndices,
+      modifierKeys,
     });
 
   const { renderElement } = useComponentRenderer({
@@ -88,6 +90,7 @@ namespace CompositeRoot {
     stopEventPropagation?: boolean;
     rootRef?: React.RefObject<HTMLElement | null>;
     disabledIndices?: number[];
+    modifierKeys?: ModifierKey[];
   }
 }
 
@@ -144,6 +147,10 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   loop: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  modifierKeys: PropTypes.arrayOf(PropTypes.oneOf(['Alt', 'Control', 'Meta', 'Shift']).isRequired),
   /**
    * @ignore
    */

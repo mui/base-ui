@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import path from 'path';
-import fse from 'fs-extra';
+import fs from 'fs/promises';
 import { includeFileInBuild, prepend, typescriptCopy } from './copyFilesUtils.mjs';
 
 const packagePath = process.cwd();
@@ -44,7 +44,7 @@ async function run() {
       }),
     );
 
-    const packageFile = await fse.readFile(path.resolve(packagePath, './package.json'), 'utf8');
+    const packageFile = await fs.readFile(path.resolve(packagePath, './package.json'), 'utf8');
     const packageData = JSON.parse(packageFile);
     await addLicense(packageData);
   } catch (err) {

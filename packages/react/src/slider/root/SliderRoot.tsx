@@ -116,7 +116,9 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
 
   return (
     <SliderRootContext.Provider value={contextValue}>
-      <CompositeList elementsRef={slider.thumbRefs}>{renderElement()}</CompositeList>
+      <CompositeList elementsRef={slider.thumbRefs} onMapChange={slider.setThumbMap}>
+        {renderElement()}
+      </CompositeList>
     </SliderRootContext.Provider>
   );
 }) as {
