@@ -56,10 +56,16 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
     element.style.setProperty('display', 'block', 'important');
 
     if (height === undefined) {
-      // element.style.opacity = '0';
+      // the closed transition styles must be set here to transition the first
+      // opening transition when both:
+      // 1 - the panel is initially closed
+      // 2 - `keepMounted={false}`
+      element.style.opacity = '0';
 
       setHeight(element.scrollHeight);
       element.style.removeProperty('display');
+
+      // after setHeight() all the transition properties need to be removed
       element.style.removeProperty('opacity');
       if (isInitiallyOpen.current) {
         element.style.transitionDuration = '0s';
@@ -107,13 +113,13 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
         abortControllerRef.current = null;
       }
 
+      panel.style.removeProperty('display');
+
       /* opening */
-      // panel.style.opacity = '0';
       panel.style.height = '0px';
 
       requestAnimationFrame(() => {
-        panel.style.removeProperty('opacity');
-        panel.style.height = '';
+        panel.style.removeProperty('height');
         setHeight(panel.scrollHeight);
       });
     } else {
@@ -125,6 +131,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
       abortControllerRef.current = new AbortController();
 
       runOnceAnimationsFinish(() => {
+        // TODO: !important may be needed
         panel.style.setProperty('display', 'none');
         abortControllerRef.current = null;
       }, abortControllerRef.current.signal);
@@ -149,12 +156,17 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
       }
 
       /* opening */
-      panel.style.opacity = '0';
       panel.style.height = '0px';
+      // the closed transition styles must be set here to transition all opening
+      // transitions except the first one when both:
+      // 1 - the panel is initially closed
+      // 2 - `keepMounted={false}`
+      panel.style.opacity = '0';
 
       requestAnimationFrame(() => {
-        panel.style.removeProperty('opacity');
         panel.style.removeProperty('height');
+        // remove all the transition properties that were just manually applied
+        panel.style.removeProperty('opacity');
         setHeight(panel.scrollHeight);
       });
     } else {
