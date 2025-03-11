@@ -13,14 +13,14 @@ import { useForkRef } from '../../../../../../packages/react/src/utils/useForkRe
 const STARTING_HOOK = { 'data-starting-style': '' };
 const ENDING_HOOK = { 'data-ending-style': '' };
 
-const DEFAULT_OPEN = true;
+const DEFAULT_OPEN = false;
 
 function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
   const { keepMounted = true, defaultOpen = false } = props;
 
   const [open, setOpen] = React.useState(defaultOpen);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, false);
 
   const styleHooks = React.useMemo(() => {
     if (transitionStatus === 'starting') {
@@ -66,7 +66,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 
         requestAnimationFrame(() => {
           setTimeout(() => {
-            element.style.transitionDuration = '';
+            element.style.removeProperty('transition-duration');
             if (!keepMounted) {
               isInitiallyOpen.current = false;
             }
