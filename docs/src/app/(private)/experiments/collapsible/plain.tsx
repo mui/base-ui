@@ -7,14 +7,14 @@ import { useAnimationsFinished } from '../../../../../../packages/react/src/util
 import { useEventCallback } from '../../../../../../packages/react/src/utils/useEventCallback';
 import { useForkRef } from '../../../../../../packages/react/src/utils/useForkRef';
 
-const DEFAULT_OPEN = true;
+const DEFAULT_OPEN = false;
 
 function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
   const { keepMounted = true, defaultOpen = false } = props;
 
   const [open, setOpen] = React.useState(defaultOpen);
 
-  const [mounted, setMounted] = React.useState(open);
+  const [mounted, setMounted] = React.useState(keepMounted ? true : open);
 
   const [height, setHeight] = React.useState<number | undefined>(undefined);
 
@@ -39,7 +39,6 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 
     if (height === undefined) {
       setHeight(element.scrollHeight);
-
       if (isInitiallyOpen.current) {
         element.style.transitionDuration = '0s';
 
@@ -66,7 +65,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 
     if (!keepMounted) {
       // mount only
-      if (!mounted) {
+      if (!mounted && nextOpen) {
         setMounted(true);
       }
     }
@@ -91,14 +90,13 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
       panel.style.height = '0px';
 
       requestAnimationFrame(() => {
-        panel.style.opacity = '1';
+        panel.style.removeProperty('opacity');
         panel.style.height = '';
         setHeight(panel.scrollHeight);
       });
     } else {
       /* closing */
       requestAnimationFrame(() => {
-        panel.style.opacity = '0';
         setHeight(0);
       });
 
@@ -106,6 +104,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 
       runOnceAnimationsFinish(() => {
         panel.style.setProperty('display', 'none');
+        abortControllerRef.current = null;
       }, abortControllerRef.current.signal);
     }
   });
@@ -122,8 +121,6 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
     }
 
     if (open) {
-      // console.log('mounted?', mounted);
-
       if (abortControllerRef.current != null) {
         abortControllerRef.current.abort();
         abortControllerRef.current = null;
@@ -134,16 +131,13 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
       panel.style.height = '0px';
 
       requestAnimationFrame(() => {
-        panel.style.opacity = '1';
-        panel.style.height = '';
+        panel.style.removeProperty('opacity');
+        panel.style.removeProperty('height');
         setHeight(panel.scrollHeight);
       });
-
-      setMounted(true);
     } else {
       /* closing */
       requestAnimationFrame(() => {
-        panel.style.opacity = '0';
         setHeight(0);
       });
 
@@ -151,6 +145,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 
       runOnceAnimationsFinish(() => {
         setMounted(false);
+        abortControllerRef.current = null;
       }, abortControllerRef.current.signal);
     }
   }, [keepMounted, open, mounted, setMounted, runOnceAnimationsFinish]);
@@ -203,6 +198,8 @@ export default function App() {
       <PlainCollapsible defaultOpen={DEFAULT_OPEN} />
 
       <PlainCollapsible keepMounted={false} defaultOpen={DEFAULT_OPEN} />
+
+      <small>———</small>
     </div>
   );
 }
