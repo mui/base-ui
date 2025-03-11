@@ -13,7 +13,8 @@ import { useForkRef } from '../../../../../../packages/react/src/utils/useForkRe
 const STARTING_HOOK = { 'data-starting-style': '' };
 const ENDING_HOOK = { 'data-ending-style': '' };
 
-const DEFAULT_OPEN = false;
+// const DEFAULT_OPEN = false;
+const KEEP_MOUNTED = true;
 
 function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
   const { keepMounted = true, defaultOpen = false } = props;
@@ -46,27 +47,63 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 
   const panelRef: React.RefObject<HTMLElement | null> = React.useRef(null);
 
+  /**
+   * When `keepMounted` is `true` this runs once as soon as it exists in the DOM
+   * regardless of initial open state.
+   *
+   * When `keepMounted` is `false` this runs on every mount, typically every
+   * time it opens. If the panel is in the middle of a close transition that is
+   * interrupted and re-opens, this won't run as the panel was not unmounted.
+   */
   const handlePanelRef = useEventCallback((element: HTMLElement) => {
     if (!element) {
       return;
     }
-
-    // override potential `display: none` set on `[hidden]`
-    // to ensure the panel is actually rendered before measuring
+    /**
+     * Explicitly set `display` to ensure the panel is actually rendered before
+     * measuring anything. `!important` is to needed to override a conflicting
+     * Tailwind v4 default that sets `display: none !important` on `[hidden]`:
+     * https://github.com/tailwindlabs/tailwindcss/blame/main/packages/tailwindcss/preflight.css#L382
+     */
     element.style.setProperty('display', 'block', 'important');
 
+    // const panelStyles = getComputedStyle(element);
+
     if (height === undefined) {
+      // console.log('here');
+      // it's possible to read the values of all transition properties in their closed state
+      // at the cost of a flash:
+      // if (keepMounted) {
+      //   if (isInitiallyOpen.current) {
+      //     // initially open
+      //     element.style.setProperty('transition', 'none', 'important');
+      //     setOpen(false);
+      //     requestAnimationFrame(() => {
+      //       requestAnimationFrame(() => {
+      //         requestAnimationFrame(() => {
+      //           console.log('here 2');
+      //           console.log(panelStyles.height, panelStyles.opacity);
+      //           setOpen(true);
+      //         });
+      //       });
+      //     });
+      //   } else {
+      //     // initially closed
+      //     console.log('here 3');
+      //     console.log(panelStyles.height, panelStyles.opacity);
+      //   }
+      // }
       // the closed transition styles must be set here to transition the first
       // opening transition when both:
       // 1 - the panel is initially closed
       // 2 - `keepMounted={false}`
-      element.style.opacity = '0';
+      // element.style.opacity = '0';
 
       setHeight(element.scrollHeight);
       element.style.removeProperty('display');
 
       // after setHeight() all the transition properties need to be removed
-      element.style.removeProperty('opacity');
+      // element.style.removeProperty('opacity');
       if (isInitiallyOpen.current) {
         element.style.transitionDuration = '0s';
 
@@ -104,6 +141,10 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
       return;
     }
 
+    // // this is the safest opportunity to unset `transition: none !important`
+    // // that was set in `handleRef` when initially open and `keepMounted={true}`
+    // panel.style.removeProperty('transition');
+
     // const targetHeight = panel.clientHeight;
     panel.style.setProperty('display', 'block', 'important');
 
@@ -138,8 +179,11 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
     }
   });
 
+  /**
+   * This only handles `keepMounted={false}` as the state changes can't be done
+   * in the event handler
+   */
   useEnhancedEffect(() => {
-    // This only matters when `keepMounted={false}`
     if (keepMounted) {
       return;
     }
@@ -164,6 +208,10 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
       panel.style.opacity = '0';
 
       requestAnimationFrame(() => {
+        // this is the earliest opportunity to unset the `display` property
+        // that was set in `handlePanelRef`
+        panel.style.removeProperty('display');
+
         panel.style.removeProperty('height');
         // remove all the transition properties that were just manually applied
         panel.style.removeProperty('opacity');
@@ -230,9 +278,9 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 export default function App() {
   return (
     <div className={classes.wrapper}>
-      <PlainCollapsible defaultOpen={DEFAULT_OPEN} />
+      <PlainCollapsible keepMounted={KEEP_MOUNTED} defaultOpen={true} />
 
-      <PlainCollapsible keepMounted={false} defaultOpen={DEFAULT_OPEN} />
+      <PlainCollapsible keepMounted={KEEP_MOUNTED} defaultOpen={false} />
 
       <small>———</small>
     </div>
