@@ -2,7 +2,7 @@ import { generateId } from '../utils/generateId';
 import { useToast } from './useToast';
 
 export interface ToastManagerEvent {
-  action: 'add' | 'remove' | 'update' | 'promise';
+  action: 'add' | 'close' | 'update' | 'promise';
   options: any;
 }
 
@@ -45,9 +45,9 @@ export function createToastManager(): createToastManager.ToastManager {
       return id;
     },
 
-    remove(id: string): void {
+    close(id: string): void {
       emit({
-        action: 'remove',
+        action: 'close',
         options: { id },
       });
     },
@@ -88,7 +88,7 @@ export namespace createToastManager {
   export interface ToastManager {
     ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
     add: <Data extends object>(options: useToast.AddOptions<Data>) => string;
-    remove: (id: string) => void;
+    close: (id: string) => void;
     update: <Data extends object>(id: string, updates: useToast.UpdateOptions<Data>) => void;
     promise: <Value, Data extends object>(
       promiseValue: Promise<Value>,

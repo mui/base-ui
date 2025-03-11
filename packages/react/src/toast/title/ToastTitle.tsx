@@ -43,6 +43,10 @@ const ToastTitle = React.forwardRef(function ToastTitle(
     },
   });
 
+  if (!other.children) {
+    return null;
+  }
+
   return renderElement();
 });
 

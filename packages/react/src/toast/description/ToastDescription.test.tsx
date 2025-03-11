@@ -5,7 +5,7 @@ import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { List, Button } from '../utils/test-utils';
 
-const toast = {
+const toast: Toast.Root.ToastObject = {
   id: 'test',
   title: 'Toast title',
 };
@@ -13,7 +13,7 @@ const toast = {
 describe('<Toast.Description />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Toast.Description />, () => ({
+  describeConformance(<Toast.Description>description</Toast.Description>, () => ({
     refInstanceof: window.HTMLParagraphElement,
     render(node) {
       return render(

@@ -9,13 +9,13 @@ export function resolvePromiseOptions<T, Data extends object>(
 ): useToast.UpdateOptions<Data> {
   if (typeof options === 'string') {
     return {
-      title: options,
+      description: options,
     };
   }
 
   if (typeof options === 'function') {
     const resolvedOptions = options(result as T);
-    return typeof resolvedOptions === 'string' ? { title: resolvedOptions } : resolvedOptions;
+    return typeof resolvedOptions === 'string' ? { description: resolvedOptions } : resolvedOptions;
   }
 
   return options;

@@ -4,59 +4,48 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { useId } from '../../utils/useId';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { mergeProps } from '../../merge-props';
+import { useButton } from '../../use-button/useButton';
 
 const state = {};
 
 /**
- * A description that describes the toast.
- * Renders a `<p>` element.
+ * Performs an action when clicked.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
-const ToastDescription = React.forwardRef(function ToastDescription(
-  props: ToastDescription.Props,
-  forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
+const ToastAction = React.forwardRef(function ToastAction(
+  props: ToastAction.Props,
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, id: idProp, ...other } = props;
+  const { render, className, disabled, ...other } = props;
 
-  const id = useId(idProp);
+  const { toast } = useToastRootContext();
 
-  const { setDescriptionId } = useToastRootContext();
-
-  useEnhancedEffect(() => {
-    setDescriptionId(id);
-    return () => {
-      setDescriptionId(undefined);
-    };
-  }, [id, setDescriptionId]);
+  const { getButtonProps } = useButton({
+    disabled,
+    buttonRef: forwardedRef,
+  });
 
   const { renderElement } = useComponentRenderer({
-    render: render ?? 'p',
+    render: render ?? 'button',
     ref: forwardedRef,
     className,
     state,
-    extraProps: {
-      id,
-      ...other,
-    },
+    extraProps: mergeProps<'button'>(toast.actionProps, other, getButtonProps),
   });
-
-  if (!other.children) {
-    return null;
-  }
 
   return renderElement();
 });
 
-namespace ToastDescription {
+namespace ToastAction {
   export interface State {}
 
-  export interface Props extends BaseUIComponentProps<'p', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {}
 }
 
-ToastDescription.propTypes /* remove-proptypes */ = {
+ToastAction.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -73,7 +62,7 @@ ToastDescription.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  id: PropTypes.string,
+  disabled: PropTypes.bool,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
@@ -83,4 +72,4 @@ ToastDescription.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { ToastDescription };
+export { ToastAction };

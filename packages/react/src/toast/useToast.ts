@@ -11,17 +11,17 @@ export function useToast(): useToast.ReturnValue {
     throw new Error('Base UI: useToast must be used within <Toast.Provider>.');
   }
 
-  const { toasts, add, remove, update, promise } = context;
+  const { toasts, add, close, update, promise } = context;
 
   return React.useMemo(
     () => ({
       toasts,
       add,
-      remove,
+      close,
       update,
       promise,
     }),
-    [toasts, add, remove, update, promise],
+    [toasts, add, close, update, promise],
   );
 }
 
@@ -29,7 +29,7 @@ export namespace useToast {
   export interface ReturnValue {
     toasts: ToastContext<any>['toasts'];
     add: <Data extends object>(options: AddOptions<Data>) => string;
-    remove: (toastId: string) => void;
+    close: (toastId: string) => void;
     update: <Data extends object>(toastId: string, options: UpdateOptions<Data>) => void;
     promise: <Value, Data extends object>(
       promise: Promise<Value>,
@@ -38,7 +38,7 @@ export namespace useToast {
   }
 
   export interface AddOptions<Data extends object>
-    extends Omit<Toast<Data>, 'id' | 'animation' | 'height' | 'ref'> {
+    extends Omit<ToastObject<Data>, 'id' | 'animation' | 'height' | 'ref'> {
     id?: string;
   }
 
@@ -51,7 +51,7 @@ export namespace useToast {
   }
 }
 
-export interface Toast<Data extends object> {
+export interface ToastObject<Data extends object> {
   /**
    * The unique identifier for the toast.
    */
@@ -94,13 +94,13 @@ export interface Toast<Data extends object> {
    */
   height?: number;
   /**
-   * Callback function to be called when the toast is removed.
+   * Callback function to be called when the toast is closes.
+   */
+  onClose?: () => void;
+  /**
+   * Callback function to be called when the toast is removed from the list after any animations are complete when closed.
    */
   onRemove?: () => void;
-  /**
-   * Callback function to be called when the toast is removed after any animations are complete.
-   */
-  onRemoveComplete?: () => void;
   /**
    * The props for the action button.
    */
@@ -112,8 +112,8 @@ export interface Toast<Data extends object> {
 }
 
 export interface ToastContextValue<Data extends object> {
-  toasts: Toast<Data>[];
-  setToasts: React.Dispatch<React.SetStateAction<Toast<Data>[]>>;
+  toasts: ToastObject<Data>[];
+  setToasts: React.Dispatch<React.SetStateAction<ToastObject<Data>[]>>;
   hovering: boolean;
   setHovering: React.Dispatch<React.SetStateAction<boolean>>;
   focused: boolean;
@@ -124,10 +124,10 @@ export interface ToastContextValue<Data extends object> {
     value: Promise<Value>,
     options: useToast.PromiseOptions<Value, Data>,
   ) => Promise<Value>;
-  remove: (id: string) => void;
+  close: (id: string) => void;
   pauseTimers: () => void;
   resumeTimers: () => void;
-  finalizeRemove: (id: string) => void;
+  remove: (id: string) => void;
   prevFocusElement: HTMLElement | null;
   setPrevFocusElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   viewportRef: React.RefObject<HTMLElement | null>;

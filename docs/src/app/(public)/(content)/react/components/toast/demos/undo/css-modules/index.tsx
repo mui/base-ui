@@ -6,7 +6,7 @@ import styles from './index.module.css';
 export default function UndoToastExample() {
   return (
     <Toast.Provider>
-      <SaveForm />
+      <Form />
       <Toast.Viewport className={styles.Viewport} data-position="top">
         <ToastList />
       </Toast.Viewport>
@@ -14,7 +14,7 @@ export default function UndoToastExample() {
   );
 }
 
-function SaveForm() {
+function Form() {
   const toast = Toast.useToast();
 
   function action() {
@@ -25,7 +25,7 @@ function SaveForm() {
       actionProps: {
         children: 'Undo',
         onClick() {
-          toast.remove(id);
+          toast.close(id);
           toast.add({
             title: 'Action undone',
           });
@@ -43,7 +43,6 @@ function SaveForm() {
 
 function ToastList() {
   const { toasts } = Toast.useToast();
-
   return toasts.map((toast) => (
     <Toast.Root
       key={toast.id}
@@ -52,23 +51,11 @@ function ToastList() {
       data-position="top"
       swipeDirection="up"
     >
-      {toast.title && (
-        <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
-      )}
-      {toast.description && (
-        <Toast.Description className={styles.Description}>
-          {toast.description}
-        </Toast.Description>
-      )}
-      {toast.actionProps && (
-        <div className={styles.Actions}>
-          <button
-            {...toast.actionProps}
-            type="button"
-            className={styles.UndoButton}
-          />
-        </div>
-      )}
+      <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
+      <Toast.Description className={styles.Description}>
+        {toast.description}
+      </Toast.Description>
+      <Toast.Action className={styles.UndoButton} />
       <Toast.Close className={styles.Close} aria-label="Close">
         <XIcon className={styles.Icon} />
       </Toast.Close>

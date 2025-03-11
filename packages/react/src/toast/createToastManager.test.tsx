@@ -82,7 +82,7 @@ describe('Manager', () => {
       function AddButton() {
         return (
           <button type="button" onClick={add}>
-            add
+            add method
           </button>
         );
       }
@@ -96,16 +96,16 @@ describe('Manager', () => {
         </Toast.Provider>,
       );
 
-      const button = screen.getByRole('button', { name: 'add' });
+      const button = screen.getByRole('button', { name: 'add method' });
       fireEvent.click(button);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('title')).to.have.text('loading');
+      expect(screen.queryByTestId('description')).to.have.text('loading');
 
       clock.tick(1000);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('title')).to.have.text('success');
+      expect(screen.queryByTestId('description')).to.have.text('success');
     });
 
     it('adds a toast with the loading state that is updated with the error state', async () => {
@@ -131,7 +131,7 @@ describe('Manager', () => {
       function AddButton() {
         return (
           <button type="button" onClick={promise}>
-            add
+            add method
           </button>
         );
       }
@@ -145,11 +145,11 @@ describe('Manager', () => {
         </Toast.Provider>,
       );
 
-      const button = screen.getByRole('button', { name: 'add' });
+      const button = screen.getByRole('button', { name: 'add method' });
       fireEvent.click(button);
       await flushMicrotasks();
 
-      expect(screen.getByTestId('title')).to.have.text('error');
+      expect(screen.getByTestId('description')).to.have.text('error');
     });
   });
 
@@ -175,10 +175,10 @@ describe('Manager', () => {
         return (
           <React.Fragment>
             <button type="button" onClick={add}>
-              add
+              add method
             </button>
             <button type="button" onClick={update}>
-              update
+              update method
             </button>
           </React.Fragment>
         );
@@ -193,18 +193,18 @@ describe('Manager', () => {
         </Toast.Provider>,
       );
 
-      const button = screen.getByRole('button', { name: 'add' });
+      const button = screen.getByRole('button', { name: 'add method' });
       fireEvent.click(button);
 
-      const updateButton = screen.getByRole('button', { name: 'update' });
+      const updateButton = screen.getByRole('button', { name: 'update method' });
       fireEvent.click(updateButton);
 
       expect(screen.getByTestId('title')).to.have.text('updated');
     });
   });
 
-  describe('remove', () => {
-    it('removes a toast', async () => {
+  describe('close', () => {
+    it('closes a toast', async () => {
       const toastManager = Toast.createToastManager();
 
       let toastId: string;
@@ -215,18 +215,18 @@ describe('Manager', () => {
         });
       }
 
-      function remove() {
-        toastManager.remove(toastId);
+      function close() {
+        toastManager.close(toastId);
       }
 
       function Buttons() {
         return (
           <React.Fragment>
             <button type="button" onClick={add}>
-              add
+              add method
             </button>
-            <button type="button" onClick={remove}>
-              remove
+            <button type="button" onClick={close}>
+              close method
             </button>
           </React.Fragment>
         );
@@ -241,11 +241,11 @@ describe('Manager', () => {
         </Toast.Provider>,
       );
 
-      const button = screen.getByRole('button', { name: 'add' });
+      const button = screen.getByRole('button', { name: 'add method' });
       fireEvent.click(button);
 
-      const removeButton = screen.getByRole('button', { name: 'remove' });
-      fireEvent.click(removeButton);
+      const closeButton = screen.getByRole('button', { name: 'close method' });
+      fireEvent.click(closeButton);
 
       expect(screen.queryByTestId('title')).to.equal(null);
     });

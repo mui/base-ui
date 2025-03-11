@@ -35,7 +35,6 @@ function ToastButton() {
 
 function ToastList() {
   const { toasts } = Toast.useToast();
-
   return toasts.map((toast) => (
     <Toast.Root
       key={toast.id}
@@ -43,14 +42,10 @@ function ToastList() {
       className={styles.Toast}
       data-position="top"
     >
-      {toast.title && (
-        <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
-      )}
-      {toast.description && (
-        <Toast.Description className={styles.Description}>
-          {toast.description}
-        </Toast.Description>
-      )}
+      <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
+      <Toast.Description className={styles.Description}>
+        {toast.description}
+      </Toast.Description>
       <Toast.Close className={styles.Close} aria-label="Close">
         <XIcon className={styles.Icon} />
       </Toast.Close>

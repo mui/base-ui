@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { List, Button } from '../utils/test-utils';
 
-const toast = {
+const toast: Toast.Root.ToastObject = {
   id: 'test',
   title: 'Toast title',
 };

@@ -8,7 +8,7 @@
       "description": "Direction(s) in which the toast can be swiped to dismiss."
     },
     "toast": {
-      "type": "Toast",
+      "type": "ToastObject",
       "required": true,
       "description": "The toast to render."
     },

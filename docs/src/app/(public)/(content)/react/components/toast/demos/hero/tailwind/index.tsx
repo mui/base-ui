@@ -10,7 +10,6 @@ export default function ExampleToast() {
         // prettier-ignore
         className="
           fixed mx-auto flex w-full max-w-[320px]
-
           data-[position=top]:top-4 data-[position=top]:right-0 data-[position=top]:left-0
           data-[position=bottom]:bottom-4 data-[position=bottom]:right-0 data-[position=bottom]:left-0
           data-[position=top-left]:top-4 data-[position=top-left]:left-4 data-[position=top-left]:items-start
@@ -51,7 +50,6 @@ function ToastButton() {
 
 function ToastList() {
   const { toasts } = Toast.useToast();
-
   return toasts.map((toast) => (
     <Toast.Root
       key={toast.id}
@@ -107,16 +105,12 @@ function ToastList() {
       "
       style={{ '--gap': '10px' } as React.CSSProperties}
     >
-      {toast.title && (
-        <Toast.Title className="text-[0.975rem] leading-5 font-medium">
-          {toast.title}
-        </Toast.Title>
-      )}
-      {toast.description && (
-        <Toast.Description className="text-[0.925rem] leading-5 text-gray-700">
-          {toast.description}
-        </Toast.Description>
-      )}
+      <Toast.Title className="text-[0.975rem] leading-5 font-medium">
+        {toast.title}
+      </Toast.Title>
+      <Toast.Description className="text-[0.925rem] leading-5 text-gray-700">
+        {toast.description}
+      </Toast.Description>
       <Toast.Close
         className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded border-none bg-transparent text-gray-500 hover:bg-gray-100 hover:text-gray-700"
         aria-label="Close"
