@@ -36,7 +36,7 @@
       "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
     },
     "collisionBoundary": {
-      "type": "Element | \"clipping-ancestors\" | Array | __type",
+      "type": "Element | \"clipping-ancestors\" | Element[] | __type",
       "default": "'clipping-ancestors'",
       "description": "An element or a rectangle that delimits the area that the popup is confined to."
     },

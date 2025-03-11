@@ -3,7 +3,7 @@
   "description": "The form control to label and validate.\nRenders an `<input>` element.\n\nYou can omit this part and use any Base UI input component instead. For example,\n[Input](https://base-ui.com/react/components/input), [Checkbox](https://base-ui.com/react/components/checkbox),\nor [Select](https://base-ui.com/react/components/select), among others, will work with Field out of the box.",
   "props": {
     "onValueChange": {
-      "type": "((value: string | number | ReadonlyArray | undefined, event: Event) => void)",
+      "type": "((value: string | number | string[] | undefined, event: Event) => void)",
       "description": "Callback fired when the `value` changes. Use when controlled."
     },
     "className": {

@@ -3,15 +3,15 @@
   "description": "Provides a shared state to a series of toggle buttons.",
   "props": {
     "defaultValue": {
-      "type": "ReadonlyArray",
+      "type": "any[]",
       "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s.\nThis is the uncontrolled counterpart of `value`."
     },
     "value": {
-      "type": "ReadonlyArray",
+      "type": "any[]",
       "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s\nThis is the controlled counterpart of `defaultValue`."
     },
     "onValueChange": {
-      "type": "((groupValue: Array, event: Event) => void)",
+      "type": "((groupValue: any[], event: Event) => void)",
       "description": "Callback fired when the pressed states of the ToggleGroup changes."
     },
     "toggleMultiple": {

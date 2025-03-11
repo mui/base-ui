@@ -7,7 +7,7 @@
       "default": "'off'"
     },
     "children": {
-      "type": "null | ((formattedValues: ReadonlyArray, values: ReadonlyArray) => React.ReactNode)"
+      "type": "null | ((formattedValues: string[], values: number[]) => React.ReactNode)"
     },
     "className": {
       "type": "string | ((state: State) => string)",

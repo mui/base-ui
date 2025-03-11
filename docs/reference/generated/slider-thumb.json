@@ -50,7 +50,7 @@
       "type": "React.PointerEventHandler<Element>"
     },
     "percentageValues": {
-      "type": "ReadonlyArray",
+      "type": "number[]",
       "description": "The value(s) of the slider as percentages"
     },
     "tabIndex": {
@@ -59,7 +59,7 @@
       "description": "Optional tab index attribute for the thumb components."
     },
     "values": {
-      "type": "ReadonlyArray",
+      "type": "number[]",
       "description": "The value(s) of the slider"
     },
     "step": {

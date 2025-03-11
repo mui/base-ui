@@ -3,19 +3,19 @@
   "description": "Provides a shared state to a series of checkboxes.",
   "props": {
     "defaultValue": {
-      "type": "Array",
+      "type": "string[]",
       "description": "Names of the checkboxes in the group that should be initially ticked.\n\nTo render a controlled checkbox group, use the `value` prop instead."
     },
     "value": {
-      "type": "Array",
+      "type": "string[]",
       "description": "Names of the checkboxes in the group that should be ticked.\n\nTo render an uncontrolled checkbox group, use the `defaultValue` prop instead."
     },
     "onValueChange": {
-      "type": "((value: Array, event: Event) => void)",
+      "type": "((value: string[], event: Event) => void)",
       "description": "Event handler called when a checkbox in the group is ticked or unticked.\nProvides the new value as an argument."
     },
     "allValues": {
-      "type": "Array",
+      "type": "string[]",
       "description": "Names of all checkboxes in the group. Use this when creating a parent checkbox."
     },
     "disabled": {
