@@ -52,6 +52,10 @@
     height: 0;
     opacity: 0;
   }
+
+  &[data-closed] {
+    opacity: 0;
+  }
 }
 
 .Content {
