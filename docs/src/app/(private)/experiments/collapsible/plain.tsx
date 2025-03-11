@@ -14,7 +14,7 @@ const STARTING_HOOK = { 'data-starting-style': '' };
 const ENDING_HOOK = { 'data-ending-style': '' };
 
 // const DEFAULT_OPEN = false;
-const KEEP_MOUNTED = true;
+const KEEP_MOUNTED = false;
 
 function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
   const { keepMounted = true, defaultOpen = false } = props;
@@ -35,7 +35,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 
   const [height, setHeight] = React.useState<number | undefined>(undefined);
 
-  const isInitiallyOpen = React.useRef(open);
+  const isInitiallyOpenRef = React.useRef(open);
 
   const isHidden = React.useMemo(() => {
     if (keepMounted) {
@@ -70,49 +70,29 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
     // const panelStyles = getComputedStyle(element);
 
     if (height === undefined) {
-      // console.log('here');
-      // it's possible to read the values of all transition properties in their closed state
-      // at the cost of a flash:
-      // if (keepMounted) {
-      //   if (isInitiallyOpen.current) {
-      //     // initially open
-      //     element.style.setProperty('transition', 'none', 'important');
-      //     setOpen(false);
-      //     requestAnimationFrame(() => {
-      //       requestAnimationFrame(() => {
-      //         requestAnimationFrame(() => {
-      //           console.log('here 2');
-      //           console.log(panelStyles.height, panelStyles.opacity);
-      //           setOpen(true);
-      //         });
-      //       });
-      //     });
-      //   } else {
-      //     // initially closed
-      //     console.log('here 3');
-      //     console.log(panelStyles.height, panelStyles.opacity);
-      //   }
-      // }
-      // the closed transition styles must be set here to transition the first
-      // opening transition when both:
-      // 1 - the panel is initially closed
-      // 2 - `keepMounted={false}`
-      // element.style.opacity = '0';
+      if (
+        isInitiallyOpenRef.current ||
+        (!isInitiallyOpenRef.current && !keepMounted)
+      ) {
+        // the closed transition styles must be set here to transition the first
+        // opening transition when EITHER:
+        // 1 - the panel is initially closed AND `keepMounted={false}`
+        // 2 - the panel is initially open regardless of keepMounted
+        element.style.opacity = '0';
 
-      setHeight(element.scrollHeight);
-      element.style.removeProperty('display');
+        setHeight(element.scrollHeight);
+        element.style.removeProperty('display');
 
-      // after setHeight() all the transition properties need to be removed
-      // element.style.removeProperty('opacity');
-      if (isInitiallyOpen.current) {
+        // after setHeight() all the transition properties need to be removed
+        element.style.removeProperty('opacity');
+      }
+
+      if (isInitiallyOpenRef.current) {
         element.style.transitionDuration = '0s';
 
         requestAnimationFrame(() => {
           setTimeout(() => {
             element.style.removeProperty('transition-duration');
-            if (!keepMounted) {
-              isInitiallyOpen.current = false;
-            }
           });
         });
       }
@@ -141,11 +121,6 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
       return;
     }
 
-    // // this is the safest opportunity to unset `transition: none !important`
-    // // that was set in `handleRef` when initially open and `keepMounted={true}`
-    // panel.style.removeProperty('transition');
-
-    // const targetHeight = panel.clientHeight;
     panel.style.setProperty('display', 'block', 'important');
 
     if (nextOpen) {
