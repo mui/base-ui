@@ -66,8 +66,8 @@ describe('<Toast.Viewport />', () => {
 
     await user.click(button);
     await user.keyboard('{F6}');
-    await user.keyboard('{Tab}');
-    await user.keyboard('{Shift>}{Tab}{/Shift}');
+    await user.tab();
+    await user.tab({ shift: true });
 
     expect(button).toHaveFocus();
   });
@@ -88,11 +88,13 @@ describe('<Toast.Viewport />', () => {
     await user.click(button);
 
     await user.keyboard('{F6}');
-    await user.keyboard('{Tab}'); // first toast
-    await user.keyboard('{Tab}'); // first toast close button
-    await user.keyboard('{Tab}'); // last toast
-    await user.keyboard('{Tab}'); // last toast close button
-    await user.keyboard('{Tab}');
+    await user.tab(); // first toast
+    await user.tab(); // first toast close button
+    await user.tab(); // first toast action button
+    await user.tab(); // last toast
+    await user.tab(); // last toast close button
+    await user.tab(); // last toast action button
+    await user.tab();
 
     expect(button).toHaveFocus();
   });

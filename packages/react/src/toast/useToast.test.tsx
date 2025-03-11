@@ -211,7 +211,7 @@ describe('useToast', () => {
       ));
     }
 
-    it('displays success state as title after promise resolves', async () => {
+    it('displays success state as description after promise resolves', async () => {
       function AddButton() {
         const { promise } = useToast();
         return (
@@ -248,15 +248,15 @@ describe('useToast', () => {
       const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
-      expect(screen.getByTestId('title')).to.have.text('loading');
+      expect(screen.getByTestId('description')).to.have.text('loading');
 
       clock.tick(1000);
       await flushMicrotasks();
 
-      expect(screen.getByTestId('title')).to.have.text('success');
+      expect(screen.getByTestId('description')).to.have.text('success');
     });
 
-    it('displays error state as title after promise rejects', async () => {
+    it('displays error state as description after promise rejects', async () => {
       function AddButton() {
         const { promise } = useToast();
         return (
@@ -295,12 +295,12 @@ describe('useToast', () => {
       const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
-      expect(screen.getByTestId('title')).to.have.text('loading');
+      expect(screen.getByTestId('description')).to.have.text('loading');
 
       clock.tick(1000);
       await flushMicrotasks();
 
-      expect(screen.getByTestId('title')).to.have.text('error');
+      expect(screen.getByTestId('description')).to.have.text('error');
     });
 
     it('passes data when success is a function', async () => {
@@ -338,12 +338,12 @@ describe('useToast', () => {
       const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
-      expect(screen.getByTestId('title')).to.have.text('loading');
+      expect(screen.getByTestId('description')).to.have.text('loading');
 
       clock.tick(1000);
       await flushMicrotasks();
 
-      expect(screen.getByTestId('title')).to.have.text('test success');
+      expect(screen.getByTestId('description')).to.have.text('test success');
     });
 
     it('passes data when error is a function', async () => {
@@ -383,12 +383,12 @@ describe('useToast', () => {
       const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
-      expect(screen.getByTestId('title')).to.have.text('loading');
+      expect(screen.getByTestId('description')).to.have.text('loading');
 
       clock.tick(1000);
       await flushMicrotasks();
 
-      expect(screen.getByTestId('title')).to.have.text('test error');
+      expect(screen.getByTestId('description')).to.have.text('test error');
     });
 
     it('supports custom options', async () => {
@@ -499,7 +499,7 @@ describe('useToast', () => {
     });
   });
 
-  describe('remove', () => {
+  describe('close', () => {
     const { clock, render } = createRenderer();
 
     clock.withFakeTimers();
@@ -513,9 +513,9 @@ describe('useToast', () => {
       ));
     }
 
-    it('removes the toast', async () => {
+    it('closes a toast', async () => {
       function AddButton() {
-        const { add, remove } = useToast();
+        const { add, close } = useToast();
         const idRef = React.useRef<string | null>(null);
         return (
           <React.Fragment>
@@ -524,16 +524,16 @@ describe('useToast', () => {
                 idRef.current = add({ title: 'test' });
               }}
             >
-              add
+              add method
             </button>
             <button
               onClick={() => {
                 if (idRef.current) {
-                  remove(idRef.current);
+                  close(idRef.current);
                 }
               }}
             >
-              remove
+              close method
             </button>
           </React.Fragment>
         );
@@ -548,13 +548,13 @@ describe('useToast', () => {
         </Toast.Provider>,
       );
 
-      const addButton = screen.getByRole('button', { name: 'add' });
+      const addButton = screen.getByRole('button', { name: 'add method' });
       fireEvent.click(addButton);
 
       expect(screen.getByTestId('root')).not.to.equal(null);
 
-      const removeButton = screen.getByRole('button', { name: 'remove' });
-      fireEvent.click(removeButton);
+      const closeButton = screen.getByRole('button', { name: 'close method' });
+      fireEvent.click(closeButton);
 
       expect(screen.queryByTestId('root')).to.equal(null);
     });

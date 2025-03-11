@@ -1,20 +1,20 @@
 import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
-import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
+import { createRenderer, describeConformance } from '#test-utils';
 import { List, Button } from '../utils/test-utils';
 
-const toast = {
-  id: 'test',
-  title: 'Toast title',
-};
-
-describe('<Toast.Title />', () => {
+describe('<Toast.Action />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Toast.Title>title</Toast.Title>, () => ({
-    refInstanceof: window.HTMLHeadingElement,
+  const toast: Toast.Root.ToastObject = {
+    id: 'test',
+    title: 'title',
+  };
+
+  describeConformance(<Toast.Action />, () => ({
+    refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(
         <Toast.Provider>
@@ -26,7 +26,7 @@ describe('<Toast.Title />', () => {
     },
   }));
 
-  it('adds aria-labelledby to the root element', async () => {
+  it('performs an action when clicked', async () => {
     const { user } = await render(
       <Toast.Provider>
         <Toast.Viewport>
@@ -37,13 +37,9 @@ describe('<Toast.Title />', () => {
     );
 
     const button = screen.getByRole('button', { name: 'add' });
+
     await user.click(button);
 
-    const titleElement = screen.getByTestId('title');
-    const titleId = titleElement.id;
-
-    const rootElement = screen.getByTestId('root');
-    expect(rootElement).to.not.equal(null);
-    expect(rootElement.getAttribute('aria-labelledby')).to.equal(titleId);
+    expect(screen.getByTestId('action').id).to.equal('action');
   });
 });

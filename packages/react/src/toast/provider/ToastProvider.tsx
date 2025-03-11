@@ -6,7 +6,7 @@ import { ToastContext } from './ToastProviderContext';
 import { generateId } from '../../utils/generateId';
 import { resolvePromiseOptions } from '../utils/resolvePromiseOptions';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useToast, type Toast } from '../useToast';
+import { useToast, type ToastObject } from '../useToast';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { ownerDocument } from '../../utils/owner';
 import { isFocusVisible } from '../utils/focusVisible';
@@ -28,7 +28,7 @@ interface TimerInfo {
 const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
   const { children, timeout = 5000, limit = 3, toastManager } = props;
 
-  const [toasts, setToasts] = React.useState<Toast<any>[]>([]);
+  const [toasts, setToasts] = React.useState<ToastObject<any>[]>([]);
   const [hovering, setHovering] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
   const [prevFocusElement, setPrevFocusElement] = React.useState<HTMLElement | null>(null);
@@ -95,10 +95,10 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     });
   });
 
-  const remove = useEventCallback((toastId: string) => {
+  const close = useEventCallback((toastId: string) => {
     setToasts((prev) =>
       prev.map((toast) =>
-        toast.id === toastId ? { ...toast, animation: 'ending' as const, height: 0 } : toast,
+        toast.id === toastId ? { ...toast, animation: 'ending' as const } : toast,
       ),
     );
 
@@ -109,15 +109,15 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     }
 
     const toast = toasts.find((t) => t.id === toastId);
-    toast?.onRemove?.();
+    toast?.onClose?.();
 
     handleFocusManagement(toastId);
   });
 
-  const finalizeRemove = useEventCallback((id: string) => {
+  const remove = useEventCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
     const toast = toasts.find((t) => t.id === id);
-    toast?.onRemoveComplete?.();
+    toast?.onRemove?.();
   });
 
   const scheduleTimer = useEventCallback((id: string, delay: number, callback: () => void) => {
@@ -179,7 +179,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
 
     const duration = toastToAdd.timeout ?? timeout;
     if (toastToAdd.type !== 'loading' && duration > 0) {
-      scheduleTimer(id, duration, () => remove(id));
+      scheduleTimer(id, duration, () => close(id));
     }
 
     // Wait for focus to potentially leave the viewport due to
@@ -220,7 +220,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
             type: 'success',
           });
 
-          scheduleTimer(id, timeout, () => remove(id));
+          scheduleTimer(id, timeout, () => close(id));
 
           if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
             pauseTimers();
@@ -234,7 +234,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
             type: 'error',
           });
 
-          scheduleTimer(id, timeout, () => remove(id));
+          scheduleTimer(id, timeout, () => close(id));
 
           if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
             pauseTimers();
@@ -265,8 +265,8 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
         promise(options.promise, options);
       } else if (action === 'update' && id) {
         update(id, options);
-      } else if (action === 'remove' && id) {
-        remove(id);
+      } else if (action === 'close' && id) {
+        close(id);
       } else {
         add(options);
       }
@@ -284,8 +284,8 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       focused,
       setFocused,
       add,
+      close,
       remove,
-      finalizeRemove,
       update,
       promise,
       pauseTimers,
@@ -301,8 +301,8 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
       hovering,
       focused,
       add,
+      close,
       remove,
-      finalizeRemove,
       update,
       promise,
       pauseTimers,

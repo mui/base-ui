@@ -8,8 +8,8 @@ interface CustomToastData {
 }
 
 function isCustomToast(
-  toast: Toast.Root.ToastType,
-): toast is Toast.Root.ToastType<CustomToastData> {
+  toast: Toast.Root.ToastObject,
+): toast is Toast.Root.ToastObject<CustomToastData> {
   return toast.data?.userId !== undefined;
 }
 
@@ -47,7 +47,6 @@ function CustomToast() {
 
 function ToastList() {
   const { toasts } = Toast.useToast();
-
   return toasts.map((toast) => (
     <Toast.Root
       key={toast.id}
@@ -56,18 +55,12 @@ function ToastList() {
       data-position="top"
       swipeDirection="up"
     >
-      {toast.title && (
-        <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
-      )}
-      {toast.description && (
-        <Toast.Description className={styles.Description}>
-          {toast.description}
-        </Toast.Description>
-      )}
+      <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
+      <Toast.Description className={styles.Description}>
+        {toast.description}
+      </Toast.Description>
       {isCustomToast(toast) && toast.data && (
-        <span className={styles.NotifyButton}>
-          `data.userId` is {toast.data.userId}
-        </span>
+        <span>`data.userId` is {toast.data.userId}</span>
       )}
       <Toast.Close className={styles.Close} aria-label="Close">
         <XIcon className={styles.Icon} />

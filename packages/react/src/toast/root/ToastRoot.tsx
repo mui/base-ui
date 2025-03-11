@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { activeElement, contains, getTarget } from '@floating-ui/react/utils';
 import { useToastContext } from '../provider/ToastProviderContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { Toast } from '../useToast';
+import type { ToastObject as ToastObjectType } from '../useToast';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { ToastRootContext } from './ToastRootContext';
 import { useForkRef } from '../../utils/useForkRef';
@@ -56,7 +56,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 
   const swipeDirections = Array.isArray(swipeDirection) ? swipeDirection : [swipeDirection];
 
-  const { toasts, hovering, focused, finalizeRemove, setToasts, remove } = useToastContext();
+  const { toasts, hovering, focused, close, remove, setToasts } = useToastContext();
 
   const [renderChildren, setRenderChildren] = React.useState(false);
 
@@ -68,7 +68,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     ref: rootRef,
     onComplete() {
       if (toast.animation === 'ending') {
-        finalizeRemove(toast.id);
+        remove(toast.id);
       }
     },
   });
@@ -309,6 +309,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     const dampedDelta = applyDirectionalDamping(deltaX, deltaY);
     let newOffsetX = initialTransformRef.current.x;
     let newOffsetY = initialTransformRef.current.y;
+
     if (lockedDirection === 'horizontal') {
       if (swipeDirections.includes('left') || swipeDirections.includes('right')) {
         newOffsetX += dampedDelta.x;
@@ -325,6 +326,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
         newOffsetY += dampedDelta.y;
       }
     }
+
     setDragOffset({ x: newOffsetX, y: newOffsetY });
   }
 
@@ -371,13 +373,15 @@ const ToastRoot = React.forwardRef(function ToastRoot(
         default:
           break;
       }
-      if (shouldClose) break;
+      if (shouldClose) {
+        break;
+      }
     }
 
     if (shouldClose) {
       setDragDismissed(true);
       setSwipeState('end');
-      remove(toast.id);
+      close(toast.id);
     } else {
       setDragOffset({
         x: initialTransform.x,
@@ -395,7 +399,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
       ) {
         return;
       }
-      remove(toast.id);
+      close(toast.id);
     }
   }
 
@@ -551,16 +555,18 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 });
 
 export namespace ToastRoot {
-  export type ToastType<Data extends object = any> = Toast<Data>;
+  export type ToastObject<Data extends object = any> = ToastObjectType<Data>;
+
   export interface State {
     transitionStatus: TransitionStatus;
     expanded: boolean;
   }
+
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The toast to render.
      */
-    toast: Toast<any>;
+    toast: ToastObject<any>;
     /**
      * Direction(s) in which the toast can be swiped to dismiss.
      * @default 'up'
@@ -570,13 +576,37 @@ export namespace ToastRoot {
 }
 
 ToastRoot.propTypes /* remove-proptypes */ = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * @ignore
+   */
   children: PropTypes.node,
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component’s state.
+   */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * Allows you to replace the component’s HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  /**
+   * Direction(s) in which the toast can be swiped to dismiss.
+   * @default 'up'
+   */
   swipeDirection: PropTypes.oneOfType([
     PropTypes.oneOf(['down', 'left', 'right', 'up']),
     PropTypes.arrayOf(PropTypes.oneOf(['down', 'left', 'right', 'up']).isRequired),
   ]),
+  /**
+   * The toast to render.
+   */
   toast: PropTypes.shape({
     actionProps: PropTypes.object,
     animation: PropTypes.oneOf(['ending', 'starting']),
@@ -584,8 +614,8 @@ ToastRoot.propTypes /* remove-proptypes */ = {
     description: PropTypes.string,
     height: PropTypes.number,
     id: PropTypes.string.isRequired,
+    onClose: PropTypes.func,
     onRemove: PropTypes.func,
-    onRemoveComplete: PropTypes.func,
     priority: PropTypes.oneOf(['high', 'low']),
     timeout: PropTypes.number,
     title: PropTypes.string,

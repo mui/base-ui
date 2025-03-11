@@ -8,7 +8,7 @@ import { List, Button } from '../utils/test-utils';
 describe('<Toast.Close />', () => {
   const { render } = createRenderer();
 
-  const toast = {
+  const toast: Toast.Root.ToastObject = {
     id: 'test',
     title: 'title',
   };

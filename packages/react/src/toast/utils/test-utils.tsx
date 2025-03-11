@@ -10,6 +10,9 @@ export function Button() {
         add({
           title: 'title',
           description: 'description',
+          actionProps: {
+            id: 'action',
+          },
         });
       }}
     >
@@ -24,6 +27,7 @@ export function List() {
       <Toast.Title data-testid="title">{toastItem.title}</Toast.Title>
       <Toast.Description data-testid="description">{toastItem.description}</Toast.Description>
       <Toast.Close aria-label="close" />
+      <Toast.Action data-testid="action" />
     </Toast.Root>
   ));
 }

@@ -12,9 +12,9 @@
 ## Usage
 
 - `<Toast.Provider>` can be wrapped around your entire app, ensuring all toasts are rendered in the same viewport.
-- `<Toast.Viewport>` is positioned with your own CSS. The example above specifies `data-position` attributes for the CSS to adjust the position of the viewport container—the available positions in the example are `top`, `top-left`, `top-right`, `bottom`, `bottom-left`, and `bottom-right`, but you're free to change the CSS as needed.
+- `<Toast.Viewport>` is positioned with your own CSS. The example above specifies `data-position` attributes on `Viewport` and `Root` for the CSS to adjust the position of the viewport container. The available positions in the example are `top`, `top-left`, `top-right`, `bottom`, `bottom-left`, and `bottom-right`, but you can change the CSS as needed.
 - <kbd>F6</kbd> lets users jump into the toast viewport landmark region to navigate toasts with
-  their keyboard.
+  keyboard focus.
 
 ## API reference
 
@@ -28,13 +28,14 @@ import { Toast } from '@base-ui-components/react/toast';
     <Toast.Root>
       <Toast.Title />
       <Toast.Description />
+      <Toast.Action />
       <Toast.Close />
     </Toast.Root>
   </Toast.Viewport>
 </Toast.Provider>;
 ```
 
-<Reference component="Toast" parts="Provider, Viewport, Root, Title, Description, Close" />
+<Reference component="Toast" parts="Provider, Viewport, Root, Title, Description, Action, Close" />
 
 ## useToast
 
@@ -50,16 +51,16 @@ const toast = Toast.useToast();
   type="return"
   data={{
     toasts: {
-      type: 'Toast[]',
-      description: 'The array of toasts.',
+      type: 'Toast.Root.ToastObject[]',
+      description: 'The array of toast objects.',
     },
     add: {
       type: '(options: useToast.AddOptions) => void',
       description: 'Add a toast to the toast list.',
     },
-    remove: {
+    close: {
       type: '(toastId: string) => void',
-      description: 'Remove a toast from the toast list.',
+      description: 'Closes and removes a toast from the toast list.',
     },
     update: {
       type: '(toastId: string, options: useToast.UpdateOptions) => void',
@@ -103,14 +104,14 @@ const toast = Toast.useToast();
       `,
       default: "'low'",
     },
+    onClose: {
+      type: '() => void',
+      description: 'A callback invoked when the toast is closed.',
+    },
     onRemove: {
       type: '() => void',
-      description: 'A callback invoked when the toast is removed.',
-    },
-    onRemoveComplete: {
-      type: '() => void',
       description:
-        'A callback invoked when the toast is removed after any animations are complete.',
+        'A callback invoked when the toast is removed from the list after animations complete when closed.',
     },
     actionProps: {
       type: "React.ComponentPropsWithRef<'button'>",
@@ -126,6 +127,8 @@ const toast = Toast.useToast();
 ### `add` method
 
 Creates a toast by adding it to the toast list.
+
+Returns a `toastId` that can be used to update or close the toast later.
 
 ```jsx
 const toastId = toast.add({
@@ -151,7 +154,7 @@ function App() {
 
 ### `update` method
 
-The `add` method returns a toast ID, which can be used to update the toast later.
+Updates the toast with new options.
 
 ```jsx
 toast.update(toastId, {
@@ -159,17 +162,17 @@ toast.update(toastId, {
 });
 ```
 
-### `remove` method
+### `close` method
 
-The `add` method returns a toast ID, which can be used to remove the toast from the toast list later.
+Closes the toast, removing it from the toast list after any animations complete.
 
 ```jsx
-toast.remove(toastId);
+toast.close(toastId);
 ```
 
 ### `promise` method
 
-Creates an asynchronous toast that resolves with a value, with three possible states for the toast: `loading`, `success`, and `error`.
+Creates an asynchronous toast with three possible states: `loading`, `success`, and `error`.
 
 ```tsx
 const toastId = toast.promise(
@@ -177,7 +180,7 @@ const toastId = toast.promise(
     setTimeout(() => resolve('world!'), 1000);
   }),
   {
-    // Each are a shortcut for the title of the toast.
+    // Each are a shortcut for the children of `Toast.Description`
     loading: 'Loading...',
     success: (data) => `Hello ${data}`,
     error: (err) => `Error: ${err}`,
