@@ -56,7 +56,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
     element.style.setProperty('display', 'block', 'important');
 
     if (height === undefined) {
-      element.style.opacity = '0';
+      // element.style.opacity = '0';
 
       setHeight(element.scrollHeight);
       element.style.removeProperty('display');
@@ -108,7 +108,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
       }
 
       /* opening */
-      panel.style.opacity = '0';
+      // panel.style.opacity = '0';
       panel.style.height = '0px';
 
       requestAnimationFrame(() => {
