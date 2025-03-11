@@ -40,14 +40,12 @@
   box-sizing: border-box;
   width: 100%;
 
+  height: var(--collapsible-panel-height);
+  opacity: 1;
+
   transition:
     height var(--duration) ease-out,
     opacity var(--duration) ease-out;
-
-  &[data-open] {
-    height: var(--collapsible-panel-height);
-    opacity: 1;
-  }
 
   &[data-closed] {
     height: 0;
