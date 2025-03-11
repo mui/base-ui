@@ -273,7 +273,7 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
     });
 
     return unsubscribe;
-  }, [add, update, remove, scheduleTimer, timeout, toastManager, promise]);
+  }, [add, update, scheduleTimer, timeout, toastManager, promise, close]);
 
   const contextValue = React.useMemo(
     () => ({

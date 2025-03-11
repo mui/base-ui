@@ -1,8 +1,8 @@
 import * as React from 'react';
-import type { Toast } from '../useToast';
+import type { ToastObject } from '../useToast';
 
 export interface ToastRootContext {
-  toast: Toast<any>;
+  toast: ToastObject<any>;
   rootRef: React.RefObject<HTMLElement | null>;
   titleId: string | undefined;
   setTitleId: React.Dispatch<React.SetStateAction<string | undefined>>;

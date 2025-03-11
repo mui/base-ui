@@ -116,7 +116,10 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   );
 
   useEnhancedEffect(() => {
-    if (!rootRef.current) return;
+    if (!rootRef.current) {
+      return undefined;
+    }
+
     function setHeights() {
       const height = rootRef.current?.offsetHeight;
       setToasts((prev) =>
@@ -132,7 +135,9 @@ const ToastRoot = React.forwardRef(function ToastRoot(
         ),
       );
     }
+
     setHeights();
+
     if (typeof ResizeObserver === 'function') {
       const resizeObserver = new ResizeObserver(setHeights);
       resizeObserver.observe(rootRef.current);
@@ -140,6 +145,8 @@ const ToastRoot = React.forwardRef(function ToastRoot(
         resizeObserver.disconnect();
       };
     }
+
+    return undefined;
   }, [toast.id, setToasts]);
 
   const offset = React.useMemo(() => {
@@ -245,7 +252,9 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   }
 
   function handlePointerMove(event: React.PointerEvent) {
-    if (!isDragging) return;
+    if (!isDragging) {
+      return;
+    }
 
     const deltaX = event.clientX - dragStartPosRef.current.x;
     const deltaY = event.clientY - dragStartPosRef.current.y;
@@ -273,19 +282,23 @@ const ToastRoot = React.forwardRef(function ToastRoot(
       let candidate: 'up' | 'down' | 'left' | 'right' | undefined;
       if (!intendedSwipeDirectionRef.current) {
         if (lockedDirection === 'vertical') {
-          candidate = deltaY > 0 ? 'down' : deltaY < 0 ? 'up' : undefined;
+          if (deltaY > 0) {
+            candidate = 'down';
+          } else if (deltaY < 0) {
+            candidate = 'up';
+          }
         } else if (lockedDirection === 'horizontal') {
-          candidate = deltaX > 0 ? 'right' : deltaX < 0 ? 'left' : undefined;
+          if (deltaY > 0) {
+            candidate = 'right';
+          } else if (deltaY < 0) {
+            candidate = 'left';
+          }
+        } else if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+          candidate = deltaX > 0 ? 'right' : 'left';
         } else {
-          candidate =
-            Math.abs(deltaX) >= Math.abs(deltaY)
-              ? deltaX > 0
-                ? 'right'
-                : 'left'
-              : deltaY > 0
-                ? 'down'
-                : 'up';
+          candidate = deltaY > 0 ? 'down' : 'up';
         }
+
         if (candidate && swipeDirections.includes(candidate)) {
           intendedSwipeDirectionRef.current = candidate;
           maxSwipeDisplacementRef.current = getDisplacement(candidate, deltaX, deltaY);
@@ -359,16 +372,24 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     for (const direction of swipeDirections) {
       switch (direction) {
         case 'right':
-          if (deltaX > SWIPE_THRESHOLD) shouldClose = true;
+          if (deltaX > SWIPE_THRESHOLD) {
+            shouldClose = true;
+          }
           break;
         case 'left':
-          if (deltaX < -SWIPE_THRESHOLD) shouldClose = true;
+          if (deltaX < -SWIPE_THRESHOLD) {
+            shouldClose = true;
+          }
           break;
         case 'down':
-          if (deltaY > SWIPE_THRESHOLD) shouldClose = true;
+          if (deltaY > SWIPE_THRESHOLD) {
+            shouldClose = true;
+          }
           break;
         case 'up':
-          if (deltaY < -SWIPE_THRESHOLD) shouldClose = true;
+          if (deltaY < -SWIPE_THRESHOLD) {
+            shouldClose = true;
+          }
           break;
         default:
           break;
@@ -406,7 +427,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   React.useEffect(() => {
     const element = rootRef.current;
     if (!element) {
-      return;
+      return undefined;
     }
 
     function preventDefaultTouchStart(event: TouchEvent) {
@@ -513,7 +534,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
         // of the component. We need to wait until the next tick to render the children
         // so that screen readers can announce the contents.
         children: (
-          <>
+          <React.Fragment>
             {children}
             {!focused && (
               <div
@@ -523,14 +544,14 @@ const ToastRoot = React.forwardRef(function ToastRoot(
                   : { role: 'status', 'aria-live': 'polite' })}
               >
                 {renderChildren && (
-                  <>
+                  <React.Fragment>
                     <div>{toast.title}</div>
                     <div>{toast.description}</div>
-                  </>
+                  </React.Fragment>
                 )}
               </div>
             )}
-          </>
+          </React.Fragment>
         ),
       },
       other,
