@@ -86,7 +86,7 @@ const ToastViewport = React.forwardRef(function ToastViewport(
     const win = ownerWindow(viewportRef.current);
 
     function handleWindowBlur(event: FocusEvent) {
-      if (event.relatedTarget) {
+      if (event.target !== win) {
         return;
       }
 
@@ -136,10 +136,7 @@ const ToastViewport = React.forwardRef(function ToastViewport(
 
     // If we're coming off the container, move to the first toast
     if (event.relatedTarget === viewportRef.current) {
-      const toastElements = Array.from<HTMLElement>(
-        viewportRef.current.querySelectorAll(`[data-base-ui-toast]`),
-      );
-      toastElements[0]?.focus();
+      toasts[0]?.ref?.current?.focus();
     } else {
       prevFocusElement?.focus({ preventScroll: true });
     }
@@ -208,6 +205,7 @@ const ToastViewport = React.forwardRef(function ToastViewport(
         onFocus: handleFocus,
         onBlur: handleBlur,
         onKeyDown: handleKeyDown,
+        onClick: handleFocus,
         children: (
           <React.Fragment>
             {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}

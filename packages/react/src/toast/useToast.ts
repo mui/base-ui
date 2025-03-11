@@ -86,9 +86,13 @@ export interface ToastObject<Data extends object> {
    */
   priority?: 'low' | 'high';
   /**
-   * The animation state of the toast.
+   * The transition status of the toast.
    */
-  animation?: 'starting' | 'ending' | undefined;
+  transitionStatus?: 'starting' | 'ending' | undefined;
+  /**
+   * Determines if the toast was closed due to the limit being reached.
+   */
+  limited?: boolean;
   /**
    * The height of the toast.
    */

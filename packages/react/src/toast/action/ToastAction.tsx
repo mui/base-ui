@@ -23,6 +23,9 @@ const ToastAction = React.forwardRef(function ToastAction(
 
   const { toast } = useToastRootContext();
 
+  const computedChildren = toast.actionProps?.children ?? other.children;
+  const shouldRender = Boolean(computedChildren);
+
   const { getButtonProps } = useButton({
     disabled,
     buttonRef: forwardedRef,
@@ -33,8 +36,14 @@ const ToastAction = React.forwardRef(function ToastAction(
     ref: forwardedRef,
     className,
     state,
-    extraProps: mergeProps<'button'>(toast.actionProps, other, getButtonProps),
+    extraProps: mergeProps<'button'>(toast.actionProps, other, getButtonProps, {
+      children: computedChildren,
+    }),
   });
+
+  if (!shouldRender) {
+    return null;
+  }
 
   return renderElement();
 });

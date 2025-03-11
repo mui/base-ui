@@ -56,11 +56,10 @@ function ToastList() {
       swipeDirection="up"
     >
       <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
-      <Toast.Description className={styles.Description}>
-        {toast.description}
-      </Toast.Description>
-      {isCustomToast(toast) && toast.data && (
-        <span>`data.userId` is {toast.data.userId}</span>
+      {isCustomToast(toast) && toast.data ? (
+        <Toast.Description>`data.userId` is {toast.data.userId}</Toast.Description>
+      ) : (
+        <Toast.Description>{toast.description}</Toast.Description>
       )}
       <Toast.Close className={styles.Close} aria-label="Close">
         <XIcon className={styles.Icon} />

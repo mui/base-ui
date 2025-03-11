@@ -21,16 +21,23 @@ const ToastDescription = React.forwardRef(function ToastDescription(
 ) {
   const { render, className, id: idProp, ...other } = props;
 
+  const shouldRender = Boolean(other.children);
+
   const id = useId(idProp);
 
   const { setDescriptionId } = useToastRootContext();
 
   useEnhancedEffect(() => {
+    if (!shouldRender) {
+      return undefined;
+    }
+
     setDescriptionId(id);
+
     return () => {
       setDescriptionId(undefined);
     };
-  }, [id, setDescriptionId]);
+  }, [shouldRender, id, setDescriptionId]);
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'p',
@@ -43,7 +50,7 @@ const ToastDescription = React.forwardRef(function ToastDescription(
     },
   });
 
-  if (!other.children) {
+  if (!shouldRender) {
     return null;
   }
 

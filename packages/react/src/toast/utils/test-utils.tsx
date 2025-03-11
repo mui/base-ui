@@ -12,6 +12,7 @@ export function Button() {
           description: 'description',
           actionProps: {
             id: 'action',
+            children: 'action',
           },
         });
       }}

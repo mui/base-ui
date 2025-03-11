@@ -19,7 +19,7 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 import { ToastRootDataAttributes } from './ToastRootDataAttributes';
 
 const SWIPE_THRESHOLD = 15;
-const REVERSE_CANCEL_THRESHOLD = 5;
+const REVERSE_CANCEL_THRESHOLD = 10;
 const OPPOSITE_DIRECTION_DAMPING_FACTOR = 0.5;
 const MIN_DRAG_THRESHOLD = 0;
 
@@ -56,7 +56,8 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 
   const swipeDirections = Array.isArray(swipeDirection) ? swipeDirection : [swipeDirection];
 
-  const { toasts, hovering, focused, close, remove, setToasts } = useToastContext();
+  const { toasts, hovering, focused, close, remove, setToasts, pauseTimers, resumeTimers } =
+    useToastContext();
 
   const [renderChildren, setRenderChildren] = React.useState(false);
 
@@ -64,10 +65,10 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   const mergedRef = useForkRef(rootRef, forwardedRef);
 
   useOpenChangeComplete({
-    open: toast.animation !== 'ending',
+    open: toast.transitionStatus !== 'ending',
     ref: rootRef,
     onComplete() {
-      if (toast.animation === 'ending') {
+      if (toast.transitionStatus === 'ending') {
         remove(toast.id);
       }
     },
@@ -75,8 +76,9 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 
   const [isDragging, setIsDragging] = React.useState(false);
   const [isRealDrag, setIsRealDrag] = React.useState(false);
-  const [dragOffset, setDragOffset] = React.useState({ x: 0, y: 0 });
   const [dragDismissed, setDragDismissed] = React.useState(false);
+
+  const [dragOffset, setDragOffset] = React.useState({ x: 0, y: 0 });
   const [swipeState, setSwipeState] = React.useState<'start' | 'move' | 'end' | 'cancel' | null>(
     null,
   );
@@ -94,12 +96,17 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   );
   const maxSwipeDisplacementRef = React.useRef(0);
   const cancelledSwipeRef = React.useRef(false);
+  const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
 
   const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
-  const index = React.useMemo(
-    () => toasts.filter((t) => t.animation !== 'ending').indexOf(toast),
+  const visibleIndex = React.useMemo(
+    () => toasts.filter((t) => t.transitionStatus !== 'ending').indexOf(toast),
     [toast, toasts],
   );
+  const offset = React.useMemo(() => {
+    return toasts.slice(0, toasts.indexOf(toast)).reduce((acc, t) => acc + (t.height || 0), 0);
+  }, [toasts, toast]);
+
   // It's not possible to stack a smaller height toast onto a larger height toast, but
   // the reverse is possible. For simplicity, we'll enforce the expanded state if the
   // toasts aren't all the same height.
@@ -109,10 +116,11 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 
   const state: ToastRoot.State = React.useMemo(
     () => ({
-      transitionStatus: toast.animation,
+      transitionStatus: toast.transitionStatus,
       expanded: hovering || focused || hasDifferingHeights,
+      limited: toast.limited || false,
     }),
-    [toast.animation, hovering, focused, hasDifferingHeights],
+    [toast.transitionStatus, toast.limited, hovering, focused, hasDifferingHeights],
   );
 
   useEnhancedEffect(() => {
@@ -129,7 +137,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
                 ...t,
                 ref: rootRef,
                 height,
-                animation: undefined,
+                transitionStatus: undefined,
               }
             : t,
         ),
@@ -148,11 +156,6 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 
     return undefined;
   }, [toast.id, setToasts]);
-
-  const offset = React.useMemo(() => {
-    const i = toasts.findIndex((t) => t.id === toast.id);
-    return toasts.slice(0, i).reduce((acc, t) => acc + (t.height ?? 0), 0);
-  }, [toasts, toast.id]);
 
   function getElementTransform(element: HTMLElement) {
     const computedStyle = window.getComputedStyle(element);
@@ -218,6 +221,10 @@ const ToastRoot = React.forwardRef(function ToastRoot(
       return;
     }
 
+    if (event.pointerType === 'touch') {
+      pauseTimers();
+    }
+
     const target = getTarget(event.nativeEvent) as Element | null;
 
     const isInteractiveElement = !!target?.closest('button,a,input,[role="button"]');
@@ -230,6 +237,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     intendedSwipeDirectionRef.current = undefined;
     maxSwipeDisplacementRef.current = 0;
     dragStartPosRef.current = { x: event.clientX, y: event.clientY };
+    swipeCancelBaselineRef.current = dragStartPosRef.current;
 
     if (rootRef.current) {
       const transform = getElementTransform(rootRef.current);
@@ -246,9 +254,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     setLockedDirection(null);
     setSwipeState('start');
 
-    if (rootRef.current) {
-      rootRef.current.setPointerCapture(event.pointerId);
-    }
+    rootRef.current?.setPointerCapture(event.pointerId);
   }
 
   function handlePointerMove(event: React.PointerEvent) {
@@ -256,8 +262,29 @@ const ToastRoot = React.forwardRef(function ToastRoot(
       return;
     }
 
-    const deltaX = event.clientX - dragStartPosRef.current.x;
-    const deltaY = event.clientY - dragStartPosRef.current.y;
+    // Prevent text selection on Safari
+    event.preventDefault();
+
+    const { clientY, clientX, movementX, movementY } = event;
+
+    if (
+      (movementY < 0 && clientY > swipeCancelBaselineRef.current.y) ||
+      (movementY > 0 && clientY < swipeCancelBaselineRef.current.y)
+    ) {
+      swipeCancelBaselineRef.current = { x: swipeCancelBaselineRef.current.x, y: clientY };
+    }
+
+    if (
+      (movementX < 0 && clientX > swipeCancelBaselineRef.current.x) ||
+      (movementX > 0 && clientX < swipeCancelBaselineRef.current.x)
+    ) {
+      swipeCancelBaselineRef.current = { x: clientX, y: swipeCancelBaselineRef.current.y };
+    }
+
+    const deltaX = clientX - dragStartPosRef.current.x;
+    const deltaY = clientY - dragStartPosRef.current.y;
+    const cancelDeltaY = clientY - swipeCancelBaselineRef.current.y;
+    const cancelDeltaX = clientX - swipeCancelBaselineRef.current.x;
 
     if (!isRealDrag) {
       const movementDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -277,45 +304,42 @@ const ToastRoot = React.forwardRef(function ToastRoot(
       }
     }
 
-    // Passively track reversal for any swipe direction
-    if (!cancelledSwipeRef.current) {
-      let candidate: 'up' | 'down' | 'left' | 'right' | undefined;
-      if (!intendedSwipeDirectionRef.current) {
-        if (lockedDirection === 'vertical') {
-          if (deltaY > 0) {
-            candidate = 'down';
-          } else if (deltaY < 0) {
-            candidate = 'up';
-          }
-        } else if (lockedDirection === 'horizontal') {
-          if (deltaY > 0) {
-            candidate = 'right';
-          } else if (deltaY < 0) {
-            candidate = 'left';
-          }
-        } else if (Math.abs(deltaX) >= Math.abs(deltaY)) {
-          candidate = deltaX > 0 ? 'right' : 'left';
-        } else {
-          candidate = deltaY > 0 ? 'down' : 'up';
+    let candidate: 'up' | 'down' | 'left' | 'right' | undefined;
+    if (!intendedSwipeDirectionRef.current) {
+      if (lockedDirection === 'vertical') {
+        if (deltaY > 0) {
+          candidate = 'down';
+        } else if (deltaY < 0) {
+          candidate = 'up';
         }
-
-        if (candidate && swipeDirections.includes(candidate)) {
-          intendedSwipeDirectionRef.current = candidate;
-          maxSwipeDisplacementRef.current = getDisplacement(candidate, deltaX, deltaY);
+      } else if (lockedDirection === 'horizontal') {
+        if (deltaY > 0) {
+          candidate = 'right';
+        } else if (deltaY < 0) {
+          candidate = 'left';
         }
+      } else if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+        candidate = deltaX > 0 ? 'right' : 'left';
       } else {
-        const direction = intendedSwipeDirectionRef.current;
-        const currentDisplacement = getDisplacement(direction, deltaX, deltaY);
-        if (currentDisplacement > maxSwipeDisplacementRef.current) {
-          maxSwipeDisplacementRef.current = currentDisplacement;
-        } else if (
-          maxSwipeDisplacementRef.current - currentDisplacement >=
-          REVERSE_CANCEL_THRESHOLD
-        ) {
-          // Mark that a change-of-mind has occurred
-          cancelledSwipeRef.current = true;
-          setSwipeState('cancel');
-        }
+        candidate = deltaY > 0 ? 'down' : 'up';
+      }
+
+      if (candidate && swipeDirections.includes(candidate)) {
+        intendedSwipeDirectionRef.current = candidate;
+        maxSwipeDisplacementRef.current = getDisplacement(candidate, deltaX, deltaY);
+      }
+    } else {
+      const direction = intendedSwipeDirectionRef.current;
+      const currentDisplacement = getDisplacement(direction, cancelDeltaX, cancelDeltaY);
+      if (currentDisplacement > SWIPE_THRESHOLD) {
+        cancelledSwipeRef.current = false;
+      } else if (
+        maxSwipeDisplacementRef.current - currentDisplacement >=
+        REVERSE_CANCEL_THRESHOLD
+      ) {
+        // Mark that a change-of-mind has occurred
+        cancelledSwipeRef.current = true;
+        setSwipeState('cancel');
       }
     }
 
@@ -348,13 +372,15 @@ const ToastRoot = React.forwardRef(function ToastRoot(
       return;
     }
 
+    if (event.pointerType === 'touch' && !focused) {
+      resumeTimers();
+    }
+
     setIsDragging(false);
     setIsRealDrag(false);
     setLockedDirection(null);
 
-    if (rootRef.current) {
-      rootRef.current.releasePointerCapture(event.pointerId);
-    }
+    rootRef.current?.releasePointerCapture(event.pointerId);
 
     if (cancelledSwipeRef.current) {
       setSwipeState('cancel');
@@ -444,11 +470,9 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 
   React.useEffect(() => {
     const timeout = setTimeout(
-      () => {
-        setRenderChildren(true);
-      },
+      () => setRenderChildren(true),
       // macOS Safari needs some time to pass after the status node has been
-      // created before changing its text content to reliably announce the toast.
+      // created before changing its text content to reliably announce its content.
       50,
     );
     return () => clearTimeout(timeout);
@@ -483,8 +507,6 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 
     return {
       transition: isDragging ? 'none' : undefined,
-      userSelect: isDragging ? 'none' : undefined,
-      touchAction: 'none',
       [ToastRootCssVars.swipeMoveX]: `${deltaX}px`,
       [ToastRootCssVars.swipeMoveY]: `${deltaY}px`,
     } as const;
@@ -518,7 +540,6 @@ const ToastRoot = React.forwardRef(function ToastRoot(
         'aria-modal': false,
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
-        'data-base-ui-toast': toast.id,
         [ToastRootDataAttributes.swipe]: swipeState,
         [ToastRootDataAttributes.swipeDirection]: getSwipeDirection(),
         onPointerDown: handlePointerDown,
@@ -527,12 +548,12 @@ const ToastRoot = React.forwardRef(function ToastRoot(
         onKeyDown: handleKeyDown,
         style: {
           ...getDragStyles(),
-          [ToastRootCssVars.index]: toast.animation === 'ending' ? domIndex : index,
+          [ToastRootCssVars.index]: toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
           [ToastRootCssVars.offset]: `${offset}px`,
         },
-        // Screen readers won't announce the text upon DOM insertion
-        // of the component. We need to wait until the next tick to render the children
-        // so that screen readers can announce the contents.
+        // Screen readers won't announce the text upon DOM insertion of the component.
+        // We need to wait until the next tick to render the children so that screen
+        // readers can announce the contents.
         children: (
           <React.Fragment>
             {children}
@@ -545,8 +566,8 @@ const ToastRoot = React.forwardRef(function ToastRoot(
               >
                 {renderChildren && (
                   <React.Fragment>
-                    <div>{toast.title}</div>
-                    <div>{toast.description}</div>
+                    {toast.title && <div>{toast.title}</div>}
+                    {toast.description && <div>{toast.description}</div>}
                   </React.Fragment>
                 )}
               </div>
@@ -581,6 +602,7 @@ export namespace ToastRoot {
   export interface State {
     transitionStatus: TransitionStatus;
     expanded: boolean;
+    limited: boolean;
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {
