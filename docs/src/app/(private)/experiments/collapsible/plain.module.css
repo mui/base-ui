@@ -47,7 +47,8 @@
     height var(--duration) ease-out,
     opacity var(--duration) ease-out;
 
-  &[data-closed] {
+  &[data-starting-style],
+  &[data-ending-style] {
     height: 0;
     opacity: 0;
   }

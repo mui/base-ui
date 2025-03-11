@@ -1,20 +1,36 @@
 'use client';
 import * as React from 'react';
-import { useEnhancedEffect } from '@base-ui-components/react/utils';
+import {
+  useEnhancedEffect,
+  useTransitionStatus,
+} from '@base-ui-components/react/utils';
 import classes from './plain.module.css';
 
 import { useAnimationsFinished } from '../../../../../../packages/react/src/utils/useAnimationsFinished';
 import { useEventCallback } from '../../../../../../packages/react/src/utils/useEventCallback';
 import { useForkRef } from '../../../../../../packages/react/src/utils/useForkRef';
 
-const DEFAULT_OPEN = false;
+const STARTING_HOOK = { 'data-starting-style': '' };
+const ENDING_HOOK = { 'data-ending-style': '' };
+
+const DEFAULT_OPEN = true;
 
 function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
   const { keepMounted = true, defaultOpen = false } = props;
 
   const [open, setOpen] = React.useState(defaultOpen);
 
-  const [mounted, setMounted] = React.useState(keepMounted ? true : open);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true);
+
+  const styleHooks = React.useMemo(() => {
+    if (transitionStatus === 'starting') {
+      return STARTING_HOOK;
+    }
+    if (transitionStatus === 'ending') {
+      return ENDING_HOOK;
+    }
+    return null;
+  }, [transitionStatus]);
 
   const [height, setHeight] = React.useState<number | undefined>(undefined);
 
@@ -35,10 +51,16 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
       return;
     }
 
+    // override potential `display: none` set on `[hidden]`
+    // to ensure the panel is actually rendered before measuring
     element.style.setProperty('display', 'block', 'important');
 
     if (height === undefined) {
+      element.style.opacity = '0';
+
       setHeight(element.scrollHeight);
+      element.style.removeProperty('display');
+      element.style.removeProperty('opacity');
       if (isInitiallyOpen.current) {
         element.style.transitionDuration = '0s';
 
@@ -175,6 +197,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
           ref={mergedRef}
           className={classes.Panel}
           {...{ [open ? 'data-open' : 'data-closed']: '' }}
+          {...styleHooks}
           hidden={isHidden}
         >
           <div className={classes.Content}>
