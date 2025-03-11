@@ -12,7 +12,7 @@
       "description": "A ref to the list of element labels, ordered by their index.\n`useTypeahead`'s `listRef` prop."
     },
     "onMapChange": {
-      "type": "function"
+      "type": "((newMap: Map) => void)"
     },
     "children": {
       "type": "React.ReactNode",

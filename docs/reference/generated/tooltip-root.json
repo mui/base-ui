@@ -12,7 +12,7 @@
       "description": "Whether the tooltip is currently open."
     },
     "onOpenChange": {
-      "type": "function",
+      "type": "((open: boolean, event: Event | undefined, reason: \"click\" | \"hover\" | \"focus\" | \"focus-out\" | \"escape-key\" | \"outside-press\" | \"trigger-press\" | undefined) => void)",
       "description": "Event handler called when the tooltip is opened or closed."
     },
     "actionsRef": {
@@ -20,7 +20,7 @@
       "description": "A ref to imperative actions."
     },
     "onOpenChangeComplete": {
-      "type": "function",
+      "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the tooltip is opened or closed."
     },
     "trackCursorAxis": {

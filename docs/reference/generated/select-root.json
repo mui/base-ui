@@ -16,7 +16,7 @@
       "description": "The value of the select."
     },
     "onValueChange": {
-      "type": "function",
+      "type": "((value: unknown, event: Event | undefined) => void)",
       "description": "Callback fired when the value of the select changes. Use when controlled."
     },
     "defaultOpen": {
@@ -29,7 +29,7 @@
       "description": "Whether the select menu is currently open."
     },
     "onOpenChange": {
-      "type": "function",
+      "type": "((open: boolean, event: Event | undefined) => void)",
       "description": "Event handler called when the select menu is opened or closed."
     },
     "actionsRef": {
@@ -47,7 +47,7 @@
       "description": "Whether the select should prevent outside clicks and lock page scroll when open."
     },
     "onOpenChangeComplete": {
-      "type": "function",
+      "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the select menu is opened or closed."
     },
     "transitionStatus": {

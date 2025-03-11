@@ -56,7 +56,7 @@
       "description": "Whether the user must tick the checkbox before submitting a form."
     },
     "inputRef": {
-      "type": "null | __type.bivarianceHack | React.RefObject",
+      "type": "null | React.RefCallback | React.RefObject",
       "description": "A React ref to access the hidden `<input>` element."
     },
     "id": {
