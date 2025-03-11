@@ -93,6 +93,11 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
         requestAnimationFrame(() => {
           setTimeout(() => {
             element.style.removeProperty('transition-duration');
+            if (!keepMounted) {
+              // FIXME: this should actually be isInitialOpenTransitionRef
+              // or maybe both are needed?
+              isInitiallyOpenRef.current = false;
+            }
           });
         });
       }
@@ -174,13 +179,19 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
         abortControllerRef.current = null;
       }
 
+      console.log('mounted?', mounted);
+      console.log('isInitiallyOpenRef?', isInitiallyOpenRef.current);
+
       /* opening */
       panel.style.height = '0px';
       // the closed transition styles must be set here to transition all opening
       // transitions except the first one when both:
       // 1 - the panel is initially closed
       // 2 - `keepMounted={false}`
-      panel.style.opacity = '0';
+      if (!isInitiallyOpenRef.current) {
+        console.log('useEnhancedEffect setting opacity 0');
+        panel.style.opacity = '0';
+      }
 
       requestAnimationFrame(() => {
         // this is the earliest opportunity to unset the `display` property
@@ -188,8 +199,13 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
         panel.style.removeProperty('display');
 
         panel.style.removeProperty('height');
-        // remove all the transition properties that were just manually applied
-        panel.style.removeProperty('opacity');
+
+        if (!isInitiallyOpenRef.current) {
+          // remove all the transition properties that were just manually applied
+          console.log('useEnhancedEffect unsetting inline opacity');
+          panel.style.removeProperty('opacity');
+        }
+
         setHeight(panel.scrollHeight);
       });
     } else {
