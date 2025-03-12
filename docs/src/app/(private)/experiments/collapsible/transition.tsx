@@ -13,7 +13,7 @@ import { useForkRef } from '../../../../../../packages/react/src/utils/useForkRe
 const STARTING_HOOK = { 'data-starting-style': '' };
 const ENDING_HOOK = { 'data-ending-style': '' };
 
-const KEEP_MOUNTED = false;
+// const KEEP_MOUNTED = false;
 
 function Collapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
   const { keepMounted = true, defaultOpen = false } = props;
@@ -221,7 +221,7 @@ function Collapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
         onClick={handleTrigger}
       >
         <ExpandMoreIcon className={classes.Icon} />
-        Trigger (keepMounted {String(keepMounted)})
+        Trigger {/* (keepMounted {String(keepMounted)}) */}
       </button>
 
       {(keepMounted || (!keepMounted && mounted)) && (
@@ -250,12 +250,22 @@ function Collapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
 
 export default function App() {
   return (
-    <div className={classes.wrapper}>
-      <Collapsible keepMounted={KEEP_MOUNTED} defaultOpen />
+    <div className={classes.grid}>
+      <div className={classes.wrapper}>
+        <pre>keepMounted: true</pre>
+        <Collapsible keepMounted defaultOpen />
 
-      <Collapsible keepMounted={KEEP_MOUNTED} defaultOpen={false} />
+        <Collapsible keepMounted defaultOpen={false} />
 
-      <small>———</small>
+        <small>———</small>
+      </div>
+      <div className={classes.wrapper}>
+        <pre>keepMounted: false</pre>
+        <Collapsible keepMounted={false} defaultOpen />
+
+        <Collapsible keepMounted={false} defaultOpen={false} />
+        <small>———</small>
+      </div>
     </div>
   );
 }
