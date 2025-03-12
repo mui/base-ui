@@ -54,14 +54,6 @@ const { renderElement } = useRender({
 const element = renderElement();
 ```
 
-### TypeScript
-
-To type a component's props, use the `useRender.ComponentProps` interface. It provides the `render` prop and HTML attributes.
-
-```tsx title="Typing component props"
-interface MyProps extends useRender.ComponentProps<'div'> {}
-```
-
 ## Examples
 
 A `render` prop for a custom Text component lets consumers use it to replace the default rendered `p` element with a different tag or component.
@@ -99,6 +91,12 @@ function Button() {
     />
   );
 }
+```
+
+An explicit tag type is also possible, with `mergeProps` defaulting to `'div'`.
+
+```tsx title="Explicit tag type"
+mergeProps<'button'>({ type: 'button' }, externalProps);
 ```
 
 ## Merging refs
@@ -144,9 +142,14 @@ const Text = React.forwardRef(function Text(
 
 ## TypeScript
 
-To type a component's internal default props, use the `useRender.ElementProps` interface.
+To type props, there are two interfaces:
 
-```tsx title="Typing default props"
+- `useRender.ComponentProps` for a component's external (public) props. It types the `render` prop and HTML attributes.
+- `useRender.ElementProps` for the element's internal (private) props. It types HTML attributes alone.
+
+```tsx title="Typing props" {1,4}
+interface ButtonProps extends useRender.ComponentProps<'button'> {}
+
 function Button({ render = <button />, ...props }: ButtonProps) {
   const defaultProps: useRender.ElementProps<'button'> = {
     className: styles.Button,
@@ -161,12 +164,6 @@ function Button({ render = <button />, ...props }: ButtonProps) {
 
   return renderElement();
 }
-```
-
-An explicit tag type is also possible, with `mergeProps` defaulting to `'div'`.
-
-```tsx title="Explicit tag type"
-mergeProps<'button'>({ type: 'button' }, externalProps);
 ```
 
 ## Migrating from Radix UI
