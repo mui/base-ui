@@ -93,12 +93,6 @@ function Button() {
 }
 ```
 
-An explicit tag type is also possible, with `mergeProps` defaulting to `'div'`.
-
-```tsx title="Explicit tag type"
-mergeProps<'button'>({ type: 'button' }, externalProps);
-```
-
 ## Merging refs
 
 When building custom components, you often need to control a ref internally while still letting external consumers pass their own—merging refs lets both parties have access to the underlying DOM element. The `refs` option in `useRender` enables this, which holds an array of refs to be merged together.
