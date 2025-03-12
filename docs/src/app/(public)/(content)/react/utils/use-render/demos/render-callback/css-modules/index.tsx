@@ -8,11 +8,7 @@ interface CounterState {
   odd: boolean;
 }
 
-interface CounterProps extends useRender.ComponentProps<'button', CounterState> {
-  className?: string;
-  onClick?: (event: React.MouseEvent) => void;
-  ['aria-label']?: string;
-}
+interface CounterProps extends useRender.ComponentProps<'button', CounterState> {}
 
 function Counter(props: CounterProps) {
   const { render = <button />, ...otherProps } = props;

@@ -11,7 +11,7 @@ function Text(props: TextProps) {
 
   const { renderElement } = useRender({
     render,
-    props: mergeProps({ className: styles.Text }, otherProps),
+    props: mergeProps<'p'>({ className: styles.Text }, otherProps),
   });
 
   return renderElement();
