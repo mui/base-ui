@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
-export type TransitionStatus = 'starting' | 'ending' | undefined;
+export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 
 /**
  * Provides a status string for CSS animations.
@@ -30,15 +30,18 @@ export function useTransitionStatus(open: boolean) {
     if (!open) {
       return undefined;
     }
+    if (open && mounted && transitionStatus !== 'idle') {
+      setTransitionStatus('starting');
+    }
 
     const frame = requestAnimationFrame(() => {
-      setTransitionStatus(undefined);
+      setTransitionStatus('idle');
     });
 
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [open]);
+  }, [open, mounted, setTransitionStatus, transitionStatus]);
 
   return React.useMemo(
     () => ({
