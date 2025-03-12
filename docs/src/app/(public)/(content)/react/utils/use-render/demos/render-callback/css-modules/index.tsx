@@ -21,7 +21,7 @@ function Counter(props: CounterProps) {
   const odd = count % 2 === 1;
   const state = React.useMemo(() => ({ odd }), [odd]);
 
-  const defaultProps: mergeProps.Props<'button'> = {
+  const defaultProps: useRender.ElementProps<'button'> = {
     className: styles.Button,
     type: 'button',
     children: (
@@ -38,7 +38,7 @@ function Counter(props: CounterProps) {
   const { renderElement } = useRender({
     render,
     state,
-    props: mergeProps(defaultProps, otherProps),
+    props: mergeProps<'button'>(defaultProps, otherProps),
   });
 
   return renderElement();

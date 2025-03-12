@@ -136,7 +136,7 @@ describe('mergeProps', () => {
   it('prevents handlers merged after event.preventBaseUIHandler() is called', () => {
     const log: string[] = [];
 
-    const mergedProps = mergeProps(
+    const mergedProps = mergeProps<any>(
       {
         onClick() {
           log.push('2');
@@ -164,7 +164,7 @@ describe('mergeProps', () => {
     it('handles non-standard event handlers without error', () => {
       const log: string[] = [];
 
-      const mergedProps = mergeProps(
+      const mergedProps = mergeProps<any>(
         {
           onValueChange() {
             log.push('1');
