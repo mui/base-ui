@@ -100,6 +100,7 @@
   -webkit-user-select: none;
   cursor: default;
   z-index: calc(1000 - var(--toast-index));
+  color: var(--color-gray-700);
 
   --gap: 10px;
 
@@ -111,6 +112,16 @@
     height: calc(var(--gap) + 1px);
   }
 
+  &[data-type='success'] {
+    background-color: lightgreen;
+    color: black;
+  }
+
+  &[data-type='error'] {
+    background-color: lightpink;
+    color: black;
+  }
+
   &[data-ending-style] {
     opacity: 0;
 
@@ -120,8 +131,8 @@
   }
 
   &[data-position^='top'] {
-    transform: translateX(var(--toast-swipe-move-x))
-      translateY(calc(var(--toast-index) * 15px + var(--toast-swipe-move-y)))
+    transform: translateX(var(--toast-swipe-movement-x))
+      translateY(calc(var(--toast-index) * 15px + var(--toast-swipe-movement-y)))
       scale(calc(1 - var(--toast-index) * 0.1));
 
     &::after {
@@ -129,9 +140,12 @@
     }
 
     &[data-expanded] {
-      transform: translateX(var(--toast-swipe-move-x))
+      transform: translateX(var(--toast-swipe-movement-x))
         translateY(
-          calc(var(--toast-offset) + (var(--toast-index) * var(--gap)) + var(--toast-swipe-move-y))
+          calc(
+            var(--toast-offset-y) + (var(--toast-index) * var(--gap)) +
+              var(--toast-swipe-movement-y)
+          )
         );
     }
 
@@ -142,26 +156,26 @@
 
     &[data-ending-style] {
       &[data-swipe-direction='up'] {
-        transform: translateY(calc(var(--toast-swipe-move-y) - 150%));
+        transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
       }
 
       &[data-swipe-direction='left'] {
-        transform: translateX(calc(var(--toast-swipe-move-x) - 150%));
+        transform: translateX(calc(var(--toast-swipe-movement-x) - 150%));
       }
 
       &[data-swipe-direction='right'] {
-        transform: translateX(calc(var(--toast-swipe-move-x) + 150%));
+        transform: translateX(calc(var(--toast-swipe-movement-x) + 150%));
       }
 
       &[data-swipe-direction='down'] {
-        transform: translateY(calc(var(--toast-swipe-move-y) + 150%));
+        transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
       }
     }
   }
 
   &[data-position^='bottom'] {
-    transform: translateX(var(--toast-swipe-move-x))
-      translateY(calc(var(--toast-swipe-move-y) + (var(--toast-index) * -20%)))
+    transform: translateX(var(--toast-swipe-movement-x))
+      translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)))
       scale(calc(1 - (var(--toast-index) * 0.1)));
     bottom: 0;
 
@@ -170,11 +184,11 @@
     }
 
     &[data-expanded] {
-      transform: translateX(var(--toast-swipe-move-x))
+      transform: translateX(var(--toast-swipe-movement-x))
         translateY(
           calc(
-            var(--toast-offset) * -1 + (var(--toast-index) * var(--gap) * -1) +
-              var(--toast-swipe-move-y)
+            var(--toast-offset-y) * -1 + (var(--toast-index) * var(--gap) * -1) +
+              var(--toast-swipe-movement-y)
           )
         );
     }
@@ -186,19 +200,19 @@
 
     &[data-ending-style] {
       &[data-swipe-direction='up'] {
-        transform: translateY(calc(var(--toast-swipe-move-y) - 150%));
+        transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
       }
 
       &[data-swipe-direction='left'] {
-        transform: translateX(calc(var(--toast-swipe-move-x) - 150%));
+        transform: translateX(calc(var(--toast-swipe-movement-x) - 150%));
       }
 
       &[data-swipe-direction='right'] {
-        transform: translateX(calc(var(--toast-swipe-move-x) + 150%));
+        transform: translateX(calc(var(--toast-swipe-movement-x) + 150%));
       }
 
       &[data-swipe-direction='down'] {
-        transform: translateY(calc(var(--toast-swipe-move-y) + 150%));
+        transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
       }
     }
   }
@@ -218,12 +232,13 @@
   font-weight: 500;
   font-size: 0.975rem;
   line-height: 1.25rem;
+  margin: 0;
 }
 
 .Description {
   font-size: 0.925rem;
   line-height: 1.25rem;
-  color: var(--color-gray-700);
+  margin: 0;
 }
 
 .Close {
@@ -237,12 +252,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-gray-500);
   border-radius: 0.25rem;
 
   &:hover {
     background-color: var(--color-gray-100);
-    color: var(--color-gray-700);
   }
 }
 

@@ -125,6 +125,11 @@ export function useToastProvider(props: useToastProvider.Parameters): ToastConte
     toast?.onClose?.();
 
     handleFocusManagement(toastId);
+
+    if (toasts.length === 1) {
+      hoveringRef.current = false;
+      focusedRef.current = false;
+    }
   });
 
   const remove = useEventCallback((toastId: string) => {
@@ -195,13 +200,9 @@ export function useToastProvider(props: useToastProvider.Parameters): ToastConte
       scheduleTimer(id, duration, () => close(id));
     }
 
-    // Wait for focus to potentially leave the viewport due to
-    // a removal occurring at the same time
-    setTimeout(() => {
-      if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
-        pauseTimers();
-      }
-    });
+    if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
+      pauseTimers();
+    }
 
     return id;
   });

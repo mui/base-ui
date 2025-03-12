@@ -1,6 +1,6 @@
 {
   "name": "ToastDescription",
-  "description": "A description that describes the toast.\nRenders a `<p>` element.",
+  "description": "A description that describes the toast.\nCan be used as the default message for the toast when no title is provided.\nRenders a `<p>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

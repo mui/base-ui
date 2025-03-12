@@ -52,7 +52,6 @@ function ToastList() {
       key={toast.id}
       toast={toast}
       className={styles.Toast}
-      data-type={toast.type}
       data-position="top"
       swipeDirection="up"
     >

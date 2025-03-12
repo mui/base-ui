@@ -5,23 +5,18 @@ export enum ToastRootCssVars {
    */
   index = '--toast-index',
   /**
-   * Indicates the offset of the toast in the list.
+   * Indicates the vertical pixels offset of the toast in the list when expanded.
    * @type {number}
    */
-  offset = '--toast-offset',
-  /**
-   * Indicates the direction the toast is swiped.
-   * @type {'up' | 'down' | 'left' | 'right'}
-   */
-  swipeDirection = '--toast-swipe-direction',
+  offsetY = '--toast-offset-y',
   /**
    * Indicates the horizontal swipe movement of the toast.
    * @type {number}
    */
-  swipeMoveX = '--toast-swipe-move-x',
+  swipeMovementX = '--toast-swipe-movement-x',
   /**
    * Indicates the vertical swipe movement of the toast.
    * @type {number}
    */
-  swipeMoveY = '--toast-swipe-move-y',
+  swipeMovementY = '--toast-swipe-movement-y',
 }

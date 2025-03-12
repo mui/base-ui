@@ -7,8 +7,6 @@ import { useToastRootContext } from '../root/ToastRootContext';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
 
-const state = {};
-
 /**
  * Performs an action when clicked.
  * Renders a `<button>` element.
@@ -31,6 +29,13 @@ const ToastAction = React.forwardRef(function ToastAction(
     buttonRef: forwardedRef,
   });
 
+  const state: ToastAction.State = React.useMemo(
+    () => ({
+      type: toast.type,
+    }),
+    [toast.type],
+  );
+
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
     ref: forwardedRef,
@@ -49,7 +54,12 @@ const ToastAction = React.forwardRef(function ToastAction(
 });
 
 namespace ToastAction {
-  export interface State {}
+  export interface State {
+    /**
+     * The type of the toast.
+     */
+    type: string | undefined;
+  }
 
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }

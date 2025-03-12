@@ -36,7 +36,7 @@
   }
 
   &[data-expanded] {
-    transform: translateY(calc(var(--toast-offset) + calc(var(--toast-index) * var(--gap))));
+    transform: translateY(calc(var(--toast-offset-y) + calc(var(--toast-index) * var(--gap))));
   }
 
   &[data-starting-style],
