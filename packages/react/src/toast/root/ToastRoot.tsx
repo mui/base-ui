@@ -652,16 +652,17 @@ ToastRoot.propTypes /* remove-proptypes */ = {
    */
   toast: PropTypes.shape({
     actionProps: PropTypes.object,
-    animation: PropTypes.oneOf(['ending', 'starting']),
     data: PropTypes.any,
     description: PropTypes.string,
     height: PropTypes.number,
     id: PropTypes.string.isRequired,
+    limited: PropTypes.bool,
     onClose: PropTypes.func,
     onRemove: PropTypes.func,
     priority: PropTypes.oneOf(['high', 'low']),
     timeout: PropTypes.number,
     title: PropTypes.string,
+    transitionStatus: PropTypes.oneOf(['ending', 'starting']),
     type: PropTypes.string,
   }).isRequired,
 } as any;
