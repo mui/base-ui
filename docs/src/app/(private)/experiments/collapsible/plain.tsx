@@ -36,7 +36,6 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 
   const [height, setHeight] = React.useState<number | undefined>(undefined);
 
-  const isInitiallyOpenRef = React.useRef(open);
   const shouldCancelInitialOpenTransitionRef = React.useRef(open);
 
   const isHidden = React.useMemo(() => {
@@ -75,7 +74,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
     element.style.setProperty('display', 'block', 'important'); // TODO: maybe this can be set more conditionally
 
     if (height === undefined) {
-      if (!isInitiallyOpenRef.current && !keepMounted) {
+      if (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) {
         // the closed transition styles must be set here to transition the first
         // opening transition when the panel is BOTH initially closed AND `keepMounted={false}`
         console.log('handlePanelRef setting opacity 0');
@@ -181,9 +180,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
       /* opening */
       panel.style.height = '0px';
       // the closed transition styles must be set here to transition all opening
-      // transitions except the first one when both:
-      // 1 - the panel is initially closed
-      // 2 - `keepMounted={false}`
+      // transitions except the first one when `keepMounted={false}`
       if (!shouldCancelInitialOpenTransitionRef.current) {
         console.log('useEnhancedEffect setting opacity 0');
         panel.style.opacity = '0';
