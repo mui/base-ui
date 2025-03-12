@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-boolean-value */
 'use client';
 import * as React from 'react';
 import {
@@ -36,6 +37,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
   const [height, setHeight] = React.useState<number | undefined>(undefined);
 
   const isInitiallyOpenRef = React.useRef(open);
+  const shouldCancelInitialOpenTransitionRef = React.useRef(open);
 
   const isHidden = React.useMemo(() => {
     if (keepMounted) {
@@ -44,6 +46,11 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 
     return !open && !mounted;
   }, [keepMounted, open, mounted]);
+
+  function setHeightAndRemoveDisplayProperty(panelElement: HTMLElement) {
+    setHeight(panelElement.scrollHeight);
+    panelElement.style.removeProperty('display');
+  }
 
   const panelRef: React.RefObject<HTMLElement | null> = React.useRef(null);
 
@@ -65,43 +72,35 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
      * Tailwind v4 default that sets `display: none !important` on `[hidden]`:
      * https://github.com/tailwindlabs/tailwindcss/blame/main/packages/tailwindcss/preflight.css#L382
      */
-    element.style.setProperty('display', 'block', 'important');
-
-    // const panelStyles = getComputedStyle(element);
+    element.style.setProperty('display', 'block', 'important'); // TODO: maybe this can be set more conditionally
 
     if (height === undefined) {
-      if (
-        isInitiallyOpenRef.current ||
-        (!isInitiallyOpenRef.current && !keepMounted)
-      ) {
+      if (!isInitiallyOpenRef.current && !keepMounted) {
         // the closed transition styles must be set here to transition the first
-        // opening transition when EITHER:
-        // 1 - the panel is initially closed AND `keepMounted={false}`
-        // 2 - the panel is initially open regardless of keepMounted
+        // opening transition when the panel is BOTH initially closed AND `keepMounted={false}`
+        console.log('handlePanelRef setting opacity 0');
         element.style.opacity = '0';
 
-        setHeight(element.scrollHeight);
-        element.style.removeProperty('display');
+        setHeightAndRemoveDisplayProperty(element);
 
         // after setHeight() all the transition properties need to be removed
+        console.log('handlePanelRef unsetting inline opacity');
         element.style.removeProperty('opacity');
+      } else {
+        setHeightAndRemoveDisplayProperty(element);
       }
 
-      if (isInitiallyOpenRef.current) {
+      if (shouldCancelInitialOpenTransitionRef.current) {
         element.style.transitionDuration = '0s';
-
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            element.style.removeProperty('transition-duration');
-            if (!keepMounted) {
-              // FIXME: this should actually be isInitialOpenTransitionRef
-              // or maybe both are needed?
-              isInitiallyOpenRef.current = false;
-            }
-          });
-        });
       }
     }
+
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        element.style.removeProperty('transition-duration');
+        shouldCancelInitialOpenTransitionRef.current = false;
+      });
+    });
   });
 
   const mergedRef = useForkRef(panelRef, handlePanelRef);
@@ -179,16 +178,13 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
         abortControllerRef.current = null;
       }
 
-      console.log('mounted?', mounted);
-      console.log('isInitiallyOpenRef?', isInitiallyOpenRef.current);
-
       /* opening */
       panel.style.height = '0px';
       // the closed transition styles must be set here to transition all opening
       // transitions except the first one when both:
       // 1 - the panel is initially closed
       // 2 - `keepMounted={false}`
-      if (!isInitiallyOpenRef.current) {
+      if (!shouldCancelInitialOpenTransitionRef.current) {
         console.log('useEnhancedEffect setting opacity 0');
         panel.style.opacity = '0';
       }
@@ -200,7 +196,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 
         panel.style.removeProperty('height');
 
-        if (!isInitiallyOpenRef.current) {
+        if (!shouldCancelInitialOpenTransitionRef.current) {
           // remove all the transition properties that were just manually applied
           console.log('useEnhancedEffect unsetting inline opacity');
           panel.style.removeProperty('opacity');
