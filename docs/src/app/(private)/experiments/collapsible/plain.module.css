@@ -41,7 +41,7 @@
   width: 100%;
 
   height: var(--collapsible-panel-height);
-  opacity: 1;
+  /*  opacity: 1;*/
 
   transition:
     height var(--duration) ease-out,
