@@ -22,7 +22,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 
   const [open, setOpen] = React.useState(defaultOpen);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, false);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const styleHooks = React.useMemo(() => {
     if (transitionStatus === 'starting') {
