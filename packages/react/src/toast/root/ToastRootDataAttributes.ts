@@ -1,12 +1,7 @@
 export enum ToastRootDataAttributes {
   /**
-   * Indicates the current swipe state.
-   * @type {'start' | 'move' | 'end' | 'cancel'}
+   * Indicates the toast is being swiped.
+   * @type {boolean}
    */
-  swipe = 'data-swipe',
-  /**
-   * Indicates the direction of the swipe.
-   * @type {'up' | 'down' | 'left' | 'right'}
-   */
-  swipeDirection = 'data-swipe-direction',
+  swiping = 'data-swiping',
 }

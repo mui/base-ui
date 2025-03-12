@@ -263,7 +263,7 @@ describe('<Toast.Root />', () => {
       expect(screen.queryByTestId('toast-root')).not.to.equal(null);
     });
 
-    it('applies correct data attributes during swipe', async () => {
+    it('applies [data-swiping] attribute when swiping', async () => {
       await render(
         <Toast.Provider>
           <Toast.Viewport>
@@ -279,17 +279,7 @@ describe('<Toast.Root />', () => {
 
       fireEvent.pointerDown(toastElement, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
 
-      expect(toastElement.getAttribute('data-swipe')).to.equal('start');
-
-      // Move enough to trigger real drag
-      fireEvent.pointerMove(toastElement, { clientX: 100, clientY: 80, pointerId: 1 });
-
-      expect(toastElement.getAttribute('data-swipe')).to.equal('move');
-      expect(toastElement.getAttribute('data-swipe-direction')).to.equal('up');
-
-      fireEvent.pointerUp(toastElement, { clientX: 100, clientY: 80, pointerId: 1 });
-
-      expect(toastElement.getAttribute('data-swipe')).to.equal('end');
+      expect(toastElement.getAttribute('data-swiping')).to.equal('');
     });
 
     it('dismisses toast when swiped down with downward swipe direction', async () => {

@@ -41,7 +41,7 @@ import { Toast } from '@base-ui-components/react/toast';
 
 Manages toasts, called inside of a `Toast.Provider`.
 
-```tsx
+```tsx title="Usage"
 const toast = Toast.useToast();
 ```
 
@@ -55,7 +55,7 @@ const toast = Toast.useToast();
       description: 'The array of toast objects.',
     },
     add: {
-      type: '(options: useToast.AddOptions) => void',
+      type: '(options: useToast.AddOptions) => string',
       description: 'Add a toast to the toast list.',
     },
     close: {
@@ -67,7 +67,7 @@ const toast = Toast.useToast();
       description: 'Update a toast in the toast list.',
     },
     promise: {
-      type: '<Value>(promise: Promise<Value>, options: useToast.PromiseOptions) => void',
+      type: '<Value>(promise: Promise<Value>, options: useToast.PromiseOptions) => Promise<Value>',
       description:
         'Create a toast that resolves with a value, with three possible states for the toast: `loading`, `success`, and `error`.',
     },
@@ -130,13 +130,13 @@ Creates a toast by adding it to the toast list.
 
 Returns a `toastId` that can be used to update or close the toast later.
 
-```jsx
+```jsx title="Usage"
 const toastId = toast.add({
   description: 'Hello, world!',
 });
 ```
 
-```jsx title="Usage" {2,7}
+```jsx title="Example" {2,7}
 function App() {
   const toast = Toast.useToast();
   return (
@@ -152,11 +152,13 @@ function App() {
 }
 ```
 
+The `title` and `description` options are what will be announced by screen readers. They do not announce extra content inside the `Toast.Title` or `Toast.Description` components.
+
 ### `update` method
 
 Updates the toast with new options.
 
-```jsx
+```jsx title="Usage"
 toast.update(toastId, {
   description: 'New description',
 });
@@ -166,7 +168,7 @@ toast.update(toastId, {
 
 Closes the toast, removing it from the toast list after any animations complete.
 
-```jsx
+```jsx title="Usage"
 toast.close(toastId);
 ```
 
@@ -174,7 +176,7 @@ toast.close(toastId);
 
 Creates an asynchronous toast with three possible states: `loading`, `success`, and `error`.
 
-```tsx
+```tsx title="Description configuration"
 const toastId = toast.promise(
   new Promise((resolve) => {
     setTimeout(() => resolve('world!'), 1000);
@@ -190,7 +192,7 @@ const toastId = toast.promise(
 
 Each state also accepts the [method options](/react/components/toast#method-options) object to granularly control the toast for each state:
 
-```tsx
+```tsx title="Method options configuration"
 const toastId = toast.promise(
   new Promise((resolve) => {
     setTimeout(() => resolve('world!'), 1000);
@@ -224,11 +226,11 @@ A global toast manager can be created by passing the `toastManager` prop to the 
 
 The created `toastManager` object has the same properties and methods as the `Toast.useToast()` hook.
 
-```tsx
+```tsx title="Creating a manager instance"
 const toastManager = Toast.createToastManager();
 ```
 
-```jsx
+```jsx title="Using the instance"
 <Toast.Provider toastManager={toastManager}>
 ```
 
@@ -242,7 +244,7 @@ When adding a toast, the `actionProps` option can be used to define props for an
 
 ### Promise
 
-An asynchronous toast can be created with three possible states for the toast's title: `loading`, `success`, and `error`. The `type` string matches these states to change the styling. Each of the states also accepts the [method options](/react/components/toast#method-options) object for more granular control.
+An asynchronous toast can be created with three possible states: `loading`, `success`, and `error`. The `type` string matches these states to change the styling. Each of the states also accepts the [method options](/react/components/toast#method-options) object for more granular control.
 
 <Demo path="./demos/promise" />
 

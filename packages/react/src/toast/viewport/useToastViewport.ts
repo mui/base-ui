@@ -173,6 +173,7 @@ export function useToastViewport() {
         tabIndex: -1,
         'aria-label': `${numToasts} notification${numToasts !== 1 ? 's' : ''} (F6)`,
         onMouseEnter: handleMouseEnter,
+        onMouseMove: handleMouseEnter,
         onMouseLeave: handleMouseLeave,
         onFocus: handleFocus,
         onBlur: handleBlur,

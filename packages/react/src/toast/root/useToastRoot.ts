@@ -67,7 +67,7 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
   const { toasts, focused, close, remove, setToasts, pauseTimers, resumeTimers } =
     useToastContext();
 
-  const [renderChildren, setRenderChildren] = React.useState(false);
+  const [renderScreenReaderContent, setRenderScreenReaderContent] = React.useState(false);
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -81,14 +81,11 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
     },
   });
 
-  const [isDragging, setIsDragging] = React.useState(false);
-  const [isRealDrag, setIsRealDrag] = React.useState(false);
+  const [isSwiping, setIsSwiping] = React.useState(false);
+  const [isRealSwipe, setIsRealSwipe] = React.useState(false);
   const [dragDismissed, setDragDismissed] = React.useState(false);
 
   const [dragOffset, setDragOffset] = React.useState({ x: 0, y: 0 });
-  const [swipeState, setSwipeState] = React.useState<'start' | 'move' | 'end' | 'cancel' | null>(
-    null,
-  );
   const [initialTransform, setInitialTransform] = React.useState({ x: 0, y: 0, scale: 1 });
   const [titleId, setTitleId] = React.useState<string | undefined>();
   const [descriptionId, setDescriptionId] = React.useState<string | undefined>();
@@ -110,7 +107,7 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
     () => toasts.filter((t) => t.transitionStatus !== 'ending').indexOf(toast),
     [toast, toasts],
   );
-  const offset = React.useMemo(() => {
+  const offsetY = React.useMemo(() => {
     return toasts.slice(0, toasts.indexOf(toast)).reduce((acc, t) => acc + (t.height || 0), 0);
   }, [toasts, toast]);
 
@@ -223,16 +220,15 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
       });
     }
 
-    setIsDragging(true);
-    setIsRealDrag(false);
+    setIsSwiping(true);
+    setIsRealSwipe(false);
     setLockedDirection(null);
-    setSwipeState('start');
 
     rootRef.current?.setPointerCapture(event.pointerId);
   });
 
   const handlePointerMove = useEventCallback((event: React.PointerEvent) => {
-    if (!isDragging) {
+    if (!isSwiping) {
       return;
     }
 
@@ -260,11 +256,10 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
     const cancelDeltaY = clientY - swipeCancelBaselineRef.current.y;
     const cancelDeltaX = clientX - swipeCancelBaselineRef.current.x;
 
-    if (!isRealDrag) {
+    if (!isRealSwipe) {
       const movementDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       if (movementDistance >= MIN_DRAG_THRESHOLD) {
-        setIsRealDrag(true);
-        setSwipeState('move');
+        setIsRealSwipe(true);
         if (lockedDirection === null) {
           const hasHorizontal =
             swipeDirections.includes('left') || swipeDirections.includes('right');
@@ -313,7 +308,6 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
       ) {
         // Mark that a change-of-mind has occurred
         cancelledSwipeRef.current = true;
-        setSwipeState('cancel');
       }
     }
 
@@ -342,7 +336,7 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
   });
 
   const handlePointerUp = useEventCallback((event: React.PointerEvent) => {
-    if (!isDragging) {
+    if (!isSwiping) {
       return;
     }
 
@@ -350,14 +344,13 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
       resumeTimers();
     }
 
-    setIsDragging(false);
-    setIsRealDrag(false);
+    setIsSwiping(false);
+    setIsRealSwipe(false);
     setLockedDirection(null);
 
     rootRef.current?.releasePointerCapture(event.pointerId);
 
     if (cancelledSwipeRef.current) {
-      setSwipeState('cancel');
       setDragOffset({
         x: initialTransform.x,
         y: initialTransform.y,
@@ -401,14 +394,12 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
 
     if (shouldClose) {
       setDragDismissed(true);
-      setSwipeState('end');
       close(toast.id);
     } else {
       setDragOffset({
         x: initialTransform.x,
         y: initialTransform.y,
       });
-      setSwipeState('cancel');
     }
   });
 
@@ -444,7 +435,7 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
 
   React.useEffect(() => {
     const timeout = setTimeout(
-      () => setRenderChildren(true),
+      () => setRenderScreenReaderContent(true),
       // macOS Safari needs some time to pass after the status node has been
       // created before changing its text content to reliably announce its content.
       50,
@@ -456,14 +447,14 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
     (externalProps = {}) => {
       function getDragStyles() {
         if (
-          !isDragging &&
+          !isSwiping &&
           dragOffset.x === initialTransform.x &&
           dragOffset.y === initialTransform.y &&
           !dragDismissed
         ) {
           return {
-            [ToastRootCssVars.swipeMoveX]: '0px',
-            [ToastRootCssVars.swipeMoveY]: '0px',
+            [ToastRootCssVars.swipeMovementX]: '0px',
+            [ToastRootCssVars.swipeMovementY]: '0px',
           };
         }
 
@@ -471,25 +462,10 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
         const deltaY = dragOffset.y - initialTransform.y;
 
         return {
-          transition: isDragging ? 'none' : undefined,
-          [ToastRootCssVars.swipeMoveX]: `${deltaX}px`,
-          [ToastRootCssVars.swipeMoveY]: `${deltaY}px`,
+          transition: isSwiping ? 'none' : undefined,
+          [ToastRootCssVars.swipeMovementX]: `${deltaX}px`,
+          [ToastRootCssVars.swipeMovementY]: `${deltaY}px`,
         };
-      }
-
-      function getSwipeDirection(): 'up' | 'down' | 'left' | 'right' | undefined {
-        if (!isRealDrag && !dragDismissed) {
-          return undefined;
-        }
-
-        const deltaX = dragOffset.x - initialTransform.x;
-        const deltaY = dragOffset.y - initialTransform.y;
-
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-          return deltaX > 0 ? 'right' : 'left';
-        }
-
-        return deltaY > 0 ? 'down' : 'up';
       }
 
       return mergeProps(
@@ -499,8 +475,7 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
           'aria-modal': false,
           'aria-labelledby': titleId,
           'aria-describedby': descriptionId,
-          [ToastRootDataAttributes.swipe]: swipeState,
-          [ToastRootDataAttributes.swipeDirection]: getSwipeDirection(),
+          [ToastRootDataAttributes.swiping]: isSwiping,
           onPointerDown: handlePointerDown,
           onPointerMove: handlePointerMove,
           onPointerUp: handlePointerUp,
@@ -508,7 +483,7 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
           style: {
             ...getDragStyles(),
             [ToastRootCssVars.index]: toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
-            [ToastRootCssVars.offset]: `${offset}px`,
+            [ToastRootCssVars.offsetY]: `${offsetY}px`,
           },
         },
         externalProps,
@@ -519,26 +494,24 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
       toast.transitionStatus,
       titleId,
       descriptionId,
-      swipeState,
       handlePointerDown,
       handlePointerMove,
       handlePointerUp,
       handleKeyDown,
       domIndex,
       visibleIndex,
-      offset,
-      isDragging,
+      offsetY,
+      isSwiping,
       dragOffset,
       initialTransform,
       dragDismissed,
-      isRealDrag,
     ],
   );
 
   return React.useMemo(
     () => ({
       rootRef,
-      renderChildren,
+      renderScreenReaderContent,
       toast,
       getRootProps,
       titleId,
@@ -546,8 +519,17 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
       descriptionId,
       setDescriptionId,
       hasDifferingHeights,
+      swiping: isSwiping,
     }),
-    [renderChildren, toast, getRootProps, titleId, descriptionId, hasDifferingHeights],
+    [
+      renderScreenReaderContent,
+      toast,
+      getRootProps,
+      titleId,
+      descriptionId,
+      hasDifferingHeights,
+      isSwiping,
+    ],
   );
 }
 
@@ -561,12 +543,13 @@ export namespace useToastRoot {
 
   export interface ReturnValue extends ToastRootContext {
     rootRef: React.RefObject<HTMLDivElement | null>;
-    renderChildren: boolean;
+    renderScreenReaderContent: boolean;
     toast: ToastObject<any>;
     getRootProps: (externalProps?: any) => any;
     titleId: string | undefined;
     setTitleId: React.Dispatch<React.SetStateAction<string | undefined>>;
     descriptionId: string | undefined;
     hasDifferingHeights: boolean;
+    swiping: boolean;
   }
 }

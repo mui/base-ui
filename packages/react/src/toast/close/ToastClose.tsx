@@ -8,8 +8,6 @@ import { mergeProps } from '../../merge-props';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useButton } from '../../use-button/useButton';
 
-const state = {};
-
 /**
  * Closes the toast when clicked.
  * Renders a `<button>` element.
@@ -29,6 +27,13 @@ const ToastClose = React.forwardRef(function ToastClose(
     disabled,
     buttonRef: forwardedRef,
   });
+
+  const state: ToastClose.State = React.useMemo(
+    () => ({
+      type: toast.type,
+    }),
+    [toast.type],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'button',
@@ -50,7 +55,12 @@ const ToastClose = React.forwardRef(function ToastClose(
 });
 
 namespace ToastClose {
-  export interface State {}
+  export interface State {
+    /**
+     * The type of the toast.
+     */
+    type: string | undefined;
+  }
 
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }

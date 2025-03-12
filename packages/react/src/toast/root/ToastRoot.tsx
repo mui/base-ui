@@ -38,8 +38,18 @@ const ToastRoot = React.forwardRef(function ToastRoot(
       transitionStatus: toast.transitionStatus,
       expanded: hovering || focused || toastRoot.hasDifferingHeights,
       limited: toast.limited || false,
+      type: toast.type,
+      swiping: toastRoot.swiping,
     }),
-    [toast.transitionStatus, toast.limited, hovering, focused, toastRoot.hasDifferingHeights],
+    [
+      hovering,
+      focused,
+      toast.transitionStatus,
+      toast.limited,
+      toast.type,
+      toastRoot.hasDifferingHeights,
+      toastRoot.swiping,
+    ],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -64,7 +74,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
                 ? { role: 'alert', 'aria-atomic': true }
                 : { role: 'status', 'aria-live': 'polite' })}
             >
-              {toastRoot.renderChildren && (
+              {toastRoot.renderScreenReaderContent && (
                 <React.Fragment>
                   {toast.title && <div>{toast.title}</div>}
                   {toast.description && <div>{toast.description}</div>}
@@ -93,6 +103,14 @@ export namespace ToastRoot {
      * Whether the toast was removed due to exceeding the limit.
      */
     limited: boolean;
+    /**
+     * The type of the toast.
+     */
+    type: string | undefined;
+    /**
+     * Whether the toast is being swiped.
+     */
+    swiping: boolean;
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {

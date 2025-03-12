@@ -7,8 +7,6 @@ import { useToastRootContext } from '../root/ToastRootContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useId } from '../../utils/useId';
 
-const state = {};
-
 /**
  * A title that labels the toast.
  * Renders an `<h2>` element.
@@ -20,6 +18,8 @@ const ToastTitle = React.forwardRef(function ToastTitle(
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
   const { render, className, id: idProp, ...other } = props;
+
+  const { toast } = useToastRootContext();
 
   const shouldRender = Boolean(other.children);
 
@@ -38,6 +38,13 @@ const ToastTitle = React.forwardRef(function ToastTitle(
       setTitleId(undefined);
     };
   }, [shouldRender, id, setTitleId]);
+
+  const state: ToastTitle.State = React.useMemo(
+    () => ({
+      type: toast.type,
+    }),
+    [toast.type],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'h2',
@@ -58,7 +65,12 @@ const ToastTitle = React.forwardRef(function ToastTitle(
 });
 
 namespace ToastTitle {
-  export interface State {}
+  export interface State {
+    /**
+     * The type of the toast.
+     */
+    type: string | undefined;
+  }
 
   export interface Props extends BaseUIComponentProps<'h2', State> {}
 }

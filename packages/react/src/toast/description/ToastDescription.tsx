@@ -7,10 +7,9 @@ import { useToastRootContext } from '../root/ToastRootContext';
 import { useId } from '../../utils/useId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
-const state = {};
-
 /**
  * A description that describes the toast.
+ * Can be used as the default message for the toast when no title is provided.
  * Renders a `<p>` element.
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
@@ -20,6 +19,8 @@ const ToastDescription = React.forwardRef(function ToastDescription(
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, id: idProp, ...other } = props;
+
+  const { toast } = useToastRootContext();
 
   const shouldRender = Boolean(other.children);
 
@@ -38,6 +39,13 @@ const ToastDescription = React.forwardRef(function ToastDescription(
       setDescriptionId(undefined);
     };
   }, [shouldRender, id, setDescriptionId]);
+
+  const state: ToastDescription.State = React.useMemo(
+    () => ({
+      type: toast.type,
+    }),
+    [toast.type],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'p',
@@ -58,7 +66,12 @@ const ToastDescription = React.forwardRef(function ToastDescription(
 });
 
 namespace ToastDescription {
-  export interface State {}
+  export interface State {
+    /**
+     * The type of the toast.
+     */
+    type: string | undefined;
+  }
 
   export interface Props extends BaseUIComponentProps<'p', State> {}
 }

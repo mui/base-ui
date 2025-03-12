@@ -22,13 +22,9 @@
     }
   },
   "dataAttributes": {
-    "data-swipe": {
-      "description": "Indicates the current swipe state.",
-      "type": "'start' | 'move' | 'end' | 'cancel'"
-    },
-    "data-swipe-direction": {
-      "description": "Indicates the direction of the swipe.",
-      "type": "'up' | 'down' | 'left' | 'right'"
+    "data-swiping": {
+      "description": "Indicates the toast is being swiped.",
+      "type": "boolean"
     }
   },
   "cssVariables": {
@@ -36,19 +32,15 @@
       "description": "Indicates the index of the toast in the list.",
       "type": "number"
     },
-    "--toast-offset": {
-      "description": "Indicates the offset of the toast in the list.",
+    "--toast-offset-y": {
+      "description": "Indicates the vertical pixels offset of the toast in the list when expanded.",
       "type": "number"
     },
-    "--toast-swipe-direction": {
-      "description": "Indicates the direction the toast is swiped.",
-      "type": "'up' | 'down' | 'left' | 'right'"
-    },
-    "--toast-swipe-move-x": {
+    "--toast-swipe-movement-x": {
       "description": "Indicates the horizontal swipe movement of the toast.",
       "type": "number"
     },
-    "--toast-swipe-move-y": {
+    "--toast-swipe-movement-y": {
       "description": "Indicates the vertical swipe movement of the toast.",
       "type": "number"
     }
