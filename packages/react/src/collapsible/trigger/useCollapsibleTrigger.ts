@@ -21,7 +21,7 @@ export function useCollapsibleTrigger(
   const getRootProps: useCollapsibleTrigger.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps: GenericHTMLProps = {}) =>
       getButtonProps(
-        mergeProps(
+        mergeProps<'button'>(
           {
             type: 'button',
             'aria-controls': panelId,
