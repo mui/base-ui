@@ -70,7 +70,7 @@ export namespace useRender {
     /**
      * Props to be spread on the rendered element.
      * They are merged with the internal props of the component, so that event handlers
-     * are merged and class names and style properties are joined, while other external props overwrite the
+     * are merged, `className` strings and `style` properties are joined, while other external props overwrite the
      * internal ones.
      */
     props?: Record<string, unknown> & { ref?: React.Ref<RenderedElementType> };

@@ -20,7 +20,7 @@ The `useRender` hook enables custom components to provide a `render` prop to ove
     props: {
       type: 'Record<string, unknown>',
       description:
-        'Props to be spread on the rendered element.\n\nThey are merged with the internal props\n of the component, so that event handlers are merged,\nclass names and styles are joined, and other external props overwrite the internal ones.',
+        'Props to be spread on the rendered element.\n\nThey are merged with the internal props\n of the component, so that event handlers are merged,\n`className` strings and `style` properties are joined, and other external props overwrite the internal ones.',
     },
     refs: {
       type: 'React.Ref<RenderedElementType>[]',
@@ -64,7 +64,7 @@ interface MyProps extends useRender.ComponentProps<'div'> {}
 
 ## Examples
 
-A `render` prop for a custom Text component lets consumers use it to replace the default rendered `p` element with a different element tag or component.
+A `render` prop for a custom Text component lets consumers use it to replace the default rendered `p` element with a different tag or component.
 
 <Demo path="./demos/render" />
 
@@ -121,7 +121,7 @@ function Text({ render = <p />, ...props }: TextProps) {
 }
 ```
 
-In older versions of React, you need to use `React.forwardRef()` and add the forwarded ref to the `refs` array along with your own internal ref:
+In older versions of React, you need to use `React.forwardRef()` and add the forwarded ref to the `refs` array along with your own internal ref.
 
 The [Examples](#examples) above assume React 19, and should be modified to use `React.forwardRef()` to support React 18 and 17.
 
@@ -163,9 +163,9 @@ function Button({ render = <button />, ...props }: ButtonProps) {
 }
 ```
 
-Type inference is also available:
+An explicit tag type is also possible, with `mergeProps` defaulting to `'div'`.
 
-```tsx title="Type inference"
+```tsx title="Explicit tag type"
 mergeProps<'button'>({ type: 'button' }, externalProps);
 ```
 
