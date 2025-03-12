@@ -74,17 +74,17 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
     element.style.setProperty('display', 'block', 'important'); // TODO: maybe this can be set more conditionally
 
     if (height === undefined) {
+      // the closed transition styles must be set here to transition the first
+      // opening transition when the panel is BOTH initially closed AND `keepMounted={false}`
       if (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) {
-        // the closed transition styles must be set here to transition the first
-        // opening transition when the panel is BOTH initially closed AND `keepMounted={false}`
-        // console.log('handlePanelRef setting opacity 0');
-        // element.style.opacity = '0';
+        console.log('handlePanelRef setting opacity 0');
+        element.style.opacity = '0';
 
         setHeightAndRemoveDisplayProperty(element);
 
         // after setHeight() all the transition properties need to be removed
         // console.log('handlePanelRef unsetting inline opacity');
-        // element.style.removeProperty('opacity');
+        element.style.removeProperty('opacity');
       } else {
         setHeightAndRemoveDisplayProperty(element);
       }
@@ -181,12 +181,6 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 
       /* opening */
       panel.style.height = '0px';
-      // the closed transition styles must be set here to transition all opening
-      // transitions except the first one when `keepMounted={false}`
-      if (!shouldCancelInitialOpenTransitionRef.current) {
-        // console.log('useEnhancedEffect setting opacity 0');
-        // panel.style.opacity = '0';
-      }
 
       requestAnimationFrame(() => {
         // this is the earliest opportunity to unset the `display` property
@@ -194,12 +188,6 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
         panel.style.removeProperty('display');
 
         panel.style.removeProperty('height');
-
-        if (!shouldCancelInitialOpenTransitionRef.current) {
-          // remove all the transition properties that were just manually applied
-          // console.log('useEnhancedEffect unsetting inline opacity');
-          // panel.style.removeProperty('opacity');
-        }
 
         setHeight(panel.scrollHeight);
       });
