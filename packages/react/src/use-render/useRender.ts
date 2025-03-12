@@ -7,13 +7,13 @@ import { GenericHTMLProps } from '../utils/types';
 const emptyObject = {};
 
 /**
- * Returns a function that renders a Base UI component.
+ * Returns an object with a `renderElement` function that renders a Base UI component.
  */
 export function useRender<
   State extends Record<string, unknown>,
   RenderedElementType extends Element,
->(settings: useRender.Parameters<State, RenderedElementType>) {
-  const { render, props, state, refs } = settings;
+>(params: useRender.Parameters<State, RenderedElementType>) {
+  const { render, props, state, refs } = params;
   const { ref, ...extraProps } = props ?? {};
 
   const refsArray = React.useMemo(() => {
@@ -25,7 +25,7 @@ export function useRender<
     state: (state ?? emptyObject) as State,
     ref: refsArray,
     extraProps,
-    skipGeneratingStyleHooks: true,
+    styleHooks: false,
   });
 }
 
@@ -35,7 +35,10 @@ export namespace useRender {
     | React.ReactElement<Record<string, unknown>>
     | keyof typeof defaultRenderFunctions;
 
-  export type ElementProps<
+  export type ElementProps<ElementType extends React.ElementType> =
+    React.ComponentPropsWithRef<ElementType>;
+
+  export type ComponentProps<
     ElementType extends React.ElementType,
     State = {},
     RenderFunctionProps = GenericHTMLProps,
@@ -57,17 +60,17 @@ export namespace useRender {
      */
     render: RenderProp<State>;
     /**
-     * The refs to apply to the rendered element.
+     * Refs to be merged together to access the rendered DOM element.
      */
     refs?: React.Ref<RenderedElementType>[];
     /**
-     * The state of the component. It will be used as a parameter for the render callback.
+     * The state of the component, passed as the second argument to the `render` callback.
      */
     state?: State;
     /**
      * Props to be spread on the rendered element.
      * They are merged with the internal props of the component, so that event handlers
-     * are merged, class names and styles are joined, and other external props overwrite the
+     * are merged and class names and style properties are joined, while other external props overwrite the
      * internal ones.
      */
     props?: Record<string, unknown> & { ref?: React.Ref<RenderedElementType> };

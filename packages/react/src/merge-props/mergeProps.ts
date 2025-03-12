@@ -29,11 +29,11 @@ type MergableProps<T extends React.ElementType> =
  * @param props props to merge.
  * @returns the merged props.
  */
-function mergeProps<T extends React.ElementType>(
-  ...props: MergableProps<T>[]
-): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
+export function mergeProps<Tag extends React.ElementType = 'div'>(
+  ...props: MergableProps<Tag>[]
+): WithBaseUIEvent<React.ComponentPropsWithRef<Tag>> {
   if (props.length === 0) {
-    return {} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
+    return {} as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>;
   }
 
   if (props.length === 1) {
@@ -51,26 +51,25 @@ function mergeProps<T extends React.ElementType>(
     if (isPropsGetter(propsOrPropsGetter)) {
       merged = propsOrPropsGetter(merged);
     } else {
-      merged = merge(merged, propsOrPropsGetter as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
+      merged = merge(
+        merged,
+        propsOrPropsGetter as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>,
+      );
     }
   }
 
-  return merged ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
+  return merged ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>);
 }
 
-namespace mergeProps {
-  export type Props<T extends React.ElementType> = React.ComponentPropsWithoutRef<T>;
-}
-
-function resolvePropsGetter<T extends React.ElementType>(
+function resolvePropsGetter<Tag extends React.ElementType>(
   propsOrPropsGetter: MergableProps<React.ElementType>,
-  previousProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>>,
+  previousProps: WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>,
 ) {
   if (isPropsGetter(propsOrPropsGetter)) {
     return propsOrPropsGetter(previousProps);
   }
 
-  return propsOrPropsGetter ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
+  return propsOrPropsGetter ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>);
 }
 
 /**
@@ -193,5 +192,3 @@ function mergeClassNames(ourClassName: string | undefined, theirClassName: strin
 function isSyntheticEvent(event: unknown): event is React.SyntheticEvent {
   return event != null && typeof event === 'object' && 'nativeEvent' in event;
 }
-
-export { mergeProps };
