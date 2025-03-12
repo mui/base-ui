@@ -1,7 +1,6 @@
 import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
-import { defaultRenderFunctions } from '../utils/defaultRenderFunctions';
 import { GenericHTMLProps } from '../utils/types';
 
 const emptyObject = {};
@@ -32,8 +31,7 @@ export function useRender<
 export namespace useRender {
   export type RenderProp<State = Record<string, unknown>> =
     | ComponentRenderFn<React.HTMLAttributes<any>, State>
-    | React.ReactElement<Record<string, unknown>>
-    | keyof typeof defaultRenderFunctions;
+    | React.ReactElement<Record<string, unknown>>;
 
   export type ElementProps<ElementType extends React.ElementType> =
     React.ComponentPropsWithRef<ElementType>;
