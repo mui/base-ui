@@ -4,7 +4,7 @@ import {
   useEnhancedEffect,
   useTransitionStatus,
 } from '@base-ui-components/react/utils';
-import classes from './plain.module.css';
+import classes from './transition.module.css';
 
 import { useAnimationsFinished } from '../../../../../../packages/react/src/utils/useAnimationsFinished';
 import { useEventCallback } from '../../../../../../packages/react/src/utils/useEventCallback';
@@ -15,7 +15,7 @@ const ENDING_HOOK = { 'data-ending-style': '' };
 
 const KEEP_MOUNTED = false;
 
-function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
+function Collapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
   const { keepMounted = true, defaultOpen = false } = props;
 
   const [open, setOpen] = React.useState(defaultOpen);
@@ -251,9 +251,9 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 export default function App() {
   return (
     <div className={classes.wrapper}>
-      <PlainCollapsible keepMounted={KEEP_MOUNTED} defaultOpen />
+      <Collapsible keepMounted={KEEP_MOUNTED} defaultOpen />
 
-      <PlainCollapsible keepMounted={KEEP_MOUNTED} defaultOpen={false} />
+      <Collapsible keepMounted={KEEP_MOUNTED} defaultOpen={false} />
 
       <small>———</small>
     </div>
