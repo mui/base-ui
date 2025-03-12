@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-boolean-value */
 'use client';
 import * as React from 'react';
 import {
@@ -14,7 +13,6 @@ import { useForkRef } from '../../../../../../packages/react/src/utils/useForkRe
 const STARTING_HOOK = { 'data-starting-style': '' };
 const ENDING_HOOK = { 'data-ending-style': '' };
 
-// const DEFAULT_OPEN = false;
 const KEEP_MOUNTED = false;
 
 function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
@@ -91,6 +89,12 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
     requestAnimationFrame(() => {
       shouldCancelInitialOpenTransitionRef.current = false;
       requestAnimationFrame(() => {
+        /**
+         * This is slightly faster than another RAF and is the earliest
+         * opportunity to remove the temporary `transition-duration: 0s` that
+         * was applied to cancel opening transitions of initially open panels.
+         * https://nolanlawson.com/2018/09/25/accurately-measuring-layout-on-the-web/
+         */
         setTimeout(() => {
           element.style.removeProperty('transition-duration');
         });
@@ -108,7 +112,6 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
     const nextOpen = !open;
 
     if (!keepMounted) {
-      // mount only
       if (!mounted && nextOpen) {
         setMounted(true);
       }
@@ -177,8 +180,10 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
       panel.style.height = '0px';
 
       requestAnimationFrame(() => {
-        // this is the earliest opportunity to unset the `display` property
-        // that was set in `handlePanelRef`
+        /**
+         * When `keepMounted={false}` this is the earliest opportunity to unset
+         * the temporary `display` property that was set in `handlePanelRef`
+         */
         panel.style.removeProperty('display');
 
         panel.style.removeProperty('height');
@@ -246,7 +251,7 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
 export default function App() {
   return (
     <div className={classes.wrapper}>
-      <PlainCollapsible keepMounted={KEEP_MOUNTED} defaultOpen={true} />
+      <PlainCollapsible keepMounted={KEEP_MOUNTED} defaultOpen />
 
       <PlainCollapsible keepMounted={KEEP_MOUNTED} defaultOpen={false} />
 

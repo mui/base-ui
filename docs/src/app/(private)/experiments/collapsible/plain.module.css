@@ -41,21 +41,14 @@
   width: 100%;
 
   height: var(--collapsible-panel-height);
-  /*  opacity: 1;*/
 
-  transition:
-    height var(--duration) ease-out,
-    opacity var(--duration) ease-out;
+  transition: all var(--duration) ease-out;
 
   &[data-starting-style],
   &[data-ending-style] {
     height: 0;
     opacity: 0;
   }
-
-  /*&[data-closed] {
-    opacity: 0;
-  }*/
 }
 
 .Content {
