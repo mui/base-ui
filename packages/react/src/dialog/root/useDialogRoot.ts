@@ -53,7 +53,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   );
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
-  const [popupElementId, setPopupElementId] = React.useState<string | undefined>(undefined);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -165,8 +164,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       setTitleElementId,
       descriptionElementId,
       setDescriptionElementId,
-      popupElementId,
-      setPopupElementId,
       onNestedDialogOpen: handleNestedDialogOpen,
       onNestedDialogClose: handleNestedDialogClose,
       nestedOpenDialogCount: ownNestedOpenDialogs,
@@ -188,7 +185,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     open,
     titleElementId,
     descriptionElementId,
-    popupElementId,
     handleNestedDialogOpen,
     handleNestedDialogClose,
     ownNestedOpenDialogs,
@@ -299,17 +295,9 @@ export namespace useDialogRoot {
      */
     openMethod: InteractionType | null;
     /**
-     * The id of the popup element.
-     */
-    popupElementId: string | undefined;
-    /**
      * Callback to set the id of the description element associated with the dialog.
      */
     setDescriptionElementId: (elementId: string | undefined) => void;
-    /**
-     * Callback to set the id of the popup element.
-     */
-    setPopupElementId: (elementId: string | undefined) => void;
     /**
      * Callback to set the id of the title element.
      */
