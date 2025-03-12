@@ -46,11 +46,6 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
     return !open && !mounted;
   }, [keepMounted, open, mounted]);
 
-  function setHeightAndRemoveDisplayProperty(panelElement: HTMLElement) {
-    setHeight(panelElement.scrollHeight);
-    panelElement.style.removeProperty('display');
-  }
-
   const panelRef: React.RefObject<HTMLElement | null> = React.useRef(null);
 
   /**
@@ -74,20 +69,19 @@ function PlainCollapsible(props: { defaultOpen?: boolean; keepMounted?: boolean 
     element.style.setProperty('display', 'block', 'important'); // TODO: maybe this can be set more conditionally
 
     if (height === undefined) {
-      // the closed transition styles must be set here to transition the first
-      // opening transition when the panel is BOTH initially closed AND `keepMounted={false}`
+      /**
+       * When `keepMounted={false}` and the panel is initially closed, the very
+       * first time it opens (not any subsequent opens) `data-starting-style` is
+       * off or missing by a frame so we need to set it manually. Otherwise any
+       * CSS properties expected to transition using [data-starting-style] may
+       * be mis-timed and appear to be complete skipped.
+       */
       if (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) {
-        console.log('handlePanelRef setting opacity 0');
-        element.style.opacity = '0';
-
-        setHeightAndRemoveDisplayProperty(element);
-
-        // after setHeight() all the transition properties need to be removed
-        // console.log('handlePanelRef unsetting inline opacity');
-        element.style.removeProperty('opacity');
-      } else {
-        setHeightAndRemoveDisplayProperty(element);
+        element.setAttribute('data-starting-style', '');
       }
+
+      setHeight(element.scrollHeight);
+      element.style.removeProperty('display');
 
       if (shouldCancelInitialOpenTransitionRef.current) {
         element.style.transitionDuration = '0s';
