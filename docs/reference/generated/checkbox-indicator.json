@@ -12,7 +12,7 @@
       "description": "Whether to keep the element in the DOM when the checkbox is not checked."
     },
     "render": {
-      "type": "React.ReactElement | ((props: GenericHTMLProps, state: State) => React.ReactElement)",
+      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

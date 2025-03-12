@@ -3,19 +3,19 @@
   "description": "Provides context for a list of items in a composite component.",
   "props": {
     "elementsRef": {
-      "type": "React.RefObject",
+      "type": "RefObject",
       "required": true,
       "description": "A ref to the list of HTML elements, ordered by their index.\n`useListNavigation`'s `listRef` prop."
     },
     "labelsRef": {
-      "type": "React.RefObject",
+      "type": "RefObject",
       "description": "A ref to the list of element labels, ordered by their index.\n`useTypeahead`'s `listRef` prop."
     },
     "onMapChange": {
       "type": "((newMap: Map) => void)"
     },
     "children": {
-      "type": "React.ReactNode",
+      "type": "ReactNode",
       "required": true
     }
   },

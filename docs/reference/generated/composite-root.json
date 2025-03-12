@@ -1,6 +1,54 @@
 {
   "name": "CompositeRoot",
-  "props": {},
+  "props": {
+    "cols": {
+      "type": "number"
+    },
+    "dense": {
+      "type": "boolean"
+    },
+    "direction": {
+      "type": "\"ltr\" | \"rtl\""
+    },
+    "disabledIndices": {
+      "type": "number[]"
+    },
+    "enableHomeAndEndKeys": {
+      "type": "boolean"
+    },
+    "highlightedIndex": {
+      "type": "number"
+    },
+    "itemSizes": {
+      "type": "Dimensions[]"
+    },
+    "onHighlightedIndexChange": {
+      "type": "((index: number) => void)"
+    },
+    "onMapChange": {
+      "type": "((newMap: Map) => void)"
+    },
+    "rootRef": {
+      "type": "RefObject"
+    },
+    "stopEventPropagation": {
+      "type": "boolean"
+    },
+    "loop": {
+      "type": "boolean"
+    },
+    "orientation": {
+      "type": "\"horizontal\" | \"vertical\" | \"both\""
+    },
+    "className": {
+      "type": "string | ((state: unknown) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: GenericHTMLProps, state: unknown) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
   "dataAttributes": {},
   "cssVariables": {}
 }

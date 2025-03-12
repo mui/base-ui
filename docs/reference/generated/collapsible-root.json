@@ -25,7 +25,7 @@
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "null | React.ReactElement | ((props: GenericHTMLProps, state: State) => React.ReactElement)"
+      "type": "null | ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)"
     }
   },
   "dataAttributes": {},

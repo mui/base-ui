@@ -24,7 +24,7 @@ function run(options: RunOptions) {
 
   const program = rae.createProgram(files, config.options);
 
-  const allExports: rae.Node[] = [];
+  const allExports: rae.ExportNode[] = [];
 
   let errorCounter = 0;
 
@@ -36,7 +36,7 @@ function run(options: RunOptions) {
 
     try {
       const ast = rae.parseFromProgram(file, program);
-      allExports.push(...ast.body);
+      allExports.push(...ast.exports);
     } catch (error) {
       console.error(`⛔ Error processing ${file}: ${error.message}`);
       errorCounter += 1;
@@ -47,17 +47,17 @@ function run(options: RunOptions) {
     }
   }
 
-  for (const component of allExports.filter((node) => rae.isComponentNode(node))) {
+  for (const exportNode of allExports.filter((node) => rae.isComponentNode(node.type))) {
     const dataAttributes = allExports.find(
-      (node) => rae.isEnumNode(node) && node.name === `${component.name}DataAttributes`,
-    ) as rae.EnumNode | undefined;
+      (node) => rae.isExportNode(node) && node.name === `${exportNode.name}DataAttributes`,
+    ) as rae.ExportNode | undefined;
     const cssVariables = allExports.find(
-      (node) => rae.isEnumNode(node) && node.name === `${component.name}CssVars`,
-    ) as rae.EnumNode | undefined;
+      (node) => rae.isExportNode(node) && node.name === `${exportNode.name}CssVars`,
+    ) as rae.ExportNode | undefined;
 
-    const componentApiReference = formatComponentData(component, dataAttributes, cssVariables);
+    const componentApiReference = formatComponentData(exportNode, dataAttributes, cssVariables);
     const json = JSON.stringify(componentApiReference, null, 2) + '\n';
-    fs.writeFileSync(path.join(options.out, `${kebabCase(component.name)}.json`), json);
+    fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
   }
 
   console.log(`\nProcessed ${files.length} files.`);
@@ -68,21 +68,27 @@ function run(options: RunOptions) {
 }
 
 function formatComponentData(
-  component: rae.ComponentNode,
-  dataAttributes: rae.EnumNode | undefined,
-  cssVariables: rae.EnumNode | undefined,
+  component: rae.ExportNode,
+  dataAttributes: rae.ExportNode | undefined,
+  cssVariables: rae.ExportNode | undefined,
 ) {
-  const description = component.description?.replace(/\n\nDocumentation: .*$/ms, '');
+  const description = component.documentation?.description?.replace(/\n\nDocumentation: .*$/ms, '');
 
   return {
     name: component.name,
     description,
-    props: sortObjectByKeys(formatProps(component.props), memberOrder.props),
+    props: sortObjectByKeys(
+      formatProps((component.type as rae.ComponentNode).props),
+      memberOrder.props,
+    ),
     dataAttributes: dataAttributes
-      ? sortObjectByKeys(formatEnum(dataAttributes), memberOrder.dataAttributes)
+      ? sortObjectByKeys(
+          formatEnum(dataAttributes.type as rae.EnumNode),
+          memberOrder.dataAttributes,
+        )
       : {},
     cssVariables: cssVariables
-      ? sortObjectByKeys(formatEnum(cssVariables), memberOrder.cssVariables)
+      ? sortObjectByKeys(formatEnum(cssVariables.type as rae.EnumNode), memberOrder.cssVariables)
       : {},
   };
 }
@@ -156,7 +162,7 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
     return `${formatType(type.type, false)}[]`;
   }
 
-  if (rae.isFunctionTypeNode(type)) {
+  if (rae.isFunctionNode(type)) {
     const functionSignature = type.callSignatures
       .map((s) => {
         const params = s.parameters

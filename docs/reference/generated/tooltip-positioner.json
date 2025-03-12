@@ -32,16 +32,16 @@
       "description": "Minimum distance to maintain between the arrow and the edges of the popup.\n\nUse it to prevent the arrow element from hanging out of the rounded corners of a popup."
     },
     "anchor": {
-      "type": "null | Element | React.RefObject | \"D:/Development/MUI/base-ui/node_modules/.pnpm/@floating-ui+dom@1.6.12/node_modules/@floating-ui/dom/dist/floating-ui.dom\".VirtualElement | (() => null | Element | \"D:/Development/MUI/base-ui/node_modules/.pnpm/@floating-ui+dom@1.6.12/node_modules/@floating-ui/dom/dist/floating-ui.dom\".VirtualElement)",
+      "type": "null | Element | RefObject | VirtualElement | (() => null | Element | VirtualElement)",
       "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
     },
     "collisionBoundary": {
-      "type": "Element | \"clipping-ancestors\" | Element[] | __type",
+      "type": "Element | \"clipping-ancestors\" | Element[] | { x: number; y: number; height: number; width: number; }",
       "default": "'clipping-ancestors'",
       "description": "An element or a rectangle that delimits the area that the popup is confined to."
     },
     "collisionPadding": {
-      "type": "number | __type",
+      "type": "number | { left?: number | undefined; right?: number | undefined; bottom?: number | undefined; top?: number | undefined; }",
       "default": "5",
       "description": "Additional space to maintain from the edge of the collision boundary."
     },
@@ -70,7 +70,7 @@
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | ((props: GenericHTMLProps, state: State) => React.ReactElement)",
+      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

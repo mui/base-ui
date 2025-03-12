@@ -16,7 +16,7 @@
       "description": "Event handler called when the menu is opened or closed."
     },
     "actionsRef": {
-      "type": "React.RefObject",
+      "type": "RefObject",
       "description": "A ref to imperative actions."
     },
     "closeParentOnEsc": {
@@ -58,7 +58,7 @@
       "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys."
     },
     "children": {
-      "type": "React.ReactNode",
+      "type": "ReactNode",
       "required": true
     }
   },

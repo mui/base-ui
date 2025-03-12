@@ -16,7 +16,7 @@
       "description": "Event handler called when the tooltip is opened or closed."
     },
     "actionsRef": {
-      "type": "React.RefObject",
+      "type": "RefObject",
       "description": "A ref to imperative actions."
     },
     "onOpenChangeComplete": {
@@ -44,7 +44,7 @@
       "description": "Whether the tooltip contents can be hovered without closing the tooltip."
     },
     "children": {
-      "type": "React.ReactNode"
+      "type": "ReactNode"
     }
   },
   "dataAttributes": {},

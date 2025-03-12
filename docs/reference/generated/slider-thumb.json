@@ -29,25 +29,25 @@
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.\nThis is important for screen reader users."
     },
     "handleInputChange": {
-      "type": "((valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => void)"
+      "type": "((valueInput: number, index: number, event: KeyboardEvent | ChangeEvent) => void)"
     },
     "inputId": {
       "type": "string"
     },
     "onBlur": {
-      "type": "React.FocusEventHandler<Element>"
+      "type": "FocusEventHandler<Element>"
     },
     "onFocus": {
-      "type": "React.FocusEventHandler<Element>"
+      "type": "FocusEventHandler<Element>"
     },
     "onKeyDown": {
-      "type": "React.KeyboardEventHandler<Element>"
+      "type": "KeyboardEventHandler<Element>"
     },
     "onPointerLeave": {
-      "type": "React.PointerEventHandler<Element>"
+      "type": "PointerEventHandler<Element>"
     },
     "onPointerOver": {
-      "type": "React.PointerEventHandler<Element>"
+      "type": "PointerEventHandler<Element>"
     },
     "percentageValues": {
       "type": "number[]",
@@ -85,7 +85,7 @@
       "description": "The maximum allowed value of the slider."
     },
     "format": {
-      "type": "null | Intl.NumberFormatOptions",
+      "type": "null | NumberFormatOptions",
       "default": "null",
       "description": "Options to format the input value."
     },
@@ -105,7 +105,7 @@
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "((props: React.DetailedHTMLProps<React.HTMLAttributes, HTMLDivElement>, inputProps: React.DetailedHTMLProps<React.InputHTMLAttributes, HTMLInputElement>, state: State) => React.ReactElement) | { type, props, key, ref }",
+      "type": "((props: DetailedHTMLProps<HTMLAttributes, HTMLDivElement>, inputProps: DetailedHTMLProps<InputHTMLAttributes, HTMLInputElement>, state: State) => ReactElement) | { ref }",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

@@ -8,7 +8,7 @@
       "description": "The reading direction of the text"
     },
     "children": {
-      "type": "React.ReactNode"
+      "type": "ReactNode"
     }
   },
   "dataAttributes": {},

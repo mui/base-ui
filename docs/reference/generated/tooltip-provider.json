@@ -16,7 +16,7 @@
       "description": "Another tooltip will open instantly if the previous tooltip\nis closed within this timeout. Specified in milliseconds."
     },
     "children": {
-      "type": "React.ReactNode"
+      "type": "ReactNode"
     }
   },
   "dataAttributes": {},

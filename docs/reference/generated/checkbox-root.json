@@ -56,7 +56,7 @@
       "description": "Whether the user must tick the checkbox before submitting a form."
     },
     "inputRef": {
-      "type": "null | React.RefCallback | React.RefObject",
+      "type": "null | RefCallback | RefObject",
       "description": "A React ref to access the hidden `<input>` element."
     },
     "id": {
@@ -68,7 +68,7 @@
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | ((props: GenericHTMLProps, state: State) => React.ReactElement)",
+      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
