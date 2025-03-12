@@ -74,7 +74,7 @@ The `mergeProps` function merges two or more sets of React props together. It sa
 
 `mergeProps` merges objects from left to right, so that subsequent objects' properties in the arguments overwrite previous ones. Merging props is useful when creating custom components, as well as inside the callback version of the `render` prop for any Base UI component.
 
-```jsx title="Using mergeProps in the render callback"
+```tsx title="Using mergeProps in the render callback"
 import { mergeProps } from '@base-ui-components/react/merge-props';
 import styles from './index.module.css';
 
@@ -83,7 +83,7 @@ function Button() {
     <Component
       render={(props, state) => (
         <button
-          {...mergeProps(props, {
+          {...mergeProps<'button'>(props, {
             className: styles.Button,
           })}
         />
@@ -121,7 +121,7 @@ function Text({ render = <p />, ...props }: TextProps) {
 
 In older versions of React, you need to use `React.forwardRef()` and add the forwarded ref to the `refs` array along with your own internal ref.
 
-The [Examples](#examples) above assume React 19, and should be modified to use `React.forwardRef()` to support React 18 and 17.
+The [examples](#examples) above assume React 19, and should be modified to use `React.forwardRef()` to support React 18 and 17.
 
 ```tsx title="React 18 and 17" {10} "forwardedRef" "internalRef"
 const Text = React.forwardRef(function Text(
@@ -159,7 +159,7 @@ function Button({ render = <button />, ...props }: ButtonProps) {
 
   const { renderElement } = useRender({
     render,
-    props: mergeProps(defaultProps, props),
+    props: mergeProps<'button'>(defaultProps, props),
   });
 
   return renderElement();

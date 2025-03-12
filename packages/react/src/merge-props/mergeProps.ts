@@ -29,7 +29,7 @@ type MergableProps<T extends React.ElementType> =
  * @param props props to merge.
  * @returns the merged props.
  */
-export function mergeProps<Tag extends React.ElementType = 'div'>(
+export function mergeProps<Tag extends React.ElementType>(
   ...props: MergableProps<Tag>[]
 ): WithBaseUIEvent<React.ComponentPropsWithRef<Tag>> {
   if (props.length === 0) {
