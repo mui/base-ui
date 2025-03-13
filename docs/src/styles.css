@@ -222,6 +222,10 @@
   [data-demo]:not([data-demo='tailwind']) * {
     all: revert-layer;
   }
+
+  [hidden]:where(:not([hidden='until-found'])) {
+    display: revert-layer !important;
+  }
 }
 
 @layer all {

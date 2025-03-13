@@ -26,8 +26,12 @@ function Collapsible(props: {
 
   // keyframe animations doesn't need data-starting/ending-style
 
-  const [height, setHeight] = React.useState<number | undefined>(undefined);
+  function initializeHeight() {
+    return open ? undefined : 0;
+  }
+  const [height, setHeight] = React.useState<number | undefined>(initializeHeight);
 
+  const latestAnimationNameRef = React.useRef<string>('none');
   // const shouldCancelInitialOpenTransitionRef = React.useRef(open);
 
   const isHidden = React.useMemo(() => {
@@ -38,7 +42,6 @@ function Collapsible(props: {
     return !open && !mounted;
   }, [keepMounted, open, mounted]);
 
-  const animationTypeRef = React.useRef<AnimationType>(null);
   const panelRef: React.RefObject<HTMLElement | null> = React.useRef(null);
 
   const handlePanelRef = useEventCallback((element: HTMLElement) => {
@@ -46,19 +49,17 @@ function Collapsible(props: {
       return;
     }
 
-    element.style.animationDuration = '0s';
+    // element.style.animationDuration = '0s';
+    const panelStyles = getComputedStyle(element);
+    latestAnimationNameRef.current = panelStyles.animationName;
 
-    // if (height === undefined) {
-    //   // set` display: block !important` here to force layout
-    //   element.style.setProperty('display', 'block', 'important');
-    //   // measure the height
-    //   setHeight(element.scrollHeight);
-    //   element.style.removeProperty('display');
-
-    //   if (shouldCancelInitialOpenTransitionRef.current) {
-    //     element.style.animationDuration = '0s';
-    //   }
-    // }
+    if (height === undefined) {
+      // set` display: block !important` here to force layout
+      element.style.setProperty('display', 'block', 'important');
+      // measure the height
+      setHeight(element.scrollHeight);
+      element.style.removeProperty('display');
+    }
 
     // requestAnimationFrame(() => {
     //   shouldCancelInitialOpenTransitionRef.current = false;
@@ -86,8 +87,24 @@ function Collapsible(props: {
 
     if (nextOpen) {
       /* opening */
+
+      panel.style.removeProperty('display');
+
+      /* opening */
+      panel.style.height = '0px';
+
+      requestAnimationFrame(() => {
+        panel.style.removeProperty('height');
+        setHeight(panel.scrollHeight);
+      });
     } else {
       /* closing */
+      panel.style.height = `${panel.scrollHeight}px`;
+      // panel.style.removeProperty('display');
+      requestAnimationFrame(() => {
+        panel.style.removeProperty('height');
+        setHeight(0);
+      });
     }
   });
 
@@ -95,9 +112,9 @@ function Collapsible(props: {
     <div
       className={classes.Root}
       style={{
-        // animationDuration: '0s',
         // @ts-ignore
-        '--collapsible-panel-height': height !== undefined ? `${height}px` : 'auto',
+        '--collapsible-panel-height':
+          height !== undefined ? `${height}px` : undefined,
       }}
     >
       <button
@@ -115,10 +132,9 @@ function Collapsible(props: {
           // @ts-ignore
           ref={mergedRef}
           className={classes.Panel}
-          // {...{ [open ? 'data-open' : 'data-closed']: '' }}
-          data-open=""
+          {...{ [open ? 'data-open' : 'data-closed']: '' }}
           // {...styleHooks}
-          hidden={isHidden}
+          hidden={!open}
           id={id}
         >
           <div className={classes.Content}>
