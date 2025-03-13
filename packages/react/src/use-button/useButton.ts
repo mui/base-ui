@@ -102,7 +102,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         ...otherExternalProps
       } = externalProps;
 
-      return mergeProps<'button'>(
+      return mergeProps<'button' | 'input'>(
         {
           type,
           onClick(event: React.MouseEvent) {
@@ -112,7 +112,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             }
             externalOnClick?.(event);
           },
-          onMouseDown(event) {
+          onMouseDown(event: React.MouseEvent) {
             if (!disabled) {
               externalOnMouseDown?.(event);
             }
