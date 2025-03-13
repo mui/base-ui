@@ -92,7 +92,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   }, [disabled, buttonProps.disabled, isCompositeItem]);
 
   const getButtonProps = React.useCallback(
-    (externalProps: GenericButtonProps = {}): GenericButtonProps => {
+    (externalProps: GenericButtonProps = {}) => {
       const {
         onClick: externalOnClick,
         onMouseDown: externalOnMouseDown,
@@ -102,7 +102,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         ...otherExternalProps
       } = externalProps;
 
-      return mergeProps(
+      return mergeProps<'button'>(
         {
           type,
           onClick(event: React.MouseEvent) {
@@ -112,7 +112,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             }
             externalOnClick?.(event);
           },
-          onMouseDown(event: React.MouseEvent) {
+          onMouseDown(event) {
             if (!disabled) {
               externalOnMouseDown?.(event);
             }

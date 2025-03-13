@@ -27,7 +27,7 @@ export function useSliderValue(parameters: useSliderValue.Parameters): useSlider
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeProps(
+      return mergeProps<'output'>(
         {
           // off by default because it will keep announcing when the slider is being dragged
           // and also when the value is changing (but not yet committed)

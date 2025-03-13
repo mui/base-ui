@@ -28,4 +28,5 @@ export * from './toggle';
 export * from './toggle-group';
 export * from './toolbar';
 export * from './tooltip';
+export * from './use-render';
 export * as utils from './utils';
