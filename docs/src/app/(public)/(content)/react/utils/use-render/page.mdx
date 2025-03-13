@@ -4,7 +4,7 @@
 
 <Meta name="description" content="Hook for enabling a render prop in custom components." />
 
-The `useRender` hook enables custom components to provide a `render` prop to override the default rendered element.
+The `useRender` hook lets you build custom components that provide a `render` prop to override the default rendered element.
 
 ## API reference
 
@@ -20,7 +20,7 @@ The `useRender` hook enables custom components to provide a `render` prop to ove
     props: {
       type: 'Record<string, unknown>',
       description:
-        'Props to be spread on the rendered element.\n\nThey are merged with the internal props\n of the component, so that event handlers are merged,\nclass names and styles are joined, and other external props overwrite the internal ones.',
+        'Props to be spread on the rendered element.\n\nThey are merged with the internal props\n of the component, so that event handlers are merged,\n`className` strings and `style` properties are joined, and other external props overwrite the internal ones.',
     },
     refs: {
       type: 'React.Ref<RenderedElementType>[]',
@@ -36,19 +36,35 @@ The `useRender` hook enables custom components to provide a `render` prop to ove
 
 ### Return value
 
-The hook returns a `renderElement` function that returns the element to be rendered when called.
+<PropsReferenceTable
+  type="return"
+  data={{
+    renderElement: {
+      type: '() => React.ReactElement',
+      description: 'The React element to be rendered.',
+    },
+  }}
+/>
+
+```tsx title="renderElement function" "renderElement"
+const { renderElement } = useRender({
+  // Input parameters
+});
+
+const element = renderElement();
+```
 
 ## Examples
 
-A `render` prop for a custom Text component lets consumers use the `render` prop to replace the default rendered `p` element with a different element tag.
+A `render` prop for a custom Text component lets consumers use it to replace the default rendered `p` element with a different tag or component.
 
 <Demo path="./demos/render" />
 
-The callback version of the `render` prop also enables accessing the `state` of a component.
+The callback version of the `render` prop enables more control of how props are spread, and also passes the internal `state` of a component.
 
 <Demo path="./demos/render-callback" />
 
-### Merging props
+## Merging props
 
 The `mergeProps` function merges two or more sets of React props together. It safely merges three types of props:
 
@@ -58,13 +74,32 @@ The `mergeProps` function merges two or more sets of React props together. It sa
 
 `mergeProps` merges objects from left to right, so that subsequent objects' properties in the arguments overwrite previous ones. Merging props is useful when creating custom components, as well as inside the callback version of the `render` prop for any Base UI component.
 
-#### Merging refs
+```tsx title="Using mergeProps in the render callback"
+import { mergeProps } from '@base-ui-components/react/merge-props';
+import styles from './index.module.css';
 
-When building custom components, you often need to control a ref internally while still letting external consumers pass their own ref. Ref merging lets both parties have access to the underlying DOM element—the `refs` option in `useRender` enables this, which holds an array of refs to be merged together.
+function Button() {
+  return (
+    <Component
+      render={(props, state) => (
+        <button
+          {...mergeProps<'button'>(props, {
+            className: styles.Button,
+          })}
+        />
+      )}
+    />
+  );
+}
+```
+
+## Merging refs
+
+When building custom components, you often need to control a ref internally while still letting external consumers pass their own—merging refs lets both parties have access to the underlying DOM element. The `refs` option in `useRender` enables this, which holds an array of refs to be merged together.
 
 In React 19, `React.forwardRef()` is not needed when building primitive components, as the external ref prop is already contained inside `props`. Your internal ref can be passed to `refs` to be merged with `props.ref`:
 
-```tsx title="React 19"
+```tsx title="React 19" {7} "internalRef"
 function Text({ render = <p />, ...props }: TextProps) {
   const internalRef = React.useRef<HTMLElement | null>(null);
 
@@ -78,9 +113,11 @@ function Text({ render = <p />, ...props }: TextProps) {
 }
 ```
 
-In older versions of React, you need to use `React.forwardRef()` and add the forwarded ref to the `refs` array along with your own internal ref:
+In older versions of React, you need to use `React.forwardRef()` and add the forwarded ref to the `refs` array along with your own internal ref.
 
-```tsx title="React 18 and 17"
+The [examples](#examples) above assume React 19, and should be modified to use `React.forwardRef()` to support React 18 and 17.
+
+```tsx title="React 18 and 17" {10} "forwardedRef" "internalRef"
 const Text = React.forwardRef(function Text(
   { render = <p />, ...props }: TextProps,
   forwardedRef: React.ForwardedRef<HTMLElement>,
@@ -97,26 +134,39 @@ const Text = React.forwardRef(function Text(
 });
 ```
 
-```jsx {7-7} title="Using mergeProps in the render callback"
-import { mergeProps } from '@base-ui-components/react/merge-props';
-import styles from './index.module.css';
+## TypeScript
 
-function Button() {
-  return (
-    <Component
-      render={(props, state) => <button {...mergeProps(props, { className: styles.Button })} />}
-    />
-  );
+To type props, there are two interfaces:
+
+- `useRender.ComponentProps` for a component's external (public) props. It types the `render` prop and HTML attributes.
+- `useRender.ElementProps` for the element's internal (private) props. It types HTML attributes alone.
+
+```tsx title="Typing props" {1,4}
+interface ButtonProps extends useRender.ComponentProps<'button'> {}
+
+function Button({ render = <button />, ...props }: ButtonProps) {
+  const defaultProps: useRender.ElementProps<'button'> = {
+    className: styles.Button,
+    type: 'button',
+    children: 'Click me',
+  };
+
+  const { renderElement } = useRender({
+    render,
+    props: mergeProps<'button'>(defaultProps, props),
+  });
+
+  return renderElement();
 }
 ```
 
-### Migrating from Radix
+## Migrating from Radix UI
 
-Radix uses the `asChild` prop, while Base UI uses the `render` prop. Learn more about how composition works in Base UI in the [composition guide](/react/handbook/composition).
+Radix UI uses an `asChild` prop, while Base UI uses a `render` prop. Learn more about how composition works in Base UI in the [composition guide](/react/handbook/composition).
 
-In Radix, the `Slot` component lets you implement an `asChild` prop.
+In Radix UI, the `Slot` component lets you implement an `asChild` prop.
 
-```jsx title="Custom asChild prop with Radix"
+```jsx title="Radix UI Slot component"
 import { Slot } from 'radix-ui';
 
 function Button({ asChild, ...props }) {
@@ -130,9 +180,9 @@ function Button({ asChild, ...props }) {
 </Button>;
 ```
 
-In Base UI `useRender` lets you implement a `render` prop. The example below is the equivalent implementation to the Radix example above.
+In Base UI, `useRender` lets you implement a `render` prop. The example below is the equivalent implementation to the Radix example above.
 
-```jsx title="Custom render prop with Base UI"
+```jsx title="Base UI render prop"
 import { useRender } from '@base-ui-components/react/use-render';
 
 function Button({ render = <button />, ...props }) {

@@ -4,20 +4,14 @@ import { useRender } from '@base-ui-components/react/use-render';
 import { mergeProps } from '@base-ui-components/react/merge-props';
 import styles from './index.module.css';
 
-// ElementProps contains the 'render' prop type
-interface TextProps extends useRender.ElementProps<'p'> {
-  children: React.ReactNode;
-}
+interface TextProps extends useRender.ComponentProps<'p'> {}
 
 function Text(props: TextProps) {
-  const { render = <p />, ref, ...otherProps } = props;
+  const { render = <p />, ...otherProps } = props;
 
   const { renderElement } = useRender({
     render,
-    props: {
-      ref,
-      ...mergeProps({ className: styles.Text }, otherProps),
-    },
+    props: mergeProps<'p'>({ className: styles.Text }, otherProps),
   });
 
   return renderElement();

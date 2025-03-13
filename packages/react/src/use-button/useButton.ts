@@ -65,7 +65,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   }, [disabled, elementName, focusableWhenDisabled, tabIndex]);
 
   const getButtonProps = React.useCallback(
-    (externalProps: GenericButtonProps = {}): GenericButtonProps => {
+    (externalProps: GenericButtonProps = {}) => {
       const {
         onClick: externalOnClick,
         onMouseDown: externalOnMouseDown,
@@ -74,20 +74,20 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         ...otherExternalProps
       } = externalProps;
 
-      return mergeProps(
+      return mergeProps<'button'>(
         {
           type,
-          onClick(event: React.MouseEvent) {
+          onClick(event) {
             if (!disabled) {
               externalOnClick?.(event);
             }
           },
-          onMouseDown(event: React.MouseEvent) {
+          onMouseDown(event) {
             if (!disabled) {
               externalOnMouseDown?.(event);
             }
           },
-          onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+          onKeyDown(event) {
             if (event.target === event.currentTarget && !isNativeButton() && event.key === ' ') {
               event.preventDefault();
             }

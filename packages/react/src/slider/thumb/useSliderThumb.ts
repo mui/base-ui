@@ -131,14 +131,14 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       // So the non active thumb doesn't show its label on hover.
       pointerEvents: activeIndex !== -1 && activeIndex !== index ? 'none' : undefined,
       zIndex: activeIndex === index ? 1 : undefined,
-    };
+    } satisfies React.CSSProperties;
   }, [activeIndex, isRtl, orientation, percent, index]);
 
   const getRootProps: useSliderThumb.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) => {
       return mergeProps(
         {
-          'data-index': index,
+          ['data-index' as string]: index,
           id: thumbId,
           onFocus() {
             setFocused(true);
@@ -263,12 +263,12 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
 
   const getThumbInputProps: useSliderThumb.ReturnValue['getThumbInputProps'] = React.useCallback(
     (externalProps = {}) => {
-      let cssWritingMode;
+      let cssWritingMode: React.CSSProperties['writingMode'];
       if (orientation === 'vertical') {
         cssWritingMode = isRtl ? 'vertical-rl' : 'vertical-lr';
       }
 
-      return mergeProps(
+      return mergeProps<'input'>(
         {
           'aria-label': getAriaLabel != null ? getAriaLabel(index) : ariaLabel,
           'aria-labelledby': ariaLabelledby,
@@ -284,7 +284,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
                   index,
                 )
               : ariaValuetext || getDefaultAriaValueText(sliderValues, index, format ?? undefined),
-          'data-index': index,
+          ['data-index' as string]: index,
           disabled,
           id: inputId,
           max,

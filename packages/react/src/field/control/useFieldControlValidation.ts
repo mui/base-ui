@@ -110,7 +110,7 @@ export function useFieldControlValidation() {
 
   const getValidationProps = React.useCallback(
     (externalProps = {}) =>
-      mergeProps(
+      mergeProps<any>(
         {
           ...(messageIds.length && { 'aria-describedby': messageIds.join(' ') }),
           ...(state.valid === false && { 'aria-invalid': true }),

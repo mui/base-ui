@@ -53,7 +53,6 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     openMethod,
     popupRef,
     setPopupElement,
-    setPopupElementId,
     titleElementId,
     transitionStatus,
     onOpenChangeComplete,
@@ -85,7 +84,6 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     openMethod,
     ref: mergedRef,
     setPopupElement,
-    setPopupElementId,
     titleElementId,
   });
 

@@ -4,24 +4,20 @@ import { useRender } from '@base-ui-components/react/use-render';
 import { mergeProps } from '@base-ui-components/react/merge-props';
 import styles from './index.module.css';
 
-type CounterState = {
+interface CounterState {
   odd: boolean;
-};
-
-interface CounterProps extends useRender.ElementProps<'button', CounterState> {
-  className?: string;
-  onClick?: (event: React.MouseEvent) => void;
-  ['aria-label']?: string;
 }
+
+interface CounterProps extends useRender.ComponentProps<'button', CounterState> {}
 
 function Counter(props: CounterProps) {
   const { render = <button />, ...otherProps } = props;
+
   const [count, setCount] = React.useState(0);
   const odd = count % 2 === 1;
   const state = React.useMemo(() => ({ odd }), [odd]);
 
-  // The Props type is an alias of React.ComponentPropsWithoutRef
-  const defaultProps: mergeProps.Props<'button'> = {
+  const defaultProps: useRender.ElementProps<'button'> = {
     className: styles.Button,
     type: 'button',
     children: (
@@ -29,14 +25,16 @@ function Counter(props: CounterProps) {
         Counter: <span>{count}</span>
       </React.Fragment>
     ),
-    onClick: () => setCount((prev) => prev + 1),
+    onClick() {
+      setCount((prev) => prev + 1);
+    },
     'aria-label': `Count is ${count}, click to increase.`,
   };
 
   const { renderElement } = useRender({
     render,
     state,
-    props: mergeProps(defaultProps, otherProps),
+    props: mergeProps<'button'>(defaultProps, otherProps),
   });
 
   return renderElement();

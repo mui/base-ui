@@ -286,10 +286,10 @@ export function useCollapsiblePanel(
 
   const getRootProps: useCollapsiblePanel.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeProps(
+      mergeProps<'button'>(
         {
           id,
-          hidden: isOpen ? undefined : hidden,
+          hidden: isOpen ? undefined : Boolean(hidden),
           ref: mergedRef,
         },
         externalProps,

@@ -47,9 +47,7 @@ function useTabsPanel(parameters: useTabsPanel.Parameters): useTabsPanel.ReturnV
   }, [getTabIdByPanelValueOrIndex, index, valueParam]);
 
   const getRootProps = React.useCallback(
-    (
-      externalProps: React.ComponentPropsWithoutRef<'div'> = {},
-    ): React.ComponentPropsWithRef<'div'> => {
+    (externalProps = {}) => {
       return mergeProps(
         {
           'aria-labelledby': correspondingTabId,
@@ -58,7 +56,7 @@ function useTabsPanel(parameters: useTabsPanel.Parameters): useTabsPanel.ReturnV
           role: 'tabpanel',
           tabIndex: hidden ? -1 : 0,
           ref: handleRef,
-          'data-index': index,
+          ['data-index' as string]: index,
         },
         externalProps,
       );
