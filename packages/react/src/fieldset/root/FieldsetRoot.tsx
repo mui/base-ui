@@ -14,7 +14,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  */
 const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   props: FieldsetRoot.Props,
-  forwardedRef: React.ForwardedRef<HTMLFieldSetElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { render, className, disabled = false, ...otherProps } = props;
 
