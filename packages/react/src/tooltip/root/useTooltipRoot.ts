@@ -158,7 +158,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       positionerElement,
       setPositionerElement,
       popupRef,
-      getRootTriggerProps,
+      triggerProps: getRootTriggerProps(),
       getRootPopupProps,
       floatingRootContext: context,
       instantType,
@@ -233,7 +233,7 @@ export namespace useTooltipRoot {
     setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-    getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    triggerProps: GenericHTMLProps;
     getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     floatingRootContext: FloatingRootContext;
     instantType: 'delay' | 'dismiss' | 'focus' | undefined;

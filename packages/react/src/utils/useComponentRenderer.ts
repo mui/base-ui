@@ -28,16 +28,9 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
    */
   ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
   /**
-   * A function that returns props for the rendered element.
-   * It should accept and merge additional props.
+   * Props to be spread on the rendered element.
    */
-  propGetter?: (
-    externalProps: Record<string, any>,
-  ) => React.HTMLAttributes<any> & React.RefAttributes<RenderedElementType>;
-  /**
-   * Additional props to be spread on the rendered element.
-   */
-  extraProps?: Record<string, any>;
+  props?: Record<string, unknown>;
   /**
    * A mapping of state to style hooks.
    */
@@ -64,8 +57,7 @@ export function useComponentRenderer<
     className: classNameProp,
     state,
     ref,
-    propGetter = (props) => props,
-    extraProps,
+    props,
     customStyleHookMapping,
     styleHooks: generateStyleHooks = true,
   } = settings;
@@ -80,7 +72,7 @@ export function useComponentRenderer<
 
   const ownProps: Record<string, any> = {
     ...styleHooks,
-    ...extraProps,
+    ...props,
   };
 
   let resolvedRenderProp:
@@ -99,10 +91,9 @@ export function useComponentRenderer<
     refs = Array.isArray(ref) ? ref : [ref];
   }
 
-  const renderedElementProps = propGetter(ownProps);
   const propsWithRef: React.HTMLAttributes<any> & React.RefAttributes<any> = {
-    ...renderedElementProps,
-    ref: useRenderPropForkRef(resolvedRenderProp, renderedElementProps.ref, ...refs),
+    ...ownProps,
+    ref: useRenderPropForkRef(resolvedRenderProp, ownProps.ref, ...refs),
   };
   if (className !== undefined) {
     propsWithRef.className = className;
