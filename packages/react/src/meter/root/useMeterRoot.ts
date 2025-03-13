@@ -34,17 +34,20 @@ function useMeterRoot(parameters: useMeterRoot.Parameters): useMeterRoot.ReturnV
 
   const getRootProps: useMeterRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeProps<'div'>(externalProps, {
-        'aria-label': getAriaLabel ? getAriaLabel(value) : ariaLabel,
-        'aria-labelledby': ariaLabelledby,
-        'aria-valuemax': max,
-        'aria-valuemin': min,
-        'aria-valuenow': percentageValue / 100,
-        'aria-valuetext': getAriaValueText
-          ? getAriaValueText(value)
-          : (ariaValuetext ?? `${percentageValue}%`),
-        role: 'meter',
-      }),
+      mergeProps<'div'>(
+        {
+          'aria-label': getAriaLabel ? getAriaLabel(value) : ariaLabel,
+          'aria-labelledby': ariaLabelledby,
+          'aria-valuemax': max,
+          'aria-valuemin': min,
+          'aria-valuenow': percentageValue / 100,
+          'aria-valuetext': getAriaValueText
+            ? getAriaValueText(value)
+            : (ariaValuetext ?? `${percentageValue}%`),
+          role: 'meter',
+        },
+        externalProps,
+      ),
     [
       ariaLabel,
       ariaLabelledby,
