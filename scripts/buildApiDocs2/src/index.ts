@@ -47,13 +47,11 @@ function run(options: RunOptions) {
     }
   }
 
-  for (const exportNode of allExports.filter((node) => rae.isComponentNode(node.type))) {
+  for (const exportNode of allExports.filter(isPublicComponent)) {
     const dataAttributes = allExports.find(
-      (node) => rae.isExportNode(node) && node.name === `${exportNode.name}DataAttributes`,
-    ) as rae.ExportNode | undefined;
-    const cssVariables = allExports.find(
-      (node) => rae.isExportNode(node) && node.name === `${exportNode.name}CssVars`,
-    ) as rae.ExportNode | undefined;
+      (node) => node.name === `${exportNode.name}DataAttributes`,
+    );
+    const cssVariables = allExports.find((node) => node.name === `${exportNode.name}CssVars`);
 
     const componentApiReference = formatComponentData(exportNode, dataAttributes, cssVariables);
     const json = JSON.stringify(componentApiReference, null, 2) + '\n';
@@ -65,6 +63,15 @@ function run(options: RunOptions) {
     console.log(`❌ Found ${errorCounter} errors.`);
     process.exit(1);
   }
+}
+
+function isPublicComponent(node: rae.ExportNode) {
+  return (
+    rae.isComponentNode(node.type) &&
+    !node.documentation?.tags?.some((tag) => tag.tag === 'ignore') &&
+    node.documentation?.visibility !== 'internal' &&
+    node.documentation?.visibility !== 'private'
+  );
 }
 
 function formatComponentData(
