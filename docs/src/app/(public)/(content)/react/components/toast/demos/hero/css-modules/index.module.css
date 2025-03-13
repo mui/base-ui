@@ -113,10 +113,6 @@
 
   &[data-ending-style] {
     opacity: 0;
-
-    &:not([data-limited]) {
-      transition-duration: calc(0.6s + (var(--toast-index) * 0.15s));
-    }
   }
 
   &[data-position^='top'] {

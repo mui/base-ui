@@ -12,7 +12,7 @@
 ## Usage
 
 - `<Toast.Provider>` can be wrapped around your entire app, ensuring all toasts are rendered in the same viewport.
-- `<Toast.Viewport>` is positioned with your own CSS. The example above specifies `data-position` attributes on `Viewport` and `Root` for the CSS to adjust the position of the viewport container. The available positions in the example are `top`, `top-left`, `top-right`, `bottom`, `bottom-left`, and `bottom-right`, but you can change the CSS as needed.
+- `<Toast.Viewport>` is positioned with your own CSS. The example above specifies `data-position` attributes on `<Toast.Viewport>` and `<Toast.Root>` to adjust the position of the viewport container. The available positions in the example are `top`, `top-left`, `top-right`, `bottom`, `bottom-left`, and `bottom-right`, but you can change the CSS as needed.
 - <kbd>F6</kbd> lets users jump into the toast viewport landmark region to navigate toasts with
   keyboard focus.
 
@@ -152,7 +152,7 @@ function App() {
 }
 ```
 
-The `title` and `description` options are what will be announced by screen readers. They do not announce extra content inside the `Toast.Title` or `Toast.Description` components.
+The `title` and `description` strings are what are used to announce the toast to screen readers. Screen readers do not announce any extra content rendered inside `Toast.Root`, including the `Toast.Title` or `Toast.Description` components.
 
 ### `update` method
 

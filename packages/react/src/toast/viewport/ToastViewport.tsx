@@ -8,8 +8,7 @@ import { ToastViewportContext } from './ToastViewportContext';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 import { FocusGuard } from './FocusGuard';
 import { useToastViewport } from './useToastViewport';
-
-const state = {};
+import { useToastContext } from '../provider/ToastProviderContext';
 
 /**
  * A container viewport for toasts.
@@ -19,12 +18,22 @@ const state = {};
  */
 const ToastViewport = React.forwardRef(function ToastViewport(
   props: ToastViewport.Props,
-  forwardedRef: React.Ref<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, children, ...other } = props;
 
+  const { hovering, focused, hasDifferingHeights } = useToastContext();
+
   const viewport = useToastViewport();
+
   const mergedRef = useForkRef(viewport.viewportRef, forwardedRef);
+
+  const state: ToastViewport.State = React.useMemo(
+    () => ({
+      expanded: hovering || focused || hasDifferingHeights,
+    }),
+    [hovering, focused, hasDifferingHeights],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
@@ -61,7 +70,12 @@ const ToastViewport = React.forwardRef(function ToastViewport(
 });
 
 namespace ToastViewport {
-  export interface State {}
+  export interface State {
+    /**
+     * Whether toasts are expanded in the viewport.
+     */
+    expanded: boolean;
+  }
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }

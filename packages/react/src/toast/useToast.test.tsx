@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
 import { useToast } from './useToast';
 import { List } from './utils/test-utils';
@@ -191,6 +192,201 @@ describe('useToast', () => {
 
         expect(screen.queryByTestId('title')).to.have.text('test');
         expect(screen.queryByText('success')).not.to.equal(null);
+      });
+    });
+
+    describe('option: onClose', () => {
+      it('calls onClose when the toast is closed', async () => {
+        const onCloseSpy = spy();
+
+        function AddButton() {
+          const { add, close } = useToast();
+          const idRef = React.useRef<string | null>(null);
+          return (
+            <React.Fragment>
+              <button
+                onClick={() => {
+                  idRef.current = add({
+                    title: 'test',
+                    onClose: onCloseSpy,
+                  });
+                }}
+              >
+                add
+              </button>
+              <button
+                onClick={() => {
+                  if (idRef.current) {
+                    close(idRef.current);
+                  }
+                }}
+              >
+                close
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <List />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>,
+        );
+
+        const addButton = screen.getByRole('button', { name: 'add' });
+        fireEvent.click(addButton);
+
+        expect(onCloseSpy.callCount).to.equal(0);
+
+        const closeButton = screen.getByRole('button', { name: 'close' });
+        fireEvent.click(closeButton);
+
+        expect(onCloseSpy.callCount).to.equal(1);
+      });
+
+      it('calls onClose when the toast auto-dismisses', async () => {
+        const onCloseSpy = spy();
+
+        function AddButton() {
+          const { add } = useToast();
+          return (
+            <button
+              onClick={() => {
+                add({
+                  title: 'test',
+                  timeout: 1000,
+                  onClose: onCloseSpy,
+                });
+              }}
+            >
+              add
+            </button>
+          );
+        }
+
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <List />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>,
+        );
+
+        const button = screen.getByRole('button', { name: 'add' });
+        fireEvent.click(button);
+
+        expect(onCloseSpy.callCount).to.equal(0);
+
+        clock.tick(1000);
+
+        expect(onCloseSpy.callCount).to.equal(1);
+      });
+    });
+
+    describe('option: onRemove', () => {
+      it('calls onRemove when the toast is removed', async () => {
+        const onRemoveSpy = spy();
+
+        function AddButton() {
+          const { add, close } = useToast();
+          const idRef = React.useRef<string | null>(null);
+          return (
+            <React.Fragment>
+              <button
+                onClick={() => {
+                  idRef.current = add({
+                    title: 'test',
+                    onRemove: onRemoveSpy,
+                  });
+                }}
+              >
+                add
+              </button>
+              <button
+                onClick={() => {
+                  if (idRef.current) {
+                    close(idRef.current);
+                  }
+                }}
+              >
+                close
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <List />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>,
+        );
+
+        const addButton = screen.getByRole('button', { name: 'add' });
+        fireEvent.click(addButton);
+
+        expect(onRemoveSpy.callCount).to.equal(0);
+
+        const closeButton = screen.getByRole('button', { name: 'close' });
+        fireEvent.click(closeButton);
+
+        expect(onRemoveSpy.callCount).to.equal(1);
+      });
+    });
+
+    describe('option: priority', () => {
+      it('applies correct ARIA attributes based on priority', async () => {
+        function AddButton() {
+          const { add } = useToast();
+          return (
+            <React.Fragment>
+              <button onClick={() => add({ title: 'high priority', priority: 'high' })}>
+                add high
+              </button>
+              <button onClick={() => add({ title: 'low priority', priority: 'low' })}>
+                add low
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <List />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>,
+        );
+
+        const highPriorityButton = screen.getByRole('button', { name: 'add high' });
+        fireEvent.click(highPriorityButton);
+
+        const highRoot = screen.getByTestId('root');
+
+        expect(highRoot.getAttribute('role')).to.equal('alertdialog');
+        expect(highRoot.getAttribute('aria-modal')).to.equal('false');
+        expect(screen.getByRole('alert')).to.not.equal(null);
+        expect(screen.getByRole('alert').getAttribute('aria-atomic')).to.equal('true');
+
+        const closeHighButton = screen.getByRole('button', { name: 'close-button' });
+        fireEvent.click(closeHighButton);
+
+        const lowPriorityButton = screen.getByRole('button', { name: 'add low' });
+        fireEvent.click(lowPriorityButton);
+
+        const lowRoot = screen.getByTestId('root');
+
+        expect(lowRoot.getAttribute('role')).to.equal('dialog');
+        expect(lowRoot.getAttribute('aria-modal')).to.equal('false');
+        expect(screen.getByRole('status')).to.not.equal(null);
+        expect(screen.getByRole('status').getAttribute('aria-live')).to.equal('polite');
       });
     });
   });
@@ -524,7 +720,7 @@ describe('useToast', () => {
                 idRef.current = add({ title: 'test' });
               }}
             >
-              add method
+              add
             </button>
             <button
               onClick={() => {
@@ -533,7 +729,7 @@ describe('useToast', () => {
                 }
               }}
             >
-              close method
+              close
             </button>
           </React.Fragment>
         );
@@ -548,12 +744,12 @@ describe('useToast', () => {
         </Toast.Provider>,
       );
 
-      const addButton = screen.getByRole('button', { name: 'add method' });
+      const addButton = screen.getByRole('button', { name: 'add' });
       fireEvent.click(addButton);
 
       expect(screen.getByTestId('root')).not.to.equal(null);
 
-      const closeButton = screen.getByRole('button', { name: 'close method' });
+      const closeButton = screen.getByRole('button', { name: 'close' });
       fireEvent.click(closeButton);
 
       expect(screen.queryByTestId('root')).to.equal(null);

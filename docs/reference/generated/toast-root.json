@@ -22,9 +22,21 @@
     }
   },
   "dataAttributes": {
+    "data-expanded": {
+      "description": "Indicates the toast is expanded in the viewport.",
+      "type": "boolean"
+    },
+    "data-limited": {
+      "description": "Indicates the toast was removed due to exceeding the limit.",
+      "type": "boolean"
+    },
     "data-swiping": {
       "description": "Indicates the toast is being swiped.",
       "type": "boolean"
+    },
+    "data-type": {
+      "description": "The type of the toast.",
+      "type": "string"
     }
   },
   "cssVariables": {
