@@ -47,7 +47,7 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
 /**
  * Returns a function that renders a Base UI component.
  *
- * @ignore - internal hook.
+ * @internal
  */
 export function useComponentRenderer<
   State extends Record<string, any>,

@@ -60,7 +60,7 @@ export interface UseCompositeRootParameters {
 }
 
 /**
- * @ignore - internal hook.
+ * @internal
  */
 export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {

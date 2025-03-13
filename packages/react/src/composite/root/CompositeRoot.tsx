@@ -11,7 +11,7 @@ import type { TextDirection } from '../../direction-provider/DirectionContext';
 import type { Dimensions } from '../composite';
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>) {
   const {

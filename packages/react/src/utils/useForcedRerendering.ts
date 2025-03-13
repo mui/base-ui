@@ -4,7 +4,7 @@ import * as React from 'react';
 /**
  * Returns a function that forces a rerender.
  *
- * @ignore - internal hook.
+ * @internal
  */
 export function useForcedRerendering() {
   const [, setState] = React.useState({});

@@ -54,7 +54,7 @@ export interface TabsRootContext {
 }
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 const TabsRootContext = React.createContext<TabsRootContext | undefined>(undefined);
 
