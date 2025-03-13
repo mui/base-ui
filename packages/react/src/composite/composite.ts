@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { hasComputedStyleMapSupport } from '../utils/hasComputedStyleMapSupport';
+import { isElementDisabled } from '../utils/isElementDisabled';
 import { ownerWindow } from '../utils/owner';
 import type { TextDirection } from '../direction-provider/DirectionContext';
 
@@ -351,14 +352,6 @@ export function getCellIndices(indices: (number | undefined)[], cellMap: (number
   return cellMap.flatMap((index, cellIndex) => (indices.includes(index) ? [cellIndex] : []));
 }
 
-export function isElementDisabled(element: HTMLElement | null) {
-  return (
-    element == null ||
-    element.hasAttribute('disabled') ||
-    element.getAttribute('aria-disabled') === 'true'
-  );
-}
-
 export function isDisabled(
   list: Array<HTMLElement | null>,
   index: number,
@@ -379,4 +372,16 @@ export function getTextDirection(element: HTMLElement): TextDirection {
   }
 
   return ownerWindow(element).getComputedStyle(element).direction as TextDirection;
+}
+
+export function isNativeInput(
+  element: EventTarget,
+): element is HTMLElement & (HTMLInputElement | HTMLTextAreaElement) {
+  if (element instanceof HTMLInputElement && element.selectionStart != null) {
+    return true;
+  }
+  if (element instanceof HTMLTextAreaElement) {
+    return true;
+  }
+  return false;
 }
