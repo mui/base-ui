@@ -9,14 +9,19 @@ import classes from './transition.module.css';
 import { useAnimationsFinished } from '../../../../../../packages/react/src/utils/useAnimationsFinished';
 import { useEventCallback } from '../../../../../../packages/react/src/utils/useEventCallback';
 import { useForkRef } from '../../../../../../packages/react/src/utils/useForkRef';
+import { warn } from '../../../../../../packages/react/src/utils/warn';
 
 const STARTING_HOOK = { 'data-starting-style': '' };
 const ENDING_HOOK = { 'data-ending-style': '' };
 
-// const KEEP_MOUNTED = false;
+type AnimationType = 'css-transition' | 'css-animation' | 'none' | null;
 
-function Collapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
-  const { keepMounted = true, defaultOpen = false } = props;
+function Collapsible(props: {
+  defaultOpen?: boolean;
+  keepMounted?: boolean;
+  id?: string;
+}) {
+  const { keepMounted = true, defaultOpen = false, id } = props;
 
   const [open, setOpen] = React.useState(defaultOpen);
 
@@ -44,8 +49,8 @@ function Collapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
     return !open && !mounted;
   }, [keepMounted, open, mounted]);
 
+  const animationTypeRef = React.useRef<AnimationType>(null);
   const panelRef: React.RefObject<HTMLElement | null> = React.useRef(null);
-
   /**
    * When `keepMounted` is `true` this runs once as soon as it exists in the DOM
    * regardless of initial open state.
@@ -58,6 +63,29 @@ function Collapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
     if (!element) {
       return;
     }
+    if (animationTypeRef.current == null) {
+      const panelStyles = getComputedStyle(element);
+      if (
+        panelStyles.animationName !== 'none' &&
+        panelStyles.transitionDelay !== '0s'
+      ) {
+        warn('CSS transitions and CSS animations both detected');
+      } else if (
+        panelStyles.animationName === 'none' &&
+        panelStyles.transitionDuration !== '0s'
+      ) {
+        animationTypeRef.current = 'css-transition';
+      } else if (
+        panelStyles.animationName !== 'none' &&
+        panelStyles.transitionDuration === '0s'
+      ) {
+        animationTypeRef.current = 'css-animation';
+      } else {
+        animationTypeRef.current = 'none';
+      }
+    }
+    // console.log('animationType', animationTypeRef.current);
+
     /**
      * Explicitly set `display` to ensure the panel is actually rendered before
      * measuring anything. `!important` is to needed to override a conflicting
@@ -221,7 +249,7 @@ function Collapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
         onClick={handleTrigger}
       >
         <ExpandMoreIcon className={classes.Icon} />
-        Trigger {/* (keepMounted {String(keepMounted)}) */}
+        Trigger {id}
       </button>
 
       {(keepMounted || (!keepMounted && mounted)) && (
@@ -232,6 +260,7 @@ function Collapsible(props: { defaultOpen?: boolean; keepMounted?: boolean }) {
           {...{ [open ? 'data-open' : 'data-closed']: '' }}
           {...styleHooks}
           hidden={isHidden}
+          id={id}
         >
           <div className={classes.Content}>
             <p>
@@ -253,17 +282,17 @@ export default function App() {
     <div className={classes.grid}>
       <div className={classes.wrapper}>
         <pre>keepMounted: true</pre>
-        <Collapsible keepMounted defaultOpen />
+        <Collapsible keepMounted defaultOpen id="1" />
 
-        <Collapsible keepMounted defaultOpen={false} />
+        <Collapsible keepMounted defaultOpen={false} id="2" />
 
         <small>———</small>
       </div>
       <div className={classes.wrapper}>
         <pre>keepMounted: false</pre>
-        <Collapsible keepMounted={false} defaultOpen />
+        <Collapsible keepMounted={false} defaultOpen id="3" />
 
-        <Collapsible keepMounted={false} defaultOpen={false} />
+        <Collapsible keepMounted={false} defaultOpen={false} id="4" />
         <small>———</small>
       </div>
     </div>
