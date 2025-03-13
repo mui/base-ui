@@ -4,7 +4,6 @@ import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
 import { resolveClassName } from './resolveClassName';
 import { evaluateRenderProp } from './evaluateRenderProp';
 import { useRenderPropForkRef } from './useRenderPropForkRef';
-import { defaultRenderFunctions } from './defaultRenderFunctions';
 
 export interface ComponentRendererSettings<State, RenderedElementType extends Element> {
   /**
@@ -17,8 +16,7 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
    */
   render:
     | ComponentRenderFn<React.HTMLAttributes<any>, State>
-    | React.ReactElement<Record<string, unknown>>
-    | keyof typeof defaultRenderFunctions;
+    | React.ReactElement<Record<string, unknown>>;
   /**
    * The state of the component.
    */
@@ -28,16 +26,9 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
    */
   ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
   /**
-   * A function that returns props for the rendered element.
-   * It should accept and merge additional props.
+   * Props to be spread on the rendered element.
    */
-  propGetter?: (
-    externalProps: Record<string, any>,
-  ) => React.HTMLAttributes<any> & React.RefAttributes<RenderedElementType>;
-  /**
-   * Additional props to be spread on the rendered element.
-   */
-  extraProps?: Record<string, any>;
+  props?: Record<string, unknown>;
   /**
    * A mapping of state to style hooks.
    */
@@ -64,8 +55,7 @@ export function useComponentRenderer<
     className: classNameProp,
     state,
     ref,
-    propGetter = (props) => props,
-    extraProps,
+    props,
     customStyleHookMapping,
     styleHooks: generateStyleHooks = true,
   } = settings;
@@ -80,18 +70,8 @@ export function useComponentRenderer<
 
   const ownProps: Record<string, any> = {
     ...styleHooks,
-    ...extraProps,
+    ...props,
   };
-
-  let resolvedRenderProp:
-    | ComponentRenderFn<React.HTMLAttributes<any>, State>
-    | React.ReactElement<Record<string, unknown>>;
-
-  if (typeof renderProp === 'string') {
-    resolvedRenderProp = defaultRenderFunctions[renderProp];
-  } else {
-    resolvedRenderProp = renderProp;
-  }
 
   let refs: React.Ref<RenderedElementType>[] = [];
 
@@ -99,16 +79,15 @@ export function useComponentRenderer<
     refs = Array.isArray(ref) ? ref : [ref];
   }
 
-  const renderedElementProps = propGetter(ownProps);
   const propsWithRef: React.HTMLAttributes<any> & React.RefAttributes<any> = {
-    ...renderedElementProps,
-    ref: useRenderPropForkRef(resolvedRenderProp, renderedElementProps.ref, ...refs),
+    ...ownProps,
+    ref: useRenderPropForkRef(renderProp, ownProps.ref, ...refs),
   };
   if (className !== undefined) {
     propsWithRef.className = className;
   }
 
-  const renderElement = () => evaluateRenderProp(resolvedRenderProp, propsWithRef, state);
+  const renderElement = () => evaluateRenderProp(renderProp, propsWithRef, state);
 
   return {
     renderElement,

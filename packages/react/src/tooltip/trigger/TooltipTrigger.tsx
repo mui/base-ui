@@ -3,9 +3,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { mergeProps } from '../../merge-props';
+import { button } from '../../utils/defaultRenderFunctions';
 
 /**
  * An element to attach the tooltip to.
@@ -17,21 +18,18 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   props: TooltipTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render = button, ...otherProps } = props;
 
-  const { open, setTriggerElement, getRootTriggerProps } = useTooltipRootContext();
+  const { open, setTriggerElement, triggerProps } = useTooltipRootContext();
 
   const state: TooltipTrigger.State = React.useMemo(() => ({ open }), [open]);
 
-  const mergedRef = useForkRef(forwardedRef, setTriggerElement);
-
   const { renderElement } = useComponentRenderer({
-    propGetter: getRootTriggerProps,
-    render: render ?? 'button',
+    render,
     className,
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
+    ref: [forwardedRef, setTriggerElement],
+    props: mergeProps(triggerProps, otherProps),
     customStyleHookMapping: triggerOpenStateMapping,
   });
 
