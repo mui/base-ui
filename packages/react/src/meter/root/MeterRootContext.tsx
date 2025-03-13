@@ -1,9 +1,13 @@
 'use client';
 import * as React from 'react';
 import type { MeterRoot } from './MeterRoot';
-import type { useMeterRoot } from './useMeterRoot';
 
-export type MeterRootContext = Omit<useMeterRoot.ReturnValue, 'getRootProps'> & {
+export type MeterRootContext = {
+  max: number;
+  min: number;
+  value: number;
+  percentageValue: number;
+  formattedValue: string;
   state: MeterRoot.State;
 };
 
