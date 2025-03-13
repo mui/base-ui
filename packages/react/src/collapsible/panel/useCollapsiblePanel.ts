@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { hasComputedStyleMapSupport } from '../../utils/hasComputedStyleMapSupport';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { ownerWindow } from '../../utils/owner';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -286,10 +286,10 @@ export function useCollapsiblePanel(
 
   const getRootProps: useCollapsiblePanel.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeProps<'button'>(
         {
           id,
-          hidden: isOpen ? undefined : hidden,
+          hidden: isOpen ? undefined : Boolean(hidden),
           ref: mergedRef,
         },
         externalProps,

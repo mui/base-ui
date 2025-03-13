@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldsetRootContext } from '../root/FieldsetRootContext';
@@ -21,7 +21,7 @@ export function useFieldsetLegend(params: useFieldsetLegend.Parameters) {
 
   const getLegendProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeProps(
         {
           id,
         },

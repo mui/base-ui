@@ -1,10 +1,14 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
-function getRangeStyles(orientation: useSliderRoot.Orientation, offset: number, leap: number) {
+function getRangeStyles(
+  orientation: useSliderRoot.Orientation,
+  offset: number,
+  leap: number,
+): React.CSSProperties {
   if (orientation === 'vertical') {
     return {
       position: 'relative',
@@ -29,7 +33,7 @@ export function useSliderIndicator(
 ): useSliderIndicator.ReturnValue {
   const { orientation, percentageValues } = parameters;
 
-  let internalStyles;
+  let internalStyles: React.CSSProperties;
 
   if (percentageValues.length > 1) {
     const trackOffset = percentageValues[0];
@@ -54,7 +58,7 @@ export function useSliderIndicator(
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps(
+      return mergeProps(
         {
           style: internalStyles,
         },

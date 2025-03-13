@@ -1,10 +1,18 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useControlled } from '../../utils/useControlled';
-import { ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT } from '../../composite/composite';
+import {
+  ARROW_DOWN,
+  ARROW_UP,
+  ARROW_RIGHT,
+  ARROW_LEFT,
+  HOME,
+  END,
+  isElementDisabled,
+} from '../../composite/composite';
 
-const SUPPORTED_KEYS = [ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, 'Home', 'End'];
+const SUPPORTED_KEYS = [ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END];
 
 function getActiveTriggers(accordionItemRefs: {
   current: (HTMLElement | null)[];
@@ -15,21 +23,15 @@ function getActiveTriggers(accordionItemRefs: {
 
   for (let i = 0; i < accordionItemElements.length; i += 1) {
     const section = accordionItemElements[i];
-    if (!isDisabled(section)) {
+    if (!isElementDisabled(section)) {
       const trigger = section?.querySelector('[type="button"]') as HTMLButtonElement;
-      if (!isDisabled(trigger)) {
+      if (!isElementDisabled(trigger)) {
         output.push(trigger);
       }
     }
   }
 
   return output;
-}
-
-function isDisabled(element: HTMLElement | null) {
-  return (
-    element === null || element.hasAttribute('disabled') || element.hasAttribute('data-disabled')
-  );
 }
 
 export function useAccordionRoot(
@@ -79,7 +81,7 @@ export function useAccordionRoot(
     (externalProps = {}) => {
       const isRtl = direction === 'rtl';
       const isHorizontal = orientation === 'horizontal';
-      return mergeReactProps(
+      return mergeProps(
         {
           dir: direction,
           role: 'region',

@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 
 /**
  * An icon that indicates that the trigger button opens a select menu.
@@ -20,7 +20,7 @@ const SelectIcon = React.forwardRef(function SelectIcon(
   const state: SelectIcon.State = React.useMemo(() => ({}), []);
 
   const getIconProps = React.useCallback((externalProps: React.ComponentProps<'span'>) => {
-    return mergeReactProps(
+    return mergeProps<'span'>(
       {
         'aria-hidden': true,
         children: '▼',

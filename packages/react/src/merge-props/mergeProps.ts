@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { BaseUIEvent, WithBaseUIEvent } from './types';
+import type { BaseUIEvent, WithBaseUIEvent } from '../utils/types';
 
 type MergableProps<T extends React.ElementType> =
   | WithBaseUIEvent<React.ComponentPropsWithRef<T>>
@@ -29,11 +29,11 @@ type MergableProps<T extends React.ElementType> =
  * @param props props to merge.
  * @returns the merged props.
  */
-export function mergeReactProps<T extends React.ElementType>(
-  ...props: MergableProps<T>[]
-): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
+export function mergeProps<Tag extends React.ElementType>(
+  ...props: MergableProps<Tag>[]
+): WithBaseUIEvent<React.ComponentPropsWithRef<Tag>> {
   if (props.length === 0) {
-    return {} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
+    return {} as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>;
   }
 
   if (props.length === 1) {
@@ -51,22 +51,25 @@ export function mergeReactProps<T extends React.ElementType>(
     if (isPropsGetter(propsOrPropsGetter)) {
       merged = propsOrPropsGetter(merged);
     } else {
-      merged = merge(merged, propsOrPropsGetter as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
+      merged = merge(
+        merged,
+        propsOrPropsGetter as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>,
+      );
     }
   }
 
-  return merged ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
+  return merged ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>);
 }
 
-function resolvePropsGetter<T extends React.ElementType>(
+function resolvePropsGetter<Tag extends React.ElementType>(
   propsOrPropsGetter: MergableProps<React.ElementType>,
-  previousProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>>,
+  previousProps: WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>,
 ) {
   if (isPropsGetter(propsOrPropsGetter)) {
     return propsOrPropsGetter(previousProps);
   }
 
-  return propsOrPropsGetter ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
+  return propsOrPropsGetter ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>);
 }
 
 /**

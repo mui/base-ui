@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../use-button';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps, BaseUIEvent } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 
@@ -28,7 +28,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
 
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeReactProps(
+      return mergeProps(
         {
           id,
           role: 'menuitem',

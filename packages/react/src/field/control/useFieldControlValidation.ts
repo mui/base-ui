@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
@@ -110,7 +110,7 @@ export function useFieldControlValidation() {
 
   const getValidationProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeProps<any>(
         {
           ...(messageIds.length && { 'aria-describedby': messageIds.join(' ') }),
           ...(state.valid === false && { 'aria-invalid': true }),
@@ -122,7 +122,7 @@ export function useFieldControlValidation() {
 
   const getInputValidationProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(
+      mergeProps<'input'>(
         {
           onChange(event) {
             // Workaround for https://github.com/facebook/react/issues/9023

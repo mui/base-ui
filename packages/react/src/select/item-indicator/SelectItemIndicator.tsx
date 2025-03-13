@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSelectItemContext } from '../item/SelectItemContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useForkRef } from '../../utils/useForkRef';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
@@ -30,7 +30,7 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
 
   const getItemProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(
+      mergeProps(
         {
           'aria-hidden': true,
           children: '✔️',

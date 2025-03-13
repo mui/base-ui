@@ -11,7 +11,7 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
@@ -70,7 +70,7 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     state,
     extraProps:
       transitionStatus === 'starting'
-        ? mergeReactProps(
+        ? mergeProps(
             {
               style: { transition: 'none' },
             },

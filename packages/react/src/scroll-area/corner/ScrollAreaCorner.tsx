@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { useForkRef } from '../../utils/useForkRef';
 
@@ -30,7 +30,7 @@ const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
     ref: mergedRef,
     className,
     state,
-    extraProps: mergeReactProps(
+    extraProps: mergeProps(
       {
         style: {
           position: 'absolute',

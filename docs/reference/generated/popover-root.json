@@ -19,6 +19,11 @@
       "type": "RefObject",
       "description": "A ref to imperative actions."
     },
+    "modal": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the popover should prevent outside clicks and lock page scroll when open."
+    },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the popover is opened or closed."

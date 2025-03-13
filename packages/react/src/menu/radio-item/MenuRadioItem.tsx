@@ -12,7 +12,7 @@ import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 
 const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuRadioItemProps,
@@ -53,7 +53,7 @@ const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
     render: render || 'div',
     className,
     state,
-    propGetter: (externalProps) => mergeReactProps(itemProps, externalProps, getItemProps),
+    propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
     customStyleHookMapping: itemMapping,
     extraProps: other,
   });

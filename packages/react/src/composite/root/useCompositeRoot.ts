@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import {
@@ -25,9 +25,11 @@ import {
   HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
   isDisabled,
   isIndexOutOfBounds,
+  MODIFIER_KEYS,
   VERTICAL_KEYS,
   VERTICAL_KEYS_WITH_EXTRA_KEYS,
   type Dimensions,
+  type ModifierKey,
 } from '../composite';
 
 export interface UseCompositeRootParameters {
@@ -57,7 +59,25 @@ export interface UseCompositeRootParameters {
    * Used for composite items that are focusable when disabled.
    */
   disabledIndices?: number[];
+  /**
+   * Array of [modifier key values](https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values#modifier_keys) that should allow normal keyboard actions
+   * when pressed. By default, all modifier keys prevent normal actions.
+   * @default []
+   */
+  modifierKeys?: ModifierKey[];
 }
+
+function getDisallowedModifierKeys(modifierKeys: ModifierKey[]) {
+  if (modifierKeys.length === 1) {
+    const keys = MODIFIER_KEYS.slice();
+    keys.splice(keys.indexOf(modifierKeys[0]), 1);
+    return keys;
+  }
+  const set = new Set(modifierKeys);
+  return MODIFIER_KEYS.filter((key) => !set.has(key));
+}
+
+const EMPTY_ARRAY: never[] = [];
 
 /**
  * @internal
@@ -76,6 +96,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     enableHomeAndEndKeys = false,
     stopEventPropagation = false,
     disabledIndices,
+    modifierKeys = EMPTY_ARRAY,
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
@@ -96,13 +117,27 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(
+      mergeProps<'div'>(
         {
           'aria-orientation': orientation === 'both' ? undefined : orientation,
           ref: mergedRef,
           onKeyDown(event) {
             const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
             if (!RELEVANT_KEYS.includes(event.key)) {
+              return;
+            }
+
+            if (
+              modifierKeys.length === 0 &&
+              (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey)
+            ) {
+              return;
+            }
+
+            if (
+              modifierKeys.length > 0 &&
+              getDisallowedModifierKeys(modifierKeys).some((key) => event.getModifierState(key))
+            ) {
               return;
             }
 
@@ -266,6 +301,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       itemSizes,
       loop,
       mergedRef,
+      modifierKeys,
       onHighlightedIndexChange,
       orientation,
       stopEventPropagation,
