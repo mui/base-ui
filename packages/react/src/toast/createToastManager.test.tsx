@@ -82,7 +82,7 @@ describe('Manager', () => {
       function AddButton() {
         return (
           <button type="button" onClick={add}>
-            add method
+            add
           </button>
         );
       }
@@ -96,7 +96,7 @@ describe('Manager', () => {
         </Toast.Provider>,
       );
 
-      const button = screen.getByRole('button', { name: 'add method' });
+      const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
       await flushMicrotasks();
 
@@ -131,7 +131,7 @@ describe('Manager', () => {
       function AddButton() {
         return (
           <button type="button" onClick={promise}>
-            add method
+            add
           </button>
         );
       }
@@ -145,7 +145,7 @@ describe('Manager', () => {
         </Toast.Provider>,
       );
 
-      const button = screen.getByRole('button', { name: 'add method' });
+      const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
       await flushMicrotasks();
 
@@ -175,7 +175,7 @@ describe('Manager', () => {
         return (
           <React.Fragment>
             <button type="button" onClick={add}>
-              add method
+              add
             </button>
             <button type="button" onClick={update}>
               update method
@@ -193,7 +193,7 @@ describe('Manager', () => {
         </Toast.Provider>,
       );
 
-      const button = screen.getByRole('button', { name: 'add method' });
+      const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
       const updateButton = screen.getByRole('button', { name: 'update method' });
@@ -223,10 +223,10 @@ describe('Manager', () => {
         return (
           <React.Fragment>
             <button type="button" onClick={add}>
-              add method
+              add
             </button>
             <button type="button" onClick={close}>
-              close method
+              close
             </button>
           </React.Fragment>
         );
@@ -241,10 +241,10 @@ describe('Manager', () => {
         </Toast.Provider>,
       );
 
-      const button = screen.getByRole('button', { name: 'add method' });
+      const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
-      const closeButton = screen.getByRole('button', { name: 'close method' });
+      const closeButton = screen.getByRole('button', { name: 'close' });
       fireEvent.click(closeButton);
 
       expect(screen.queryByTestId('title')).to.equal(null);

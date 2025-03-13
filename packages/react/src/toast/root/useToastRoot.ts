@@ -111,13 +111,6 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
     return toasts.slice(0, toasts.indexOf(toast)).reduce((acc, t) => acc + (t.height || 0), 0);
   }, [toasts, toast]);
 
-  // It's not possible to stack a smaller height toast onto a larger height toast, but
-  // the reverse is possible. For simplicity, we'll enforce the expanded state if the
-  // toasts aren't all the same height.
-  const hasDifferingHeights = React.useMemo(() => {
-    return toasts.some((t) => t.height !== 0 && toast.height !== 0 && t.height !== toast.height);
-  }, [toast, toasts]);
-
   React.useEffect(() => {
     if (!rootRef.current) {
       return undefined;
@@ -518,18 +511,9 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
       setTitleId,
       descriptionId,
       setDescriptionId,
-      hasDifferingHeights,
       swiping: isSwiping,
     }),
-    [
-      renderScreenReaderContent,
-      toast,
-      getRootProps,
-      titleId,
-      descriptionId,
-      hasDifferingHeights,
-      isSwiping,
-    ],
+    [renderScreenReaderContent, toast, getRootProps, titleId, descriptionId, isSwiping],
   );
 }
 
@@ -549,7 +533,6 @@ export namespace useToastRoot {
     titleId: string | undefined;
     setTitleId: React.Dispatch<React.SetStateAction<string | undefined>>;
     descriptionId: string | undefined;
-    hasDifferingHeights: boolean;
     swiping: boolean;
   }
 }

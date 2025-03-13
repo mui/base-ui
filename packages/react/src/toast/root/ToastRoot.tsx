@@ -24,7 +24,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
 ) {
   const { toast, render, className, children, swipeDirection = 'up', ...other } = props;
 
-  const { hovering, focused } = useToastContext();
+  const { hovering, focused, hasDifferingHeights } = useToastContext();
 
   const toastRoot = useToastRoot({
     toast,
@@ -36,7 +36,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   const state: ToastRoot.State = React.useMemo(
     () => ({
       transitionStatus: toast.transitionStatus,
-      expanded: hovering || focused || toastRoot.hasDifferingHeights,
+      expanded: hovering || focused || hasDifferingHeights,
       limited: toast.limited || false,
       type: toast.type,
       swiping: toastRoot.swiping,
@@ -44,10 +44,10 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     [
       hovering,
       focused,
+      hasDifferingHeights,
       toast.transitionStatus,
       toast.limited,
       toast.type,
-      toastRoot.hasDifferingHeights,
       toastRoot.swiping,
     ],
   );

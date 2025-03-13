@@ -27,7 +27,7 @@ export function List() {
     <Toast.Root key={toastItem.id} toast={toastItem} data-testid="root">
       <Toast.Title data-testid="title">{toastItem.title}</Toast.Title>
       <Toast.Description data-testid="description">{toastItem.description}</Toast.Description>
-      <Toast.Close aria-label="close" />
+      <Toast.Close aria-label="close-button" />
       <Toast.Action data-testid="action" />
     </Toast.Root>
   ));
