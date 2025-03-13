@@ -32,7 +32,7 @@ const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
+export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   props: AlertDialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -125,7 +125,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   );
 });
 
-namespace AlertDialogPopup {
+export namespace AlertDialogPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Determines the element to focus when the dialog is opened.
@@ -201,5 +201,3 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
    */
   style: PropTypes.object,
 } as any;
-
-export { AlertDialogPopup };

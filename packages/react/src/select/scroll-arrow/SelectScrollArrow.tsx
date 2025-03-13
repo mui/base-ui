@@ -14,7 +14,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 /**
  * @ignore - internal component.
  */
-const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
+export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   props: SelectScrollArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -150,7 +150,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   return renderElement();
 });
 
-namespace SelectScrollArrow {
+export namespace SelectScrollArrow {
   export interface State {
     direction: 'up' | 'down';
     visible: boolean;
@@ -199,5 +199,3 @@ SelectScrollArrow.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { SelectScrollArrow };

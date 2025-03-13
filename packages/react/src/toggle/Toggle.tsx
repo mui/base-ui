@@ -14,7 +14,7 @@ import { useToggle } from './useToggle';
  *
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */
-const Toggle = React.forwardRef(function Toggle(
+export const Toggle = React.forwardRef(function Toggle(
   props: Toggle.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -65,9 +65,7 @@ const Toggle = React.forwardRef(function Toggle(
   return groupContext ? <CompositeItem render={renderElement()} /> : renderElement();
 });
 
-export { Toggle };
-
-namespace Toggle {
+export namespace Toggle {
   export interface State {
     pressed: boolean;
     /**

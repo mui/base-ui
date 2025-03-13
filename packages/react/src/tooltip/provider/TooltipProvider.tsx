@@ -9,7 +9,7 @@ import { FloatingDelayGroup } from '@floating-ui/react';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvider(props) {
+export const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvider(props) {
   const { delay, closeDelay, timeout = 400 } = props;
   return (
     <FloatingDelayGroup delay={{ open: delay, close: closeDelay }} timeoutMs={timeout}>
@@ -18,7 +18,7 @@ const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvide
   );
 };
 
-namespace TooltipProvider {
+export namespace TooltipProvider {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -62,5 +62,3 @@ TooltipProvider.propTypes /* remove-proptypes */ = {
    */
   timeout: PropTypes.number,
 } as any;
-
-export { TooltipProvider };

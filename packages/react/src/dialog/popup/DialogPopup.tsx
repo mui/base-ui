@@ -33,7 +33,7 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-const DialogPopup = React.forwardRef(function DialogPopup(
+export const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -122,7 +122,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   );
 });
 
-namespace DialogPopup {
+export namespace DialogPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Determines the element to focus when the dialog is opened.
@@ -198,5 +198,3 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    */
   style: PropTypes.object,
 } as any;
-
-export { DialogPopup };

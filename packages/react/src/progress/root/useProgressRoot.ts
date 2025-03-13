@@ -26,7 +26,9 @@ function getDefaultAriaValueText(formattedValue: string | null, value: number | 
   return formattedValue || `${value}%`;
 }
 
-function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoot.ReturnValue {
+export function useProgressRoot(
+  parameters: useProgressRoot.Parameters,
+): useProgressRoot.ReturnValue {
   const {
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledby,
@@ -86,7 +88,7 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
   };
 }
 
-namespace useProgressRoot {
+export namespace useProgressRoot {
   export interface Parameters {
     /**
      * The label for the Indicator component.
@@ -157,5 +159,3 @@ namespace useProgressRoot {
     status: ProgressStatus;
   }
 }
-
-export { useProgressRoot };

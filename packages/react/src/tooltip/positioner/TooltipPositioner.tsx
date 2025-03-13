@@ -18,7 +18,7 @@ import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-const TooltipPositioner = React.forwardRef(function TooltipPositioner(
+export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   props: TooltipPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -98,7 +98,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   );
 });
 
-namespace TooltipPositioner {
+export namespace TooltipPositioner {
   export interface State {
     /**
      * Whether the tooltip is currently open.
@@ -232,5 +232,3 @@ TooltipPositioner.propTypes /* remove-proptypes */ = {
    */
   trackAnchor: PropTypes.bool,
 } as any;
-
-export { TooltipPositioner };

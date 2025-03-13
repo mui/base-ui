@@ -13,7 +13,7 @@ import { accordionStyleHookMapping } from '../item/styleHooks';
  *
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
-const AccordionHeader = React.forwardRef(function AccordionHeader(
+export const AccordionHeader = React.forwardRef(function AccordionHeader(
   props: AccordionHeader.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
@@ -33,11 +33,9 @@ const AccordionHeader = React.forwardRef(function AccordionHeader(
   return renderElement();
 });
 
-namespace AccordionHeader {
+export namespace AccordionHeader {
   export interface Props extends BaseUIComponentProps<'h3', AccordionItem.State> {}
 }
-
-export { AccordionHeader };
 
 AccordionHeader.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

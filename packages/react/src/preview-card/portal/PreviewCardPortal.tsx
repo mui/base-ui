@@ -12,7 +12,9 @@ import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-function PreviewCardPortal(props: PreviewCardPortal.Props) {
+export const PreviewCardPortal: React.FC<PreviewCardPortal.Props> = function PreviewCardPortal(
+  props: PreviewCardPortal.Props,
+) {
   const { children, keepMounted = false, container } = props;
 
   const { mounted } = usePreviewCardRootContext();
@@ -27,9 +29,9 @@ function PreviewCardPortal(props: PreviewCardPortal.Props) {
       <FloatingPortalLite root={container}>{children}</FloatingPortalLite>
     </PreviewCardPortalContext.Provider>
   );
-}
+};
 
-namespace PreviewCardPortal {
+export namespace PreviewCardPortal {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -63,5 +65,3 @@ PreviewCardPortal.propTypes /* remove-proptypes */ = {
    */
   keepMounted: PropTypes.bool,
 } as any;
-
-export { PreviewCardPortal };

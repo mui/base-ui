@@ -21,7 +21,7 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-const DialogBackdrop = React.forwardRef(function DialogBackdrop(
+export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -60,7 +60,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   return renderElement();
 });
 
-namespace DialogBackdrop {
+export namespace DialogBackdrop {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {
@@ -94,5 +94,3 @@ DialogBackdrop.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { DialogBackdrop };

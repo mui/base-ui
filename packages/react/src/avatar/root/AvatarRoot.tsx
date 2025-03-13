@@ -12,7 +12,7 @@ import { avatarStyleHookMapping } from './styleHooks';
  *
  * Documentation: [Base UI Avatar](https://base-ui.com/react/components/avatar)
  */
-const AvatarRoot = React.forwardRef<HTMLSpanElement, AvatarRoot.Props>(function AvatarRoot(
+export const AvatarRoot = React.forwardRef<HTMLSpanElement, AvatarRoot.Props>(function AvatarRoot(
   props: AvatarRoot.Props,
   forwardedRef,
 ) {
@@ -51,15 +51,13 @@ const AvatarRoot = React.forwardRef<HTMLSpanElement, AvatarRoot.Props>(function 
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
-namespace AvatarRoot {
+export namespace AvatarRoot {
   export interface Props extends BaseUIComponentProps<'span', State> {}
 
   export interface State {
     imageLoadingStatus: ImageLoadingStatus;
   }
 }
-
-export { AvatarRoot };
 
 AvatarRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

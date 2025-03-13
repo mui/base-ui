@@ -224,7 +224,7 @@ const MemoizedInnerSelectItem = React.memo(InnerSelectItem);
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectItem = React.forwardRef(function SelectItem(
+export const SelectItem = React.forwardRef(function SelectItem(
   props: SelectItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -296,7 +296,7 @@ const SelectItem = React.forwardRef(function SelectItem(
   );
 });
 
-namespace SelectItem {
+export namespace SelectItem {
   export interface State {
     /**
      * Whether the component should ignore user interaction.
@@ -367,5 +367,3 @@ SelectItem.propTypes /* remove-proptypes */ = {
    */
   value: PropTypes.any,
 } as any;
-
-export { SelectItem };

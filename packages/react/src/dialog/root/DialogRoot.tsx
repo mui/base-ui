@@ -11,7 +11,7 @@ import { type SharedParameters, useDialogRoot } from './useDialogRoot';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props) {
+export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props) {
   const {
     children,
     defaultOpen = false,
@@ -58,7 +58,7 @@ const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props) {
   );
 };
 
-namespace DialogRoot {
+export namespace DialogRoot {
   export interface Props extends SharedParameters {
     children?: React.ReactNode;
   }
@@ -113,5 +113,3 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   open: PropTypes.bool,
 } as any;
-
-export { DialogRoot };

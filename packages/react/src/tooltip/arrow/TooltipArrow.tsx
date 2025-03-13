@@ -15,7 +15,7 @@ import { mergeProps } from '../../merge-props';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-const TooltipArrow = React.forwardRef(function TooltipArrow(
+export const TooltipArrow = React.forwardRef(function TooltipArrow(
   props: TooltipArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -62,7 +62,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
   return renderElement();
 });
 
-namespace TooltipArrow {
+export namespace TooltipArrow {
   export interface State {
     /**
      * Whether the tooltip is currently open.
@@ -98,5 +98,3 @@ TooltipArrow.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { TooltipArrow };

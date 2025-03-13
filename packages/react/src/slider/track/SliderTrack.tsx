@@ -13,7 +13,7 @@ import { sliderStyleHookMapping } from '../root/styleHooks';
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderTrack = React.forwardRef(function SliderTrack(
+export const SliderTrack = React.forwardRef(function SliderTrack(
   props: SliderTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -39,11 +39,9 @@ const SliderTrack = React.forwardRef(function SliderTrack(
   return renderElement();
 });
 
-namespace SliderTrack {
+export namespace SliderTrack {
   export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
 }
-
-export { SliderTrack };
 
 SliderTrack.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐

@@ -18,7 +18,7 @@ import { mergeProps } from '../../merge-props';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
+export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   props: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -77,7 +77,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   return renderElement();
 });
 
-namespace MenuSubmenuTrigger {
+export namespace MenuSubmenuTrigger {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;
@@ -138,5 +138,3 @@ MenuSubmenuTrigger.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { MenuSubmenuTrigger };

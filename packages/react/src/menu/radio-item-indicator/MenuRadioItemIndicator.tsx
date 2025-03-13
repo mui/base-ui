@@ -15,7 +15,7 @@ import { useForkRef } from '../../utils/useForkRef';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicator(
+export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicator(
   props: MenuRadioItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -68,7 +68,7 @@ const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicator(
   return renderElement();
 });
 
-namespace MenuRadioItemIndicator {
+export namespace MenuRadioItemIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * Whether to keep the HTML element in the DOM when the radio item is inactive.
@@ -118,5 +118,3 @@ MenuRadioItemIndicator.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { MenuRadioItemIndicator };

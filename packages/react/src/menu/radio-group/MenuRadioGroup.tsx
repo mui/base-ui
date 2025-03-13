@@ -70,7 +70,7 @@ const MenuRadioGroup = React.forwardRef(function MenuRadioGroup(
   );
 });
 
-namespace MenuRadioGroup {
+export namespace MenuRadioGroup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The content of the component.

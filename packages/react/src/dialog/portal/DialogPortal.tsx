@@ -12,7 +12,9 @@ import { HTMLElementType, refType } from '../../utils/proptypes';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-function DialogPortal(props: DialogPortal.Props) {
+export const DialogPortal: React.FC<DialogPortal.Props> = function DialogPortal(
+  props: DialogPortal.Props,
+) {
   const { children, keepMounted = false, container } = props;
 
   const { mounted } = useDialogRootContext();
@@ -27,9 +29,9 @@ function DialogPortal(props: DialogPortal.Props) {
       <FloatingPortal root={container}>{children}</FloatingPortal>
     </DialogPortalContext.Provider>
   );
-}
+};
 
-namespace DialogPortal {
+export namespace DialogPortal {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -63,5 +65,3 @@ DialogPortal.propTypes /* remove-proptypes */ = {
    */
   keepMounted: PropTypes.bool,
 } as any;
-
-export { DialogPortal };

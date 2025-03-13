@@ -14,7 +14,7 @@ const state = {};
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectGroup = React.forwardRef(function SelectGroup(
+export const SelectGroup = React.forwardRef(function SelectGroup(
   props: SelectGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -58,7 +58,7 @@ const SelectGroup = React.forwardRef(function SelectGroup(
   );
 });
 
-namespace SelectGroup {
+export namespace SelectGroup {
   export interface State {}
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
@@ -86,5 +86,3 @@ SelectGroup.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { SelectGroup };
