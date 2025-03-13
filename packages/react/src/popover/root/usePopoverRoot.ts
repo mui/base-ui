@@ -126,6 +126,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       if (isHover) {
         // Only allow "patient" clicks to close the popover if it's open.
         // If they clicked within 500ms of the popover opening, keep it open.
+        setStickIfOpen(true);
         clearStickIfOpenTimeout();
         stickIfOpenTimeoutRef.current = window.setTimeout(() => {
           setStickIfOpen(false);
