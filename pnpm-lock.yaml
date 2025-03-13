@@ -666,7 +666,7 @@ importers:
         version: 5.8.2
     publishDirectory: build
 
-  scripts/buildApiDocs2:
+  scripts/api-docs-builder:
     dependencies:
       '@types/lodash':
         specifier: ^4.17.15

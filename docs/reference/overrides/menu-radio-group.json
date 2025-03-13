@@ -1,8 +1,0 @@
-{
-  "name": "MenuRadioGroup",
-  "props": {
-    "onValueChange": {
-      "type": "(value, event) => void"
-    }
-  }
-}
