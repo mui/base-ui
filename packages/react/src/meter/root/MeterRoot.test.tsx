@@ -55,7 +55,7 @@ describe('<Meter.Root />', () => {
     it('should update aria-valuenow when value changes', async () => {
       const { getByRole, setProps } = await render(<TestMeter value={50} />);
       const meter = getByRole('meter');
-      setProps({ value: 77 });
+      await setProps({ value: 77 });
       expect(meter).to.have.attribute('aria-valuenow', '0.77');
     });
   });
