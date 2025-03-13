@@ -4,7 +4,6 @@ import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
 import { resolveClassName } from './resolveClassName';
 import { evaluateRenderProp } from './evaluateRenderProp';
 import { useRenderPropForkRef } from './useRenderPropForkRef';
-import { defaultRenderFunctions } from './defaultRenderFunctions';
 
 export interface ComponentRendererSettings<State, RenderedElementType extends Element> {
   /**
@@ -17,8 +16,7 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
    */
   render:
     | ComponentRenderFn<React.HTMLAttributes<any>, State>
-    | React.ReactElement<Record<string, unknown>>
-    | keyof typeof defaultRenderFunctions;
+    | React.ReactElement<Record<string, unknown>>;
   /**
    * The state of the component.
    */
@@ -75,16 +73,6 @@ export function useComponentRenderer<
     ...props,
   };
 
-  let resolvedRenderProp:
-    | ComponentRenderFn<React.HTMLAttributes<any>, State>
-    | React.ReactElement<Record<string, unknown>>;
-
-  if (typeof renderProp === 'string') {
-    resolvedRenderProp = defaultRenderFunctions[renderProp];
-  } else {
-    resolvedRenderProp = renderProp;
-  }
-
   let refs: React.Ref<RenderedElementType>[] = [];
 
   if (ref !== undefined) {
@@ -93,13 +81,13 @@ export function useComponentRenderer<
 
   const propsWithRef: React.HTMLAttributes<any> & React.RefAttributes<any> = {
     ...ownProps,
-    ref: useRenderPropForkRef(resolvedRenderProp, ownProps.ref, ...refs),
+    ref: useRenderPropForkRef(renderProp, ownProps.ref, ...refs),
   };
   if (className !== undefined) {
     propsWithRef.className = className;
   }
 
-  const renderElement = () => evaluateRenderProp(resolvedRenderProp, propsWithRef, state);
+  const renderElement = () => evaluateRenderProp(renderProp, propsWithRef, state);
 
   return {
     renderElement,
