@@ -9,7 +9,7 @@
 
 .Group {
   display: flex;
-  gap: 1px;
+  gap: 0.25rem;
 }
 
 .Button {
@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
+  min-width: 2rem;
   height: 2rem;
   padding: 0;
   margin: 0;
@@ -49,11 +49,10 @@
     background-color: var(--color-gray-100);
     color: var(--color-gray-900);
   }
-}
 
-.Icon {
-  width: 1rem;
-  height: 1rem;
+  &[aria-pressed] {
+    padding: 0 0.75rem;
+  }
 }
 
 .Separator {
@@ -69,7 +68,7 @@
   text-decoration: none;
   align-self: center;
   flex: 0 0 auto;
-  margin-left: 0.5rem;
+  margin-inline: 4rem 0.75rem;
 
   &:focus-visible {
     outline: 2px solid var(--color-blue);
@@ -81,27 +80,5 @@
     &:hover {
       color: var(--color-blue);
     }
-  }
-}
-
-.Input {
-  box-sizing: border-box;
-  align-self: center;
-  padding-left: 0.875rem;
-  margin: 0 0.2rem 0 4rem;
-  border: 1px solid var(--color-gray-200);
-  width: 10rem;
-  max-width: 12rem;
-  height: 1.8rem;
-  border-radius: 0.375rem;
-  font-family: inherit;
-  font-size: 0.75rem;
-  font-weight: normal;
-  background-color: transparent;
-  color: var(--color-gray-900);
-
-  &:focus {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
   }
 }
