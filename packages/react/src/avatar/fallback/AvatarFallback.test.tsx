@@ -36,7 +36,7 @@ describe('<Avatar.Fallback />', () => {
     });
   });
 
-  it('should render the fallback if the image fails to load', async () => {
+  it.skipIf(!isJSDOM)('should render the fallback if the image fails to load', async () => {
     (useImageLoadingStatus as Mock).mockReturnValue('error');
 
     const { queryByText } = await render(
