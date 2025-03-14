@@ -23,7 +23,7 @@
       "description": "The locale of the input element.\nDefaults to the user's runtime locale."
     },
     "stepSnap": {
-      "type": "func | bool",
+      "type": "boolean | ((value: number) => number)",
       "default": "true",
       "description": "Controls snapping to step values when incrementing or decrementing.\n- `true`: values snap to the nearest step.\n- `false`: values are preserved without snapping.\n- `function`: custom snap logic takes the unsnapped value and returns a new value."
     },

@@ -9,6 +9,9 @@
     },
     "onValueChange": {
       "type": "(value, event) => void"
+    },
+    "stepSnap": {
+      "type": "boolean | ((value: number) => number)"
     }
   }
 }
