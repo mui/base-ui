@@ -19,7 +19,7 @@ const SelectValue = React.forwardRef(function SelectValue(
 ) {
   const { className, render, children, placeholder, ...otherProps } = props;
 
-  const { label, valueRef } = useSelectRootContext();
+  const { value, label, valueRef } = useSelectRootContext();
 
   const mergedRef = useForkRef(forwardedRef, valueRef);
 
@@ -29,11 +29,14 @@ const SelectValue = React.forwardRef(function SelectValue(
     (externalProps = {}) =>
       mergeProps(
         {
-          children: typeof children === 'function' ? children(label) : label || placeholder,
+          children:
+            typeof children === 'function'
+              ? children(!label && placeholder ? placeholder : label, value)
+              : label || placeholder,
         },
         externalProps,
       ),
-    [children, label, placeholder],
+    [children, label, placeholder, value],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -50,7 +53,7 @@ const SelectValue = React.forwardRef(function SelectValue(
 
 namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    children?: null | ((value: string) => React.ReactNode);
+    children?: null | ((label: string, value: any) => React.ReactNode);
     /**
      * A placeholder value to display when no value is selected.
      *
