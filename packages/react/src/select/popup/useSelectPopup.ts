@@ -245,9 +245,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
           onMouseMove() {
             keyboardActiveRef.current = false;
           },
-          onPointerDown() {
-            keyboardActiveRef.current = false;
-          },
           onScroll(event) {
             if (
               !alignItemToTrigger ||
