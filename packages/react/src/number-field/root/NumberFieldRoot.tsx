@@ -35,6 +35,7 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     value,
     onValueChange,
     allowWheelScrub,
+    stepSnap,
     format,
     locale,
     render,
@@ -289,9 +290,17 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
   /**
    * Amount to increment and decrement with the buttons and arrow keys,
    * or to scrub with pointer movement in the scrub area.
-   * @default 1;
+   * @default 1
    */
   step: PropTypes.number,
+  /**
+   * Controls snapping to step values when incrementing or decrementing.
+   * - `true`: values snap to the nearest step.
+   * - `false`: exact values are preserved without snapping.
+   * - `function`: custom snap logic takes the unsnapped value and returns a new value.
+   * @default true
+   */
+  stepSnap: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
   /**
    * The raw numeric value of the field.
    */

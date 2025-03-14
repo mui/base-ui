@@ -50,6 +50,7 @@ export function useNumberFieldRoot(
     readOnly = false,
     autoFocus = false,
     allowWheelScrub = false,
+    stepSnap = true,
     format,
     value: externalValue,
     onValueChange: onValueChangeProp,
@@ -188,6 +189,7 @@ export function useNumberFieldRoot(
       minWithDefault,
       maxWithDefault,
       minWithZeroDefault,
+      stepSnap,
     });
 
     onValueChange?.(validatedValue, event);
@@ -853,7 +855,7 @@ export namespace useNumberFieldRoot {
     /**
      * Amount to increment and decrement with the buttons and arrow keys,
      * or to scrub with pointer movement in the scrub area.
-     * @default 1;
+     * @default 1
      */
     step?: number;
     /**
@@ -907,6 +909,14 @@ export namespace useNumberFieldRoot {
      * @default false
      */
     allowWheelScrub?: boolean;
+    /**
+     * Controls snapping to step values when incrementing or decrementing.
+     * - `true`: values snap to the nearest step.
+     * - `false`: exact values are preserved without snapping.
+     * - `function`: custom snap logic takes the unsnapped value and returns a new value.
+     * @default true
+     */
+    stepSnap?: boolean | ((value: number) => number);
     /**
      * Options to format the input value.
      */

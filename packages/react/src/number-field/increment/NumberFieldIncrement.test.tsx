@@ -315,4 +315,35 @@ describe('<NumberField.Increment />', () => {
 
     expect(input).to.have.value('2');
   });
+
+  it('should increment by exact step without rounding when stepSnap is false', async () => {
+    await render(
+      <NumberField.Root defaultValue={2.7} step={2} stepSnap={false}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+
+    expect(screen.getByRole('textbox')).to.have.value('4.7');
+  });
+
+  it('should use custom stepSnap function to round to nearest 0.5', async () => {
+    const customSnap = (value: number) => Math.round(value * 2) / 2;
+
+    await render(
+      <NumberField.Root defaultValue={2.3} step={1} stepSnap={customSnap}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+
+    // 2.3 + 1 = 3.3, rounded to nearest 0.5 = 3.5
+    expect(screen.getByRole('textbox')).to.have.value('3.5');
+  });
 });

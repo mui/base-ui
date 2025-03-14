@@ -22,9 +22,14 @@
       "type": "Intl.LocalesArgument",
       "description": "The locale of the input element.\nDefaults to the user's runtime locale."
     },
+    "stepSnap": {
+      "type": "func | bool",
+      "default": "true",
+      "description": "Controls snapping to step values when incrementing or decrementing.\n- `true`: values snap to the nearest step.\n- `false`: exact values are preserved without snapping.\n- `function`: custom snap logic takes the unsnapped value and returns a new value."
+    },
     "step": {
       "type": "number",
-      "default": "1;",
+      "default": "1",
       "description": "Amount to increment and decrement with the buttons and arrow keys,\nor to scrub with pointer movement in the scrub area."
     },
     "smallStep": {

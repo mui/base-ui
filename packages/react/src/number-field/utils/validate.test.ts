@@ -10,6 +10,7 @@ const defaultOptions = {
   maxWithDefault: max,
   minWithZeroDefault: 0,
   format: undefined,
+  stepSnap: true,
 };
 
 describe('NumberField validate', () => {
@@ -73,6 +74,16 @@ describe('NumberField validate', () => {
           }),
         ).to.equal(10);
       });
+
+      it('preserves exact value when stepSnap is false', () => {
+        expect(
+          toValidatedNumber(9.7, {
+            ...defaultOptions,
+            step: 5,
+            stepSnap: false,
+          }),
+        ).to.equal(9.7);
+      });
     });
 
     describe('decrementing', () => {
@@ -109,6 +120,16 @@ describe('NumberField validate', () => {
             step: 5,
           }),
         ).to.equal(10);
+      });
+
+      it('preserves exact value when stepSnap is false', () => {
+        expect(
+          toValidatedNumber(12.3, {
+            ...defaultOptions,
+            step: 5,
+            stepSnap: false,
+          }),
+        ).to.equal(12.3);
       });
     });
   });
