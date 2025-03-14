@@ -25,7 +25,7 @@
     "stepSnap": {
       "type": "func | bool",
       "default": "true",
-      "description": "Controls snapping to step values when incrementing or decrementing.\n- `true`: values snap to the nearest step.\n- `false`: exact values are preserved without snapping.\n- `function`: custom snap logic takes the unsnapped value and returns a new value."
+      "description": "Controls snapping to step values when incrementing or decrementing.\n- `true`: values snap to the nearest step.\n- `false`: values are preserved without snapping.\n- `function`: custom snap logic takes the unsnapped value and returns a new value."
     },
     "step": {
       "type": "number",
