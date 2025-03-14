@@ -3,11 +3,11 @@
   "description": "A heading that labels the popover.\nRenders an `<h2>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: unknown) => string)",
+      "type": "string | ((state: {}) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: unknown) => ReactElement)",
+      "type": "ReactElement | ((props: GenericHTMLProps, state: {}) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

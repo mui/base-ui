@@ -67,8 +67,8 @@ function run(options: RunOptions) {
 
 function isPublicComponent(node: rae.ExportNode) {
   return (
-    rae.isComponentNode(node.type) &&
-    !node.documentation?.tags?.some((tag) => tag.tag === 'ignore') &&
+    node.type instanceof rae.ComponentNode &&
+    !node.documentation?.tags?.some((tag) => tag.name === 'ignore') &&
     node.documentation?.visibility !== 'internal' &&
     node.documentation?.visibility !== 'private'
   );
@@ -100,7 +100,7 @@ function formatComponentData(
   };
 }
 
-function formatProps(props: rae.MemberNode[]) {
+function formatProps(props: rae.PropertyNode[]) {
   const result: Record<string, any> = {};
 
   for (const prop of props) {
@@ -120,7 +120,7 @@ function formatEnum(enumNode: rae.EnumNode) {
   for (const member of _.sortBy(enumNode.members, 'value')) {
     result[member.value] = {
       description: member.documentation?.description,
-      type: member.documentation?.tags?.find((tag) => tag.tag === 'type')?.value,
+      type: member.documentation?.tags?.find((tag) => tag.name === 'type')?.value,
     };
   }
 
@@ -128,21 +128,19 @@ function formatEnum(enumNode: rae.EnumNode) {
 }
 
 function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
-  if (rae.isReferenceNode(type)) {
-    return type.typeName;
+  if (type instanceof rae.ReferenceNode || type instanceof rae.IntrinsicNode) {
+    return type.name;
   }
 
-  if (rae.isIntrinsicNode(type)) {
-    return type.type;
-  }
-
-  if (rae.isUnionNode(type)) {
+  if (type instanceof rae.UnionNode) {
     if (type.name) {
       return type.name;
     }
 
     if (removeUndefined) {
-      const types = type.types.filter((t) => !(rae.isIntrinsicNode(t) && t.type === 'undefined'));
+      const types = type.types.filter(
+        (t) => !(t instanceof rae.IntrinsicNode && t.name === 'undefined'),
+      );
       return types.map((t) => formatType(t, removeUndefined)).join(' | ');
     }
 
@@ -151,25 +149,29 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
       .join(' | ');
   }
 
-  if (rae.isInterfaceNode(type)) {
+  if (type instanceof rae.ObjectNode) {
     if (type.name) {
       return type.name;
     }
 
-    return `{ ${orderMembers(type.members)
+    if (isObjectEmpty(type.properties)) {
+      return '{}';
+    }
+
+    return `{ ${orderMembers(type.properties)
       .map((m) => `${m.name}`)
       .join(', ')} }`;
   }
 
-  if (rae.isLiteralNode(type)) {
+  if (type instanceof rae.LiteralNode) {
     return type.value as string;
   }
 
-  if (rae.isArrayNode(type)) {
-    return `${formatType(type.type, false)}[]`;
+  if (type instanceof rae.ArrayNode) {
+    return `${formatType(type.elementType, false)}[]`;
   }
 
-  if (rae.isFunctionNode(type)) {
+  if (type instanceof rae.FunctionNode) {
     const functionSignature = type.callSignatures
       .map((s) => {
         const params = s.parameters
@@ -226,20 +228,28 @@ function isObjectEmpty(object: Record<any, any>) {
   return true;
 }
 
-function orderMembers<T extends rae.TypeNode[] | rae.MemberNode[]>(members: T): T {
-  pushToEnd(members, 'any');
-  pushToEnd(members, 'null');
-  pushToEnd(members, 'undefined');
-  return members;
+function orderMembers<T extends readonly rae.TypeNode[] | readonly rae.PropertyNode[]>(
+  members: T,
+): T {
+  let orderedMembers = pushToEnd(members, 'any');
+  orderedMembers = pushToEnd(orderedMembers, 'null');
+  orderedMembers = pushToEnd(orderedMembers, 'undefined');
+  return orderedMembers;
 }
 
-function pushToEnd(members: rae.TypeNode[] | rae.MemberNode[], name: string) {
-  const index = members.findIndex((member) => rae.isIntrinsicNode(member) && member.type === name);
+function pushToEnd<T extends readonly rae.TypeNode[] | readonly rae.PropertyNode[]>(
+  members: T,
+  name: string,
+): T {
+  const index = members.findIndex(
+    (member) => member.type instanceof rae.IntrinsicNode && member.type.name === name,
+  );
   if (index !== -1) {
     const member = members[index];
-    members.splice(index, 1);
-    members.push(member as any);
+    return [...members.slice(index, 1), member] as unknown as T;
   }
+
+  return members;
 }
 
 yargs(hideBin(process.argv))
