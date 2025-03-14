@@ -1,8 +1,0 @@
-{
-  "name": "TooltipRoot",
-  "props": {
-    "onOpenChange": {
-      "type": "(open, event, reason) => void"
-    }
-  }
-}

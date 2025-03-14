@@ -10,8 +10,8 @@ interface UseFocusExtendedProps {
 }
 
 /**
- * @ignore - internal hook.
  * Adds support for delay, since Floating UI's `useFocus` hook does not support it.
+ * @internal
  */
 export function useFocusExtended(
   context: FloatingRootContext,

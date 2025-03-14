@@ -1,8 +1,0 @@
-{
-  "name": "SwitchRoot",
-  "props": {
-    "onCheckedChange": {
-      "type": "(checked, event) => void"
-    }
-  }
-}

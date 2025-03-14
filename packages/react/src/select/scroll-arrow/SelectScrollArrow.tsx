@@ -12,7 +12,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   props: SelectScrollArrow.Props,

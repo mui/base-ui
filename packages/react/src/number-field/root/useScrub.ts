@@ -14,7 +14,7 @@ import { NumberFieldRootDataAttributes } from './NumberFieldRootDataAttributes';
 import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
- * @ignore - internal hook.
+ * @internal
  */
 export function useScrub(params: ScrubParams) {
   const { disabled, readOnly, value, inputRef, incrementValue, getStepAmount } = params;
