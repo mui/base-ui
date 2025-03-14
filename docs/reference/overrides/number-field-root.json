@@ -11,7 +11,7 @@
       "type": "(value, event) => void"
     },
     "stepSnap": {
-      "type": "boolean | ((value: number) => number)"
+      "type": "boolean | ((value: number, step: number) => number)"
     }
   }
 }

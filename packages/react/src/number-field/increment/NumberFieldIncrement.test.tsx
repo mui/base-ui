@@ -331,10 +331,8 @@ describe('<NumberField.Increment />', () => {
   });
 
   it('should use custom stepSnap function to round to nearest 0.5', async () => {
-    const customSnap = (value: number) => Math.round(value * 2) / 2;
-
     await render(
-      <NumberField.Root defaultValue={2.3} step={1} stepSnap={customSnap}>
+      <NumberField.Root defaultValue={2.3} step={1} stepSnap={(value) => Math.round(value * 2) / 2}>
         <NumberField.Increment />
         <NumberField.Input />
       </NumberField.Root>,

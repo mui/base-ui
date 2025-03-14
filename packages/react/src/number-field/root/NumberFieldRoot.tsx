@@ -297,7 +297,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    * Controls snapping to step values when incrementing or decrementing.
    * - `true`: values snap to the nearest step.
    * - `false`: values are preserved without snapping.
-   * - `function`: custom snap logic takes the unsnapped value and returns a new value.
+   * - `function`: custom snap logic takes the unsnapped value and step amount and returns a new value.
    * @default true
    */
   stepSnap: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
