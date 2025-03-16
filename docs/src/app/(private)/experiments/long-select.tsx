@@ -12,7 +12,11 @@ export default function ExampleSelect() {
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal>
-        <Select.Positioner className={styles.Positioner} sideOffset={8}>
+        <Select.Positioner
+          className={styles.Positioner}
+          sideOffset={8}
+          style={{ width: 200 }}
+        >
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
             <Select.Arrow className={styles.Arrow}>
