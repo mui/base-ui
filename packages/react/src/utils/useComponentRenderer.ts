@@ -43,9 +43,9 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
    */
   customStyleHookMapping?: CustomStyleHookMapping<State>;
   /**
-   * If true, style hooks are not generated.
+   * If true, style hooks are generated.
    */
-  skipGeneratingStyleHooks?: boolean;
+  styleHooks?: boolean;
 }
 
 const emptyObject = {};
@@ -67,16 +67,16 @@ export function useComponentRenderer<
     propGetter = (props) => props,
     extraProps,
     customStyleHookMapping,
-    skipGeneratingStyleHooks = false,
+    styleHooks: generateStyleHooks = true,
   } = settings;
 
   const className = resolveClassName(classNameProp, state);
   const styleHooks = React.useMemo(() => {
-    if (skipGeneratingStyleHooks) {
+    if (!generateStyleHooks) {
       return emptyObject;
     }
     return getStyleHookProps(state, customStyleHookMapping);
-  }, [state, customStyleHookMapping, skipGeneratingStyleHooks]);
+  }, [state, customStyleHookMapping, generateStyleHooks]);
 
   const ownProps: Record<string, any> = {
     ...styleHooks,
