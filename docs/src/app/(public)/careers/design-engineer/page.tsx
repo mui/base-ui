@@ -36,16 +36,15 @@ export default function Homepage() {
         </h2>
         <p className="mb-4">
           We're looking for an experienced Design Engineer to join the team at
-          Principal level. You will help us improve the library across the board,
-          including API design, performance, a11y, testing workflows, docs, support,
-          and more.
+          Senior–Principal level. You will help us improve the library across the
+          board, including API design, performance, a11y, testing workflows, docs,
+          support, and implementing components.
         </p>
         <p className="mb-4">
-          You will not be responsible for implementing Base UI components on the
-          engineering side, nor will you be responsible for visual design, although
-          an understanding of both disciplines will be critical to success. This role
-          will focus on developer experience, API design, a11y, docs, and overall
-          product quality.
+          We're looking for someone who enjoys wearing many hats. Think less about
+          spending many months implementing a single component, and more about
+          leading developer experience, API design, a11y, docs, and maintaining
+          overall product quality.
         </p>
         <p className="mb-4">
           You will have a lot of autonomy to push for improvements. We are looking
