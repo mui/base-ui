@@ -65,12 +65,6 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   },
 };
 
-const TEXT = `This demo uses the render prop to render Toolbar parts as other things:
-- Toolbar.Button renders Toggles, Select.Trigger, Menu.Trigger
-- Toolbar.Input renders NumberField.Input
-- The render prop is stacked multiple times e.g. Tooltip.Trigger > Toolbar.Button > Toggle
-`;
-
 const styles = {
   toolbar: toolbarClasses,
   tooltip: tooltipClasses,
@@ -405,7 +399,7 @@ export default function App() {
           name=""
           id=""
           rows={10}
-          defaultValue={TEXT}
+          defaultValue=""
         />
       </div>
     </React.Fragment>
