@@ -59,6 +59,19 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     return handlePopupLeave;
   }, [handlePopupLeave]);
 
+  React.useEffect(() => {
+    function handleItemMouseMove(item: HTMLDivElement) {
+      if (ref.current && item !== ref.current) {
+        ref.current.removeAttribute('data-highlighted');
+      }
+    }
+
+    events.on('item-mousemove', handleItemMouseMove);
+    return () => {
+      events.off('item-mousemove', handleItemMouseMove);
+    };
+  }, [events, setActiveIndex, indexRef]);
+
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return getButtonProps(
@@ -80,6 +93,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
                 setActiveIndex(indexRef.current);
               } else {
                 ref.current?.setAttribute('data-highlighted', '');
+                events.emit('item-mousemove', ref.current);
               }
 
               if (popupRef.current) {
