@@ -37,24 +37,7 @@ import { Toolbar } from '@base-ui-components/react/toolbar';
 
 ## Examples
 
-### Using with Toggles
-
-Place `ToggleGroup` inside a toolbar and pass `Toggle` to `Toolbar.Button` with the `render` prop:
-
-```tsx {4,12} title="Using toggles and toggle group with toolbar"
-return (
-  <Toolbar.Root>
-    <ToggleGroup>
-      <Toolbar.Button render={<Toggle />} />
-      <Toolbar.Button render={<Toggle />} />
-    </ToggleGroup>
-
-    <Toolbar.Button render={<Toggle />} />
-  </Toolbar.Root>;
-)
-```
-
-### Using with popups
+### Using with Menu
 
 All Base UI popup components that provide a `Trigger` component can be integrated with a toolbar by passing the trigger to `Toolbar.Button` with the `render` prop:
 
@@ -68,14 +51,6 @@ return (
         {/* Compose the rest of the menu */}
       </Menu.Portal>
     </Menu.Root>
-
-    <Select.Root>
-      <Toolbar.Button render={<Select.Trigger />} />
-      <Select.Portal>
-        {/* prettier-ignore */}
-        {/* Compose the rest of the select */}
-      </Select.Portal>
-    </Select.Root>
   </Toolbar.Root>;
 )
 ```
