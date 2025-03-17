@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { flushMicrotasks } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Accordion } from '@base-ui-components/react/accordion';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -23,9 +22,9 @@ describe('<Accordion.Root />', () => {
         <Accordion.Root defaultValue={[0]}>
           <Accordion.Item>
             <Accordion.Header>
-              <Accordion.Trigger id="Trigger1">Trigger 1</Accordion.Trigger>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel id="Panel1">{PANEL_CONTENT_1}</Accordion.Panel>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
           </Accordion.Item>
         </Accordion.Root>,
       );
@@ -35,11 +34,9 @@ describe('<Accordion.Root />', () => {
       const panel = queryByText(PANEL_CONTENT_1);
 
       expect(root).to.have.attribute('role', 'region');
-      expect(trigger).to.have.attribute('id', 'Trigger1');
-      expect(trigger).to.have.attribute('aria-controls', 'Panel1');
+      expect(panel?.getAttribute('id')).to.equal(trigger?.getAttribute('aria-controls'));
       expect(panel).to.have.attribute('role', 'region');
-      expect(panel).to.have.attribute('id', 'Panel1');
-      expect(panel).to.have.attribute('aria-labelledby', 'Trigger1');
+      expect(trigger?.getAttribute('id')).to.equal(panel?.getAttribute('aria-labelledby'));
     });
   });
 
@@ -149,8 +146,7 @@ describe('<Accordion.Root />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT_1)).to.equal(null);
 
-      setProps({ value: [0] });
-      await flushMicrotasks();
+      await setProps({ value: [0] });
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(trigger).to.have.attribute('data-panel-open');
@@ -158,8 +154,7 @@ describe('<Accordion.Root />', () => {
       expect(queryByText(PANEL_CONTENT_1)).toBeVisible();
       expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
 
-      setProps({ value: [] });
-      await flushMicrotasks();
+      await setProps({ value: [] });
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT_1)).to.equal(null);

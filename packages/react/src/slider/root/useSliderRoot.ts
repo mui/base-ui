@@ -3,13 +3,14 @@ import * as React from 'react';
 import { activeElement } from '@floating-ui/react/utils';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { clamp } from '../../utils/clamp';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
+import type { GenericHTMLProps } from '../../utils/types';
 import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import { valueToPercent } from '../../utils/valueToPercent';
+import { warn } from '../../utils/warn';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useField } from '../../field/useField';
@@ -20,6 +21,7 @@ import { getSliderValue } from '../utils/getSliderValue';
 import { replaceArrayItemAtIndex } from '../utils/replaceArrayItemAtIndex';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { ThumbMetadata } from '../thumb/useSliderThumb';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 function areValuesEqual(
   newValue: number | readonly number[],
@@ -52,6 +54,14 @@ function findClosest(values: readonly number[], currentValue: number) {
       null,
     ) ?? {};
   return closestIndex;
+}
+
+function valueArrayToPercentages(values: number[], min: number, max: number) {
+  const output = [];
+  for (let i = 0; i < values.length; i += 1) {
+    output.push(clamp(valueToPercent(values[i], min, max), 0, 100));
+  }
+  return output;
 }
 
 export function focusThumb(
@@ -125,7 +135,8 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   } = parameters;
 
   const direction = useDirection();
-  const { setControlId, setTouched, setDirty, validityData } = useFieldRootContext();
+  const { setControlId, setTouched, setDirty, validityData, validationMode } =
+    useFieldRootContext();
 
   const {
     getValidationProps,
@@ -192,11 +203,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   }, [max, min, range, valueUnwrapped]);
 
   function initializePercentageValues() {
-    const vals = [];
-    for (let i = 0; i < values.length; i += 1) {
-      vals.push(valueToPercent(values[i], min, max));
-    }
-    return vals;
+    return valueArrayToPercentages(values, min, max);
   }
 
   const [percentageValues, setPercentageValues] = React.useState<readonly number[]>(
@@ -210,7 +217,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       thumbIndex: number,
       event: Event,
     ) => {
-      if (areValuesEqual(newValue, valueUnwrapped)) {
+      if (Number.isNaN(newValue) || areValuesEqual(newValue, valueUnwrapped)) {
         return;
       }
 
@@ -233,8 +240,22 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
     },
   );
 
+  // for pointer drag only
+  const commitValue = useEventCallback((value: number | readonly number[], event: Event) => {
+    if (Array.isArray(value)) {
+      const newPercentageValues = valueArrayToPercentages(value, min, max);
+      if (!areArraysEqual(newPercentageValues, percentageValues)) {
+        setPercentageValues(newPercentageValues);
+      }
+    } else if (typeof value === 'number') {
+      setPercentageValues([valueToPercent(value, min, max)]);
+    }
+    onValueCommitted(value, event);
+  });
+
   const handleRootRef = useForkRef(rootRef, sliderRef);
 
+  // for keypresses only
   const handleInputChange = useEventCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
       const newValue = getSliderValue(valueInput, index, min, max, range, values);
@@ -260,8 +281,11 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         }
         setDirty(newValue !== validityData.initialValue);
         setTouched(true);
-        commitValidation(lastChangedValueRef.current ?? newValue);
         onValueCommitted(lastChangedValueRef.current ?? newValue, event.nativeEvent);
+
+        if (validationMode === 'onChange') {
+          commitValidation(lastChangedValueRef.current ?? newValue);
+        }
       }
     },
   );
@@ -348,6 +372,28 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
   );
 
   useEnhancedEffect(() => {
+    if (valueProp === undefined || dragging) {
+      return;
+    }
+
+    if (min >= max) {
+      warn('Slider `max` must be greater than `min`');
+    }
+
+    if (typeof valueUnwrapped === 'number') {
+      const newPercentageValue = clamp(valueToPercent(valueUnwrapped, min, max), 0, 100);
+      if (newPercentageValue !== percentageValues[0] && !Number.isNaN(newPercentageValue)) {
+        setPercentageValues([newPercentageValue]);
+      }
+    } else if (Array.isArray(valueUnwrapped)) {
+      const newPercentageValues = valueArrayToPercentages(valueUnwrapped, min, max);
+      if (!areArraysEqual(newPercentageValues, percentageValues)) {
+        setPercentageValues(newPercentageValues);
+      }
+    }
+  }, [dragging, min, max, percentageValues, setPercentageValues, valueProp, valueUnwrapped]);
+
+  useEnhancedEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
     if (disabled && sliderRef.current?.contains(activeEl)) {
       // This is necessary because Firefox and Safari will keep focus
@@ -364,23 +410,27 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const getRootProps: useSliderRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(getValidationProps(externalProps), {
-        'aria-labelledby': ariaLabelledby,
-        id,
-        ref: handleRootRef,
-        role: 'group',
-      }),
+      mergeProps(
+        {
+          'aria-labelledby': ariaLabelledby,
+          id,
+          ref: handleRootRef,
+          role: 'group',
+        },
+        getValidationProps(externalProps),
+      ),
     [ariaLabelledby, getValidationProps, handleRootRef, id],
   );
 
   return React.useMemo(
     () => ({
-      getRootProps,
       'aria-labelledby': ariaLabelledby,
       active,
+      commitValue,
       disabled,
       dragging,
       getFingerState,
+      getRootProps,
       handleInputChange,
       largeStep,
       lastChangedValueRef,
@@ -395,7 +445,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       registerSliderControl,
       setActive,
       setDragging,
-      setPercentageValues,
       setThumbMap,
       setValue,
       step,
@@ -404,12 +453,13 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       values,
     }),
     [
-      getRootProps,
       active,
       ariaLabelledby,
+      commitValue,
       disabled,
       dragging,
       getFingerState,
+      getRootProps,
       handleInputChange,
       largeStep,
       lastChangedValueRef,
@@ -424,7 +474,6 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       registerSliderControl,
       setActive,
       setDragging,
-      setPercentageValues,
       setThumbMap,
       setValue,
       step,
@@ -535,19 +584,15 @@ export namespace useSliderRoot {
   }
 
   export interface ReturnValue {
-    getRootProps: (
-      externalProps?: React.ComponentPropsWithRef<'div'>,
-    ) => React.ComponentPropsWithRef<'div'>;
     /**
      * The index of the active thumb.
      */
     active: number;
     'aria-labelledby'?: string;
-    handleInputChange: (
-      valueInput: number,
-      index: number,
-      event: React.KeyboardEvent | React.ChangeEvent,
-    ) => void;
+    /**
+     * Function to be called when drag ends. Invokes onValueCommitted.
+     */
+    commitValue: (newValue: number | readonly number[], event: Event) => void;
     dragging: boolean;
     disabled: boolean;
     getFingerState: (
@@ -555,14 +600,11 @@ export namespace useSliderRoot {
       shouldCaptureThumbIndex?: boolean,
       offset?: number,
     ) => FingerState | null;
-    /**
-     * Callback to invoke change handlers after internal value state is updated.
-     */
-    setValue: (
-      newValue: number | number[],
-      newPercentageValues: readonly number[],
-      activeThumb: number,
-      event: Event,
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    handleInputChange: (
+      valueInput: number,
+      index: number,
+      event: React.KeyboardEvent | React.ChangeEvent,
     ) => void;
     /**
      * The large step value of the slider when incrementing or decrementing while the shift key is held,
@@ -584,23 +626,30 @@ export namespace useSliderRoot {
      */
     minStepsBetweenValues: number;
     name: string;
-    onValueCommitted: (value: number | readonly number[], event: Event) => void;
     /**
      * The component orientation.
      * @default 'horizontal'
      */
     orientation: Orientation;
-    registerSliderControl: (element: HTMLElement | null) => void;
     /**
      * The value(s) of the slider as percentages
      */
     percentageValues: readonly number[];
+    registerSliderControl: (element: HTMLElement | null) => void;
     setActive: React.Dispatch<React.SetStateAction<number>>;
     setDragging: React.Dispatch<React.SetStateAction<boolean>>;
-    setPercentageValues: React.Dispatch<React.SetStateAction<readonly number[]>>;
     setThumbMap: React.Dispatch<
       React.SetStateAction<Map<Node, CompositeMetadata<ThumbMetadata> | null>>
     >;
+    /**
+     * Callback fired when dragging and invokes onValueChange.
+     */
+    setValue: (
+      newValue: number | number[],
+      newPercentageValues: readonly number[],
+      activeThumb: number,
+      event: Event,
+    ) => void;
     /**
      * The step increment of the slider when incrementing or decrementing. It will snap
      * to multiples of this value. Decimal values are supported.

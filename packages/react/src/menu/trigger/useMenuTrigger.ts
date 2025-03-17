@@ -4,7 +4,7 @@ import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 
@@ -40,8 +40,8 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return getButtonProps(
-        mergeReactProps(externalProps, {
+      return mergeProps(
+        {
           'aria-haspopup': 'menu' as const,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
@@ -94,7 +94,9 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
             doc.addEventListener('mouseup', handleMouseUp, { once: true });
           },
-        }),
+        },
+        externalProps,
+        getButtonProps,
       );
     },
     [getButtonProps, handleRef, open, setOpen, positionerRef, allowMouseUpTriggerRef],

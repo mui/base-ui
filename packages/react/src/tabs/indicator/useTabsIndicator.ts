@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { TabsListContext } from '../list/TabsListContext';
 import type { TabsRootContext } from '../root/TabsRootContext';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
@@ -113,11 +113,14 @@ export function useTabsIndicator(
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'span'>(externalProps, {
-        role: 'presentation',
-        style,
-        hidden: !displayIndicator, // do not display the indicator before the layout is settled
-      });
+      return mergeProps<'span'>(
+        {
+          role: 'presentation',
+          style,
+          hidden: !displayIndicator, // do not display the indicator before the layout is settled
+        },
+        externalProps,
+      );
     },
     [style, displayIndicator],
   );

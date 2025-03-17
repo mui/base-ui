@@ -349,7 +349,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(thumb).to.have.attribute('aria-valuenow', '21');
       expect(thumb).toHaveFocus();
 
-      setProps({ disabled: true });
+      await setProps({ disabled: true });
       expect(thumb).not.toHaveFocus();
       // expect(thumb).not.to.have.class(classes.active);
 
@@ -1639,6 +1639,29 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('can be removed from the tab sequence', async () => {
       await render(<TestSlider tabIndex={-1} value={30} />);
       expect(screen.getByRole('slider')).to.have.property('tabIndex', -1);
+    });
+
+    it('keypresses should correct invalid values', async () => {
+      function App() {
+        const [val, setVal] = React.useState(5.4698);
+        return (
+          <Slider.Root value={val} onValueChange={setVal} min={0} max={10} step={1}>
+            <Slider.Control>
+              <Slider.Track>
+                <Slider.Indicator />
+                <Slider.Thumb data-testid="thumb" />
+              </Slider.Track>
+            </Slider.Control>
+          </Slider.Root>
+        );
+      }
+      const { user } = await render(<App />);
+
+      expect(screen.getByRole('slider')).to.have.attribute('aria-valuenow', '5.4698');
+      await user.keyboard('[Tab]');
+      expect(screen.getByTestId('thumb')).toHaveFocus();
+      await user.keyboard('[ArrowRight]');
+      expect(screen.getByRole('slider')).to.have.attribute('aria-valuenow', '6');
     });
   });
 

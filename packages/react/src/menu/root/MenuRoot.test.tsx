@@ -5,7 +5,7 @@ import { DirectionProvider } from '@base-ui-components/react/direction-provider'
 import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 
 describe('<Menu.Root />', () => {
   beforeEach(() => {
@@ -14,6 +14,24 @@ describe('<Menu.Root />', () => {
 
   const { render } = createRenderer();
   const user = userEvent.setup();
+
+  popupConformanceTests({
+    createComponent: (props) => (
+      <Menu.Root {...props.root}>
+        <Menu.Trigger {...props.trigger}>Open menu</Menu.Trigger>
+        <Menu.Portal {...props.portal}>
+          <Menu.Positioner>
+            <Menu.Popup {...props.popup}>
+              <Menu.Item>Item</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    ),
+    render,
+    triggerMouseAction: 'click',
+    expectedPopupRole: 'menu',
+  });
 
   describe('keyboard navigation', () => {
     it('changes the highlighted item using the arrow keys', async () => {
@@ -717,102 +735,6 @@ describe('<Menu.Root />', () => {
     });
   });
 
-  describe('controlled mode', () => {
-    it('should remove the popup when and there is no exit animation defined', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
-      function Test() {
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Menu.Root open={open} modal={false}>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup />
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </div>
-        );
-      }
-
-      await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
-      });
-    });
-
-    it('should remove the popup when the animation finishes', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      let animationFinished = false;
-      const notifyAnimationFinished = () => {
-        animationFinished = true;
-      };
-
-      function Test() {
-        const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-popup[data-open] {
-            opacity: 1;
-          }
-
-          .animation-test-popup[data-ending-style] {
-            animation: test-anim 50ms;
-          }
-        `;
-
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Menu.Root open={open} modal={false}>
-              <Menu.Portal keepMounted>
-                <Menu.Positioner>
-                  <Menu.Popup
-                    className="animation-test-popup"
-                    onAnimationEnd={notifyAnimationFinished}
-                  />
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </div>
-        );
-      }
-
-      await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
-      });
-
-      expect(animationFinished).to.equal(true);
-    });
-  });
-
   describe('prop: modal', () => {
     it('should render an internal backdrop when `true`', async () => {
       await render(
@@ -874,6 +796,362 @@ describe('<Menu.Root />', () => {
 
       // eslint-disable-next-line testing-library/no-node-access
       expect(positioner.previousElementSibling).to.equal(null);
+    });
+  });
+
+  describe('prop: actionsRef', () => {
+    it('unmounts the menu when the `unmount` method is called', async () => {
+      const actionsRef = {
+        current: {
+          unmount: spy(),
+        },
+      };
+
+      await render(
+        <Menu.Root actionsRef={actionsRef}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      await act(async () => actionsRef.current.unmount());
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).to.equal(null);
+      });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Menu.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup" />
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-indicator[data-ending-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <Menu.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="animation-test-indicator" data-testid="popup" />
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.to.equal(null);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+    });
+
+    it('is called on open when there is no enter animation defined', async () => {
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Menu.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup" />
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.to.equal(null);
+      });
+
+      expect(onOpenChangeComplete.callCount).to.equal(2);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+    });
+
+    it('is called on open when the enter animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            from {
+              opacity: 0;
+            }
+          }
+  
+          .animation-test-indicator[data-starting-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Menu.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="animation-test-indicator" data-testid="popup" />
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      });
+
+      expect(screen.queryByTestId('popup')).not.to.equal(null);
+    });
+
+    it('does not get called on mount when not open', async () => {
+      const onOpenChangeComplete = spy();
+
+      await render(
+        <Menu.Root onOpenChangeComplete={onOpenChangeComplete}>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(onOpenChangeComplete.callCount).to.equal(0);
+    });
+  });
+
+  describe('prop: openOnHover', () => {
+    it('should open the menu when the trigger is hovered', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root openOnHover delay={0}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await userEvent.hover(trigger);
+
+      await waitFor(() => {
+        expect(queryByRole('menu')).not.to.equal(null);
+      });
+    });
+
+    it.skipIf(!isJSDOM)('should close the menu when the trigger is no longer hovered', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root openOnHover delay={0} modal={false}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await userEvent.hover(trigger);
+
+      await waitFor(() => {
+        expect(queryByRole('menu')).not.to.equal(null);
+      });
+
+      await userEvent.unhover(trigger);
+
+      await waitFor(() => {
+        expect(queryByRole('menu')).to.equal(null);
+      });
+    });
+
+    it('should not close when submenu is hovered after root menu is hovered', async () => {
+      const { getByRole, getByTestId } = await render(
+        <Menu.Root openOnHover delay={0}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="menu">
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Root delay={0}>
+                  <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner data-testid="submenu">
+                      <Menu.Popup>
+                        <Menu.Item>2.1</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await userEvent.hover(trigger);
+
+      await waitFor(() => {
+        expect(getByTestId('menu')).not.to.equal(null);
+      });
+
+      const menu = getByTestId('menu');
+
+      await userEvent.hover(menu);
+
+      const submenuTrigger = getByRole('menuitem', { name: '2' });
+
+      await userEvent.hover(submenuTrigger);
+
+      await waitFor(() => {
+        expect(getByTestId('menu')).not.to.equal(null);
+      });
+      await waitFor(() => {
+        expect(getByTestId('submenu')).not.to.equal(null);
+      });
+
+      const submenu = getByTestId('submenu');
+
+      await userEvent.unhover(menu);
+      await userEvent.hover(submenu);
+
+      await waitFor(() => {
+        expect(getByTestId('menu')).not.to.equal(null);
+      });
+      await waitFor(() => {
+        expect(getByTestId('submenu')).not.to.equal(null);
+      });
     });
   });
 });

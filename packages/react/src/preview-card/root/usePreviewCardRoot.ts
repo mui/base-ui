@@ -19,17 +19,18 @@ import {
   translateOpenChangeReason,
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,
 ): usePreviewCardRoot.ReturnValue {
   const {
     open: externalOpen,
-    onOpenChange: onOpenChangeProp = () => {},
+    onOpenChange: onOpenChangeProp,
     defaultOpen = false,
     delay,
     closeDelay,
+    onOpenChangeComplete,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -59,13 +60,23 @@ export function usePreviewCardRoot(
     },
   );
 
-  useAfterExitAnimation({
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+    onOpenChangeComplete?.(false);
+  });
+
+  useOpenChangeComplete({
+    enabled: !params.actionsRef,
     open,
-    animatedElementRef: popupRef,
-    onFinished() {
-      setMounted(false);
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        handleUnmount();
+      }
     },
   });
+
+  React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -129,6 +140,7 @@ export function usePreviewCardRoot(
       floatingRootContext: context,
       instantType,
       transitionStatus,
+      onOpenChangeComplete,
     }),
     [
       mounted,
@@ -141,6 +153,7 @@ export function usePreviewCardRoot(
       context,
       instantType,
       transitionStatus,
+      onOpenChangeComplete,
     ],
   );
 }
@@ -163,6 +176,10 @@ export namespace usePreviewCardRoot {
      */
     onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     /**
+     * Event handler called after any animations complete when the preview card is opened or closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
+    /**
      * How long to wait before the preview card opens. Specified in milliseconds.
      * @default 600
      */
@@ -172,6 +189,10 @@ export namespace usePreviewCardRoot {
      * @default 300
      */
     closeDelay?: number;
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
@@ -188,5 +209,10 @@ export namespace usePreviewCardRoot {
     positionerElement: HTMLElement | null;
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLDivElement | null>;
+    onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

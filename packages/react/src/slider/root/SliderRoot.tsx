@@ -18,8 +18,8 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderRoot = React.forwardRef(function SliderRoot(
-  props: SliderRoot.Props,
+const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | readonly number[]>(
+  props: SliderRoot.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -59,8 +59,9 @@ const SliderRoot = React.forwardRef(function SliderRoot(
     min,
     minStepsBetweenValues,
     name: nameProp ?? '',
-    onValueChange: onValueChangeProp ?? NOOP,
-    onValueCommitted: onValueCommittedProp ?? NOOP,
+    onValueChange: (onValueChangeProp as useSliderRoot.Parameters['onValueChange']) ?? NOOP,
+    onValueCommitted:
+      (onValueCommittedProp as useSliderRoot.Parameters['onValueCommitted']) ?? NOOP,
     orientation,
     rootRef: forwardedRef,
     step,
@@ -115,12 +116,21 @@ const SliderRoot = React.forwardRef(function SliderRoot(
 
   return (
     <SliderRootContext.Provider value={contextValue}>
-      <CompositeList elementsRef={slider.thumbRefs}>{renderElement()}</CompositeList>
+      <CompositeList elementsRef={slider.thumbRefs} onMapChange={slider.setThumbMap}>
+        {renderElement()}
+      </CompositeList>
     </SliderRootContext.Provider>
   );
-});
+}) as {
+  <Value extends number | readonly number[]>(
+    props: SliderRoot.Props<Value> & {
+      ref?: React.RefObject<HTMLDivElement>;
+    },
+  ): React.JSX.Element;
+  propTypes?: any;
+};
 
-export namespace SliderRoot {
+namespace SliderRoot {
   export interface State extends FieldRoot.State {
     /**
      * The index of the active thumb.
@@ -157,7 +167,7 @@ export namespace SliderRoot {
     values: readonly number[];
   }
 
-  export interface Props
+  export interface Props<Value extends number | readonly number[] = number | readonly number[]>
     extends Partial<
         Pick<
           useSliderRoot.Parameters,
@@ -166,8 +176,6 @@ export namespace SliderRoot {
           | 'min'
           | 'minStepsBetweenValues'
           | 'name'
-          | 'onValueChange'
-          | 'onValueCommitted'
           | 'orientation'
           | 'largeStep'
           | 'step'
@@ -179,7 +187,7 @@ export namespace SliderRoot {
      *
      * To render a controlled slider, use the `value` prop instead.
      */
-    defaultValue?: number | readonly number[];
+    defaultValue?: Value;
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -197,10 +205,30 @@ export namespace SliderRoot {
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
      */
-    value?: number | readonly number[];
+    value?: Value;
+    /**
+     * Callback function that is fired when the slider's value changed.
+     *
+     * @param {number | number[]} value The new value.
+     * @param {Event} event The corresponding event that initiated the change.
+     * You can pull out the new value by accessing `event.target.value` (any).
+     * @param {number} activeThumbIndex Index of the currently moved thumb.
+     */
+    onValueChange?: (
+      value: Value extends number ? number : Value,
+      event: Event,
+      activeThumbIndex: number,
+    ) => void;
+    /**
+     * Callback function that is fired when the `pointerup` is triggered.
+     *
+     * @param {number | number[]} value The new value.
+     * @param {Event} event The corresponding event that initiated the change.
+     * **Warning**: This is a generic event not a change event.
+     */
+    onValueCommitted?: (value: Value extends number ? number : Value, event: Event) => void;
   }
 }
-
 export { SliderRoot };
 
 SliderRoot.propTypes /* remove-proptypes */ = {
@@ -288,7 +316,7 @@ SliderRoot.propTypes /* remove-proptypes */ = {
   /**
    * Callback function that is fired when the slider's value changed.
    *
-   * @param {number | readonly number[]} value The new value.
+   * @param {number | number[]} value The new value.
    * @param {Event} event The corresponding event that initiated the change.
    * You can pull out the new value by accessing `event.target.value` (any).
    * @param {number} activeThumbIndex Index of the currently moved thumb.

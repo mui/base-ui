@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
@@ -47,18 +47,19 @@ function useTabsPanel(parameters: useTabsPanel.Parameters): useTabsPanel.ReturnV
   }, [getTabIdByPanelValueOrIndex, index, valueParam]);
 
   const getRootProps = React.useCallback(
-    (
-      externalProps: React.ComponentPropsWithoutRef<'div'> = {},
-    ): React.ComponentPropsWithRef<'div'> => {
-      return mergeReactProps(externalProps, {
-        'aria-labelledby': correspondingTabId,
-        hidden,
-        id: id ?? undefined,
-        role: 'tabpanel',
-        tabIndex: hidden ? -1 : 0,
-        ref: handleRef,
-        'data-index': index,
-      });
+    (externalProps = {}) => {
+      return mergeProps(
+        {
+          'aria-labelledby': correspondingTabId,
+          hidden,
+          id: id ?? undefined,
+          role: 'tabpanel',
+          tabIndex: hidden ? -1 : 0,
+          ref: handleRef,
+          ['data-index' as string]: index,
+        },
+        externalProps,
+      );
     },
     [correspondingTabId, handleRef, hidden, id, index],
   );

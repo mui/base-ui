@@ -2,6 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../utils/types';
+import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { useEventCallback } from '../utils/useEventCallback';
@@ -9,6 +10,10 @@ import { useDirection } from '../direction-provider/DirectionContext';
 import { useRadioGroup } from './useRadioGroup';
 import { RadioGroupContext } from './RadioGroupContext';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
+import { fieldValidityMapping } from '../field/utils/constants';
+import type { FieldRoot } from '../field/root/FieldRoot';
+
+const MODIFIER_KEYS = [SHIFT];
 
 /**
  * Provides a shared state to a series of radio buttons.
@@ -33,8 +38,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 
   const direction = useDirection();
 
-  const { getRootProps, getInputProps, checkedValue, setCheckedValue, touched, setTouched } =
-    useRadioGroup(props);
+  const radioGroup = useRadioGroup(props);
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
 
@@ -54,50 +58,41 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 
   const contextValue: RadioGroupContext = React.useMemo(
     () => ({
-      checkedValue,
-      setCheckedValue,
+      ...fieldState,
+      ...radioGroup,
       onValueChange,
       disabled,
       readOnly,
       required,
-      touched,
-      setTouched,
     }),
-    [
-      checkedValue,
-      setCheckedValue,
-      onValueChange,
-      disabled,
-      readOnly,
-      required,
-      touched,
-      setTouched,
-    ],
+    [fieldState, disabled, onValueChange, radioGroup, readOnly, required],
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
+    propGetter: radioGroup.getRootProps,
     render: render ?? 'div',
     ref: forwardedRef,
     className,
     state,
     extraProps: otherProps,
+    customStyleHookMapping: fieldValidityMapping,
   });
 
   return (
     <RadioGroupContext.Provider value={contextValue}>
-      <CompositeRoot direction={direction} enableHomeAndEndKeys={false} render={renderElement()} />
-      <input {...getInputProps()} />
+      <CompositeRoot
+        direction={direction}
+        enableHomeAndEndKeys={false}
+        modifierKeys={MODIFIER_KEYS}
+        render={renderElement()}
+      />
+      <input {...radioGroup.getInputProps()} />
     </RadioGroupContext.Provider>
   );
 });
 
 namespace RadioGroup {
-  export interface State {
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean | undefined;
+  export interface State extends FieldRoot.State {
     /**
      * Whether the user should be unable to select a different radio button in the group.
      */

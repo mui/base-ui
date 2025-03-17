@@ -49,6 +49,10 @@ export const nav = [
         href: '/react/components/alert-dialog',
       },
       {
+        label: 'Avatar',
+        href: '/react/components/avatar',
+      },
+      {
         label: 'Checkbox',
         href: '/react/components/checkbox',
       },
@@ -148,6 +152,10 @@ export const nav = [
       {
         label: 'Direction Provider',
         href: '/react/utils/direction-provider',
+      },
+      {
+        label: 'useRender',
+        href: '/react/utils/use-render',
       },
     ],
   },

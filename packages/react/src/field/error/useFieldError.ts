@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useFieldRootContext } from '../root/FieldRootContext';
@@ -26,20 +26,23 @@ export function useFieldError(params: useFieldError.Parameters) {
 
   const getErrorProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'span'>(externalProps, {
-        id,
-        children:
-          formError ||
-          (validityData.errors.length > 1
-            ? React.createElement(
-                'ul',
-                {},
-                validityData.errors.map((message) =>
-                  React.createElement('li', { key: message }, message),
-                ),
-              )
-            : validityData.error),
-      }),
+      mergeProps<'span'>(
+        {
+          id,
+          children:
+            formError ||
+            (validityData.errors.length > 1
+              ? React.createElement(
+                  'ul',
+                  {},
+                  validityData.errors.map((message) =>
+                    React.createElement('li', { key: message }, message),
+                  ),
+                )
+              : validityData.error),
+        },
+        externalProps,
+      ),
     [id, formError, validityData],
   );
 

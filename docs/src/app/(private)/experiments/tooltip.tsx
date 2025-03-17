@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Tooltip } from '@base-ui-components/react/tooltip';
 import { styled, keyframes } from '@mui/system';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 const scaleIn = keyframes`
   from {
@@ -143,7 +143,7 @@ export default function TooltipTransitionExperiment() {
           <Tooltip.Root>
             <AnchorButton>Anchor</AnchorButton>
             <Tooltip.Portal>
-              <Tooltip.Positioner sideOffset={7}>
+              <Tooltip.Positioner sideOffset={(sizes) => sizes.anchor.height}>
                 <TooltipPopup data-type="css-animation">Tooltip</TooltipPopup>
               </Tooltip.Positioner>
             </Tooltip.Portal>

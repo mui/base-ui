@@ -86,7 +86,7 @@ describe('<Menu.CheckboxItemIndicator />', () => {
           }
         }
         .animation-test-indicator[data-ending-style] {
-          animation: test-anim 50ms;
+          animation: test-anim 1ms;
         }
       `;
 

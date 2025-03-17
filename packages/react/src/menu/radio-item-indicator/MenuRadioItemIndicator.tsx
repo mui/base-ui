@@ -5,9 +5,8 @@ import { useMenuRadioItemContext } from '../radio-item/MenuRadioItemContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useForkRef } from '../../utils/useForkRef';
 
 /**
@@ -29,19 +28,13 @@ const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicator(
 
   const { transitionStatus, setMounted } = useTransitionStatus(item.checked);
 
-  const getItemProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        'aria-hidden': true,
-      }),
-    [],
-  );
-
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open: item.checked,
-    animatedElementRef: indicatorRef,
-    onFinished() {
-      setMounted(false);
+    ref: indicatorRef,
+    onComplete() {
+      if (!item.checked) {
+        setMounted(false);
+      }
     },
   });
 
@@ -56,12 +49,14 @@ const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicator(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getItemProps,
     render: render || 'span',
     className,
     state,
     customStyleHookMapping: itemMapping,
-    extraProps: other,
+    extraProps: {
+      'aria-hidden': true,
+      ...other,
+    },
     ref: mergedRef,
   });
 

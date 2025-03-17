@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
 import { Radio } from '@base-ui-components/react/radio';
+import { Field } from '@base-ui-components/react/field';
+import { Form } from '@base-ui-components/react/form';
 import {
   DirectionProvider,
   type TextDirection,
@@ -305,6 +307,33 @@ describe('<RadioGroup />', () => {
 
           expect(c).toHaveFocus();
         });
+
+        describe('modifier keys', () => {
+          it('when Shift is pressed arrow keys move focus normally', async () => {
+            const { user } = await render(
+              <DirectionProvider direction={direction as TextDirection}>
+                <RadioGroup>
+                  <Radio.Root value="a" data-testid="a" />
+                  <Radio.Root value="b" data-testid="b" />
+                  <Radio.Root value="c" data-testid="c" />
+                </RadioGroup>
+              </DirectionProvider>,
+            );
+
+            const a = screen.getByTestId('a');
+            const b = screen.getByTestId('b');
+            const c = screen.getByTestId('c');
+
+            await user.keyboard('{Tab}');
+            expect(a).toHaveFocus();
+
+            await user.keyboard(`{Shift>}{${horizontalNextKey}}`);
+            expect(b).toHaveFocus();
+
+            await user.keyboard('{Shift>}{ArrowDown}');
+            expect(c).toHaveFocus();
+          });
+        });
       });
     });
   });
@@ -356,6 +385,48 @@ describe('<RadioGroup />', () => {
 
       expect(b).to.have.attribute('data-unchecked', '');
       expect(indicatorB).to.have.attribute('data-unchecked', '');
+    });
+  });
+
+  describe('Field', () => {
+    it('passes the `name` prop to the hidden input', () => {
+      render(
+        <Field.Root name="test" data-testid="field">
+          <RadioGroup name="group">
+            <Radio.Root value="a" data-testid="item" />
+          </RadioGroup>
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('field').querySelector('input[name="test"]');
+      expect(input).not.to.equal(null);
+    });
+  });
+
+  describe('Form', () => {
+    it('triggers native HTML validation on submit', async () => {
+      const { user } = render(
+        <Form>
+          <Field.Root name="test" data-testid="field">
+            <RadioGroup name="group" required>
+              <Radio.Root value="a" data-testid="item" />
+            </RadioGroup>
+            <Field.Error match="valueMissing" data-testid="error">
+              required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const submit = screen.getByText('Submit');
+
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      await user.click(submit);
+
+      const error = screen.getByTestId('error');
+      expect(error).to.have.text('required');
     });
   });
 });

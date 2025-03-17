@@ -11,6 +11,7 @@ import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { mergeProps } from '../../merge-props';
 
 const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
   props: InnerMenuCheckboxItemProps,
@@ -26,14 +27,14 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
     highlighted,
     id,
     menuEvents,
-    propGetter,
+    itemProps,
     render,
     allowMouseUpTriggerRef,
     typingRef,
     ...other
   } = props;
 
-  const { getRootProps, checked } = useMenuCheckboxItem({
+  const { getItemProps, checked } = useMenuCheckboxItem({
     closeOnClick,
     disabled,
     highlighted,
@@ -56,7 +57,7 @@ const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
     render: render || 'div',
     className,
     state,
-    propGetter: (externalProps) => propGetter(getRootProps(externalProps)),
+    propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
     customStyleHookMapping: itemMapping,
     extraProps: other,
   });
@@ -119,6 +120,10 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
+   * @ignore
+   */
+  itemProps: PropTypes.object.isRequired,
+  /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label: PropTypes.string,
@@ -138,10 +143,6 @@ InnerMenuCheckboxItem.propTypes /* remove-proptypes */ = {
    * The click handler for the menu item.
    */
   onClick: PropTypes.func,
-  /**
-   * @ignore
-   */
-  propGetter: PropTypes.func.isRequired,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
@@ -175,7 +176,7 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   const listItem = useCompositeListItem({ label });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { getItemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
+  const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
   const id = useBaseUiId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -192,7 +193,7 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
       ref={mergedRef}
       highlighted={highlighted}
       menuEvents={menuEvents}
-      propGetter={getItemProps}
+      itemProps={itemProps}
       allowMouseUpTriggerRef={allowMouseUpTriggerRef}
       typingRef={typingRef}
       closeOnClick={closeOnClick}
@@ -202,7 +203,7 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
 interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   highlighted: boolean;
-  propGetter: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  itemProps: GenericHTMLProps;
   menuEvents: FloatingEvents;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   typingRef: React.RefObject<boolean>;

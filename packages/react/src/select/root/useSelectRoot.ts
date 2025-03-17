@@ -18,15 +18,9 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const EMPTY_ARRAY: never[] = [];
-
-function isDisabled(element: HTMLElement | null) {
-  return (
-    element == null || element.hasAttribute('disabled') || element.hasAttribute('data-disabled')
-  );
-}
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
@@ -36,6 +30,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     required = false,
     alignItemToTrigger: alignItemToTriggerParam = true,
     modal = false,
+    onOpenChangeComplete,
   } = params;
 
   const { setDirty, validityData, validationMode, setControlId, setFilled } = useFieldRootContext();
@@ -77,6 +72,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
+  const keyboardActiveRef = React.useRef(false);
   const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
@@ -128,14 +124,24 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }
   });
 
-  useAfterExitAnimation({
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+    setActiveIndex(null);
+    onOpenChangeComplete?.(false);
+  });
+
+  useOpenChangeComplete({
+    enabled: !params.actionsRef,
     open,
-    animatedElementRef: popupRef,
-    onFinished() {
-      setMounted(false);
-      setActiveIndex(null);
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        handleUnmount();
+      }
     },
   });
+
+  React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
     params.onValueChange?.(nextValue, event);
@@ -187,10 +193,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     },
   });
 
-  const triggerDisabled = isDisabled(triggerElement);
-
   const click = useClick(floatingRootContext, {
-    enabled: !readOnly && !disabled && !triggerDisabled,
+    enabled: !readOnly && !disabled,
     event: 'mousedown',
   });
 
@@ -247,7 +251,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     getItemProps,
   } = useInteractions([click, dismiss, role, listNavigation, typeahead]);
 
-  const rootContext = React.useMemo(
+  const rootContext: SelectRootContext = React.useMemo(
     () => ({
       id,
       name: params.name,
@@ -290,6 +294,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       fieldControlValidation,
       modal,
       registerSelectedItem,
+      onOpenChangeComplete,
+      keyboardActiveRef,
     }),
     [
       id,
@@ -318,6 +324,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       fieldControlValidation,
       modal,
       registerSelectedItem,
+      onOpenChangeComplete,
+      keyboardActiveRef,
     ],
   );
 
@@ -392,6 +400,10 @@ export namespace useSelectRoot {
      */
     onOpenChange?: (open: boolean, event: Event | undefined) => void;
     /**
+     * Event handler called after any animations complete when the select menu is opened or closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
+    /**
      * Whether the select menu is currently open.
      */
     open?: boolean;
@@ -409,10 +421,18 @@ export namespace useSelectRoot {
      * @default true
      */
     modal?: boolean;
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
     rootContext: SelectRootContext;
     indexContext: SelectIndexContext;
+  }
+
+  export interface Actions {
+    unmount: () => void;
   }
 }

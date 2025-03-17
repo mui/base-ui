@@ -52,7 +52,7 @@
 }
 
 @font-face {
-  font-family: 'Menlo';
+  font-family: Menlo;
   font-weight: normal;
   src: local('Menlo-Regular');
   /* Match other monospace fonts to SF Mono in width */
@@ -61,7 +61,7 @@
 }
 
 @font-face {
-  font-family: 'Menlo';
+  font-family: Menlo;
   font-weight: bold;
   src: local('Menlo-Bold');
   /* Match other monospace fonts to SF Mono in width */
@@ -70,7 +70,7 @@
 }
 
 @font-face {
-  font-family: 'Consolas';
+  font-family: Consolas;
   font-weight: normal;
   src: local('Consolas');
   /* Match other monospace fonts to SF Mono in width */
@@ -79,7 +79,7 @@
 }
 
 @font-face {
-  font-family: 'Consolas';
+  font-family: Consolas;
   font-weight: bold;
   src: local('Consolas-Bold');
   /* Match other monospace fonts to SF Mono in width */
@@ -102,14 +102,14 @@
 }
 
 @font-face {
-  font-family: 'Inconsolata';
+  font-family: Inconsolata;
   font-weight: normal;
   src: local('Inconsolata-Regular');
   size-adjust: calc(100% * 15.75 / 14);
 }
 
 @font-face {
-  font-family: 'Inconsolata';
+  font-family: Inconsolata;
   font-weight: bold;
   src: local('Inconsolata-Bold');
   size-adjust: calc(100% * 15.75 / 14);

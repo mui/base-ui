@@ -29,6 +29,8 @@ export interface PopoverRootContext {
   getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   openMethod: InteractionType | null;
   openReason: OpenChangeReason | null;
+  onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  modal: boolean;
 }
 
 export const PopoverRootContext = React.createContext<PopoverRootContext | undefined>(undefined);

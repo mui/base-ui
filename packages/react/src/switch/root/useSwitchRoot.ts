@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
 import { useForkRef } from '../../utils/useForkRef';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -15,7 +15,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
   const {
     id: idProp,
     checked: checkedProp,
-    onCheckedChange: onCheckedChangeProp = () => {},
+    onCheckedChange: onCheckedChangeProp,
     defaultChecked,
     name,
     readOnly,
@@ -24,8 +24,16 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     inputRef: externalInputRef,
   } = params;
 
-  const { labelId, setControlId, setTouched, setDirty, validityData, setFilled, setFocused } =
-    useFieldRootContext();
+  const {
+    labelId,
+    setControlId,
+    setTouched,
+    setDirty,
+    validityData,
+    setFilled,
+    setFocused,
+    validationMode,
+  } = useFieldRootContext();
 
   const {
     getValidationProps,
@@ -72,36 +80,42 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
 
   const getButtonProps = React.useCallback(
     (otherProps = {}) =>
-      mergeReactProps<'button'>(getValidationProps(otherProps), {
-        id,
-        ref: buttonRef,
-        type: 'button',
-        role: 'switch',
-        disabled,
-        'aria-checked': checked,
-        'aria-readonly': readOnly,
-        'aria-labelledby': labelId,
-        onFocus() {
-          setFocused(true);
-        },
-        onBlur() {
-          const element = inputRef.current;
-          if (!element) {
-            return;
-          }
+      mergeProps<'button'>(
+        {
+          id,
+          ref: buttonRef,
+          type: 'button',
+          role: 'switch',
+          disabled,
+          'aria-checked': checked,
+          'aria-readonly': readOnly,
+          'aria-labelledby': labelId,
+          onFocus() {
+            setFocused(true);
+          },
+          onBlur() {
+            const element = inputRef.current;
+            if (!element) {
+              return;
+            }
 
-          setTouched(true);
-          setFocused(false);
-          commitValidation(element.checked);
-        },
-        onClick(event) {
-          if (event.defaultPrevented || readOnly) {
-            return;
-          }
+            setTouched(true);
+            setFocused(false);
 
-          inputRef.current?.click();
+            if (validationMode === 'onBlur') {
+              commitValidation(element.checked);
+            }
+          },
+          onClick(event) {
+            if (event.defaultPrevented || readOnly) {
+              return;
+            }
+
+            inputRef.current?.click();
+          },
         },
-      }),
+        getValidationProps(otherProps),
+      ),
     [
       getValidationProps,
       id,
@@ -112,35 +126,43 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
       setFocused,
       setTouched,
       commitValidation,
+      validationMode,
     ],
   );
 
   const getInputProps = React.useCallback(
     (otherProps = {}) =>
-      mergeReactProps<'input'>(getInputValidationProps(otherProps), {
-        checked,
-        disabled,
-        name,
-        required,
-        style: visuallyHidden,
-        tabIndex: -1,
-        type: 'checkbox',
-        'aria-hidden': true,
-        ref: handleInputRef,
-        onChange(event) {
-          // Workaround for https://github.com/facebook/react/issues/9023
-          if (event.nativeEvent.defaultPrevented) {
-            return;
-          }
+      mergeProps<'input'>(
+        {
+          checked,
+          disabled,
+          name,
+          required,
+          style: visuallyHidden,
+          tabIndex: -1,
+          type: 'checkbox',
+          'aria-hidden': true,
+          ref: handleInputRef,
+          onChange(event) {
+            // Workaround for https://github.com/facebook/react/issues/9023
+            if (event.nativeEvent.defaultPrevented) {
+              return;
+            }
 
-          const nextChecked = event.target.checked;
+            const nextChecked = event.target.checked;
 
-          setDirty(nextChecked !== validityData.initialValue);
-          setFilled(nextChecked);
-          setCheckedState(nextChecked);
-          onCheckedChange?.(nextChecked, event.nativeEvent);
+            setDirty(nextChecked !== validityData.initialValue);
+            setFilled(nextChecked);
+            setCheckedState(nextChecked);
+            onCheckedChange?.(nextChecked, event.nativeEvent);
+
+            if (validationMode === 'onChange') {
+              commitValidation(nextChecked);
+            }
+          },
         },
-      }),
+        getInputValidationProps(otherProps),
+      ),
     [
       getInputValidationProps,
       checked,
@@ -153,6 +175,8 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
       setFilled,
       setCheckedState,
       onCheckedChange,
+      validationMode,
+      commitValidation,
     ],
   );
 

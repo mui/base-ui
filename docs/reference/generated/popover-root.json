@@ -15,6 +15,19 @@
       "type": "(open, event, reason) => void",
       "description": "Event handler called when the popover is opened or closed."
     },
+    "actionsRef": {
+      "type": "{ current: { unmount: func } }",
+      "description": "A ref to imperative actions."
+    },
+    "modal": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the popover should prevent outside clicks and lock page scroll when open."
+    },
+    "onOpenChangeComplete": {
+      "type": "(open) => void",
+      "description": "Event handler called after any animations complete when the popover is opened or closed."
+    },
     "openOnHover": {
       "type": "boolean",
       "default": "false",

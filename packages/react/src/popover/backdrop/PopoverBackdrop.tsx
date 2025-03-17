@@ -8,6 +8,7 @@ import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { mergeProps } from '../../merge-props';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.State> = {
   ...baseMapping,
@@ -26,7 +27,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 ) {
   const { className, render, ...other } = props;
 
-  const { open, mounted, transitionStatus } = usePopoverRootContext();
+  const { open, mounted, transitionStatus, openReason } = usePopoverRootContext();
 
   const state: PopoverBackdrop.State = React.useMemo(
     () => ({
@@ -41,7 +42,14 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     className,
     state,
     ref: forwardedRef,
-    extraProps: { role: 'presentation', hidden: !mounted, ...other },
+    extraProps: mergeProps<'div'>(
+      {
+        role: 'presentation',
+        hidden: !mounted,
+        style: openReason === 'hover' ? { pointerEvents: 'none' } : {},
+      },
+      other,
+    ),
     customStyleHookMapping,
   });
 
