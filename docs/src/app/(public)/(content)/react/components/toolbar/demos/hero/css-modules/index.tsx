@@ -38,17 +38,14 @@ export default function ExampleToolbar() {
       <Toolbar.Separator className={styles.Separator} />
       <Select.Root defaultValue="helvetica">
         <Toolbar.Button render={<Select.Trigger />} className={styles.Button}>
-          <Select.Value placeholder="Helvetica" style={{ display: 'flex' }} />
-          <Select.Icon style={{ display: 'flex' }}>
+          <Select.Value placeholder="Helvetica" />
+          <Select.Icon>
             <ChevronUpDownIcon />
           </Select.Icon>
         </Toolbar.Button>
         <Select.Portal>
           <Select.Positioner className={styles.Positioner} sideOffset={8}>
-            <Select.Popup
-              className={styles.Popup}
-              style={{ backgroundColor: 'var(--color-gray-50)' }}
-            >
+            <Select.Popup className={styles.Popup}>
               <Select.Arrow className={styles.Arrow}>
                 <ArrowSvg />
               </Select.Arrow>
