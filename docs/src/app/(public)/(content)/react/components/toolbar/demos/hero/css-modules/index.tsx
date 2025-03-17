@@ -8,7 +8,7 @@ import styles from './index.module.css';
 export default function ExampleToolbar() {
   return (
     <Toolbar.Root className={styles.Toolbar}>
-      <ToggleGroup className={styles.Group} aria-label="Formatting">
+      <ToggleGroup className={styles.Group} aria-label="Alignment">
         <Toolbar.Button
           render={<Toggle />}
           aria-label="Align left"
