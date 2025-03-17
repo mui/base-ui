@@ -5,6 +5,67 @@ import sinon from 'sinon';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { isWebKit } from '../../utils/detectBrowser';
+import { NOOP } from '../../utils/noop';
+import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
+
+const defaultTestContext = {
+  allowInputSyncRef: { current: false },
+  autoFocus: false,
+  disabled: false,
+  formatOptionsRef: { current: undefined },
+  getAllowedNonNumericKeys: () => [],
+  getScrubAreaProps: (externalProps) => externalProps,
+  getStepAmount: NOOP,
+  id: 'id',
+  incrementValue: NOOP,
+  inputMode: 'numeric',
+  inputRef: { current: null },
+  inputValue: '',
+  intentionalTouchCheckTimeoutRef: { current: -1 },
+  invalid: false,
+  isPressedRef: { current: false },
+  isScrubbing: true,
+  isTouchInput: false,
+  isPointerLockDenied: false,
+  max: undefined,
+  maxWithDefault: 100,
+  mergedRef: (_node) => {},
+  min: undefined,
+  minWithDefault: 0,
+  name: 'NumberField',
+  movesAfterTouchRef: { current: 0 },
+  readOnly: false,
+  required: false,
+  scrubAreaRef: { current: null },
+  scrubAreaCursorRef: { current: null },
+  scrubHandleRef: {
+    current: {
+      direction: 'horizontal',
+      pixelSensitivity: 0,
+      teleportDistance: 0,
+    },
+  },
+  setInputValue: NOOP,
+  setValue: NOOP,
+  state: {
+    value: null,
+    required: false,
+    disabled: false,
+    invalid: false,
+    readOnly: false,
+    scrubbing: false,
+    touched: false,
+    dirty: false,
+    inputValue: '',
+    valid: true,
+    filled: false,
+    focused: false,
+  },
+  startAutoChange: NOOP,
+  stopAutoChange: NOOP,
+  value: null,
+  valueRef: { current: null },
+} as NumberFieldRootContext;
 
 describe('<NumberField.ScrubAreaCursor />', () => {
   const { render } = createRenderer();
@@ -18,9 +79,9 @@ describe('<NumberField.ScrubAreaCursor />', () => {
     refInstanceof: window.HTMLSpanElement,
     render: async (node) => {
       return render(
-        <NumberField.Root>
-          <NumberField.ScrubArea>{node}</NumberField.ScrubArea>
-        </NumberField.Root>,
+        <NumberFieldRootContext.Provider value={defaultTestContext}>
+          {node}
+        </NumberFieldRootContext.Provider>,
       );
     },
   }));
