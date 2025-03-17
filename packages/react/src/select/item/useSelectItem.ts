@@ -21,6 +21,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     indexRef,
     setActiveIndex,
     popupRef,
+    keyboardActiveRef,
   } = params;
 
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -63,7 +64,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           },
           onMouseLeave(event) {
             const popup = popupRef.current;
-            if (!popup || !open) {
+            if (!popup || !open || keyboardActiveRef.current) {
               return;
             }
 
@@ -160,6 +161,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
       getButtonProps,
       highlighted,
       indexRef,
+      keyboardActiveRef,
       open,
       popupRef,
       selected,
@@ -230,6 +232,7 @@ export namespace useSelectItem {
     indexRef: React.RefObject<number>;
     setActiveIndex: SelectIndexContext['setActiveIndex'];
     popupRef: React.RefObject<HTMLDivElement | null>;
+    keyboardActiveRef: React.RefObject<boolean>;
   }
 
   export interface ReturnValue {
