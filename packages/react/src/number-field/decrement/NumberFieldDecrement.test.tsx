@@ -5,67 +5,6 @@ import { screen, fireEvent, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
-import { NOOP } from '../../utils/noop';
-import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
-
-const testContext = {
-  allowInputSyncRef: { current: false },
-  autoFocus: false,
-  disabled: false,
-  formatOptionsRef: { current: undefined },
-  getAllowedNonNumericKeys: () => [],
-  getScrubAreaProps: (externalProps) => externalProps,
-  getStepAmount: NOOP,
-  id: 'id',
-  incrementValue: NOOP,
-  inputMode: 'numeric',
-  inputRef: { current: null },
-  inputValue: '',
-  intentionalTouchCheckTimeoutRef: { current: -1 },
-  invalid: false,
-  isPressedRef: { current: false },
-  isScrubbing: false,
-  isTouchInput: false,
-  isPointerLockDenied: false,
-  max: undefined,
-  maxWithDefault: 100,
-  mergedRef: (_node) => {},
-  min: undefined,
-  minWithDefault: 0,
-  name: 'NumberField',
-  movesAfterTouchRef: { current: 0 },
-  readOnly: false,
-  required: false,
-  scrubAreaRef: { current: null },
-  scrubAreaCursorRef: { current: null },
-  scrubHandleRef: {
-    current: {
-      direction: 'horizontal',
-      pixelSensitivity: 0,
-      teleportDistance: 0,
-    },
-  },
-  setInputValue: NOOP,
-  setValue: NOOP,
-  state: {
-    value: null,
-    required: false,
-    disabled: false,
-    invalid: false,
-    readOnly: false,
-    scrubbing: false,
-    touched: false,
-    dirty: false,
-    inputValue: '',
-    valid: true,
-    filled: false,
-    focused: false,
-  },
-  startAutoChange: NOOP,
-  stopAutoChange: NOOP,
-  value: null,
-  valueRef: { current: null },
-} as NumberFieldRootContext;
 
 describe('<NumberField.Decrement />', () => {
   const { render, clock } = createRenderer();
@@ -73,11 +12,7 @@ describe('<NumberField.Decrement />', () => {
   describeConformance(<NumberField.Decrement />, () => ({
     refInstanceof: window.HTMLButtonElement,
     render(node) {
-      return render(
-        <NumberFieldRootContext.Provider value={testContext}>
-          {node}
-        </NumberFieldRootContext.Provider>,
-      );
+      return render(<NumberField.Root>{node}</NumberField.Root>);
     },
   }));
 
