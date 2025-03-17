@@ -88,6 +88,8 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               // With `alignItemToTrigger`, avoid re-rendering the root due to `onMouseLeave`
               // firing and causing a performance issue when expanding the popup.
               if (popup.offsetHeight === prevPopupHeightRef.current) {
+                // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
+                // the mouse out of the popup.
                 allowFocusSyncRef.current = false;
                 setActiveIndex(null);
                 requestAnimationFrame(() => {
