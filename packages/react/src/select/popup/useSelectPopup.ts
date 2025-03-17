@@ -7,6 +7,7 @@ import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { clearPositionerStyles } from './utils';
 import { isWebKit } from '../../utils/detectBrowser';
+import { useSelectIndexContext } from '../root/SelectIndexContext';
 
 export function useSelectPopup(): useSelectPopup.ReturnValue {
   const {
@@ -26,7 +27,9 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     setScrollDownArrowVisible,
     setControlledAlignItemToTrigger,
     keyboardActiveRef,
+    floatingRootContext,
   } = useSelectRootContext();
+  const { setActiveIndex } = useSelectIndexContext();
 
   const initialHeightRef = React.useRef(0);
   const reachedMaxHeightRef = React.useRef(false);
@@ -245,6 +248,10 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
           onMouseMove() {
             keyboardActiveRef.current = false;
           },
+          onMouseLeave() {
+            setActiveIndex(null);
+            floatingRootContext.events.emit('popup-leave');
+          },
           onScroll(event) {
             if (
               !alignItemToTrigger ||
@@ -323,6 +330,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       alignItemToTrigger,
       getRootPositionerProps,
       keyboardActiveRef,
+      setActiveIndex,
+      floatingRootContext.events,
       positionerElement,
       popupRef,
       handleScrollArrowVisibility,
