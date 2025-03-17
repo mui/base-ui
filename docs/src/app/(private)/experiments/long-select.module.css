@@ -18,6 +18,7 @@
   cursor: default;
   user-select: none;
   min-width: 9rem;
+  margin-top: 10rem;
 
   @media (hover: hover) {
     &:hover {
@@ -127,7 +128,8 @@
   padding-block: 0.5rem;
   padding-left: 0.625rem;
   padding-right: 1rem;
-  min-width: var(--anchor-width);
+  min-width: min(var(--anchor-width), 200px);
+  width: 200px;
   display: grid;
   gap: 0.5rem;
   align-items: center;
@@ -139,7 +141,6 @@
   [data-side='none'] & {
     font-size: 1rem;
     padding-right: 3rem;
-    min-width: calc(var(--anchor-width) + 1rem);
   }
 
   &[data-highlighted] {

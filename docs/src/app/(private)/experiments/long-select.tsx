@@ -5,18 +5,14 @@ import styles from './long-select.module.css';
 export default function ExampleSelect() {
   return (
     <Select.Root defaultValue="af">
-      <Select.Trigger className={styles.Select} style={{ marginTop: 100 }}>
+      <Select.Trigger className={styles.Select}>
         <Select.Value placeholder="Afghanistan" />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal>
-        <Select.Positioner
-          className={styles.Positioner}
-          sideOffset={8}
-          style={{ width: 200 }}
-        >
+        <Select.Positioner className={styles.Positioner} sideOffset={8}>
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
             <Select.Arrow className={styles.Arrow}>
