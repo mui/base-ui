@@ -167,10 +167,10 @@ export default function Homepage() {
           <li className="mb-0.5">Resume review.</li>
           <li className="mb-0.5">React challenge (asynchronous).</li>
           <li className="mb-0.5">60-minute meeting with Colm (Product lead).</li>
+          <li className="mb-0.5">90-minute meeting with the Base UI team.</li>
           <li className="mb-0.5">
             60-minute meeting with Marija (Engineering Manager).
           </li>
-          <li className="mb-0.5">90-minute meeting with the Base UI team.</li>
         </ol>
         <Link
           className="-m-1 inline-flex items-center gap-1 p-1"
