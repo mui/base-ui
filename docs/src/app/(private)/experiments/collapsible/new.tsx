@@ -53,6 +53,8 @@ function Collapsible(props: {
   const latestAnimationNameRef = React.useRef<string>(null);
   const shouldCancelInitialOpenAnimationRef = React.useRef(open);
 
+  const isBeforeMatchRef = React.useRef(false);
+
   const animationTypeRef = React.useRef<AnimationType>(null);
 
   const isHidden = React.useMemo(() => {
@@ -245,11 +247,15 @@ function Collapsible(props: {
       return;
     }
 
+    const panel = panelRef.current;
+
     if (keepMounted) {
+      if (panel != null && isBeforeMatchRef.current) {
+        panel.style.transitionDuration = '0s';
+      }
       return;
     }
 
-    const panel = panelRef.current;
     if (!panel) {
       return;
     }
@@ -262,6 +268,10 @@ function Collapsible(props: {
 
       /* opening */
       panel.style.height = '0px';
+
+      if (isBeforeMatchRef.current) {
+        panel.style.transitionDuration = '0s';
+      }
 
       requestAnimationFrame(() => {
         /**
@@ -335,6 +345,31 @@ function Collapsible(props: {
     }
   }, [hiddenUntilFoundProp, isHidden]);
 
+  React.useEffect(
+    function registerBeforeMatchListener() {
+      const panel = panelRef.current;
+      if (!panel) {
+        return undefined;
+      }
+
+      function handleOnBeforeMatch(event: Event) {
+        event.preventDefault();
+
+        isBeforeMatchRef.current = true;
+
+        // beforematch only fires if the matching content is initially hidden
+        setOpen(true);
+      }
+
+      panel.addEventListener('beforematch', handleOnBeforeMatch);
+
+      return () => {
+        panel.removeEventListener('beforematch', handleOnBeforeMatch);
+      };
+    },
+    [setOpen],
+  );
+
   return (
     <div
       className={classes.Root}
@@ -388,19 +423,19 @@ export default function App() {
     <div className={classes.grid}>
       <div className={classes.wrapper}>
         <pre>keepMounted: true</pre>
-        <Collapsible keepMounted defaultOpen id="1" />
+        {/*<Collapsible keepMounted defaultOpen id="1" />*/}
 
-        <Collapsible keepMounted defaultOpen={false} id="2" />
+        <Collapsible keepMounted={false} defaultOpen={false} id="2" />
 
         <small>———</small>
       </div>
-      <div className={classes.wrapper}>
+      {/*<div className={classes.wrapper}>
         <pre>keepMounted: false</pre>
         <Collapsible keepMounted={false} defaultOpen id="3" />
 
         <Collapsible keepMounted={false} defaultOpen={false} id="4" />
         <small>———</small>
-      </div>
+      </div>*/}
     </div>
   );
 }
