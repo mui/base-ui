@@ -86,6 +86,11 @@ describe('<Popover.Trigger />', () => {
       const { user } = await render(
         <Popover.Root openOnHover delay={0}>
           <Popover.Trigger />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
         </Popover.Root>,
       );
 
@@ -101,6 +106,11 @@ describe('<Popover.Trigger />', () => {
       const { user } = await render(
         <Popover.Root delay={0} openOnHover>
           <Popover.Trigger />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
         </Popover.Root>,
       );
 
@@ -119,6 +129,11 @@ describe('<Popover.Trigger />', () => {
       const { user } = await render(
         <Popover.Root openOnHover>
           <Popover.Trigger />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
         </Popover.Root>,
       );
 
@@ -143,6 +158,11 @@ describe('<Popover.Trigger />', () => {
       await renderFakeTimers(
         <Popover.Root delay={0} openOnHover>
           <Popover.Trigger />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
         </Popover.Root>,
       );
 
@@ -161,6 +181,11 @@ describe('<Popover.Trigger />', () => {
       await renderFakeTimers(
         <Popover.Root delay={0} openOnHover>
           <Popover.Trigger />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
         </Popover.Root>,
       );
 
@@ -179,6 +204,11 @@ describe('<Popover.Trigger />', () => {
       await renderFakeTimers(
         <Popover.Root delay={0} openOnHover>
           <Popover.Trigger />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
         </Popover.Root>,
       );
 
@@ -202,6 +232,11 @@ describe('<Popover.Trigger />', () => {
       await renderFakeTimers(
         <Popover.Root delay={0} openOnHover>
           <Popover.Trigger />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
         </Popover.Root>,
       );
 
