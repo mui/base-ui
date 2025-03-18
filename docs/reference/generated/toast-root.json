@@ -4,8 +4,7 @@
   "props": {
     "swipeDirection": {
       "type": "'down' | 'left' | 'right' | 'up' | Array<'down' | 'left' | 'right' | 'up'>",
-      "default": "'up'",
-      "description": "Direction(s) in which the toast can be swiped to dismiss."
+      "description": "Direction(s) in which the toast can be swiped to dismiss.\nDefaults to `['down', 'right']`."
     },
     "toast": {
       "type": "ToastObject",
@@ -29,6 +28,10 @@
     "data-limited": {
       "description": "Indicates the toast was removed due to exceeding the limit.",
       "type": "boolean"
+    },
+    "data-swipe-direction": {
+      "description": "The direction the toast was swiped.",
+      "type": "'up' | 'down' | 'left' | 'right'"
     },
     "data-swiping": {
       "description": "Indicates the toast is being swiped.",

@@ -57,7 +57,7 @@ export function useToastViewport() {
   }, [pauseTimers, setFocused, setPrevFocusElement, toasts.length, viewportRef]);
 
   React.useEffect(() => {
-    if (!viewportRef.current) {
+    if (!viewportRef.current || !toasts.length) {
       return undefined;
     }
 

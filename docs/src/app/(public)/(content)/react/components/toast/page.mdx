@@ -236,6 +236,13 @@ const toastManager = Toast.createToastManager();
 
 ## Examples
 
+### Custom position
+
+The position of the toasts is controlled by your own CSS. To change the toasts' position, you can modify the `Viewport` and `Root` styles. A more general component could accept a `data-position` attribute, which the CSS handles for each variation.
+The following shows a `top center` position:
+
+<Demo path="./demos/position" />
+
 ### Undo action
 
 When adding a toast, the `actionProps` option can be used to define props for an action button inside of it—this enables the ability to undo an action associated with the toast.

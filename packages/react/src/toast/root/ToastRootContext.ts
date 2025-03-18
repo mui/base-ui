@@ -8,6 +8,7 @@ export interface ToastRootContext {
   setTitleId: React.Dispatch<React.SetStateAction<string | undefined>>;
   descriptionId: string | undefined;
   setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
 }
 
 export const ToastRootContext = React.createContext<ToastRootContext | undefined>(undefined);

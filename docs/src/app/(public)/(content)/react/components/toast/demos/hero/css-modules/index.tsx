@@ -7,7 +7,7 @@ export default function ExampleToast() {
   return (
     <Toast.Provider>
       <ToastButton />
-      <Toast.Viewport className={styles.Viewport} data-position="top">
+      <Toast.Viewport className={styles.Viewport}>
         <ToastList />
       </Toast.Viewport>
     </Toast.Provider>
@@ -36,12 +36,7 @@ function ToastButton() {
 function ToastList() {
   const { toasts } = Toast.useToast();
   return toasts.map((toast) => (
-    <Toast.Root
-      key={toast.id}
-      toast={toast}
-      className={styles.Toast}
-      data-position="top"
-    >
+    <Toast.Root key={toast.id} toast={toast} className={styles.Toast}>
       <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
       <Toast.Description className={styles.Description}>
         {toast.description}

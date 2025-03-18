@@ -62,9 +62,11 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   background-clip: padding-box;
   border-radius: 0.5rem;
-  bottom: 0;
-  left: auto;
-  margin-right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin-right: auto;
+  margin-left: auto;
   -webkit-user-select: none;
   user-select: none;
   transition:
@@ -73,20 +75,20 @@
   cursor: default;
   z-index: calc(1000 - var(--toast-index));
   transform: translateX(var(--toast-swipe-movement-x))
-    translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)))
+    translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * 20%)))
     scale(calc(1 - (var(--toast-index) * 0.1)));
 
   &::after {
-    top: 100%;
+    bottom: 100%;
   }
 
   &[data-expanded] {
-    transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y));
+    transform: translateX(var(--toast-swipe-movement-x)) translateY(calc(var(--offset-y)));
   }
 
   &[data-starting-style],
   &[data-ending-style]:not([data-limited]) {
-    transform: translateY(150%);
+    transform: translateY(-150%);
   }
 
   &[data-ending-style] {
@@ -112,16 +114,6 @@
     width: 100%;
     left: 0;
     height: calc(var(--gap) + 1px);
-  }
-
-  &[data-type='success'] {
-    background-color: lightgreen;
-    color: black;
-  }
-
-  &[data-type='error'] {
-    background-color: lightpink;
-    color: black;
   }
 }
 

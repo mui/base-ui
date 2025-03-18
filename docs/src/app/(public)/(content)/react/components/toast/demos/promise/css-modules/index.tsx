@@ -48,13 +48,7 @@ function PromiseDemo() {
 function ToastList() {
   const { toasts } = Toast.useToast();
   return toasts.map((toast) => (
-    <Toast.Root
-      key={toast.id}
-      toast={toast}
-      className={styles.Toast}
-      data-position="top"
-      swipeDirection="up"
-    >
+    <Toast.Root key={toast.id} toast={toast} className={styles.Toast}>
       <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
       <Toast.Description className={styles.Description}>
         {toast.description}
