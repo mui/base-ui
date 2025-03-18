@@ -27,9 +27,6 @@
       "default": "'free'",
       "description": "Controls snapping to step values when incrementing or decrementing.\n- `snap`: values snap to the nearest step.\n- `free`: values are preserved without snapping."
     },
-    "stepSnap": {
-      "type": "boolean | ((value: number, step: number) => number)"
-    },
     "step": {
       "type": "number",
       "default": "1",
