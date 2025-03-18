@@ -12,7 +12,7 @@
       "description": "Whether the tooltip is currently open."
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: \"click\" | \"hover\" | \"focus\" | \"focus-out\" | \"escape-key\" | \"outside-press\" | \"trigger-press\" | undefined) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: 'click' | 'hover' | 'focus' | 'focus-out' | 'escape-key' | 'outside-press' | 'trigger-press' | undefined) => void)",
       "description": "Event handler called when the tooltip is opened or closed."
     },
     "actionsRef": {
@@ -24,7 +24,7 @@
       "description": "Event handler called after any animations complete when the tooltip is opened or closed."
     },
     "trackCursorAxis": {
-      "type": "\"none\" | \"both\" | \"x\" | \"y\"",
+      "type": "'none' | 'both' | 'x' | 'y'",
       "default": "'none'",
       "description": "Determines which axis the tooltip should track the cursor on."
     },

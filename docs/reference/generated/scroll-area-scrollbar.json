@@ -3,7 +3,7 @@
   "description": "A vertical or horizontal scrollbar for the scroll area.\nRenders a `<div>` element.",
   "props": {
     "orientation": {
-      "type": "\"horizontal\" | \"vertical\"",
+      "type": "'horizontal' | 'vertical'",
       "default": "'vertical'",
       "description": "Whether the scrollbar controls vertical or horizontal scroll."
     },

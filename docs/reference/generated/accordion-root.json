@@ -35,7 +35,7 @@
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
     "orientation": {
-      "type": "\"horizontal\" | \"vertical\"",
+      "type": "'horizontal' | 'vertical'",
       "default": "'vertical'",
       "description": "The visual orientation of the accordion.\nControls whether roving focus uses left/right or up/down arrow keys."
     },

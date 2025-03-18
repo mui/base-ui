@@ -164,7 +164,7 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
   }
 
   if (type instanceof rae.LiteralNode) {
-    return type.value as string;
+    return normalizeQuotes(type.value as string);
   }
 
   if (type instanceof rae.ArrayNode) {
@@ -185,6 +185,17 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
   }
 
   return 'unknown';
+}
+
+function normalizeQuotes(str: string) {
+  if (str.startsWith('"') && str.endsWith('"')) {
+    return str
+      .replaceAll("'", "\\'")
+      .replaceAll('\\"', '"')
+      .replace(/^"(.*)"$/, "'$1'");
+  }
+
+  return str;
 }
 
 function sortObjectByKeys<T>(obj: Record<string, T>, order: string[]): Record<string, T> {

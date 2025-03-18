@@ -3,7 +3,7 @@
   "description": "An interactive area where the user can click and drag to change the field value.\nRenders a `<div>` element.",
   "props": {
     "direction": {
-      "type": "\"horizontal\" | \"vertical\"",
+      "type": "'horizontal' | 'vertical'",
       "default": "'horizontal'",
       "description": "Cursor movement direction in the scrub area."
     },

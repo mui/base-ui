@@ -3,7 +3,7 @@
   "description": "An error message displayed if the field control fails validation.\nRenders a `<div>` element.",
   "props": {
     "match": {
-      "type": "\"valid\" | \"badInput\" | \"customError\" | \"patternMismatch\" | \"rangeOverflow\" | \"rangeUnderflow\" | \"stepMismatch\" | \"tooLong\" | \"tooShort\" | \"typeMismatch\" | \"valueMissing\"",
+      "type": "'valid' | 'badInput' | 'customError' | 'patternMismatch' | 'rangeOverflow' | 'rangeUnderflow' | 'stepMismatch' | 'tooLong' | 'tooShort' | 'typeMismatch' | 'valueMissing'",
       "description": "Determines whether to show the error message according to the field’s\n[ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState)."
     },
     "forceShow": {

@@ -64,7 +64,7 @@
       "description": "Whether the component should ignore user interaction."
     },
     "orientation": {
-      "type": "\"horizontal\" | \"vertical\"",
+      "type": "'horizontal' | 'vertical'",
       "default": "'horizontal'",
       "description": "The component orientation."
     },

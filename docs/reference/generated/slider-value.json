@@ -3,7 +3,7 @@
   "description": "Displays the current value of the slider as text.\nRenders an `<output>` element.",
   "props": {
     "aria-live": {
-      "type": "\"off\" | \"assertive\" | \"polite\"",
+      "type": "'off' | 'assertive' | 'polite'",
       "default": "'off'"
     },
     "children": {
