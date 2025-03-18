@@ -36,7 +36,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     closeDelay,
     openOnHover = false,
     onOpenChangeComplete,
-    modal,
+    trap,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -64,7 +64,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(open && modal && openReason !== 'hover', triggerElement);
+  useScrollLock(open && trap === 'all' && openReason !== 'hover', triggerElement);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -263,10 +263,13 @@ export namespace usePopoverRoot {
      */
     actionsRef?: React.RefObject<Actions>;
     /**
-     * Whether the popover should prevent outside clicks and lock page scroll when open.
-     * @default false
+     * How the popover should trap focus, scroll, and pointer outside presses.
+     * - `all`: trap all interactions inside the popover.
+     * - `none`: don't trap any interactions.
+     * - `focus`: only trap focus inside the popover.
+     * @default 'none'
      */
-    modal?: boolean;
+    trap?: 'all' | 'none' | 'focus';
   }
 
   export interface ReturnValue {

@@ -29,7 +29,7 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
     onOpenChange,
     actionsRef,
     onOpenChangeComplete,
-    modal: true,
+    trap: 'all',
     dismissible: false,
     onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
     onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,

@@ -7,14 +7,18 @@ import { Dialog } from '@base-ui-components/react/dialog';
 import { styled } from '@mui/system';
 
 export default function Modality() {
-  const [modal, setModal] = React.useState(false);
+  const [trap, setTrap] = React.useState<'all' | 'none'>('all');
   const [withBackdrop, setWithBackdrop] = React.useState(false);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
       <label>
-        <input type="checkbox" checked={modal} onChange={() => setModal(!modal)} />{' '}
-        Modal
+        <input
+          type="checkbox"
+          checked={trap === 'all'}
+          onChange={() => setTrap(trap === 'all' ? 'none' : 'all')}
+        />{' '}
+        Trap
       </label>
       <label>
         <input
@@ -24,16 +28,16 @@ export default function Modality() {
         />{' '}
         With backdrop
       </label>
-      <SelectDemo modal={modal} withBackdrop={withBackdrop} />
-      <MenuDemo modal={modal} withBackdrop={withBackdrop} />
-      <DialogDemo modal={modal} withBackdrop={withBackdrop} />
+      <SelectDemo trap={trap} withBackdrop={withBackdrop} />
+      <MenuDemo trap={trap} withBackdrop={withBackdrop} />
+      <DialogDemo trap={trap} withBackdrop={withBackdrop} />
     </div>
   );
 }
 
-function SelectDemo({ modal, withBackdrop }: Props) {
+function SelectDemo({ trap, withBackdrop }: Props) {
   return (
-    <Select.Root defaultValue="system" modal={modal} alignItemToTrigger={false}>
+    <Select.Root defaultValue="system" trap={trap} alignItemToTrigger={false}>
       <Select.Trigger aria-label="Select font" render={<Trigger />}>
         <Select.Value placeholder="System font" />
         <SelectDropdownArrow />
@@ -63,9 +67,9 @@ function SelectDemo({ modal, withBackdrop }: Props) {
   );
 }
 
-function MenuDemo({ modal, withBackdrop }: Props) {
+function MenuDemo({ trap, withBackdrop }: Props) {
   return (
-    <Menu.Root modal={modal}>
+    <Menu.Root trap={trap}>
       <Menu.Trigger render={<Trigger />}>Open Menu</Menu.Trigger>
 
       {withBackdrop && <Menu.Backdrop render={<Backdrop />} />}
@@ -83,9 +87,9 @@ function MenuDemo({ modal, withBackdrop }: Props) {
   );
 }
 
-function DialogDemo({ modal, withBackdrop }: Props) {
+function DialogDemo({ trap, withBackdrop }: Props) {
   return (
-    <Dialog.Root modal={modal}>
+    <Dialog.Root trap={trap}>
       <Dialog.Trigger render={<Trigger />}>Open Dialog</Dialog.Trigger>
 
       {withBackdrop && <Dialog.Backdrop render={<Backdrop />} />}
@@ -107,7 +111,7 @@ function DialogDemo({ modal, withBackdrop }: Props) {
 }
 
 interface Props {
-  modal: boolean;
+  trap: 'all' | 'none';
   withBackdrop: boolean;
 }
 
@@ -284,7 +288,7 @@ const MenuPopup = styled(Menu.Popup)(
       transform: scale(0.8);
     }
   }
-      
+
   &[data-exiting] {
     opacity: 0;
     transform: scale(0.8);

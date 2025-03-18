@@ -29,7 +29,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     readOnly = false,
     required = false,
     alignItemToTrigger: alignItemToTriggerParam = true,
-    modal = false,
+    trap = 'scroll-pointer',
     onOpenChangeComplete,
   } = params;
 
@@ -292,7 +292,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
-      modal,
+      trap,
       registerSelectedItem,
       onOpenChangeComplete,
       keyboardActiveRef,
@@ -322,7 +322,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
-      modal,
+      trap,
       registerSelectedItem,
       onOpenChangeComplete,
       keyboardActiveRef,
@@ -417,10 +417,13 @@ export namespace useSelectRoot {
      */
     transitionStatus?: TransitionStatus;
     /**
-     * Whether the select should prevent outside clicks and lock page scroll when open.
-     * @default true
+     * How the select should trap focus, scroll, and pointer outside presses.
+     * - `all`: trap all interactions inside the select.
+     * - `none`: don't trap any interactions.
+     * - `scroll-pointer`: trap scroll and pointer outside presses.
+     * @default 'scroll-pointer'
      */
-    modal?: boolean;
+    trap?: 'none' | 'scroll-pointer';
     /**
      * A ref to imperative actions.
      */

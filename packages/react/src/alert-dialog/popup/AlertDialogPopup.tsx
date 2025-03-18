@@ -52,7 +52,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     setPopupElement,
     titleElementId,
     transitionStatus,
-    modal,
+    trap,
     onOpenChangeComplete,
     internalBackdropRef,
   } = useAlertDialogRootContext();
@@ -76,7 +76,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     getPopupProps,
     id,
     initialFocus,
-    modal: true,
+    trap: 'all',
     mounted,
     setOpen,
     openMethod,
@@ -112,7 +112,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 
   return (
     <React.Fragment>
-      {mounted && modal && <InternalBackdrop ref={internalBackdropRef} inert={!open} />}
+      {mounted && trap === 'all' && <InternalBackdrop ref={internalBackdropRef} inert={!open} />}
       <FloatingFocusManager
         context={floatingRootContext}
         disabled={!mounted}

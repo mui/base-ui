@@ -21,7 +21,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     closeDelay = 0,
     actionsRef,
     onOpenChangeComplete,
-    modal = false,
+    trap = 'none',
   } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -36,7 +36,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     delay: delayWithDefault,
     closeDelay,
     actionsRef,
-    modal,
+    trap,
   });
 
   const contextValue: PopoverRootContext = React.useMemo(
@@ -45,9 +45,9 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
       openOnHover,
       delay: delayWithDefault,
       closeDelay,
-      modal,
+      trap,
     }),
-    [popoverRoot, openOnHover, delayWithDefault, closeDelay, modal],
+    [popoverRoot, openOnHover, delayWithDefault, closeDelay, trap],
   );
 
   return (
@@ -105,11 +105,6 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
-   * Whether the popover should prevent outside clicks and lock page scroll when open.
-   * @default false
-   */
-  modal: PropTypes.bool,
-  /**
    * Event handler called when the popover is opened or closed.
    */
   onOpenChange: PropTypes.func,
@@ -126,6 +121,14 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   openOnHover: PropTypes.bool,
+  /**
+   * How the popover should trap focus, scroll, and pointer outside presses.
+   * - `all`: trap all interactions inside the popover.
+   * - `none`: don't trap any interactions.
+   * - `focus`: only trap focus inside the popover.
+   * @default 'none'
+   */
+  trap: PropTypes.oneOf(['all', 'focus', 'none']),
 } as any;
 
 export { PopoverRoot };

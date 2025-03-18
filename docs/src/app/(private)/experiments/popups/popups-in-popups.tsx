@@ -8,14 +8,18 @@ import { Tooltip } from '@base-ui-components/react/tooltip';
 import { styled } from '@mui/system';
 
 export default function PopupsInPopups() {
-  const [modal, setModal] = React.useState(true);
+  const [trap, setTrap] = React.useState<'all' | 'none'>('all');
   const [withBackdrop, setWithBackdrop] = React.useState(true);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
       <label>
-        <input type="checkbox" checked={modal} onChange={() => setModal(!modal)} />{' '}
-        Modal
+        <input
+          type="checkbox"
+          checked={trap === 'all'}
+          onChange={() => setTrap(trap === 'all' ? 'none' : 'all')}
+        />{' '}
+        Trap
       </label>
       <label>
         <input
@@ -26,7 +30,7 @@ export default function PopupsInPopups() {
         With backdrop
       </label>
       <div>
-        <Dialog.Root modal={modal}>
+        <Dialog.Root trap={trap}>
           <Dialog.Trigger render={<Trigger />}>Open Dialog</Dialog.Trigger>
 
           {withBackdrop && <Dialog.Backdrop render={<Backdrop />} />}
@@ -34,8 +38,8 @@ export default function PopupsInPopups() {
           <Dialog.Portal>
             <DialogPopup>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <SelectDemo modal={modal} />
-                <MenuDemo modal={modal} />
+                <SelectDemo trap={trap} />
+                <MenuDemo trap={trap} />
               </div>
               <DialogControls>
                 <DialogCloseButton>Cancel</DialogCloseButton>
@@ -48,9 +52,9 @@ export default function PopupsInPopups() {
   );
 }
 
-function SelectDemo({ modal }: Props) {
+function SelectDemo({ trap }: Props) {
   return (
-    <Select.Root modal={modal} defaultValue="system" alignItemToTrigger={false}>
+    <Select.Root trap={trap} defaultValue="system" alignItemToTrigger={false}>
       <Tooltip.Root>
         <Select.Trigger
           aria-label="Select font"
@@ -94,9 +98,9 @@ const createHandleMenuClick = (menuItem: string) => {
   };
 };
 
-function MenuDemo({ modal }: Props) {
+function MenuDemo({ trap }: Props) {
   return (
-    <Menu.Root modal={modal}>
+    <Menu.Root trap={trap}>
       <Menu.Trigger render={<Trigger />}>Format</Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner
@@ -220,7 +224,7 @@ function MenuDemo({ modal }: Props) {
 }
 
 interface Props {
-  modal: boolean;
+  trap: 'all' | 'none';
 }
 
 const blue = {
@@ -393,7 +397,7 @@ const MenuPopup = styled(Menu.Popup)(
       transform: scale(0.8);
     }
   }
-      
+
   &[data-exiting] {
     opacity: 0;
     transform: scale(0.8);

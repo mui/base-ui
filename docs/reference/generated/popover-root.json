@@ -19,14 +19,14 @@
       "type": "{ current: { unmount: func } }",
       "description": "A ref to imperative actions."
     },
-    "modal": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the popover should prevent outside clicks and lock page scroll when open."
-    },
     "onOpenChangeComplete": {
       "type": "(open) => void",
       "description": "Event handler called after any animations complete when the popover is opened or closed."
+    },
+    "trap": {
+      "type": "'all' | 'focus' | 'none'",
+      "default": "'none'",
+      "description": "How the popover should trap focus, scroll, and pointer outside presses.\n- `all`: trap all interactions inside the popover.\n- `none`: don't trap any interactions.\n- `focus`: only trap focus inside the popover."
     },
     "openOnHover": {
       "type": "boolean",

@@ -28,7 +28,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const {
     defaultOpen,
     dismissible,
-    modal,
+    trap,
     onNestedDialogClose,
     onNestedDialogOpen,
     onOpenChange: onOpenChangeParameter,
@@ -81,7 +81,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  useScrollLock(open && modal, popupElement);
+  useScrollLock(open && trap === 'all', popupElement);
 
   const handleFloatingUIOpenChange = (
     nextOpen: boolean,
@@ -110,7 +110,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
         // Only close if the click occurred on the dialog's owning backdrop.
         // This supports multiple modal dialogs that aren't nested in the React tree:
         // https://github.com/mui/base-ui/issues/1320
-        if (modal) {
+        if (trap === 'all') {
           return backdrop
             ? [internalBackdropRef.current, backdropRef.current].includes(backdrop)
             : false;
@@ -157,7 +157,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   return React.useMemo(() => {
     return {
-      modal,
+      trap,
       setOpen,
       open,
       titleElementId,
@@ -180,7 +180,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       floatingRootContext: context,
     } satisfies useDialogRoot.ReturnValue;
   }, [
-    modal,
+    trap,
     setOpen,
     open,
     titleElementId,
@@ -210,10 +210,13 @@ export interface SharedParameters {
    */
   defaultOpen?: boolean;
   /**
-   * Whether the dialog should prevent outside clicks and lock page scroll when open.
-   * @default true
+   * How the dialog should trap focus, scroll, and pointer outside presses.
+   * - `all`: trap all interactions inside the dialog.
+   * - `none`: don't trap any interactions.
+   * - `focus`: only trap focus inside the dialog.
+   * @default 'all'
    */
-  modal?: boolean;
+  trap?: 'all' | 'none' | 'focus';
   /**
    * Event handler called when the dialog is opened or closed.
    */
@@ -263,9 +266,9 @@ export namespace useDialogRoot {
      */
     descriptionElementId: string | undefined;
     /**
-     * Whether the dialog should prevent outside clicks and lock page scroll when open.
+     * How the dialog should trap focus, scroll, and pointer outside presses.
      */
-    modal: boolean;
+    trap: 'all' | 'none' | 'focus';
     /**
      * Number of nested dialogs that are currently open.
      */

@@ -8,7 +8,7 @@ export interface MenuRootContext extends useMenuRoot.ReturnValue {
   nested: boolean;
   parentContext: MenuRootContext | undefined;
   typingRef: React.RefObject<boolean>;
-  modal: boolean;
+  trap: 'none' | 'scroll-pointer';
   openReason: OpenChangeReason | null;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;

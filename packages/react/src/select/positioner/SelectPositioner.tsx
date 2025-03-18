@@ -40,7 +40,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     ...otherProps
   } = props;
 
-  const { open, mounted, setPositionerElement, listRef, labelsRef, floatingRootContext, modal } =
+  const { open, mounted, setPositionerElement, listRef, labelsRef, floatingRootContext, trap } =
     useSelectRootContext();
 
   const positioner = useSelectPositioner({
@@ -85,7 +85,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
       <SelectPositionerContext.Provider value={positioner}>
-        {mounted && modal && <InternalBackdrop inert={!open} />}
+        {mounted && trap === 'scroll-pointer' && <InternalBackdrop inert={!open} />}
         {renderElement()}
       </SelectPositionerContext.Provider>
     </CompositeList>

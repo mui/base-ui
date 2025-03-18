@@ -38,7 +38,7 @@ describe('<Menu.CheckboxItemIndicator />', () => {
       return (
         <div>
           <button onClick={() => setChecked(false)}>Close</button>
-          <Menu.Root open modal={false}>
+          <Menu.Root open trap="none">
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
@@ -97,7 +97,7 @@ describe('<Menu.CheckboxItemIndicator />', () => {
           {/* eslint-disable-next-line react/no-danger */}
           <style dangerouslySetInnerHTML={{ __html: style }} />
           <button onClick={() => setChecked(false)}>Close</button>
-          <Menu.Root open modal={false}>
+          <Menu.Root open trap="none">
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>

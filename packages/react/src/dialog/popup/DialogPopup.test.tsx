@@ -12,7 +12,7 @@ describe('<Dialog.Popup />', () => {
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
       return render(
-        <Dialog.Root open modal={false}>
+        <Dialog.Root open trap="none">
           <Dialog.Portal>{node}</Dialog.Portal>
         </Dialog.Root>,
       );
@@ -27,7 +27,7 @@ describe('<Dialog.Popup />', () => {
     ].forEach(([keepMounted, expectedIsMounted]) => {
       it(`should ${!expectedIsMounted ? 'not ' : ''}keep the dialog mounted when keepMounted=${keepMounted}`, async () => {
         const { queryByRole } = await render(
-          <Dialog.Root open={false} modal={false}>
+          <Dialog.Root open={false} trap="none">
             <Dialog.Portal keepMounted={keepMounted}>
               <Dialog.Popup />
             </Dialog.Portal>
@@ -50,7 +50,7 @@ describe('<Dialog.Popup />', () => {
       const { getByText, getByTestId } = await render(
         <div>
           <input />
-          <Dialog.Root modal={false}>
+          <Dialog.Root trap="none">
             <Dialog.Trigger>Open</Dialog.Trigger>
             <Dialog.Portal>
               <Dialog.Popup data-testid="dialog">
@@ -80,7 +80,7 @@ describe('<Dialog.Popup />', () => {
         return (
           <div>
             <input />
-            <Dialog.Root modal={false}>
+            <Dialog.Root trap="none">
               <Dialog.Trigger>Open</Dialog.Trigger>
               <Dialog.Portal>
                 <Dialog.Popup data-testid="dialog" initialFocus={input2Ref}>
@@ -118,7 +118,7 @@ describe('<Dialog.Popup />', () => {
         return (
           <div>
             <input />
-            <Dialog.Root modal={false}>
+            <Dialog.Root trap="none">
               <Dialog.Trigger>Open</Dialog.Trigger>
               <Dialog.Portal>
                 <Dialog.Popup data-testid="dialog" initialFocus={getRef}>

@@ -43,7 +43,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     delay,
     openOnHover,
     onTypingChange,
-    modal,
+    trap = 'scroll-pointer',
   } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -76,7 +76,10 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(open && modal && openReason !== 'hover', triggerElement);
+  useScrollLock(
+    open && ['all', 'scroll-pointer'].includes(trap) && openReason !== 'hover',
+    triggerElement,
+  );
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -364,7 +367,14 @@ export namespace useMenuRoot {
      * Callback fired when the user begins or finishes typing (for typeahead search).
      */
     onTypingChange: (typing: boolean) => void;
-    modal: boolean;
+    /**
+     * How the menu should trap focus, scroll, and pointer outside presses.
+     * - `all`: trap all interactions inside the menu.
+     * - `none`: don't trap any interactions.
+     * - `scroll-pointer`: trap scroll and pointer outside presses.
+     * @default 'scroll-pointer'
+     */
+    trap: 'none' | 'scroll-pointer';
     /**
      * A ref to imperative actions.
      */

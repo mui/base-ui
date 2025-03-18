@@ -24,14 +24,14 @@
       "default": "true",
       "description": "Determines whether the dialog should close on outside clicks."
     },
-    "modal": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Whether the dialog should prevent outside clicks and lock page scroll when open."
-    },
     "onOpenChangeComplete": {
       "type": "(open) => void",
       "description": "Event handler called after any animations complete when the dialog is opened or closed."
+    },
+    "trap": {
+      "type": "'all' | 'focus' | 'none'",
+      "default": "'all'",
+      "description": "How the dialog should trap focus, scroll, and pointer outside presses.\n- `all`: trap all interactions inside the dialog.\n- `none`: don't trap any interactions.\n- `focus`: only trap focus inside the dialog."
     }
   },
   "dataAttributes": {},
