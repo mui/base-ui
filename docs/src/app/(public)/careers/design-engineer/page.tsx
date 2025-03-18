@@ -162,15 +162,14 @@ export default function Homepage() {
         <h2 className="mt-10 mb-4 scroll-mt-6 text-xl font-medium text-balance">
           Application
         </h2>
-        <p className="mb-4">The hiring process will consist of 5 stages:</p>
+        <p className="mb-4">The hiring process will consist of 6 stages:</p>
         <ol className="mb-4 ml-4.5 list-inside list-decimal">
           <li className="mb-0.5">Resume review.</li>
+          <li className="mb-0.5">45 minute Phone screen.</li>
           <li className="mb-0.5">React challenge (asynchronous).</li>
-          <li className="mb-0.5">60-minute meeting with Colm (Product lead).</li>
-          <li className="mb-0.5">90-minute meeting with the Base UI team.</li>
-          <li className="mb-0.5">
-            60-minute meeting with Marija (Engineering Manager).
-          </li>
+          <li className="mb-0.5">60 minute meeting with Product lead.</li>
+          <li className="mb-0.5">90 minute meeting with the Base UI team.</li>
+          <li className="mb-0.5">60 minute culture-fit interview.</li>
         </ol>
         <Link
           className="-m-1 inline-flex items-center gap-1 p-1"
