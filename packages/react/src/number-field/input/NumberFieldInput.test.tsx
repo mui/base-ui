@@ -157,6 +157,20 @@ describe('<NumberField.Input />', () => {
     );
     const input = screen.getByRole('textbox');
     await act(async () => input.focus());
+    fireEvent.change(input, { target: { value: '1.5' } });
+    expect(input).to.have.value('1.5');
+    fireEvent.blur(input);
+    expect(input).to.have.value('1.5');
+  });
+
+  it('should commit validated number on blur (stepBehavior: snap)', async () => {
+    await render(
+      <NumberField.Root step={0.5} stepBehavior="snap">
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
     fireEvent.change(input, { target: { value: '1.1' } });
     expect(input).to.have.value('1.1');
     fireEvent.blur(input);
@@ -174,6 +188,6 @@ describe('<NumberField.Input />', () => {
     fireEvent.change(input, { target: { value: '3' } });
     expect(input).to.have.value('3');
     fireEvent.blur(input);
-    expect(input).to.have.value('4');
+    expect(input).to.have.value('3');
   });
 });

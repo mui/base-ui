@@ -288,9 +288,9 @@ describe('<NumberField.Increment />', () => {
     expect(input).to.have.value('2');
   });
 
-  it('should increment by exact step without rounding when stepSnap is false', async () => {
+  it('should increment by exact step without rounding when stepBehavior is free', async () => {
     await render(
-      <NumberField.Root defaultValue={2.7} step={2} stepSnap={false}>
+      <NumberField.Root defaultValue={2.7} step={2} stepBehavior="free">
         <NumberField.Increment />
         <NumberField.Input />
       </NumberField.Root>,

@@ -35,7 +35,7 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     value,
     onValueChange,
     allowWheelScrub,
-    stepSnap,
+    stepBehavior,
     format,
     locale,
     render,
@@ -293,6 +293,20 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    * @default 1
    */
   step: PropTypes.number,
+  /**
+   * Controls snapping to step values when incrementing or decrementing.
+   * - `snap`: values snap to the nearest step.
+   * - `free`: values are preserved without snapping.
+   * @default 'free'
+   * @example
+   * ```js
+   * // Incrementing freely increases to 1.3.
+   * <NumberField stepBehavior="free" defaultValue={0.3} />
+   * // Incrementing snaps from 1.3 down to 1.
+   * <NumberField stepBehavior="snap" defaultValue={0.3} />
+   * ```
+   */
+  stepBehavior: PropTypes.oneOf(['free', 'snap']),
   /**
    * The raw numeric value of the field.
    */

@@ -335,7 +335,7 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox');
       fireEvent.keyDown(document.body, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Increase'));
-      expect(input).to.have.value('20');
+      expect(input).to.have.value('15');
     });
 
     it('should decrement the value by the default `largeStep` prop of 10 while holding the shift key', async () => {
@@ -343,7 +343,7 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox');
       fireEvent.keyDown(document.body, { shiftKey: true });
       fireEvent.pointerDown(screen.getByLabelText('Decrease'));
-      expect(input).to.have.value('0');
+      expect(input).to.have.value('-4');
     });
 
     it('should use explicit `largeStep` value if provided while holding the shift key', async () => {

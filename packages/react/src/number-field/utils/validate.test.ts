@@ -122,7 +122,7 @@ describe('NumberField validate', () => {
         ).to.equal(10);
       });
 
-      it('preserves exact value when stepSnap is false', () => {
+      it('preserves exact value when stepBehavior is free', () => {
         expect(
           toValidatedNumber(12.3, {
             ...defaultOptions,
