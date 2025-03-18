@@ -25,6 +25,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
     setcontrolledAlignItemToTrigger,
+    keyboardActiveRef,
   } = useSelectRootContext();
 
   const initialHeightRef = React.useRef(0);
@@ -238,6 +239,12 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       return mergeProps<'div'>(
         {
           ['data-id' as string]: `${id}-popup`,
+          onKeyDown() {
+            keyboardActiveRef.current = true;
+          },
+          onMouseMove() {
+            keyboardActiveRef.current = false;
+          },
           onScroll(event) {
             if (
               !alignItemToTrigger ||
@@ -312,9 +319,10 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       );
     },
     [
-      getRootPositionerProps,
       id,
       alignItemToTrigger,
+      getRootPositionerProps,
+      keyboardActiveRef,
       positionerElement,
       popupRef,
       handleScrollArrowVisibility,
