@@ -146,8 +146,8 @@ export default function Homepage() {
             Office equipment. We let you choose the hardware of your choice.
           </li>
           <li className="mb-0.5">
-            20% time. Allocate 20% of your time towards personal and professional
-            development.
+            20% development time. Allocate 20% of your time towards personal and
+            professional development
           </li>
           <li className="mb-0.5">
             Education budget. We provide mentorship and send you to events that help
