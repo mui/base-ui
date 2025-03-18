@@ -161,6 +161,7 @@ export function useNumberFieldRoot(
         maxWithDefault,
         minWithZeroDefault,
         stepBehavior,
+        small: isHoldingAltRef.current,
       });
 
       onValueChange?.(validatedValue, event);

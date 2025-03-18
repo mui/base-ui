@@ -11,6 +11,7 @@ const defaultOptions = {
   minWithZeroDefault: 0,
   format: undefined,
   stepBehavior: 'snap',
+  small: false,
 } as const;
 
 describe('NumberField validate', () => {
