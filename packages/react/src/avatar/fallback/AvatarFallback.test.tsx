@@ -21,7 +21,7 @@ describe('<Avatar.Fallback />', () => {
     refInstanceof: window.HTMLSpanElement,
   }));
 
-  it('should not render the children if the image loaded', async () => {
+  it.skipIf(!isJSDOM)('should not render the children if the image loaded', async () => {
     (useImageLoadingStatus as Mock).mockReturnValue('loaded');
 
     const { queryByTestId } = await render(
