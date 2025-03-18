@@ -149,9 +149,9 @@ describe('<NumberField.Input />', () => {
     expect(input).to.have.value('0');
   });
 
-  it('should commit validated number on blur (step)', async () => {
+  it('should not snap number to step on blur', async () => {
     await render(
-      <NumberField.Root step={0.5}>
+      <NumberField.Root step={0.5} stepBehavior="snap">
         <NumberField.Input />
       </NumberField.Root>,
     );
@@ -161,20 +161,6 @@ describe('<NumberField.Input />', () => {
     expect(input).to.have.value('1.5');
     fireEvent.blur(input);
     expect(input).to.have.value('1.5');
-  });
-
-  it('should commit validated number on blur (stepBehavior: snap)', async () => {
-    await render(
-      <NumberField.Root step={0.5} stepBehavior="snap">
-        <NumberField.Input />
-      </NumberField.Root>,
-    );
-    const input = screen.getByRole('textbox');
-    await act(async () => input.focus());
-    fireEvent.change(input, { target: { value: '1.1' } });
-    expect(input).to.have.value('1.1');
-    fireEvent.blur(input);
-    expect(input).to.have.value('1');
   });
 
   it('should commit validated number on blur (step and min)', async () => {

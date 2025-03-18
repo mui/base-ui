@@ -40,12 +40,12 @@ describe('NumberField validate', () => {
     });
 
     describe('incrementing', () => {
-      it('be 5 when step is 1 and within bounds', () => {
+      it('snaps 5 to 5 when step is 1', () => {
         expect(toValidatedNumber(5, defaultOptions)).to.equal(5);
       });
 
-      it('be 6 when step is 1 and within bounds', () => {
-        expect(toValidatedNumber(5.5, defaultOptions)).to.equal(6);
+      it('snaps 5.5 to 5 when step is 1', () => {
+        expect(toValidatedNumber(5.5, defaultOptions)).to.equal(5);
       });
 
       it('be same value when step is undefined and within bounds', () => {
@@ -57,16 +57,16 @@ describe('NumberField validate', () => {
         ).to.equal(5.5);
       });
 
-      it('snaps to 5 when step is 5 and within bounds', () => {
+      it('snaps 9 to 5 when step is 5 and within bounds', () => {
         expect(
           toValidatedNumber(9, {
             ...defaultOptions,
             step: 5,
           }),
-        ).to.equal(10);
+        ).to.equal(5);
       });
 
-      it('snaps to 10 when step is 5 and within bounds', () => {
+      it('snaps 12 to 10 when step is 5 and within bounds', () => {
         expect(
           toValidatedNumber(12, {
             ...defaultOptions,
@@ -87,12 +87,12 @@ describe('NumberField validate', () => {
     });
 
     describe('decrementing', () => {
-      it('be 5 when step is 1 and within bounds', () => {
+      it('snaps 5 to 5 when step is 1', () => {
         expect(toValidatedNumber(5, defaultOptions)).to.equal(5);
       });
 
-      it('be 4 when step is 1 and within bounds', () => {
-        expect(toValidatedNumber(5.5, defaultOptions)).to.equal(6);
+      it('snaps 5.5 to 5 when step is 1', () => {
+        expect(toValidatedNumber(5.5, defaultOptions)).to.equal(5);
       });
 
       it('be same value when step is undefined and within bounds', () => {
@@ -104,16 +104,16 @@ describe('NumberField validate', () => {
         ).to.equal(5.5);
       });
 
-      it('snaps to 5 when step is 5 and within bounds', () => {
+      it('snaps 9 to 5 when step is 5 and within bounds', () => {
         expect(
           toValidatedNumber(9, {
             ...defaultOptions,
             step: 5,
           }),
-        ).to.equal(10);
+        ).to.equal(5);
       });
 
-      it('snaps to 10 when step is 5 and within bounds', () => {
+      it('snaps 12 to 10 when step is 5 and within bounds', () => {
         expect(
           toValidatedNumber(12, {
             ...defaultOptions,

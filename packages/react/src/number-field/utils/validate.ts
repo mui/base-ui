@@ -45,7 +45,9 @@ export function toValidatedNumber(
       const steps = Math.floor((unsnapped - base) / step);
       // Reapply the increment by adding step
       return removeFloatingPointErrors(base + steps * step + step, format);
-    } else if (step < 0) {
+    }
+
+    if (step < 0) {
       const absStep = Math.abs(step);
       const unsnapped = clampedValue - step;
       const steps = Math.ceil((unsnapped - base) / absStep);
