@@ -54,6 +54,7 @@
     transform 150ms,
     opacity 150ms;
   overflow-y: auto;
+  max-height: var(--available-height);
 
   &[data-starting-style],
   &[data-ending-style] {
