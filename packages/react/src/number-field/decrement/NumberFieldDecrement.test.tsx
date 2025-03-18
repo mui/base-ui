@@ -1,21 +1,10 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { screen, fireEvent, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
-import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
-
-const testContext = {
-  getDecrementButtonProps: (externalProps) => externalProps,
-  state: {
-    value: null,
-    required: false,
-    disabled: false,
-    invalid: false,
-    readOnly: false,
-  },
-} as NumberFieldRootContext;
 
 describe('<NumberField.Decrement />', () => {
   const { render, clock } = createRenderer();
@@ -23,11 +12,7 @@ describe('<NumberField.Decrement />', () => {
   describeConformance(<NumberField.Decrement />, () => ({
     refInstanceof: window.HTMLButtonElement,
     render(node) {
-      return render(
-        <NumberFieldRootContext.Provider value={testContext}>
-          {node}
-        </NumberFieldRootContext.Provider>,
-      );
+      return render(<NumberField.Root>{node}</NumberField.Root>);
     },
   }));
 
@@ -226,19 +211,6 @@ describe('<NumberField.Decrement />', () => {
     });
   });
 
-  it('should not decrement when disabled', async () => {
-    await render(
-      <NumberField.Root disabled>
-        <NumberField.Decrement />
-        <NumberField.Input />
-      </NumberField.Root>,
-    );
-
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
-    expect(screen.getByRole('textbox')).to.have.value('');
-  });
-
   it('should not decrement when readOnly', async () => {
     await render(
       <NumberField.Root readOnly>
@@ -314,5 +286,40 @@ describe('<NumberField.Decrement />', () => {
     fireEvent.click(button, { detail: 1 });
 
     expect(input).to.have.value('-2');
+  });
+
+  describe('disabled state', () => {
+    it('should not decrement when root is disabled', async () => {
+      const handleValueChange = spy();
+      await render(
+        <NumberField.Root disabled onValueChange={handleValueChange}>
+          <NumberField.Decrement />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      fireEvent.click(button);
+      expect(screen.getByRole('textbox')).to.have.value('');
+      expect(handleValueChange.callCount).to.equal(0);
+    });
+
+    it('should not decrement when button is disabled', async () => {
+      const handleValueChange = spy();
+      await render(
+        <NumberField.Root defaultValue={0} onValueChange={handleValueChange}>
+          <NumberField.Decrement disabled />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+      const input = screen.getByRole('textbox');
+      const button = screen.getByRole('button');
+      expect(button).to.have.attribute('disabled');
+      expect(input).to.have.value('0');
+
+      fireEvent.pointerDown(button);
+      expect(handleValueChange.callCount).to.equal(0);
+      expect(input).to.have.value('0');
+    });
   });
 });
