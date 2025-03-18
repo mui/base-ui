@@ -4,7 +4,7 @@ import {
   useEnhancedEffect,
   useTransitionStatus,
 } from '@base-ui-components/react/utils';
-import classes from './animation.module.css';
+import classes from './transition.module.css';
 import { ExpandMoreIcon } from './_icons';
 
 import { useAnimationsFinished } from '../../../../../../packages/react/src/utils/useAnimationsFinished';
@@ -22,8 +22,14 @@ function Collapsible(props: {
   defaultOpen?: boolean;
   keepMounted?: boolean;
   id?: string;
+  hiddenUntilFound?: boolean;
 }) {
-  const { keepMounted = true, defaultOpen = false, id } = props;
+  const {
+    keepMounted = true,
+    defaultOpen = false,
+    id,
+    hiddenUntilFound: hiddenUntilFoundProp = true,
+  } = props;
 
   const [open, setOpen] = React.useState(defaultOpen);
 
@@ -122,7 +128,12 @@ function Collapsible(props: {
        * CSS properties expected to transition using [data-starting-style] may
        * be mis-timed and appear to be complete skipped.
        */
-      if (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) {
+      if (
+        (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) ||
+        (hiddenUntilFoundProp &&
+          keepMounted &&
+          !shouldCancelInitialOpenTransitionRef.current)
+      ) {
         element.setAttribute('data-starting-style', '');
       }
 
@@ -188,6 +199,10 @@ function Collapsible(props: {
 
     panel.style.setProperty('display', 'block', 'important');
 
+    if (hiddenUntilFoundProp) {
+      panel.style.setProperty('content-visibility', 'visible');
+    }
+
     if (nextOpen) {
       if (abortControllerRef.current != null) {
         abortControllerRef.current.abort();
@@ -195,6 +210,7 @@ function Collapsible(props: {
       }
 
       panel.style.removeProperty('display');
+      panel.style.removeProperty('content-visibility');
 
       /* opening */
       panel.style.height = '0px';
@@ -214,6 +230,7 @@ function Collapsible(props: {
       runOnceAnimationsFinish(() => {
         // TODO: !important may be needed
         panel.style.setProperty('display', 'none');
+        panel.style.removeProperty('content-visibility');
         abortControllerRef.current = null;
       }, abortControllerRef.current.signal);
     }
@@ -309,6 +326,15 @@ function Collapsible(props: {
     return () => cancelAnimationFrame(frame);
   });
 
+  useEnhancedEffect(() => {
+    const panel = panelRef.current;
+
+    if (panel && hiddenUntilFoundProp && panel?.hidden && isHidden) {
+      // @ts-ignore
+      panel.hidden = 'until-found';
+    }
+  }, [hiddenUntilFoundProp, isHidden]);
+
   return (
     <div
       className={classes.Root}
@@ -328,7 +354,7 @@ function Collapsible(props: {
         Trigger {id}
       </button>
 
-      {(keepMounted || (!keepMounted && mounted)) && (
+      {(keepMounted || hiddenUntilFoundProp || (!keepMounted && mounted)) && (
         <div
           // @ts-ignore
           ref={mergedRef}
@@ -337,6 +363,10 @@ function Collapsible(props: {
           {...styleHooks}
           hidden={isHidden}
           id={id}
+          style={{
+            contentVisibility:
+              hiddenUntilFoundProp && mounted ? 'visible' : undefined,
+          }}
         >
           <div className={classes.Content}>
             <p>
