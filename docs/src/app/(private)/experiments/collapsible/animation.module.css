@@ -22,7 +22,6 @@
   overflow: hidden;
   box-sizing: border-box;
   width: 100%;
-  animation-fill-mode: forwards !important;
 
   &[data-open] {
     animation: slide-down var(--duration) ease-out;

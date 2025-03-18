@@ -4,13 +4,14 @@ import {
   useEnhancedEffect,
   useTransitionStatus,
 } from '@base-ui-components/react/utils';
-import classes from './transition.module.css';
+import classes from './animation.module.css';
+import { ExpandMoreIcon } from './_icons';
 
 import { useAnimationsFinished } from '../../../../../../packages/react/src/utils/useAnimationsFinished';
 import { useEventCallback } from '../../../../../../packages/react/src/utils/useEventCallback';
 import { useForkRef } from '../../../../../../packages/react/src/utils/useForkRef';
+import { useOnMount } from '../../../../../../packages/react/src/utils/useOnMount';
 import { warn } from '../../../../../../packages/react/src/utils/warn';
-import { ExpandMoreIcon } from './_icons';
 
 const STARTING_HOOK = { 'data-starting-style': '' };
 const ENDING_HOOK = { 'data-ending-style': '' };
@@ -28,6 +29,8 @@ function Collapsible(props: {
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
+  const [visible, setVisible] = React.useState(open);
+
   const styleHooks = React.useMemo(() => {
     if (transitionStatus === 'starting') {
       return STARTING_HOOK;
@@ -41,16 +44,23 @@ function Collapsible(props: {
   const [height, setHeight] = React.useState<number | undefined>(undefined);
 
   const shouldCancelInitialOpenTransitionRef = React.useRef(open);
+  const latestAnimationNameRef = React.useRef<string>(null);
+  const shouldCancelInitialOpenAnimationRef = React.useRef(open);
+
+  const animationTypeRef = React.useRef<AnimationType>(null);
 
   const isHidden = React.useMemo(() => {
+    if (animationTypeRef.current === 'css-animation') {
+      return !visible;
+    }
+
     if (keepMounted) {
       return !open;
     }
 
     return !open && !mounted;
-  }, [keepMounted, open, mounted]);
+  }, [keepMounted, open, mounted, visible]);
 
-  const animationTypeRef = React.useRef<AnimationType>(null);
   const panelRef: React.RefObject<HTMLElement | null> = React.useRef(null);
   /**
    * When `keepMounted` is `true` this runs once as soon as it exists in the DOM
@@ -64,6 +74,11 @@ function Collapsible(props: {
     if (!element) {
       return;
     }
+    /**
+     * This ref is safe to read in render because it's only ever set once here
+     * during the first render and never again.
+     * https://react.dev/learn/referencing-values-with-refs#best-practices-for-refs
+     */
     if (animationTypeRef.current == null) {
       const panelStyles = getComputedStyle(element);
       if (
@@ -86,6 +101,10 @@ function Collapsible(props: {
       }
     }
     // console.log('animationType', animationTypeRef.current);
+
+    if (animationTypeRef.current !== 'css-transition') {
+      return;
+    }
 
     /**
      * Explicitly set `display` to ensure the panel is actually rendered before
@@ -140,15 +159,30 @@ function Collapsible(props: {
   const handleTrigger = useEventCallback(() => {
     const nextOpen = !open;
 
+    const panel = panelRef.current;
+    if (panel && animationTypeRef.current === 'css-animation') {
+      panel.style.removeProperty('animation-name');
+    }
+
     if (!keepMounted) {
-      if (!mounted && nextOpen) {
-        setMounted(true);
+      if (animationTypeRef.current === 'css-transition') {
+        if (!mounted && nextOpen) {
+          setMounted(true);
+        }
+      }
+
+      if (animationTypeRef.current === 'css-animation') {
+        if (!visible && nextOpen) {
+          setVisible(true);
+        }
+        if (!mounted && nextOpen) {
+          setMounted(true);
+        }
       }
     }
     setOpen(nextOpen);
 
-    const panel = panelRef.current;
-    if (!panel) {
+    if (!panel || animationTypeRef.current !== 'css-transition') {
       return;
     }
 
@@ -190,6 +224,10 @@ function Collapsible(props: {
    * in the event handler
    */
   useEnhancedEffect(() => {
+    if (animationTypeRef.current !== 'css-transition') {
+      return;
+    }
+
     if (keepMounted) {
       return;
     }
@@ -233,6 +271,43 @@ function Collapsible(props: {
       }, abortControllerRef.current.signal);
     }
   }, [keepMounted, open, mounted, setMounted, runOnceAnimationsFinish]);
+
+  useEnhancedEffect(() => {
+    if (animationTypeRef.current !== 'css-animation') {
+      return;
+    }
+
+    const panel = panelRef.current;
+    if (!panel) {
+      return;
+    }
+
+    latestAnimationNameRef.current =
+      panel.style.animationName || latestAnimationNameRef.current;
+
+    panel.style.animationName = 'none';
+
+    setHeight(panel.scrollHeight);
+
+    if (!shouldCancelInitialOpenAnimationRef.current) {
+      panel.style.removeProperty('animation-name');
+    }
+
+    if (open) {
+      setMounted(true);
+    }
+
+    runOnceAnimationsFinish(() => {
+      setVisible(open);
+    });
+  }, [open, visible, runOnceAnimationsFinish, setMounted]);
+
+  useOnMount(() => {
+    const frame = requestAnimationFrame(() => {
+      shouldCancelInitialOpenAnimationRef.current = false;
+    });
+    return () => cancelAnimationFrame(frame);
+  });
 
   return (
     <div

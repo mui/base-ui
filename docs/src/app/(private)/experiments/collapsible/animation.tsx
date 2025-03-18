@@ -8,8 +8,8 @@ import classes from './animation.module.css';
 
 import { useAnimationsFinished } from '../../../../../../packages/react/src/utils/useAnimationsFinished';
 import { useEventCallback } from '../../../../../../packages/react/src/utils/useEventCallback';
-// import { useForkRef } from '../../../../../../packages/react/src/utils/useForkRef';
 import { useOnMount } from '../../../../../../packages/react/src/utils/useOnMount';
+import { ExpandMoreIcon } from './_icons';
 
 function Collapsible(props: {
   defaultOpen?: boolean;
@@ -150,20 +150,5 @@ export default function App() {
         <small>———</small>
       </div>
     </div>
-  );
-}
-
-function ExpandMoreIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-    >
-      <path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z" fill="currentColor" />
-    </svg>
   );
 }
