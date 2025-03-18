@@ -168,8 +168,8 @@ describe('<Toast.Root />', () => {
 
       const toastElement = screen.getByTestId('toast-root');
 
-      // Swipe up (starting at y=100, ending at y=80, which is > 15px threshold)
-      simulateSwipe(toastElement, 100, 100, 100, 80);
+      // Swipe up (starting at y=100, ending at y=55, which is > 40px threshold)
+      simulateSwipe(toastElement, 100, 100, 100, 55);
 
       await waitFor(() => {
         expect(screen.queryByTestId('toast-root')).to.equal(null);
@@ -190,7 +190,7 @@ describe('<Toast.Root />', () => {
 
       const toastElement = screen.getByTestId('toast-root');
 
-      // Swipe up but only by 10px (below 15px threshold)
+      // Swipe up but only by 10px (below 40px threshold)
       simulateSwipe(toastElement, 100, 100, 100, 90);
 
       expect(screen.queryByTestId('toast-root')).not.to.equal(null);
@@ -211,7 +211,7 @@ describe('<Toast.Root />', () => {
       const toastElement = screen.getByTestId('toast-root');
 
       // Swipe down (opposite of allowed direction)
-      simulateSwipe(toastElement, 100, 100, 100, 120);
+      simulateSwipe(toastElement, 100, 100, 100, 150);
 
       expect(screen.queryByTestId('toast-root')).not.to.equal(null);
     });
@@ -231,7 +231,7 @@ describe('<Toast.Root />', () => {
       const toastElement = screen.getByTestId('toast-root');
 
       // Swipe right
-      simulateSwipe(toastElement, 100, 100, 120, 100);
+      simulateSwipe(toastElement, 100, 100, 150, 100);
 
       await waitFor(() => {
         expect(screen.queryByTestId('toast-root')).to.equal(null);
@@ -355,7 +355,6 @@ describe('<Toast.Root />', () => {
 
       expect(screen.queryByTestId('toast-root')).to.equal(null);
 
-      // Add another toast to test right swipe
       fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
       const secondToastElement = screen.getByTestId('toast-root');
 
