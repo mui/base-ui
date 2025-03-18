@@ -26,7 +26,7 @@
     "trap": {
       "type": "'all' | 'focus' | 'none'",
       "default": "'none'",
-      "description": "How the popover should trap user interactions.\n- `all`: trap all interactions (focus, scroll, pointer) inside the popover.\n- `none`: don't trap any interactions.\n- `focus`: only trap focus inside the popover.\nTrapping focus means that tabbing is only allowed inside the popover.\nTrapping scroll means that scrolling is only allowed inside the popover, locking outer page scroll.\nTrapping pointer means that pointer interactions are only allowed inside the popover, preventing clicks on elements outside the popover."
+      "description": "How the popover should trap user interactions.\n- `all`: trap all interactions (focus, scroll, pointer) inside the popover.\n- `none`: don't trap any interactions.\n- `focus`: only trap focus inside the popover.\n\nTrapping focus means that tabbing is only allowed inside the popover.\n\nTrapping scroll means that scrolling is only allowed inside the popover, locking outer page scroll.\n\nTrapping pointer means that pointer interactions are only allowed inside the popover, preventing clicks on elements outside the popover."
     },
     "openOnHover": {
       "type": "boolean",

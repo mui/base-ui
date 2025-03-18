@@ -112,8 +112,11 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    * - `all`: trap all interactions (focus, scroll, pointer) inside the dialog.
    * - `none`: don't trap any interactions.
    * - `focus`: only trap focus inside the dialog.
+   *
    * Trapping focus means that tabbing is only allowed inside the dialog.
+   *
    * Trapping scroll means that scrolling is only allowed inside the dialog, locking outer page scroll.
+   *
    * Trapping pointer means that pointer interactions are only allowed inside the dialog, preventing clicks on elements outside the dialog.
    * @default 'all'
    */
