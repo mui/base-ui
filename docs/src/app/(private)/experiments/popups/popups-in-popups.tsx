@@ -54,7 +54,11 @@ export default function PopupsInPopups() {
 
 function SelectDemo({ trap }: Props) {
   return (
-    <Select.Root trap={trap} defaultValue="system" alignItemToTrigger={false}>
+    <Select.Root
+      trap={trap === 'all' ? 'scroll-pointer' : trap}
+      defaultValue="system"
+      alignItemToTrigger={false}
+    >
       <Tooltip.Root>
         <Select.Trigger
           aria-label="Select font"
@@ -100,7 +104,7 @@ const createHandleMenuClick = (menuItem: string) => {
 
 function MenuDemo({ trap }: Props) {
   return (
-    <Menu.Root trap={trap}>
+    <Menu.Root trap={trap === 'all' ? 'scroll-pointer' : trap}>
       <Menu.Trigger render={<Trigger />}>Format</Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner

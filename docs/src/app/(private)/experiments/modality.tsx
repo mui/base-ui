@@ -37,7 +37,11 @@ export default function Modality() {
 
 function SelectDemo({ trap, withBackdrop }: Props) {
   return (
-    <Select.Root defaultValue="system" trap={trap} alignItemToTrigger={false}>
+    <Select.Root
+      defaultValue="system"
+      trap={trap === 'all' ? 'scroll-pointer' : trap}
+      alignItemToTrigger={false}
+    >
       <Select.Trigger aria-label="Select font" render={<Trigger />}>
         <Select.Value placeholder="System font" />
         <SelectDropdownArrow />
@@ -69,7 +73,7 @@ function SelectDemo({ trap, withBackdrop }: Props) {
 
 function MenuDemo({ trap, withBackdrop }: Props) {
   return (
-    <Menu.Root trap={trap}>
+    <Menu.Root trap={trap === 'all' ? 'scroll-pointer' : trap}>
       <Menu.Trigger render={<Trigger />}>Open Menu</Menu.Trigger>
 
       {withBackdrop && <Menu.Backdrop render={<Backdrop />} />}
@@ -89,7 +93,7 @@ function MenuDemo({ trap, withBackdrop }: Props) {
 
 function DialogDemo({ trap, withBackdrop }: Props) {
   return (
-    <Dialog.Root trap={trap}>
+    <Dialog.Root trap={trap === 'scroll-pointer' ? 'all' : trap}>
       <Dialog.Trigger render={<Trigger />}>Open Dialog</Dialog.Trigger>
 
       {withBackdrop && <Dialog.Backdrop render={<Backdrop />} />}
@@ -111,7 +115,7 @@ function DialogDemo({ trap, withBackdrop }: Props) {
 }
 
 interface Props {
-  trap: 'all' | 'none';
+  trap: 'all' | 'none' | 'scroll-pointer';
   withBackdrop: boolean;
 }
 
