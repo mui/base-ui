@@ -28,7 +28,7 @@ export function useNumberFieldRoot(
     min,
     max,
     smallStep = 0.1,
-    step,
+    step = 1,
     largeStep = 10,
     required = false,
     disabled: disabledProp = false,
@@ -152,36 +152,38 @@ export function useNumberFieldRoot(
     return step;
   });
 
-  const setValue = useEventCallback((unvalidatedValue: number | null, event?: Event) => {
-    const validatedValue = toValidatedNumber(unvalidatedValue, {
-      step: getStepAmount(),
-      format: formatOptionsRef.current,
-      minWithDefault,
-      maxWithDefault,
-      minWithZeroDefault,
-      stepBehavior,
-    });
+  const setValue = useEventCallback(
+    (unvalidatedValue: number | null, event?: Event, dir?: 1 | -1) => {
+      const validatedValue = toValidatedNumber(unvalidatedValue, {
+        step: event?.type === 'focusout' ? undefined : getStepAmount() * (dir ?? 1),
+        format: formatOptionsRef.current,
+        minWithDefault,
+        maxWithDefault,
+        minWithZeroDefault,
+        stepBehavior,
+      });
 
-    onValueChange?.(validatedValue, event);
-    setValueUnwrapped(validatedValue);
-    setDirty(validatedValue !== validityData.initialValue);
+      onValueChange?.(validatedValue, event);
+      setValueUnwrapped(validatedValue);
+      setDirty(validatedValue !== validityData.initialValue);
 
-    if (validationMode === 'onChange') {
-      commitValidation(validatedValue);
-    }
+      if (validationMode === 'onChange') {
+        commitValidation(validatedValue);
+      }
 
-    // We need to force a re-render, because while the value may be unchanged, the formatting may
-    // be different. This forces the `useEnhancedEffect` to run which acts as a single source of
-    // truth to sync the input value.
-    forceRender();
-  });
+      // We need to force a re-render, because while the value may be unchanged, the formatting may
+      // be different. This forces the `useEnhancedEffect` to run which acts as a single source of
+      // truth to sync the input value.
+      forceRender();
+    },
+  );
 
   const incrementValue = useEventCallback(
     (amount: number, dir: 1 | -1, currentValue?: number | null, event?: Event) => {
       const prevValue = currentValue == null ? valueRef.current : currentValue;
       const nextValue =
         typeof prevValue === 'number' ? prevValue + amount * dir : Math.max(0, min ?? 0);
-      setValue(nextValue, event);
+      setValue(nextValue, event, dir);
     },
   );
 
@@ -568,7 +570,7 @@ export namespace useNumberFieldRoot {
     disabled: boolean;
     readOnly: boolean;
     id: string | undefined;
-    setValue: (unvalidatedValue: number | null, event?: Event) => void;
+    setValue: (unvalidatedValue: number | null, event?: Event, dir?: 1 | -1) => void;
     getStepAmount: () => number | undefined;
     incrementValue: (
       amount: number,
