@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../utils/types';
+import type { BaseUIComponentProps, Orientation } from '../utils/types';
 import { mergeProps } from '../merge-props';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 
@@ -41,8 +41,6 @@ const Separator = React.forwardRef(function SeparatorComponent(
 
   return renderElement();
 });
-
-type Orientation = 'horizontal' | 'vertical';
 
 namespace Separator {
   export interface Props extends BaseUIComponentProps<'div', State> {
