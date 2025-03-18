@@ -16,7 +16,7 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectArrow = React.forwardRef(function SelectArrow(
+export const SelectArrow = React.forwardRef(function SelectArrow(
   props: SelectArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -66,7 +66,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
   return renderElement();
 });
 
-namespace SelectArrow {
+export namespace SelectArrow {
   export interface State {
     /**
      * Whether the select menu is currently open.
@@ -102,5 +102,3 @@ SelectArrow.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { SelectArrow };

@@ -105,7 +105,7 @@ const MemoizedInnerSelectItemText = React.memo(InnerSelectItemText);
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectItemText = React.forwardRef(function SelectItemText(
+export const SelectItemText = React.forwardRef(function SelectItemText(
   props: SelectItemText.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -124,7 +124,7 @@ const SelectItemText = React.forwardRef(function SelectItemText(
   );
 });
 
-namespace SelectItemText {
+export namespace SelectItemText {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {}
@@ -152,5 +152,3 @@ SelectItemText.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { SelectItemText };

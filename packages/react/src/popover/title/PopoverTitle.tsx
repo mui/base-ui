@@ -14,7 +14,7 @@ const state = {};
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverTitle = React.forwardRef(function PopoverTitle(
+export const PopoverTitle = React.forwardRef(function PopoverTitle(
   props: PopoverTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
@@ -39,7 +39,7 @@ const PopoverTitle = React.forwardRef(function PopoverTitle(
   return renderElement();
 });
 
-namespace PopoverTitle {
+export namespace PopoverTitle {
   export interface State {}
 
   export interface Props
@@ -72,5 +72,3 @@ PopoverTitle.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { PopoverTitle };

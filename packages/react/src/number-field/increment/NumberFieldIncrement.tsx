@@ -13,7 +13,7 @@ import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
-const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
+export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
   props: NumberFieldIncrement.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -83,7 +83,7 @@ const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
   return renderElement();
 });
 
-namespace NumberFieldIncrement {
+export namespace NumberFieldIncrement {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }

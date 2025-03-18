@@ -20,7 +20,7 @@ import { mergeProps } from '../../merge-props';
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
-const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAreaCursor(
+export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAreaCursor(
   props: NumberFieldScrubAreaCursor.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -66,7 +66,7 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
   return ReactDOM.createPortal(renderElement(), ownerDocument(element).body);
 });
 
-namespace NumberFieldScrubAreaCursor {
+export namespace NumberFieldScrubAreaCursor {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'span', State> {}
 }
@@ -93,5 +93,3 @@ NumberFieldScrubAreaCursor.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { NumberFieldScrubAreaCursor };

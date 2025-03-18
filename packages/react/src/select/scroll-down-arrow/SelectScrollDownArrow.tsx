@@ -10,14 +10,14 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectScrollDownArrow = React.forwardRef(function SelectScrollDownArrow(
+export const SelectScrollDownArrow = React.forwardRef(function SelectScrollDownArrow(
   props: SelectScrollDownArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   return <SelectScrollArrow {...props} ref={forwardedRef} direction="down" />;
 });
 
-namespace SelectScrollDownArrow {
+export namespace SelectScrollDownArrow {
   export interface State {}
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
@@ -55,5 +55,3 @@ SelectScrollDownArrow.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { SelectScrollDownArrow };

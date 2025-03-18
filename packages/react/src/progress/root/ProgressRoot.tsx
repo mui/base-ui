@@ -13,7 +13,7 @@ import { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
-const ProgressRoot = React.forwardRef(function ProgressRoot(
+export const ProgressRoot = React.forwardRef(function ProgressRoot(
   props: ProgressRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -78,7 +78,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
   );
 });
 
-namespace ProgressRoot {
+export namespace ProgressRoot {
   export type State = {
     max: number;
     min: number;
@@ -172,5 +172,3 @@ ProgressRoot.propTypes /* remove-proptypes */ = {
    */
   value: PropTypes.number,
 } as any;
-
-export { ProgressRoot };

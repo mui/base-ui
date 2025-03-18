@@ -11,7 +11,7 @@ import { mergeProps } from '../../merge-props';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectIcon = React.forwardRef(function SelectIcon(
+export const SelectIcon = React.forwardRef(function SelectIcon(
   props: SelectIcon.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -41,7 +41,7 @@ const SelectIcon = React.forwardRef(function SelectIcon(
   return renderElement();
 });
 
-namespace SelectIcon {
+export namespace SelectIcon {
   export interface State {}
 
   export interface Props extends BaseUIComponentProps<'span', State> {}
@@ -69,5 +69,3 @@ SelectIcon.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { SelectIcon };

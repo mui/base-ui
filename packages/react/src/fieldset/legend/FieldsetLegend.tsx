@@ -12,7 +12,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
  */
-const FieldsetLegend = React.forwardRef(function FieldsetLegend(
+export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   props: FieldsetLegend.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -41,7 +41,7 @@ const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   return renderElement();
 });
 
-namespace FieldsetLegend {
+export namespace FieldsetLegend {
   export interface State {
     /**
      * Whether the component should ignore user interaction.
@@ -78,5 +78,3 @@ FieldsetLegend.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { FieldsetLegend };

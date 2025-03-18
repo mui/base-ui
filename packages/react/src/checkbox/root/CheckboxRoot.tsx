@@ -16,7 +16,7 @@ import { CheckboxRootContext } from './CheckboxRootContext';
  *
  * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
  */
-const CheckboxRoot = React.forwardRef(function CheckboxRoot(
+export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   props: CheckboxRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -115,7 +115,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   );
 });
 
-namespace CheckboxRoot {
+export namespace CheckboxRoot {
   export interface State extends FieldRoot.State {
     /**
      * Whether the checkbox is currently ticked.
@@ -231,5 +231,3 @@ CheckboxRoot.propTypes /* remove-proptypes */ = {
    */
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 } as any;
-
-export { CheckboxRoot };

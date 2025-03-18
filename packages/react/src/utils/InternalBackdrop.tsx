@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 /**
  * @ignore - internal component.
  */
-const InternalBackdrop = React.forwardRef(function InternalBackdrop(
+export const InternalBackdrop = React.forwardRef(function InternalBackdrop(
   props: InternalBackdrop.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -31,7 +31,7 @@ const InternalBackdrop = React.forwardRef(function InternalBackdrop(
   );
 });
 
-namespace InternalBackdrop {
+export namespace InternalBackdrop {
   export interface Props {
     /**
      * Whether the backdrop should be inert (not block pointer events).
@@ -52,5 +52,3 @@ InternalBackdrop.propTypes /* remove-proptypes */ = {
    */
   inert: PropTypes.bool,
 } as any;
-
-export { InternalBackdrop };

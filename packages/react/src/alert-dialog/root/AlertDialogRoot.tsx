@@ -11,7 +11,7 @@ import { useDialogRoot } from '../../dialog/root/useDialogRoot';
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
+export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
   const {
     children,
     defaultOpen = false,
@@ -53,7 +53,7 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
   );
 };
 
-namespace AlertDialogRoot {
+export namespace AlertDialogRoot {
   export interface Props extends Omit<DialogRoot.Props, 'modal' | 'dismissible'> {}
 
   export type Actions = DialogRoot.Actions;
@@ -96,5 +96,3 @@ AlertDialogRoot.propTypes /* remove-proptypes */ = {
    */
   open: PropTypes.bool,
 } as any;
-
-export { AlertDialogRoot };

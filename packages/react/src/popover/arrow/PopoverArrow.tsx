@@ -16,7 +16,7 @@ import { mergeProps } from '../../merge-props';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverArrow = React.forwardRef(function PopoverArrow(
+export const PopoverArrow = React.forwardRef(function PopoverArrow(
   props: PopoverArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -63,7 +63,7 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
   return renderElement();
 });
 
-namespace PopoverArrow {
+export namespace PopoverArrow {
   export interface State {
     /**
      * Whether the popover is currently open.
@@ -99,5 +99,3 @@ PopoverArrow.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { PopoverArrow };

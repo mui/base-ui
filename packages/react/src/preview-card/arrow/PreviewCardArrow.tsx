@@ -16,7 +16,7 @@ import { mergeProps } from '../../merge-props';
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
+export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   props: PreviewCardArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -62,7 +62,7 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   return renderElement();
 });
 
-namespace PreviewCardArrow {
+export namespace PreviewCardArrow {
   export interface State {
     /**
      * Whether the preview card is currently open.
@@ -98,5 +98,3 @@ PreviewCardArrow.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { PreviewCardArrow };

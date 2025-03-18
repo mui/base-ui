@@ -19,7 +19,7 @@ import { HTMLElementType, refType } from '../../utils/proptypes';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectPositioner = React.forwardRef(function SelectPositioner(
+export const SelectPositioner = React.forwardRef(function SelectPositioner(
   props: SelectPositioner.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -92,7 +92,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   );
 });
 
-namespace SelectPositioner {
+export namespace SelectPositioner {
   export interface State {
     open: boolean;
     side: Side | 'none';
@@ -223,5 +223,3 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    */
   trackAnchor: PropTypes.bool,
 } as any;
-
-export { SelectPositioner };

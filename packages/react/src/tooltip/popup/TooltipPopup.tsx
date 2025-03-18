@@ -25,7 +25,7 @@ const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-const TooltipPopup = React.forwardRef(function TooltipPopup(
+export const TooltipPopup = React.forwardRef(function TooltipPopup(
   props: TooltipPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -81,7 +81,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   return renderElement();
 });
 
-namespace TooltipPopup {
+export namespace TooltipPopup {
   export interface State {
     /**
      * Whether the tooltip is currently open.
@@ -118,5 +118,3 @@ TooltipPopup.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { TooltipPopup };
