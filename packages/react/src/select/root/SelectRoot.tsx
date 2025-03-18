@@ -203,9 +203,11 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   required: PropTypes.bool,
   /**
-   * How the select should trap focus, scroll, and pointer outside presses.
+   * How the select should trap user interactions.
+   * - `scroll-pointer`: trap scroll and pointer interactions inside the select.
    * - `none`: don't trap any interactions.
-   * - `scroll-pointer`: trap scroll and pointer outside presses.
+   * Trapping scroll means that scrolling is only allowed inside the select, locking outer page scroll.
+   * Trapping pointer means that pointer interactions are only allowed inside the select, preventing clicks on elements outside the select.
    * @default 'scroll-pointer'
    */
   trap: PropTypes.oneOf(['none', 'scroll-pointer']),

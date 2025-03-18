@@ -210,10 +210,13 @@ export interface SharedParameters {
    */
   defaultOpen?: boolean;
   /**
-   * How the dialog should trap focus, scroll, and pointer outside presses.
-   * - `all`: trap all interactions inside the dialog.
+   * How the dialog should trap user interactions.
+   * - `all`: trap all interactions (focus, scroll, pointer) inside the dialog.
    * - `none`: don't trap any interactions.
    * - `focus`: only trap focus inside the dialog.
+   * Trapping focus means that tabbing is only allowed inside the dialog.
+   * Trapping scroll means that scrolling is only allowed inside the dialog, locking outer page scroll.
+   * Trapping pointer means that pointer presses are only allowed inside the dialog, preventing clicks on elements outside the dialog.
    * @default 'all'
    */
   trap?: 'all' | 'none' | 'focus';

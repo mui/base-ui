@@ -263,10 +263,13 @@ export namespace usePopoverRoot {
      */
     actionsRef?: React.RefObject<Actions>;
     /**
-     * How the popover should trap focus, scroll, and pointer outside presses.
-     * - `all`: trap all interactions inside the popover.
+     * How the popover should trap user interactions.
+     * - `all`: trap all interactions (focus, scroll, pointer) inside the popover.
      * - `none`: don't trap any interactions.
      * - `focus`: only trap focus inside the popover.
+     * Trapping focus means that tabbing is only allowed inside the popover.
+     * Trapping scroll means that scrolling is only allowed inside the popover, locking outer page scroll.
+     * Trapping pointer means that pointer interactions are only allowed inside the popover, preventing clicks on elements outside the popover.
      * @default 'none'
      */
     trap?: 'all' | 'none' | 'focus';

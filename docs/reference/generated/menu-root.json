@@ -31,7 +31,7 @@
     "trap": {
       "type": "'none' | 'scroll-pointer'",
       "default": "'scroll-pointer'",
-      "description": "How the menu should trap focus, scroll, and pointer outside presses.\n- `none`: don't trap any interactions.\n- `scroll-pointer`: trap scroll and pointer outside presses."
+      "description": "How the menu should trap user interactions.\n- `scroll-pointer`: trap scroll and pointer interactions inside the menu.\n- `none`: don't trap any interactions.\nTrapping scroll means that scrolling is only allowed inside the menu, locking outer page scroll.\nTrapping pointer means that pointer interactions are only allowed inside the menu, preventing clicks on elements outside the menu."
     },
     "disabled": {
       "type": "boolean",
