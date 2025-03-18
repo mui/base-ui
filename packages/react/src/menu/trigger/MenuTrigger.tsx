@@ -25,6 +25,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     disabled: menuDisabled,
     setTriggerElement,
     open,
+    mounted,
     setOpen,
     allowMouseUpTriggerRef,
     positionerRef,
@@ -40,7 +41,13 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     positionerRef,
   });
 
-  const state: MenuTrigger.State = React.useMemo(() => ({ open }), [open]);
+  const state: MenuTrigger.State = React.useMemo(
+    () => ({
+      disabled,
+      open: mounted,
+    }),
+    [disabled, mounted],
+  );
 
   const propGetter = React.useCallback(
     (externalProps: GenericHTMLProps) =>
