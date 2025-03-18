@@ -10,8 +10,8 @@ const defaultOptions = {
   maxWithDefault: max,
   minWithZeroDefault: 0,
   format: undefined,
-  stepSnap: true,
-};
+  stepBehavior: 'snap',
+} as const;
 
 describe('NumberField validate', () => {
   describe('removeFloatingPointErrors', () => {
@@ -75,12 +75,12 @@ describe('NumberField validate', () => {
         ).to.equal(10);
       });
 
-      it('preserves exact value when stepSnap is false', () => {
+      it('preserves exact value when stepBehavior is free', () => {
         expect(
           toValidatedNumber(9.7, {
             ...defaultOptions,
             step: 5,
-            stepSnap: false,
+            stepBehavior: 'free',
           }),
         ).to.equal(9.7);
       });
@@ -127,7 +127,7 @@ describe('NumberField validate', () => {
           toValidatedNumber(12.3, {
             ...defaultOptions,
             step: 5,
-            stepSnap: false,
+            stepBehavior: 'free',
           }),
         ).to.equal(12.3);
       });

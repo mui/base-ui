@@ -36,7 +36,7 @@ export function useNumberFieldRoot(
     readOnly = false,
     autoFocus = false,
     allowWheelScrub = false,
-    stepSnap = true,
+    stepBehavior = 'free',
     format,
     value: externalValue,
     onValueChange: onValueChangeProp,
@@ -159,7 +159,7 @@ export function useNumberFieldRoot(
       minWithDefault,
       maxWithDefault,
       minWithZeroDefault,
-      stepSnap,
+      stepBehavior,
     });
 
     onValueChange?.(validatedValue, event);
@@ -520,12 +520,18 @@ export namespace useNumberFieldRoot {
     allowWheelScrub?: boolean;
     /**
      * Controls snapping to step values when incrementing or decrementing.
-     * - `true`: values snap to the nearest step.
-     * - `false`: values are preserved without snapping.
-     * - `function`: custom snap logic takes the unsnapped value and step amount and returns a new value.
-     * @default true
+     * - `snap`: values snap to the nearest step.
+     * - `free`: values are preserved without snapping.
+     * @default 'free'
+     * @example
+     * ```js
+     * // Incrementing freely increases to 1.3.
+     * <NumberField stepBehavior="free" defaultValue={0.3} />
+     * // Incrementing snaps from 1.3 down to 1.
+     * <NumberField stepBehavior="snap" defaultValue={0.3} />
+     * ```
      */
-    stepSnap?: boolean | ((value: number, step: number) => number);
+    stepBehavior?: 'snap' | 'free';
     /**
      * Options to format the input value.
      */
