@@ -302,6 +302,30 @@ describe('<NumberField.Decrement />', () => {
     expect(screen.getByRole('textbox')).to.have.value('0.7');
   });
 
+  it('should snap on decrement when stepBehavior is snap', async () => {
+    await render(
+      <NumberField.Root defaultValue={1.3} stepBehavior="snap">
+        <NumberField.Decrement />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+
+    expect(screen.getByRole('textbox')).to.have.value('1');
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: '1.9' } });
+    fireEvent.click(button);
+
+    expect(screen.getByRole('textbox')).to.have.value('1');
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: '-0.2' } });
+    fireEvent.click(button);
+
+    expect(screen.getByRole('textbox')).to.have.value('-1');
+  });
+
   describe('disabled state', () => {
     it('should not decrement when root is disabled', async () => {
       const handleValueChange = spy();

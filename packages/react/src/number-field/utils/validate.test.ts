@@ -48,6 +48,10 @@ describe('NumberField validate', () => {
         expect(toValidatedNumber(5.5, defaultOptions)).to.equal(5);
       });
 
+      it('snaps -0.3 to -1 when step is 1', () => {
+        expect(toValidatedNumber(-0.3, defaultOptions)).to.equal(-1);
+      });
+
       it('be same value when step is undefined and within bounds', () => {
         expect(
           toValidatedNumber(5.5, {
@@ -87,12 +91,31 @@ describe('NumberField validate', () => {
     });
 
     describe('decrementing', () => {
-      it('snaps 5 to 5 when step is 1', () => {
-        expect(toValidatedNumber(5, defaultOptions)).to.equal(5);
+      it('snaps 5 to 5 when step is -1', () => {
+        expect(
+          toValidatedNumber(5, {
+            ...defaultOptions,
+            step: -1,
+          }),
+        ).to.equal(5);
       });
 
-      it('snaps 5.5 to 5 when step is 1', () => {
-        expect(toValidatedNumber(5.5, defaultOptions)).to.equal(5);
+      it('snaps 5.5 to 6 when step is -1', () => {
+        expect(
+          toValidatedNumber(5.5, {
+            ...defaultOptions,
+            step: -1,
+          }),
+        ).to.equal(6);
+      });
+
+      it('snaps -0.3 to 0 when step is -1', () => {
+        expect(
+          toValidatedNumber(-0.3, {
+            ...defaultOptions,
+            step: -1,
+          }),
+        ).to.equal(0);
       });
 
       it('be same value when step is undefined and within bounds', () => {
@@ -104,29 +127,29 @@ describe('NumberField validate', () => {
         ).to.equal(5.5);
       });
 
-      it('snaps 9 to 5 when step is 5 and within bounds', () => {
+      it('snaps 9 to 10 when step is -5', () => {
         expect(
           toValidatedNumber(9, {
             ...defaultOptions,
-            step: 5,
+            step: -5,
           }),
-        ).to.equal(5);
+        ).to.equal(10);
       });
 
-      it('snaps 12 to 10 when step is 5 and within bounds', () => {
+      it('snaps 12 to 15 when step is -5', () => {
         expect(
           toValidatedNumber(12, {
             ...defaultOptions,
-            step: 5,
+            step: -5,
           }),
-        ).to.equal(10);
+        ).to.equal(15);
       });
 
       it('preserves exact value when stepBehavior is free', () => {
         expect(
           toValidatedNumber(12.3, {
             ...defaultOptions,
-            step: 5,
+            step: -5,
             stepBehavior: 'free',
           }),
         ).to.equal(12.3);
