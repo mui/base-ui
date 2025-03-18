@@ -6,19 +6,7 @@ export default function ExampleToast() {
   return (
     <Toast.Provider>
       <ToastButton />
-      <Toast.Viewport
-        // prettier-ignore
-        className="
-          fixed mx-auto flex w-full max-w-[320px]
-          data-[position=top]:top-4 data-[position=top]:right-0 data-[position=top]:left-0
-          data-[position=bottom]:bottom-4 data-[position=bottom]:right-0 data-[position=bottom]:left-0
-          data-[position=top-left]:top-4 data-[position=top-left]:left-4 data-[position=top-left]:items-start
-          data-[position=top-right]:top-4 data-[position=top-right]:right-4 data-[position=top-right]:items-end
-          data-[position=bottom-left]:bottom-4 data-[position=bottom-left]:left-4 data-[position=bottom-left]:top-auto data-[position=bottom-left]:items-start
-          data-[position=bottom-right]:bottom-4 data-[position=bottom-right]:right-4 data-[position=bottom-right]:top-auto data-[position=bottom-right]:items-end
-        "
-        data-position="top"
-      >
+      <Toast.Viewport className="fixed top-auto right-[2rem] bottom-[2rem] mx-auto flex w-full max-w-[300px]">
         <ToastList />
       </Toast.Viewport>
     </Toast.Provider>
@@ -54,56 +42,12 @@ function ToastList() {
     <Toast.Root
       key={toast.id}
       toast={toast}
-      data-position="top"
-      swipeDirection="up"
-      // prettier-ignore
-      className="
-        absolute left-0 right-0 mx-auto
-        bg-gray-50 p-4
-        bg-clip-padding
-        w-[300px]
-        shadow-lg
-        rounded-lg
-        select-none
-        border border-gray-200
-        z-[calc(1000-var(--toast-index))]
-        transition-all [transition-property:opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
-        data-[ending-style]:opacity-0
-
-        after:content-[''] after:absolute after:left-0 after:w-full after:h-[calc(var(--gap)+1px)]
-        data-[position^=top]:after:top-full
-        data-[position^=bottom]:after:bottom-full
-
-        data-[position^=bottom]:bottom-0
-
-        data-[position$=left]:right-auto data-[position$=left]:ml-0
-        data-[position$=right]:left-auto data-[position$=right]:mr-0
-
-        data-[position^=top]:data-[expanded]:[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-offset-y)+calc(var(--toast-index)*var(--gap))+var(--toast-swipe-movement-y)))]
-        data-[position^=bottom]:data-[expanded]:[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y)))]
-
-        data-[position^=top]:[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)+calc(var(--toast-index)*15px)))_scale(calc(1-(var(--toast-index)*0.1)))]
-        data-[position^=bottom]:[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)+calc(var(--toast-index)*-15px)))_scale(calc(1-(var(--toast-index)*0.1)))]
-
-        data-[position^=top]:data-[starting-style]:[transform:translateY(-150%)]
-        data-[position^=bottom]:data-[ending-style]:[not([data-limited])]:[transform:translateY(-150%)]
-        data-[position^=top]:data-[expanded]:data-[ending-style]:[transform:translateY(-150%)]
-
-        data-[position^=bottom]:data-[starting-style]:[transform:translateY(150%)]
-        data-[position^=bottom]:data-[ending-style]:[not([data-limited])]:[transform:translateY(150%)]
-        data-[position^=bottom]:data-[expanded]:data-[ending-style]:[transform:translateY(150%)]
-
-        data-[position^=top]:data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]
-        data-[position^=top]:data-[ending-style]:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))]
-        data-[position^=top]:data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))]
-        data-[position^=top]:data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))]
-
-        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]
-        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))]
-        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))]
-        data-[position^=bottom]:data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))]
-      "
-      style={{ '--gap': '10px' } as React.CSSProperties}
+      className="absolute right-0 bottom-0 left-auto z-[calc(1000-var(--toast-index))] mr-0 w-[300px] [transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)+calc(var(--toast-index)*-15px)))_scale(calc(1-(var(--toast-index)*0.1)))] rounded-lg border border-gray-200 bg-gray-50 bg-clip-padding p-4 shadow-lg transition-all [transition-property:opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] select-none after:absolute after:bottom-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-[''] data-[ending-style]:opacity-0 data-[expanded]:[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y)))] data-[starting-style]:[transform:translateY(150%)] data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))] data-[expanded]:data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))] data-[ending-style]:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))] data-[expanded]:data-[ending-style]:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))] data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))] data-[expanded]:data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))] data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))] data-[expanded]:data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))] data-[ending-style]:[&:not([data-limited])]:[transform:translateY(150%)]"
+      style={{
+        ['--gap' as string]: '1rem',
+        ['--offset-y' as string]:
+          'calc(var(--toast-offset-y) * -1 + (var(--toast-index) * var(--gap) * -1) + var(--toast-swipe-movement-y))',
+      }}
     >
       <Toast.Title className="text-[0.975rem] leading-5 font-medium">
         {toast.title}

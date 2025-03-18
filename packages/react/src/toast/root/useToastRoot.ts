@@ -11,10 +11,10 @@ import { mergeProps } from '../../merge-props';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { ToastRootContext } from './ToastRootContext';
 
-const SWIPE_THRESHOLD = 15;
+const SWIPE_THRESHOLD = 40;
 const REVERSE_CANCEL_THRESHOLD = 10;
 const OPPOSITE_DIRECTION_DAMPING_FACTOR = 0.5;
-const MIN_DRAG_THRESHOLD = 0;
+const MIN_DRAG_THRESHOLD = 1;
 
 function getDisplacement(
   direction: 'up' | 'down' | 'left' | 'right',
@@ -60,7 +60,7 @@ function getElementTransform(element: HTMLElement) {
 }
 
 export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.ReturnValue {
-  const { toast, swipeDirection = 'up' } = props;
+  const { toast, swipeDirection } = props;
 
   const swipeDirections = Array.isArray(swipeDirection) ? swipeDirection : [swipeDirection];
 
@@ -68,6 +68,9 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
     useToastContext();
 
   const [renderScreenReaderContent, setRenderScreenReaderContent] = React.useState(false);
+  const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
+    'up' | 'down' | 'left' | 'right' | undefined
+  >(undefined);
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -289,12 +292,14 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
       if (candidate && swipeDirections.includes(candidate)) {
         intendedSwipeDirectionRef.current = candidate;
         maxSwipeDisplacementRef.current = getDisplacement(candidate, deltaX, deltaY);
+        setCurrentSwipeDirection(candidate);
       }
     } else {
       const direction = intendedSwipeDirectionRef.current;
       const currentDisplacement = getDisplacement(direction, cancelDeltaX, cancelDeltaY);
       if (currentDisplacement > SWIPE_THRESHOLD) {
         cancelledSwipeRef.current = false;
+        setCurrentSwipeDirection(direction);
       } else if (
         maxSwipeDisplacementRef.current - currentDisplacement >=
         REVERSE_CANCEL_THRESHOLD
@@ -344,37 +349,40 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
     rootRef.current?.releasePointerCapture(event.pointerId);
 
     if (cancelledSwipeRef.current) {
-      setDragOffset({
-        x: initialTransform.x,
-        y: initialTransform.y,
-      });
+      setDragOffset({ x: initialTransform.x, y: initialTransform.y });
+      setCurrentSwipeDirection(undefined);
       return;
     }
 
     let shouldClose = false;
     const deltaX = dragOffset.x - initialTransform.x;
     const deltaY = dragOffset.y - initialTransform.y;
+    let dismissDirection: 'up' | 'down' | 'left' | 'right' | undefined;
 
     for (const direction of swipeDirections) {
       switch (direction) {
         case 'right':
           if (deltaX > SWIPE_THRESHOLD) {
             shouldClose = true;
+            dismissDirection = 'right';
           }
           break;
         case 'left':
           if (deltaX < -SWIPE_THRESHOLD) {
             shouldClose = true;
+            dismissDirection = 'left';
           }
           break;
         case 'down':
           if (deltaY > SWIPE_THRESHOLD) {
             shouldClose = true;
+            dismissDirection = 'down';
           }
           break;
         case 'up':
           if (deltaY < -SWIPE_THRESHOLD) {
             shouldClose = true;
+            dismissDirection = 'up';
           }
           break;
         default:
@@ -386,13 +394,12 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
     }
 
     if (shouldClose) {
+      setCurrentSwipeDirection(dismissDirection);
       setDragDismissed(true);
       close(toast.id);
     } else {
-      setDragOffset({
-        x: initialTransform.x,
-        y: initialTransform.y,
-      });
+      setDragOffset({ x: initialTransform.x, y: initialTransform.y });
+      setCurrentSwipeDirection(undefined);
     }
   });
 
@@ -469,6 +476,7 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
           'aria-labelledby': titleId,
           'aria-describedby': descriptionId,
           [ToastRootDataAttributes.swiping]: isSwiping,
+          [ToastRootDataAttributes.swipeDirection]: currentSwipeDirection,
           onPointerDown: handlePointerDown,
           onPointerMove: handlePointerMove,
           onPointerUp: handlePointerUp,
@@ -495,6 +503,7 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
       visibleIndex,
       offsetY,
       isSwiping,
+      currentSwipeDirection,
       dragOffset,
       initialTransform,
       dragDismissed,
@@ -512,8 +521,17 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
       descriptionId,
       setDescriptionId,
       swiping: isSwiping,
+      swipeDirection: currentSwipeDirection,
     }),
-    [renderScreenReaderContent, toast, getRootProps, titleId, descriptionId, isSwiping],
+    [
+      renderScreenReaderContent,
+      toast,
+      getRootProps,
+      titleId,
+      descriptionId,
+      isSwiping,
+      currentSwipeDirection,
+    ],
   );
 }
 
@@ -534,5 +552,6 @@ export namespace useToastRoot {
     setTitleId: React.Dispatch<React.SetStateAction<string | undefined>>;
     descriptionId: string | undefined;
     swiping: boolean;
+    swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
   }
 }

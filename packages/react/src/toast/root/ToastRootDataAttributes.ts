@@ -19,4 +19,9 @@ export enum ToastRootDataAttributes {
    * @type {string}
    */
   type = 'data-type',
+  /**
+   * The direction the toast was swiped.
+   * @type {'up' | 'down' | 'left' | 'right'}
+   */
+  swipeDirection = 'data-swipe-direction',
 }

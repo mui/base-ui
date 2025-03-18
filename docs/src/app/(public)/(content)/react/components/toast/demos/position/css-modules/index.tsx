@@ -3,44 +3,32 @@ import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 import styles from './index.module.css';
 
-interface CustomToastData {
-  userId: string;
-}
-
-function isCustomToast(
-  toast: Toast.Root.ToastObject,
-): toast is Toast.Root.ToastObject<CustomToastData> {
-  return toast.data?.userId !== undefined;
-}
-
-export default function CustomToastExample() {
+export default function ExampleToast() {
   return (
     <Toast.Provider>
-      <CustomToast />
-      <Toast.Viewport className={styles.Viewport} data-position="top">
+      <ToastButton />
+      <Toast.Viewport className={styles.Viewport}>
         <ToastList />
       </Toast.Viewport>
     </Toast.Provider>
   );
 }
 
-function CustomToast() {
+function ToastButton() {
   const toast = Toast.useToast();
+  const [count, setCount] = React.useState(0);
 
-  function action() {
-    const data: CustomToastData = {
-      userId: '123',
-    };
-
+  function createToast() {
+    setCount((prev) => prev + 1);
     toast.add({
-      title: 'Toast with custom data',
-      data,
+      title: `Toast ${count + 1} created`,
+      description: 'This is a toast notification.',
     });
   }
 
   return (
-    <button type="button" onClick={action} className={styles.Button}>
-      Create custom toast
+    <button type="button" className={styles.Button} onClick={createToast}>
+      Create toast
     </button>
   );
 }
@@ -51,15 +39,13 @@ function ToastList() {
     <Toast.Root
       key={toast.id}
       toast={toast}
+      swipeDirection="up"
       className={styles.Toast}
-      data-position="top"
     >
       <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
-      {isCustomToast(toast) && toast.data ? (
-        <Toast.Description>`data.userId` is {toast.data.userId}</Toast.Description>
-      ) : (
-        <Toast.Description>{toast.description}</Toast.Description>
-      )}
+      <Toast.Description className={styles.Description}>
+        {toast.description}
+      </Toast.Description>
       <Toast.Close className={styles.Close} aria-label="Close">
         <XIcon className={styles.Icon} />
       </Toast.Close>

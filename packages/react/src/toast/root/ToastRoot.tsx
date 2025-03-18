@@ -22,13 +22,13 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   props: ToastRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { toast, render, className, children, swipeDirection = 'up', ...other } = props;
+  const { toast, render, className, children, swipeDirection, ...other } = props;
 
   const { hovering, focused, hasDifferingHeights } = useToastContext();
 
   const toastRoot = useToastRoot({
     toast,
-    swipeDirection,
+    swipeDirection: swipeDirection ?? ['down', 'right'],
   });
 
   const mergedRef = useForkRef(toastRoot.rootRef, forwardedRef);
@@ -40,6 +40,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
       limited: toast.limited || false,
       type: toast.type,
       swiping: toastRoot.swiping,
+      swipeDirection: toastRoot.swipeDirection,
     }),
     [
       hovering,
@@ -49,6 +50,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
       toast.limited,
       toast.type,
       toastRoot.swiping,
+      toastRoot.swipeDirection,
     ],
   );
 
@@ -111,6 +113,10 @@ export namespace ToastRoot {
      * Whether the toast is being swiped.
      */
     swiping: boolean;
+    /**
+     * The direction the toast is being swiped.
+     */
+    swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {
@@ -120,7 +126,7 @@ export namespace ToastRoot {
     toast: ToastObject<any>;
     /**
      * Direction(s) in which the toast can be swiped to dismiss.
-     * @default 'up'
+     * Defaults to `['down', 'right']`.
      */
     swipeDirection?: 'up' | 'down' | 'left' | 'right' | ('up' | 'down' | 'left' | 'right')[];
   }
@@ -149,7 +155,7 @@ ToastRoot.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   /**
    * Direction(s) in which the toast can be swiped to dismiss.
-   * @default 'up'
+   * Defaults to `['down', 'right']`.
    */
   swipeDirection: PropTypes.oneOfType([
     PropTypes.oneOf(['down', 'left', 'right', 'up']),

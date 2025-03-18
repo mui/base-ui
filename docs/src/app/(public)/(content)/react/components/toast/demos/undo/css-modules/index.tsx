@@ -7,7 +7,7 @@ export default function UndoToastExample() {
   return (
     <Toast.Provider>
       <Form />
-      <Toast.Viewport className={styles.Viewport} data-position="top">
+      <Toast.Viewport className={styles.Viewport}>
         <ToastList />
       </Toast.Viewport>
     </Toast.Provider>
@@ -44,13 +44,7 @@ function Form() {
 function ToastList() {
   const { toasts } = Toast.useToast();
   return toasts.map((toast) => (
-    <Toast.Root
-      key={toast.id}
-      toast={toast}
-      className={styles.Toast}
-      data-position="top"
-      swipeDirection="up"
-    >
+    <Toast.Root key={toast.id} toast={toast} className={styles.Toast}>
       <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
       <Toast.Description className={styles.Description}>
         {toast.description}
