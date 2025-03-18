@@ -147,7 +147,7 @@ export default function Homepage() {
           </li>
           <li className="mb-0.5">
             20% development time. Allocate 20% of your time towards personal and
-            professional development
+            professional development.
           </li>
           <li className="mb-0.5">
             Education budget. We provide mentorship and send you to events that help
