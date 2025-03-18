@@ -70,6 +70,7 @@ function Collapsible(props: {
   }, [keepMounted, open, mounted, visible]);
 
   const panelRef: React.RefObject<HTMLElement | null> = React.useRef(null);
+
   /**
    * When `keepMounted` is `true` this runs once as soon as it exists in the DOM
    * regardless of initial open state.
@@ -108,7 +109,6 @@ function Collapsible(props: {
         animationTypeRef.current = 'none';
       }
     }
-    // console.log('animationType', animationTypeRef.current);
 
     if (animationTypeRef.current !== 'css-transition') {
       return;
@@ -130,12 +130,11 @@ function Collapsible(props: {
        * CSS properties expected to transition using [data-starting-style] may
        * be mis-timed and appear to be complete skipped.
        */
-      if (
-        (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) ||
-        (hiddenUntilFoundProp &&
-          keepMounted &&
-          !shouldCancelInitialOpenTransitionRef.current)
-      ) {
+      if (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) {
+        element.setAttribute('data-starting-style', '');
+      }
+
+      if (!shouldCancelInitialOpenTransitionRef.current && hiddenUntilFoundProp) {
         element.setAttribute('data-starting-style', '');
       }
 
@@ -143,7 +142,8 @@ function Collapsible(props: {
       element.style.removeProperty('display');
 
       if (shouldCancelInitialOpenTransitionRef.current) {
-        element.style.transitionDuration = '0s';
+        element.style.setProperty('transition-duration', '0s');
+        // element.style.setProperty('display', 'none');
       }
     }
 
@@ -177,7 +177,7 @@ function Collapsible(props: {
       panel.style.removeProperty('animation-name');
     }
 
-    if (!keepMounted) {
+    if (!hiddenUntilFoundProp && !keepMounted) {
       if (animationTypeRef.current === 'css-transition') {
         if (!mounted && nextOpen) {
           setMounted(true);
@@ -201,10 +201,6 @@ function Collapsible(props: {
 
     panel.style.setProperty('display', 'block', 'important');
 
-    if (hiddenUntilFoundProp) {
-      panel.style.setProperty('content-visibility', 'visible');
-    }
-
     if (nextOpen) {
       if (abortControllerRef.current != null) {
         abortControllerRef.current.abort();
@@ -222,6 +218,9 @@ function Collapsible(props: {
         setHeight(panel.scrollHeight);
       });
     } else {
+      if (hiddenUntilFoundProp) {
+        panel.style.setProperty('content-visibility', 'visible');
+      }
       /* closing */
       requestAnimationFrame(() => {
         setHeight(0);
@@ -232,7 +231,7 @@ function Collapsible(props: {
       runOnceAnimationsFinish(() => {
         // TODO: !important may be needed
         panel.style.setProperty('display', 'none');
-        panel.style.removeProperty('content-visibility');
+        // panel.style.removeProperty('content-visibility');
         abortControllerRef.current = null;
       }, abortControllerRef.current.signal);
     }
@@ -249,18 +248,15 @@ function Collapsible(props: {
 
     const panel = panelRef.current;
 
-    if (keepMounted) {
-      if (panel != null && isBeforeMatchRef.current) {
-        panel.style.transitionDuration = '0s';
-      }
-      return;
-    }
-
     if (!panel) {
       return;
     }
 
     if (open) {
+      if (hiddenUntilFoundProp) {
+        return;
+      }
+      console.log('open here');
       if (abortControllerRef.current != null) {
         abortControllerRef.current.abort();
         abortControllerRef.current = null;
@@ -268,10 +264,6 @@ function Collapsible(props: {
 
       /* opening */
       panel.style.height = '0px';
-
-      if (isBeforeMatchRef.current) {
-        panel.style.transitionDuration = '0s';
-      }
 
       requestAnimationFrame(() => {
         /**
@@ -293,11 +285,43 @@ function Collapsible(props: {
       abortControllerRef.current = new AbortController();
 
       runOnceAnimationsFinish(() => {
+        panel.style.removeProperty('content-visibility');
         setMounted(false);
         abortControllerRef.current = null;
       }, abortControllerRef.current.signal);
     }
-  }, [keepMounted, open, mounted, setMounted, runOnceAnimationsFinish]);
+  }, [
+    keepMounted,
+    open,
+    mounted,
+    setMounted,
+    runOnceAnimationsFinish,
+    hiddenUntilFoundProp,
+  ]);
+
+  useEnhancedEffect(() => {
+    if (!hiddenUntilFoundProp) {
+      return;
+    }
+
+    const panel = panelRef.current;
+    if (!panel) {
+      return;
+    }
+
+    if (open && isBeforeMatchRef.current) {
+      panel.style.transitionDuration = '0s';
+      setHeight(panel.scrollHeight);
+      requestAnimationFrame(() => {
+        isBeforeMatchRef.current = false;
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            panel.style.removeProperty('transition-duration');
+          });
+        });
+      });
+    }
+  }, [hiddenUntilFoundProp, open]);
 
   useEnhancedEffect(() => {
     if (animationTypeRef.current !== 'css-animation') {
@@ -339,9 +363,10 @@ function Collapsible(props: {
   useEnhancedEffect(() => {
     const panel = panelRef.current;
 
-    if (panel && hiddenUntilFoundProp && panel?.hidden && isHidden) {
+    if (panel && hiddenUntilFoundProp && isHidden) {
       // @ts-ignore
-      panel.hidden = 'until-found';
+      panel.setAttribute('hidden', 'until-found');
+      panel.setAttribute('data-starting-style', '');
     }
   }, [hiddenUntilFoundProp, isHidden]);
 
@@ -352,7 +377,7 @@ function Collapsible(props: {
         return undefined;
       }
 
-      function handleOnBeforeMatch(event: Event) {
+      function handleBeforeMatch(event: Event) {
         event.preventDefault();
 
         isBeforeMatchRef.current = true;
@@ -361,10 +386,10 @@ function Collapsible(props: {
         setOpen(true);
       }
 
-      panel.addEventListener('beforematch', handleOnBeforeMatch);
+      panel.addEventListener('beforematch', handleBeforeMatch);
 
       return () => {
-        panel.removeEventListener('beforematch', handleOnBeforeMatch);
+        panel.removeEventListener('beforematch', handleBeforeMatch);
       };
     },
     [setOpen],
@@ -398,10 +423,6 @@ function Collapsible(props: {
           {...styleHooks}
           hidden={isHidden}
           id={id}
-          style={{
-            contentVisibility:
-              hiddenUntilFoundProp && mounted ? 'visible' : undefined,
-          }}
         >
           <div className={classes.Content}>
             <p>
@@ -423,19 +444,19 @@ export default function App() {
     <div className={classes.grid}>
       <div className={classes.wrapper}>
         <pre>keepMounted: true</pre>
-        {/*<Collapsible keepMounted defaultOpen id="1" />*/}
+        <Collapsible keepMounted defaultOpen id="1" />
 
-        <Collapsible keepMounted={false} defaultOpen={false} id="2" />
+        <Collapsible keepMounted defaultOpen={false} id="2" />
 
         <small>———</small>
       </div>
-      {/*<div className={classes.wrapper}>
+      <div className={classes.wrapper}>
         <pre>keepMounted: false</pre>
         <Collapsible keepMounted={false} defaultOpen id="3" />
 
         <Collapsible keepMounted={false} defaultOpen={false} id="4" />
         <small>———</small>
-      </div>*/}
+      </div>
     </div>
   );
 }
