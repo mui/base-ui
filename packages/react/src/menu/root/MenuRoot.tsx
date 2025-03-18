@@ -104,7 +104,6 @@ namespace MenuRoot {
     loop?: boolean;
     /**
      * How the menu should trap focus, scroll, and pointer outside presses.
-     * - `all`: trap all interactions inside the menu.
      * - `none`: don't trap any interactions.
      * - `scroll-pointer`: trap scroll and pointer outside presses.
      * @default 'scroll-pointer'
@@ -237,7 +236,6 @@ MenuRoot.propTypes /* remove-proptypes */ = {
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
   /**
    * How the menu should trap focus, scroll, and pointer outside presses.
-   * - `all`: trap all interactions inside the menu.
    * - `none`: don't trap any interactions.
    * - `scroll-pointer`: trap scroll and pointer outside presses.
    * @default 'scroll-pointer'

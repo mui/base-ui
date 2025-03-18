@@ -369,7 +369,6 @@ export namespace useMenuRoot {
     onTypingChange: (typing: boolean) => void;
     /**
      * How the menu should trap focus, scroll, and pointer outside presses.
-     * - `all`: trap all interactions inside the menu.
      * - `none`: don't trap any interactions.
      * - `scroll-pointer`: trap scroll and pointer outside presses.
      * @default 'scroll-pointer'

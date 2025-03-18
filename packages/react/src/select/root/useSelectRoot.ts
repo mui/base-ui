@@ -418,7 +418,6 @@ export namespace useSelectRoot {
     transitionStatus?: TransitionStatus;
     /**
      * How the select should trap focus, scroll, and pointer outside presses.
-     * - `all`: trap all interactions inside the select.
      * - `none`: don't trap any interactions.
      * - `scroll-pointer`: trap scroll and pointer outside presses.
      * @default 'scroll-pointer'
