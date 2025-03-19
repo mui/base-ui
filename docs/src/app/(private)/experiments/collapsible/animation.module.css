@@ -51,7 +51,7 @@
 
 .Root {
   --width: 320px;
-  --duration: 5000ms;
+  --duration: 900ms;
 
   width: var(--width);
 

@@ -4,7 +4,7 @@ import {
   useEnhancedEffect,
   useTransitionStatus,
 } from '@base-ui-components/react/utils';
-import classes from './transition.module.css';
+import classes from './animation.module.css';
 import { ExpandMoreIcon } from './_icons';
 
 import { useAnimationsFinished } from '../../../../../../packages/react/src/utils/useAnimationsFinished';
@@ -28,7 +28,7 @@ function Collapsible(props: {
     keepMounted = true,
     defaultOpen = false,
     id,
-    hiddenUntilFound: hiddenUntilFoundProp = true,
+    hiddenUntilFound: hiddenUntilFoundProp = false,
   } = props;
 
   const [open, setOpen] = React.useState(defaultOpen);
@@ -329,7 +329,7 @@ function Collapsible(props: {
     latestAnimationNameRef.current =
       panel.style.animationName || latestAnimationNameRef.current;
 
-    panel.style.animationName = 'none';
+    panel.style.setProperty('animation-name', 'none');
 
     setHeight(panel.scrollHeight);
 
@@ -339,11 +339,13 @@ function Collapsible(props: {
 
     if (open) {
       setMounted(true);
+      setVisible(true);
+    } else {
+      runOnceAnimationsFinish(() => {
+        setMounted(false);
+        setVisible(false);
+      });
     }
-
-    runOnceAnimationsFinish(() => {
-      setVisible(open);
-    });
   }, [open, visible, runOnceAnimationsFinish, setMounted]);
 
   useOnMount(() => {
