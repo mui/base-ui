@@ -1,9 +1,14 @@
 import * as React from 'react';
-import type { ComponentRenderFn } from './types';
+import type { ComponentRenderFn, GenericHTMLProps } from './types';
 import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
 import { resolveClassName } from './resolveClassName';
 import { evaluateRenderProp } from './evaluateRenderProp';
 import { useRenderPropForkRef } from './useRenderPropForkRef';
+import { tag } from './renderFunctions';
+import { mergeProps } from '../merge-props';
+
+type Tag = keyof React.JSX.IntrinsicElements;
+type AllowedTags = Exclude<Tag, 'button' | 'img'>;
 
 interface ComponentProps<State> {
   /**
@@ -23,9 +28,7 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
   /**
    * The render prop or React element to override the default element.
    */
-  render?:
-    | ComponentRenderFn<React.HTMLAttributes<any>, State>
-    | React.ReactElement<Record<string, unknown>>;
+  render?: AllowedTags | ((props: GenericHTMLProps) => React.ReactElement);
   /**
    * The state of the component.
    */
@@ -37,11 +40,15 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
   /**
    * Props to be spread on the rendered element.
    */
-  props?: Record<string, unknown>;
+  props?:
+    | React.ComponentPropsWithoutRef<any>
+    | Array<React.ComponentPropsWithoutRef<any>>
+    | ((props: GenericHTMLProps) => GenericHTMLProps)
+    | Array<(props: GenericHTMLProps) => GenericHTMLProps>;
   /**
    * A mapping of state to style hooks.
    */
-  customStyleHookMapping?: CustomStyleHookMapping<State>;
+  styleHookMapping?: CustomStyleHookMapping<State>;
   /**
    * If true, style hooks are generated.
    */
@@ -65,22 +72,23 @@ export function useComponentRenderer<
     ref,
     render: fallbackRender,
     props: extraProps,
-    customStyleHookMapping,
+    styleHookMapping,
     styleHooks: generateStyleHooks = true,
   } = settings;
-  const render = renderProp || fallbackRender;
+  const render =
+    renderProp || (typeof fallbackRender === 'string' ? tag(fallbackRender) : fallbackRender);
 
   const className = resolveClassName(classNameProp, state);
   const styleHooks = React.useMemo(() => {
     if (!generateStyleHooks) {
       return emptyObject;
     }
-    return getStyleHookProps(state, customStyleHookMapping);
-  }, [state, customStyleHookMapping, generateStyleHooks]);
+    return getStyleHookProps(state, styleHookMapping);
+  }, [state, styleHookMapping, generateStyleHooks]);
 
   const ownProps: Record<string, any> = {
     ...styleHooks,
-    ...extraProps,
+    ...(Array.isArray(extraProps) ? mergeProps(...extraProps) : extraProps),
   };
 
   let refs: React.Ref<RenderedElementType>[] = [];

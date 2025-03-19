@@ -28,8 +28,8 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     state,
     render: button,
     ref: [ref, setTriggerElement],
-    props: mergeProps(getTriggerProps, otherProps),
-    customStyleHookMapping: triggerOpenStateMapping,
+    props: [getTriggerProps, otherProps],
+    styleHookMapping: triggerOpenStateMapping,
   });
 
   return renderElement();

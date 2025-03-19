@@ -7,7 +7,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { mergeProps } from '../../merge-props';
-import { tag } from '../../utils/renderFunctions';
 
 /**
  * Displays an element positioned against the tooltip anchor.
@@ -36,10 +35,10 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
 
   const { renderElement } = useComponentRenderer(props, {
     state,
-    render: tag('div'),
+    render: 'div',
     ref: [arrowRef, forwardedRef],
-    props: mergeProps<'div'>({ style: arrowStyles, 'aria-hidden': true }, otherProps),
-    customStyleHookMapping: popupStateMapping,
+    props: [{ style: arrowStyles, 'aria-hidden': true }, otherProps],
+    styleHookMapping: popupStateMapping,
   });
 
   return renderElement();
