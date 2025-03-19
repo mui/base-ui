@@ -72,6 +72,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
+  const keyboardActiveRef = React.useRef(false);
   const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
@@ -253,7 +254,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     getItemProps,
   } = useInteractions([click, dismiss, role, listNavigation, typeahead]);
 
-  const rootContext = React.useMemo(
+  const rootContext: SelectRootContext = React.useMemo(
     () => ({
       id,
       name: params.name,
@@ -297,6 +298,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       modal,
       registerSelectedItem,
       onOpenChangeComplete,
+      keyboardActiveRef,
     }),
     [
       id,
@@ -326,6 +328,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       modal,
       registerSelectedItem,
       onOpenChangeComplete,
+      keyboardActiveRef,
     ],
   );
 

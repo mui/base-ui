@@ -141,6 +141,10 @@ export const nav = [
         href: '/react/components/toggle-group',
       },
       {
+        label: 'Toolbar',
+        href: '/react/components/toolbar',
+      },
+      {
         label: 'Tooltip',
         href: '/react/components/tooltip',
       },

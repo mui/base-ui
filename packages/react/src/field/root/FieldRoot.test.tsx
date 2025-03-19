@@ -1214,6 +1214,31 @@ describe('<Field.Root />', () => {
         expect(description).not.to.have.attribute('data-filled');
       });
 
+      it('changes [data-filled] when the value is changed externally', async () => {
+        function App() {
+          const [value, setValue] = React.useState('');
+          return (
+            <div>
+              <Field.Root>
+                <Field.Control value={value} onChange={(event) => setValue(event.target.value)} />
+              </Field.Root>
+              <button onClick={() => setValue('test')}>change</button>
+              <button onClick={() => setValue('')}>reset</button>
+            </div>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        expect(screen.getByRole('textbox')).not.to.have.attribute('data-filled', '');
+
+        await user.click(screen.getByRole('button', { name: 'change' }));
+        expect(screen.getByRole('textbox')).to.have.attribute('data-filled', '');
+
+        await user.click(screen.getByRole('button', { name: 'reset' }));
+        expect(screen.getByRole('textbox')).not.to.have.attribute('data-filled', '');
+      });
+
       describe('Checkbox', () => {
         it('adds [data-filled] attribute when checked after being initially unchecked', async () => {
           await render(
