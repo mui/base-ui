@@ -16,7 +16,7 @@
       "description": "Event handler called when the dialog is opened or closed."
     },
     "actionsRef": {
-      "type": "RefObject",
+      "type": "RefObject<{ unmount: () => void; }>",
       "description": "A ref to imperative actions."
     },
     "onOpenChangeComplete": {

@@ -678,8 +678,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       react-api-extractor:
-        specifier: https://pkg.pr.new/michaldudak/react-api-extractor@574b388
-        version: https://pkg.pr.new/michaldudak/react-api-extractor@574b388(typescript@5.8.2)
+        specifier: https://pkg.pr.new/michaldudak/react-api-extractor@a7a64ca
+        version: https://pkg.pr.new/michaldudak/react-api-extractor@a7a64ca(typescript@5.8.2)
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -7558,8 +7558,8 @@ packages:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
 
-  react-api-extractor@https://pkg.pr.new/michaldudak/react-api-extractor@574b388:
-    resolution: {tarball: https://pkg.pr.new/michaldudak/react-api-extractor@574b388}
+  react-api-extractor@https://pkg.pr.new/michaldudak/react-api-extractor@a7a64ca:
+    resolution: {tarball: https://pkg.pr.new/michaldudak/react-api-extractor@a7a64ca}
     version: 1.0.0-alpha.1
     engines: {node: '>=18'}
     peerDependencies:
@@ -17171,7 +17171,7 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  react-api-extractor@https://pkg.pr.new/michaldudak/react-api-extractor@574b388(typescript@5.8.2):
+  react-api-extractor@https://pkg.pr.new/michaldudak/react-api-extractor@a7a64ca(typescript@5.8.2):
     dependencies:
       lodash: 4.17.21
       typescript: 5.8.2

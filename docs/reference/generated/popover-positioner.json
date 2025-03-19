@@ -32,7 +32,7 @@
       "description": "Minimum distance to maintain between the arrow and the edges of the popup.\n\nUse it to prevent the arrow element from hanging out of the rounded corners of a popup."
     },
     "anchor": {
-      "type": "Element | RefObject | VirtualElement | (() => Element | VirtualElement | null) | null",
+      "type": "Element | RefObject<Element | null> | VirtualElement | (() => Element | VirtualElement | null) | null",
       "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
     },
     "collisionBoundary": {

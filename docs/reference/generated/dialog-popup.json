@@ -3,11 +3,11 @@
   "description": "A container for the dialog contents.\nRenders a `<div>` element.",
   "props": {
     "initialFocus": {
-      "type": "RefObject | ((interactionType: InteractionType) => RefObject)",
+      "type": "RefObject<HTMLElement | null> | ((interactionType: InteractionType) => RefObject<HTMLElement | null>)",
       "description": "Determines the element to focus when the dialog is opened.\nBy default, the first focusable element is focused."
     },
     "finalFocus": {
-      "type": "RefObject",
+      "type": "RefObject<HTMLElement | null>",
       "description": "Determines the element to focus when the dialog is closed.\nBy default, focus returns to the trigger."
     },
     "className": {

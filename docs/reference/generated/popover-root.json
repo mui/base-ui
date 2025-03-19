@@ -16,7 +16,7 @@
       "description": "Event handler called when the popover is opened or closed."
     },
     "actionsRef": {
-      "type": "RefObject",
+      "type": "RefObject<Actions>",
       "description": "A ref to imperative actions."
     },
     "modal": {

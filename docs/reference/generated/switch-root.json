@@ -35,7 +35,7 @@
       "description": "Whether the user must activate the switch before submitting a form."
     },
     "inputRef": {
-      "type": "RefCallback | RefObject | null",
+      "type": "Ref<HTMLInputElement | null> | null",
       "description": "A React ref to access the hidden `<input>` element."
     },
     "id": {

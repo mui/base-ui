@@ -33,7 +33,7 @@
       "description": "Event handler called when the select menu is opened or closed."
     },
     "actionsRef": {
-      "type": "RefObject",
+      "type": "RefObject<Actions>",
       "description": "A ref to imperative actions."
     },
     "alignItemToTrigger": {

@@ -129,7 +129,15 @@ function formatEnum(enumNode: rae.EnumNode) {
 }
 
 function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
-  if (type instanceof rae.ReferenceNode || type instanceof rae.IntrinsicNode) {
+  if (type instanceof rae.ReferenceNode) {
+    if (/^ReactElement(<.*>)?/.test(type.name)) {
+      return 'ReactElement';
+    }
+
+    return type.name;
+  }
+
+  if (type instanceof rae.IntrinsicNode) {
     return type.name;
   }
 
@@ -138,8 +146,10 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
       return type.name;
     }
 
+    const memberTypes = mergeRefObjectsAndCallbacks(type);
+
     if (removeUndefined) {
-      const types = type.types.filter(
+      const types = memberTypes.filter(
         (t) => !(t instanceof rae.IntrinsicNode && t.name === 'undefined'),
       );
 
@@ -148,7 +158,7 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
         .join(' | ');
     }
 
-    return orderMembers(type.types)
+    return orderMembers(memberTypes)
       .map((t) => formatType(t, removeUndefined))
       .join(' | ');
   }
@@ -197,6 +207,35 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
   }
 
   return 'unknown';
+}
+
+function mergeRefObjectsAndCallbacks(unionType: rae.UnionNode): readonly rae.TypeNode[] {
+  const refCallbackIndex = unionType.types.findIndex(
+    (type) => type instanceof rae.ReferenceNode && type.name === 'RefCallback',
+  );
+
+  let refObjectType: string | undefined;
+  const refObjectIndex = unionType.types.findIndex((type) => {
+    if (type instanceof rae.ReferenceNode) {
+      const searchResult = /^RefObject<(.+)>$/.exec(type.name);
+      if (searchResult) {
+        refObjectType = searchResult[1];
+        return true;
+      }
+    }
+
+    return false;
+  });
+
+  if (refCallbackIndex !== -1 && refObjectIndex !== -1) {
+    const correctedTypes = unionType.types.filter(
+      (_type, index) => index !== refCallbackIndex && index !== refObjectIndex,
+    );
+
+    return [new rae.ReferenceNode(`Ref<${refObjectType}>`), ...correctedTypes];
+  }
+
+  return unionType.types;
 }
 
 function normalizeQuotes(str: string) {

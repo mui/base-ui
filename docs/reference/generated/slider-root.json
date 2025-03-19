@@ -23,7 +23,7 @@
       "description": "Callback function that is fired when the `pointerup` is triggered."
     },
     "ref": {
-      "type": "RefObject"
+      "type": "RefObject<HTMLDivElement>"
     },
     "tabIndex": {
       "type": "number",

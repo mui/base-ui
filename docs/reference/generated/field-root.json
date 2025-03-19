@@ -16,7 +16,7 @@
       "description": "Whether the field is forcefully marked as invalid."
     },
     "validate": {
-      "type": "((value: unknown) => string | string[] | Promise | null)",
+      "type": "((value: unknown) => string | string[] | Promise<string | string[] | null> | null)",
       "description": "A function for custom validation. Return a string or an array of strings with\nthe error message(s) if the value is invalid, or `null` if the value is valid."
     },
     "validationMode": {
