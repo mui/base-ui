@@ -38,16 +38,17 @@
   width: 100%;
   max-width: 300px;
   margin: 0 auto;
-  top: 2rem;
-  right: 0;
-  left: 0;
-  bottom: auto;
+  bottom: 2rem;
+  right: 2rem;
+  left: auto;
+  top: auto;
 }
 
 .Toast {
   --gap: 0.75rem;
   --offset-y: calc(
-    var(--toast-offset-y) + (var(--toast-index) * var(--gap)) + var(--toast-swipe-movement-y)
+    var(--toast-offset-y) * -1 + (var(--toast-index) * var(--gap) * -1) +
+      var(--toast-swipe-movement-y)
   );
   position: absolute;
   left: 0;
