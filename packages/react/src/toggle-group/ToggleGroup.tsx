@@ -6,6 +6,7 @@ import { useComponentRenderer } from '../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../utils/types';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useDirection } from '../direction-provider/DirectionContext';
+import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { useToggleGroup } from './useToggleGroup';
 import { ToggleGroupContext } from './ToggleGroupContext';
 
@@ -29,7 +30,7 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
 ) {
   const {
     defaultValue: defaultValueProp,
-    disabled = false,
+    disabled: disabledProp = false,
     loop = true,
     onValueChange: onValueChangeProp,
     orientation = 'horizontal',
@@ -42,6 +43,8 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
 
   const direction = useDirection();
 
+  const toolbarContext = useToolbarRootContext(true);
+
   const defaultValue = React.useMemo(() => {
     if (valueProp === undefined) {
       return defaultValueProp ?? [];
@@ -50,32 +53,27 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
     return undefined;
   }, [valueProp, defaultValueProp]);
 
-  const {
-    getRootProps,
-    disabled: isDisabled,
-    setGroupValue,
-    value,
-  } = useToggleGroup({
+  const { getRootProps, disabled, setGroupValue, value } = useToggleGroup({
     value: valueProp,
     defaultValue,
-    disabled,
+    disabled: (toolbarContext?.disabled ?? false) || disabledProp,
     toggleMultiple,
     onValueChange: onValueChangeProp ?? NOOP,
   });
 
   const state: ToggleGroup.State = React.useMemo(
-    () => ({ disabled: isDisabled, multiple: toggleMultiple, orientation }),
-    [isDisabled, orientation, toggleMultiple],
+    () => ({ disabled, multiple: toggleMultiple, orientation }),
+    [disabled, orientation, toggleMultiple],
   );
 
   const contextValue: ToggleGroupContext = React.useMemo(
     () => ({
-      disabled: isDisabled,
+      disabled,
       orientation,
       setGroupValue,
       value,
     }),
-    [isDisabled, orientation, setGroupValue, value],
+    [disabled, orientation, setGroupValue, value],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -90,7 +88,11 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
 
   return (
     <ToggleGroupContext.Provider value={contextValue}>
-      <CompositeRoot direction={direction} loop={loop} render={renderElement()} />
+      {toolbarContext ? (
+        renderElement()
+      ) : (
+        <CompositeRoot direction={direction} loop={loop} render={renderElement()} />
+      )}
     </ToggleGroupContext.Provider>
   );
 });

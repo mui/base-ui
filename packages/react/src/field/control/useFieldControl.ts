@@ -39,10 +39,13 @@ export function useFieldControl(params: useFieldControl.Parameters) {
   }, [id, setControlId]);
 
   useEnhancedEffect(() => {
-    if (inputRef.current?.value) {
+    const hasExternalValue = valueProp != null;
+    if (inputRef.current?.value || (hasExternalValue && valueProp !== '')) {
       setFilled(true);
+    } else if (hasExternalValue && valueProp === '') {
+      setFilled(false);
     }
-  }, [inputRef, setFilled]);
+  }, [inputRef, setFilled, valueProp]);
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
