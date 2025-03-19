@@ -12,7 +12,7 @@ export function getNumberLocaleDetails(
   locale?: Intl.LocalesArgument,
   options?: Intl.NumberFormatOptions,
 ) {
-  const parts = getFormatter(locale, options).formatToParts(1111.1);
+  const parts = getFormatter(locale, options).formatToParts(11111.1);
   const result: Partial<Record<Intl.NumberFormatPartTypes, string | undefined>> = {};
 
   parts.forEach((part) => {
