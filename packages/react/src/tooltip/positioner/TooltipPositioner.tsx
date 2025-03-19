@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
 import { useTooltipPositioner } from './useTooltipPositioner';
@@ -78,7 +78,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     [state, positioner.arrowRef, positioner.arrowStyles, positioner.arrowUncentered],
   );
 
-  const { renderElement } = useComponentRenderer(props, {
+  const renderElement = useRenderElement(props, {
     state,
     render: 'div',
     ref: [ref, setPositionerElement],

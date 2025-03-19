@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
+import { useRenderElement } from '../utils/useRenderElement';
 import { GenericHTMLProps } from '../utils/types';
 
 const emptyObject = {};
@@ -19,13 +19,15 @@ export function useRender<
     return [...(refs ?? []), ref].filter(Boolean);
   }, [refs, ref]) as React.Ref<RenderedElementType>[];
 
-  return useComponentRenderer({
-    render,
-    state: (state ?? emptyObject) as State,
-    ref: refsArray,
-    props: extraProps,
-    styleHooks: false,
-  });
+  return useRenderElement(
+    { render },
+    {
+      state: (state ?? emptyObject) as State,
+      ref: refsArray,
+      props: extraProps,
+      styleHooks: false,
+    },
+  );
 }
 
 export namespace useRender {

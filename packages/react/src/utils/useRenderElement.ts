@@ -58,11 +58,11 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
 const emptyObject = {};
 
 /**
- * Returns a function that renders a Base UI component.
+ * Returns a function that renders a Base UI element.
  *
  * @ignore - internal hook.
  */
-export function useComponentRenderer<
+export function useRenderElement<
   State extends Record<string, any>,
   RenderedElementType extends Element,
 >(props: ComponentProps<State>, settings: ComponentRendererSettings<State, RenderedElementType>) {
@@ -105,9 +105,5 @@ export function useComponentRenderer<
     propsWithRef.className = className;
   }
 
-  const renderElement = () => evaluateRenderProp(render, propsWithRef, state);
-
-  return {
-    renderElement,
-  };
+  return () => evaluateRenderProp(render, propsWithRef, state);
 }

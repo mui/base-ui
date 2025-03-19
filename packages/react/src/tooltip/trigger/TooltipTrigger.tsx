@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { button } from '../../utils/renderFunctions';
@@ -23,7 +23,7 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
 
   const state: TooltipTrigger.State = React.useMemo(() => ({ open }), [open]);
 
-  const { renderElement } = useComponentRenderer(props, {
+  const renderElement = useRenderElement(props, {
     state,
     render: button,
     ref: [ref, setTriggerElement],
