@@ -400,6 +400,7 @@ export function useNumberFieldRoot(
       min,
       max,
       setInputValue,
+      locale,
       ...scrub,
     }),
     [
@@ -433,6 +434,7 @@ export function useNumberFieldRoot(
       min,
       max,
       setInputValue,
+      locale,
     ],
   );
 }
@@ -577,6 +579,6 @@ export namespace useNumberFieldRoot {
     min: number | undefined;
     max: number | undefined;
     setInputValue: React.Dispatch<React.SetStateAction<string>>;
-    locale?: Intl.LocalesArgument;
+    locale: Intl.LocalesArgument;
   }
 }

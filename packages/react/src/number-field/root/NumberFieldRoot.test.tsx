@@ -545,5 +545,19 @@ describe('<NumberField />', () => {
       const expectedValue = new Intl.NumberFormat().format(1000.5);
       expect(input).to.have.value(expectedValue);
     });
+
+    it('should handle locales using space as the thousands separator', async () => {
+      await render(<NumberField defaultValue={12345.5} locale="pl" />);
+
+      const input = screen.getByRole('textbox');
+      const expectedValue = new Intl.NumberFormat('pl').format(12345.5);
+      expect(input).to.have.value(expectedValue);
+
+      const incrementButton = screen.getByLabelText('Increase');
+      fireEvent.click(incrementButton);
+
+      const newExpectedValue = new Intl.NumberFormat('pl').format(12346.5);
+      expect(input).to.have.value(newExpectedValue);
+    });
   });
 });
