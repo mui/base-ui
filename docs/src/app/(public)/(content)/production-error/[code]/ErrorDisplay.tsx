@@ -20,7 +20,7 @@ function ErrorMessageWithArgs({ msg }: ErrorDisplayProps) {
 }
 
 /**
- * Client component that interpollates arguments in an error message. Must be
+ * Client component that interpolates arguments in an error message. Must be
  * a client component because it reads the search params.
  */
 export default function ErrorDisplay({ msg }: ErrorDisplayProps) {
