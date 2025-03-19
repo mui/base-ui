@@ -6,9 +6,10 @@ import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { isWebKit } from '../../utils/detectBrowser';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { ownerDocument } from '../../utils/owner';
+import { mergeProps } from '../../merge-props';
 
 /**
  * A custom element to display instead of the native cursor while using the scrub area.
@@ -25,21 +26,32 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
 ) {
   const { render, className, ...otherProps } = props;
 
-  const {
-    isScrubbing,
-    isTouchInput,
-    isPointerLockDenied,
-    scrubAreaCursorRef,
-    state,
-    getScrubAreaCursorProps,
-  } = useNumberFieldRootContext();
+  const { isScrubbing, isTouchInput, isPointerLockDenied, scrubAreaCursorRef, state } =
+    useNumberFieldRootContext();
 
   const [element, setElement] = React.useState<Element | null>(null);
 
   const mergedRef = useForkRef(forwardedRef, scrubAreaCursorRef, setElement);
 
+  const propGetter = React.useCallback(
+    (externalProps: GenericHTMLProps) =>
+      mergeProps<'span'>(
+        {
+          role: 'presentation',
+          style: {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            pointerEvents: 'none',
+          },
+        },
+        externalProps,
+      ),
+    [],
+  );
+
   const { renderElement } = useComponentRenderer({
-    propGetter: getScrubAreaCursorProps,
+    propGetter,
     ref: mergedRef,
     render: render ?? 'span',
     state,

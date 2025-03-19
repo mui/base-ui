@@ -53,6 +53,7 @@ export interface SelectRootContext {
   modal: boolean;
   registerSelectedItem: (index: number) => void;
   onOpenChangeComplete?: (open: boolean) => void;
+  keyboardActiveRef: React.MutableRefObject<boolean>;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ScrubHandle, ScrubParams } from './useScrub.types';
 import { DEFAULT_STEP } from '../utils/constants';
 import { getViewportRect } from '../utils/getViewportRect';
 import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewportResize';
@@ -16,7 +15,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 /**
  * @ignore - internal hook.
  */
-export function useScrub(params: ScrubParams) {
+export function useScrub(params: useScrub.Parameters) {
   const { disabled, readOnly, value, inputRef, incrementValue, getStepAmount } = params;
 
   const latestValueRef = useLatestRef(value);
@@ -161,24 +160,6 @@ export function useScrub(params: ScrubParams) {
     [readOnly, disabled, onScrubbingChange, inputRef, isScrubbing],
   );
 
-  const getScrubAreaCursorProps: useNumberFieldRoot.ReturnValue['getScrubAreaCursorProps'] =
-    React.useCallback(
-      (externalProps) =>
-        mergeProps<'span'>(
-          {
-            role: 'presentation',
-            style: {
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              pointerEvents: 'none',
-            },
-          },
-          externalProps,
-        ),
-      [],
-    );
-
   React.useEffect(
     function registerGlobalScrubbingEventListeners() {
       if (!inputRef.current || disabled || readOnly) {
@@ -274,11 +255,27 @@ export function useScrub(params: ScrubParams) {
       isTouchInput,
       isPointerLockDenied,
       getScrubAreaProps,
-      getScrubAreaCursorProps,
       scrubAreaCursorRef,
       scrubAreaRef,
       scrubHandleRef,
     }),
-    [isScrubbing, isTouchInput, isPointerLockDenied, getScrubAreaProps, getScrubAreaCursorProps],
+    [isScrubbing, isTouchInput, isPointerLockDenied, getScrubAreaProps],
   );
+}
+
+export interface ScrubHandle {
+  direction: 'horizontal' | 'vertical';
+  pixelSensitivity: number;
+  teleportDistance: number | undefined;
+}
+
+export namespace useScrub {
+  export interface Parameters {
+    disabled: boolean;
+    readOnly: boolean;
+    value: number | null;
+    inputRef: React.RefObject<HTMLInputElement | null>;
+    incrementValue: (amount: number, dir: 1 | -1, currentValue?: number | null) => void;
+    getStepAmount: () => number | undefined;
+  }
 }

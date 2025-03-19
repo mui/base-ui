@@ -22,10 +22,12 @@ describe('useButton', () => {
       expect(button).toHaveFocus();
     });
 
-    it('prevents interactions with the button', async () => {
+    it('prevents interactions except focus and blur', async () => {
       const handleClick = spy();
       const handleKeyDown = spy();
       const handleKeyUp = spy();
+      const handleFocus = spy();
+      const handleBlur = spy();
 
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { disabled, ...otherProps } = props;
@@ -34,31 +36,42 @@ describe('useButton', () => {
         return <span {...getButtonProps(otherProps)} />;
       }
 
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <TestButton
           disabled
           onClick={handleClick}
           onKeyDown={handleKeyDown}
           onKeyUp={handleKeyUp}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />,
       );
+
       const button = getByRole('button');
+      expect(document.activeElement).to.not.equal(button);
 
-      await act(() => button.focus());
+      expect(handleFocus.callCount).to.equal(0);
+      await user.keyboard('[Tab]');
       expect(button).toHaveFocus();
+      expect(handleFocus.callCount).to.equal(1);
 
-      fireEvent.keyDown(button, { key: 'Enter' });
+      await user.keyboard('[Enter]');
       expect(handleKeyDown.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
 
-      fireEvent.keyUp(button, { key: 'Space' });
+      await user.keyboard('[Space]');
       expect(handleKeyUp.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
 
-      fireEvent.click(button);
+      await user.click(button);
       expect(handleKeyDown.callCount).to.equal(0);
       expect(handleKeyUp.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
+
+      expect(handleBlur.callCount).to.equal(0);
+      await user.keyboard('[Tab]');
+      expect(handleBlur.callCount).to.equal(1);
+      expect(document.activeElement).to.not.equal(button);
     });
   });
 

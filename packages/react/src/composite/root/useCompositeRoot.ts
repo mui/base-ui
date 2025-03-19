@@ -1,19 +1,19 @@
 'use client';
 import * as React from 'react';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
+import { isElementDisabled } from '../../utils/isElementDisabled';
 import { mergeProps } from '../../merge-props';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import {
   ALL_KEYS,
-  ARROW_KEYS,
   ARROW_DOWN,
+  ARROW_KEYS,
   ARROW_LEFT,
   ARROW_RIGHT,
   ARROW_UP,
-  HOME,
-  END,
   buildCellMap,
+  END,
   findNonDisabledIndex,
   getCellIndexOfCorner,
   getCellIndices,
@@ -21,13 +21,17 @@ import {
   getMaxIndex,
   getMinIndex,
   getTextDirection,
+  HOME,
   HORIZONTAL_KEYS,
   HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
   isDisabled,
   isIndexOutOfBounds,
+  isNativeInput,
+  MODIFIER_KEYS,
   VERTICAL_KEYS,
   VERTICAL_KEYS_WITH_EXTRA_KEYS,
   type Dimensions,
+  type ModifierKey,
 } from '../composite';
 
 export interface UseCompositeRootParameters {
@@ -57,7 +61,25 @@ export interface UseCompositeRootParameters {
    * Used for composite items that are focusable when disabled.
    */
   disabledIndices?: number[];
+  /**
+   * Array of [modifier key values](https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values#modifier_keys) that should allow normal keyboard actions
+   * when pressed. By default, all modifier keys prevent normal actions.
+   * @default []
+   */
+  modifierKeys?: ModifierKey[];
 }
+
+function getDisallowedModifierKeys(modifierKeys: ModifierKey[]) {
+  if (modifierKeys.length === 1) {
+    const keys = MODIFIER_KEYS.slice();
+    keys.splice(keys.indexOf(modifierKeys[0]), 1);
+    return keys;
+  }
+  const set = new Set(modifierKeys);
+  return MODIFIER_KEYS.filter((key) => !set.has(key));
+}
+
+const EMPTY_ARRAY: never[] = [];
 
 /**
  * @ignore - internal hook.
@@ -76,6 +98,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     enableHomeAndEndKeys = false,
     stopEventPropagation = false,
     disabledIndices,
+    modifierKeys = EMPTY_ARRAY,
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
@@ -100,9 +123,30 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         {
           'aria-orientation': orientation === 'both' ? undefined : orientation,
           ref: mergedRef,
+          onFocus(event) {
+            const element = rootRef.current;
+            if (!element || !isNativeInput(event.target)) {
+              return;
+            }
+            event.target.setSelectionRange(0, event.target.value.length ?? 0);
+          },
           onKeyDown(event) {
             const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
             if (!RELEVANT_KEYS.includes(event.key)) {
+              return;
+            }
+
+            if (
+              modifierKeys.length === 0 &&
+              (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey)
+            ) {
+              return;
+            }
+
+            if (
+              modifierKeys.length > 0 &&
+              getDisallowedModifierKeys(modifierKeys).some((key) => event.getModifierState(key))
+            ) {
               return;
             }
 
@@ -111,10 +155,47 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               return;
             }
 
+            if ((event.target as HTMLElement).closest('[data-floating-ui-portal]') != null) {
+              // don't navigate if the event came from a popup
+              return;
+            }
+
             if (textDirectionRef?.current == null) {
               textDirectionRef.current = getTextDirection(element);
             }
             const isRtl = textDirectionRef.current === 'rtl';
+
+            const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
+            const forwardKey = {
+              horizontal: horizontalForwardKey,
+              vertical: ARROW_DOWN,
+              both: horizontalForwardKey,
+            }[orientation];
+            const horizontalBackwardKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
+            const backwardKey = {
+              horizontal: horizontalBackwardKey,
+              vertical: ARROW_UP,
+              both: horizontalBackwardKey,
+            }[orientation];
+
+            if (isNativeInput(event.target) && !isElementDisabled(event.target)) {
+              const selectionStart = event.target.selectionStart;
+              const selectionEnd = event.target.selectionEnd;
+              const textContent = event.target.value ?? '';
+              // return to native textbox behavior when
+              // 1 - Shift is held to make a text selection, or if there already is a text selection
+              if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
+                return;
+              }
+              // 2 - arrow-ing forward and not in the last position of the text
+              if (event.key !== backwardKey && selectionStart < textContent.length) {
+                return;
+              }
+              // 3 -arrow-ing backward and not in the first position of the text
+              if (event.key !== forwardKey && selectionStart > 0) {
+                return;
+              }
+            }
 
             let nextIndex = highlightedIndex;
             const minIndex = getMinIndex(elementsRef, disabledIndices);
@@ -186,18 +267,16 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               ] as number; // navigated cell will never be nullish
             }
 
-            const horizontalEndKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
-            const toEndKeys = {
-              horizontal: [horizontalEndKey],
+            const forwardKeys = {
+              horizontal: [horizontalForwardKey],
               vertical: [ARROW_DOWN],
-              both: [horizontalEndKey, ARROW_DOWN],
+              both: [horizontalForwardKey, ARROW_DOWN],
             }[orientation];
 
-            const horizontalStartKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
-            const toStartKeys = {
-              horizontal: [horizontalStartKey],
+            const backwardKeys = {
+              horizontal: [horizontalBackwardKey],
               vertical: [ARROW_UP],
-              both: [horizontalStartKey, ARROW_UP],
+              both: [horizontalBackwardKey, ARROW_UP],
             }[orientation];
 
             const preventedKeys = isGrid
@@ -220,16 +299,16 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
             if (
               nextIndex === highlightedIndex &&
-              [...toEndKeys, ...toStartKeys].includes(event.key)
+              [...forwardKeys, ...backwardKeys].includes(event.key)
             ) {
-              if (loop && nextIndex === maxIndex && toEndKeys.includes(event.key)) {
+              if (loop && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
                 nextIndex = minIndex;
-              } else if (loop && nextIndex === minIndex && toStartKeys.includes(event.key)) {
+              } else if (loop && nextIndex === minIndex && backwardKeys.includes(event.key)) {
                 nextIndex = maxIndex;
               } else {
                 nextIndex = findNonDisabledIndex(elementsRef, {
                   startingIndex: nextIndex,
-                  decrement: toStartKeys.includes(event.key),
+                  decrement: backwardKeys.includes(event.key),
                   disabledIndices,
                 });
               }
@@ -243,7 +322,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               if (preventedKeys.includes(event.key)) {
                 event.preventDefault();
               }
-
               onHighlightedIndexChange(nextIndex);
 
               // Wait for FocusManager `returnFocus` to execute.
@@ -266,6 +344,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       itemSizes,
       loop,
       mergedRef,
+      modifierKeys,
       onHighlightedIndexChange,
       orientation,
       stopEventPropagation,
