@@ -50,7 +50,7 @@ export function parseNumber(
   if (group) {
     // Check if the group separator is a space-like character.
     // If so, we'll replace all such characters with an empty string.
-    groupRegex = /\p{Zs}/u.test(group ?? '') ? /\p{Zs}/gu : new RegExp(`\\${group}`, 'g');
+    groupRegex = /\p{Zs}/u.test(group) ? /\p{Zs}/gu : new RegExp(`\\${group}`, 'g');
   }
 
   const regexesToReplace = [
