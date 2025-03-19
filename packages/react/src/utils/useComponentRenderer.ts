@@ -59,14 +59,16 @@ export function useComponentRenderer<
   State extends Record<string, any>,
   RenderedElementType extends Element,
 >(props: ComponentProps<State>, settings: ComponentRendererSettings<State, RenderedElementType>) {
-  const { className: classNameProp, render } = props;
+  const { className: classNameProp, render: renderProp } = props;
   const {
     state,
     ref,
+    render: fallbackRender,
     props: extraProps,
     customStyleHookMapping,
     styleHooks: generateStyleHooks = true,
   } = settings;
+  const render = renderProp || fallbackRender;
 
   const className = resolveClassName(classNameProp, state);
   const styleHooks = React.useMemo(() => {
