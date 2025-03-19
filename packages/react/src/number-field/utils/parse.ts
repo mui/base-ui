@@ -46,9 +46,15 @@ export function parseNumber(
   }
 
   const { group, decimal, currency, unit } = getNumberLocaleDetails(computedLocale, options);
+  let groupRegex: RegExp | null = null;
+  if (group) {
+    // Check if the group separator is a space-like character.
+    // If so, we'll replace all such characters with an empty string.
+    groupRegex = /\p{Zs}/u.test(group ?? '') ? /\p{Zs}/gu : new RegExp(`\\${group}`, 'g');
+  }
 
   const regexesToReplace = [
-    { regex: group ? new RegExp(`\\${group}`, 'g') : null, replacement: '' },
+    { regex: group ? groupRegex : null, replacement: '' },
     { regex: decimal ? new RegExp(`\\${decimal}`, 'g') : null, replacement: '.' },
     { regex: currency ? new RegExp(`\\${currency}`, 'g') : null, replacement: '' },
     { regex: unit ? new RegExp(`\\${unit}`, 'g') : null, replacement: '' },
