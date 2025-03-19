@@ -2,12 +2,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { mergeProps } from '../../merge-props';
+import { tag } from '../../utils/renderFunctions';
 
 /**
  * Displays an element positioned against the tooltip anchor.
@@ -24,19 +24,6 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
   const { open, arrowRef, side, align, arrowUncentered, arrowStyles } =
     useTooltipPositionerContext();
 
-  const getArrowProps = React.useCallback(
-    (externalProps = {}) => {
-      return mergeProps<'div'>(
-        {
-          style: arrowStyles,
-          'aria-hidden': true,
-        },
-        externalProps,
-      );
-    },
-    [arrowStyles],
-  );
-
   const state: TooltipArrow.State = React.useMemo(
     () => ({
       open,
@@ -47,15 +34,11 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
     [open, side, align, arrowUncentered],
   );
 
-  const mergedRef = useForkRef(arrowRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getArrowProps,
-    render: render ?? 'div',
+  const { renderElement } = useComponentRenderer(props, {
     state,
-    className,
-    ref: mergedRef,
-    extraProps: otherProps,
+    render: tag('div'),
+    ref: [arrowRef, forwardedRef],
+    props: mergeProps<'div'>({ style: arrowStyles, 'aria-hidden': true }, otherProps),
     customStyleHookMapping: popupStateMapping,
   });
 

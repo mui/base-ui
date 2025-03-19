@@ -2,7 +2,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
 import { useTooltipPositioner } from './useTooltipPositioner';
@@ -11,6 +10,8 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
+import { mergeProps } from '../../merge-props';
+import { tag } from '../../utils/renderFunctions';
 
 /**
  * Positions the tooltip against the trigger.
@@ -59,8 +60,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     keepMounted,
   });
 
-  const mergedRef = useForkRef(forwardedRef, setPositionerElement);
-
   const state: TooltipPositioner.State = React.useMemo(
     () => ({
       open,
@@ -81,13 +80,11 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     [state, positioner.arrowRef, positioner.arrowStyles, positioner.arrowUncentered],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: positioner.getPositionerProps,
-    render: render ?? 'div',
-    className,
+  const { renderElement } = useComponentRenderer(props, {
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
+    render: tag('div'),
+    ref: [forwardedRef, setPositionerElement],
+    props: mergeProps<'div'>(positioner.getPositionerProps, otherProps),
     customStyleHookMapping: popupStateMapping,
   });
 

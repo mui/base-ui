@@ -23,7 +23,7 @@ export function useRender<
     render,
     state: (state ?? emptyObject) as State,
     ref: refsArray,
-    extraProps,
+    props: extraProps,
     styleHooks: false,
   });
 }

@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -13,6 +12,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { tag } from '../../utils/renderFunctions';
 
 const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -31,7 +31,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, instantType, transitionStatus, getRootPopupProps, popupRef, onOpenChangeComplete } =
+  const { open, instantType, transitionStatus, getPopupProps, popupRef, onOpenChangeComplete } =
     useTooltipRootContext();
   const { side, align } = useTooltipPositionerContext();
 
@@ -56,25 +56,15 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     [open, side, align, instantType, transitionStatus],
   );
 
-  const mergedRef = useForkRef(popupRef, forwardedRef);
-
-  // The content element needs to be a child of a wrapper floating element in order to avoid
-  // conflicts with CSS transitions and the positioning transform.
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootPopupProps,
-    render: render ?? 'div',
-    className,
+  const { renderElement } = useComponentRenderer(props, {
     state,
-    ref: mergedRef,
-    extraProps:
-      transitionStatus === 'starting'
-        ? mergeProps(
-            {
-              style: { transition: 'none' },
-            },
-            otherProps,
-          )
-        : otherProps,
+    render: tag('div'),
+    ref: [popupRef, forwardedRef],
+    props: mergeProps<'div'>(
+      getPopupProps,
+      transitionStatus === 'starting' ? { style: { transition: 'none' } } : {},
+      otherProps,
+    ),
     customStyleHookMapping,
   });
 
