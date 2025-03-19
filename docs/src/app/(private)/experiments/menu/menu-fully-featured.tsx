@@ -10,7 +10,7 @@ import classes from './menu.module.css';
 
 interface Settings {
   customAnchor: boolean;
-  trap: 'none' | 'scroll-pointer';
+  trap: 'none' | 'pointer-scroll';
   openOnHover: boolean;
   disabled: boolean;
   customTriggerElement: boolean;
@@ -254,8 +254,8 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   trap: {
     type: 'string',
     label: 'Trap',
-    options: ['none', 'scroll-pointer'],
-    default: 'scroll-pointer',
+    options: ['none', 'pointer-scroll'],
+    default: 'pointer-scroll',
   },
   openOnHover: {
     type: 'boolean',

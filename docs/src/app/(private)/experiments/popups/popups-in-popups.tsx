@@ -55,7 +55,7 @@ export default function PopupsInPopups() {
 function SelectDemo({ trap }: Props) {
   return (
     <Select.Root
-      trap={trap === 'all' ? 'scroll-pointer' : trap}
+      trap={trap === 'all' ? 'pointer-scroll' : trap}
       defaultValue="system"
       alignItemToTrigger={false}
     >
@@ -104,7 +104,7 @@ const createHandleMenuClick = (menuItem: string) => {
 
 function MenuDemo({ trap }: Props) {
   return (
-    <Menu.Root trap={trap === 'all' ? 'scroll-pointer' : trap}>
+    <Menu.Root trap={trap === 'all' ? 'pointer-scroll' : trap}>
       <Menu.Trigger render={<Trigger />}>Format</Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner

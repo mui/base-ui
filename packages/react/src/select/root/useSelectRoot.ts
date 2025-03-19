@@ -29,7 +29,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     readOnly = false,
     required = false,
     alignItemToTrigger: alignItemToTriggerParam = true,
-    trap = 'scroll-pointer',
+    trap = 'pointer-scroll',
     onOpenChangeComplete,
   } = params;
 
@@ -418,15 +418,15 @@ export namespace useSelectRoot {
     transitionStatus?: TransitionStatus;
     /**
      * How the select should trap user interactions.
-     * - `scroll-pointer`: trap scroll and pointer interactions inside the select.
+     * - `pointer-scroll`: trap scroll and pointer interactions inside the select.
      * - `none`: don't trap any interactions.
      *
      * Trapping scroll means that scrolling is only allowed inside the select, locking outer page scroll.
      *
      * Trapping pointer means that pointer interactions are only allowed inside the select, preventing clicks on elements outside the select.
-     * @default 'scroll-pointer'
+     * @default 'pointer-scroll'
      */
-    trap?: 'none' | 'scroll-pointer';
+    trap?: 'none' | 'pointer-scroll';
     /**
      * A ref to imperative actions.
      */
