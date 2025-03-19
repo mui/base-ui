@@ -28,7 +28,7 @@ function Collapsible(props: {
     keepMounted = true,
     defaultOpen = false,
     id,
-    hiddenUntilFound: hiddenUntilFoundProp = false,
+    hiddenUntilFound: hiddenUntilFoundProp = true,
   } = props;
 
   const [open, setOpen] = React.useState(defaultOpen);
@@ -92,7 +92,7 @@ function Collapsible(props: {
       const panelStyles = getComputedStyle(element);
       if (
         panelStyles.animationName !== 'none' &&
-        panelStyles.transitionDelay !== '0s'
+        panelStyles.transitionDuration !== '0s'
       ) {
         warn('CSS transitions and CSS animations both detected');
       } else if (
@@ -333,7 +333,7 @@ function Collapsible(props: {
 
     setHeight(panel.scrollHeight);
 
-    if (!shouldCancelInitialOpenAnimationRef.current) {
+    if (!shouldCancelInitialOpenAnimationRef.current && !isBeforeMatchRef.current) {
       panel.style.removeProperty('animation-name');
     }
 
@@ -358,12 +358,7 @@ function Collapsible(props: {
   useEnhancedEffect(() => {
     const panel = panelRef.current;
 
-    if (
-      panel &&
-      hiddenUntilFoundProp &&
-      animationTypeRef.current === 'css-transition' &&
-      isHidden
-    ) {
+    if (panel && hiddenUntilFoundProp && isHidden) {
       /**
        * React only supports a boolean for the `hidden` attribute and forces
        * legit string values to booleans so we have to force it back in the DOM
@@ -376,7 +371,9 @@ function Collapsible(props: {
        * to `'until-found'` as they could have different `display` properties:
        * https://github.com/tailwindlabs/tailwindcss/pull/14625
        */
-      panel.setAttribute('data-starting-style', '');
+      if (animationTypeRef.current === 'css-transition') {
+        panel.setAttribute('data-starting-style', '');
+      }
     }
   }, [hiddenUntilFoundProp, isHidden]);
 
@@ -387,10 +384,7 @@ function Collapsible(props: {
         return undefined;
       }
 
-      function handleBeforeMatch(event: Event) {
-        // TODO: probably remove this because beforematch isn't cancellable anyway
-        event.preventDefault();
-
+      function handleBeforeMatch() {
         isBeforeMatchRef.current = true;
         setOpen(true);
       }
