@@ -16,7 +16,7 @@
       "description": "If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached."
     },
     "orientation": {
-      "type": "'horizontal' | 'vertical'",
+      "type": "Orientation",
       "default": "'horizontal'",
       "description": "The orientation of the toolbar."
     },

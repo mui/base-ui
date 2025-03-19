@@ -17,7 +17,7 @@
       "description": "Additional offset along the alignment axis in pixels.\nAlso accepts a function that returns the offset to read the dimensions of the anchor\nand positioner elements, along with its side and alignment.\n\n- `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n- `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.\n- `data.side`: which side of the anchor element the positioner is aligned against.\n- `data.align`: how the positioner is aligned relative to the specified side."
     },
     "side": {
-      "type": "'left' | 'right' | 'bottom' | 'top' | 'inline-end' | 'inline-start'",
+      "type": "Side",
       "default": "'top'",
       "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions."
     },
@@ -36,12 +36,12 @@
       "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
     },
     "collisionBoundary": {
-      "type": "Element | 'clipping-ancestors' | Element[] | { x: number; y: number; height: number; width: number; }",
+      "type": "Boundary",
       "default": "'clipping-ancestors'",
       "description": "An element or a rectangle that delimits the area that the popup is confined to."
     },
     "collisionPadding": {
-      "type": "number | { left?: number | undefined; right?: number | undefined; bottom?: number | undefined; top?: number | undefined; }",
+      "type": "Padding",
       "default": "5",
       "description": "Additional space to maintain from the edge of the collision boundary."
     },

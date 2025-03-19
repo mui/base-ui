@@ -3,7 +3,7 @@
   "description": "A separator element accessible to screen readers.\nRenders a `<div>` element.",
   "props": {
     "orientation": {
-      "type": "'horizontal' | 'vertical'",
+      "type": "Orientation",
       "default": "'horizontal'",
       "description": "The orientation of the separator."
     },

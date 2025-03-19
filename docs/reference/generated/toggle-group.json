@@ -30,7 +30,7 @@
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
     "orientation": {
-      "type": "'horizontal' | 'vertical'",
+      "type": "ToggleGroupOrientation",
       "default": "'horizontal'"
     },
     "className": {

@@ -93,7 +93,7 @@
       "type": "boolean"
     },
     "orientation": {
-      "type": "'horizontal' | 'vertical'",
+      "type": "Orientation",
       "default": "'horizontal'",
       "description": "The component orientation."
     },

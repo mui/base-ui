@@ -3,7 +3,7 @@
   "description": "Enables RTL behavior for Base UI components.",
   "props": {
     "direction": {
-      "type": "'ltr' | 'rtl'",
+      "type": "TextDirection",
       "default": "'ltr'",
       "description": "The reading direction of the text"
     },

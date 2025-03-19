@@ -12,7 +12,7 @@
       "description": "Whether the menu is currently open."
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: 'click' | 'hover' | 'focus' | 'focus-out' | 'escape-key' | 'outside-press' | 'trigger-press' | undefined) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the menu is opened or closed."
     },
     "actionsRef": {
@@ -53,7 +53,7 @@
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
     "orientation": {
-      "type": "'horizontal' | 'vertical'",
+      "type": "MenuOrientation",
       "default": "'vertical'",
       "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys."
     },
