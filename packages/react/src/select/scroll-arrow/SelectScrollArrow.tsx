@@ -10,6 +10,7 @@ import { Side } from '../../utils/useAnchorPositioning';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useForkRef } from '../../utils/useForkRef';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useSelectIndexContext } from '../root/SelectIndexContext';
 
 /**
  * @internal
@@ -27,12 +28,14 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     scrollDownArrowVisible,
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
+    listRef,
   } = useSelectRootContext();
   const { side } = useSelectPositionerContext();
+  const { setActiveIndex } = useSelectIndexContext();
 
   const visible = direction === 'up' ? scrollUpArrowVisible : scrollDownArrowVisible;
 
-  const frameRef = React.useRef(-1);
+  const timeoutRef = React.useRef(-1);
   const scrollArrowRef = React.useRef<HTMLDivElement | null>(null);
   const mergedRef = useForkRef(forwardedRef, scrollArrowRef);
 
@@ -67,67 +70,121 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           style: {
             position: 'absolute',
           },
-          onMouseEnter() {
-            if (!alignItemToTrigger) {
+          onMouseMove(event) {
+            if (
+              (event.movementX === 0 && event.movementY === 0) ||
+              !alignItemToTrigger ||
+              timeoutRef.current !== -1
+            ) {
               return;
             }
 
-            let prevNow = Date.now();
+            setActiveIndex(null);
 
-            function handleFrame() {
+            function scrollNextItem() {
               const popupElement = popupRef.current;
               if (!popupElement) {
                 return;
               }
 
-              const currentNow = Date.now();
-              const msElapsed = currentNow - prevNow;
-              prevNow = currentNow;
-
-              const pixelsLeftToScroll =
-                direction === 'up'
-                  ? popupElement.scrollTop
-                  : popupElement.scrollHeight - popupElement.clientHeight - popupElement.scrollTop;
-              const pixelsToScroll = Math.min(pixelsLeftToScroll, msElapsed / 2);
+              setActiveIndex(null);
 
               const isScrolledToTop = popupElement.scrollTop === 0;
               const isScrolledToBottom =
                 Math.round(popupElement.scrollTop + popupElement.clientHeight) >=
                 popupElement.scrollHeight;
 
-              if (msElapsed > 0) {
+              if (direction === 'up') {
+                setScrollUpArrowVisible(!isScrolledToTop);
+              } else if (direction === 'down') {
+                setScrollDownArrowVisible(!isScrolledToBottom);
+              }
+
+              if (
+                (direction === 'up' && isScrolledToTop) ||
+                (direction === 'down' && isScrolledToBottom)
+              ) {
+                timeoutRef.current = -1;
+                return;
+              }
+
+              if (popupRef.current && listRef.current && listRef.current.length > 0) {
+                const items = listRef.current;
+                const scrollArrowHeight = scrollArrowRef.current?.offsetHeight || 0;
+
                 if (direction === 'up') {
-                  setScrollUpArrowVisible(!isScrolledToTop);
-                } else if (direction === 'down') {
-                  setScrollDownArrowVisible(!isScrolledToBottom);
-                }
+                  let firstVisibleIndex = 0;
+                  const scrollTop = popupElement.scrollTop + scrollArrowHeight;
 
-                if (
-                  (direction === 'up' && isScrolledToTop) ||
-                  (direction === 'down' && isScrolledToBottom)
-                ) {
-                  return;
+                  for (let i = 0; i < items.length; i += 1) {
+                    const item = items[i];
+                    if (item) {
+                      const itemTop = item.offsetTop;
+                      if (itemTop >= scrollTop) {
+                        firstVisibleIndex = i;
+                        break;
+                      }
+                    }
+                  }
+
+                  const targetIndex = Math.max(0, firstVisibleIndex - 1);
+                  const targetItem = items[targetIndex];
+                  if (targetIndex < firstVisibleIndex && targetItem) {
+                    popupElement.scrollTop = targetItem.offsetTop - scrollArrowHeight;
+                  }
+                } else {
+                  let lastVisibleIndex = items.length - 1;
+                  const scrollBottom =
+                    popupElement.scrollTop + popupElement.clientHeight - scrollArrowHeight;
+
+                  for (let i = 0; i < items.length; i += 1) {
+                    const item = items[i];
+                    if (item) {
+                      const itemBottom = item.offsetTop + item.offsetHeight;
+                      if (itemBottom > scrollBottom) {
+                        lastVisibleIndex = Math.max(0, i - 1);
+                        break;
+                      }
+                    }
+                  }
+
+                  const targetIndex = Math.min(items.length - 1, lastVisibleIndex + 1);
+                  if (targetIndex > lastVisibleIndex) {
+                    const targetItem = items[targetIndex];
+                    if (targetItem) {
+                      popupElement.scrollTop =
+                        targetItem.offsetTop +
+                        targetItem.offsetHeight -
+                        popupElement.clientHeight +
+                        scrollArrowHeight;
+                    }
+                  }
                 }
               }
 
-              const scrollDirection = direction === 'up' ? -1 : 1;
-
-              if (popupRef.current) {
-                popupRef.current.scrollTop += scrollDirection * pixelsToScroll;
-              }
-
-              frameRef.current = requestAnimationFrame(handleFrame);
+              timeoutRef.current = window.setTimeout(scrollNextItem, 40);
             }
 
-            frameRef.current = requestAnimationFrame(handleFrame);
+            timeoutRef.current = window.setTimeout(scrollNextItem, 40);
           },
           onMouseLeave() {
-            cancelAnimationFrame(frameRef.current);
+            if (timeoutRef.current !== -1) {
+              clearTimeout(timeoutRef.current);
+              timeoutRef.current = -1;
+            }
           },
         },
         externalProps,
       ),
-    [direction, alignItemToTrigger, popupRef, setScrollUpArrowVisible, setScrollDownArrowVisible],
+    [
+      direction,
+      alignItemToTrigger,
+      setActiveIndex,
+      popupRef,
+      setScrollUpArrowVisible,
+      setScrollDownArrowVisible,
+      listRef,
+    ],
   );
 
   const { renderElement } = useComponentRenderer({

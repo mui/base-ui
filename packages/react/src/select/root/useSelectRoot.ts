@@ -72,6 +72,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
+  const keyboardActiveRef = React.useRef(false);
   const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
@@ -166,10 +167,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
     const stringValue = typeof value === 'string' || value === null ? value : JSON.stringify(value);
     const index = suppliedIndex ?? valuesRef.current.indexOf(stringValue);
+    const hasIndex = index !== -1;
 
-    if (index !== -1) {
-      setSelectedIndex(index);
-      setLabel(labelsRef.current[index] ?? '');
+    if (hasIndex || value === null) {
+      if (hasIndex) {
+        setSelectedIndex(index);
+      }
+      setLabel(hasIndex ? (labelsRef.current[index] ?? '') : '');
     } else if (value) {
       warn(`The value \`${stringValue}\` is not present in the select items.`);
     }
@@ -250,7 +254,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     getItemProps,
   } = useInteractions([click, dismiss, role, listNavigation, typeahead]);
 
-  const rootContext = React.useMemo(
+  const rootContext: SelectRootContext = React.useMemo(
     () => ({
       id,
       name: params.name,
@@ -294,6 +298,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       modal,
       registerSelectedItem,
       onOpenChangeComplete,
+      keyboardActiveRef,
     }),
     [
       id,
@@ -323,6 +328,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       modal,
       registerSelectedItem,
       onOpenChangeComplete,
+      keyboardActiveRef,
     ],
   );
 
