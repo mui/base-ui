@@ -11,11 +11,11 @@
       "description": "The uncontrolled value of the field when it’s initially rendered.\n\nTo render a controlled number field, use the `value` prop instead."
     },
     "value": {
-      "type": "null | number",
+      "type": "number | null",
       "description": "The raw numeric value of the field."
     },
     "onValueChange": {
-      "type": "((value: null | number, event: Event | undefined) => void)",
+      "type": "((value: number | null, event: Event | undefined) => void)",
       "description": "Callback fired when the number value changes."
     },
     "locale": {

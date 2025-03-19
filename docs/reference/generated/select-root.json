@@ -7,12 +7,12 @@
       "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
-      "type": "null | unknown",
+      "type": "unknown | null",
       "default": "null",
       "description": "The uncontrolled value of the select when it’s initially rendered.\n\nTo render a controlled select, use the `value` prop instead."
     },
     "value": {
-      "type": "null | unknown",
+      "type": "unknown | null",
       "description": "The value of the select."
     },
     "onValueChange": {

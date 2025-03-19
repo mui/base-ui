@@ -56,7 +56,7 @@
       "description": "Whether the user must tick the checkbox before submitting a form."
     },
     "inputRef": {
-      "type": "null | RefCallback | RefObject",
+      "type": "RefCallback | RefObject | null",
       "description": "A React ref to access the hidden `<input>` element."
     },
     "id": {

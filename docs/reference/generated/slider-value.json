@@ -7,7 +7,7 @@
       "default": "'off'"
     },
     "children": {
-      "type": "null | ((formattedValues: string[], values: number[]) => ReactNode)"
+      "type": "((formattedValues: string[], values: number[]) => ReactNode) | null"
     },
     "className": {
       "type": "string | ((state: State) => string)",

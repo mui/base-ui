@@ -21,11 +21,11 @@
       "description": "A string value that provides a user-friendly name for the current value of the slider."
     },
     "getAriaLabel": {
-      "type": "null | ((index: number) => string)",
+      "type": "((index: number) => string) | null",
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb"
     },
     "getAriaValueText": {
-      "type": "null | ((formattedValue: string, value: number, index: number) => string)",
+      "type": "((formattedValue: string, value: number, index: number) => string) | null",
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.\nThis is important for screen reader users."
     },
     "handleInputChange": {
@@ -54,7 +54,7 @@
       "description": "The value(s) of the slider as percentages"
     },
     "tabIndex": {
-      "type": "null | number",
+      "type": "number | null",
       "default": "null",
       "description": "Optional tab index attribute for the thumb components."
     },
@@ -85,7 +85,7 @@
       "description": "The maximum allowed value of the slider."
     },
     "format": {
-      "type": "null | NumberFormatOptions",
+      "type": "NumberFormatOptions | null",
       "default": "null",
       "description": "Options to format the input value."
     },
@@ -105,7 +105,7 @@
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "((props: DetailedHTMLProps<HTMLAttributes, HTMLDivElement>, inputProps: DetailedHTMLProps<InputHTMLAttributes, HTMLInputElement>, state: State) => ReactElement) | { ref }",
+      "type": "((props: DetailedHTMLProps<HTMLAttributes, HTMLDivElement>, inputProps: DetailedHTMLProps<InputHTMLAttributes, HTMLInputElement>, state: State) => ReactElement) | [object Object] & [object Object]",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

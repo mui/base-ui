@@ -8,6 +8,7 @@ import { hideBin } from 'yargs/helpers';
 import * as rae from 'react-api-extractor';
 import kebabCase from 'lodash/kebabCase.js';
 import _ from 'lodash';
+import ts from 'typescript';
 import memberOrder from './order.json';
 
 const isDebug = inspector.url() !== undefined;
@@ -22,7 +23,7 @@ function run(options: RunOptions) {
   const config = rae.loadConfig(options.configPath);
   const files = options.files ?? config.fileNames;
 
-  const program = rae.createProgram(files, config.options);
+  const program = ts.createProgram(files, config.options);
 
   const allExports: rae.ExportNode[] = [];
 
@@ -141,12 +142,23 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
       const types = type.types.filter(
         (t) => !(t instanceof rae.IntrinsicNode && t.name === 'undefined'),
       );
-      return types.map((t) => formatType(t, removeUndefined)).join(' | ');
+
+      return orderMembers(types)
+        .map((t) => formatType(t, removeUndefined))
+        .join(' | ');
     }
 
     return orderMembers(type.types)
       .map((t) => formatType(t, removeUndefined))
       .join(' | ');
+  }
+
+  if (type instanceof rae.IntersectionNode) {
+    if (type.name) {
+      return type.name;
+    }
+
+    return orderMembers(type.types).join(' & ');
   }
 
   if (type instanceof rae.ObjectNode) {
@@ -252,12 +264,17 @@ function pushToEnd<T extends readonly rae.TypeNode[] | readonly rae.PropertyNode
   members: T,
   name: string,
 ): T {
-  const index = members.findIndex(
-    (member) => member.type instanceof rae.IntrinsicNode && member.type.name === name,
-  );
+  const index = members.findIndex((member: rae.TypeNode | rae.PropertyNode) => {
+    if (member instanceof rae.PropertyNode) {
+      return member.type instanceof rae.IntrinsicNode && member.type.name === name;
+    }
+
+    return member instanceof rae.IntrinsicNode && member.name === name;
+  });
+
   if (index !== -1) {
     const member = members[index];
-    return [...members.slice(index, 1), member] as unknown as T;
+    return [...members.slice(0, index), ...members.slice(index + 1), member] as unknown as T;
   }
 
   return members;

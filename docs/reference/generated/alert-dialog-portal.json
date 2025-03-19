@@ -3,7 +3,7 @@
   "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.",
   "props": {
     "container": {
-      "type": "null | HTMLElement | RefObject",
+      "type": "HTMLElement | RefObject | null",
       "description": "A parent element to render the portal element into."
     },
     "children": {
