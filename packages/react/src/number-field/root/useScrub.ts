@@ -200,7 +200,7 @@ export function useScrub(params: useScrub.Parameters) {
         if (Math.abs(cumulativeDelta) >= pixelSensitivity) {
           cumulativeDelta = 0;
           const dValue = direction === 'vertical' ? -movementY : movementX;
-          incrementValue(dValue * (getStepAmount() ?? DEFAULT_STEP), 1);
+          incrementValue(dValue * (getStepAmount(event) ?? DEFAULT_STEP), 1);
         }
       }
 
@@ -276,6 +276,6 @@ export namespace useScrub {
     value: number | null;
     inputRef: React.RefObject<HTMLInputElement | null>;
     incrementValue: (amount: number, dir: 1 | -1, currentValue?: number | null) => void;
-    getStepAmount: () => number | undefined;
+    getStepAmount: (event?: { altKey?: boolean; shiftKey?: boolean }) => number | undefined;
   }
 }
