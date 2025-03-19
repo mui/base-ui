@@ -10,7 +10,6 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
-import { mergeProps } from '../../merge-props';
 
 /**
  * Positions the tooltip against the trigger.
@@ -20,7 +19,7 @@ import { mergeProps } from '../../merge-props';
  */
 const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   props: TooltipPositioner.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     render,
@@ -82,7 +81,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const { renderElement } = useComponentRenderer(props, {
     state,
     render: 'div',
-    ref: [forwardedRef, setPositionerElement],
+    ref: [ref, setPositionerElement],
     props: [positioner.getPositionerProps, otherProps],
     styleHookMapping: popupStateMapping,
   });

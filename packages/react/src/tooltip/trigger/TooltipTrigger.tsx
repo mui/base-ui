@@ -5,7 +5,6 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { mergeProps } from '../../merge-props';
 import { button } from '../../utils/renderFunctions';
 
 /**

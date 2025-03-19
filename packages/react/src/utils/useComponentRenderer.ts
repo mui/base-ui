@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { ComponentRenderFn, GenericHTMLProps } from './types';
+import type { BaseUIComponentProps, ComponentRenderFn, GenericHTMLProps } from './types';
 import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
 import { resolveClassName } from './resolveClassName';
 import { evaluateRenderProp } from './evaluateRenderProp';
@@ -41,8 +41,8 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
    * Props to be spread on the rendered element.
    */
   props?:
-    | React.ComponentPropsWithoutRef<any>
-    | Array<React.ComponentPropsWithoutRef<any>>
+    | BaseUIComponentProps<any, State>
+    | Array<BaseUIComponentProps<any, State>>
     | ((props: GenericHTMLProps) => GenericHTMLProps)
     | Array<(props: GenericHTMLProps) => GenericHTMLProps>;
   /**
