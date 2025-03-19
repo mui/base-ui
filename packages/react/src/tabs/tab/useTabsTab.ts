@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
@@ -58,11 +58,15 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
     return valueParam === selectedTabValue;
   }, [index, selectedTabValue, valueParam]);
 
-  // when activateOnFocus is `true`, ensure the active item in Composite's roving
-  // focus group matches the selected Tab
+  const isSelectionSyncedWithHighlightRef = React.useRef(false);
+
   useEnhancedEffect(() => {
+    if (isSelectionSyncedWithHighlightRef.current === true) {
+      return;
+    }
     if (activateOnFocus && selected && index > -1 && highlightedTabIndex !== index) {
       setHighlightedTabIndex(index);
+      isSelectionSyncedWithHighlightRef.current = true;
     }
   }, [activateOnFocus, highlightedTabIndex, index, selected, setHighlightedTabIndex]);
 
@@ -81,31 +85,41 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'button'>(
-        externalProps,
+      return mergeProps<'button'>(
         {
           role: 'tab',
           'aria-controls': tabPanelId,
           'aria-selected': selected,
           id,
           ref: handleRef,
-          onClick(event) {
+          onClick(event: React.MouseEvent<HTMLButtonElement>) {
             if (selected || disabled) {
               return;
             }
 
             onTabActivation(tabValue, event.nativeEvent);
           },
-          onFocus(event) {
-            if (!activateOnFocus || selected || disabled) {
+          onFocus(event: React.FocusEvent<HTMLButtonElement>) {
+            if (selected) {
               return;
             }
 
-            if (!isPressingRef.current || (isPressingRef.current && isMainButtonRef.current)) {
+            if (index > 1 && index !== highlightedTabIndex) {
+              setHighlightedTabIndex(index);
+            }
+
+            if (disabled) {
+              return;
+            }
+
+            if (
+              (activateOnFocus && !isPressingRef.current) || // keyboard focus
+              (isPressingRef.current && isMainButtonRef.current) // focus caused by pointerdown
+            ) {
               onTabActivation(tabValue, event.nativeEvent);
             }
           },
-          onPointerDown(event) {
+          onPointerDown(event: React.PointerEvent<HTMLButtonElement>) {
             if (selected || disabled) {
               return;
             }
@@ -125,7 +139,9 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
             }
           },
         },
-        mergeReactProps(getItemProps(), getButtonProps()),
+        externalProps,
+        getButtonProps,
+        getItemProps<'button'>,
       );
     },
     [
@@ -139,6 +155,9 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
       tabPanelId,
       tabValue,
       disabled,
+      index,
+      setHighlightedTabIndex,
+      highlightedTabIndex,
     ],
   );
 

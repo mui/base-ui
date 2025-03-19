@@ -5,7 +5,7 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 
 /**
  * A text label of the currently selected item.
@@ -19,7 +19,7 @@ const SelectValue = React.forwardRef(function SelectValue(
 ) {
   const { className, render, children, placeholder, ...otherProps } = props;
 
-  const { label, valueRef } = useSelectRootContext();
+  const { value, label, valueRef } = useSelectRootContext();
 
   const mergedRef = useForkRef(forwardedRef, valueRef);
 
@@ -27,10 +27,16 @@ const SelectValue = React.forwardRef(function SelectValue(
 
   const getValueProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        children: typeof children === 'function' ? children(label) : label || placeholder,
-      }),
-    [children, label, placeholder],
+      mergeProps(
+        {
+          children:
+            typeof children === 'function'
+              ? children(!label && placeholder ? placeholder : label, value)
+              : label || placeholder,
+        },
+        externalProps,
+      ),
+    [children, label, placeholder, value],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -47,7 +53,7 @@ const SelectValue = React.forwardRef(function SelectValue(
 
 namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    children?: null | ((value: string) => React.ReactNode);
+    children?: null | ((label: string, value: any) => React.ReactNode);
     /**
      * A placeholder value to display when no value is selected.
      *

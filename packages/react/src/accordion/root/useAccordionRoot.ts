@@ -1,10 +1,18 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { isElementDisabled } from '../../utils/isElementDisabled';
+import { mergeProps } from '../../merge-props';
 import { useControlled } from '../../utils/useControlled';
-import { ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT } from '../../composite/composite';
+import {
+  ARROW_DOWN,
+  ARROW_UP,
+  ARROW_RIGHT,
+  ARROW_LEFT,
+  HOME,
+  END,
+} from '../../composite/composite';
 
-const SUPPORTED_KEYS = [ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, 'Home', 'End'];
+const SUPPORTED_KEYS = [ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END];
 
 function getActiveTriggers(accordionItemRefs: {
   current: (HTMLElement | null)[];
@@ -15,21 +23,15 @@ function getActiveTriggers(accordionItemRefs: {
 
   for (let i = 0; i < accordionItemElements.length; i += 1) {
     const section = accordionItemElements[i];
-    if (!isDisabled(section)) {
+    if (!isElementDisabled(section)) {
       const trigger = section?.querySelector('[type="button"]') as HTMLButtonElement;
-      if (!isDisabled(trigger)) {
+      if (!isElementDisabled(trigger)) {
         output.push(trigger);
       }
     }
   }
 
   return output;
-}
-
-function isDisabled(element: HTMLElement | null) {
-  return (
-    element === null || element.hasAttribute('disabled') || element.hasAttribute('data-disabled')
-  );
 }
 
 export function useAccordionRoot(
@@ -79,85 +81,88 @@ export function useAccordionRoot(
     (externalProps = {}) => {
       const isRtl = direction === 'rtl';
       const isHorizontal = orientation === 'horizontal';
-      return mergeReactProps(externalProps, {
-        dir: direction,
-        role: 'region',
-        onKeyDown(event: React.KeyboardEvent) {
-          if (!SUPPORTED_KEYS.includes(event.key)) {
-            return;
-          }
-
-          event.preventDefault();
-
-          const triggers = getActiveTriggers(accordionItemRefs);
-
-          const numOfEnabledTriggers = triggers.length;
-          const lastIndex = numOfEnabledTriggers - 1;
-
-          let nextIndex = -1;
-
-          const thisIndex = triggers.indexOf(event.target as HTMLButtonElement);
-
-          function toNext() {
-            if (loop) {
-              nextIndex = thisIndex + 1 > lastIndex ? 0 : thisIndex + 1;
-            } else {
-              nextIndex = Math.min(thisIndex + 1, lastIndex);
+      return mergeProps(
+        {
+          dir: direction,
+          role: 'region',
+          onKeyDown(event: React.KeyboardEvent) {
+            if (!SUPPORTED_KEYS.includes(event.key)) {
+              return;
             }
-          }
 
-          function toPrev() {
-            if (loop) {
-              nextIndex = thisIndex === 0 ? lastIndex : thisIndex - 1;
-            } else {
-              nextIndex = thisIndex - 1;
+            event.preventDefault();
+
+            const triggers = getActiveTriggers(accordionItemRefs);
+
+            const numOfEnabledTriggers = triggers.length;
+            const lastIndex = numOfEnabledTriggers - 1;
+
+            let nextIndex = -1;
+
+            const thisIndex = triggers.indexOf(event.target as HTMLButtonElement);
+
+            function toNext() {
+              if (loop) {
+                nextIndex = thisIndex + 1 > lastIndex ? 0 : thisIndex + 1;
+              } else {
+                nextIndex = Math.min(thisIndex + 1, lastIndex);
+              }
             }
-          }
 
-          switch (event.key) {
-            case ARROW_DOWN:
-              if (!isHorizontal) {
-                toNext();
+            function toPrev() {
+              if (loop) {
+                nextIndex = thisIndex === 0 ? lastIndex : thisIndex - 1;
+              } else {
+                nextIndex = thisIndex - 1;
               }
-              break;
-            case ARROW_UP:
-              if (!isHorizontal) {
-                toPrev();
-              }
-              break;
-            case ARROW_RIGHT:
-              if (isHorizontal) {
-                if (isRtl) {
-                  toPrev();
-                } else {
+            }
+
+            switch (event.key) {
+              case ARROW_DOWN:
+                if (!isHorizontal) {
                   toNext();
                 }
-              }
-              break;
-            case ARROW_LEFT:
-              if (isHorizontal) {
-                if (isRtl) {
-                  toNext();
-                } else {
+                break;
+              case ARROW_UP:
+                if (!isHorizontal) {
                   toPrev();
                 }
-              }
-              break;
-            case 'Home':
-              nextIndex = 0;
-              break;
-            case 'End':
-              nextIndex = lastIndex;
-              break;
-            default:
-              break;
-          }
+                break;
+              case ARROW_RIGHT:
+                if (isHorizontal) {
+                  if (isRtl) {
+                    toPrev();
+                  } else {
+                    toNext();
+                  }
+                }
+                break;
+              case ARROW_LEFT:
+                if (isHorizontal) {
+                  if (isRtl) {
+                    toNext();
+                  } else {
+                    toPrev();
+                  }
+                }
+                break;
+              case 'Home':
+                nextIndex = 0;
+                break;
+              case 'End':
+                nextIndex = lastIndex;
+                break;
+              default:
+                break;
+            }
 
-          if (nextIndex > -1) {
-            triggers[nextIndex].focus();
-          }
+            if (nextIndex > -1) {
+              triggers[nextIndex].focus();
+            }
+          },
         },
-      });
+        externalProps,
+      );
     },
     [direction, loop, orientation],
   );

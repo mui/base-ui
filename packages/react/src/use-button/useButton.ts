@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useForkRef } from '../utils/useForkRef';
-import { makeEventPreventable, mergeReactProps } from '../utils/mergeReactProps';
+import { makeEventPreventable, mergeProps } from '../merge-props';
+import { useEnhancedEffect } from '../utils/useEnhancedEffect';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRootElementName } from '../utils/useRootElementName';
+import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, GenericHTMLProps } from '../utils/types';
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
@@ -20,6 +22,8 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   const { rootElementName: elementName, updateRootElementName } = useRootElementName({
     rootElementName: elementNameProp,
   });
+
+  const isCompositeItem = useCompositeRootContext(true) !== undefined;
 
   const isNativeButton = useEventCallback(() => {
     const element = buttonRef.current;
@@ -42,102 +46,143 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   const buttonProps = React.useMemo(() => {
     const additionalProps: AdditionalButtonProps = {};
 
-    if (tabIndex !== undefined) {
+    if (tabIndex !== undefined && !isCompositeItem) {
       additionalProps.tabIndex = tabIndex;
     }
 
     if (elementName === 'BUTTON' || elementName === 'INPUT') {
-      if (focusableWhenDisabled) {
+      if (focusableWhenDisabled || isCompositeItem) {
         additionalProps['aria-disabled'] = disabled;
-      } else {
+      } else if (!isCompositeItem) {
         additionalProps.disabled = disabled;
       }
     } else if (elementName !== '') {
-      additionalProps.role = 'button';
-      additionalProps.tabIndex = tabIndex ?? 0;
+      if (elementName !== 'A') {
+        additionalProps.role = 'button';
+        if (!isCompositeItem) {
+          additionalProps.tabIndex = tabIndex ?? 0;
+        }
+      } else if (tabIndex && !isCompositeItem) {
+        additionalProps.tabIndex = tabIndex;
+      }
       if (disabled) {
         additionalProps['aria-disabled'] = disabled as boolean;
-        additionalProps.tabIndex = focusableWhenDisabled ? (tabIndex ?? 0) : -1;
+        if (!isCompositeItem) {
+          additionalProps.tabIndex = focusableWhenDisabled ? (tabIndex ?? 0) : -1;
+        }
       }
     }
 
     return additionalProps;
-  }, [disabled, elementName, focusableWhenDisabled, tabIndex]);
+  }, [disabled, elementName, focusableWhenDisabled, isCompositeItem, tabIndex]);
+
+  // handles a disabled composite button rendering another button, e.g.
+  // <Toolbar.Button disabled render={<Menu.Trigger />} />
+  // the `disabled` prop needs to pass through 2 `useButton`s then finally
+  // delete the `disabled` attribute from DOM
+  useEnhancedEffect(() => {
+    const element = buttonRef.current;
+    if (!(element instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    if (isCompositeItem && disabled && buttonProps.disabled === undefined && element.disabled) {
+      element.disabled = false;
+    }
+  }, [disabled, buttonProps.disabled, isCompositeItem]);
 
   const getButtonProps = React.useCallback(
-    (externalProps: GenericButtonProps = {}): GenericButtonProps => {
+    (externalProps: GenericButtonProps = {}) => {
       const {
         onClick: externalOnClick,
         onMouseDown: externalOnMouseDown,
         onKeyUp: externalOnKeyUp,
         onKeyDown: externalOnKeyDown,
+        onPointerDown: externalOnPointerDown,
         ...otherExternalProps
       } = externalProps;
 
-      return mergeReactProps(otherExternalProps, buttonProps, {
-        type,
-        onClick(event: React.MouseEvent) {
-          if (!disabled) {
+      return mergeProps<'button' | 'input'>(
+        {
+          type,
+          onClick(event: React.MouseEvent) {
+            if (disabled) {
+              event.preventDefault();
+              return;
+            }
             externalOnClick?.(event);
-          }
+          },
+          onMouseDown(event: React.MouseEvent) {
+            if (!disabled) {
+              externalOnMouseDown?.(event);
+            }
+          },
+          onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+            if (
+              // allow Tabbing away from focusableWhenDisabled buttons
+              (disabled && focusableWhenDisabled && event.key !== 'Tab') ||
+              (event.target === event.currentTarget && !isNativeButton() && event.key === ' ')
+            ) {
+              event.preventDefault();
+            }
+
+            if (!disabled) {
+              makeEventPreventable(event);
+              externalOnKeyDown?.(event);
+            }
+
+            if (event.baseUIHandlerPrevented) {
+              return;
+            }
+
+            // Keyboard accessibility for non interactive elements
+            if (
+              event.target === event.currentTarget &&
+              !isNativeButton() &&
+              !isValidLink() &&
+              event.key === 'Enter' &&
+              !disabled
+            ) {
+              externalOnClick?.(event);
+              event.preventDefault();
+            }
+          },
+          onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
+            // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
+            // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
+            // Keyboard accessibility for non interactive elements
+            if (!disabled) {
+              makeEventPreventable(event);
+              externalOnKeyUp?.(event);
+            }
+
+            if (event.baseUIHandlerPrevented) {
+              return;
+            }
+
+            if (
+              event.target === event.currentTarget &&
+              !isNativeButton() &&
+              !disabled &&
+              event.key === ' '
+            ) {
+              externalOnClick?.(event);
+            }
+          },
+          onPointerDown(event: React.PointerEvent) {
+            if (disabled) {
+              event.preventDefault();
+              return;
+            }
+            externalOnPointerDown?.(event);
+          },
+          ref: mergedRef,
         },
-        onMouseDown(event: React.MouseEvent) {
-          if (!disabled) {
-            externalOnMouseDown?.(event);
-          }
-        },
-        onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-          if (event.target === event.currentTarget && !isNativeButton() && event.key === ' ') {
-            event.preventDefault();
-          }
-
-          if (!disabled) {
-            makeEventPreventable(event);
-            externalOnKeyDown?.(event);
-          }
-
-          if (event.baseUIHandlerPrevented) {
-            return;
-          }
-
-          // Keyboard accessibility for non interactive elements
-          if (
-            event.target === event.currentTarget &&
-            !isNativeButton() &&
-            !isValidLink() &&
-            event.key === 'Enter' &&
-            !disabled
-          ) {
-            externalOnClick?.(event);
-            event.preventDefault();
-          }
-        },
-        onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
-          // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
-          // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
-          // Keyboard accessibility for non interactive elements
-          if (!disabled) {
-            makeEventPreventable(event);
-            externalOnKeyUp?.(event);
-          }
-
-          if (event.baseUIHandlerPrevented) {
-            return;
-          }
-
-          if (
-            event.target === event.currentTarget &&
-            !isNativeButton() &&
-            !disabled &&
-            event.key === ' '
-          ) {
-            externalOnClick?.(event);
-          }
-        },
-        ref: mergedRef,
-      });
+        buttonProps,
+        otherExternalProps,
+      );
     },
-    [buttonProps, disabled, isNativeButton, isValidLink, mergedRef, type],
+    [buttonProps, disabled, focusableWhenDisabled, isNativeButton, isValidLink, mergedRef, type],
   );
 
   return {
@@ -155,7 +200,7 @@ interface AdditionalButtonProps
     'aria-disabled': React.AriaAttributes['aria-disabled'];
     disabled: boolean;
     role: React.AriaRole;
-    tabIndex: number;
+    tabIndex?: number;
   }> {}
 
 export namespace useButton {
@@ -176,7 +221,9 @@ export namespace useButton {
      * Type attribute applied when the `component` is `button`.
      * @default 'button'
      */
-    type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
+    type?:
+      | React.ButtonHTMLAttributes<HTMLButtonElement>['type']
+      | React.InputHTMLAttributes<HTMLInputElement>['type'];
     /**
      * The HTML element, e.g.'button', 'span' etc.
      * @default ''

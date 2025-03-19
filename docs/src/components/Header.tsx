@@ -18,6 +18,9 @@ export function Header() {
         </NextLink>
 
         <div className="flex gap-6 max-show-side-nav:hidden">
+          <NextLink href="/careers/design-engineer" className="HeaderLink">
+            Careers
+          </NextLink>
           <a
             className="HeaderLink"
             href="https://www.npmjs.com/package/@base-ui-components/react"
@@ -60,6 +63,14 @@ export function Header() {
                 <MobileNav.Section>
                   <MobileNav.Heading>Resources</MobileNav.Heading>
                   <MobileNav.List>
+                    <MobileNav.Item
+                      href="/careers/design-engineer"
+                      rel="noopener"
+                    >
+                      <span className="flex flex-grow-1 items-baseline justify-between">
+                        Careers
+                      </span>
+                    </MobileNav.Item>
                     <MobileNav.Item
                       href="https://www.npmjs.com/package/@base-ui-components/react"
                       rel="noopener"

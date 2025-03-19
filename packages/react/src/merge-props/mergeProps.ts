@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { BaseUIEvent, WithBaseUIEvent } from './types';
+import type { BaseUIEvent, WithBaseUIEvent } from '../utils/types';
 
 type MergableProps<T extends React.ElementType> =
   | WithBaseUIEvent<React.ComponentPropsWithRef<T>>
@@ -9,17 +9,17 @@ type MergableProps<T extends React.ElementType> =
   | undefined;
 
 /**
- * Merges multiple sets of React props. It follows the Object.assign pattern where the leftmost object's fields overwrite
+ * Merges multiple sets of React props. It follows the Object.assign pattern where the rightmost object's fields overwrite
  * the conflicting ones from others. This doesn't apply to event handlers, `className` and `style` props.
- * Event handlers are merged such that they are called in sequence (the leftmost one being called first),
+ * Event handlers are merged such that they are called in sequence (the rightmost one being called first),
  * and allows the user to prevent the subsequent event handlers from being
  * executed by attaching a `preventBaseUIHandler` method.
  * It also merges the `className` and `style` props, whereby the classes are concatenated
- * and the leftmost styles overwrite the subsequent ones.
+ * and the rightmost styles overwrite the subsequent ones.
  *
  * Props can either be provided as objects or as functions that take the previous props as an argument.
- * The function will receive the merged props up to that point (going from right to left):
- * so in the case of `(obj1, fn, obj2, obj3)`, `fn` will receive the merged props of `obj2` and `obj3`.
+ * The function will receive the merged props up to that point (going from left to right):
+ * so in the case of `(obj1, obj2, fn, obj3)`, `fn` will receive the merged props of `obj1` and `obj2`.
  * The function is responsible for chaining event handlers if needed (i.e. we don't run the merge logic).
  *
  * Event handlers returned by the functions are not automatically prevented when `preventBaseUIHandler` is called.
@@ -29,20 +29,20 @@ type MergableProps<T extends React.ElementType> =
  * @param props props to merge.
  * @returns the merged props.
  */
-export function mergeReactProps<T extends React.ElementType>(
-  ...props: MergableProps<T>[]
-): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
+export function mergeProps<Tag extends React.ElementType>(
+  ...props: MergableProps<Tag>[]
+): WithBaseUIEvent<React.ComponentPropsWithRef<Tag>> {
   if (props.length === 0) {
-    return {} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
+    return {} as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>;
   }
 
   if (props.length === 1) {
     return resolvePropsGetter(props[0], {});
   }
 
-  let merged = resolvePropsGetter(props[props.length - 1], {});
+  let merged = resolvePropsGetter(props[0], {});
 
-  for (let i = props.length - 2; i >= 0; i -= 1) {
+  for (let i = 1; i < props.length; i += 1) {
     const propsOrPropsGetter = props[i];
     if (!propsOrPropsGetter) {
       continue;
@@ -51,30 +51,33 @@ export function mergeReactProps<T extends React.ElementType>(
     if (isPropsGetter(propsOrPropsGetter)) {
       merged = propsOrPropsGetter(merged);
     } else {
-      merged = merge(propsOrPropsGetter as WithBaseUIEvent<React.ComponentPropsWithRef<T>>, merged);
+      merged = merge(
+        merged,
+        propsOrPropsGetter as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>,
+      );
     }
   }
 
-  return merged ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
+  return merged ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>);
 }
 
-function resolvePropsGetter<T extends React.ElementType>(
+function resolvePropsGetter<Tag extends React.ElementType>(
   propsOrPropsGetter: MergableProps<React.ElementType>,
-  previousProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>>,
+  previousProps: WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>,
 ) {
   if (isPropsGetter(propsOrPropsGetter)) {
     return propsOrPropsGetter(previousProps);
   }
 
-  return propsOrPropsGetter ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>);
+  return propsOrPropsGetter ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>);
 }
 
 /**
  * Merges two sets of props. In case of conflicts, the external props take precedence.
  */
 function merge<T extends React.ElementType>(
-  externalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>> | undefined,
   internalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>> | undefined,
+  externalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>> | undefined,
 ): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
   if (!externalProps) {
     if (!internalProps) {
@@ -91,16 +94,16 @@ function merge<T extends React.ElementType>(
   return Object.entries(externalProps).reduce(
     (mergedProps, [propName, externalPropValue]) => {
       if (isEventHandler(propName, externalPropValue)) {
-        mergedProps[propName] = mergeEventHandlers(externalPropValue, internalProps[propName]);
+        mergedProps[propName] = mergeEventHandlers(internalProps[propName], externalPropValue);
       } else if (propName === 'style') {
         mergedProps[propName] = mergeStyles(
-          externalPropValue as React.CSSProperties,
           internalProps.style,
+          externalPropValue as React.CSSProperties,
         );
       } else if (propName === 'className') {
         mergedProps[propName] = mergeClassNames(
-          externalPropValue as string,
           internalProps.className,
+          externalPropValue as string,
         );
       } else {
         mergedProps[propName] = externalPropValue;
@@ -132,7 +135,7 @@ function isPropsGetter<T extends React.ComponentType>(
   return typeof propsOrPropsGetter === 'function';
 }
 
-function mergeEventHandlers(theirHandler: Function, ourHandler: Function) {
+function mergeEventHandlers(ourHandler: Function, theirHandler: Function) {
   return (event: unknown) => {
     if (isSyntheticEvent(event)) {
       const baseUIEvent = event as BaseUIEvent<typeof event>;
@@ -163,8 +166,8 @@ export function makeEventPreventable<T extends React.SyntheticEvent>(event: Base
 }
 
 function mergeStyles(
-  theirStyle: React.CSSProperties | undefined,
   ourStyle: React.CSSProperties | undefined,
+  theirStyle: React.CSSProperties | undefined,
 ) {
   if (theirStyle || ourStyle) {
     return { ...ourStyle, ...theirStyle };
@@ -173,7 +176,7 @@ function mergeStyles(
   return undefined;
 }
 
-function mergeClassNames(theirClassName: string | undefined, ourClassName: string | undefined) {
+function mergeClassNames(ourClassName: string | undefined, theirClassName: string | undefined) {
   if (theirClassName) {
     if (ourClassName) {
       // eslint-disable-next-line prefer-template

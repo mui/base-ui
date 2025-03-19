@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { hasComputedStyleMapSupport } from '../utils/hasComputedStyleMapSupport';
+import { isElementDisabled } from '../utils/isElementDisabled';
 import { ownerWindow } from '../utils/owner';
 import type { TextDirection } from '../direction-provider/DirectionContext';
 
@@ -21,6 +22,13 @@ export const VERTICAL_KEYS = [ARROW_UP, ARROW_DOWN];
 export const VERTICAL_KEYS_WITH_EXTRA_KEYS = [ARROW_UP, ARROW_DOWN, HOME, END];
 export const ARROW_KEYS = [...HORIZONTAL_KEYS, ...VERTICAL_KEYS];
 export const ALL_KEYS = [...ARROW_KEYS, HOME, END];
+
+export const SHIFT = 'Shift' as const;
+export const CONTROL = 'Control' as const;
+export const ALT = 'Alt' as const;
+export const META = 'Meta' as const;
+export const MODIFIER_KEYS = [SHIFT, CONTROL, ALT, META] as const;
+export type ModifierKey = (typeof MODIFIER_KEYS)[number];
 
 function stopEvent(event: Event | React.SyntheticEvent) {
   event.preventDefault();
@@ -353,12 +361,7 @@ export function isDisabled(
     return disabledIndices.includes(index);
   }
 
-  const element = list[index];
-  return (
-    element == null ||
-    element.hasAttribute('disabled') ||
-    element.getAttribute('aria-disabled') === 'true'
-  );
+  return isElementDisabled(list[index]);
 }
 
 export function getTextDirection(element: HTMLElement): TextDirection {
@@ -369,4 +372,16 @@ export function getTextDirection(element: HTMLElement): TextDirection {
   }
 
   return ownerWindow(element).getComputedStyle(element).direction as TextDirection;
+}
+
+export function isNativeInput(
+  element: EventTarget,
+): element is HTMLElement & (HTMLInputElement | HTMLTextAreaElement) {
+  if (element instanceof HTMLInputElement && element.selectionStart != null) {
+    return true;
+  }
+  if (element instanceof HTMLTextAreaElement) {
+    return true;
+  }
+  return false;
 }

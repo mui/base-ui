@@ -6,6 +6,7 @@ import {
   useDismiss,
   useFloatingRootContext,
   useInteractions,
+  useRole,
   type OpenChangeReason as FloatingUIOpenChangeReason,
 } from '@floating-ui/react';
 import { getTarget } from '@floating-ui/react/utils';
@@ -16,7 +17,7 @@ import { useTransitionStatus, type TransitionStatus } from '../../utils/useTrans
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import {
   type OpenChangeReason,
@@ -52,7 +53,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   );
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
-  const [popupElementId, setPopupElementId] = React.useState<string | undefined>(undefined);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -99,6 +99,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
 
+  const role = useRole(context);
   const click = useClick(context);
   const dismiss = useDismiss(context, {
     outsidePressEvent: 'mousedown',
@@ -121,7 +122,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     escapeKey: isTopmost,
   });
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
+  const { getReferenceProps, getFloatingProps } = useInteractions([role, click, dismiss]);
 
   React.useEffect(() => {
     if (onNestedDialogOpen && open) {
@@ -149,6 +150,11 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   const { openMethod, triggerProps } = useOpenInteractionType(open);
 
+  const getTriggerProps = React.useCallback(
+    (externalProps = {}) => getReferenceProps(mergeProps(triggerProps, externalProps)),
+    [getReferenceProps, triggerProps],
+  );
+
   return React.useMemo(() => {
     return {
       modal,
@@ -158,21 +164,13 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       setTitleElementId,
       descriptionElementId,
       setDescriptionElementId,
-      popupElementId,
-      setPopupElementId,
       onNestedDialogOpen: handleNestedDialogOpen,
       onNestedDialogClose: handleNestedDialogClose,
       nestedOpenDialogCount: ownNestedOpenDialogs,
       openMethod,
       mounted,
       transitionStatus,
-      getTriggerProps: (externalProps?: React.HTMLProps<Element>) =>
-        getReferenceProps(
-          mergeReactProps(
-            mergeReactProps(externalProps, { 'aria-controls': popupElementId }),
-            triggerProps,
-          ),
-        ),
+      getTriggerProps,
       getPopupProps: getFloatingProps,
       setTriggerElement,
       setPopupElement,
@@ -183,23 +181,18 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     } satisfies useDialogRoot.ReturnValue;
   }, [
     modal,
-    open,
     setOpen,
+    open,
     titleElementId,
     descriptionElementId,
-    popupElementId,
-    handleNestedDialogClose,
     handleNestedDialogOpen,
+    handleNestedDialogClose,
     ownNestedOpenDialogs,
     openMethod,
     mounted,
     transitionStatus,
-    getReferenceProps,
+    getTriggerProps,
     getFloatingProps,
-    setTriggerElement,
-    setPopupElement,
-    triggerProps,
-    popupRef,
     context,
   ]);
 }
@@ -302,17 +295,9 @@ export namespace useDialogRoot {
      */
     openMethod: InteractionType | null;
     /**
-     * The id of the popup element.
-     */
-    popupElementId: string | undefined;
-    /**
      * Callback to set the id of the description element associated with the dialog.
      */
     setDescriptionElementId: (elementId: string | undefined) => void;
-    /**
-     * Callback to set the id of the popup element.
-     */
-    setPopupElementId: (elementId: string | undefined) => void;
     /**
      * Callback to set the id of the title element.
      */

@@ -528,4 +528,36 @@ describe('<NumberField />', () => {
       expect(preventDefaultSpy).to.have.property('callCount', 0);
     });
   });
+
+  describe('prop: locale', () => {
+    it('should set the locale of the input', async () => {
+      await render(<NumberField defaultValue={1000.5} locale="de-DE" />);
+      const input = screen.getByRole('textbox');
+
+      // In German locale, numbers use dot as thousands separator and comma as decimal separator
+      const expectedValue = new Intl.NumberFormat('de-DE').format(1000.5);
+      expect(input).to.have.value(expectedValue);
+    });
+
+    it('should use the default locale if no locale is provided', async () => {
+      await render(<NumberField defaultValue={1000.5} />);
+      const input = screen.getByRole('textbox');
+      const expectedValue = new Intl.NumberFormat().format(1000.5);
+      expect(input).to.have.value(expectedValue);
+    });
+
+    it('should handle locales using space as the thousands separator', async () => {
+      await render(<NumberField defaultValue={12345.5} locale="pl" />);
+
+      const input = screen.getByRole('textbox');
+      const expectedValue = new Intl.NumberFormat('pl').format(12345.5);
+      expect(input).to.have.value(expectedValue);
+
+      const incrementButton = screen.getByLabelText('Increase');
+      fireEvent.click(incrementButton);
+
+      const newExpectedValue = new Intl.NumberFormat('pl').format(12346.5);
+      expect(input).to.have.value(newExpectedValue);
+    });
+  });
 });

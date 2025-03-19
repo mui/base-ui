@@ -2,7 +2,7 @@ import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
 import type { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
@@ -73,8 +73,8 @@ export function useSelectTrigger(
 
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return getButtonProps(
-        mergeReactProps<'button'>(fieldControlValidation.getValidationProps(externalProps), {
+      return mergeProps<'button'>(
+        {
           'aria-labelledby': labelId,
           'aria-readonly': readOnly || undefined,
           tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
@@ -142,7 +142,12 @@ export function useSelectTrigger(
               doc.addEventListener('mouseup', handleMouseUp, { once: true });
             });
           },
-        }),
+        },
+        fieldControlValidation.getValidationProps(externalProps),
+        getButtonProps,
+        // ensure nested useButton does not overwrite the combobox role:
+        // <Toolbar.Button render={<Select.Trigger />} />
+        { role: 'combobox' },
       );
     },
     [

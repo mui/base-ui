@@ -17,7 +17,7 @@ import { OPEN_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import {
   translateOpenChangeReason,
@@ -25,6 +25,7 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { useScrollLock } from '../../utils/useScrollLock';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -35,6 +36,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     closeDelay,
     openOnHover = false,
     onOpenChangeComplete,
+    modal,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -46,10 +48,10 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
-  const [clickEnabled, setClickEnabled] = React.useState(true);
+  const [stickIfOpen, setStickIfOpen] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
-  const clickEnabledTimeoutRef = React.useRef(-1);
+  const stickIfOpenTimeoutRef = React.useRef(-1);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -58,13 +60,11 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     state: 'open',
   });
 
-  if (!open && !clickEnabled) {
-    setClickEnabled(true);
-  }
-
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  useScrollLock(open && modal && openReason !== 'hover', triggerElement);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -79,6 +79,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
+    setStickIfOpen(true);
     setOpenReason(null);
     onOpenChangeComplete?.(false);
   });
@@ -96,11 +97,19 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
+  const clearStickIfOpenTimeout = useEventCallback(() => {
+    clearTimeout(stickIfOpenTimeoutRef.current);
+  });
+
   React.useEffect(() => {
-    return () => {
-      clearTimeout(clickEnabledTimeoutRef.current);
-    };
-  }, []);
+    if (!open) {
+      clearStickIfOpenTimeout();
+    }
+  }, [clearStickIfOpenTimeout, open]);
+
+  React.useEffect(() => {
+    return clearStickIfOpenTimeout;
+  }, [clearStickIfOpenTimeout]);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -115,11 +124,11 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       }
 
       if (isHover) {
-        // Prevent impatient clicks from unexpectedly closing the popover.
-        setClickEnabled(false);
-        clearTimeout(clickEnabledTimeoutRef.current);
-        clickEnabledTimeoutRef.current = window.setTimeout(() => {
-          setClickEnabled(true);
+        // Only allow "patient" clicks to close the popover if it's open.
+        // If they clicked within 500ms of the popover opening, keep it open.
+        clearStickIfOpenTimeout();
+        stickIfOpenTimeoutRef.current = window.setTimeout(() => {
+          setStickIfOpen(false);
         }, PATIENT_CLICK_THRESHOLD);
 
         ReactDOM.flushSync(changeState);
@@ -149,8 +158,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   });
 
   const click = useClick(context, {
-    enabled: clickEnabled,
-    stickIfOpen: false,
+    stickIfOpen,
   });
 
   const dismiss = useDismiss(context);
@@ -160,6 +168,11 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
 
   const { openMethod, triggerProps } = useOpenInteractionType(open);
+
+  const getRootTriggerProps = React.useCallback(
+    (externalProps = {}) => getReferenceProps(mergeProps(triggerProps, externalProps)),
+    [getReferenceProps, triggerProps],
+  );
 
   return React.useMemo(
     () => ({
@@ -176,8 +189,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       setTitleId,
       descriptionId,
       setDescriptionId,
-      getRootTriggerProps: (externalProps?: React.HTMLProps<Element>) =>
-        getReferenceProps(mergeReactProps(externalProps, triggerProps)),
+      getRootTriggerProps,
       getRootPopupProps: getFloatingProps,
       floatingRootContext: context,
       instantType,
@@ -186,20 +198,19 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       onOpenChangeComplete,
     }),
     [
-      mounted,
       open,
-      setMounted,
       setOpen,
+      mounted,
+      setMounted,
       transitionStatus,
       positionerElement,
       titleId,
       descriptionId,
-      getReferenceProps,
+      getRootTriggerProps,
       getFloatingProps,
       context,
       instantType,
       openMethod,
-      triggerProps,
       openReason,
       onOpenChangeComplete,
     ],
@@ -251,6 +262,11 @@ export namespace usePopoverRoot {
      * A ref to imperative actions.
      */
     actionsRef?: React.RefObject<Actions>;
+    /**
+     * Whether the popover should prevent outside clicks and lock page scroll when open.
+     * @default false
+     */
+    modal?: boolean;
   }
 
   export interface ReturnValue {
