@@ -118,7 +118,7 @@ function Collapsible(props: {
      * Explicitly set `display` to ensure the panel is actually rendered before
      * measuring anything. `!important` is to needed to override a conflicting
      * Tailwind v4 default that sets `display: none !important` on `[hidden]`:
-     * https://github.com/tailwindlabs/tailwindcss/blame/main/packages/tailwindcss/preflight.css#L382
+     * https://github.com/tailwindlabs/tailwindcss/blob/cd154a4f471e7a63cc27cad15dada650de89d52b/packages/tailwindcss/preflight.css#L320-L326
      */
     element.style.setProperty('display', 'block', 'important'); // TODO: maybe this can be set more conditionally
 
@@ -134,16 +134,11 @@ function Collapsible(props: {
         element.setAttribute('data-starting-style', '');
       }
 
-      if (!shouldCancelInitialOpenTransitionRef.current && hiddenUntilFoundProp) {
-        element.setAttribute('data-starting-style', '');
-      }
-
       setHeight(element.scrollHeight);
       element.style.removeProperty('display');
 
       if (shouldCancelInitialOpenTransitionRef.current) {
         element.style.setProperty('transition-duration', '0s');
-        // element.style.setProperty('display', 'none');
       }
     }
 
@@ -173,7 +168,8 @@ function Collapsible(props: {
     const nextOpen = !open;
 
     const panel = panelRef.current;
-    if (panel && animationTypeRef.current === 'css-animation') {
+
+    if (animationTypeRef.current === 'css-animation' && panel != null) {
       panel.style.removeProperty('animation-name');
     }
 
@@ -195,6 +191,10 @@ function Collapsible(props: {
     }
     setOpen(nextOpen);
 
+    /**
+     * When `keepMounted={false}` and when opening, the element isn't inserted
+     * in the DOM at this point so bail out here and resume in an effect.
+     */
     if (!panel || animationTypeRef.current !== 'css-transition') {
       return;
     }
@@ -202,6 +202,7 @@ function Collapsible(props: {
     panel.style.setProperty('display', 'block', 'important');
 
     if (nextOpen) {
+      /* opening */
       if (abortControllerRef.current != null) {
         abortControllerRef.current.abort();
         abortControllerRef.current = null;
@@ -209,9 +210,7 @@ function Collapsible(props: {
 
       panel.style.removeProperty('display');
       panel.style.removeProperty('content-visibility');
-
-      /* opening */
-      panel.style.height = '0px';
+      panel.style.setProperty('height', '0px');
 
       requestAnimationFrame(() => {
         panel.style.removeProperty('height');
@@ -229,20 +228,19 @@ function Collapsible(props: {
       abortControllerRef.current = new AbortController();
 
       runOnceAnimationsFinish(() => {
-        // TODO: !important may be needed
-        panel.style.setProperty('display', 'none');
-        // panel.style.removeProperty('content-visibility');
+        panel.style.removeProperty('display');
+        panel.style.removeProperty('content-visibility');
         abortControllerRef.current = null;
       }, abortControllerRef.current.signal);
     }
   });
 
   /**
-   * This only handles `keepMounted={false}` as the state changes can't be done
-   * in the event handler
+   * This only handles CSS transitions when `keepMounted={false}` as we may not
+   * have access to the panel element in the DOM in the trigger event handler.
    */
   useEnhancedEffect(() => {
-    if (animationTypeRef.current !== 'css-transition') {
+    if (animationTypeRef.current !== 'css-transition' || keepMounted) {
       return;
     }
 
@@ -253,10 +251,6 @@ function Collapsible(props: {
     }
 
     if (open) {
-      if (hiddenUntilFoundProp) {
-        return;
-      }
-      console.log('open here');
       if (abortControllerRef.current != null) {
         abortControllerRef.current.abort();
         abortControllerRef.current = null;
@@ -273,7 +267,6 @@ function Collapsible(props: {
         panel.style.removeProperty('display');
 
         panel.style.removeProperty('height');
-
         setHeight(panel.scrollHeight);
       });
     } else {
@@ -363,9 +356,24 @@ function Collapsible(props: {
   useEnhancedEffect(() => {
     const panel = panelRef.current;
 
-    if (panel && hiddenUntilFoundProp && isHidden) {
-      // @ts-ignore
+    if (
+      panel &&
+      hiddenUntilFoundProp &&
+      animationTypeRef.current === 'css-transition' &&
+      isHidden
+    ) {
+      /**
+       * React only supports a boolean for the `hidden` attribute and forces
+       * legit string values to booleans so we have to force it back in the DOM
+       * when necessary: https://github.com/facebook/react/issues/24740
+       */
       panel.setAttribute('hidden', 'until-found');
+      /**
+       * Set data-starting-style here to persist the closed styles, this is to
+       * prevent transitions from starting when the `hidden` attribute changes
+       * to `'until-found'` as they could have different `display` properties:
+       * https://github.com/tailwindlabs/tailwindcss/pull/14625
+       */
       panel.setAttribute('data-starting-style', '');
     }
   }, [hiddenUntilFoundProp, isHidden]);
@@ -378,11 +386,10 @@ function Collapsible(props: {
       }
 
       function handleBeforeMatch(event: Event) {
+        // TODO: probably remove this because beforematch isn't cancellable anyway
         event.preventDefault();
 
         isBeforeMatchRef.current = true;
-
-        // beforematch only fires if the matching content is initially hidden
         setOpen(true);
       }
 

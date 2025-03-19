@@ -91,7 +91,7 @@ function Collapsible(props: {
      * Explicitly set `display` to ensure the panel is actually rendered before
      * measuring anything. `!important` is to needed to override a conflicting
      * Tailwind v4 default that sets `display: none !important` on `[hidden]`:
-     * https://github.com/tailwindlabs/tailwindcss/blame/main/packages/tailwindcss/preflight.css#L382
+     * https://github.com/tailwindlabs/tailwindcss/blob/cd154a4f471e7a63cc27cad15dada650de89d52b/packages/tailwindcss/preflight.css#L320-L326
      */
     element.style.setProperty('display', 'block', 'important'); // TODO: maybe this can be set more conditionally
 
