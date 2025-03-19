@@ -418,7 +418,7 @@ export namespace useSelectRoot {
     transitionStatus?: TransitionStatus;
     /**
      * How the select should trap user interactions.
-     * - `pointer-scroll`: trap scroll and pointer interactions inside the select.
+     * - `pointer-scroll`: trap pointer and scroll interactions inside the select.
      * - `none`: don't trap any interactions.
      *
      * Trapping scroll means that scrolling is only allowed inside the select, locking outer page scroll.

@@ -104,12 +104,12 @@ namespace MenuRoot {
     loop?: boolean;
     /**
      * How the menu should trap user interactions.
-     * - `pointer-scroll`: trap scroll and pointer inside the menu.
+     * - `pointer-scroll`: trap pointer and scroll inside the menu.
      * - `none`: don't trap any interactions.
      *
-     * Trapping scroll means that scrolling is only allowed inside the menu, locking outer page scroll.
-     *
      * Trapping pointer means that pointer presses are only allowed inside the menu, preventing clicks on elements outside the menu.
+     *
+     * Trapping scroll means that scrolling is only allowed inside the menu, locking outer page scroll.
      * @default 'pointer-scroll'
      */
     trap?: 'none' | 'pointer-scroll';
@@ -240,12 +240,12 @@ MenuRoot.propTypes /* remove-proptypes */ = {
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
   /**
    * How the menu should trap user interactions.
-   * - `pointer-scroll`: trap scroll and pointer interactions inside the menu.
+   * - `pointer-scroll`: trap pointer and scroll interactions inside the menu.
    * - `none`: don't trap any interactions.
    *
-   * Trapping scroll means that scrolling is only allowed inside the menu, locking outer page scroll.
+   * Trapping pointer means that pointer presses are only allowed inside the menu, preventing clicks on elements outside the menu.
    *
-   * Trapping pointer means that pointer interactions are only allowed inside the menu, preventing clicks on elements outside the menu.
+   * Trapping scroll means that scrolling is only allowed inside the menu, locking outer page scroll.
    * @default 'pointer-scroll'
    */
   trap: PropTypes.oneOf(['none', 'pointer-scroll']),
