@@ -167,10 +167,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
     const stringValue = typeof value === 'string' || value === null ? value : JSON.stringify(value);
     const index = suppliedIndex ?? valuesRef.current.indexOf(stringValue);
+    const hasIndex = index !== -1;
 
-    if (index !== -1) {
-      setSelectedIndex(index);
-      setLabel(labelsRef.current[index] ?? '');
+    if (hasIndex || value === null) {
+      if (hasIndex) {
+        setSelectedIndex(index);
+      }
+      setLabel(hasIndex ? (labelsRef.current[index] ?? '') : '');
     } else if (value) {
       warn(`The value \`${stringValue}\` is not present in the select items.`);
     }
