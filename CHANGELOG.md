@@ -35,6 +35,7 @@ _Mar 20, 2025_
 
 ### Menu
 
+- [Popover][Menu] Ensure `stickIfOpen` is reset to `true` correctly (#1548) @atomiks
 - [popups] Fix selection on outside press on Firefox with modal prop (#1573) @atomiks
 - [Menu] Reset `hoverEnabled` state on close (#1461) @atomiks
 - [Menu] Fix prop merging issues (#1445) @michaldudak
@@ -53,6 +54,7 @@ _Mar 20, 2025_
 
 ### Popover
 
+- [Popover][Menu] Ensure `stickIfOpen` is reset to `true` correctly (#1548) @atomiks
 - [popups] Fix selection on outside press on Firefox with modal prop (#1573) @atomiks
 - [Menu, Popover, PreviewCard] Set `pointer-events: none` style on backdrops when hoverable (#1351) @atomiks
 - [AlertDialog][Dialog][Popover] Fix non-interactive button disabled state (#1473) @mj12albert
