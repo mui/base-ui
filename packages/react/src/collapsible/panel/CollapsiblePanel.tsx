@@ -41,27 +41,55 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     }, [hiddenUntilFoundProp, keepMountedProp]);
   }
 
-  const { mounted, open, panelId, setPanelId, setMounted, setOpen, state } =
-    useCollapsibleRootContext();
-
-  useEnhancedEffect(() => {
-    if (idProp) {
-      setPanelId(idProp);
-    }
-  }, [idProp, setPanelId]);
-
-  const hiddenUntilFound = hiddenUntilFoundProp ?? false;
-
-  const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
-    hiddenUntilFound,
-    panelId,
-    keepMounted: keepMountedProp ?? false,
+  const {
+    abortControllerRef,
+    animationTypeRef,
+    height,
     mounted,
     open,
-    ref: forwardedRef,
-    setPanelId,
+    panelId,
+    panelRef,
+    runOnceAnimationsFinish,
+    setHeight,
+    setHiddenUntilFound,
+    setKeepMounted,
     setMounted,
     setOpen,
+    setPanelId,
+    setVisible,
+    state,
+    visible,
+  } = useCollapsibleRootContext();
+
+  const hiddenUntilFound = hiddenUntilFoundProp ?? false;
+  const keepMounted = keepMountedProp ?? false;
+
+  useEnhancedEffect(() => {
+    setHiddenUntilFound(hiddenUntilFound);
+  }, [setHiddenUntilFound, hiddenUntilFound]);
+
+  useEnhancedEffect(() => {
+    setKeepMounted(keepMounted);
+  }, [setKeepMounted, keepMounted]);
+
+  const { getRootProps } = useCollapsiblePanel({
+    abortControllerRef,
+    animationTypeRef,
+    externalRef: forwardedRef,
+    height,
+    hiddenUntilFound,
+    keepMounted,
+    mounted,
+    open,
+    panelId: idProp ?? panelId,
+    panelRef,
+    runOnceAnimationsFinish,
+    setHeight,
+    setMounted,
+    setOpen,
+    setPanelId,
+    setVisible,
+    visible,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -74,17 +102,16 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
       style: {
         ...otherProps.style,
         [CollapsiblePanelCssVars.collapsiblePanelHeight]: height ? `${height}px` : undefined,
-        [CollapsiblePanelCssVars.collapsiblePanelWidth]: width ? `${width}px` : undefined,
       },
     },
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
-  if (!keepMountedProp && !isOpen && !hiddenUntilFound) {
-    return null;
+  if (keepMounted || hiddenUntilFound || (!keepMounted && mounted)) {
+    return renderElement();
   }
 
-  return renderElement();
+  return null;
 });
 
 export { CollapsiblePanel };
