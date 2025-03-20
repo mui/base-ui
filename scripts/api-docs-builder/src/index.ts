@@ -59,6 +59,11 @@ function run(options: RunOptions) {
     fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
   }
 
+  for (const exportNode of allExports.filter(isPublicHook)) {
+    const json = JSON.stringify(formatHookData(exportNode), null, 2) + '\n';
+    fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
+  }
+
   console.log(`\nProcessed ${files.length} files.`);
   if (errorCounter > 0) {
     console.log(`❌ Found ${errorCounter} errors.`);
@@ -66,12 +71,19 @@ function run(options: RunOptions) {
   }
 }
 
-function isPublicComponent(node: rae.ExportNode) {
+function isPublicComponent(exportNode: rae.ExportNode) {
   return (
-    node.type instanceof rae.ComponentNode &&
-    !node.documentation?.tags?.some((tag) => tag.name === 'ignore') &&
-    node.documentation?.visibility !== 'internal' &&
-    node.documentation?.visibility !== 'private'
+    exportNode.type instanceof rae.ComponentNode &&
+    !exportNode.documentation?.hasTag('ignore') &&
+    exportNode.isPublic()
+  );
+}
+
+function isPublicHook(exportNode: rae.ExportNode) {
+  return (
+    exportNode.type instanceof rae.FunctionNode &&
+    exportNode.name.startsWith('use') &&
+    exportNode.isPublic(true)
   );
 }
 
@@ -86,7 +98,7 @@ function formatComponentData(
     name: component.name,
     description,
     props: sortObjectByKeys(
-      formatProps((component.type as rae.ComponentNode).props),
+      formatProperties((component.type as rae.ComponentNode).props),
       memberOrder.props,
     ),
     dataAttributes: dataAttributes
@@ -101,7 +113,39 @@ function formatComponentData(
   };
 }
 
-function formatProps(props: rae.PropertyNode[]) {
+function formatHookData(hook: rae.ExportNode) {
+  const description = hook.documentation?.description?.replace(/\n\nDocumentation: .*$/ms, '');
+
+  // We don't support hooks with multiple signatures yet
+  const signature = (hook.type as rae.FunctionNode).callSignatures[0];
+  const parameters = signature.parameters;
+  let formattedParameters: Record<string, any>;
+  if (
+    parameters.length === 1 &&
+    parameters[0].type instanceof rae.ObjectNode &&
+    parameters[0].name === 'params'
+  ) {
+    formattedParameters = formatProperties(parameters[0].type.properties);
+  } else {
+    formattedParameters = formatParameters(parameters);
+  }
+
+  let formattedReturnValue: Record<string, any> | string;
+  if (signature.returnValueType instanceof rae.ObjectNode) {
+    formattedReturnValue = formatProperties(signature.returnValueType.properties);
+  } else {
+    formattedReturnValue = formatType(signature.returnValueType, false, true);
+  }
+
+  return {
+    name: hook.name,
+    description,
+    parameters: formattedParameters,
+    returnValue: formattedReturnValue,
+  };
+}
+
+function formatProperties(props: rae.PropertyNode[]) {
   const result: Record<string, any> = {};
 
   for (const prop of props) {
@@ -110,6 +154,21 @@ function formatProps(props: rae.PropertyNode[]) {
       default: prop.documentation?.defaultValue,
       required: !prop.optional || undefined,
       description: prop.documentation?.description,
+    };
+  }
+
+  return result;
+}
+
+function formatParameters(params: rae.Parameter[]) {
+  const result: Record<string, any> = {};
+
+  for (const param of params) {
+    result[param.name] = {
+      type: formatType(param.type, param.optional, true),
+      default: param.defaultValue,
+      optional: param.optional || undefined,
+      description: param.documentation?.description,
     };
   }
 
@@ -128,7 +187,11 @@ function formatEnum(enumNode: rae.EnumNode) {
   return result;
 }
 
-function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
+function formatType(
+  type: rae.TypeNode,
+  removeUndefined: boolean,
+  expandObjects: boolean = false,
+): string {
   if (type instanceof rae.ReferenceNode) {
     if (/^ReactElement(<.*>)?/.test(type.name)) {
       return 'ReactElement';
@@ -168,11 +231,13 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
       return type.name;
     }
 
-    return orderMembers(type.types).join(' & ');
+    return orderMembers(type.types)
+      .map((t) => formatType(t, false))
+      .join(' & ');
   }
 
   if (type instanceof rae.ObjectNode) {
-    if (type.name) {
+    if (type.name && !expandObjects) {
       return type.name;
     }
 
@@ -181,7 +246,7 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
     }
 
     return `{ ${orderMembers(type.properties)
-      .map((m) => `${m.name}`)
+      .map((m) => `${m.name}: ${formatType(m.type, m.optional)}`)
       .join(', ')} }`;
   }
 
@@ -194,6 +259,10 @@ function formatType(type: rae.TypeNode, removeUndefined: boolean): string {
   }
 
   if (type instanceof rae.FunctionNode) {
+    if (type.name && type.name !== 'ComponentRenderFn') {
+      return type.name;
+    }
+
     const functionSignature = type.callSignatures
       .map((s) => {
         const params = s.parameters

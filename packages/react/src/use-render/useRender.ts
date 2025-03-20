@@ -7,11 +7,13 @@ const emptyObject = {};
 
 /**
  * Returns an object with a `renderElement` function that renders a Base UI component.
+ *
+ * @public
  */
 export function useRender<
   State extends Record<string, unknown>,
   RenderedElementType extends Element,
->(params: useRender.Parameters<State, RenderedElementType>) {
+>(params: useRender.Parameters<State, RenderedElementType>): useRender.ReturnValue {
   const { render, props, state, refs } = params;
   const { ref, ...extraProps } = props ?? {};
 
@@ -72,5 +74,9 @@ export namespace useRender {
      * internal ones.
      */
     props?: Record<string, unknown> & { ref?: React.Ref<RenderedElementType> };
+  }
+
+  export interface ReturnValue {
+    renderElement: () => React.ReactElement;
   }
 }

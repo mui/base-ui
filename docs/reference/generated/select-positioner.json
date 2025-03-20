@@ -12,7 +12,7 @@
       "description": "How to align the popup relative to the specified side."
     },
     "alignOffset": {
-      "type": "number | ((data: { side, align, anchor, positioner }) => number)",
+      "type": "number | OffsetFunction",
       "default": "0",
       "description": "Additional offset along the alignment axis in pixels.\nAlso accepts a function that returns the offset to read the dimensions of the anchor\nand positioner elements, along with its side and alignment.\n\n- `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n- `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.\n- `data.side`: which side of the anchor element the positioner is aligned against.\n- `data.align`: how the positioner is aligned relative to the specified side."
     },
@@ -22,7 +22,7 @@
       "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions."
     },
     "sideOffset": {
-      "type": "number | ((data: { side, align, anchor, positioner }) => number)",
+      "type": "number | OffsetFunction",
       "default": "0",
       "description": "Distance between the anchor and the popup in pixels.\nAlso accepts a function that returns the distance to read the dimensions of the anchor\nand positioner elements, along with its side and alignment.\n\n- `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n- `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.\n- `data.side`: which side of the anchor element the positioner is aligned against.\n- `data.align`: how the positioner is aligned relative to the specified side."
     },
