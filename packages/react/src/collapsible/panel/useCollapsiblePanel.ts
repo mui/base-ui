@@ -283,7 +283,7 @@ export function useCollapsiblePanel(
   }, [hiddenUntilFound, isOpen]);
 
   const hidden = hiddenUntilFound ? 'until-found' : 'hidden';
-
+  console.log('isOpen', isOpen);
   const getRootProps: useCollapsiblePanel.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeProps<'button'>(
