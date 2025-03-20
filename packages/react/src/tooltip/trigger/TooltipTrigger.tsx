@@ -23,9 +23,8 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
 
   const state: TooltipTrigger.State = React.useMemo(() => ({ open }), [open]);
 
-  const renderElement = useRenderElement(props, {
+  const renderElement = useRenderElement(button, props, {
     state,
-    render: button,
     ref: [ref, setTriggerElement],
     props: [getTriggerProps, otherProps],
     styleHookMapping: triggerOpenStateMapping,

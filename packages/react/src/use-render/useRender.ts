@@ -3,8 +3,6 @@ import type { ComponentRenderFn } from '../utils/types';
 import { useRenderElement } from '../utils/useRenderElement';
 import { GenericHTMLProps } from '../utils/types';
 
-const emptyObject = {};
-
 /**
  * Returns an object with a `renderElement` function that renders a Base UI component.
  */
@@ -19,15 +17,15 @@ export function useRender<
     return [...(refs ?? []), ref].filter(Boolean);
   }, [refs, ref]) as React.Ref<RenderedElementType>[];
 
-  return useRenderElement(
+  const renderElement = useRenderElement(
+    'div',
     { render },
-    {
-      state: (state ?? emptyObject) as State,
-      ref: refsArray,
-      props: extraProps,
-      styleHooks: false,
-    },
+    { state, ref: refsArray, props: extraProps, styleHooks: false },
   );
+
+  return {
+    renderElement,
+  };
 }
 
 export namespace useRender {

@@ -54,9 +54,8 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     [open, side, align, instantType, transitionStatus],
   );
 
-  const renderElement = useRenderElement(props, {
+  const renderElement = useRenderElement('div', props, {
     state,
-    render: 'div',
     ref: [popupRef, forwardedRef],
     props: [
       getPopupProps,

@@ -32,9 +32,8 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
     [open, side, align, arrowUncentered],
   );
 
-  const renderElement = useRenderElement(props, {
+  const renderElement = useRenderElement('div', props, {
     state,
-    render: 'div',
     ref: [ref, arrowRef],
     props: [{ style: arrowStyles, 'aria-hidden': true }, otherProps],
     styleHookMapping: popupStateMapping,

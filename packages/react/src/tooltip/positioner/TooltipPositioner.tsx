@@ -78,9 +78,8 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     [state, positioner.arrowRef, positioner.arrowStyles, positioner.arrowUncentered],
   );
 
-  const renderElement = useRenderElement(props, {
+  const renderElement = useRenderElement('div', props, {
     state,
-    render: 'div',
     ref: [ref, setPositionerElement],
     props: [positioner.getPositionerProps, otherProps],
     styleHookMapping: popupStateMapping,

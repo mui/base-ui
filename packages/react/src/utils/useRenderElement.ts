@@ -10,51 +10,6 @@ import { mergeProps } from '../merge-props';
 type Tag = keyof React.JSX.IntrinsicElements;
 type AllowedTags = Exclude<Tag, 'button' | 'img'>;
 
-interface ComponentProps<State> {
-  /**
-   * The class name to apply to the rendered element.
-   * Can be a string or a function that accepts the state and returns a string.
-   */
-  className?: string | ((state: State) => string);
-  /**
-   * The render prop or React element to override the default element.
-   */
-  render?:
-    | ComponentRenderFn<React.HTMLAttributes<any>, State>
-    | React.ReactElement<Record<string, unknown>>;
-}
-
-export interface ComponentRendererSettings<State, RenderedElementType extends Element> {
-  /**
-   * The render prop or React element to override the default element.
-   */
-  render?: AllowedTags | ((props: GenericHTMLProps) => React.ReactElement);
-  /**
-   * The state of the component.
-   */
-  state: State;
-  /**
-   * The ref to apply to the rendered element.
-   */
-  ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
-  /**
-   * Props to be spread on the rendered element.
-   */
-  props?:
-    | BaseUIComponentProps<any, State>
-    | Array<BaseUIComponentProps<any, State>>
-    | ((props: GenericHTMLProps) => GenericHTMLProps)
-    | Array<(props: GenericHTMLProps) => GenericHTMLProps>;
-  /**
-   * A mapping of state to style hooks.
-   */
-  styleHookMapping?: CustomStyleHookMapping<State>;
-  /**
-   * If true, style hooks are generated.
-   */
-  styleHooks?: boolean;
-}
-
 const emptyObject = {};
 
 /**
@@ -65,18 +20,20 @@ const emptyObject = {};
 export function useRenderElement<
   State extends Record<string, any>,
   RenderedElementType extends Element,
->(props: ComponentProps<State>, settings: ComponentRendererSettings<State, RenderedElementType>) {
+>(
+  element: AllowedTags | ((props: GenericHTMLProps) => React.ReactElement),
+  props: useRenderElement.ComponentProps<State>,
+  params: useRenderElement.Parameters<State, RenderedElementType> = {},
+) {
   const { className: classNameProp, render: renderProp } = props;
   const {
-    state,
+    state = emptyObject as State,
     ref,
-    render: fallbackRender,
     props: extraProps,
     styleHookMapping,
     styleHooks: generateStyleHooks = true,
-  } = settings;
-  const render =
-    renderProp || (typeof fallbackRender === 'string' ? tag(fallbackRender) : fallbackRender);
+  } = params;
+  const render = renderProp || (typeof element === 'string' ? tag(element) : element);
 
   const className = resolveClassName(classNameProp, state);
   const styleHooks = React.useMemo(() => {
@@ -106,4 +63,51 @@ export function useRenderElement<
   }
 
   return () => evaluateRenderProp(render, propsWithRef, state);
+}
+
+export namespace useRenderElement {
+  export interface Parameters<State, RenderedElementType extends Element> {
+    /**
+     * The element's tag or function that returns a React element.
+     */
+    element?: AllowedTags | ((props: GenericHTMLProps) => React.ReactElement);
+    /**
+     * The state of the component.
+     */
+    state?: State;
+    /**
+     * The ref to apply to the rendered element.
+     */
+    ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
+    /**
+     * Props to be spread on the rendered element.
+     */
+    props?:
+      | BaseUIComponentProps<any, State>
+      | Array<BaseUIComponentProps<any, State>>
+      | ((props: GenericHTMLProps) => GenericHTMLProps)
+      | Array<(props: GenericHTMLProps) => GenericHTMLProps>;
+    /**
+     * A mapping of state to style hooks.
+     */
+    styleHookMapping?: CustomStyleHookMapping<State>;
+    /**
+     * If true, style hooks are generated.
+     */
+    styleHooks?: boolean;
+  }
+
+  export interface ComponentProps<State> {
+    /**
+     * The class name to apply to the rendered element.
+     * Can be a string or a function that accepts the state and returns a string.
+     */
+    className?: string | ((state: State) => string);
+    /**
+     * The render prop or React element to override the default element.
+     */
+    render?:
+      | ComponentRenderFn<React.HTMLAttributes<any>, State>
+      | React.ReactElement<Record<string, unknown>>;
+  }
 }
