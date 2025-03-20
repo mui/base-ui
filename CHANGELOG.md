@@ -44,7 +44,7 @@ _Mar 20, 2025_
 
 ### NumberField
 
-- [NumberField] Fix ScrubArea on Safari (#1584) @atomiks
+- Fix ScrubArea on Safari (#1584) @atomiks
 - Fix `large/smallStep` getting stuck (#1578) @atomiks
 - Fix parse of numbers with spaces as thousands separators (#1577) @michaldudak
 - Prevent virtual cursor overlapping native one (#1491) @atomiks
@@ -100,7 +100,7 @@ _Mar 20, 2025_
 ### Tooltip
 
 - `actionsRef` prop (#1236) @atomiks
-- [Tooltip] Fix `Provider` `delay=0` not being respected (#1416) @atomiks
+- Fix `Provider` `delay=0` not being respected (#1416) @atomiks
 
 ### useRender
 
