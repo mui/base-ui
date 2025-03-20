@@ -11,7 +11,7 @@
       "description": "Names of the checkboxes in the group that should be ticked.\n\nTo render an uncontrolled checkbox group, use the `defaultValue` prop instead."
     },
     "onValueChange": {
-      "type": "(value, event) => void",
+      "type": "((value: string[], event: Event) => void)",
       "description": "Event handler called when a checkbox in the group is ticked or unticked.\nProvides the new value as an argument."
     },
     "allValues": {
@@ -24,11 +24,11 @@
       "description": "Whether the component should ignore user interaction."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

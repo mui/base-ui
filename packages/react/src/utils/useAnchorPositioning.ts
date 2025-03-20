@@ -50,7 +50,7 @@ export type OffsetFunction = (data: {
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
- * @ignore - internal hook.
+ * @internal
  */
 export function useAnchorPositioning(
   params: useAnchorPositioning.Parameters,

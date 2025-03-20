@@ -14,7 +14,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import type { EventWithOptionalKeyState } from '../utils/types';
 
 /**
- * @ignore - internal hook.
+ * @internal
  */
 export function useScrub(params: useScrub.Parameters) {
   const { disabled, readOnly, value, inputRef, incrementValue, getStepAmount } = params;

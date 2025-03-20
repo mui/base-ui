@@ -26,7 +26,7 @@ export type CompositeMetadata<CustomMetadata> = { index?: number | null } & Cust
 
 /**
  * Provides context for a list of items in a composite component.
- * @ignore - internal component.
+ * @internal
  */
 function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const { children, elementsRef, labelsRef, onMapChange } = props;

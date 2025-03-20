@@ -1,8 +1,0 @@
-{
-  "name": "CollapsibleRoot",
-  "props": {
-    "onOpenChange": {
-      "type": "(open) => void"
-    }
-  }
-}

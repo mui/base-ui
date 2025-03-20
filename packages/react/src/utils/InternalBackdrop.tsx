@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 const InternalBackdrop = React.forwardRef(function InternalBackdrop(
   props: React.ComponentPropsWithoutRef<'div'>,

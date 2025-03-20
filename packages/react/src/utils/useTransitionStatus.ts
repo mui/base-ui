@@ -10,7 +10,7 @@ export type TransitionStatus = 'starting' | 'ending' | undefined;
  * @param delayStartingStatus - a boolean that set the `starting` status one
  *     tick later. Example use-case: collapsible needs an extra frame in order
  *     to measure the panel contents.
- * @ignore - internal hook.
+ * @internal
  */
 export function useTransitionStatus(open: boolean, delayStartingStatus = false) {
   const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>();
