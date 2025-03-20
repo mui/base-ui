@@ -17,7 +17,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
   props: TooltipArrow.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...domProps } = props;
+  const { className, render, ...intrinsicProps } = props;
 
   const { open, arrowRef, side, align, arrowUncentered, arrowStyles } =
     useTooltipPositionerContext();
@@ -35,7 +35,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
   const renderElement = useRenderElement('div', props, {
     state,
     ref: [ref, arrowRef],
-    intrinsicProps: [{ style: arrowStyles, 'aria-hidden': true }, domProps],
+    intrinsicProps: [{ style: arrowStyles, 'aria-hidden': true }, intrinsicProps],
     styleHookMapping: popupStateMapping,
   });
 
