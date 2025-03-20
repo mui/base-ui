@@ -11,6 +11,7 @@ import { mergeProps } from '../../merge-props';
 import type { useNumberFieldRoot } from './useNumberFieldRoot';
 import { NumberFieldRootDataAttributes } from './NumberFieldRootDataAttributes';
 import { useEventCallback } from '../../utils/useEventCallback';
+import type { EventWithOptionalKeyState } from '../utils/types';
 
 /**
  * @ignore - internal hook.
@@ -169,16 +170,14 @@ export function useScrub(params: useScrub.Parameters) {
       let cumulativeDelta = 0;
 
       function handleScrubPointerUp(event: PointerEvent) {
-        if (!isWebKit()) {
-          try {
-            // Avoid errors in testing environments.
-            ownerDocument(scrubAreaRef.current).exitPointerLock();
-          } catch {
-            //
-          } finally {
-            isScrubbingRef.current = false;
-            onScrubbingChange(false, event);
-          }
+        try {
+          // Avoid errors in testing environments.
+          ownerDocument(scrubAreaRef.current).exitPointerLock();
+        } catch {
+          //
+        } finally {
+          isScrubbingRef.current = false;
+          onScrubbingChange(false, event);
         }
       }
 
@@ -200,7 +199,7 @@ export function useScrub(params: useScrub.Parameters) {
         if (Math.abs(cumulativeDelta) >= pixelSensitivity) {
           cumulativeDelta = 0;
           const dValue = direction === 'vertical' ? -movementY : movementX;
-          incrementValue(dValue * (getStepAmount() ?? DEFAULT_STEP), 1);
+          incrementValue(dValue * (getStepAmount(event) ?? DEFAULT_STEP), 1);
         }
       }
 
@@ -276,6 +275,6 @@ export namespace useScrub {
     value: number | null;
     inputRef: React.RefObject<HTMLInputElement | null>;
     incrementValue: (amount: number, dir: 1 | -1, currentValue?: number | null) => void;
-    getStepAmount: () => number | undefined;
+    getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
   }
 }

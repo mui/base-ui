@@ -148,6 +148,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         // Only allow "patient" clicks to close the menu if it's open.
         // If they clicked within 500ms of the menu opening, keep it open.
         clearStickIfOpenTimeout();
+        setStickIfOpen(true);
         stickIfOpenTimeoutRef.current = window.setTimeout(() => {
           setStickIfOpen(false);
         }, PATIENT_CLICK_THRESHOLD);

@@ -63,7 +63,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     setFilled(value !== null);
   }, [setFilled, value]);
 
-  const [controlledAlignItemToTrigger, setcontrolledAlignItemToTrigger] =
+  const [controlledAlignItemToTrigger, setControlledAlignItemToTrigger] =
     React.useState(alignItemToTriggerParam);
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
@@ -94,7 +94,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const alignItemToTrigger = Boolean(mounted && controlledAlignItemToTrigger && !touchModality);
 
   if (!mounted && controlledAlignItemToTrigger !== alignItemToTriggerParam) {
-    setcontrolledAlignItemToTrigger(alignItemToTriggerParam);
+    setControlledAlignItemToTrigger(alignItemToTriggerParam);
   }
 
   if (!alignItemToTriggerParam || !mounted) {
@@ -269,7 +269,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setScrollUpArrowVisible,
       scrollDownArrowVisible,
       setScrollDownArrowVisible,
-      setcontrolledAlignItemToTrigger,
+      setControlledAlignItemToTrigger,
       value,
       setValue,
       open,
