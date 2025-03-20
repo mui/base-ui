@@ -10,6 +10,7 @@ _Mar 20, 2025_
 
 ### AlertDialog
 
+- [popups] Fix selection on outside press on Firefox with modal prop (#1573) @atomiks
 - [AlertDialog][Dialog][Popover] Fix non-interactive button disabled state (#1473) @mj12albert
 - [popups] `actionsRef` prop (#1236) @atomiks
 
@@ -24,6 +25,7 @@ _Mar 20, 2025_
 
 ### Dialog
 
+- [popups] Fix selection on outside press on Firefox with modal prop (#1573) @atomiks
 - [AlertDialog][Dialog][Popover] Fix non-interactive button disabled state (#1473) @mj12albert
 - [popups] `actionsRef` prop (#1236) @atomiks
 
@@ -33,9 +35,10 @@ _Mar 20, 2025_
 
 ### Menu
 
-- [Menu, Popover, PreviewCard] Set `pointer-events: none` style on backdrops when hoverable (#1351) @atomiks
+- [popups] Fix selection on outside press on Firefox with modal prop (#1573) @atomiks
 - [Menu] Reset `hoverEnabled` state on close (#1461) @atomiks
 - [Menu] Fix prop merging issues (#1445) @michaldudak
+- [Menu, Popover, PreviewCard] Set `pointer-events: none` style on backdrops when hoverable (#1351) @atomiks
 - [popups] `actionsRef` prop (#1236) @atomiks
 
 ### NumberField
@@ -49,6 +52,7 @@ _Mar 20, 2025_
 
 ### Popover
 
+- [popups] Fix selection on outside press on Firefox with modal prop (#1573) @atomiks
 - [Menu, Popover, PreviewCard] Set `pointer-events: none` style on backdrops when hoverable (#1351) @atomiks
 - [AlertDialog][Dialog][Popover] Fix non-interactive button disabled state (#1473) @mj12albert
 - [Popover] `modal` prop (#1459) @atomiks
@@ -66,12 +70,13 @@ _Mar 20, 2025_
 
 ### Select
 
-- [popups] `actionsRef` prop (#1236) @atomiks
+- [popups] Fix selection on outside press on Firefox with modal prop (#1573) @atomiks
 - [Select] Improve `ScrollArrow` behavior (#1564) @atomiks
 - [Select] Ensure switching controlled value to `null` updates `Select.Value` label (#1561) @atomiks
 - [Select] Pass `value` as second argument to function children `Select.Value` (#1562) @atomiks
 - [Select] Fix focus jump while hovering while navigating with keyboard (#1563) @atomiks
 - [Select] Fix disabled state changing (#1526) @mj12albert
+- [popups] `actionsRef` prop (#1236) @atomiks
 
 ### Slider
 
