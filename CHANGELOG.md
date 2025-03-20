@@ -35,6 +35,7 @@ _Mar 20, 2025_
 
 ### Menu
 
+- Ensure submenu triggers respond to clicks when `openOnHover=false` (#1583) @atomiks
 - Ensure `stickIfOpen` is reset to `true` correctly (#1548) @atomiks
 - Fix selection on outside press on Firefox with modal prop (#1573) @atomiks
 - Reset `hoverEnabled` state on close (#1461) @atomiks
