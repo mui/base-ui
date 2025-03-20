@@ -11,5 +11,5 @@
 export default function formatErrorMessage(code: number, ...args: string[]): string {
   const url = new URL(`https://base-ui.com/production-error/${code}`);
   args.forEach((arg) => url.searchParams.append('args[]', arg));
-  return `Minified MUI error #${code}; visit ${url} for the full message.`;
+  return `Base UI error #${code}; visit ${url} for the full message.`;
 }
