@@ -1,6 +1,6 @@
 {
   "name": "useRender",
-  "description": "Returns an object with a `renderElement` function that renders a Base UI component.",
+  "description": "Returns an object with a `renderElement` function that renders a Base UI element.",
   "parameters": {
     "render": {
       "type": "RenderProp",

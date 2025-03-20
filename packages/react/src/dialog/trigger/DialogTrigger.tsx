@@ -19,9 +19,16 @@ const DialogTrigger = React.forwardRef(function DialogTrigger(
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { render, className, disabled = false, ...other } = props;
-  const { open, setTriggerElement, getTriggerProps } = useDialogRootContext();
 
-  const state: DialogTrigger.State = React.useMemo(() => ({ disabled, open }), [disabled, open]);
+  const { mounted, setTriggerElement, getTriggerProps } = useDialogRootContext();
+
+  const state: DialogTrigger.State = React.useMemo(
+    () => ({
+      disabled,
+      open: mounted,
+    }),
+    [disabled, mounted],
+  );
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
 

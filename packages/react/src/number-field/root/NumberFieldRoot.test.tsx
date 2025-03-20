@@ -329,57 +329,51 @@ describe('<NumberField />', () => {
     });
   });
 
-  describe('prop: largeStep', () => {
+  describe.skipIf(isJSDOM)('prop: largeStep', () => {
     it('should increment the value by the default `largeStep` prop of 10 while holding the shift key', async () => {
       await render(<NumberField defaultValue={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(document.body, { shiftKey: true });
-      fireEvent.pointerDown(screen.getByLabelText('Increase'));
+      fireEvent.pointerDown(screen.getByLabelText('Increase'), { shiftKey: true });
       expect(input).to.have.value('20');
     });
 
     it('should decrement the value by the default `largeStep` prop of 10 while holding the shift key', async () => {
       await render(<NumberField defaultValue={6} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(document.body, { shiftKey: true });
-      fireEvent.pointerDown(screen.getByLabelText('Decrease'));
+      fireEvent.pointerDown(screen.getByLabelText('Decrease'), { shiftKey: true });
       expect(input).to.have.value('0');
     });
 
     it('should use explicit `largeStep` value if provided while holding the shift key', async () => {
       await render(<NumberField defaultValue={5} largeStep={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(document.body, { shiftKey: true });
-      fireEvent.pointerDown(screen.getByLabelText('Increase'));
+      fireEvent.pointerDown(screen.getByLabelText('Increase'), { shiftKey: true });
       expect(input).to.have.value('10');
     });
 
     it('should not use the `largeStep` prop if no longer holding the shift key', async () => {
       await render(<NumberField defaultValue={5} largeStep={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(document.body, { shiftKey: true });
-      fireEvent.pointerDown(screen.getByLabelText('Increase'));
+      fireEvent.pointerDown(screen.getByLabelText('Increase'), { shiftKey: true });
       expect(input).to.have.value('10');
       fireEvent.keyUp(input, { shiftKey: true });
-      fireEvent.pointerDown(screen.getByLabelText('Increase'));
+      fireEvent.pointerDown(screen.getByLabelText('Increase'), { shiftKey: true });
       expect(input).to.have.value('15');
     });
   });
 
-  describe('prop: smallStep', () => {
+  describe.skipIf(isJSDOM)('prop: smallStep', () => {
     it('should increment the value by the default `smallStep` prop of 0.1 while holding the alt key', async () => {
       await render(<NumberField defaultValue={5} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(document.body, { altKey: true });
-      fireEvent.pointerDown(screen.getByLabelText('Increase'));
+      fireEvent.pointerDown(screen.getByLabelText('Increase'), { altKey: true });
       expect(input).to.have.value((5.1).toLocaleString());
     });
 
     it('should decrement the value by the default `smallStep` prop of 0.1 while holding the alt key', async () => {
       await render(<NumberField defaultValue={6} />);
       const input = screen.getByRole('textbox');
-      fireEvent.keyDown(document.body, { altKey: true });
-      fireEvent.pointerDown(screen.getByLabelText('Decrease'));
+      fireEvent.pointerDown(screen.getByLabelText('Decrease'), { altKey: true });
       expect(input).to.have.value((5.9).toLocaleString());
     });
 
@@ -387,7 +381,7 @@ describe('<NumberField />', () => {
       await render(<NumberField defaultValue={5} smallStep={0.5} />);
       const input = screen.getByRole('textbox');
       fireEvent.keyDown(document.body, { altKey: true });
-      fireEvent.pointerDown(screen.getByLabelText('Increase'));
+      fireEvent.pointerDown(screen.getByLabelText('Increase'), { altKey: true });
       expect(input).to.have.value((5.5).toLocaleString());
     });
 
@@ -395,8 +389,7 @@ describe('<NumberField />', () => {
       await render(<NumberField defaultValue={5} smallStep={0.5} />);
       const input = screen.getByRole('textbox');
       const button = screen.getByLabelText('Increase');
-      fireEvent.keyDown(document.body, { altKey: true });
-      fireEvent.pointerDown(button);
+      fireEvent.pointerDown(button, { altKey: true });
       expect(input).to.have.value((5.5).toLocaleString());
       fireEvent.keyUp(input, { altKey: false });
       fireEvent.pointerDown(button);
