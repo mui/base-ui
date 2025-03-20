@@ -148,7 +148,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const computedRestMs = delayWithDefault;
 
   const hover = useHover(context, {
-    enabled: openOnHover,
+    enabled: openOnHover && openReason !== 'click',
     mouseOnly: true,
     move: false,
     handleClose: safePolygon({ blockPointerEvents: true }),
