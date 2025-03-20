@@ -11,7 +11,7 @@ export function useRender<
   RenderedElementType extends Element,
 >(params: useRender.Parameters<State, RenderedElementType>) {
   const { render, props, state, refs } = params;
-  const { ref, ...extraProps } = props ?? {};
+  const { ref, ...intrinsicProps } = props ?? {};
 
   const refsArray = React.useMemo(() => {
     return [...(refs ?? []), ref].filter(Boolean);
@@ -20,7 +20,7 @@ export function useRender<
   const renderElement = useRenderElement(
     'div',
     { render },
-    { state, ref: refsArray, props: extraProps, styleHooks: false },
+    { state, ref: refsArray, intrinsicProps, styleHooks: false },
   );
 
   return {
