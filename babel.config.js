@@ -1,23 +1,10 @@
-const path = require('path');
+const { resolve } = require('node:path');
 
-const errorCodesPath = path.resolve(__dirname, './docs/public/static/error-codes.json');
+const errorCodesPath = resolve(__dirname, './docs/public/static/error-codes.json');
 const missingError = process.env.MUI_EXTRACT_ERROR_CODES === 'true' ? 'write' : 'annotate';
-
-function resolveAliasPath(relativeToBabelConf) {
-  const resolvedPath = path.relative(process.cwd(), path.resolve(__dirname, relativeToBabelConf));
-  return `./${resolvedPath.replace('\\', '/')}`;
-}
 
 module.exports = function getBabelConfig(api) {
   const useESModules = !api.env(['node']);
-
-  const defaultAlias = {
-    docs: resolveAliasPath('./docs'),
-    test: resolveAliasPath('./test'),
-    '@mui-internal/api-docs-builder': resolveAliasPath(
-      './node_modules/@mui/monorepo/packages/api-docs-builder',
-    ),
-  };
 
   const presets = [
     [
@@ -33,6 +20,8 @@ module.exports = function getBabelConfig(api) {
       '@babel/preset-react',
       {
         runtime: 'automatic',
+        useBuiltIns: true,
+        useSpread: true,
       },
     ],
     '@babel/preset-typescript',
@@ -48,32 +37,15 @@ module.exports = function getBabelConfig(api) {
         },
       },
     ],
-    'babel-plugin-optimize-clsx',
-    [
-      '@babel/plugin-transform-runtime',
-      {
-        useESModules,
-        // any package needs to declare 7.4.4 as a runtime dependency. default is ^7.0.0
-        version: '^7.4.4',
-      },
-    ],
+    ['@babel/plugin-transform-runtime', { regenerator: false, version: '^7.26.10' }],
     [
       'babel-plugin-transform-react-remove-prop-types',
       {
         mode: 'unsafe-wrap',
       },
     ],
-  ];
-
-  const devPlugins = [
-    [
-      'babel-plugin-module-resolver',
-      {
-        root: ['./'],
-        alias: defaultAlias,
-      },
-    ],
     'babel-plugin-add-import-extension',
+    '@babel/plugin-transform-react-constant-elements',
   ];
 
   return {
@@ -92,23 +64,5 @@ module.exports = function getBabelConfig(api) {
       /@babel[\\|/]runtime/, // Fix a Windows issue.
       '**/*.template.js',
     ],
-    overrides: [
-      {
-        exclude: /\.test\.(js|ts|tsx)$/,
-        plugins: ['@babel/plugin-transform-react-constant-elements'],
-      },
-    ],
-    env: {
-      development: {
-        plugins: devPlugins,
-      },
-      test: {
-        sourceMaps: 'both',
-        plugins: devPlugins,
-      },
-      production: {
-        plugins: ['babel-plugin-add-import-extension'],
-      },
-    },
   };
 };

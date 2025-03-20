@@ -14,9 +14,6 @@
     "link-check": "tsx ./scripts/reportBrokenLinks.mts"
   },
   "dependencies": {
-    "@babel/core": "^7.26.9",
-    "@babel/runtime": "^7.26.9",
-    "@babel/runtime-corejs3": "^7.26.9",
     "@base-ui-components/react": "workspace:*",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
@@ -30,10 +27,6 @@
     "@react-spring/web": "^9.7.5",
     "@stefanprobst/rehype-extract-toc": "^2.2.1",
     "@types/mdx": "^2.0.13",
-    "babel-plugin-module-resolver": "^5.0.2",
-    "babel-plugin-optimize-clsx": "^2.6.2",
-    "babel-plugin-react-remove-properties": "^0.3.0",
-    "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.1",
     "core-js": "^3.37.1",
@@ -72,8 +65,6 @@
     "vfile-matter": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/plugin-transform-react-constant-elements": "^7.25.9",
-    "@babel/preset-typescript": "^7.26.0",
     "@mui/internal-docs-utils": "^1.0.16",
     "@mui/internal-scripts": "^1.0.33",
     "@mui/internal-test-utils": "^1.0.27",
