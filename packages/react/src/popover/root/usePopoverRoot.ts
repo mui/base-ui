@@ -170,6 +170,11 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const { openMethod, triggerProps } = useOpenInteractionType(open);
 
+  const getRootTriggerProps = React.useCallback(
+    (externalProps = {}) => getReferenceProps(mergeProps(triggerProps, externalProps)),
+    [getReferenceProps, triggerProps],
+  );
+
   return React.useMemo(
     () => ({
       open,
@@ -185,8 +190,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       setTitleId,
       descriptionId,
       setDescriptionId,
-      getRootTriggerProps: (externalProps?: React.HTMLProps<Element>) =>
-        getReferenceProps(mergeProps(triggerProps, externalProps)),
+      getRootTriggerProps,
       getRootPopupProps: getFloatingProps,
       floatingRootContext: context,
       instantType,
@@ -195,20 +199,19 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       onOpenChangeComplete,
     }),
     [
-      mounted,
       open,
-      setMounted,
       setOpen,
+      mounted,
+      setMounted,
       transitionStatus,
       positionerElement,
       titleId,
       descriptionId,
-      getReferenceProps,
+      getRootTriggerProps,
       getFloatingProps,
       context,
       instantType,
       openMethod,
-      triggerProps,
       openReason,
       onOpenChangeComplete,
     ],

@@ -24,7 +24,7 @@ export interface SelectRootContext {
   setScrollUpArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
   scrollDownArrowVisible: boolean;
   setScrollDownArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  setcontrolledAlignItemToTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  setControlledAlignItemToTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
   getRootTriggerProps: (props?: GenericHTMLProps) => GenericHTMLProps;
@@ -53,6 +53,7 @@ export interface SelectRootContext {
   modal: boolean;
   registerSelectedItem: (index: number) => void;
   onOpenChangeComplete?: (open: boolean) => void;
+  keyboardActiveRef: React.MutableRefObject<boolean>;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

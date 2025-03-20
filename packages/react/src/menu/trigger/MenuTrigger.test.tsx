@@ -189,6 +189,11 @@ describe('<Menu.Trigger />', () => {
       await renderFakeTimers(
         <Menu.Root delay={0} openOnHover>
           <Menu.Trigger />
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -230,6 +235,11 @@ describe('<Menu.Trigger />', () => {
       await renderFakeTimers(
         <Menu.Root delay={0} openOnHover>
           <Menu.Trigger />
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 

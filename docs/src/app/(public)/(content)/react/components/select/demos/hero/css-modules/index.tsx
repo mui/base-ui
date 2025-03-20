@@ -13,6 +13,7 @@ export default function ExampleSelect() {
       </Select.Trigger>
       <Select.Portal>
         <Select.Positioner className={styles.Positioner} sideOffset={8}>
+          <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
             <Select.Arrow className={styles.Arrow}>
               <ArrowSvg />
@@ -46,6 +47,7 @@ export default function ExampleSelect() {
               <Select.ItemText className={styles.ItemText}>Cursive</Select.ItemText>
             </Select.Item>
           </Select.Popup>
+          <Select.ScrollDownArrow className={styles.ScrollArrow} />
         </Select.Positioner>
       </Select.Portal>
     </Select.Root>
