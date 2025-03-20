@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useTabsTab } from './useTabsTab';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TabsOrientation, TabValue } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../utils/types';
 import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
+import { useComponentRenderer } from '../utils/useRenderElement';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { useRadioGroup } from './useRadioGroup';

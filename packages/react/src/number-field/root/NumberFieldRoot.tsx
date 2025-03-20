@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { NumberFieldRootContext } from './NumberFieldRootContext';
 import { useNumberFieldRoot } from './useNumberFieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 
