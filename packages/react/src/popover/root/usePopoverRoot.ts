@@ -151,7 +151,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     enabled: openOnHover,
     mouseOnly: true,
     move: false,
-    handleClose: safePolygon(),
+    handleClose: safePolygon({ blockPointerEvents: true }),
     restMs: computedRestMs,
     delay: {
       close: closeDelayWithDefault,

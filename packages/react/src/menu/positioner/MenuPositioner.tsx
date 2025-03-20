@@ -51,6 +51,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     mounted,
     nested,
     modal,
+    openReason,
   } = useMenuRootContext();
   const keepMounted = useMenuPortalContext();
 
@@ -132,7 +133,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   return (
     <MenuPositionerContext.Provider value={contextValue}>
-      {mounted && modal && parentNodeId === null && <InternalBackdrop />}
+      {mounted && modal && openReason !== 'hover' && parentNodeId === null && (
+        <InternalBackdrop inert={!open} />
+      )}
       <FloatingNode id={nodeId}>
         <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
           {renderElement()}
