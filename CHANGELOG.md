@@ -93,6 +93,12 @@ _Mar 20, 2025_
 - [popups] `actionsRef` prop (#1236) @atomiks
 - [Tooltip] Fix `Provider` `delay=0` not being respected (#1416) @atomiks
 
+### useRender
+
+- [useRender] Add public hook (#1418) @mnajdova
+- [useRender] Refine docs and APIs (#1551) @atomiks
+- [mergeProps] Convert as a top level import and export publicly (#1535) @mnajdova
+
 ### Docs
 
 - [docs] Clean up old experiments (#1572) @mj12albert
@@ -113,7 +119,6 @@ _Mar 20, 2025_
 - [core] Make `mergeReactProps` work with non-native event handlers (#1440) @michaldudak
 - [core] Remove babel-plugin-istanbul (#1409) @michaldudak
 - [core] Fix stylelint violations (#1422) @michaldudak
-- [mergeProps] Convert as a top level import and export publicly (#1535) @mnajdova
 - [test] Fix wrong env skip (#1490) @atomiks
 - [test] Fix PreviewCard test flake (#1487) @atomiks
 - [test] Extract common popup tests (#1358) @michaldudak
@@ -122,8 +127,6 @@ _Mar 20, 2025_
 - [test] Update vitest to ^3 (#1453) @michaldudak
 - [test] Skip flaky FieldRoot tests in real browsers (#1446) @michaldudak
 - [useForkRef] Support ref cleanup functions (#1553) @atomiks
-- [useRender] Refine docs and APIs (#1551) @atomiks
-- [useRender] Add public hook (#1418) @mnajdova
 - [utils] Change order of args in `mergeReactProps` (#1533) @mnajdova
 
 ## v1.0.0-alpha.6
