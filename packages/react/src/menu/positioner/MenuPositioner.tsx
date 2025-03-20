@@ -51,7 +51,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     mounted,
     nested,
     modal,
-    openReason,
   } = useMenuRootContext();
   const keepMounted = useMenuPortalContext();
 

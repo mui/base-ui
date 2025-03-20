@@ -40,7 +40,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     ...otherProps
   } = props;
 
-  const { floatingRootContext, open, mounted, setPositionerElement, modal, openReason } =
+  const { floatingRootContext, open, mounted, setPositionerElement, modal } =
     usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
 
