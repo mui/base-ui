@@ -1,5 +1,131 @@
 # Versions
 
+## v1.0.0-alpha.7
+
+_Mar 20, 2025_
+
+### Accordion
+
+- [Accordion] Fix `aria-labelledby` on accordion panel (#1544) @mj12albert
+
+### AlertDialog
+
+- [AlertDialog][Dialog][Popover] Fix non-interactive button disabled state (#1473) @mj12albert
+- [popups] `actionsRef` prop (#1236) @atomiks
+
+### Avatar
+
+- [Avatar] Support cross origin in useImageLoadingStatus (#1433) @ISnackable
+- [Avatar] Add missing Avatar export (#1428) @Gomah
+
+### Collapsible
+
+- [Collapsible] Update props destructuring to fix Trigger disabled state (#1469) @huijiewei
+
+### Dialog
+
+- [AlertDialog][Dialog][Popover] Fix non-interactive button disabled state (#1473) @mj12albert
+- [popups] `actionsRef` prop (#1236) @atomiks
+
+### Field
+
+- [Field] Fix `FieldControl` [data-filled] not reacting to external value changes (#1565) @atomiks
+
+### Menu
+
+- [Menu, Popover, PreviewCard] Set `pointer-events: none` style on backdrops when hoverable (#1351) @atomiks
+- [Menu] Reset `hoverEnabled` state on close (#1461) @atomiks
+- [Menu] Fix prop merging issues (#1445) @michaldudak
+- [popups] `actionsRef` prop (#1236) @atomiks
+
+### NumberField
+
+- [NumberField] Fix parse of numbers with spaces as thousands separators (#1577) @michaldudak
+- [NumberField] Prevent virtual cursor overlapping native one (#1491) @atomiks
+- [NumberField] Fix disabled state on increment/decrement buttons (#1462) @mj12albert
+- [NumberField] Correct virtual cursor rendering (#1484) @atomiks
+- [NumberField] Add `locale` prop (#1488) @atomiks
+- [NumberField] Improve virtual cursor perf (#1485) @atomiks
+
+### Popover
+
+- [Menu, Popover, PreviewCard] Set `pointer-events: none` style on backdrops when hoverable (#1351) @atomiks
+- [AlertDialog][Dialog][Popover] Fix non-interactive button disabled state (#1473) @mj12albert
+- [Popover] `modal` prop (#1459) @atomiks
+- [popups] `actionsRef` prop (#1236) @atomiks
+
+### PreviewCard
+
+- [Menu, Popover, PreviewCard] Set `pointer-events: none` style on backdrops when hoverable (#1351) @atomiks
+- [popups] `actionsRef` prop (#1236) @atomiks
+
+### RadioGroup
+
+- [RadioGroup] Fix `Form`/`Field` validation integration (#1448) @atomiks
+- [Tabs][RadioGroup] Handle modifier keys (#1529) @mj12albert
+
+### Select
+
+- [popups] `actionsRef` prop (#1236) @atomiks
+- [Select] Improve `ScrollArrow` behavior (#1564) @atomiks
+- [Select] Ensure switching controlled value to `null` updates `Select.Value` label (#1561) @atomiks
+- [Select] Pass `value` as second argument to function children `Select.Value` (#1562) @atomiks
+- [Select] Fix focus jump while hovering while navigating with keyboard (#1563) @atomiks
+- [Select] Fix disabled state changing (#1526) @mj12albert
+
+### Slider
+
+- [Slider] Fix thumb positioning when controlled value violates min/max/step (#1541) @mj12albert
+- [Slider] Warn when `min` is not less than `max` (#1475) @mj12albert
+- [Slider] Narrow the type of `value` in callbacks (#1241) @seloner
+
+### Tabs
+
+- [Tabs] Fix keyboard navigation involving disabled Tabs (#1449) @mj12albert
+- [Tabs][RadioGroup] Handle modifier keys (#1529) @mj12albert
+
+### Toolbar
+
+- [Toolbar] Add Toolbar components (#1349) @mj12albert
+
+### Tooltip
+
+- [popups] `actionsRef` prop (#1236) @atomiks
+- [Tooltip] Fix `Provider` `delay=0` not being respected (#1416) @atomiks
+
+### Docs
+
+- [docs] Clean up old experiments (#1572) @mj12albert
+- [docs] Fix SEO site name description (#1520) @oliviertassinari
+- [docs] Fix `actionsRef` propTypes (#1460) @atomiks
+- [docs] Tooltip guidelines (#1356) @atomiks
+- [docs] Update the release instructions (#1444) @michaldudak
+- [docs] Mention Progress.Value in API reference (#1429) @aarongarciah
+- [docs] Update release instructions (#1417) @michaldudak
+
+### Core
+
+- [code-infra] Polish VS Code DX (#1238) @oliviertassinari
+- [code-infra] Fix build:types not copying on some setups (#1482) @Janpot
+- [Composite] Derive sorted map state (#1489) @atomiks
+- [core] Update release docs and scripts (#1245) @oliviertassinari
+- [core] Export namespaces consistently (#1472) @michaldudak
+- [core] Make `mergeReactProps` work with non-native event handlers (#1440) @michaldudak
+- [core] Remove babel-plugin-istanbul (#1409) @michaldudak
+- [core] Fix stylelint violations (#1422) @michaldudak
+- [mergeProps] Convert as a top level import and export publicly (#1535) @mnajdova
+- [test] Fix wrong env skip (#1490) @atomiks
+- [test] Fix PreviewCard test flake (#1487) @atomiks
+- [test] Extract common popup tests (#1358) @michaldudak
+- [test] Verify root exports (#1431) @michaldudak
+- [test] Fix flaky browser tests (#1371) @atomiks
+- [test] Update vitest to ^3 (#1453) @michaldudak
+- [test] Skip flaky FieldRoot tests in real browsers (#1446) @michaldudak
+- [useForkRef] Support ref cleanup functions (#1553) @atomiks
+- [useRender] Refine docs and APIs (#1551) @atomiks
+- [useRender] Add public hook (#1418) @mnajdova
+- [utils] Change order of args in `mergeReactProps` (#1533) @mnajdova
+
 ## v1.0.0-alpha.6
 
 _Feb 6, 2025_
