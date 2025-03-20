@@ -35,13 +35,13 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    ...otherProps
+    ...domProps
   } = props;
 
   const { open, setPositionerElement, mounted, floatingRootContext } = useTooltipRootContext();
   const keepMounted = useTooltipPortalContext();
 
-  const positioner = useTooltipPositioner({
+  const { positioning, positionerProps } = useTooltipPositioner({
     anchor,
     positionMethod,
     floatingRootContext,
@@ -61,27 +61,27 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const state: TooltipPositioner.State = React.useMemo(
     () => ({
       open,
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden],
+    [open, positioning.side, positioning.align, positioning.anchorHidden],
   );
 
   const contextValue: TooltipPositionerContext = React.useMemo(
     () => ({
       ...state,
-      arrowRef: positioner.arrowRef,
-      arrowStyles: positioner.arrowStyles,
-      arrowUncentered: positioner.arrowUncentered,
+      arrowRef: positioning.arrowRef,
+      arrowStyles: positioning.arrowStyles,
+      arrowUncentered: positioning.arrowUncentered,
     }),
-    [state, positioner.arrowRef, positioner.arrowStyles, positioner.arrowUncentered],
+    [state, positioning.arrowRef, positioning.arrowStyles, positioning.arrowUncentered],
   );
 
   const renderElement = useRenderElement('div', props, {
     state,
     ref: [ref, setPositionerElement],
-    props: [positioner.getPositionerProps, otherProps],
+    domProps: [positionerProps, domProps],
     styleHookMapping: popupStateMapping,
   });
 

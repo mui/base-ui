@@ -1,51 +1,34 @@
 import * as React from 'react';
-import { mergeProps } from '../../merge-props';
 import { Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 
-export function useTooltipPositioner(
-  params: useTooltipPositioner.Parameters,
-): useTooltipPositioner.ReturnValue {
+export function useTooltipPositioner(params: useTooltipPositioner.Parameters) {
   const { open, trackCursorAxis, mounted } = useTooltipRootContext();
 
   const positioning = useAnchorPositioning(params);
 
-  const getPositionerProps: useTooltipPositioner.ReturnValue['getPositionerProps'] =
-    React.useCallback(
-      (externalProps) => {
-        const hiddenStyles: React.CSSProperties = {};
+  const hiddenStyles: React.CSSProperties = {};
 
-        if (!open) {
-          hiddenStyles.pointerEvents = 'none';
-        }
+  if (!open) {
+    hiddenStyles.pointerEvents = 'none';
+  }
 
-        if (trackCursorAxis === 'both') {
-          hiddenStyles.pointerEvents = 'none';
-        }
+  if (trackCursorAxis === 'both') {
+    hiddenStyles.pointerEvents = 'none';
+  }
 
-        return mergeProps<'div'>(
-          {
-            role: 'presentation',
-            hidden: !mounted,
-            style: {
-              ...positioning.positionerStyles,
-              ...hiddenStyles,
-            },
-          },
-          externalProps,
-        );
+  return {
+    positioning,
+    positionerProps: {
+      role: 'presentation',
+      hidden: !mounted,
+      style: {
+        ...positioning.positionerStyles,
+        ...hiddenStyles,
       },
-      [open, trackCursorAxis, mounted, positioning.positionerStyles],
-    );
-
-  return React.useMemo(
-    () => ({
-      getPositionerProps,
-      ...positioning,
-    }),
-    [getPositionerProps, positioning],
-  );
+    } satisfies GenericHTMLProps,
+  };
 }
 
 export namespace useTooltipPositioner {
@@ -63,9 +46,5 @@ export namespace useTooltipPositioner {
      * @default 'top'
      */
     side?: Side;
-  }
-
-  export interface ReturnValue extends useAnchorPositioning.ReturnValue {
-    getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   }
 }

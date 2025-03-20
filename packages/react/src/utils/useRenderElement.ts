@@ -22,14 +22,14 @@ export function useRenderElement<
   RenderedElementType extends Element,
 >(
   element: AllowedTags | ((props: GenericHTMLProps) => React.ReactElement),
-  props: useRenderElement.ComponentProps<State>,
+  componentProps: useRenderElement.ComponentProps<State>,
   params: useRenderElement.Parameters<State, RenderedElementType> = {},
 ) {
-  const { className: classNameProp, render: renderProp } = props;
+  const { className: classNameProp, render: renderProp } = componentProps;
   const {
     state = emptyObject as State,
     ref,
-    props: extraProps,
+    domProps,
     styleHookMapping,
     styleHooks: generateStyleHooks = true,
   } = params;
@@ -45,7 +45,7 @@ export function useRenderElement<
 
   const ownProps: Record<string, any> = {
     ...styleHooks,
-    ...(Array.isArray(extraProps) ? mergeProps(...extraProps) : extraProps),
+    ...(Array.isArray(domProps) ? mergeProps(...domProps) : domProps),
   };
 
   let refs: React.Ref<RenderedElementType>[] = [];
@@ -68,10 +68,6 @@ export function useRenderElement<
 export namespace useRenderElement {
   export interface Parameters<State, RenderedElementType extends Element> {
     /**
-     * The element's tag or function that returns a React element.
-     */
-    element?: AllowedTags | ((props: GenericHTMLProps) => React.ReactElement);
-    /**
      * The state of the component.
      */
     state?: State;
@@ -80,9 +76,9 @@ export namespace useRenderElement {
      */
     ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
     /**
-     * Props to be spread on the rendered element.
+     * DOM props to be spread on the rendered element.
      */
-    props?:
+    domProps?:
       | BaseUIComponentProps<any, State>
       | Array<BaseUIComponentProps<any, State>>
       | ((props: GenericHTMLProps) => GenericHTMLProps)
