@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useMenuRadioItemContext } from '../radio-item/MenuRadioItemContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';

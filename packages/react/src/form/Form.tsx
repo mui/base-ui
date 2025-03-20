@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../utils/types';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
+import { useComponentRenderer } from '../utils/useRenderElement';
 import { mergeProps } from '../merge-props';
 import { FormContext } from './FormContext';
 import { useEventCallback } from '../utils/useEventCallback';

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { ToolbarRoot, ToolbarItemMetadata } from '../root/ToolbarRoot';

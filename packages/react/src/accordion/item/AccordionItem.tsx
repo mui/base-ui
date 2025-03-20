@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useForkRef } from '../../utils/useForkRef';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';

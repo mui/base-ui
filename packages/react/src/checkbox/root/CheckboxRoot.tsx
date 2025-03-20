@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';

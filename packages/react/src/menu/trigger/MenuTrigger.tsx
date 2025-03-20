@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useMenuTrigger } from './useMenuTrigger';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 

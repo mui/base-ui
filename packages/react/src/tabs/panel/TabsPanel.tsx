@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useTabsPanel } from './useTabsPanel';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import { TabsRoot, type TabValue } from '../root/TabsRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 

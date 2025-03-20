@@ -5,7 +5,7 @@ import { FloatingNode, useFloatingNodeId, useFloatingParentNodeId } from '@float
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuPositioner } from './useMenuPositioner';
 import { BaseUIComponentProps } from '../../utils/types';

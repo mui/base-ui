@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps, Orientation } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { ToolbarRootContext } from './ToolbarRootContext';
 import { useToolbarRoot } from './useToolbarRoot';

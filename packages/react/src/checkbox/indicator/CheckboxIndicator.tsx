@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useCheckboxRootContext } from '../root/CheckboxRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 import type { CheckboxRoot } from '../root/CheckboxRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
