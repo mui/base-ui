@@ -81,7 +81,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const renderElement = useRenderElement('div', props, {
     state,
     ref: [ref, setPositionerElement],
-    domProps: [positionerProps, domProps],
+    intrinsicProps: [positionerProps, domProps],
     styleHookMapping: popupStateMapping,
   });
 
