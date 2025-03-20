@@ -18,6 +18,7 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useForkRef } from '../../utils/useForkRef';
 import { useField } from '../../field/useField';
 import type { ScrubHandle } from './useScrub';
+import type { EventWithOptionalKeyState } from '../utils/types';
 
 export function useNumberFieldRoot(
   params: useNumberFieldRoot.Parameters,
@@ -139,7 +140,7 @@ export function useNumberFieldRoot(
     return keys;
   });
 
-  const getStepAmount = useEventCallback((event?: { altKey?: boolean; shiftKey?: boolean }) => {
+  const getStepAmount = useEventCallback((event?: EventWithOptionalKeyState) => {
     if (event?.altKey) {
       return smallStep;
     }
@@ -152,7 +153,7 @@ export function useNumberFieldRoot(
   const setValue = useEventCallback(
     (unvalidatedValue: number | null, event?: React.MouseEvent | Event) => {
       const validatedValue = toValidatedNumber(unvalidatedValue, {
-        step: getStepAmount(event as { altKey?: boolean; shiftKey?: boolean }),
+        step: getStepAmount(event as EventWithOptionalKeyState),
         format: formatOptionsRef.current,
         minWithDefault,
         maxWithDefault,
@@ -227,8 +228,7 @@ export function useNumberFieldRoot(
       );
 
       function tick() {
-        const amount =
-          getStepAmount(triggerEvent as { altKey?: boolean; shiftKey?: boolean }) ?? DEFAULT_STEP;
+        const amount = getStepAmount(triggerEvent as EventWithOptionalKeyState) ?? DEFAULT_STEP;
         incrementValue(amount, isIncrement ? 1 : -1, undefined, triggerEvent);
       }
 
@@ -518,7 +518,7 @@ export namespace useNumberFieldRoot {
     readOnly: boolean;
     id: string | undefined;
     setValue: (unvalidatedValue: number | null, event?: Event) => void;
-    getStepAmount: (event?: { altKey?: boolean; shiftKey?: boolean }) => number | undefined;
+    getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
     incrementValue: (
       amount: number,
       dir: 1 | -1,

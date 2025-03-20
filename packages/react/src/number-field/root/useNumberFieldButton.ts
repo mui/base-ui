@@ -8,7 +8,8 @@ import {
 } from '../utils/constants';
 import { mergeProps } from '../../merge-props';
 import { parseNumber } from '../utils/parse';
-import { GenericHTMLProps } from '../../utils/types';
+import type { GenericHTMLProps } from '../../utils/types';
+import type { EventWithOptionalKeyState } from '../utils/types';
 
 export function useNumberFieldButton(
   params: useNumberFieldButton.Parameters,
@@ -219,7 +220,7 @@ namespace useNumberFieldButton {
     allowInputSyncRef: React.RefObject<boolean | null>;
     disabled: boolean;
     formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
-    getStepAmount: (event?: { altKey?: boolean; shiftKey?: boolean }) => number | undefined;
+    getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
     id: string | undefined;
     incrementValue: (
       amount: number,
