@@ -43,6 +43,7 @@ _Mar 20, 2025_
 
 ### NumberField
 
+- [NumberField] Fix `large/smallStep` getting stuck (#1578) @atomiks
 - [NumberField] Fix parse of numbers with spaces as thousands separators (#1577) @michaldudak
 - [NumberField] Prevent virtual cursor overlapping native one (#1491) @atomiks
 - [NumberField] Fix disabled state on increment/decrement buttons (#1462) @mj12albert
@@ -124,6 +125,7 @@ _Mar 20, 2025_
 - [core] Make `mergeReactProps` work with non-native event handlers (#1440) @michaldudak
 - [core] Remove babel-plugin-istanbul (#1409) @michaldudak
 - [core] Fix stylelint violations (#1422) @michaldudak
+- [core] Misc cleaning (#1579) @atomiks
 - [test] Fix wrong env skip (#1490) @atomiks
 - [test] Fix PreviewCard test flake (#1487) @atomiks
 - [test] Extract common popup tests (#1358) @michaldudak
