@@ -145,10 +145,12 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     },
   });
 
+  const { openMethod, triggerProps } = useOpenInteractionType(open);
+
   const computedRestMs = delayWithDefault;
 
   const hover = useHover(context, {
-    enabled: openOnHover && openReason !== 'click',
+    enabled: openOnHover && (openMethod !== 'touch' || openReason !== 'click'),
     mouseOnly: true,
     move: false,
     handleClose: safePolygon({ blockPointerEvents: true }),
@@ -167,8 +169,6 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const role = useRole(context);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
-
-  const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   const getRootTriggerProps = React.useCallback(
     (externalProps = {}) => getReferenceProps(mergeProps(triggerProps, externalProps)),
