@@ -44,6 +44,7 @@ _Mar 20, 2025_
 
 ### NumberField
 
+- [NumberField] Fix ScrubArea on Safari (#1584) @atomiks
 - Fix `large/smallStep` getting stuck (#1578) @atomiks
 - Fix parse of numbers with spaces as thousands separators (#1577) @michaldudak
 - Prevent virtual cursor overlapping native one (#1491) @atomiks
@@ -108,6 +109,7 @@ _Mar 20, 2025_
 
 ### Docs
 
+- Fix CSS issues (#1585) @atomiks
 - Clean up old experiments (#1572) @mj12albert
 - Fix SEO site name description (#1520) @oliviertassinari
 - Fix `actionsRef` propTypes (#1460) @atomiks
