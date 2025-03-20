@@ -20,7 +20,7 @@ export function useRender<
   const renderElement = useRenderElement(
     'div',
     { render },
-    { state, ref: refsArray, intrinsicProps, styleHooks: false },
+    { state, ref: refsArray, props: intrinsicProps, styleHooks: false },
   );
 
   return {

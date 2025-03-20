@@ -29,7 +29,7 @@ export function useRenderElement<
   const {
     state = emptyObject as State,
     ref,
-    intrinsicProps,
+    props,
     styleHookMapping,
     styleHooks: generateStyleHooks = true,
   } = params;
@@ -45,7 +45,7 @@ export function useRenderElement<
 
   const ownProps: Record<string, any> = {
     ...styleHooks,
-    ...(Array.isArray(intrinsicProps) ? mergeProps(...intrinsicProps) : intrinsicProps),
+    ...(Array.isArray(props) ? mergeProps(...props) : props),
   };
 
   let refs: React.Ref<RenderedElementType>[] = [];
@@ -78,7 +78,7 @@ export namespace useRenderElement {
     /**
      * Intrinsic props to be spread on the rendered element.
      */
-    intrinsicProps?:
+    props?:
       | BaseUIComponentProps<any, State>
       | Array<BaseUIComponentProps<any, State>>
       | ((props: GenericHTMLProps) => GenericHTMLProps)

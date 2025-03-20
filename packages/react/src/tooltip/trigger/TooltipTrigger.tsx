@@ -26,7 +26,7 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   const renderElement = useRenderElement(button, props, {
     state,
     ref: [ref, setTriggerElement],
-    intrinsicProps: [getTriggerProps, intrinsicProps],
+    props: [getTriggerProps, intrinsicProps],
     styleHookMapping: triggerOpenStateMapping,
   });
 
