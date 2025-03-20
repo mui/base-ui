@@ -7,11 +7,11 @@
       "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
-      "type": "unknown",
+      "type": "number | readonly number[]",
       "description": "The uncontrolled value of the slider when it’s initially rendered.\n\nTo render a controlled slider, use the `value` prop instead."
     },
     "value": {
-      "type": "unknown",
+      "type": "number | readonly number[]",
       "description": "The value of the slider.\nFor ranged sliders, provide an array with two values."
     },
     "onValueChange": {

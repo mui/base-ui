@@ -275,6 +275,18 @@ function formatType(
     return `(${functionSignature})`;
   }
 
+  if (type instanceof rae.TupleNode) {
+    if (type.name) {
+      return type.name;
+    }
+
+    return `[${type.types.map((member: rae.TypeNode) => formatType(member, false)).join(', ')}]`;
+  }
+
+  if (type instanceof rae.TypeParameterNode) {
+    return type.constraint ?? type.name;
+  }
+
   return 'unknown';
 }
 

@@ -12,7 +12,7 @@
       "description": "Refs to be merged together to access the rendered DOM element."
     },
     "state": {
-      "type": "unknown",
+      "type": "Record<string, unknown>",
       "description": "The state of the component, passed as the second argument to the `render` callback."
     },
     "props": {
