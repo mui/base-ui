@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { NOOP } from '../../utils/noop';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useEventCallback } from '../../utils/useEventCallback';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStyleHookMapping } from './styleHooks';
@@ -29,10 +30,12 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     ...otherProps
   } = props;
 
+  const onOpenChange = useEventCallback(onOpenChangeProp ?? NOOP);
+
   const collapsible = useCollapsibleRoot({
     open,
     defaultOpen,
-    onOpenChange: onOpenChangeProp ?? NOOP,
+    onOpenChange,
     disabled,
   });
 
@@ -48,9 +51,10 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   const contextValue: CollapsibleRootContext = React.useMemo(
     () => ({
       ...collapsible,
+      onOpenChange,
       state,
     }),
-    [collapsible, state],
+    [collapsible, onOpenChange, state],
   );
 
   const { renderElement } = useComponentRenderer({

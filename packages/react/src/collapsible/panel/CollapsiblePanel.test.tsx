@@ -13,7 +13,7 @@ describe('<Collapsible.Panel />', () => {
   describeConformance(<Collapsible.Panel />, () => ({
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
-      return render(<Collapsible.Root>{node}</Collapsible.Root>);
+      return render(<Collapsible.Root defaultOpen>{node}</Collapsible.Root>);
     },
   }));
 

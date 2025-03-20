@@ -26,6 +26,7 @@ export function useCollapsiblePanel(
     hiddenUntilFound,
     keepMounted,
     mounted,
+    onOpenChange,
     open,
     panelId,
     panelRef,
@@ -310,6 +311,7 @@ export function useCollapsiblePanel(
       function handleBeforeMatch() {
         isBeforeMatchRef.current = true;
         setOpen(true);
+        onOpenChange(true);
       }
 
       panel.addEventListener('beforematch', handleBeforeMatch);
@@ -318,7 +320,7 @@ export function useCollapsiblePanel(
         panel.removeEventListener('beforematch', handleBeforeMatch);
       };
     },
-    [setOpen, panelRef],
+    [onOpenChange, panelRef, setOpen],
   );
 
   const getRootProps = React.useCallback(
@@ -326,12 +328,13 @@ export function useCollapsiblePanel(
       return mergeProps(
         {
           hidden,
+          id: panelId,
           ref: mergedPanelRef,
         },
         externalProps,
       );
     },
-    [hidden, mergedPanelRef],
+    [hidden, mergedPanelRef, panelId],
   );
 
   return React.useMemo(
@@ -375,6 +378,7 @@ export namespace useCollapsiblePanel {
     externalRef: React.ForwardedRef<HTMLElement>;
     runOnceAnimationsFinish: (fnToExecute: () => void, signal?: AbortSignal | null) => void;
     panelRef: React.RefObject<HTMLElement | null>;
+    onOpenChange: (open: boolean) => void;
   }
 
   export interface ReturnValue {
