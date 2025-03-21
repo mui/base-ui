@@ -45,7 +45,7 @@
     "hast-util-to-string": "^3.0.1",
     "lodash": "^4.17.21",
     "lz-string": "^1.5.0",
-    "next": "15.2.1",
+    "next": "15.2.3",
     "postcss": "^8.5.3",
     "postcss-custom-media": "^11.0.5",
     "postcss-import": "^16.1.0",
