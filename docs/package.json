@@ -29,7 +29,6 @@
     "@types/mdx": "^2.0.13",
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.1",
-    "core-js": "^3.37.1",
     "cross-env": "^7.0.3",
     "estree-util-value-to-estree": "^3.3.2",
     "fast-glob": "^3.3.3",

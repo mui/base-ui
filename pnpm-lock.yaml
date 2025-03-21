@@ -367,9 +367,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      core-js:
-        specifier: ^3.37.1
-        version: 3.37.1
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
