@@ -29,7 +29,7 @@ export function useNumberFieldRoot(
     min,
     max,
     smallStep = 0.1,
-    step,
+    step = 1,
     largeStep = 10,
     required = false,
     disabled: disabledProp = false,
@@ -37,6 +37,7 @@ export function useNumberFieldRoot(
     readOnly = false,
     autoFocus = false,
     allowWheelScrub = false,
+    stepBehavior = 'free',
     format,
     value: externalValue,
     onValueChange: onValueChangeProp,
@@ -151,13 +152,19 @@ export function useNumberFieldRoot(
   });
 
   const setValue = useEventCallback(
-    (unvalidatedValue: number | null, event?: React.MouseEvent | Event) => {
+    (unvalidatedValue: number | null, event?: React.MouseEvent | Event, dir?: 1 | -1) => {
+      const eventWithOptionalKeyState = event as EventWithOptionalKeyState;
       const validatedValue = toValidatedNumber(unvalidatedValue, {
-        step: getStepAmount(event as EventWithOptionalKeyState),
+        step:
+          event?.type === 'focusout'
+            ? undefined
+            : getStepAmount(eventWithOptionalKeyState) * (dir ?? 1),
         format: formatOptionsRef.current,
         minWithDefault,
         maxWithDefault,
         minWithZeroDefault,
+        stepBehavior,
+        small: eventWithOptionalKeyState?.altKey ?? false,
       });
 
       onValueChange?.(validatedValue, event && 'nativeEvent' in event ? event.nativeEvent : event);
@@ -185,7 +192,7 @@ export function useNumberFieldRoot(
       const prevValue = currentValue == null ? valueRef.current : currentValue;
       const nextValue =
         typeof prevValue === 'number' ? prevValue + amount * dir : Math.max(0, min ?? 0);
-      setValue(nextValue, event);
+      setValue(nextValue, event, dir);
     },
   );
 
@@ -482,6 +489,20 @@ export namespace useNumberFieldRoot {
      */
     allowWheelScrub?: boolean;
     /**
+     * Controls snapping to step values when incrementing or decrementing.
+     * - `snap`: values snap to the nearest step.
+     * - `free`: values are preserved without snapping.
+     * @default 'free'
+     * @example
+     * ```js
+     * // Incrementing freely increases to 1.3.
+     * <NumberField stepBehavior="free" defaultValue={0.3} />
+     * // Incrementing snaps from 1.3 down to 1.
+     * <NumberField stepBehavior="snap" defaultValue={0.3} />
+     * ```
+     */
+    stepBehavior?: 'snap' | 'free';
+    /**
      * Options to format the input value.
      */
     format?: Intl.NumberFormatOptions;
@@ -517,7 +538,7 @@ export namespace useNumberFieldRoot {
     disabled: boolean;
     readOnly: boolean;
     id: string | undefined;
-    setValue: (unvalidatedValue: number | null, event?: Event) => void;
+    setValue: (unvalidatedValue: number | null, event?: Event, dir?: 1 | -1) => void;
     getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
     incrementValue: (
       amount: number,

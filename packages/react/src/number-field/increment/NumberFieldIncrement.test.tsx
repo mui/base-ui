@@ -288,6 +288,44 @@ describe('<NumberField.Increment />', () => {
     expect(input).to.have.value('2');
   });
 
+  it('should increment by exact step without rounding when stepBehavior is free', async () => {
+    await render(
+      <NumberField.Root defaultValue={2.7} step={2} stepBehavior="free">
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+
+    expect(screen.getByRole('textbox')).to.have.value('4.7');
+  });
+
+  it('should snap on increment when stepBehavior is snap', async () => {
+    await render(
+      <NumberField.Root defaultValue={1.3} stepBehavior="snap">
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+
+    expect(screen.getByRole('textbox')).to.have.value('2');
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: '1.9' } });
+    fireEvent.click(button);
+
+    expect(screen.getByRole('textbox')).to.have.value('2');
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: '-0.2' } });
+    fireEvent.click(button);
+
+    expect(screen.getByRole('textbox')).to.have.value('0');
+  });
+
   describe('disabled state', () => {
     it('should not increment when root is disabled', async () => {
       const handleValueChange = spy();
