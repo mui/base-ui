@@ -50,7 +50,6 @@
     "test:firefox": "cross-env NODE_ENV=test VITEST_ENV=firefox vitest --project @base-ui-components/react --project docs",
     "test:webkit": "cross-env NODE_ENV=test VITEST_ENV=webkit vitest --project @base-ui-components/react --project docs",
     "test:browsers": "cross-env NODE_ENV=test VITEST_ENV=all-browsers vitest --project @base-ui-components/react --project docs",
-    "test:browsers:coverage": "pnpm test:browsers --coverage",
     "test:argos": "node ./scripts/pushArgos.mjs",
     "typescript": "tsc -b tsconfig.json",
     "validate-declarations": "tsx scripts/validateTypescriptDeclarations.mts",
