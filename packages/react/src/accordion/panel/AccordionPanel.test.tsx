@@ -5,7 +5,7 @@ import { describeConformance, createRenderer } from '#test-utils';
 describe('<Accordion.Panel />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Accordion.Panel />, () => ({
+  describeConformance(<Accordion.Panel keepMounted />, () => ({
     render: (node) =>
       render(
         <Accordion.Root>

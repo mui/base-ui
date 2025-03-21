@@ -12,6 +12,6 @@ describe('<Accordion.Trigger />', () => {
           <Accordion.Item>{node}</Accordion.Item>
         </Accordion.Root>,
       ),
-    refInstanceof: window.HTMLDivElement,
+    refInstanceof: window.HTMLButtonElement,
   }));
 });
