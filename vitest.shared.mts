@@ -8,17 +8,27 @@ const environment = process.env.VITEST_ENV;
 
 type BrowserModeConfig = (UserWorkspaceConfig['test'] & {})['browser'];
 
+function getBrowserInstances() {
+  const supportedBrowsers = ['chromium', 'firefox', 'webkit'];
+
+  if (environment === 'all-browsers') {
+    return supportedBrowsers.map((browser) => ({ browser }));
+  }
+
+  if (environment && supportedBrowsers.includes(environment)) {
+    return [{ browser: environment }];
+  }
+
+  return [];
+}
+
 const browserConfig: BrowserModeConfig =
-  environment === 'chromium' || environment === 'firefox'
+  environment === 'chromium' || environment === 'firefox' || environment === 'all-browsers'
     ? {
         enabled: true,
         provider: 'playwright',
-        instances: [
-          {
-            browser: environment,
-          },
-        ],
-        headless: !!process.env.CI,
+        instances: getBrowserInstances(),
+        headless: !!process.env.CI || environment === 'all-browsers',
         screenshotFailures: false,
       }
     : undefined;
