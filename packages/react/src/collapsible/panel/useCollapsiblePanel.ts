@@ -7,8 +7,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import { useOnMount } from '../../utils/useOnMount';
 import { warn } from '../../utils/warn';
-
-import { AnimationType } from '../root/useCollapsibleRoot';
+import type { AnimationType } from '../root/useCollapsibleRoot';
 
 // interface Dimensions {
 //   height: number;

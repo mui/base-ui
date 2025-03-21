@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
 
@@ -113,6 +114,16 @@ export function useCollapsibleRoot(
       }, abortControllerRef.current.signal);
     }
   });
+
+  useEnhancedEffect(() => {
+    /**
+     * Unmount immediately when closing in controlled mode and keepMounted={false}
+     * and no CSS animations or transitions are applied
+     */
+    if (openParam !== undefined && animationTypeRef.current === 'none' && !keepMounted && !open) {
+      setMounted(false);
+    }
+  }, [keepMounted, open, openParam, setMounted]);
 
   return React.useMemo(
     () => ({
