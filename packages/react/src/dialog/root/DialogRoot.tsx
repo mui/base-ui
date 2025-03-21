@@ -16,7 +16,7 @@ const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props) {
     children,
     defaultOpen = false,
     dismissible = true,
-    modal = true,
+    trap = 'all',
     onOpenChange,
     open,
     actionsRef,
@@ -29,7 +29,7 @@ const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props) {
     open,
     defaultOpen,
     onOpenChange,
-    modal,
+    trap,
     dismissible,
     actionsRef,
     onOpenChangeComplete,
@@ -96,11 +96,6 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   dismissible: PropTypes.bool,
   /**
-   * Whether the dialog should prevent outside clicks and lock page scroll when open.
-   * @default true
-   */
-  modal: PropTypes.bool,
-  /**
    * Event handler called when the dialog is opened or closed.
    */
   onOpenChange: PropTypes.func,
@@ -112,6 +107,20 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    * Whether the dialog is currently open.
    */
   open: PropTypes.bool,
+  /**
+   * How the dialog should trap user interactions.
+   * - `all`: trap all interactions (focus, scroll, pointer) inside the dialog.
+   * - `none`: don't trap any interactions.
+   * - `focus`: only trap focus inside the dialog.
+   *
+   * Trapping focus means that tabbing is only allowed inside the dialog.
+   *
+   * Trapping scroll means that scrolling is only allowed inside the dialog, locking outer page scroll.
+   *
+   * Trapping pointer means that pointer interactions are only allowed inside the dialog, preventing clicks on elements outside the dialog.
+   * @default 'all'
+   */
+  trap: PropTypes.oneOf(['all', 'focus', 'none']),
 } as any;
 
 export { DialogRoot };

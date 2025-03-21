@@ -29,7 +29,7 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
     onOpenChange,
     actionsRef,
     onOpenChangeComplete,
-    modal: true,
+    trap: 'all',
     dismissible: false,
     onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
     onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,
@@ -54,7 +54,7 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
 };
 
 namespace AlertDialogRoot {
-  export interface Props extends Omit<DialogRoot.Props, 'modal' | 'dismissible'> {}
+  export interface Props extends Omit<DialogRoot.Props, 'trap' | 'dismissible'> {}
 
   export type Actions = DialogRoot.Actions;
 }

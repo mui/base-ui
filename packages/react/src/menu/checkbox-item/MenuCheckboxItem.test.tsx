@@ -256,7 +256,7 @@ describe('<Menu.CheckboxItem />', () => {
 
     it('keeps the state when closed and reopened', async () => {
       const { getByRole, user } = await render(
-        <Menu.Root modal={false}>
+        <Menu.Root trap="none">
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal keepMounted>
             <Menu.Positioner>

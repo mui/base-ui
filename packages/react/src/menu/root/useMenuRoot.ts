@@ -43,7 +43,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     delay,
     openOnHover,
     onTypingChange,
-    modal,
+    trap = 'pointer-scroll',
   } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -76,7 +76,10 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(open && modal && openReason !== 'hover', triggerElement);
+  useScrollLock(
+    open && ['all', 'pointer-scroll'].includes(trap) && openReason !== 'hover',
+    triggerElement,
+  );
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -365,7 +368,17 @@ export namespace useMenuRoot {
      * Callback fired when the user begins or finishes typing (for typeahead search).
      */
     onTypingChange: (typing: boolean) => void;
-    modal: boolean;
+    /**
+     * How the menu should trap user interactions.
+     * - `pointer-scroll`: trap pointer and scroll interactions inside the menu.
+     * - `none`: don't trap any interactions.
+     *
+     * Trapping pointer means that pointer presses are only allowed inside the menu, preventing clicks on elements outside the menu.
+     *
+     * Trapping scroll means that scrolling is only allowed inside the menu, locking outer page scroll.
+     * @default 'pointer-scroll'
+     */
+    trap: 'none' | 'pointer-scroll';
     /**
      * A ref to imperative actions.
      */

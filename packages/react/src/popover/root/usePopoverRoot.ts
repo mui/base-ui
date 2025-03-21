@@ -36,7 +36,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     closeDelay,
     openOnHover = false,
     onOpenChangeComplete,
-    modal,
+    trap,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -64,7 +64,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(open && modal && openReason !== 'hover', triggerElement);
+  useScrollLock(open && trap === 'all' && openReason !== 'hover', triggerElement);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -264,10 +264,19 @@ export namespace usePopoverRoot {
      */
     actionsRef?: React.RefObject<Actions>;
     /**
-     * Whether the popover should prevent outside clicks and lock page scroll when open.
-     * @default false
+     * How the popover should trap user interactions.
+     * - `all`: trap all interactions (focus, scroll, pointer) inside the popover.
+     * - `none`: don't trap any interactions.
+     * - `focus`: only trap focus inside the popover.
+     *
+     * Trapping focus means that tabbing is only allowed inside the popover.
+     *
+     * Trapping scroll means that scrolling is only allowed inside the popover, locking outer page scroll.
+     *
+     * Trapping pointer means that pointer interactions are only allowed inside the popover, preventing clicks on elements outside the popover.
+     * @default 'none'
      */
-    modal?: boolean;
+    trap?: 'all' | 'none' | 'focus';
   }
 
   export interface ReturnValue {

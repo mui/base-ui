@@ -222,7 +222,7 @@ describe('<Menu.Positioner />', () => {
 
     it('when keepMounted=true, should keep the content mounted when closed', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root modal={false}>
+        <Menu.Root trap="none">
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted>
             <Menu.Positioner>
@@ -252,7 +252,7 @@ describe('<Menu.Positioner />', () => {
 
     it('when keepMounted=false, should unmount the content when closed', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root modal={false}>
+        <Menu.Root trap="none">
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted={false}>
             <Menu.Positioner>

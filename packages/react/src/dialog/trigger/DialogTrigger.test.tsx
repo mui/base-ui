@@ -11,7 +11,7 @@ describe('<Dialog.Trigger />', () => {
     refInstanceof: window.HTMLButtonElement,
     render: (node) => {
       return render(
-        <Dialog.Root open modal={false}>
+        <Dialog.Root open trap="none">
           {node}
         </Dialog.Root>,
       );
@@ -21,7 +21,7 @@ describe('<Dialog.Trigger />', () => {
   describe('prop: disabled', () => {
     it('disables the dialog', async () => {
       const { user } = await render(
-        <Dialog.Root modal={false}>
+        <Dialog.Root trap="none">
           <Dialog.Trigger disabled />
           <Dialog.Portal>
             <Dialog.Backdrop />
@@ -45,7 +45,7 @@ describe('<Dialog.Trigger />', () => {
 
     it('custom element', async () => {
       const { user } = await render(
-        <Dialog.Root modal={false}>
+        <Dialog.Root trap="none">
           <Dialog.Trigger disabled render={<span />} />
           <Dialog.Portal>
             <Dialog.Backdrop />

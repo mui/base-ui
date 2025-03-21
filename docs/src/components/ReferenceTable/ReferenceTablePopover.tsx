@@ -8,7 +8,7 @@ import { Popup } from '../Popup';
 export function ReferenceTablePopover({ children }: React.PropsWithChildren) {
   const isMobile = useMediaQuery('@media (width < 48rem)', { noSsr: true });
   return (
-    <Popover.Root openOnHover delay={100} modal>
+    <Popover.Root openOnHover delay={100} trap="all">
       <Popover.Trigger
         render={
           <GhostButton aria-label="Info" layout="icon">

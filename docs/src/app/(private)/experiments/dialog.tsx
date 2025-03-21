@@ -14,7 +14,7 @@ const NESTED_DIALOGS = 8;
 
 interface DemoProps {
   keepMounted: boolean;
-  modal: boolean;
+  trap: 'all' | 'none';
   dismissible: boolean;
 }
 
@@ -22,7 +22,7 @@ function renderContent(
   title: string,
   includeNested: number,
   nestedClassName: string,
-  modal: boolean,
+  trap: 'all' | 'none',
   dismissible: boolean,
 ) {
   return (
@@ -43,7 +43,7 @@ function renderContent(
 
       <div className={classes.controls}>
         {includeNested > 0 ? (
-          <Dialog.Root modal={modal} dismissible={dismissible}>
+          <Dialog.Root trap={trap} dismissible={dismissible}>
             <Dialog.Trigger className={classes.button}>Open nested</Dialog.Trigger>
             <Dialog.Backdrop className={clsx(classes.backdrop, nestedClassName)} />
             <Dialog.Portal>
@@ -52,7 +52,7 @@ function renderContent(
                   `Nested dialog ${NESTED_DIALOGS + 1 - includeNested}`,
                   includeNested - 1,
                   nestedClassName,
-                  modal,
+                  trap,
                   dismissible,
                 )}
               </Dialog.Popup>
@@ -66,10 +66,10 @@ function renderContent(
   );
 }
 
-function CssTransitionDialogDemo({ keepMounted, modal, dismissible }: DemoProps) {
+function CssTransitionDialogDemo({ keepMounted, trap, dismissible }: DemoProps) {
   return (
     <span className={classes.demo}>
-      <Dialog.Root modal={modal} dismissible={dismissible}>
+      <Dialog.Root trap={trap} dismissible={dismissible}>
         <Dialog.Trigger className={classes.button}>
           Open with CSS transition
         </Dialog.Trigger>
@@ -83,7 +83,7 @@ function CssTransitionDialogDemo({ keepMounted, modal, dismissible }: DemoProps)
               'Dialog with CSS transitions',
               NESTED_DIALOGS,
               classes.withTransitions,
-              modal,
+              trap,
               dismissible,
             )}
           </Dialog.Popup>
@@ -93,10 +93,10 @@ function CssTransitionDialogDemo({ keepMounted, modal, dismissible }: DemoProps)
   );
 }
 
-function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: DemoProps) {
+function CssAnimationDialogDemo({ keepMounted, trap, dismissible }: DemoProps) {
   return (
     <span className={classes.demo}>
-      <Dialog.Root modal={modal} dismissible={dismissible}>
+      <Dialog.Root trap={trap} dismissible={dismissible}>
         <Dialog.Trigger className={classes.button}>
           Open with CSS animation
         </Dialog.Trigger>
@@ -110,7 +110,7 @@ function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: DemoProps) 
               'Dialog with CSS animations',
               NESTED_DIALOGS,
               classes.withAnimations,
-              modal,
+              trap,
               dismissible,
             )}
           </Dialog.Popup>
@@ -122,7 +122,7 @@ function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: DemoProps) 
 
 // @ts-ignore
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function ReactSpringDialogDemo({ keepMounted, modal, dismissible }: DemoProps) {
+function ReactSpringDialogDemo({ keepMounted, trap, dismissible }: DemoProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -145,7 +145,7 @@ function ReactSpringDialogDemo({ keepMounted, modal, dismissible }: DemoProps) {
                 'Dialog with ReactSpring transitions',
                 3,
                 classes.withReactSpringTransition,
-                modal,
+                trap,
                 dismissible,
               )}
             </Dialog.Popup>
@@ -197,7 +197,7 @@ function ReactSpringTransition(props: {
 
 export default function DialogExperiment() {
   const [keepMounted, setKeepMounted] = React.useState(false);
-  const [modal, setModal] = React.useState(true);
+  const [trap, setTrap] = React.useState<'all' | 'none'>('all');
   const [dismissible, setDismissible] = React.useState(false);
 
   return (
@@ -205,12 +205,12 @@ export default function DialogExperiment() {
       <h1>Dialog</h1>
       <CssTransitionDialogDemo
         keepMounted={keepMounted}
-        modal={modal}
+        trap={trap}
         dismissible={dismissible}
       />
       <CssAnimationDialogDemo
         keepMounted={keepMounted}
-        modal={modal}
+        trap={trap}
         dismissible={dismissible}
       />
 
@@ -226,10 +226,10 @@ export default function DialogExperiment() {
       <label>
         <input
           type="checkbox"
-          checked={modal}
-          onChange={(event) => setModal(event.target.checked)}
+          checked={trap === 'all'}
+          onChange={(event) => setTrap(event.target.checked ? 'all' : 'none')}
         />{' '}
-        Modal
+        Trap
       </label>
       <label>
         <input

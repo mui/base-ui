@@ -260,8 +260,8 @@ describe('<Select.Root />', () => {
     );
   });
 
-  describe('prop: modal', () => {
-    it('should render an internal backdrop when `true`', async () => {
+  describe('prop: trap', () => {
+    it('should render an internal backdrop when `all`', async () => {
       const { user } = await render(
         <div>
           <Select.Root>
@@ -294,7 +294,7 @@ describe('<Select.Root />', () => {
     it('should not render an internal backdrop when `false`', async () => {
       const { user } = await render(
         <div>
-          <Select.Root modal={false}>
+          <Select.Root trap="none">
             <Select.Trigger data-testid="trigger">Open</Select.Trigger>
             <Select.Portal>
               <Select.Positioner data-testid="positioner">
@@ -496,7 +496,7 @@ describe('<Select.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-starting-style] {
             animation: test-anim 1ms;
           }

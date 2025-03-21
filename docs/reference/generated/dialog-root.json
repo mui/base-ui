@@ -24,14 +24,14 @@
       "default": "true",
       "description": "Determines whether the dialog should close on outside clicks."
     },
-    "modal": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Whether the dialog should prevent outside clicks and lock page scroll when open."
-    },
     "onOpenChangeComplete": {
       "type": "(open) => void",
       "description": "Event handler called after any animations complete when the dialog is opened or closed."
+    },
+    "trap": {
+      "type": "'all' | 'focus' | 'none'",
+      "default": "'all'",
+      "description": "How the dialog should trap user interactions.\n- `all`: trap all interactions (focus, scroll, pointer) inside the dialog.\n- `none`: don't trap any interactions.\n- `focus`: only trap focus inside the dialog.\n\nTrapping focus means that tabbing is only allowed inside the dialog.\n\nTrapping scroll means that scrolling is only allowed inside the dialog, locking outer page scroll.\n\nTrapping pointer means that pointer interactions are only allowed inside the dialog, preventing clicks on elements outside the dialog."
     }
   },
   "dataAttributes": {},

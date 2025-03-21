@@ -10,7 +10,7 @@ describe('<Dialog.Backdrop />', () => {
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
       return render(
-        <Dialog.Root open modal={false}>
+        <Dialog.Root open trap="none">
           {node}
         </Dialog.Root>,
       );

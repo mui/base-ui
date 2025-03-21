@@ -30,7 +30,7 @@ export interface PopoverRootContext {
   openMethod: InteractionType | null;
   openReason: OpenChangeReason | null;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
-  modal: boolean;
+  trap: 'all' | 'none' | 'focus';
 }
 
 export const PopoverRootContext = React.createContext<PopoverRootContext | undefined>(undefined);

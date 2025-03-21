@@ -20,7 +20,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     disabled = false,
     closeParentOnEsc = true,
     loop = true,
-    modal = true,
+    trap = 'pointer-scroll',
     onOpenChange,
     open,
     orientation = 'vertical',
@@ -55,7 +55,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     openOnHover,
     delay,
     onTypingChange,
-    modal,
+    trap,
     actionsRef,
     onOpenChangeComplete,
   });
@@ -69,9 +69,9 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       allowMouseUpTriggerRef:
         parentContext?.allowMouseUpTriggerRef ?? menuRoot.allowMouseUpTriggerRef,
       typingRef,
-      modal,
+      trap,
     }),
-    [menuRoot, nested, parentContext, disabled, modal],
+    [menuRoot, nested, parentContext, disabled, trap],
   );
 
   if (!nested) {
@@ -103,10 +103,16 @@ namespace MenuRoot {
      */
     loop?: boolean;
     /**
-     * Whether the menu should prevent outside clicks and lock page scroll when open.
-     * @default true
+     * How the menu should trap user interactions.
+     * - `pointer-scroll`: trap pointer and scroll inside the menu.
+     * - `none`: don't trap any interactions.
+     *
+     * Trapping pointer means that pointer presses are only allowed inside the menu, preventing clicks on elements outside the menu.
+     *
+     * Trapping scroll means that scrolling is only allowed inside the menu, locking outer page scroll.
+     * @default 'pointer-scroll'
      */
-    modal?: boolean;
+    trap?: 'none' | 'pointer-scroll';
     /**
      * Event handler called when the menu is opened or closed.
      */
@@ -209,11 +215,6 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   loop: PropTypes.bool,
   /**
-   * Whether the menu should prevent outside clicks and lock page scroll when open.
-   * @default true
-   */
-  modal: PropTypes.bool,
-  /**
    * Event handler called when the menu is opened or closed.
    */
   onOpenChange: PropTypes.func,
@@ -237,6 +238,17 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    * @default 'vertical'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
+  /**
+   * How the menu should trap user interactions.
+   * - `pointer-scroll`: trap pointer and scroll interactions inside the menu.
+   * - `none`: don't trap any interactions.
+   *
+   * Trapping pointer means that pointer presses are only allowed inside the menu, preventing clicks on elements outside the menu.
+   *
+   * Trapping scroll means that scrolling is only allowed inside the menu, locking outer page scroll.
+   * @default 'pointer-scroll'
+   */
+  trap: PropTypes.oneOf(['none', 'pointer-scroll']),
 } as any;
 
 export { MenuRoot };

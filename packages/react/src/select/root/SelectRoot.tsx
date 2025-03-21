@@ -28,7 +28,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     disabled = false,
     readOnly = false,
     required = false,
-    modal = true,
+    trap = 'pointer-scroll',
     actionsRef,
     onOpenChangeComplete,
   } = props;
@@ -45,7 +45,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     disabled,
     readOnly,
     required,
-    modal,
+    trap,
     actionsRef,
     onOpenChangeComplete,
   });
@@ -173,11 +173,6 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * Whether the select should prevent outside clicks and lock page scroll when open.
-   * @default true
-   */
-  modal: PropTypes.bool,
-  /**
    * Identifies the field when a form is submitted.
    */
   name: PropTypes.string,
@@ -207,6 +202,17 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   required: PropTypes.bool,
+  /**
+   * How the select should trap user interactions.
+   * - `pointer-scroll`: trap pointer and scroll interactions inside the select.
+   * - `none`: don't trap any interactions.
+   *
+   * Trapping scroll means that scrolling is only allowed inside the select, locking outer page scroll.
+   *
+   * Trapping pointer means that pointer interactions are only allowed inside the select, preventing clicks on elements outside the select.
+   * @default 'pointer-scroll'
+   */
+  trap: PropTypes.oneOf(['none', 'pointer-scroll']),
   /**
    * The value of the select.
    */
