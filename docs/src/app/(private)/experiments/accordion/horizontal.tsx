@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Accordion } from '@base-ui-components/react/accordion';
-import classes from './accordion.horizontal.module.css';
+import styles from './horizontal.module.css';
 
 function classNames(...c: Array<string | undefined | null | false>) {
   return c.filter(Boolean).join(' ');
@@ -11,24 +11,24 @@ function classNames(...c: Array<string | undefined | null | false>) {
 export default function App() {
   const [val, setVal] = React.useState(['one']);
   return (
-    <div className={classes.wrapper}>
+    <div className={styles.wrapper}>
       <h2>Horizontal LTR</h2>
       <Accordion.Root
-        className={classes.root}
+        className={styles.root}
         aria-label="Uncontrolled Horizontal Accordion"
         openMultiple={false}
       >
         {['one', 'two', 'three'].map((value, index) => (
-          <Accordion.Item className={classes.item} key={value}>
-            <Accordion.Header className={classes.header}>
+          <Accordion.Item className={styles.item} key={value}>
+            <Accordion.Header className={styles.header}>
               <Accordion.Trigger
-                className={classNames(classes.trigger, classes[value])}
+                className={classNames(styles.trigger, styles[value])}
               >
-                <span className={classes.triggerText}>{index + 1}</span>
-                <span className={classes.triggerLabel}>{value}</span>
+                <span className={styles.triggerText}>{index + 1}</span>
+                <span className={styles.triggerLabel}>{value}</span>
               </Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Panel className={classes.panel}>
+            <Accordion.Panel className={styles.panel}>
               This is the contents of Accordion.Panel {index + 1}
             </Accordion.Panel>
           </Accordion.Item>
@@ -41,7 +41,7 @@ export default function App() {
       </span>
       <DirectionProvider direction="rtl">
         <Accordion.Root
-          className={classes.root}
+          className={styles.root}
           aria-label="Controlled Horizontal RTL Accordion"
           openMultiple={false}
           orientation="horizontal"
@@ -53,16 +53,16 @@ export default function App() {
           }}
         >
           {['one', 'two', 'three'].map((value, index) => (
-            <Accordion.Item className={classes.item} key={value} value={value}>
-              <Accordion.Header className={classes.header}>
+            <Accordion.Item className={styles.item} key={value} value={value}>
+              <Accordion.Header className={styles.header}>
                 <Accordion.Trigger
-                  className={classNames(classes.trigger, classes[value])}
+                  className={classNames(styles.trigger, styles[value])}
                 >
-                  <span className={classes.triggerText}>{index + 1}</span>
-                  <span className={classes.triggerLabel}>{value}</span>
+                  <span className={styles.triggerText}>{index + 1}</span>
+                  <span className={styles.triggerLabel}>{value}</span>
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className={classes.panel}>
+              <Accordion.Panel className={styles.panel}>
                 This is the contents of Accordion.Panel {index + 1}
               </Accordion.Panel>
             </Accordion.Item>
