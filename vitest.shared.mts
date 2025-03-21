@@ -8,7 +8,12 @@ const environment = process.env.VITEST_ENV;
 
 type BrowserModeConfig = (UserWorkspaceConfig['test'] & {})['browser'];
 
-const supportedBrowsers = ['chromium', 'firefox', 'webkit'];
+const supportedBrowsers = ['chromium', 'webkit'];
+
+if (process.platform === 'darwin') {
+  // Playwright has issues with Firefox on Ubuntu and Windows: https://github.com/microsoft/playwright/issues/34586
+  supportedBrowsers.push('firefox');
+}
 
 function getBrowserConfig(): BrowserModeConfig {
   if (
