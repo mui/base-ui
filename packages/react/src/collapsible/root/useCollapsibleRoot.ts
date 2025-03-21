@@ -44,7 +44,7 @@ export function useCollapsibleRoot(
     }
 
     if (!hiddenUntilFound && !keepMounted) {
-      if (animationTypeRef.current === 'css-transition') {
+      if (animationTypeRef.current != null && animationTypeRef.current !== 'css-animation') {
         if (!mounted && nextOpen) {
           setMounted(true);
         }
@@ -59,8 +59,16 @@ export function useCollapsibleRoot(
         }
       }
     }
+
     setOpen(nextOpen);
     onOpenChange(nextOpen);
+
+    if (animationTypeRef.current === 'none') {
+      if (mounted && !nextOpen) {
+        setMounted(false);
+      }
+      return;
+    }
 
     /**
      * When `keepMounted={false}` and when opening, the element isn't inserted
