@@ -27,7 +27,7 @@ export function useCollapsiblePanel(
     mounted,
     onOpenChange,
     open,
-    panelId,
+    id: idParam,
     panelRef,
     runOnceAnimationsFinish,
     setHeight,
@@ -59,12 +59,12 @@ export function useCollapsiblePanel(
     if (!keepMounted && !open) {
       setPanelId(undefined);
     } else {
-      setPanelId(panelId);
+      setPanelId(idParam);
     }
     return () => {
       setPanelId(undefined);
     };
-  }, [panelId, setPanelId, keepMounted, open]);
+  }, [idParam, setPanelId, keepMounted, open]);
 
   /**
    * When `keepMounted` is `true` this runs once as soon as it exists in the DOM
@@ -327,13 +327,13 @@ export function useCollapsiblePanel(
       return mergeProps(
         {
           hidden,
-          id: panelId,
+          id: idParam,
           ref: mergedPanelRef,
         },
         externalProps,
       );
     },
-    [hidden, mergedPanelRef, panelId],
+    [hidden, idParam, mergedPanelRef],
   );
 
   return React.useMemo(
@@ -346,6 +346,13 @@ export function useCollapsiblePanel(
 
 export namespace useCollapsiblePanel {
   export interface Parameters {
+    abortControllerRef: React.RefObject<AbortController | null>;
+    animationTypeRef: React.RefObject<AnimationType>;
+    externalRef: React.ForwardedRef<HTMLElement>;
+    /**
+     * The height of the panel.
+     */
+    height: number | undefined;
     /**
      * Allows the browser’s built-in page search to find and expand the panel contents.
      *
@@ -353,35 +360,36 @@ export namespace useCollapsiblePanel {
      * to hide the element without removing it from the DOM.
      */
     hiddenUntilFound: boolean;
-    panelId: React.HTMLAttributes<Element>['id'];
+    /**
+     * The `id` attribute of the panel.
+     */
+    id: React.HTMLAttributes<Element>['id'];
     /**
      * Whether to keep the element in the DOM while the panel is closed.
      * This prop is ignored when `hiddenUntilFound` is used.
      */
     keepMounted: boolean;
     mounted: boolean;
+    onOpenChange: (open: boolean) => void;
     /**
      * Whether the collapsible panel is currently open.
      */
     open: boolean;
-    setPanelId: (id: string | undefined) => void;
-    setOpen: (nextOpen: boolean) => void;
-    setMounted: (nextMounted: boolean) => void;
-
-    animationTypeRef: React.RefObject<AnimationType>;
-    height: number | undefined;
-    setHeight: React.Dispatch<React.SetStateAction<number | undefined>>;
-    visible: boolean;
-    setVisible: React.Dispatch<React.SetStateAction<boolean>>;
-    abortControllerRef: React.RefObject<AbortController | null>;
-    externalRef: React.ForwardedRef<HTMLElement>;
-    runOnceAnimationsFinish: (fnToExecute: () => void, signal?: AbortSignal | null) => void;
     panelRef: React.RefObject<HTMLElement | null>;
-    onOpenChange: (open: boolean) => void;
+    runOnceAnimationsFinish: (fnToExecute: () => void, signal?: AbortSignal | null) => void;
+    setHeight: React.Dispatch<React.SetStateAction<number | undefined>>;
+    setMounted: (nextMounted: boolean) => void;
+    setOpen: (nextOpen: boolean) => void;
+    setPanelId: (id: string | undefined) => void;
+    setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+    /**
+     * The visible state of the panel used to determine the `[hidden]` attribute
+     * only when CSS keyframe animations are used.
+     */
+    visible: boolean;
   }
 
   export interface ReturnValue {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    // width: number;
   }
 }

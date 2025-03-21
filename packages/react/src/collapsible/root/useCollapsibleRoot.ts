@@ -127,47 +127,46 @@ export function useCollapsibleRoot(
 
   return React.useMemo(
     () => ({
-      panelId,
+      abortControllerRef,
+      animationTypeRef,
       disabled,
+      handleTrigger,
+      height,
       mounted,
       open,
-      setPanelId,
+      panelId,
+      panelRef,
+      runOnceAnimationsFinish,
+      setHeight,
+      setHiddenUntilFound,
+      setKeepMounted,
       setMounted,
       setOpen,
-      transitionStatus,
-
-      panelRef,
-      height,
-      setHeight,
-      visible,
+      setPanelId,
       setVisible,
-      animationTypeRef,
-      abortControllerRef,
-      runOnceAnimationsFinish,
-      setKeepMounted,
-      setHiddenUntilFound,
-      handleTrigger,
+      transitionStatus,
+      visible,
     }),
     [
-      panelId,
+      abortControllerRef,
+      animationTypeRef,
       disabled,
+      handleTrigger,
+      height,
       mounted,
       open,
-      setPanelId,
+      panelId,
+      panelRef,
+      runOnceAnimationsFinish,
+      setHeight,
+      setHiddenUntilFound,
+      setKeepMounted,
       setMounted,
       setOpen,
-      transitionStatus,
-      panelRef,
-      height,
-      setHeight,
-      visible,
+      setPanelId,
       setVisible,
-      animationTypeRef,
-      abortControllerRef,
-      runOnceAnimationsFinish,
-      setKeepMounted,
-      setHiddenUntilFound,
-      handleTrigger,
+      transitionStatus,
+      visible,
     ],
   );
 }
@@ -199,33 +198,37 @@ export namespace useCollapsibleRoot {
   }
 
   export interface ReturnValue {
-    panelId: React.HTMLAttributes<Element>['id'];
+    abortControllerRef: React.RefObject<AbortController | null>;
+    animationTypeRef: React.RefObject<AnimationType>;
     /**
      * Whether the component should ignore user interaction.
      */
     disabled: boolean;
+    handleTrigger: () => void;
+    /**
+     * The height of the panel.
+     */
+    height: number | undefined;
     mounted: boolean;
     /**
      * Whether the collapsible panel is currently open.
-     *
-     * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
      */
     open: boolean;
-    setPanelId: (id: string | undefined) => void;
+    panelId: React.HTMLAttributes<Element>['id'];
+    panelRef: React.RefObject<HTMLElement | null>;
+    runOnceAnimationsFinish: (fnToExecute: () => void, signal?: AbortSignal | null) => void;
+    setHeight: React.Dispatch<React.SetStateAction<number | undefined>>;
+    setHiddenUntilFound: React.Dispatch<React.SetStateAction<boolean>>;
+    setKeepMounted: React.Dispatch<React.SetStateAction<boolean>>;
     setMounted: (open: boolean) => void;
     setOpen: (open: boolean) => void;
-    transitionStatus: TransitionStatus;
-
-    panelRef: React.RefObject<HTMLElement | null>;
-    height: number | undefined;
-    setHeight: React.Dispatch<React.SetStateAction<number | undefined>>;
-    visible: boolean;
+    setPanelId: (id: string | undefined) => void;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
-    setKeepMounted: React.Dispatch<React.SetStateAction<boolean>>;
-    runOnceAnimationsFinish: (fnToExecute: () => void, signal?: AbortSignal | null) => void;
-    animationTypeRef: React.RefObject<AnimationType>;
-    abortControllerRef: React.RefObject<AbortController | null>;
-    setHiddenUntilFound: React.Dispatch<React.SetStateAction<boolean>>;
-    handleTrigger: () => void;
+    transitionStatus: TransitionStatus;
+    /**
+     * The visible state of the panel used to determine the `[hidden]` attribute
+     * only when CSS keyframe animations are used.
+     */
+    visible: boolean;
   }
 }
