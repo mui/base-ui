@@ -18,6 +18,7 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useForkRef } from '../../utils/useForkRef';
 import { useField } from '../../field/useField';
 import type { ScrubHandle } from './useScrub';
+import type { EventWithOptionalKeyState } from '../utils/types';
 
 export function useNumberFieldRoot(
   params: useNumberFieldRoot.Parameters,
@@ -105,8 +106,6 @@ export function useNumberFieldRoot(
   const tickIntervalRef = React.useRef(-1);
   const intentionalTouchCheckTimeoutRef = React.useRef(-1);
   const isPressedRef = React.useRef(false);
-  const isHoldingShiftRef = React.useRef(false);
-  const isHoldingAltRef = React.useRef(false);
   const movesAfterTouchRef = React.useRef(0);
   const allowInputSyncRef = React.useRef(true);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
@@ -142,20 +141,20 @@ export function useNumberFieldRoot(
     return keys;
   });
 
-  const getStepAmount = useEventCallback(() => {
-    if (isHoldingAltRef.current) {
+  const getStepAmount = useEventCallback((event?: EventWithOptionalKeyState) => {
+    if (event?.altKey) {
       return smallStep;
     }
-    if (isHoldingShiftRef.current) {
+    if (event?.shiftKey) {
       return largeStep;
     }
     return step;
   });
 
   const setValue = useEventCallback(
-    (unvalidatedValue: number | null, event?: Event, dir?: 1 | -1) => {
+    (unvalidatedValue: number | null, event?: React.MouseEvent | Event, dir?: 1 | -1) => {
       const validatedValue = toValidatedNumber(unvalidatedValue, {
-        step: event?.type === 'focusout' ? undefined : getStepAmount() * (dir ?? 1),
+        step: event?.type === 'focusout' ? undefined : getStepAmount(event as EventWithOptionalKeyState),
         format: formatOptionsRef.current,
         minWithDefault,
         maxWithDefault,
@@ -164,7 +163,7 @@ export function useNumberFieldRoot(
         small: isHoldingAltRef.current,
       });
 
-      onValueChange?.(validatedValue, event);
+      onValueChange?.(validatedValue, event && 'nativeEvent' in event ? event.nativeEvent : event);
       setValueUnwrapped(validatedValue);
       setDirty(validatedValue !== validityData.initialValue);
 
@@ -180,7 +179,12 @@ export function useNumberFieldRoot(
   );
 
   const incrementValue = useEventCallback(
-    (amount: number, dir: 1 | -1, currentValue?: number | null, event?: Event) => {
+    (
+      amount: number,
+      dir: 1 | -1,
+      currentValue?: number | null,
+      event?: React.MouseEvent | Event,
+    ) => {
       const prevValue = currentValue == null ? valueRef.current : currentValue;
       const nextValue =
         typeof prevValue === 'number' ? prevValue + amount * dir : Math.max(0, min ?? 0);
@@ -196,46 +200,48 @@ export function useNumberFieldRoot(
     movesAfterTouchRef.current = 0;
   });
 
-  const startAutoChange = useEventCallback((isIncrement: boolean) => {
-    stopAutoChange();
+  const startAutoChange = useEventCallback(
+    (isIncrement: boolean, triggerEvent?: React.MouseEvent | Event) => {
+      stopAutoChange();
 
-    if (!inputRef.current) {
-      return;
-    }
+      if (!inputRef.current) {
+        return;
+      }
 
-    const win = ownerWindow(inputRef.current);
+      const win = ownerWindow(inputRef.current);
 
-    function handleContextMenu(event: Event) {
-      event.preventDefault();
-    }
+      function handleContextMenu(event: Event) {
+        event.preventDefault();
+      }
 
-    // A global context menu is necessary to prevent the context menu from appearing when the touch
-    // is slightly outside of the element's hit area.
-    win.addEventListener('contextmenu', handleContextMenu);
-    unsubscribeFromGlobalContextMenuRef.current = () => {
-      win.removeEventListener('contextmenu', handleContextMenu);
-    };
+      // A global context menu is necessary to prevent the context menu from appearing when the touch
+      // is slightly outside of the element's hit area.
+      win.addEventListener('contextmenu', handleContextMenu);
+      unsubscribeFromGlobalContextMenuRef.current = () => {
+        win.removeEventListener('contextmenu', handleContextMenu);
+      };
 
-    win.addEventListener(
-      'pointerup',
-      () => {
-        isPressedRef.current = false;
-        stopAutoChange();
-      },
-      { once: true },
-    );
+      win.addEventListener(
+        'pointerup',
+        () => {
+          isPressedRef.current = false;
+          stopAutoChange();
+        },
+        { once: true },
+      );
 
-    function tick() {
-      const amount = getStepAmount() ?? DEFAULT_STEP;
-      incrementValue(amount, isIncrement ? 1 : -1);
-    }
+      function tick() {
+        const amount = getStepAmount(triggerEvent as EventWithOptionalKeyState) ?? DEFAULT_STEP;
+        incrementValue(amount, isIncrement ? 1 : -1, undefined, triggerEvent);
+      }
 
-    tick();
+      tick();
 
-    startTickTimeoutRef.current = window.setTimeout(() => {
-      tickIntervalRef.current = window.setInterval(tick, CHANGE_VALUE_TICK_DELAY);
-    }, START_AUTO_CHANGE_DELAY);
-  });
+      startTickTimeoutRef.current = window.setTimeout(() => {
+        tickIntervalRef.current = window.setInterval(tick, CHANGE_VALUE_TICK_DELAY);
+      }, START_AUTO_CHANGE_DELAY);
+    },
+  );
 
   // We need to update the input value when the external `value` prop changes. This ends up acting
   // as a single source of truth to update the input value, bypassing the need to manually set it in
@@ -286,51 +292,6 @@ export function useNumberFieldRoot(
     return () => stopAutoChange();
   }, [stopAutoChange]);
 
-  React.useEffect(
-    function registerGlobalStepModifierKeyListeners() {
-      if (disabled || readOnly || !inputRef.current) {
-        return undefined;
-      }
-
-      function handleWindowKeyDown(event: KeyboardEvent) {
-        if (event.shiftKey) {
-          isHoldingShiftRef.current = true;
-        }
-        if (event.altKey) {
-          isHoldingAltRef.current = true;
-        }
-      }
-
-      function handleWindowKeyUp(event: KeyboardEvent) {
-        if (!event.shiftKey) {
-          isHoldingShiftRef.current = false;
-        }
-        if (!event.altKey) {
-          isHoldingAltRef.current = false;
-        }
-      }
-
-      function handleWindowBlur() {
-        // A keyup event may not be dispatched when the window loses focus.
-        isHoldingShiftRef.current = false;
-        isHoldingAltRef.current = false;
-      }
-
-      const win = ownerWindow(inputRef.current);
-
-      win.addEventListener('keydown', handleWindowKeyDown, true);
-      win.addEventListener('keyup', handleWindowKeyUp, true);
-      win.addEventListener('blur', handleWindowBlur);
-
-      return () => {
-        win.removeEventListener('keydown', handleWindowKeyDown, true);
-        win.removeEventListener('keyup', handleWindowKeyUp, true);
-        win.removeEventListener('blur', handleWindowBlur);
-      };
-    },
-    [disabled, readOnly],
-  );
-
   // The `onWheel` prop can't be prevented, so we need to use a global event listener.
   React.useEffect(
     function registerElementWheelListener() {
@@ -351,7 +312,7 @@ export function useNumberFieldRoot(
         // Prevent the default behavior to avoid scrolling the page.
         event.preventDefault();
 
-        const amount = getStepAmount() ?? DEFAULT_STEP;
+        const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
         incrementValue(amount, event.deltaY > 0 ? -1 : 1, undefined, event);
       }
@@ -405,6 +366,7 @@ export function useNumberFieldRoot(
       min,
       max,
       setInputValue,
+      locale,
       ...scrub,
     }),
     [
@@ -438,6 +400,7 @@ export function useNumberFieldRoot(
       min,
       max,
       setInputValue,
+      locale,
     ],
   );
 }
@@ -564,7 +527,7 @@ export namespace useNumberFieldRoot {
     scrubHandleRef: React.RefObject<ScrubHandle | null>;
     scrubAreaRef: React.RefObject<HTMLSpanElement | null>;
     scrubAreaCursorRef: React.RefObject<HTMLSpanElement | null>;
-    startAutoChange: (isIncrement: boolean) => void;
+    startAutoChange: (isIncrement: boolean, event?: React.MouseEvent | Event) => void;
     stopAutoChange: () => void;
     minWithDefault: number;
     maxWithDefault: number;
@@ -572,7 +535,7 @@ export namespace useNumberFieldRoot {
     readOnly: boolean;
     id: string | undefined;
     setValue: (unvalidatedValue: number | null, event?: Event, dir?: 1 | -1) => void;
-    getStepAmount: () => number | undefined;
+    getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
     incrementValue: (
       amount: number,
       dir: 1 | -1,
@@ -596,6 +559,6 @@ export namespace useNumberFieldRoot {
     min: number | undefined;
     max: number | undefined;
     setInputValue: React.Dispatch<React.SetStateAction<string>>;
-    locale?: Intl.LocalesArgument;
+    locale: Intl.LocalesArgument;
   }
 }

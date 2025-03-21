@@ -1,6 +1,6 @@
 {
   "name": "@base-ui-components/monorepo",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-alpha.7",
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -72,7 +72,7 @@
     "@mui/monorepo": "github:mui/material-ui#v6.4.6",
     "@next/eslint-plugin-next": "^14.2.24",
     "@octokit/rest": "^21.1.1",
-    "@playwright/test": "1.51.0",
+    "@playwright/test": "1.51.1",
     "@tailwindcss/postcss": "4.0.3",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.15",
