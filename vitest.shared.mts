@@ -8,30 +8,41 @@ const environment = process.env.VITEST_ENV;
 
 type BrowserModeConfig = (UserWorkspaceConfig['test'] & {})['browser'];
 
-function getBrowserInstances() {
-  const supportedBrowsers = ['chromium', 'firefox', 'webkit'];
+const supportedBrowsers = ['chromium', 'firefox', 'webkit'];
 
-  if (environment === 'all-browsers') {
-    return supportedBrowsers.map((browser) => ({ browser }));
+function getBrowserConfig(): BrowserModeConfig {
+  if (
+    !!environment &&
+    (supportedBrowsers.includes(environment) || environment === 'all-browsers')
+  ) {
+    const commonConfig = {
+      enabled: true,
+      provider: 'playwright',
+      screenshotFailures: false,
+    };
+
+    if (environment === 'all-browsers') {
+      return {
+        ...commonConfig,
+        headless: true,
+        instances: supportedBrowsers.map((browser) => ({ browser })),
+      };
+    }
+
+    // "Headful" WebKit on Windows is not usable.
+    const isWebKitOnWindows = environment === 'webkit' && process.platform === 'win32';
+
+    if (supportedBrowsers.includes(environment)) {
+      return {
+        ...commonConfig,
+        headless: !!process.env.CI || isWebKitOnWindows,
+        instances: [{ browser: environment }],
+      };
+    }
   }
 
-  if (environment && supportedBrowsers.includes(environment)) {
-    return [{ browser: environment }];
-  }
-
-  return [];
+  return undefined;
 }
-
-const browserConfig: BrowserModeConfig =
-  environment === 'chromium' || environment === 'firefox' || environment === 'all-browsers'
-    ? {
-        enabled: true,
-        provider: 'playwright',
-        instances: getBrowserInstances(),
-        headless: !!process.env.CI || environment === 'all-browsers',
-        screenshotFailures: false,
-      }
-    : undefined;
 
 const config: UserWorkspaceConfig = {
   test: {
@@ -45,7 +56,7 @@ const config: UserWorkspaceConfig = {
         url: 'http://localhost',
       },
     },
-    browser: browserConfig,
+    browser: getBrowserConfig(),
     env: {
       VITEST: 'true',
     },
