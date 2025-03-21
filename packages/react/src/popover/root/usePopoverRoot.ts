@@ -64,7 +64,12 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(open && modal && openReason !== 'hover', triggerElement);
+  useScrollLock({
+    enabled: open && modal && openReason !== 'hover',
+    mounted,
+    open,
+    referenceElement: positionerElement,
+  });
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
