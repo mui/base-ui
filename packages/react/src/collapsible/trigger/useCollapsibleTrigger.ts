@@ -13,7 +13,6 @@ export function useCollapsibleTrigger(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
-    type: 'button',
   });
 
   const handleRef = useForkRef(externalRef, buttonRef);
