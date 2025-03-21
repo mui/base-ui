@@ -486,6 +486,45 @@ describe('<Menu.Root />', () => {
         expect(submenuTrigger).toHaveFocus();
       });
     });
+
+    it('opens submenu on click when openOnHover is false', async () => {
+      const { getByRole, queryByTestId, getByTestId } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open Main</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Item 1</Menu.Item>
+                <Menu.Root openOnHover={false}>
+                  <Menu.SubmenuTrigger data-testid="submenu-trigger">Submenu</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner data-testid="submenu">
+                      <Menu.Popup>
+                        <Menu.Item data-testid="submenu-item">Submenu Item</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const mainTrigger = getByRole('button', { name: 'Open Main' });
+      await user.click(mainTrigger);
+
+      expect(queryByTestId('submenu')).to.equal(null);
+
+      const submenuTrigger = getByTestId('submenu-trigger');
+      await user.click(submenuTrigger);
+
+      await waitFor(() => {
+        expect(getByTestId('submenu')).not.to.equal(null);
+      });
+
+      expect(getByTestId('submenu-item')).to.have.text('Submenu Item');
+    });
   });
 
   describe('focus management', () => {

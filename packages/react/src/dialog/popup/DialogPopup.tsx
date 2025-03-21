@@ -108,7 +108,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
 
   return (
     <React.Fragment>
-      {mounted && trap === 'all' && <InternalBackdrop ref={internalBackdropRef} inert={!open} />}
+      {mounted && trap === 'all' && <InternalBackdrop ref={internalBackdropRef} />}
       <FloatingFocusManager
         context={floatingRootContext}
         disabled={!mounted}

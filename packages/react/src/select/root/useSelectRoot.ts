@@ -63,7 +63,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     setFilled(value !== null);
   }, [setFilled, value]);
 
-  const [controlledAlignItemToTrigger, setcontrolledAlignItemToTrigger] =
+  const [controlledAlignItemToTrigger, setControlledAlignItemToTrigger] =
     React.useState(alignItemToTriggerParam);
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
@@ -94,7 +94,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const alignItemToTrigger = Boolean(mounted && controlledAlignItemToTrigger && !touchModality);
 
   if (!mounted && controlledAlignItemToTrigger !== alignItemToTriggerParam) {
-    setcontrolledAlignItemToTrigger(alignItemToTriggerParam);
+    setControlledAlignItemToTrigger(alignItemToTriggerParam);
   }
 
   if (!alignItemToTriggerParam || !mounted) {
@@ -167,10 +167,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
     const stringValue = typeof value === 'string' || value === null ? value : JSON.stringify(value);
     const index = suppliedIndex ?? valuesRef.current.indexOf(stringValue);
+    const hasIndex = index !== -1;
 
-    if (index !== -1) {
-      setSelectedIndex(index);
-      setLabel(labelsRef.current[index] ?? '');
+    if (hasIndex || value === null) {
+      if (hasIndex) {
+        setSelectedIndex(index);
+      }
+      setLabel(hasIndex ? (labelsRef.current[index] ?? '') : '');
     } else if (value) {
       warn(`The value \`${stringValue}\` is not present in the select items.`);
     }
@@ -266,7 +269,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setScrollUpArrowVisible,
       scrollDownArrowVisible,
       setScrollDownArrowVisible,
-      setcontrolledAlignItemToTrigger,
+      setControlledAlignItemToTrigger,
       value,
       setValue,
       open,
