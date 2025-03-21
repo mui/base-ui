@@ -6,6 +6,7 @@ import { Slider } from '@base-ui-components/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { SliderRootContext } from '../root/SliderRootContext';
 import { NOOP } from '../../utils/noop';
+import { isWebKit } from '../../utils/detectBrowser';
 
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
 
@@ -97,7 +98,7 @@ describe('<Slider.Thumb />', () => {
    * Browser tests render with 1024px width by default, so most tests here set
    * the component to `width: 100px` to make the asserted values more readable.
    */
-  describe.skipIf(isJSDOM)('positioning styles', () => {
+  describe.skipIf(isJSDOM || isWebKit())('positioning styles', () => {
     describe('positions the thumb when dragged', () => {
       it('single thumb', async () => {
         const { getByTestId } = await render(

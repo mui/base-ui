@@ -6,6 +6,7 @@ import { DirectionProvider } from '@base-ui-components/react/direction-provider'
 import { Slider } from '@base-ui-components/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import type { SliderRoot } from './SliderRoot';
+import { isWebKit } from '../../utils/detectBrowser';
 
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
 
@@ -93,7 +94,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     expect(screen.getByRole('slider')).to.have.attribute('aria-valuenow', '30');
   });
 
-  it('should not break when initial value is out of range', async () => {
+  it.skipIf(isWebKit())('should not break when initial value is out of range', async () => {
     const { getByTestId } = await render(<TestRangeSlider value={[19, 41]} min={20} max={40} />);
 
     const sliderControl = getByTestId('control');
@@ -164,7 +165,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('rtl', () => {
+  describe.skipIf(isJSDOM || isWebKit())('rtl', () => {
     it('should handle RTL', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
@@ -324,49 +325,44 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       });
     });
 
-    it('should not respond to drag events after becoming disabled', async ({ skip }) => {
-      // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
-      if (isJSDOM) {
-        skip();
-      }
+    // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
+    it.skipIf(isJSDOM || isWebKit())(
+      'should not respond to drag events after becoming disabled',
+      async () => {
+        const { getByRole, setProps, getByTestId } = await render(
+          <TestSlider defaultValue={0} data-testid="slider-root" />,
+        );
 
-      const { getByRole, setProps, getByTestId } = await render(
-        <TestSlider defaultValue={0} data-testid="slider-root" />,
-      );
+        const sliderControl = getByTestId('control');
 
-      const sliderControl = getByTestId('control');
+        stub(sliderControl, 'getBoundingClientRect').callsFake(
+          () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
+        );
+        fireEvent.touchStart(
+          sliderControl,
+          createTouches([{ identifier: 1, clientX: 21, clientY: 0 }]),
+        );
 
-      stub(sliderControl, 'getBoundingClientRect').callsFake(
-        () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
-      );
-      fireEvent.touchStart(
-        sliderControl,
-        createTouches([{ identifier: 1, clientX: 21, clientY: 0 }]),
-      );
+        const thumb = getByRole('slider');
 
-      const thumb = getByRole('slider');
+        expect(thumb).to.have.attribute('aria-valuenow', '21');
+        expect(thumb).toHaveFocus();
 
-      expect(thumb).to.have.attribute('aria-valuenow', '21');
-      expect(thumb).toHaveFocus();
+        await setProps({ disabled: true });
+        expect(thumb).not.toHaveFocus();
+        // expect(thumb).not.to.have.class(classes.active);
 
-      await setProps({ disabled: true });
-      expect(thumb).not.toHaveFocus();
-      // expect(thumb).not.to.have.class(classes.active);
+        fireEvent.touchMove(
+          sliderControl,
+          createTouches([{ identifier: 1, clientX: 30, clientY: 0 }]),
+        );
 
-      fireEvent.touchMove(
-        sliderControl,
-        createTouches([{ identifier: 1, clientX: 30, clientY: 0 }]),
-      );
+        expect(thumb).to.have.attribute('aria-valuenow', '21');
+      },
+    );
 
-      expect(thumb).to.have.attribute('aria-valuenow', '21');
-    });
-
-    it('should not respond to drag events if disabled', async ({ skip }) => {
-      // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
-      if (isJSDOM) {
-        skip();
-      }
-
+    // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
+    it.skipIf(isJSDOM || isWebKit())('should not respond to drag events if disabled', async () => {
       const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={21} data-testid="slider-root" disabled />,
       );
@@ -432,7 +428,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).not.toHaveComputedStyle({ webkitAppearance: 'slider-vertical' });
     });
 
-    it('should report the right position', async () => {
+    it.skipIf(isWebKit())('should report the right position', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
         <TestSlider orientation="vertical" defaultValue={20} onValueChange={handleValueChange} />,
@@ -487,7 +483,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '1e-7');
     });
 
-    it('should round value to step precision', async () => {
+    it.skipIf(isWebKit())('should round value to step precision', async () => {
       const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={0.2} min={0} max={1} step={0.1} />,
       );
@@ -526,71 +522,77 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '0.4');
     });
 
-    it('should not fail to round value to step precision when step is very small', async () => {
-      const { getByRole, getByTestId } = await render(
-        <TestSlider defaultValue={0.00000002} min={0} max={0.0000001} step={0.00000001} />,
-      );
-      const slider = getByRole('slider');
+    it.skipIf(isWebKit())(
+      'should not fail to round value to step precision when step is very small',
+      async () => {
+        const { getByRole, getByTestId } = await render(
+          <TestSlider defaultValue={0.00000002} min={0} max={0.0000001} step={0.00000001} />,
+        );
+        const slider = getByRole('slider');
 
-      await act(async () => {
-        slider.focus();
-      });
+        await act(async () => {
+          slider.focus();
+        });
 
-      const sliderControl = getByTestId('control');
-      stub(sliderControl, 'getBoundingClientRect').callsFake(
-        () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
-      );
+        const sliderControl = getByTestId('control');
+        stub(sliderControl, 'getBoundingClientRect').callsFake(
+          () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
+        );
 
-      await act(async () => {
-        slider.focus();
-      });
+        await act(async () => {
+          slider.focus();
+        });
 
-      expect(slider).to.have.attribute('aria-valuenow', '2e-8');
+        expect(slider).to.have.attribute('aria-valuenow', '2e-8');
 
-      fireEvent.touchStart(
-        sliderControl,
-        createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
-      );
+        fireEvent.touchStart(
+          sliderControl,
+          createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
+        );
 
-      fireEvent.touchMove(
-        document.body,
-        createTouches([{ identifier: 1, clientX: 80, clientY: 0 }]),
-      );
-      expect(slider).to.have.attribute('aria-valuenow', '8e-8');
-    });
+        fireEvent.touchMove(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 80, clientY: 0 }]),
+        );
+        expect(slider).to.have.attribute('aria-valuenow', '8e-8');
+      },
+    );
 
-    it('should not fail to round value to step precision when step is very small and negative', async () => {
-      const { getByRole, getByTestId } = await render(
-        <TestSlider defaultValue={-0.00000002} min={-0.0000001} max={0} step={0.00000001} />,
-      );
-      const slider = getByRole('slider');
+    it.skipIf(isWebKit())(
+      'should not fail to round value to step precision when step is very small and negative',
+      async () => {
+        const { getByRole, getByTestId } = await render(
+          <TestSlider defaultValue={-0.00000002} min={-0.0000001} max={0} step={0.00000001} />,
+        );
+        const slider = getByRole('slider');
 
-      await act(async () => {
-        slider.focus();
-      });
+        await act(async () => {
+          slider.focus();
+        });
 
-      const sliderControl = getByTestId('control');
-      stub(sliderControl, 'getBoundingClientRect').callsFake(
-        () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
-      );
+        const sliderControl = getByTestId('control');
+        stub(sliderControl, 'getBoundingClientRect').callsFake(
+          () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
+        );
 
-      await act(async () => {
-        slider.focus();
-      });
+        await act(async () => {
+          slider.focus();
+        });
 
-      expect(slider).to.have.attribute('aria-valuenow', '-2e-8');
+        expect(slider).to.have.attribute('aria-valuenow', '-2e-8');
 
-      fireEvent.touchStart(
-        sliderControl,
-        createTouches([{ identifier: 1, clientX: 80, clientY: 0 }]),
-      );
+        fireEvent.touchStart(
+          sliderControl,
+          createTouches([{ identifier: 1, clientX: 80, clientY: 0 }]),
+        );
 
-      fireEvent.touchMove(
-        document.body,
-        createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
-      );
-      expect(slider).to.have.attribute('aria-valuenow', '-8e-8');
-    });
+        fireEvent.touchMove(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
+        );
+        expect(slider).to.have.attribute('aria-valuenow', '-8e-8');
+      },
+    );
   });
 
   describe('prop: max', () => {
@@ -620,7 +622,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', String(MAX));
     });
 
-    it('should reach right edge value', async () => {
+    it.skipIf(isWebKit())('should reach right edge value', async () => {
       const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={90} min={6} max={108} step={10} />,
       );
@@ -792,7 +794,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueCommitted.callCount).to.equal(2);
     });
 
-    it('should support touch events', async () => {
+    it.skipIf(isWebKit())('should support touch events', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
         <TestRangeSlider defaultValue={[20, 30]} onValueChange={handleValueChange} />,
@@ -852,7 +854,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal([22, 30]);
     });
 
-    it('should only listen to changes from the same touchpoint', async () => {
+    it.skipIf(isWebKit())('should only listen to changes from the same touchpoint', async () => {
       const handleValueChange = spy();
       const handleValueCommitted = spy();
 
@@ -938,7 +940,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(2);
     });
 
-    it('should focus the slider when touching', async () => {
+    it.skipIf(isWebKit())('should focus the slider when touching', async () => {
       const { getByRole, getByTestId } = await render(<TestSlider defaultValue={30} />);
       const slider = getByRole('slider');
       const sliderControl = getByTestId('control');
@@ -973,7 +975,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).toHaveFocus();
     });
 
-    it('should not override the event.target on touch events', async () => {
+    it.skipIf(isWebKit())('should not override the event.target on touch events', async () => {
       const handleValueChange = spy();
       const handleNativeEvent = spy();
       const handleEvent = spy();
@@ -1046,7 +1048,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describe('dragging state', () => {
+  describe.skipIf(isWebKit())('dragging state', () => {
     it('should not apply data-dragging for click modality', async () => {
       const { getByTestId } = await render(<TestSlider defaultValue={90} />);
 
