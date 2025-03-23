@@ -132,6 +132,14 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
+    const { render: renderFakeTimers, clock } = createRenderer({
+      clockOptions: {
+        shouldAdvanceTime: true,
+      },
+    });
+
+    clock.withFakeTimers();
+
     it('should call onValueChange when an item is selected', async () => {
       const handleValueChange = spy();
 
@@ -161,19 +169,49 @@ describe('<Select.Root />', () => {
         );
       }
 
-      const { user } = await render(<App />);
+      const { user } = await renderFakeTimers(<App />);
 
       const trigger = screen.getByTestId('trigger');
 
       await user.click(trigger);
-
       await flushMicrotasks();
 
-      const option = await screen.findByRole('option', { name: 'b', hidden: false });
-
+      const option = screen.getByRole('option', { name: 'b' });
+      clock.tick(200);
       await user.click(option);
 
       expect(handleValueChange.args[0][0]).to.equal('b');
+    });
+
+    it('is not called twice on select', async () => {
+      const handleValueChange = spy();
+
+      const { user } = await renderFakeTimers(
+        <Select.Root onValueChange={handleValueChange}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+
+      const option = screen.getByRole('option', { name: 'b' });
+      clock.tick(200);
+      await user.click(option);
+
+      expect(handleValueChange.callCount).to.equal(1);
     });
   });
 
@@ -496,7 +534,7 @@ describe('<Select.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-starting-style] {
             animation: test-anim 1ms;
           }
