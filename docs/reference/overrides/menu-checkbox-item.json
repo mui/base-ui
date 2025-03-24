@@ -1,8 +1,0 @@
-{
-  "name": "MenuCheckboxItem",
-  "props": {
-    "onCheckedChange": {
-      "type": "(checked, event) => void"
-    }
-  }
-}

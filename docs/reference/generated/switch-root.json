@@ -16,7 +16,7 @@
       "description": "Whether the switch is currently active.\n\nTo render an uncontrolled switch, use the `defaultChecked` prop instead."
     },
     "onCheckedChange": {
-      "type": "(checked, event) => void",
+      "type": "((checked: boolean, event: Event) => void)",
       "description": "Event handler called when the switch is activated or deactivated."
     },
     "disabled": {
@@ -35,15 +35,19 @@
       "description": "Whether the user must activate the switch before submitting a form."
     },
     "inputRef": {
-      "type": "React.Ref",
+      "type": "Ref<HTMLInputElement>",
       "description": "A React ref to access the hidden `<input>` element."
     },
+    "id": {
+      "type": "string",
+      "description": "The id of the switch element."
+    },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

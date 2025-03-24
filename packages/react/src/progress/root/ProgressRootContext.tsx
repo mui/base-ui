@@ -8,7 +8,7 @@ export type ProgressRootContext = Omit<useProgressRoot.ReturnValue, 'getRootProp
 };
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 export const ProgressRootContext = React.createContext<ProgressRootContext | undefined>(undefined);
 

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
 /**
- * @ignore - internal hook.
+ * @internal
  */
 export function useLatestRef<T>(value: T) {
   const ref = React.useRef(value);
