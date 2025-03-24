@@ -7,6 +7,7 @@ import { clamp } from '../../utils/clamp';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { MIN_THUMB_SIZE } from '../constants';
 import { getOffset } from '../utils/getOffset';
+import { onVisible } from '../utils/onVisible';
 
 export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) {
   const { children } = params;
@@ -49,6 +50,10 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     const viewportWidth = viewportEl.clientWidth;
     const scrollTop = viewportEl.scrollTop;
     const scrollLeft = viewportEl.scrollLeft;
+
+    if (scrollableContentHeight === 0 || scrollableContentWidth === 0) {
+      return;
+    }
 
     const scrollbarYHidden = viewportHeight >= scrollableContentHeight;
     const scrollbarXHidden = viewportWidth >= scrollableContentWidth;
@@ -144,7 +149,14 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     // First load computation.
     // Wait for the scrollbar-related refs to be set.
     queueMicrotask(computeThumb);
-  }, [computeThumb]);
+
+    if (!viewportRef.current) {
+      return undefined;
+    }
+
+    const cleanup = onVisible(viewportRef.current, computeThumb);
+    return cleanup;
+  }, [computeThumb, viewportRef]);
 
   useEnhancedEffect(() => {
     computeThumb();
@@ -180,6 +192,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     (externalProps = {}) =>
       mergeProps<'div'>(
         {
+          role: 'presentation',
           ...(rootId && { 'data-id': `${rootId}-viewport` }),
           // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
           ...((!hiddenState.scrollbarXHidden || !hiddenState.scrollbarYHidden) && { tabIndex: 0 }),
@@ -200,6 +213,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
           },
           children: (
             <div
+              role="presentation"
               ref={contentWrapperRef}
               style={{
                 minWidth: 'fit-content',
