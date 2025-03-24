@@ -73,7 +73,7 @@ export function useCollapsiblePanel(
    */
   const handlePanelRef = useEventCallback((element: HTMLElement) => {
     if (!element) {
-      return;
+      return undefined;
     }
     if (animationTypeRef.current == null || transitionDimensionRef.current == null) {
       const panelStyles = getComputedStyle(element);
@@ -108,7 +108,7 @@ export function useCollapsiblePanel(
     }
 
     if (animationTypeRef.current !== 'css-transition') {
-      return;
+      return undefined;
     }
 
     /**
@@ -139,9 +139,12 @@ export function useCollapsiblePanel(
       }
     }
 
-    requestAnimationFrame(() => {
+    let frame = -1;
+    let nextFrame = -1;
+
+    frame = requestAnimationFrame(() => {
       shouldCancelInitialOpenTransitionRef.current = false;
-      requestAnimationFrame(() => {
+      nextFrame = requestAnimationFrame(() => {
         /**
          * This is slightly faster than another RAF and is the earliest
          * opportunity to remove the temporary `transition-duration: 0s` that
@@ -153,6 +156,11 @@ export function useCollapsiblePanel(
         });
       });
     });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(nextFrame);
+    };
   });
 
   const mergedPanelRef = useForkRef(externalRef, panelRef, handlePanelRef);
@@ -163,14 +171,16 @@ export function useCollapsiblePanel(
    */
   useEnhancedEffect(() => {
     if (animationTypeRef.current !== 'css-transition' || keepMounted) {
-      return;
+      return undefined;
     }
 
     const panel = panelRef.current;
 
     if (!panel) {
-      return;
+      return undefined;
     }
+
+    let resizeFrame = -1;
 
     if (open) {
       if (abortControllerRef.current != null) {
@@ -181,7 +191,7 @@ export function useCollapsiblePanel(
       /* opening */
       panel.style.setProperty(transitionDimensionRef.current ?? 'height', '0px');
 
-      requestAnimationFrame(() => {
+      resizeFrame = requestAnimationFrame(() => {
         /**
          * When `keepMounted={false}` this is the earliest opportunity to unset
          * the temporary `display` property that was set in `handlePanelRef`
@@ -192,7 +202,7 @@ export function useCollapsiblePanel(
       });
     } else {
       /* closing */
-      requestAnimationFrame(() => {
+      resizeFrame = requestAnimationFrame(() => {
         setDimensions({ height: 0, width: 0 });
       });
 
@@ -204,6 +214,10 @@ export function useCollapsiblePanel(
         abortControllerRef.current = null;
       }, abortControllerRef.current.signal);
     }
+
+    return () => {
+      cancelAnimationFrame(resizeFrame);
+    };
   }, [
     abortControllerRef,
     animationTypeRef,
@@ -267,26 +281,34 @@ export function useCollapsiblePanel(
 
   useEnhancedEffect(() => {
     if (!hiddenUntilFound) {
-      return;
+      return undefined;
     }
 
     const panel = panelRef.current;
     if (!panel) {
-      return;
+      return undefined;
     }
+
+    let frame = -1;
+    let nextFrame = -1;
 
     if (open && isBeforeMatchRef.current) {
       panel.style.transitionDuration = '0s';
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
-      requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => {
         isBeforeMatchRef.current = false;
-        requestAnimationFrame(() => {
+        nextFrame = requestAnimationFrame(() => {
           setTimeout(() => {
             panel.style.removeProperty('transition-duration');
           });
         });
       });
     }
+
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(nextFrame);
+    };
   }, [hiddenUntilFound, open, panelRef, setDimensions]);
 
   useEnhancedEffect(() => {
