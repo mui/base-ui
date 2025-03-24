@@ -7,12 +7,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import { useOnMount } from '../../utils/useOnMount';
 import { warn } from '../../utils/warn';
-import type { AnimationType } from '../root/useCollapsibleRoot';
-
-// interface Dimensions {
-//   height: number;
-//   width: number;
-// }
+import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 
 export function useCollapsiblePanel(
   parameters: useCollapsiblePanel.Parameters,
@@ -30,12 +25,11 @@ export function useCollapsiblePanel(
     open,
     panelRef,
     runOnceAnimationsFinish,
-    setHeight,
+    setDimensions,
     setMounted,
     setOpen,
     setPanelId,
     setVisible,
-    setWidth,
     transitionDimensionRef,
     visible,
     width,
@@ -137,8 +131,7 @@ export function useCollapsiblePanel(
         element.setAttribute('data-starting-style', '');
       }
 
-      setHeight(element.scrollHeight);
-      setWidth(element.scrollWidth);
+      setDimensions({ height: element.scrollHeight, width: element.scrollWidth });
       element.style.removeProperty('display');
 
       if (shouldCancelInitialOpenTransitionRef.current) {
@@ -195,14 +188,12 @@ export function useCollapsiblePanel(
          */
         panel.style.removeProperty('display');
         panel.style.removeProperty(transitionDimensionRef.current ?? 'height');
-        setHeight(panel.scrollHeight);
-        setWidth(panel.scrollWidth);
+        setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
       });
     } else {
       /* closing */
       requestAnimationFrame(() => {
-        setHeight(0);
-        setWidth(0);
+        setDimensions({ height: 0, width: 0 });
       });
 
       abortControllerRef.current = new AbortController();
@@ -222,9 +213,8 @@ export function useCollapsiblePanel(
     open,
     panelRef,
     runOnceAnimationsFinish,
-    setHeight,
+    setDimensions,
     setMounted,
-    setWidth,
     transitionDimensionRef,
   ]);
 
@@ -242,8 +232,7 @@ export function useCollapsiblePanel(
 
     panel.style.setProperty('animation-name', 'none');
 
-    setHeight(panel.scrollHeight);
-    setWidth(panel.scrollWidth);
+    setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
     if (!shouldCancelInitialOpenAnimationRef.current && !isBeforeMatchRef.current) {
       panel.style.removeProperty('animation-name');
@@ -265,9 +254,8 @@ export function useCollapsiblePanel(
     setMounted,
     animationTypeRef,
     panelRef,
-    setHeight,
+    setDimensions,
     setVisible,
-    setWidth,
   ]);
 
   useOnMount(() => {
@@ -289,8 +277,7 @@ export function useCollapsiblePanel(
 
     if (open && isBeforeMatchRef.current) {
       panel.style.transitionDuration = '0s';
-      setHeight(panel.scrollHeight);
-      setWidth(panel.scrollWidth);
+      setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
       requestAnimationFrame(() => {
         isBeforeMatchRef.current = false;
         requestAnimationFrame(() => {
@@ -300,7 +287,7 @@ export function useCollapsiblePanel(
         });
       });
     }
-  }, [hiddenUntilFound, open, panelRef, setHeight, setWidth]);
+  }, [hiddenUntilFound, open, panelRef, setDimensions]);
 
   useEnhancedEffect(() => {
     const panel = panelRef.current;
@@ -393,6 +380,9 @@ export namespace useCollapsiblePanel {
      * This prop is ignored when `hiddenUntilFound` is used.
      */
     keepMounted: boolean;
+    /**
+     * Whether the collapsible panel is currently mounted.
+     */
     mounted: boolean;
     onOpenChange: (open: boolean) => void;
     /**
@@ -401,18 +391,20 @@ export namespace useCollapsiblePanel {
     open: boolean;
     panelRef: React.RefObject<HTMLElement | null>;
     runOnceAnimationsFinish: (fnToExecute: () => void, signal?: AbortSignal | null) => void;
-    setHeight: React.Dispatch<React.SetStateAction<number | undefined>>;
+    setDimensions: React.Dispatch<React.SetStateAction<Dimensions>>;
     setMounted: (nextMounted: boolean) => void;
     setOpen: (nextOpen: boolean) => void;
     setPanelId: (id: string | undefined) => void;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
-    setWidth: React.Dispatch<React.SetStateAction<number | undefined>>;
     transitionDimensionRef: React.RefObject<'height' | 'width' | null>;
     /**
      * The visible state of the panel used to determine the `[hidden]` attribute
      * only when CSS keyframe animations are used.
      */
     visible: boolean;
+    /**
+     * The width of the panel.
+     */
     width: number | undefined;
   }
 

@@ -9,6 +9,11 @@ import { useTransitionStatus, TransitionStatus } from '../../utils/useTransition
 
 export type AnimationType = 'css-transition' | 'css-animation' | 'none' | null;
 
+export interface Dimensions {
+  height: number | undefined;
+  width: number | undefined;
+}
+
 export function useCollapsibleRoot(
   parameters: useCollapsibleRoot.Parameters,
 ): useCollapsibleRoot.ReturnValue {
@@ -23,8 +28,10 @@ export function useCollapsibleRoot(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const [visible, setVisible] = React.useState(open);
-  const [height, setHeight] = React.useState<number | undefined>(undefined);
-  const [width, setWidth] = React.useState<number | undefined>(undefined);
+  const [{ height, width }, setDimensions] = React.useState<Dimensions>({
+    height: undefined,
+    width: undefined,
+  });
   const [panelId, setPanelId] = React.useState<string | undefined>(useBaseUiId());
 
   const [hiddenUntilFound, setHiddenUntilFound] = React.useState(false);
@@ -96,8 +103,7 @@ export function useCollapsibleRoot(
 
       requestAnimationFrame(() => {
         panel.style.removeProperty(transitionDimensionRef.current ?? 'height');
-        setHeight(panel.scrollHeight);
-        setWidth(panel.scrollWidth);
+        setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
       });
     } else {
       if (hiddenUntilFound) {
@@ -105,8 +111,7 @@ export function useCollapsibleRoot(
       }
       /* closing */
       requestAnimationFrame(() => {
-        setHeight(0);
-        setWidth(0);
+        setDimensions({ height: 0, width: 0 });
       });
 
       abortControllerRef.current = new AbortController();
@@ -141,14 +146,13 @@ export function useCollapsibleRoot(
       panelId,
       panelRef,
       runOnceAnimationsFinish,
-      setHeight,
+      setDimensions,
       setHiddenUntilFound,
       setKeepMounted,
       setMounted,
       setOpen,
       setPanelId,
       setVisible,
-      setWidth,
       transitionDimensionRef,
       transitionStatus,
       visible,
@@ -165,14 +169,13 @@ export function useCollapsibleRoot(
       panelId,
       panelRef,
       runOnceAnimationsFinish,
-      setHeight,
+      setDimensions,
       setHiddenUntilFound,
       setKeepMounted,
       setMounted,
       setOpen,
       setPanelId,
       setVisible,
-      setWidth,
       transitionDimensionRef,
       transitionStatus,
       visible,
@@ -219,6 +222,9 @@ export namespace useCollapsibleRoot {
      * The height of the panel.
      */
     height: number | undefined;
+    /**
+     * Whether the collapsible panel is currently mounted.
+     */
     mounted: boolean;
     /**
      * Whether the collapsible panel is currently open.
@@ -227,14 +233,13 @@ export namespace useCollapsibleRoot {
     panelId: React.HTMLAttributes<Element>['id'];
     panelRef: React.RefObject<HTMLElement | null>;
     runOnceAnimationsFinish: (fnToExecute: () => void, signal?: AbortSignal | null) => void;
-    setHeight: React.Dispatch<React.SetStateAction<number | undefined>>;
+    setDimensions: React.Dispatch<React.SetStateAction<Dimensions>>;
     setHiddenUntilFound: React.Dispatch<React.SetStateAction<boolean>>;
     setKeepMounted: React.Dispatch<React.SetStateAction<boolean>>;
     setMounted: (open: boolean) => void;
     setOpen: (open: boolean) => void;
     setPanelId: (id: string | undefined) => void;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
-    setWidth: React.Dispatch<React.SetStateAction<number | undefined>>;
     transitionDimensionRef: React.RefObject<'height' | 'width' | null>;
     transitionStatus: TransitionStatus;
     /**
@@ -242,6 +247,9 @@ export namespace useCollapsibleRoot {
      * only when CSS keyframe animations are used.
      */
     visible: boolean;
+    /**
+     * The width of the panel.
+     */
     width: number | undefined;
   }
 }
