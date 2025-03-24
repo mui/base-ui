@@ -129,7 +129,10 @@ describe('<Accordion.Root />', () => {
   });
 
   describe('controlled', () => {
-    it('open state', async () => {
+    it('open state', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
+      }
       const { getByRole, queryByText, setProps } = await render(
         <Accordion.Root value={[]}>
           <Accordion.Item>
