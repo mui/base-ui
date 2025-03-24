@@ -9,7 +9,8 @@ const displayValueMap = {
   two: '二',
   three: '三',
 } as any;
-
+// for CSS reasons it's easier to use vertical text (i.e. not horizontal writing
+// mode like English) in combination with animated width using --panel-width
 export default function App() {
   const [val, setVal] = React.useState(['one']);
   return (
