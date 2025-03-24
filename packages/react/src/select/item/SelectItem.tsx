@@ -144,6 +144,14 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  events: PropTypes.shape({
+    emit: PropTypes.func.isRequired,
+    off: PropTypes.func.isRequired,
+    on: PropTypes.func.isRequired,
+  }).isRequired,
+  /**
+   * @ignore
+   */
   getRootItemProps: PropTypes.func.isRequired,
   /**
    * @ignore

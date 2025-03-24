@@ -73,7 +73,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   React.useEffect(() => {
     function handleItemMouseMove(item: HTMLDivElement) {
       if (ref.current && item !== ref.current) {
-        ref.current.removeAttribute('data-highlighted');
+        ref.current.removeAttribute(styleHook);
       }
     }
 
