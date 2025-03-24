@@ -21,7 +21,6 @@ export function useCollapsibleTrigger(
     (externalProps: GenericHTMLProps = {}) =>
       mergeProps(
         {
-          type: 'button',
           'aria-controls': panelId,
           'aria-expanded': open,
           disabled,
