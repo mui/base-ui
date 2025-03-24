@@ -307,7 +307,7 @@ describe('<Dialog.Root />', () => {
   });
 
   describe('prop: modal', () => {
-    it('should render an internal backdrop when true', async () => {
+    it('should render an internal backdrop when `true`', async () => {
       const { user } = await render(
         <div>
           <Dialog.Root modal>
@@ -337,7 +337,7 @@ describe('<Dialog.Root />', () => {
       );
     });
 
-    it('should not render an internal backdrop when false', async () => {
+    it('should not render an internal backdrop when `false`', async () => {
       const { user } = await render(
         <div>
           <Dialog.Root modal={false}>

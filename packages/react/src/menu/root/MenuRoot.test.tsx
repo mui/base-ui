@@ -775,10 +775,10 @@ describe('<Menu.Root />', () => {
   });
 
   describe('prop: modal', () => {
-    it('should render an internal backdrop when true', async () => {
+    it('should render an internal backdrop when `true`', async () => {
       await render(
         <div>
-          <Menu.Root>
+          <Menu.Root modal>
             <Menu.Trigger>Open</Menu.Trigger>
             <Menu.Portal>
               <Menu.Positioner data-testid="positioner">
@@ -806,7 +806,7 @@ describe('<Menu.Root />', () => {
       expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
     });
 
-    it('should not render an internal backdrop when false', async () => {
+    it('should not render an internal backdrop when `false`', async () => {
       await render(
         <div>
           <Menu.Root modal={false}>

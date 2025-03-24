@@ -252,10 +252,8 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     label: 'Custom anchor',
   },
   modal: {
-    type: 'string',
-    label: 'Trap',
-    options: ['none', 'pointer-scroll'],
-    default: 'pointer-scroll',
+    type: 'boolean',
+    label: 'Modal',
   },
   openOnHover: {
     type: 'boolean',

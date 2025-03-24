@@ -261,7 +261,7 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: modal', () => {
-    it('should render an internal backdrop when true', async () => {
+    it('should render an internal backdrop when `true`', async () => {
       const { user } = await render(
         <div>
           <Select.Root modal>
@@ -291,7 +291,7 @@ describe('<Select.Root />', () => {
       expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
     });
 
-    it('should not render an internal backdrop when false', async () => {
+    it('should not render an internal backdrop when `false`', async () => {
       const { user } = await render(
         <div>
           <Select.Root modal={false}>
