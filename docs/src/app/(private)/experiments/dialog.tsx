@@ -229,7 +229,7 @@ export default function DialogExperiment() {
           checked={modal}
           onChange={(event) => setModal(event.target.checked)}
         />{' '}
-        Trap
+        Modal
       </label>
       <label>
         <input

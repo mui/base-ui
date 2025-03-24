@@ -18,7 +18,7 @@ export default function Modality() {
           checked={modal}
           onChange={(event) => setModal(event.target.checked)}
         />{' '}
-        Trap
+        Modal
       </label>
       <label>
         <input
