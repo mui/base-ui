@@ -65,10 +65,9 @@ const InnerSelectItem = React.forwardRef(function InnerSelectItem(
     () => ({
       disabled,
       open,
-      highlighted,
       selected,
     }),
-    [disabled, open, highlighted, selected],
+    [disabled, open, selected],
   );
 
   const { getItemProps, rootRef } = useSelectItem({
@@ -318,7 +317,6 @@ namespace SelectItem {
      * Whether the component should ignore user interaction.
      */
     disabled: boolean;
-    highlighted: boolean;
     selected: boolean;
     /**
      * Whether the select menu is currently open.

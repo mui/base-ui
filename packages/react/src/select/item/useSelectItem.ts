@@ -7,6 +7,9 @@ import type { SelectRootContext } from '../root/SelectRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectIndexContext } from '../root/SelectIndexContext';
 import { useForkRef } from '../../utils/useForkRef';
+import { useEnhancedEffect } from '../../utils';
+
+const styleHook = 'data-highlighted';
 
 export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
   const {
@@ -49,7 +52,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 
   const handlePopupLeave = useEventCallback(() => {
     if (cursorMovementTimerRef.current !== -1) {
-      ref.current?.removeAttribute('data-highlighted');
+      ref.current?.removeAttribute(styleHook);
       clearTimeout(cursorMovementTimerRef.current);
       cursorMovementTimerRef.current = -1;
     }
@@ -58,6 +61,14 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   React.useEffect(() => {
     return handlePopupLeave;
   }, [handlePopupLeave]);
+
+  useEnhancedEffect(() => {
+    if (highlighted) {
+      ref.current?.setAttribute(styleHook, '');
+    } else {
+      ref.current?.removeAttribute(styleHook);
+    }
+  }, [highlighted]);
 
   React.useEffect(() => {
     function handleItemMouseMove(item: HTMLDivElement) {
@@ -92,7 +103,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               if (keyboardActiveRef.current) {
                 setActiveIndex(indexRef.current);
               } else {
-                ref.current?.setAttribute('data-highlighted', '');
+                ref.current?.setAttribute(styleHook, '');
                 events.emit('item-mousemove', ref.current);
               }
 
@@ -133,7 +144,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
                 return;
               }
 
-              ref.current?.removeAttribute('data-highlighted');
+              ref.current?.removeAttribute(styleHook);
               events.off('popup-leave', handlePopupLeave);
 
               const wasCursorStationary = cursorMovementTimerRef.current === -1;
@@ -177,7 +188,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               if (
                 disabled ||
                 (lastKeyRef.current === ' ' && typingRef.current) ||
-                (pointerTypeRef.current !== 'touch' && !highlighted)
+                (pointerTypeRef.current !== 'touch' && !ref.current?.hasAttribute(styleHook))
               ) {
                 return;
               }
@@ -205,7 +216,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               if (
                 disallowSelectedMouseUp ||
                 disallowUnselectedMouseUp ||
-                (pointerTypeRef.current !== 'touch' && !highlighted)
+                (pointerTypeRef.current !== 'touch' && !ref.current?.hasAttribute(styleHook))
               ) {
                 return;
               }
