@@ -368,7 +368,7 @@ export namespace useMenuRoot {
     /**
      * Determines if the menu enters a modal state when open.
      * - `true`: user interaction is limited to just the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
-     * - `false`: don't lock document scroll or pointer interactions.
+     * - `false`: doesn't lock document scroll or block pointer interactions.
      * @default true
      */
     modal: boolean;

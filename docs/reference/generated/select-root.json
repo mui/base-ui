@@ -44,7 +44,7 @@
     "modal": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to just the select: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: don't lock document scroll or pointer interactions."
+      "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to just the select: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed."
     },
     "onOpenChangeComplete": {
       "type": "(open) => void",
