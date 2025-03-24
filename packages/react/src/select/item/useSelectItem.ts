@@ -63,23 +63,27 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   }, [handlePopupLeave]);
 
   useEnhancedEffect(() => {
+    if (!ref.current) {
+      return;
+    }
+
     if (highlighted) {
-      ref.current?.setAttribute(styleHook, '');
+      ref.current.setAttribute(styleHook, '');
     } else {
-      ref.current?.removeAttribute(styleHook);
+      ref.current.removeAttribute(styleHook);
     }
   }, [highlighted]);
 
   React.useEffect(() => {
-    function handleItemMouseMove(item: HTMLDivElement) {
+    function handleItemHover(item: HTMLDivElement) {
       if (ref.current && item !== ref.current) {
         ref.current.removeAttribute(styleHook);
       }
     }
 
-    events.on('item-mousemove', handleItemMouseMove);
+    events.on('itemhover', handleItemHover);
     return () => {
-      events.off('item-mousemove', handleItemMouseMove);
+      events.off('itemhover', handleItemHover);
     };
   }, [events, setActiveIndex, indexRef]);
 
@@ -104,7 +108,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
                 setActiveIndex(indexRef.current);
               } else {
                 ref.current?.setAttribute(styleHook, '');
-                events.emit('item-mousemove', ref.current);
+                events.emit('itemhover', ref.current);
               }
 
               if (popupRef.current) {
@@ -112,10 +116,10 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               }
 
               if (cursorMovementTimerRef.current !== -1) {
-                events.off('popup-leave', handlePopupLeave);
+                events.off('popupleave', handlePopupLeave);
                 clearTimeout(cursorMovementTimerRef.current);
               }
-              events.on('popup-leave', handlePopupLeave);
+              events.on('popupleave', handlePopupLeave);
               // When this fires, the cursor has stopped moving.
               cursorMovementTimerRef.current = window.setTimeout(() => {
                 setActiveIndex(indexRef.current);
@@ -145,7 +149,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               }
 
               ref.current?.removeAttribute(styleHook);
-              events.off('popup-leave', handlePopupLeave);
+              events.off('popupleave', handlePopupLeave);
 
               const wasCursorStationary = cursorMovementTimerRef.current === -1;
 
@@ -166,8 +170,9 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
                 }
 
                 requestAnimationFrame(() => {
-                  clearTimeout(cursorMovementTimerRef.current);
-                  popup.focus({ preventScroll: true });
+                  if (cursorMovementTimerRef.current !== -1) {
+                    clearTimeout(cursorMovementTimerRef.current);
+                  }
                   allowFocusSyncRef.current = true;
                 });
               }

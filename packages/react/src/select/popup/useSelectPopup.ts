@@ -248,9 +248,10 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
           onMouseMove() {
             keyboardActiveRef.current = false;
           },
-          onMouseLeave() {
+          onMouseLeave(event) {
             setActiveIndex(null);
-            floatingRootContext.events.emit('popup-leave');
+            event.currentTarget.focus({ preventScroll: true });
+            floatingRootContext.events.emit('popupleave');
           },
           onScroll(event) {
             if (
