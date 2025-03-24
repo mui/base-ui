@@ -448,11 +448,11 @@ describe('<Popover.Root />', () => {
     });
   });
 
-  describe('prop: trap', () => {
-    it('should render an internal backdrop when `all`', async () => {
+  describe('prop: modal', () => {
+    it('should render an internal backdrop when true', async () => {
       const { user } = await render(
         <div>
-          <Popover.Root trap="all">
+          <Popover.Root modal>
             <Popover.Trigger>Open</Popover.Trigger>
             <Popover.Portal>
               <Popover.Positioner data-testid="positioner">
@@ -477,10 +477,10 @@ describe('<Popover.Root />', () => {
       expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
     });
 
-    it('should not render an internal backdrop when `none`', async () => {
+    it('should not render an internal backdrop when false', async () => {
       const { user } = await render(
         <div>
-          <Popover.Root trap="none">
+          <Popover.Root modal={false}>
             <Popover.Trigger>Open</Popover.Trigger>
             <Popover.Portal>
               <Popover.Positioner data-testid="positioner">

@@ -36,7 +36,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     closeDelay,
     openOnHover = false,
     onOpenChangeComplete,
-    trap,
+    modal,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -64,7 +64,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(open && trap === 'all' && openReason !== 'hover', triggerElement);
+  useScrollLock(open && modal === true && openReason !== 'hover', triggerElement);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -264,19 +264,13 @@ export namespace usePopoverRoot {
      */
     actionsRef?: React.RefObject<Actions>;
     /**
-     * How the popover should trap user interactions.
-     * - `all`: trap all interactions (focus, scroll, pointer) inside the popover.
-     * - `none`: don't trap any interactions.
-     * - `focus`: only trap focus inside the popover.
-     *
-     * Trapping focus means that tabbing is only allowed inside the popover.
-     *
-     * Trapping scroll means that scrolling is only allowed inside the popover, locking outer page scroll.
-     *
-     * Trapping pointer means that pointer interactions are only allowed inside the popover, preventing clicks on elements outside the popover.
-     * @default 'none'
+     * Determines if the popover enters a modal state when open.
+     * - `true`: user interaction is limited to just the popover: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.
+     * - `false`: user interaction with the rest of the document is allowed.
+     * - `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.
+     * @default false
      */
-    trap?: 'all' | 'none' | 'focus';
+    modal?: boolean | 'trap-focus';
   }
 
   export interface ReturnValue {

@@ -28,7 +28,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const {
     defaultOpen,
     dismissible,
-    trap,
+    modal,
     onNestedDialogClose,
     onNestedDialogOpen,
     onOpenChange: onOpenChangeParameter,
@@ -81,7 +81,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  useScrollLock(open && trap === 'all', popupElement);
+  useScrollLock(open && modal === true, popupElement);
 
   const handleFloatingUIOpenChange = (
     nextOpen: boolean,
@@ -110,7 +110,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
         // Only close if the click occurred on the dialog's owning backdrop.
         // This supports multiple modal dialogs that aren't nested in the React tree:
         // https://github.com/mui/base-ui/issues/1320
-        if (trap === 'all') {
+        if (modal) {
           return backdrop
             ? [internalBackdropRef.current, backdropRef.current].includes(backdrop)
             : false;
@@ -157,7 +157,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   return React.useMemo(() => {
     return {
-      trap,
+      modal,
       setOpen,
       open,
       titleElementId,
@@ -180,7 +180,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       floatingRootContext: context,
     } satisfies useDialogRoot.ReturnValue;
   }, [
-    trap,
+    modal,
     setOpen,
     open,
     titleElementId,
@@ -197,56 +197,50 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   ]);
 }
 
-export interface SharedParameters {
-  /**
-   * Whether the dialog is currently open.
-   */
-  open?: boolean;
-  /**
-   * Whether the dialog is initially open.
-   *
-   * To render a controlled dialog, use the `open` prop instead.
-   * @default false
-   */
-  defaultOpen?: boolean;
-  /**
-   * How the dialog should trap user interactions.
-   * - `all`: trap all interactions (focus, scroll, pointer) inside the dialog.
-   * - `none`: don't trap any interactions.
-   * - `focus`: only trap focus inside the dialog.
-   *
-   * Trapping focus means that tabbing is only allowed inside the dialog.
-   *
-   * Trapping scroll means that scrolling is only allowed inside the dialog, locking outer page scroll.
-   *
-   * Trapping pointer means that pointer interactions are only allowed inside the dialog, preventing clicks on elements outside the dialog.
-   * @default 'all'
-   */
-  trap?: 'all' | 'none' | 'focus';
-  /**
-   * Event handler called when the dialog is opened or closed.
-   */
-  onOpenChange?: (
-    open: boolean,
-    event: Event | undefined,
-    reason: OpenChangeReason | undefined,
-  ) => void;
-  /**
-   * Event handler called after any animations complete when the dialog is opened or closed.
-   */
-  onOpenChangeComplete?: (open: boolean) => void;
-  /**
-   * Determines whether the dialog should close on outside clicks.
-   * @default true
-   */
-  dismissible?: boolean;
-  /**
-   * A ref to imperative actions.
-   */
-  actionsRef?: React.RefObject<{ unmount: () => void }>;
-}
-
 export namespace useDialogRoot {
+  export interface SharedParameters {
+    /**
+     * Whether the dialog is currently open.
+     */
+    open?: boolean;
+    /**
+     * Whether the dialog is initially open.
+     *
+     * To render a controlled dialog, use the `open` prop instead.
+     * @default false
+     */
+    defaultOpen?: boolean;
+    /**
+     * Determines if the dialog enters a modal state when open.
+     * - `true`: user interaction is limited to just the dialog: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.
+     * - `false`: user interaction with the rest of the document is allowed.
+     * - `'trap-focus'`: focus is trapped inside the dialog, but document page scroll is not locked and pointer interactions outside of it remain enabled.
+     * @default true
+     */
+    modal?: boolean | 'trap-focus';
+    /**
+     * Event handler called when the dialog is opened or closed.
+     */
+    onOpenChange?: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
+    /**
+     * Event handler called after any animations complete when the dialog is opened or closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
+    /**
+     * Determines whether the dialog should close on outside clicks.
+     * @default true
+     */
+    dismissible?: boolean;
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef?: React.RefObject<{ unmount: () => void }>;
+  }
+
   export interface Parameters
     extends RequiredExcept<
       SharedParameters,
@@ -272,9 +266,9 @@ export namespace useDialogRoot {
      */
     descriptionElementId: string | undefined;
     /**
-     * How the dialog should trap focus, scroll, and pointer outside presses.
+     * Whether the dialog enters a modal state when open.
      */
-    trap: 'all' | 'none' | 'focus';
+    modal: boolean | 'trap-focus';
     /**
      * Number of nested dialogs that are currently open.
      */

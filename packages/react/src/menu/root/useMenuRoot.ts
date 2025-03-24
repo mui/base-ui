@@ -43,7 +43,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     delay,
     openOnHover,
     onTypingChange,
-    trap = 'pointer-scroll',
+    modal = true,
   } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -76,10 +76,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(
-    open && ['all', 'pointer-scroll'].includes(trap) && openReason !== 'hover',
-    triggerElement,
-  );
+  useScrollLock(open && modal && openReason !== 'hover', triggerElement);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -369,16 +366,12 @@ export namespace useMenuRoot {
      */
     onTypingChange: (typing: boolean) => void;
     /**
-     * How the menu should trap user interactions.
-     * - `pointer-scroll`: trap pointer and scroll interactions inside the menu.
-     * - `none`: don't trap any interactions.
-     *
-     * Trapping pointer means that pointer presses are only allowed inside the menu, preventing clicks on elements outside the menu.
-     *
-     * Trapping scroll means that scrolling is only allowed inside the menu, locking outer page scroll.
-     * @default 'pointer-scroll'
+     * Determines if the menu enters a modal state when open.
+     * - `true`: user interaction is limited to just the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
+     * - `false`: don't lock document scroll or pointer interactions.
+     * @default true
      */
-    trap: 'none' | 'pointer-scroll';
+    modal: boolean;
     /**
      * A ref to imperative actions.
      */

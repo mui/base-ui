@@ -24,14 +24,14 @@
       "default": "true",
       "description": "Determines whether the dialog should close on outside clicks."
     },
+    "modal": {
+      "type": "'trap-focus' | bool",
+      "default": "true",
+      "description": "Determines if the dialog enters a modal state when open.\n- `true`: user interaction is limited to just the dialog: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.\n- `'trap-focus'`: focus is trapped inside the dialog, but document page scroll is not locked and pointer interactions outside of it remain enabled."
+    },
     "onOpenChangeComplete": {
       "type": "(open) => void",
       "description": "Event handler called after any animations complete when the dialog is opened or closed."
-    },
-    "trap": {
-      "type": "'all' | 'focus' | 'none'",
-      "default": "'all'",
-      "description": "How the dialog should trap user interactions.\n- `all`: trap all interactions (focus, scroll, pointer) inside the dialog.\n- `none`: don't trap any interactions.\n- `focus`: only trap focus inside the dialog.\n\nTrapping focus means that tabbing is only allowed inside the dialog.\n\nTrapping scroll means that scrolling is only allowed inside the dialog, locking outer page scroll.\n\nTrapping pointer means that pointer interactions are only allowed inside the dialog, preventing clicks on elements outside the dialog."
     }
   },
   "dataAttributes": {},

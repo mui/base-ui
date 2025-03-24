@@ -217,7 +217,7 @@ describe('<Menu.RadioItem />', () => {
 
     it('keeps the state when closed and reopened', async () => {
       const { getByRole, user } = await render(
-        <Menu.Root trap="none">
+        <Menu.Root modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal keepMounted>
             <Menu.Positioner>

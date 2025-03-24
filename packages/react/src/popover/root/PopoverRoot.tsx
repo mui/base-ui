@@ -21,7 +21,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     closeDelay = 0,
     actionsRef,
     onOpenChangeComplete,
-    trap = 'none',
+    modal = false,
   } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -36,7 +36,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
     delay: delayWithDefault,
     closeDelay,
     actionsRef,
-    trap,
+    modal,
   });
 
   const contextValue: PopoverRootContext = React.useMemo(
@@ -45,9 +45,9 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
       openOnHover,
       delay: delayWithDefault,
       closeDelay,
-      trap,
+      modal,
     }),
-    [popoverRoot, openOnHover, delayWithDefault, closeDelay, trap],
+    [popoverRoot, openOnHover, delayWithDefault, closeDelay, modal],
   );
 
   return (
@@ -105,6 +105,14 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
+   * Determines if the popover enters a modal state when open.
+   * - `true`: user interaction is limited to just the popover: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.
+   * - `false`: user interaction with the rest of the document is allowed.
+   * - `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.
+   * @default false
+   */
+  modal: PropTypes.oneOfType([PropTypes.oneOf(['trap-focus']), PropTypes.bool]),
+  /**
    * Event handler called when the popover is opened or closed.
    */
   onOpenChange: PropTypes.func,
@@ -121,20 +129,6 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   openOnHover: PropTypes.bool,
-  /**
-   * How the popover should trap user interactions.
-   * - `all`: trap all interactions (focus, scroll, pointer) inside the popover.
-   * - `none`: don't trap any interactions.
-   * - `focus`: only trap focus inside the popover.
-   *
-   * Trapping focus means that tabbing is only allowed inside the popover.
-   *
-   * Trapping scroll means that scrolling is only allowed inside the popover, locking outer page scroll.
-   *
-   * Trapping pointer means that pointer interactions are only allowed inside the popover, preventing clicks on elements outside the popover.
-   * @default 'none'
-   */
-  trap: PropTypes.oneOf(['all', 'focus', 'none']),
 } as any;
 
 export { PopoverRoot };

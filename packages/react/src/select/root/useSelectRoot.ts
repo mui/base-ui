@@ -29,7 +29,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     readOnly = false,
     required = false,
     alignItemToTrigger: alignItemToTriggerParam = true,
-    trap = 'pointer-scroll',
+    modal = true,
     onOpenChangeComplete,
   } = params;
 
@@ -295,7 +295,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
-      trap,
+      modal,
       registerSelectedItem,
       onOpenChangeComplete,
       keyboardActiveRef,
@@ -325,7 +325,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
-      trap,
+      modal,
       registerSelectedItem,
       onOpenChangeComplete,
       keyboardActiveRef,
@@ -420,16 +420,12 @@ export namespace useSelectRoot {
      */
     transitionStatus?: TransitionStatus;
     /**
-     * How the select should trap user interactions.
-     * - `pointer-scroll`: trap pointer and scroll interactions inside the select.
-     * - `none`: don't trap any interactions.
-     *
-     * Trapping scroll means that scrolling is only allowed inside the select, locking outer page scroll.
-     *
-     * Trapping pointer means that pointer interactions are only allowed inside the select, preventing clicks on elements outside the select.
-     * @default 'pointer-scroll'
+     * Determines if the select enters a modal state when open.
+     * - `true`: user interaction is limited to just the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
+     * - `false`: don't lock document scroll or pointer interactions.
+     * @default true
      */
-    trap?: 'none' | 'pointer-scroll';
+    modal?: boolean;
     /**
      * A ref to imperative actions.
      */

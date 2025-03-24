@@ -774,8 +774,8 @@ describe('<Menu.Root />', () => {
     });
   });
 
-  describe('prop: trap', () => {
-    it('should render an internal backdrop when `all`', async () => {
+  describe('prop: modal', () => {
+    it('should render an internal backdrop when true', async () => {
       await render(
         <div>
           <Menu.Root>
@@ -806,10 +806,10 @@ describe('<Menu.Root />', () => {
       expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
     });
 
-    it('should not render an internal backdrop when `none`', async () => {
+    it('should not render an internal backdrop when false', async () => {
       await render(
         <div>
-          <Menu.Root trap="none">
+          <Menu.Root modal={false}>
             <Menu.Trigger>Open</Menu.Trigger>
             <Menu.Portal>
               <Menu.Positioner data-testid="positioner">
@@ -1098,7 +1098,7 @@ describe('<Menu.Root />', () => {
 
     it.skipIf(!isJSDOM)('should close the menu when the trigger is no longer hovered', async () => {
       const { getByRole, queryByRole } = await render(
-        <Menu.Root openOnHover delay={0} trap="none">
+        <Menu.Root openOnHover delay={0} modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>

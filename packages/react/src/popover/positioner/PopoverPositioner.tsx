@@ -45,7 +45,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     open,
     mounted,
     setPositionerElement,
-    trap,
+    modal,
     openReason,
     openMethod,
   } = usePopoverRootContext();
@@ -93,7 +93,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      {mounted && trap === 'all' && openReason !== 'hover' && openMethod !== 'touch' && (
+      {mounted && modal === true && openReason !== 'hover' && openMethod !== 'touch' && (
         <InternalBackdrop inert={!open} />
       )}
       {renderElement()}

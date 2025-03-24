@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
 import { DialogContext } from '../utils/DialogContext';
-import { type SharedParameters, useDialogRoot } from './useDialogRoot';
+import { useDialogRoot } from './useDialogRoot';
 
 /**
  * Groups all parts of the dialog.
@@ -16,7 +16,7 @@ const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props) {
     children,
     defaultOpen = false,
     dismissible = true,
-    trap = 'all',
+    modal = true,
     onOpenChange,
     open,
     actionsRef,
@@ -29,7 +29,7 @@ const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props) {
     open,
     defaultOpen,
     onOpenChange,
-    trap,
+    modal,
     dismissible,
     actionsRef,
     onOpenChangeComplete,
@@ -59,7 +59,7 @@ const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props) {
 };
 
 namespace DialogRoot {
-  export interface Props extends SharedParameters {
+  export interface Props extends useDialogRoot.SharedParameters {
     children?: React.ReactNode;
   }
 
@@ -96,6 +96,14 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   dismissible: PropTypes.bool,
   /**
+   * Determines if the dialog enters a modal state when open.
+   * - `true`: user interaction is limited to just the dialog: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.
+   * - `false`: user interaction with the rest of the document is allowed.
+   * - `'trap-focus'`: focus is trapped inside the dialog, but document page scroll is not locked and pointer interactions outside of it remain enabled.
+   * @default true
+   */
+  modal: PropTypes.oneOfType([PropTypes.oneOf(['trap-focus']), PropTypes.bool]),
+  /**
    * Event handler called when the dialog is opened or closed.
    */
   onOpenChange: PropTypes.func,
@@ -107,20 +115,6 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    * Whether the dialog is currently open.
    */
   open: PropTypes.bool,
-  /**
-   * How the dialog should trap user interactions.
-   * - `all`: trap all interactions (focus, scroll, pointer) inside the dialog.
-   * - `none`: don't trap any interactions.
-   * - `focus`: only trap focus inside the dialog.
-   *
-   * Trapping focus means that tabbing is only allowed inside the dialog.
-   *
-   * Trapping scroll means that scrolling is only allowed inside the dialog, locking outer page scroll.
-   *
-   * Trapping pointer means that pointer interactions are only allowed inside the dialog, preventing clicks on elements outside the dialog.
-   * @default 'all'
-   */
-  trap: PropTypes.oneOf(['all', 'focus', 'none']),
 } as any;
 
 export { DialogRoot };

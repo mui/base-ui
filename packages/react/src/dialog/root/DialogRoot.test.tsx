@@ -30,7 +30,7 @@ describe('<Dialog.Root />', () => {
 
   it('ARIA attributes', async () => {
     const { queryByRole, getByText } = await render(
-      <Dialog.Root trap="none" open>
+      <Dialog.Root modal={false} open>
         <Dialog.Trigger />
         <Dialog.Portal>
           <Dialog.Backdrop />
@@ -155,7 +155,7 @@ describe('<Dialog.Root />', () => {
       const handleOpenChange = spy();
 
       const { user } = await render(
-        <Dialog.Root defaultOpen onOpenChange={handleOpenChange} trap="none">
+        <Dialog.Root defaultOpen onOpenChange={handleOpenChange} modal={false}>
           <Dialog.Trigger>Open</Dialog.Trigger>
           <Dialog.Portal>
             <Dialog.Popup>
@@ -195,10 +195,10 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('prop: trap', () => {
+  describe.skipIf(isJSDOM)('prop: modal', () => {
     it('makes other interactive elements on the page inert when a modal dialog is open', async () => {
       await render(
-        <Dialog.Root defaultOpen trap="all">
+        <Dialog.Root defaultOpen modal>
           <Dialog.Trigger>Open Dialog</Dialog.Trigger>
           <Dialog.Portal>
             <Dialog.Popup>
@@ -213,7 +213,7 @@ describe('<Dialog.Root />', () => {
 
     it('does not make other interactive elements on the page inert when a non-modal dialog is open', async () => {
       await render(
-        <Dialog.Root defaultOpen trap="none">
+        <Dialog.Root defaultOpen modal={false}>
           <Dialog.Trigger>Open Dialog</Dialog.Trigger>
           <Dialog.Portal>
             <Dialog.Popup>
@@ -244,7 +244,7 @@ describe('<Dialog.Root />', () => {
               defaultOpen
               onOpenChange={handleOpenChange}
               dismissible={dismissible}
-              trap="none"
+              modal={false}
             >
               <Dialog.Portal>
                 <Dialog.Popup />
@@ -287,7 +287,7 @@ describe('<Dialog.Root />', () => {
     const notifyTransitionEnd = spy();
 
     const { setProps, queryByRole } = await render(
-      <Dialog.Root open trap="none">
+      <Dialog.Root open modal={false}>
         {/* eslint-disable-next-line react/no-danger */}
         <style dangerouslySetInnerHTML={{ __html: css }} />
         <Dialog.Portal keepMounted>
@@ -306,11 +306,11 @@ describe('<Dialog.Root />', () => {
     expect(notifyTransitionEnd.callCount).to.equal(1);
   });
 
-  describe('prop: trap', () => {
-    it('should render an internal backdrop when `all`', async () => {
+  describe('prop: modal', () => {
+    it('should render an internal backdrop when true', async () => {
       const { user } = await render(
         <div>
-          <Dialog.Root trap="all">
+          <Dialog.Root modal>
             <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
             <Dialog.Portal>
               <Dialog.Popup />
@@ -337,10 +337,10 @@ describe('<Dialog.Root />', () => {
       );
     });
 
-    it('should not render an internal backdrop when `none`', async () => {
+    it('should not render an internal backdrop when false', async () => {
       const { user } = await render(
         <div>
-          <Dialog.Root trap="none">
+          <Dialog.Root modal={false}>
             <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
             <Dialog.Portal>
               <Dialog.Popup />

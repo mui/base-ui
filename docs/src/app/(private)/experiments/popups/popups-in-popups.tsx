@@ -8,7 +8,7 @@ import { Tooltip } from '@base-ui-components/react/tooltip';
 import { styled } from '@mui/system';
 
 export default function PopupsInPopups() {
-  const [trap, setTrap] = React.useState<'all' | 'none'>('all');
+  const [modal, setModal] = React.useState(true);
   const [withBackdrop, setWithBackdrop] = React.useState(true);
 
   return (
@@ -16,10 +16,10 @@ export default function PopupsInPopups() {
       <label>
         <input
           type="checkbox"
-          checked={trap === 'all'}
-          onChange={() => setTrap(trap === 'all' ? 'none' : 'all')}
+          checked={modal}
+          onChange={(event) => setModal(event.target.checked)}
         />{' '}
-        Trap
+        Modal
       </label>
       <label>
         <input
@@ -30,7 +30,7 @@ export default function PopupsInPopups() {
         With backdrop
       </label>
       <div>
-        <Dialog.Root trap={trap}>
+        <Dialog.Root modal={modal}>
           <Dialog.Trigger render={<Trigger />}>Open Dialog</Dialog.Trigger>
 
           {withBackdrop && <Dialog.Backdrop render={<Backdrop />} />}
@@ -38,8 +38,8 @@ export default function PopupsInPopups() {
           <Dialog.Portal>
             <DialogPopup>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <SelectDemo trap={trap} />
-                <MenuDemo trap={trap} />
+                <SelectDemo modal={modal} />
+                <MenuDemo modal={modal} />
               </div>
               <DialogControls>
                 <DialogCloseButton>Cancel</DialogCloseButton>
@@ -52,13 +52,9 @@ export default function PopupsInPopups() {
   );
 }
 
-function SelectDemo({ trap }: Props) {
+function SelectDemo({ modal }: Props) {
   return (
-    <Select.Root
-      trap={trap === 'all' ? 'pointer-scroll' : trap}
-      defaultValue="system"
-      alignItemToTrigger={false}
-    >
+    <Select.Root modal={modal} defaultValue="system" alignItemToTrigger={false}>
       <Tooltip.Root>
         <Select.Trigger
           aria-label="Select font"
@@ -102,9 +98,9 @@ const createHandleMenuClick = (menuItem: string) => {
   };
 };
 
-function MenuDemo({ trap }: Props) {
+function MenuDemo({ modal }: Props) {
   return (
-    <Menu.Root trap={trap === 'all' ? 'pointer-scroll' : trap}>
+    <Menu.Root modal={modal}>
       <Menu.Trigger render={<Trigger />}>Format</Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner
@@ -228,7 +224,7 @@ function MenuDemo({ trap }: Props) {
 }
 
 interface Props {
-  trap: 'all' | 'none';
+  modal: boolean;
 }
 
 const blue = {

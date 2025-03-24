@@ -50,7 +50,7 @@ export interface SelectRootContext {
   }>;
   id: string | undefined;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
-  trap: 'none' | 'pointer-scroll';
+  modal: boolean;
   registerSelectedItem: (index: number) => void;
   onOpenChangeComplete?: (open: boolean) => void;
   keyboardActiveRef: React.MutableRefObject<boolean>;

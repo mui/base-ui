@@ -41,14 +41,14 @@
       "default": "true",
       "description": "Determines if the selected item inside the popup should align to the trigger element."
     },
+    "modal": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to just the select: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: don't lock document scroll or pointer interactions."
+    },
     "onOpenChangeComplete": {
       "type": "(open) => void",
       "description": "Event handler called after any animations complete when the select menu is opened or closed."
-    },
-    "trap": {
-      "type": "'none' | 'pointer-scroll'",
-      "default": "'pointer-scroll'",
-      "description": "How the select should trap user interactions.\n- `pointer-scroll`: trap pointer and scroll interactions inside the select.\n- `none`: don't trap any interactions.\n\nTrapping scroll means that scrolling is only allowed inside the select, locking outer page scroll.\n\nTrapping pointer means that pointer interactions are only allowed inside the select, preventing clicks on elements outside the select."
     },
     "disabled": {
       "type": "boolean",

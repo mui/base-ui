@@ -36,7 +36,7 @@ describe('<Menu.RadioItemIndicator />', () => {
       return (
         <div>
           <button onClick={() => setValue('b')}>Close</button>
-          <Menu.Root open trap="none">
+          <Menu.Root open modal={false}>
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
@@ -102,7 +102,7 @@ describe('<Menu.RadioItemIndicator />', () => {
           {/* eslint-disable-next-line react/no-danger */}
           <style dangerouslySetInnerHTML={{ __html: style }} />
           <button onClick={() => setValue('b')}>Close</button>
-          <Menu.Root open trap="none">
+          <Menu.Root open modal={false}>
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>

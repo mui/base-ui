@@ -10,7 +10,7 @@ import classes from './menu.module.css';
 
 interface Settings {
   customAnchor: boolean;
-  trap: 'none' | 'pointer-scroll';
+  modal: boolean;
   openOnHover: boolean;
   disabled: boolean;
   customTriggerElement: boolean;
@@ -33,7 +33,7 @@ export default function MenuFullyFeatured() {
       <h1>Fully featured menu</h1>
       <Menu.Root
         openOnHover={settings.openOnHover}
-        trap={settings.trap}
+        modal={settings.modal}
         disabled={settings.disabled}
       >
         <Menu.Trigger className={classes.Button} render={triggerRender}>
@@ -251,7 +251,7 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     type: 'boolean',
     label: 'Custom anchor',
   },
-  trap: {
+  modal: {
     type: 'string',
     label: 'Trap',
     options: ['none', 'pointer-scroll'],

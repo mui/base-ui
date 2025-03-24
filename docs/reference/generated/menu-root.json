@@ -24,14 +24,14 @@
       "default": "true",
       "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu."
     },
+    "modal": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Determines if the menu enters a modal state when open.\n- `true`: user interaction is limited to just the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: don't lock document scroll or pointer interactions."
+    },
     "onOpenChangeComplete": {
       "type": "(open) => void",
       "description": "Event handler called after any animations complete when the menu is closed."
-    },
-    "trap": {
-      "type": "'none' | 'pointer-scroll'",
-      "default": "'pointer-scroll'",
-      "description": "How the menu should trap user interactions.\n- `pointer-scroll`: trap pointer and scroll interactions inside the menu.\n- `none`: don't trap any interactions.\n\nTrapping pointer means that pointer presses are only allowed inside the menu, preventing clicks on elements outside the menu.\n\nTrapping scroll means that scrolling is only allowed inside the menu, locking outer page scroll."
     },
     "disabled": {
       "type": "boolean",

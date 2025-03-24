@@ -19,14 +19,14 @@
       "type": "{ current: { unmount: func } }",
       "description": "A ref to imperative actions."
     },
+    "modal": {
+      "type": "'trap-focus' | bool",
+      "default": "false",
+      "description": "Determines if the popover enters a modal state when open.\n- `true`: user interaction is limited to just the popover: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.\n- `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled."
+    },
     "onOpenChangeComplete": {
       "type": "(open) => void",
       "description": "Event handler called after any animations complete when the popover is opened or closed."
-    },
-    "trap": {
-      "type": "'all' | 'focus' | 'none'",
-      "default": "'none'",
-      "description": "How the popover should trap user interactions.\n- `all`: trap all interactions (focus, scroll, pointer) inside the popover.\n- `none`: don't trap any interactions.\n- `focus`: only trap focus inside the popover.\n\nTrapping focus means that tabbing is only allowed inside the popover.\n\nTrapping scroll means that scrolling is only allowed inside the popover, locking outer page scroll.\n\nTrapping pointer means that pointer interactions are only allowed inside the popover, preventing clicks on elements outside the popover."
     },
     "openOnHover": {
       "type": "boolean",

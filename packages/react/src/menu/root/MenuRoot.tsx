@@ -20,7 +20,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     disabled = false,
     closeParentOnEsc = true,
     loop = true,
-    trap = 'pointer-scroll',
+    modal = true,
     onOpenChange,
     open,
     orientation = 'vertical',
@@ -55,7 +55,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     openOnHover,
     delay,
     onTypingChange,
-    trap,
+    modal,
     actionsRef,
     onOpenChangeComplete,
   });
@@ -69,9 +69,9 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       allowMouseUpTriggerRef:
         parentContext?.allowMouseUpTriggerRef ?? menuRoot.allowMouseUpTriggerRef,
       typingRef,
-      trap,
+      modal,
     }),
-    [menuRoot, nested, parentContext, disabled, trap],
+    [menuRoot, nested, parentContext, disabled, modal],
   );
 
   if (!nested) {
@@ -103,16 +103,12 @@ namespace MenuRoot {
      */
     loop?: boolean;
     /**
-     * How the menu should trap user interactions.
-     * - `pointer-scroll`: trap pointer and scroll inside the menu.
-     * - `none`: don't trap any interactions.
-     *
-     * Trapping pointer means that pointer presses are only allowed inside the menu, preventing clicks on elements outside the menu.
-     *
-     * Trapping scroll means that scrolling is only allowed inside the menu, locking outer page scroll.
-     * @default 'pointer-scroll'
+     * Determines if the menu enters a modal state when open.
+     * - `true`: user interaction is limited to just the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
+     * - `false`: don't lock document scroll or pointer interactions.
+     * @default true
      */
-    trap?: 'none' | 'pointer-scroll';
+    modal?: boolean;
     /**
      * Event handler called when the menu is opened or closed.
      */
@@ -215,6 +211,13 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   loop: PropTypes.bool,
   /**
+   * Determines if the menu enters a modal state when open.
+   * - `true`: user interaction is limited to just the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
+   * - `false`: don't lock document scroll or pointer interactions.
+   * @default true
+   */
+  modal: PropTypes.bool,
+  /**
    * Event handler called when the menu is opened or closed.
    */
   onOpenChange: PropTypes.func,
@@ -238,17 +241,6 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    * @default 'vertical'
    */
   orientation: PropTypes.oneOf(['horizontal', 'vertical']),
-  /**
-   * How the menu should trap user interactions.
-   * - `pointer-scroll`: trap pointer and scroll interactions inside the menu.
-   * - `none`: don't trap any interactions.
-   *
-   * Trapping pointer means that pointer presses are only allowed inside the menu, preventing clicks on elements outside the menu.
-   *
-   * Trapping scroll means that scrolling is only allowed inside the menu, locking outer page scroll.
-   * @default 'pointer-scroll'
-   */
-  trap: PropTypes.oneOf(['none', 'pointer-scroll']),
 } as any;
 
 export { MenuRoot };
