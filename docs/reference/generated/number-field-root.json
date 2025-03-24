@@ -22,10 +22,10 @@
       "type": "Intl.LocalesArgument",
       "description": "The locale of the input element.\nDefaults to the user's runtime locale."
     },
-    "stepBehavior": {
-      "type": "'free' | 'snap'",
-      "default": "'free'",
-      "description": "Controls snapping to step values when incrementing or decrementing.\n- `snap`: values snap to the nearest step.\n- `free`: values are preserved without snapping."
+    "snapOnStep": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the value should snap to the nearest step when incrementing or decrementing."
     },
     "step": {
       "type": "number",

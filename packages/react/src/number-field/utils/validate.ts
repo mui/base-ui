@@ -19,7 +19,7 @@ export function toValidatedNumber(
     maxWithDefault,
     minWithZeroDefault,
     format,
-    stepBehavior,
+    snapOnStep,
     small,
   }: {
     step: number | undefined;
@@ -27,7 +27,7 @@ export function toValidatedNumber(
     maxWithDefault: number;
     minWithZeroDefault: number;
     format: Intl.NumberFormatOptions | undefined;
-    stepBehavior: 'snap' | 'free';
+    snapOnStep: boolean;
     small: boolean;
   },
 ) {
@@ -37,7 +37,7 @@ export function toValidatedNumber(
 
   const clampedValue = clamp(value, minWithDefault, maxWithDefault);
 
-  if (step != null && stepBehavior === 'snap') {
+  if (step != null && snapOnStep) {
     if (small) {
       const stepsFromMin = (clampedValue - minWithZeroDefault) / step;
       const roundedSteps = Math.round(stepsFromMin);

@@ -151,7 +151,7 @@ describe('<NumberField.Input />', () => {
 
   it('should not snap number to step on blur', async () => {
     await render(
-      <NumberField.Root step={0.5} stepBehavior="snap">
+      <NumberField.Root step={0.5} snapOnStep>
         <NumberField.Input />
       </NumberField.Root>,
     );

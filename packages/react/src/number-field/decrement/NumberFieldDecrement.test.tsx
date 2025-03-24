@@ -288,9 +288,9 @@ describe('<NumberField.Decrement />', () => {
     expect(input).to.have.value('-2');
   });
 
-  it('should decrement by exact step without rounding when stepBehavior is free', async () => {
+  it('should decrement by exact step without rounding when snapOnStep is false', async () => {
     await render(
-      <NumberField.Root defaultValue={2.7} step={2} stepBehavior="free">
+      <NumberField.Root defaultValue={2.7} step={2} snapOnStep={false}>
         <NumberField.Decrement />
         <NumberField.Input />
       </NumberField.Root>,
@@ -302,9 +302,9 @@ describe('<NumberField.Decrement />', () => {
     expect(screen.getByRole('textbox')).to.have.value('0.7');
   });
 
-  it('should snap on decrement when stepBehavior is snap', async () => {
+  it('should snap on decrement when snapOnStep is snap', async () => {
     await render(
-      <NumberField.Root defaultValue={1.3} stepBehavior="snap">
+      <NumberField.Root defaultValue={1.3} snapOnStep>
         <NumberField.Decrement />
         <NumberField.Input />
       </NumberField.Root>,

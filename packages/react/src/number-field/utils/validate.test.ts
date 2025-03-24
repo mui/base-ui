@@ -10,7 +10,7 @@ const defaultOptions = {
   maxWithDefault: max,
   minWithZeroDefault: 0,
   format: undefined,
-  stepBehavior: 'snap',
+  snapOnStep: true,
   small: false,
 } as const;
 
@@ -80,12 +80,12 @@ describe('NumberField validate', () => {
         ).to.equal(10);
       });
 
-      it('preserves exact value when stepBehavior is free', () => {
+      it('preserves exact value when snapOnStep is false', () => {
         expect(
           toValidatedNumber(9.7, {
             ...defaultOptions,
             step: 5,
-            stepBehavior: 'free',
+            snapOnStep: false,
           }),
         ).to.equal(9.7);
       });
@@ -146,12 +146,12 @@ describe('NumberField validate', () => {
         ).to.equal(15);
       });
 
-      it('preserves exact value when stepBehavior is free', () => {
+      it('preserves exact value when snapOnStep is false', () => {
         expect(
           toValidatedNumber(12.3, {
             ...defaultOptions,
             step: -5,
-            stepBehavior: 'free',
+            snapOnStep: false,
           }),
         ).to.equal(12.3);
       });

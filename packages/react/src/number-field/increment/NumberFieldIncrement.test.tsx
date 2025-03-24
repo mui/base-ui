@@ -288,9 +288,9 @@ describe('<NumberField.Increment />', () => {
     expect(input).to.have.value('2');
   });
 
-  it('should increment by exact step without rounding when stepBehavior is free', async () => {
+  it('should increment by exact step without rounding when snapOnStep is false', async () => {
     await render(
-      <NumberField.Root defaultValue={2.7} step={2} stepBehavior="free">
+      <NumberField.Root defaultValue={2.7} step={2} snapOnStep={false}>
         <NumberField.Increment />
         <NumberField.Input />
       </NumberField.Root>,
@@ -302,9 +302,9 @@ describe('<NumberField.Increment />', () => {
     expect(screen.getByRole('textbox')).to.have.value('4.7');
   });
 
-  it('should snap on increment when stepBehavior is snap', async () => {
+  it('should snap on increment when snapOnStep is true', async () => {
     await render(
-      <NumberField.Root defaultValue={1.3} stepBehavior="snap">
+      <NumberField.Root defaultValue={1.3} snapOnStep>
         <NumberField.Increment />
         <NumberField.Input />
       </NumberField.Root>,
