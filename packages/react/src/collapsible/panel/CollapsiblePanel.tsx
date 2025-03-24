@@ -58,8 +58,11 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     setOpen,
     setPanelId,
     setVisible,
+    setWidth,
     state,
+    transitionDimensionRef,
     visible,
+    width,
   } = useCollapsibleRootContext();
 
   const hiddenUntilFound = hiddenUntilFoundProp ?? false;
@@ -91,7 +94,10 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     setOpen,
     setPanelId,
     setVisible,
+    setWidth,
+    transitionDimensionRef,
     visible,
+    width,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -104,6 +110,7 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
       style: {
         ...otherProps.style,
         [CollapsiblePanelCssVars.collapsiblePanelHeight]: height ? `${height}px` : undefined,
+        [CollapsiblePanelCssVars.collapsiblePanelWidth]: width ? `${width}px` : undefined,
       },
     },
     customStyleHookMapping: collapsibleStyleHookMapping,

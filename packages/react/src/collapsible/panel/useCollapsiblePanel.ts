@@ -24,10 +24,10 @@ export function useCollapsiblePanel(
     height,
     hiddenUntilFound,
     keepMounted,
+    id: idParam,
     mounted,
     onOpenChange,
     open,
-    id: idParam,
     panelRef,
     runOnceAnimationsFinish,
     setHeight,
@@ -35,7 +35,10 @@ export function useCollapsiblePanel(
     setOpen,
     setPanelId,
     setVisible,
+    setWidth,
+    transitionDimensionRef,
     visible,
+    width,
   } = parameters;
 
   const isBeforeMatchRef = React.useRef(false);
@@ -78,13 +81,13 @@ export function useCollapsiblePanel(
     if (!element) {
       return;
     }
-    /**
-     * This ref is safe to read in render because it's only ever set once here
-     * during the first render and never again.
-     * https://react.dev/learn/referencing-values-with-refs#best-practices-for-refs
-     */
-    if (animationTypeRef.current == null) {
+    if (animationTypeRef.current == null || transitionDimensionRef.current == null) {
       const panelStyles = getComputedStyle(element);
+      /**
+       * animationTypeRef is safe to read in render because it's only ever set
+       * once here during the first render and never again.
+       * https://react.dev/learn/referencing-values-with-refs#best-practices-for-refs
+       */
       if (panelStyles.animationName !== 'none' && panelStyles.transitionDuration !== '0s') {
         warn('CSS transitions and CSS animations both detected');
       } else if (panelStyles.animationName === 'none' && panelStyles.transitionDuration !== '0s') {
@@ -93,6 +96,20 @@ export function useCollapsiblePanel(
         animationTypeRef.current = 'css-animation';
       } else {
         animationTypeRef.current = 'none';
+      }
+
+      /**
+       * We need to know in advance which side is being collapsed when using CSS
+       * transitions in order to set the value of width/height to `0px` momentarily.
+       * Setting both to `0px` will break layout.
+       */
+      if (
+        element.getAttribute('data-orientation') === 'horizontal' ||
+        panelStyles.transitionProperty.indexOf('width') > -1
+      ) {
+        transitionDimensionRef.current = 'width';
+      } else {
+        transitionDimensionRef.current = 'height';
       }
     }
 
@@ -108,7 +125,7 @@ export function useCollapsiblePanel(
      */
     element.style.setProperty('display', 'block', 'important'); // TODO: maybe this can be set more conditionally
 
-    if (height === undefined) {
+    if (height === undefined || width === undefined) {
       /**
        * When `keepMounted={false}` and the panel is initially closed, the very
        * first time it opens (not any subsequent opens) `data-starting-style` is
@@ -121,6 +138,7 @@ export function useCollapsiblePanel(
       }
 
       setHeight(element.scrollHeight);
+      setWidth(element.scrollWidth);
       element.style.removeProperty('display');
 
       if (shouldCancelInitialOpenTransitionRef.current) {
@@ -168,7 +186,7 @@ export function useCollapsiblePanel(
       }
 
       /* opening */
-      panel.style.height = '0px';
+      panel.style.setProperty(transitionDimensionRef.current ?? 'height', '0px');
 
       requestAnimationFrame(() => {
         /**
@@ -176,14 +194,15 @@ export function useCollapsiblePanel(
          * the temporary `display` property that was set in `handlePanelRef`
          */
         panel.style.removeProperty('display');
-
-        panel.style.removeProperty('height');
+        panel.style.removeProperty(transitionDimensionRef.current ?? 'height');
         setHeight(panel.scrollHeight);
+        setWidth(panel.scrollWidth);
       });
     } else {
       /* closing */
       requestAnimationFrame(() => {
         setHeight(0);
+        setWidth(0);
       });
 
       abortControllerRef.current = new AbortController();
@@ -195,16 +214,18 @@ export function useCollapsiblePanel(
       }, abortControllerRef.current.signal);
     }
   }, [
-    keepMounted,
-    open,
-    mounted,
-    setMounted,
-    runOnceAnimationsFinish,
-    hiddenUntilFound,
     abortControllerRef,
     animationTypeRef,
-    setHeight,
+    hiddenUntilFound,
+    keepMounted,
+    mounted,
+    open,
     panelRef,
+    runOnceAnimationsFinish,
+    setHeight,
+    setMounted,
+    setWidth,
+    transitionDimensionRef,
   ]);
 
   useEnhancedEffect(() => {
@@ -222,6 +243,7 @@ export function useCollapsiblePanel(
     panel.style.setProperty('animation-name', 'none');
 
     setHeight(panel.scrollHeight);
+    setWidth(panel.scrollWidth);
 
     if (!shouldCancelInitialOpenAnimationRef.current && !isBeforeMatchRef.current) {
       panel.style.removeProperty('animation-name');
@@ -245,6 +267,7 @@ export function useCollapsiblePanel(
     panelRef,
     setHeight,
     setVisible,
+    setWidth,
   ]);
 
   useOnMount(() => {
@@ -267,6 +290,7 @@ export function useCollapsiblePanel(
     if (open && isBeforeMatchRef.current) {
       panel.style.transitionDuration = '0s';
       setHeight(panel.scrollHeight);
+      setWidth(panel.scrollWidth);
       requestAnimationFrame(() => {
         isBeforeMatchRef.current = false;
         requestAnimationFrame(() => {
@@ -276,7 +300,7 @@ export function useCollapsiblePanel(
         });
       });
     }
-  }, [hiddenUntilFound, open, panelRef, setHeight]);
+  }, [hiddenUntilFound, open, panelRef, setHeight, setWidth]);
 
   useEnhancedEffect(() => {
     const panel = panelRef.current;
@@ -348,7 +372,7 @@ export namespace useCollapsiblePanel {
   export interface Parameters {
     abortControllerRef: React.RefObject<AbortController | null>;
     animationTypeRef: React.RefObject<AnimationType>;
-    externalRef: React.ForwardedRef<HTMLElement>;
+    externalRef: React.ForwardedRef<HTMLDivElement>;
     /**
      * The height of the panel.
      */
@@ -382,11 +406,14 @@ export namespace useCollapsiblePanel {
     setOpen: (nextOpen: boolean) => void;
     setPanelId: (id: string | undefined) => void;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+    setWidth: React.Dispatch<React.SetStateAction<number | undefined>>;
+    transitionDimensionRef: React.RefObject<'height' | 'width' | null>;
     /**
      * The visible state of the panel used to determine the `[hidden]` attribute
      * only when CSS keyframe animations are used.
      */
     visible: boolean;
+    width: number | undefined;
   }
 
   export interface ReturnValue {

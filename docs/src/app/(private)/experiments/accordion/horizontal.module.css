@@ -6,7 +6,7 @@
   gap: 2rem;
 }
 
-.root {
+.Root {
   --shadow: 0px 2px 1px -1px rgb(0 0 0 / 0.2), 0px 1px 1px 0px rgb(0 0 0 / 0.14),
     0px 1px 3px 0px rgb(0 0 0 / 0.12);
 
@@ -16,35 +16,43 @@
   border-radius: 0.3rem;
   height: 40rem;
   display: inline-flex;
+  flex-direction: column;
+
+  writing-mode: vertical-lr;
+
+  &:dir(rtl) {
+    writing-mode: vertical-rl;
+  }
 }
 
-.item {
+.Item {
   position: relative;
   background-color: #fff;
   color: rgb(0 0 0 / 0.87);
   display: flex;
+  flex-direction: column;
 }
 
-.item:not(:first-of-type) {
+.Item:not(:first-of-type) {
   margin-left: 1px;
 }
 
-.item:first-of-type {
+.Item:first-of-type {
   border-top-left-radius: 0.25rem;
   border-top-right-radius: 0.25rem;
 }
 
-.item:last-of-type {
+.Item:last-of-type {
   border-bottom-left-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
 }
 
-.header {
+.Header {
   margin: 0;
   width: 4rem;
 }
 
-.trigger {
+.Trigger {
   appearance: none;
   background-color: transparent;
   border: 0;
@@ -57,44 +65,52 @@
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
+  text-orientation: sideways;
+
+  &[data-value='one'] {
+    background-color: #ddd;
+  }
+  &[data-value='two'] {
+    background-color: #bbb;
+  }
+  &[data-value='three'] {
+    background-color: #eee;
+  }
 }
 
-.trigger.one {
-  background-color: #ddd;
-}
-
-.trigger.two {
-  background-color: #bbb;
-}
-
-.trigger.three {
-  background-color: #999;
-}
-
-.trigger:focus-visible {
+.Trigger:focus-visible {
   outline: 0;
   background-color: rgb(0 0 0 / 0.88);
   color: #eee;
 }
 
-.trigger .triggerText {
-  font-size: 1rem;
-  line-height: 1.5;
-  margin-bottom: auto;
-}
-
-.trigger .triggerLabel {
+.Label {
   font-size: 1rem;
   line-height: 1.5;
   margin-bottom: 1rem;
   transform: rotate(-90deg);
 }
 
-.trigger[data-panel-open] svg {
+.Trigger[data-panel-open] svg {
   transform: rotate(180deg);
 }
 
-.panel {
-  padding: 1rem;
-  width: 32rem;
+.Panel {
+  box-sizing: border-box;
+  overflow: hidden;
+
+  width: var(--accordion-panel-width);
+  transition: all 600ms ease-out;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    width: 0;
+    opacity: 0;
+  }
+}
+
+.Content {
+  padding: 1.5rem 1rem 1.5rem 2.75rem;
+  background-color: var(--color-gray-100);
+  cursor: text;
 }

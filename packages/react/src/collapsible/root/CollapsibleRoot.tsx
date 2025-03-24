@@ -20,7 +20,6 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    children,
     className,
     defaultOpen = false,
     disabled = false,
@@ -62,7 +61,7 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     className,
     state,
     ref: forwardedRef,
-    extraProps: { children, ...otherProps },
+    extraProps: otherProps,
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
@@ -76,7 +75,7 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
 
   return (
     <CollapsibleRootContext.Provider value={contextValue}>
-      {children}
+      {otherProps.children}
     </CollapsibleRootContext.Provider>
   );
 });

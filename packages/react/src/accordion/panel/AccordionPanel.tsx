@@ -54,7 +54,10 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     setOpen,
     setPanelId,
     setVisible,
+    setWidth,
+    transitionDimensionRef,
     visible,
+    width,
   } = useCollapsibleRootContext();
 
   const hiddenUntilFound = hiddenUntilFoundProp ?? contextHiddenUntilFound;
@@ -97,7 +100,10 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     setOpen,
     setPanelId,
     setVisible,
+    setWidth,
+    transitionDimensionRef,
     visible,
+    width,
   });
 
   const { state, triggerId } = useAccordionItemContext();
@@ -113,6 +119,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
       role: 'region',
       style: {
         [AccordionPanelCssVars.accordionPanelHeight]: height ? `${height}px` : undefined,
+        [AccordionPanelCssVars.accordionPanelWidth]: width ? `${width}px` : undefined,
         ...styleProp,
       },
     },
