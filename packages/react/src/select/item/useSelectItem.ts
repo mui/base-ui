@@ -11,6 +11,18 @@ import { useEnhancedEffect } from '../../utils';
 
 const styleHook = 'data-highlighted';
 
+function addHighlight(ref: React.RefObject<HTMLDivElement | null>) {
+  ref.current?.setAttribute(styleHook, '');
+}
+
+function removeHighlight(ref: React.RefObject<HTMLDivElement | null>) {
+  ref.current?.removeAttribute(styleHook);
+}
+
+function hasHighlight(ref: React.RefObject<HTMLDivElement | null>) {
+  return ref.current?.hasAttribute(styleHook);
+}
+
 export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
   const {
     open,
@@ -24,6 +36,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     selectionRef,
     indexRef,
     setActiveIndex,
+    selectedIndexRef,
     popupRef,
     keyboardActiveRef,
     events,
@@ -52,7 +65,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 
   const handlePopupLeave = useEventCallback(() => {
     if (cursorMovementTimerRef.current !== -1) {
-      ref.current?.removeAttribute(styleHook);
+      removeHighlight(ref);
       clearTimeout(cursorMovementTimerRef.current);
       cursorMovementTimerRef.current = -1;
     }
@@ -63,21 +76,17 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   }, [handlePopupLeave]);
 
   useEnhancedEffect(() => {
-    if (!ref.current) {
-      return;
-    }
-
     if (highlighted) {
-      ref.current.setAttribute(styleHook, '');
+      addHighlight(ref);
     } else {
-      ref.current.removeAttribute(styleHook);
+      removeHighlight(ref);
     }
   }, [highlighted]);
 
   React.useEffect(() => {
     function handleItemHover(item: HTMLDivElement) {
       if (ref.current && item !== ref.current) {
-        ref.current.removeAttribute(styleHook);
+        removeHighlight(ref);
       }
     }
 
@@ -103,11 +112,17 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
                 setActiveIndex(indexRef.current);
               }
             },
+            onMouseEnter() {
+              if (!keyboardActiveRef.current && selectedIndexRef.current === null) {
+                addHighlight(ref);
+                events.emit('itemhover', ref.current);
+              }
+            },
             onMouseMove() {
               if (keyboardActiveRef.current) {
                 setActiveIndex(indexRef.current);
               } else {
-                ref.current?.setAttribute(styleHook, '');
+                addHighlight(ref);
                 events.emit('itemhover', ref.current);
               }
 
@@ -148,7 +163,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
                 return;
               }
 
-              ref.current?.removeAttribute(styleHook);
+              removeHighlight(ref);
               events.off('popupleave', handlePopupLeave);
 
               const wasCursorStationary = cursorMovementTimerRef.current === -1;
@@ -193,7 +208,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               if (
                 disabled ||
                 (lastKeyRef.current === ' ' && typingRef.current) ||
-                (pointerTypeRef.current !== 'touch' && !ref.current?.hasAttribute(styleHook))
+                (pointerTypeRef.current !== 'touch' && !hasHighlight(ref))
               ) {
                 return;
               }
@@ -221,7 +236,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               if (
                 disallowSelectedMouseUp ||
                 disallowUnselectedMouseUp ||
-                (pointerTypeRef.current !== 'touch' && !ref.current?.hasAttribute(styleHook))
+                (pointerTypeRef.current !== 'touch' && !hasHighlight(ref))
               ) {
                 return;
               }
@@ -250,6 +265,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
       open,
       popupRef,
       selected,
+      selectedIndexRef,
       selectionRef,
       setActiveIndex,
       typingRef,
