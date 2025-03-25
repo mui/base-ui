@@ -25,14 +25,14 @@ export default function CustomToastExample() {
 }
 
 function CustomToast() {
-  const toast = Toast.useToast();
+  const toastManager = Toast.useToastManager();
 
   function action() {
     const data: CustomToastData = {
       userId: '123',
     };
 
-    toast.add({
+    toastManager.add({
       title: 'Toast with custom data',
       data,
     });
@@ -46,7 +46,7 @@ function CustomToast() {
 }
 
 function ToastList() {
-  const { toasts } = Toast.useToast();
+  const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
     <Toast.Root
       key={toast.id}

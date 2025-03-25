@@ -49,7 +49,7 @@ describe('<Toast.Title />', () => {
 
   it('does not render if it has no children', async () => {
     function AddButton() {
-      const { add } = Toast.useToast();
+      const { add } = Toast.useToastManager();
       return (
         <button type="button" onClick={() => add({ title: undefined })}>
           add

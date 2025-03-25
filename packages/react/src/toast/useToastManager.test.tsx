@@ -4,7 +4,7 @@ import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer } from '#test-utils';
-import { useToast } from './useToast';
+import { useToastManager } from './useToastManager';
 import { List } from './utils/test-utils';
 
 describe('useToast', () => {
@@ -15,7 +15,7 @@ describe('useToast', () => {
 
     it('adds a toast to the viewport that auto-dismisses after 5s by default', async () => {
       function AddButton() {
-        const { add } = useToast();
+        const { add } = useToastManager();
         return (
           <button
             onClick={() => {
@@ -51,7 +51,7 @@ describe('useToast', () => {
     describe('option: timeout', () => {
       it('dismisses the toast after the specified timeout', async () => {
         function AddButton() {
-          const { add } = useToast();
+          const { add } = useToastManager();
           return <button onClick={() => add({ title: 'test', timeout: 1000 })}>add</button>;
         }
 
@@ -78,7 +78,7 @@ describe('useToast', () => {
     describe('option: title', () => {
       it('renders the title', async () => {
         function AddButton() {
-          const { add } = useToast();
+          const { add } = useToastManager();
           return (
             <button
               onClick={() =>
@@ -94,7 +94,7 @@ describe('useToast', () => {
         }
 
         function CustomList() {
-          const { toasts } = useToast();
+          const { toasts } = useToastManager();
           return toasts.map((t) => (
             <Toast.Root key={t.id} toast={t} data-testid="root">
               <Toast.Title data-testid="title">{t.title}</Toast.Title>
@@ -121,7 +121,7 @@ describe('useToast', () => {
     describe('option: description', () => {
       it('renders the description', async () => {
         function AddButton() {
-          const { add } = useToast();
+          const { add } = useToastManager();
           return (
             <button
               onClick={() =>
@@ -137,7 +137,7 @@ describe('useToast', () => {
         }
 
         function CustomList() {
-          const { toasts } = useToast();
+          const { toasts } = useToastManager();
           return toasts.map((t) => (
             <Toast.Root key={t.id} toast={t} data-testid="root">
               <Toast.Description data-testid="description">{t.description}</Toast.Description>
@@ -164,12 +164,12 @@ describe('useToast', () => {
     describe('option: type', () => {
       it('renders the type', async () => {
         function AddButton() {
-          const { add } = useToast();
+          const { add } = useToastManager();
           return <button onClick={() => add({ title: 'test', type: 'success' })}>add</button>;
         }
 
         function CustomList() {
-          const { toasts } = useToast();
+          const { toasts } = useToastManager();
           return toasts.map((t) => (
             <Toast.Root key={t.id} toast={t} data-testid="root">
               <Toast.Title data-testid="title">{t.title}</Toast.Title>
@@ -200,7 +200,7 @@ describe('useToast', () => {
         const onCloseSpy = spy();
 
         function AddButton() {
-          const { add, close } = useToast();
+          const { add, close } = useToastManager();
           const idRef = React.useRef<string | null>(null);
           return (
             <React.Fragment>
@@ -251,7 +251,7 @@ describe('useToast', () => {
         const onCloseSpy = spy();
 
         function AddButton() {
-          const { add } = useToast();
+          const { add } = useToastManager();
           return (
             <button
               onClick={() => {
@@ -292,7 +292,7 @@ describe('useToast', () => {
         const onRemoveSpy = spy();
 
         function AddButton() {
-          const { add, close } = useToast();
+          const { add, close } = useToastManager();
           const idRef = React.useRef<string | null>(null);
           return (
             <React.Fragment>
@@ -343,7 +343,7 @@ describe('useToast', () => {
     describe('option: priority', () => {
       it('applies correct ARIA attributes based on priority', async () => {
         function AddButton() {
-          const { add } = useToast();
+          const { add } = useToastManager();
           return (
             <React.Fragment>
               <button onClick={() => add({ title: 'high priority', priority: 'high' })}>
@@ -397,7 +397,7 @@ describe('useToast', () => {
     clock.withFakeTimers();
 
     function CustomList() {
-      const { toasts } = useToast();
+      const { toasts } = useToastManager();
       return toasts.map((t) => (
         <Toast.Root key={t.id} toast={t} data-testid="root">
           <Toast.Title data-testid="title">{t.title}</Toast.Title>
@@ -409,7 +409,7 @@ describe('useToast', () => {
 
     it('displays success state as description after promise resolves', async () => {
       function AddButton() {
-        const { promise } = useToast();
+        const { promise } = useToastManager();
         return (
           <button
             onClick={() => {
@@ -454,7 +454,7 @@ describe('useToast', () => {
 
     it('displays error state as description after promise rejects', async () => {
       function AddButton() {
-        const { promise } = useToast();
+        const { promise } = useToastManager();
         return (
           <button
             onClick={() => {
@@ -501,7 +501,7 @@ describe('useToast', () => {
 
     it('passes data when success is a function', async () => {
       function AddButton() {
-        const { promise } = useToast();
+        const { promise } = useToastManager();
         return (
           <button
             onClick={() =>
@@ -544,7 +544,7 @@ describe('useToast', () => {
 
     it('passes data when error is a function', async () => {
       function AddButton() {
-        const { promise } = useToast();
+        const { promise } = useToastManager();
         return (
           <button
             onClick={() =>
@@ -589,7 +589,7 @@ describe('useToast', () => {
 
     it('supports custom options', async () => {
       function AddButton() {
-        const { promise } = useToast();
+        const { promise } = useToastManager();
         return (
           <button
             onClick={() =>
@@ -638,7 +638,7 @@ describe('useToast', () => {
     clock.withFakeTimers();
 
     function CustomList() {
-      const { toasts } = useToast();
+      const { toasts } = useToastManager();
       return toasts.map((t) => (
         <Toast.Root key={t.id} toast={t} data-testid="root">
           <Toast.Title data-testid="title">{t.title}</Toast.Title>
@@ -648,7 +648,7 @@ describe('useToast', () => {
 
     it('updates the toast', async () => {
       function AddButton() {
-        const { add, update } = useToast();
+        const { add, update } = useToastManager();
         const idRef = React.useRef<string | null>(null);
         return (
           <React.Fragment>
@@ -701,7 +701,7 @@ describe('useToast', () => {
     clock.withFakeTimers();
 
     function CustomList() {
-      const { toasts } = useToast();
+      const { toasts } = useToastManager();
       return toasts.map((t) => (
         <Toast.Root key={t.id} toast={t} data-testid="root">
           <Toast.Title data-testid="title">{t.title}</Toast.Title>
@@ -711,7 +711,7 @@ describe('useToast', () => {
 
     it('closes a toast', async () => {
       function AddButton() {
-        const { add, close } = useToast();
+        const { add, close } = useToastManager();
         const idRef = React.useRef<string | null>(null);
         return (
           <React.Fragment>

@@ -49,7 +49,7 @@ describe('<Toast.Root />', () => {
 
   it('renders title and description inside role=status node one tick later', async () => {
     function AccessibilityTestButton() {
-      const { add } = Toast.useToast();
+      const { add } = Toast.useToastManager();
       return (
         <button
           type="button"
@@ -66,7 +66,7 @@ describe('<Toast.Root />', () => {
     }
 
     function AccessibilityTestList() {
-      return Toast.useToast().toasts.map((toastItem) => (
+      return Toast.useToastManager().toasts.map((toastItem) => (
         <Toast.Root key={toastItem.id} toast={toastItem} data-testid="root">
           <Toast.Title>{toastItem.title}</Toast.Title>
           <Toast.Description data-testid="description">{toastItem.description}</Toast.Description>
@@ -96,7 +96,7 @@ describe('<Toast.Root />', () => {
 
   describe.skipIf(isJSDOM)('swipe behavior', () => {
     function SwipeTestButton() {
-      const { add } = Toast.useToast();
+      const { add } = Toast.useToastManager();
       return (
         <button
           type="button"
@@ -118,7 +118,7 @@ describe('<Toast.Root />', () => {
     }: {
       swipeDirection: Toast.Root.Props['swipeDirection'];
     }) {
-      return Toast.useToast().toasts.map((toastItem) => (
+      return Toast.useToastManager().toasts.map((toastItem) => (
         <Toast.Root
           key={toastItem.id}
           toast={toastItem}

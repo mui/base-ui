@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { ToastObject as ToastObjectType } from '../useToast';
+import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { ToastRootContext } from './ToastRootContext';
 import { useForkRef } from '../../utils/useForkRef';

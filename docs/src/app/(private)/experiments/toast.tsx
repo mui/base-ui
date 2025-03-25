@@ -39,17 +39,17 @@ export default function Page() {
 }
 
 function ToastButtons() {
-  const toast = Toast.useToast();
+  const toastManager = Toast.useToastManager();
 
   function showRegularToast() {
-    toast.add({
+    toastManager.add({
       title: 'Toast created',
       description: 'This is a toast.',
     });
   }
 
   function showActionToast() {
-    toast.add({
+    toastManager.add({
       type: 'undo',
       title: 'Message deleted',
     });
@@ -80,7 +80,7 @@ function ToastButtons() {
 }
 
 function Toasts() {
-  const { toasts } = Toast.useToast();
+  const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
     <Toast.Root key={toast.id} toast={toast} className={styles.root}>
       {toast.title && <Toast.Title>{toast.title}</Toast.Title>}
@@ -104,7 +104,7 @@ function Toasts() {
 }
 
 function ToastPromiseExample() {
-  const toast = Toast.useToast();
+  const toastManager = Toast.useToastManager();
 
   const handlePromiseClick = () => {
     toast

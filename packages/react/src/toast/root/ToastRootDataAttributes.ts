@@ -1,16 +1,11 @@
 export enum ToastRootDataAttributes {
   /**
-   * Indicates the toast is being swiped.
-   * @type {boolean}
-   */
-  swiping = 'data-swiping',
-  /**
-   * Indicates the toast is expanded in the viewport.
+   * Present when the toast is expanded in the viewport.
    * @type {boolean}
    */
   expanded = 'data-expanded',
   /**
-   * Indicates the toast was removed due to exceeding the limit.
+   * Present when the toast was removed due to exceeding the limit.
    * @type {boolean}
    */
   limited = 'data-limited',
@@ -20,8 +15,21 @@ export enum ToastRootDataAttributes {
    */
   type = 'data-type',
   /**
+   * Present when the toast is being swiped.
+   * @type {boolean}
+   */
+  swiping = 'data-swiping',
+  /**
    * The direction the toast was swiped.
    * @type {'up' | 'down' | 'left' | 'right'}
    */
   swipeDirection = 'data-swipe-direction',
+  /**
+   * Present when the toast is animating in.
+   */
+  startingStyle = 'data-starting-style',
+  /**
+   * Present when the toast is animating out.
+   */
+  endingStyle = 'data-ending-style',
 }
