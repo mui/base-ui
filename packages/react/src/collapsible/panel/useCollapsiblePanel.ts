@@ -253,23 +253,30 @@ export function useCollapsiblePanel(
     }
 
     if (open) {
+      if (abortControllerRef.current != null) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
       setMounted(true);
       setVisible(true);
     } else {
+      abortControllerRef.current = new AbortController();
       runOnceAnimationsFinish(() => {
         setMounted(false);
         setVisible(false);
-      });
+        abortControllerRef.current = null;
+      }, abortControllerRef.current.signal);
     }
   }, [
-    open,
-    visible,
-    runOnceAnimationsFinish,
-    setMounted,
+    abortControllerRef,
     animationTypeRef,
+    open,
     panelRef,
+    runOnceAnimationsFinish,
     setDimensions,
+    setMounted,
     setVisible,
+    visible,
   ]);
 
   useOnMount(() => {

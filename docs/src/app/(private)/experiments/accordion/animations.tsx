@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Accordion } from '@base-ui-components/react/accordion';
 import styles from './animations.module.css';
@@ -52,7 +53,7 @@ function ExampleAccordion({ keepMounted }: { keepMounted: boolean }) {
   );
 }
 
-export default function CssTransitions() {
+export default function CssAnimations() {
   return (
     <div className={styles.grid}>
       <div className={styles.wrapper}>
