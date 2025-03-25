@@ -48,7 +48,15 @@
 .Panel {
   overflow: hidden;
   box-sizing: border-box;
-  width: 100%;
+  width: var(--width);
+
+  &[hidden]:where(:not([hidden='until-found'])) {
+    display: block !important;
+  }
+
+  &[hidden] {
+    display: block !important;
+  }
 }
 
 .Content {

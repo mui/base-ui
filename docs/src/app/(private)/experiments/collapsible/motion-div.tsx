@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 import styles from './motion.module.css';
 import { ChevronIcon } from './_icons';
 
-export default function CollapsibleFramer() {
+export default function CollapsibleMotionDiv() {
   const [open, setOpen] = React.useState(false);
   return (
     <div className={styles.wrapper}>
@@ -33,8 +33,10 @@ export default function CollapsibleFramer() {
                   transition: { duration: 0.6, ease: 'easeOut' },
                 },
                 closed: {
-                  height: 0.1,
-                  transition: { duration: 6, ease: 'easeIn' },
+                  height: 0,
+                  display: 'flex',
+                  transition: { duration: 1.2, ease: 'easeIn' },
+                  // transitionEnd: { display: 'flex' },
                 },
               }}
             />
