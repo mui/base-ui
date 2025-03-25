@@ -34,22 +34,35 @@ export default function CollapsibleMotionDiv() {
                 },
                 closed: {
                   height: 0,
+                  // motion needs to ensure the `display` property is set here
+                  // to override `display: none` that's usually default on the
+                  // [hidden] attribute
+                  // however Tailwind v4 sets `display: none !important` and there
+                  // is no way for motion to directly override !important
+                  // https://github.com/motiondivision/motion/issues/1285#issuecomment-934332108
                   display: 'flex',
                   transition: { duration: 1.2, ease: 'easeIn' },
-                  // transitionEnd: { display: 'flex' },
                 },
               }}
             />
           }
         >
           <div className={styles.Content}>
-            <p>This is the collapsed content</p>
             <p>
-              Your Choice of Fried Chicken (Half), Chicken Sandwich, With Shredded
-              cabbage & carrot with mustard mayonnaise And Potato Wedges
+              “Certainly; it would indeed be very impertinent and inhuman in me to
+              trouble you with any inquisitiveness of mine.”
             </p>
-            <p>demo: https://codepen.io/aardrian/pen/QWjBNQG</p>
-            <p>https://adrianroselli.com/2020/05/disclosure-widgets.html</p>
+            <p>
+              “And yet you rescued me from a strange and perilous situation; you have
+              benevolently restored me to life.”
+            </p>
+            <p>
+              Soon after this he inquired if I thought that the breaking up of the
+              ice had destroyed the other sledge. I replied that I could not answer
+              with any degree of certainty, for the ice had not broken until near
+              midnight, and the traveller might have arrived at a place of safety
+              before that time; but of this I could not judge.
+            </p>
           </div>
         </Collapsible.Panel>
       </Collapsible.Root>
