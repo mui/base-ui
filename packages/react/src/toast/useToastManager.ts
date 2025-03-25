@@ -4,7 +4,7 @@ import { ToastContext } from './provider/ToastProviderContext';
 /**
  * Returns the array of toasts and methods to create toasts.
  */
-export function useToast(): useToast.ReturnValue {
+export function useToastManager(): useToast.ReturnValue {
   const context = React.useContext(ToastContext);
 
   if (!context) {

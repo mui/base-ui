@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { ToastObject } from '../useToast';
+import type { ToastObject } from '../useToastManager';
 
 export interface ToastRootContext {
   toast: ToastObject<any>;

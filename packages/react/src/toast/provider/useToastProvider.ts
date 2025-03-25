@@ -4,7 +4,7 @@ import { activeElement, contains } from '@floating-ui/react/utils';
 import { generateId } from '../../utils/generateId';
 import { resolvePromiseOptions } from '../utils/resolvePromiseOptions';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useToast, type ToastObject } from '../useToast';
+import { useToast, type ToastObject } from '../useToastManager';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { ownerDocument } from '../../utils/owner';
 import { isFocusVisible } from '../utils/focusVisible';

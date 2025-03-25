@@ -15,12 +15,12 @@ export default function ExampleToast() {
 }
 
 function ToastButton() {
-  const toast = Toast.useToast();
+  const toastManager = Toast.useToastManager();
   const [count, setCount] = React.useState(0);
 
   function createToast() {
     setCount((prev) => prev + 1);
-    toast.add({
+    toastManager.add({
       title: `Toast ${count + 1} created`,
       description: 'This is a toast notification.',
     });
@@ -34,7 +34,7 @@ function ToastButton() {
 }
 
 function ToastList() {
-  const { toasts } = Toast.useToast();
+  const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
     <Toast.Root key={toast.id} toast={toast} className={styles.Toast}>
       <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>

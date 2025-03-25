@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 
 export function Button() {
-  const { add } = Toast.useToast();
+  const { add } = Toast.useToastManager();
   return (
     <button
       type="button"
@@ -23,7 +23,7 @@ export function Button() {
 }
 
 export function List() {
-  return Toast.useToast().toasts.map((toastItem) => (
+  return Toast.useToastManager().toasts.map((toastItem) => (
     <Toast.Root key={toastItem.id} toast={toastItem} data-testid="root">
       <Toast.Title data-testid="title">{toastItem.title}</Toast.Title>
       <Toast.Description data-testid="description">{toastItem.description}</Toast.Description>

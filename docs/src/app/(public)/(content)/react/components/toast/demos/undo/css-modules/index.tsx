@@ -15,18 +15,18 @@ export default function UndoToastExample() {
 }
 
 function Form() {
-  const toast = Toast.useToast();
+  const toastManager = Toast.useToastManager();
 
   function action() {
-    const id = toast.add({
+    const id = toastManager.add({
       title: 'Action performed',
       description: 'You can undo this action.',
       type: 'success',
       actionProps: {
         children: 'Undo',
         onClick() {
-          toast.close(id);
-          toast.add({
+          toastManager.close(id);
+          toastManager.add({
             title: 'Action undone',
           });
         },
@@ -42,7 +42,7 @@ function Form() {
 }
 
 function ToastList() {
-  const { toasts } = Toast.useToast();
+  const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
     <Toast.Root key={toast.id} toast={toast} className={styles.Toast}>
       <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>

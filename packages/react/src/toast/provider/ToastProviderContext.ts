@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { ToastObject, useToast } from '../useToast';
+import type { ToastObject, useToast } from '../useToastManager';
 
 export interface ToastContextValue<Data extends object> {
   toasts: ToastObject<Data>[];

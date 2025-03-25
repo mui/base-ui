@@ -36,12 +36,12 @@ import { Toast } from '@base-ui-components/react/toast';
 
 <Reference component="Toast" parts="Provider, Viewport, Root, Title, Description, Action, Close" />
 
-## useToast
+## useToastManager
 
 Manages toasts, called inside of a `Toast.Provider`.
 
 ```tsx title="Usage"
-const toast = Toast.useToast();
+const toastManager = Toast.useToastManager();
 ```
 
 ### Return value
@@ -130,19 +130,21 @@ Creates a toast by adding it to the toast list.
 Returns a `toastId` that can be used to update or close the toast later.
 
 ```jsx title="Usage"
-const toastId = toast.add({
+const toastId = toastManager.add({
   description: 'Hello, world!',
 });
 ```
 
-```jsx title="Example" {2,7}
+```jsx title="Example" {2,7-9}
 function App() {
-  const toast = Toast.useToast();
+  const toastManager = Toast.useToastManager();
   return (
     <button
       type="button"
       onClick={() => {
-        toast.add({ description: 'Hello, world!' });
+        toastManager.add({
+          description: 'Hello, world!',
+        });
       }}
     >
       Add toast
@@ -158,7 +160,7 @@ The `title` and `description` strings are what are used to announce the toast to
 Updates the toast with new options.
 
 ```jsx title="Usage"
-toast.update(toastId, {
+toastManager.update(toastId, {
   description: 'New description',
 });
 ```
@@ -168,7 +170,7 @@ toast.update(toastId, {
 Closes the toast, removing it from the toast list after any animations complete.
 
 ```jsx title="Usage"
-toast.close(toastId);
+toastManager.close(toastId);
 ```
 
 ### `promise` method
@@ -176,7 +178,7 @@ toast.close(toastId);
 Creates an asynchronous toast with three possible states: `loading`, `success`, and `error`.
 
 ```tsx title="Description configuration"
-const toastId = toast.promise(
+const toastId = toastManager.promise(
   new Promise((resolve) => {
     setTimeout(() => resolve('world!'), 1000);
   }),
@@ -192,7 +194,7 @@ const toastId = toast.promise(
 Each state also accepts the [method options](/react/components/toast#method-options) object to granularly control the toast for each state:
 
 ```tsx title="Method options configuration"
-const toastId = toast.promise(
+const toastId = toastManager.promise(
   new Promise((resolve) => {
     setTimeout(() => resolve('world!'), 1000);
   }),
@@ -223,7 +225,7 @@ const toastId = toast.promise(
 
 A global toast manager can be created by passing the `toastManager` prop to the `Toast.Provider`. This enables you to queue a toast from anywhere in the app (such as in functions outside the React tree) while still using the same toast renderer.
 
-The created `toastManager` object has the same properties and methods as the `Toast.useToast()` hook.
+The created `toastManager` object has the same properties and methods as the `Toast.useToastManager()` hook.
 
 ```tsx title="Creating a manager instance"
 const toastManager = Toast.createToastManager();
@@ -231,6 +233,57 @@ const toastManager = Toast.createToastManager();
 
 ```jsx title="Using the instance"
 <Toast.Provider toastManager={toastManager}>
+```
+
+## Stacking and animations
+
+The `--toast-index` CSS variable can be used to determine the stacking order of the toasts. The 0th index toast appears at the front.
+
+```css
+.Toast {
+  z-index: calc(1000 - var(--toast-index));
+  transform: scale(1 - calc(0.1 * var(--toast-index)));
+}
+```
+
+The `--toast-offset-y` CSS variable can be used to determine the vertical offset of the toasts when positioned absolutely with a translation offset — this is usually used with the `data-expanded` attribute, present when the toast viewport is being hovered or has focus.
+
+```css
+.Toast[data-expanded] {
+  transform: translateY(var(--toast-offset-y));
+}
+```
+
+The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are used to determine the swipe movement of the toasts in order to add a translation offset.
+
+{/* prettier-ignore */}
+```css {3,4} "--toast-swipe-movement-x" "--toast-swipe-movement-y"
+.Toast {
+  transform: scale(1 - calc(0.1 * var(--toast-index))) +
+    translateX(var(--toast-swipe-movement-x)) +
+    translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
+}
+```
+
+The `data-swipe-direction` attribute can be used to determine the swipe direction of the toasts to add a translation offset upon dismissal.
+
+```css "data-swipe-direction"
+&[data-ending-style] {
+  opacity: 0;
+
+  &[data-swipe-direction='up'] {
+    transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
+  }
+  &[data-swipe-direction='left'] {
+    transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
+  }
+  &[data-swipe-direction='right'] {
+    transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+  }
+  &[data-swipe-direction='down'] {
+    transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
+  }
+}
 ```
 
 ## Examples
@@ -259,3 +312,4 @@ An asynchronous toast can be created with three possible states: `loading`, `suc
 A toast with custom data can be created by passing any typed object interface to the `data` option. This enables you to pass any data (including functions) you need to the toast and access it in the toast's rendering logic.
 
 <Demo path="./demos/custom" />
+```

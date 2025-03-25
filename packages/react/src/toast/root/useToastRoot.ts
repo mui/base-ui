@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { activeElement, contains } from '@floating-ui/react/utils';
+import { activeElement, contains, getTarget } from '@floating-ui/react/utils';
 import { useToastContext } from '../provider/ToastProviderContext';
-import type { ToastObject as ToastObjectType } from '../useToast';
+import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ownerDocument } from '../../utils/owner';
 import { ToastRootDataAttributes } from './ToastRootDataAttributes';
@@ -192,9 +192,11 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
       pauseTimers();
     }
 
-    const target = event.target as Element | null;
+    const target = getTarget(event.nativeEvent) as HTMLElement | null;
 
-    const isInteractiveElement = !!target?.closest('button,a,input,[role="button"]');
+    const isInteractiveElement = !!target?.closest(
+      'button,a,input,textarea,[role="button"],[tabindex],[data-toast-swipe-ignore]',
+    );
 
     if (isInteractiveElement) {
       return;

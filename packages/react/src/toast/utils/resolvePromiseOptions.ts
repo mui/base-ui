@@ -1,4 +1,4 @@
-import { useToast } from '../useToast';
+import { useToast } from '../useToastManager';
 
 export function resolvePromiseOptions<T, Data extends object>(
   options:

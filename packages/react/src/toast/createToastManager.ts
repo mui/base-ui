@@ -1,5 +1,5 @@
 import { generateId } from '../utils/generateId';
-import { type ToastObject, useToast } from './useToast';
+import { type ToastObject, useToast } from './useToastManager';
 
 export interface ToastManagerEvent {
   action: 'add' | 'close' | 'update' | 'promise';

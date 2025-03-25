@@ -15,10 +15,10 @@ export default function PromiseToastExample() {
 }
 
 function PromiseDemo() {
-  const toast = Toast.useToast();
+  const toastManager = Toast.useToastManager();
 
   function runPromise() {
-    toast.promise(
+    toastManager.promise(
       // Simulate an API request with a promise that resolves after 2 seconds
       new Promise<string>((resolve, reject) => {
         const shouldSucceed = Math.random() > 0.3; // 70% success rate
@@ -46,7 +46,7 @@ function PromiseDemo() {
 }
 
 function ToastList() {
-  const { toasts } = Toast.useToast();
+  const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
     <Toast.Root key={toast.id} toast={toast} className={styles.Toast}>
       <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
