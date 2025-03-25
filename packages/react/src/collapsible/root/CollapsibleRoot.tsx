@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { NOOP } from '../../utils/noop';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -29,7 +28,7 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     ...otherProps
   } = props;
 
-  const onOpenChange = useEventCallback(onOpenChangeProp ?? NOOP);
+  const onOpenChange = useEventCallback(onOpenChangeProp);
 
   const collapsible = useCollapsibleRoot({
     open,

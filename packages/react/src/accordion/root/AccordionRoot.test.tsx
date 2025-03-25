@@ -41,11 +41,7 @@ describe('<Accordion.Root />', () => {
   });
 
   describe('uncontrolled', () => {
-    it('open state', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+    it.skipIf(isJSDOM)('open state', async () => {
       const { getByRole, queryByText, user } = await render(
         <Accordion.Root>
           <Accordion.Item>
@@ -129,10 +125,7 @@ describe('<Accordion.Root />', () => {
   });
 
   describe('controlled', () => {
-    it('open state', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
+    it.skipIf(isJSDOM)('open state', async () => {
       const { getByRole, queryByText, setProps } = await render(
         <Accordion.Root value={[]}>
           <Accordion.Item>
