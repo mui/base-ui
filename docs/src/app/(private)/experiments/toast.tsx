@@ -107,7 +107,7 @@ function ToastPromiseExample() {
   const toastManager = Toast.useToastManager();
 
   const handlePromiseClick = () => {
-    toast
+    toastManager
       .promise(fetchUserData(), {
         loading: 'Fetching user data...',
         success: 'User data loaded!',
