@@ -130,6 +130,7 @@ export function useCollapsiblePanel(
       if (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) {
         element.setAttribute('data-starting-style', '');
       }
+
       setDimensions({ height: element.scrollHeight, width: element.scrollWidth });
       element.style.removeProperty('display');
 
@@ -165,11 +166,11 @@ export function useCollapsiblePanel(
   const mergedPanelRef = useForkRef(externalRef, panelRef, handlePanelRef);
 
   /**
-   * This only handles CSS transitions when `keepMounted={false}` and opening as
-   * the panel element does not exist in the DOM when the trigger handler runs.
+   * This only handles CSS transitions when `keepMounted={false}` as we may not
+   * have access to the panel element in the DOM in the trigger event handler.
    */
   useEnhancedEffect(() => {
-    if (animationTypeRef.current !== 'css-transition' || keepMounted || !open) {
+    if (animationTypeRef.current !== 'css-transition' || keepMounted) {
       return undefined;
     }
 
@@ -181,22 +182,38 @@ export function useCollapsiblePanel(
 
     let resizeFrame = -1;
 
-    if (abortControllerRef.current != null) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
+    if (open) {
+      if (abortControllerRef.current != null) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+
+      /* opening */
+      panel.style.setProperty(transitionDimensionRef.current ?? 'height', '0px');
+
+      resizeFrame = requestAnimationFrame(() => {
+        /**
+         * When `keepMounted={false}` this is the earliest opportunity to unset
+         * the temporary `display` property that was set in `handlePanelRef`
+         */
+        panel.style.removeProperty('display');
+        panel.style.removeProperty(transitionDimensionRef.current ?? 'height');
+        setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
+      });
+    } else {
+      /* closing */
+      resizeFrame = requestAnimationFrame(() => {
+        setDimensions({ height: 0, width: 0 });
+      });
+
+      abortControllerRef.current = new AbortController();
+
+      runOnceAnimationsFinish(() => {
+        panel.style.removeProperty('content-visibility');
+        setMounted(false);
+        abortControllerRef.current = null;
+      }, abortControllerRef.current.signal);
     }
-
-    panel.style.setProperty(transitionDimensionRef.current ?? 'height', '0px');
-
-    resizeFrame = requestAnimationFrame(() => {
-      /**
-       * When this is the earliest opportunity to unset the temporary `display`
-       * property that was set in `handlePanelRef`
-       */
-      panel.style.removeProperty('display');
-      panel.style.removeProperty(transitionDimensionRef.current ?? 'height');
-      setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
-    });
 
     return () => {
       cancelAnimationFrame(resizeFrame);
@@ -214,73 +231,6 @@ export function useCollapsiblePanel(
     setMounted,
     transitionDimensionRef,
   ]);
-
-  const previousOpenRef = React.useRef<boolean | undefined>(undefined);
-
-  /**
-   * When `keepMounted={true}` this ensures transitions run when the trigger
-   * handler is bypassed and the open state changes externally.
-   */
-  useEnhancedEffect(() => {
-    if (!panelRef.current || animationTypeRef.current !== 'css-transition' || !keepMounted) {
-      return;
-    }
-
-    const panel = panelRef.current;
-    /* opening */
-    if (open && !height && !width) {
-      if (abortControllerRef.current != null) {
-        abortControllerRef.current.abort();
-        abortControllerRef.current = null;
-      }
-
-      panel.style.removeProperty('display');
-      panel.style.removeProperty('content-visibility');
-      panel.style.setProperty(transitionDimensionRef.current ?? 'height', '0px');
-
-      requestAnimationFrame(() => {
-        panel.style.removeProperty(transitionDimensionRef.current ?? 'height');
-        setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
-      });
-    }
-
-    /* closing */
-    if (!open && !panel.style.getPropertyValue('display') && previousOpenRef.current) {
-      panel.style.setProperty('display', 'block', 'important');
-
-      if (hiddenUntilFound) {
-        panel.style.setProperty('content-visibility', 'visible');
-      }
-
-      requestAnimationFrame(() => {
-        setDimensions({ height: 0, width: 0 });
-      });
-
-      abortControllerRef.current = new AbortController();
-
-      runOnceAnimationsFinish(() => {
-        panel.style.removeProperty('display');
-        panel.style.removeProperty('content-visibility');
-        abortControllerRef.current = null;
-      }, abortControllerRef.current.signal);
-    }
-  }, [
-    abortControllerRef,
-    animationTypeRef,
-    hiddenUntilFound,
-    keepMounted,
-    open,
-    panelRef,
-    runOnceAnimationsFinish,
-    setDimensions,
-    height,
-    width,
-    transitionDimensionRef,
-  ]);
-
-  useEnhancedEffect(() => {
-    previousOpenRef.current = open;
-  }, [open]);
 
   useEnhancedEffect(() => {
     if (animationTypeRef.current !== 'css-animation') {
