@@ -256,11 +256,9 @@ The `--toast-offset-y` CSS variable can be used to determine the vertical offset
 
 The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are used to determine the swipe movement of the toasts in order to add a translation offset.
 
-{/* prettier-ignore */}
-```css {3,4} "--toast-swipe-movement-x" "--toast-swipe-movement-y"
+```css "--toast-swipe-movement-x" "--toast-swipe-movement-y"
 .Toast {
-  transform: scale(1 - calc(0.1 * var(--toast-index))) +
-    translateX(var(--toast-swipe-movement-x)) +
+  transform: scale(1 - calc(0.1 * var(--toast-index))) + translateX(var(--toast-swipe-movement-x)) +
     translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
 }
 ```
