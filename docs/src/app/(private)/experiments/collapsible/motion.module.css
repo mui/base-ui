@@ -49,14 +49,6 @@
   overflow: hidden;
   box-sizing: border-box;
   width: var(--width);
-
-  &[hidden]:where(:not([hidden='until-found'])) {
-    display: block !important;
-  }
-
-  &[hidden] {
-    display: block !important;
-  }
 }
 
 .Content {
