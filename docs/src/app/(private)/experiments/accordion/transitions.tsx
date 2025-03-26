@@ -1,12 +1,37 @@
+'use client';
 import * as React from 'react';
 import { Accordion } from '@base-ui-components/react/accordion';
 import styles from './transitions.module.css';
+import {
+  SettingsMetadata,
+  useExperimentSettings,
+} from '../../../../components/Experiments/SettingsPanel';
+
+interface Settings extends Record<string, boolean> {}
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  openMultiple: {
+    type: 'boolean',
+    label: 'open multiple',
+    default: true,
+  },
+};
 
 // the `value` prop is set manually on Accordion.Items to ensure transitions are
 // cancelled when they are initially open
-function ExampleAccordion({ keepMounted }: { keepMounted: boolean }) {
+function ExampleAccordion({
+  keepMounted,
+  openMultiple,
+}: {
+  keepMounted: boolean;
+  openMultiple: boolean;
+}) {
   return (
-    <Accordion.Root className={styles.Accordion} defaultValue={[0]}>
+    <Accordion.Root
+      className={styles.Accordion}
+      defaultValue={[0]}
+      openMultiple={openMultiple}
+    >
       <Accordion.Item className={styles.Item} value={0}>
         <Accordion.Header className={styles.Header}>
           <Accordion.Trigger className={styles.Trigger}>
@@ -55,17 +80,19 @@ function ExampleAccordion({ keepMounted }: { keepMounted: boolean }) {
 }
 
 export default function CssTransitions() {
+  const { settings } = useExperimentSettings<Settings>();
+  const openMultiple = settings.openMultiple;
   return (
     <div className={styles.grid}>
       <div className={styles.wrapper}>
         <pre>keepMounted: true</pre>
-        <ExampleAccordion keepMounted />
+        <ExampleAccordion keepMounted openMultiple={openMultiple} />
         <small>———</small>
       </div>
 
       <div className={styles.wrapper}>
         <pre>keepMounted: false</pre>
-        <ExampleAccordion keepMounted={false} />
+        <ExampleAccordion keepMounted={false} openMultiple={openMultiple} />
         <small>———</small>
       </div>
     </div>

@@ -1,4 +1,6 @@
 .Wrapper {
+  --duration: 300ms;
+
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -94,7 +96,7 @@
   overflow: hidden;
 
   width: var(--accordion-panel-width);
-  transition: all 1000ms ease-out;
+  transition: all var(--duration) ease-out;
 
   &[data-starting-style],
   &[data-ending-style] {

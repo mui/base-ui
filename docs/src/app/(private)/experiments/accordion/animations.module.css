@@ -74,7 +74,7 @@
 }
 
 .Panel {
-  --duration: 900ms;
+  --duration: 200ms;
 
   width: 100%;
   box-sizing: border-box;

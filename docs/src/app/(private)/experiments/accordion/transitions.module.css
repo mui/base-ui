@@ -1,5 +1,5 @@
 .Accordion {
-  --duration: 800ms;
+  --duration: 200ms;
 
   box-sizing: border-box;
   display: flex;
