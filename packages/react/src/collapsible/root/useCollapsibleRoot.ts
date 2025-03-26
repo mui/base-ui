@@ -82,30 +82,40 @@ export function useCollapsibleRoot(
       return;
     }
 
-    /**
-     * When `keepMounted={false}` and when opening, the element isn't inserted
-     * in the DOM at this point so bail out here and resume in an effect.
-     */
-    if (!panel || animationTypeRef.current !== 'css-transition' || isControlledRef.current) {
+    if (
+      !panel ||
+      animationTypeRef.current !== 'css-transition' ||
+      /**
+       * Defer to an effect when controlled, as the open state can be changed
+       * externally without interacting with the trigger.
+       */
+      isControlledRef.current ||
+      /**
+       * Defer to an effect When `keepMounted={false}` and when opening, the
+       * element may not exist in the DOM at this point.
+       */
+      (!keepMounted && nextOpen)
+    ) {
       return;
+    }
+
+    if (abortControllerRef.current != null) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
     }
 
     panel.style.setProperty('display', 'block', 'important');
 
     if (nextOpen) {
       /* opening */
-      if (abortControllerRef.current != null) {
-        abortControllerRef.current.abort();
-        abortControllerRef.current = null;
-      }
 
-      panel.style.removeProperty('display');
       panel.style.removeProperty('content-visibility');
       panel.style.setProperty(transitionDimensionRef.current ?? 'height', '0px');
 
       requestAnimationFrame(() => {
         panel.style.removeProperty(transitionDimensionRef.current ?? 'height');
         setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
+        panel.style.removeProperty('display');
       });
     } else {
       if (hiddenUntilFound) {

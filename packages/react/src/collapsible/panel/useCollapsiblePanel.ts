@@ -117,20 +117,9 @@ export function useCollapsiblePanel(
      * Tailwind v4 default that sets `display: none !important` on `[hidden]`:
      * https://github.com/tailwindlabs/tailwindcss/blob/cd154a4f471e7a63cc27cad15dada650de89d52b/packages/tailwindcss/preflight.css#L320-L326
      */
-    element.style.setProperty('display', 'block', 'important'); // TODO: maybe this can be set more conditionally
+    element.style.setProperty('display', 'block', 'important');
 
     if (height === undefined || width === undefined) {
-      /**
-       * When `keepMounted={false}` and the panel is initially closed, the very
-       * first time it opens (not any subsequent opens) `data-starting-style` is
-       * off or missing by a frame so we need to set it manually. Otherwise any
-       * CSS properties expected to transition using [data-starting-style] may
-       * be mis-timed and appear to be complete skipped.
-       */
-      if (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) {
-        element.setAttribute('data-starting-style', '');
-      }
-
       setDimensions({ height: element.scrollHeight, width: element.scrollWidth });
       element.style.removeProperty('display');
 
@@ -166,8 +155,9 @@ export function useCollapsiblePanel(
   const mergedPanelRef = useForkRef(externalRef, panelRef, handlePanelRef);
 
   /**
-   * This only handles CSS transitions when `keepMounted={false}` as we may not
-   * have access to the panel element in the DOM in the trigger event handler.
+   * This handles CSS transitions for 2 cases when we can't rely on the trigger handler:
+   * 1. When `keepMounted={false}`, the panel may not exist in the DOM
+   * 2. When controlled, the open state may change externally without involving the trigger
    */
   useEnhancedEffect(() => {
     if (animationTypeRef.current !== 'css-transition' || keepMounted) {
@@ -182,23 +172,30 @@ export function useCollapsiblePanel(
 
     let resizeFrame = -1;
 
+    if (abortControllerRef.current != null) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
     if (open) {
-      if (abortControllerRef.current != null) {
-        abortControllerRef.current.abort();
-        abortControllerRef.current = null;
+      /* opening */
+      panel.style.setProperty('display', 'block', 'important');
+
+      /**
+       * When `keepMounted={false}` and the panel is initially closed, the very
+       * first time it opens (not any subsequent opens) `data-starting-style` is
+       * off or missing by a frame so we need to set it manually. Otherwise any
+       * CSS properties expected to transition using [data-starting-style] may
+       * be mis-timed and appear to be complete skipped.
+       */
+      if (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) {
+        panel.setAttribute('data-starting-style', '');
       }
 
-      /* opening */
-      panel.style.setProperty(transitionDimensionRef.current ?? 'height', '0px');
+      setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
       resizeFrame = requestAnimationFrame(() => {
-        /**
-         * When `keepMounted={false}` this is the earliest opportunity to unset
-         * the temporary `display` property that was set in `handlePanelRef`
-         */
         panel.style.removeProperty('display');
-        panel.style.removeProperty(transitionDimensionRef.current ?? 'height');
-        setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
       });
     } else {
       /* closing */
