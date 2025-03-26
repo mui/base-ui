@@ -40,17 +40,17 @@ export function useCollapsiblePanel(
   const shouldCancelInitialOpenAnimationRef = React.useRef(open);
   const shouldCancelInitialOpenTransitionRef = React.useRef(open);
 
+  /**
+   * When opening, the `hidden` attribute is removed immediately.
+   * When closing, the `hidden` attribute is set after any exit animations runs.
+   */
   const hidden = React.useMemo(() => {
     if (animationTypeRef.current === 'css-animation') {
       return !visible;
     }
 
-    if (keepMounted) {
-      return !open;
-    }
-
     return !open && !mounted;
-  }, [keepMounted, open, mounted, visible, animationTypeRef]);
+  }, [open, mounted, visible, animationTypeRef]);
 
   useEnhancedEffect(() => {
     if (!keepMounted && !open) {

@@ -19,6 +19,8 @@ export function useCollapsibleRoot(
 ): useCollapsibleRoot.ReturnValue {
   const { open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
 
+  const isControlledRef = React.useRef(openParam !== undefined);
+
   const [open, setOpen] = useControlled({
     controlled: openParam,
     default: defaultOpen,
@@ -84,7 +86,7 @@ export function useCollapsibleRoot(
      * When `keepMounted={false}` and when opening, the element isn't inserted
      * in the DOM at this point so bail out here and resume in an effect.
      */
-    if (!panel || animationTypeRef.current !== 'css-transition') {
+    if (!panel || animationTypeRef.current !== 'css-transition' || isControlledRef.current) {
       return;
     }
 
@@ -117,6 +119,7 @@ export function useCollapsibleRoot(
       abortControllerRef.current = new AbortController();
 
       runOnceAnimationsFinish(() => {
+        setMounted(false);
         panel.style.removeProperty('display');
         panel.style.removeProperty('content-visibility');
         abortControllerRef.current = null;
@@ -129,7 +132,7 @@ export function useCollapsibleRoot(
      * Unmount immediately when closing in controlled mode and keepMounted={false}
      * and no CSS animations or transitions are applied
      */
-    if (openParam !== undefined && animationTypeRef.current === 'none' && !keepMounted && !open) {
+    if (isControlledRef.current && animationTypeRef.current === 'none' && !keepMounted && !open) {
       setMounted(false);
     }
   }, [keepMounted, open, openParam, setMounted]);
