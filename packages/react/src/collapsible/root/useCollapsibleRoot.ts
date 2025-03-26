@@ -26,6 +26,8 @@ export function useCollapsibleRoot(
     state: 'open',
   });
 
+  const isControlledRef = React.useRef(openParam !== undefined);
+
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const [visible, setVisible] = React.useState(open);
   const [{ height, width }, setDimensions] = React.useState<Dimensions>({
@@ -80,11 +82,21 @@ export function useCollapsibleRoot(
       return;
     }
 
-    /**
-     * When `keepMounted={false}` and when opening, the element isn't inserted
-     * in the DOM at this point so bail out here and resume in an effect.
-     */
-    if (!panel || animationTypeRef.current !== 'css-transition') {
+    if (
+      !panel ||
+      animationTypeRef.current !== 'css-transition' ||
+      /**
+       * When `keepMounted={false}` and when opening, the element isn't inserted
+       * in the DOM at this point so bail out here and resume in an effect.
+       */
+      (!keepMounted && nextOpen) ||
+      /**
+       * When controlled and `keepMounted={true}` and closing, defer to an effect
+       * in case the open state is changed externally instead of via interacting
+       * with the trigger.
+       */
+      (keepMounted && isControlledRef.current && !nextOpen)
+    ) {
       return;
     }
 
@@ -129,7 +141,7 @@ export function useCollapsibleRoot(
      * Unmount immediately when closing in controlled mode and keepMounted={false}
      * and no CSS animations or transitions are applied
      */
-    if (openParam !== undefined && animationTypeRef.current === 'none' && !keepMounted && !open) {
+    if (isControlledRef.current && animationTypeRef.current === 'none' && !keepMounted && !open) {
       setMounted(false);
     }
   }, [keepMounted, open, openParam, setMounted]);
