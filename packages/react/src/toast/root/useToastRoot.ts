@@ -194,9 +194,9 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
 
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
 
-    const isInteractiveElement = !!target?.closest(
-      'button,a,input,textarea,[role="button"],[tabindex],[data-toast-swipe-ignore]',
-    );
+    const isInteractiveElement = target
+      ? target.closest('button,a,input,textarea,[role="button"],[data-toast-swipe-ignore]')
+      : false;
 
     if (isInteractiveElement) {
       return;
