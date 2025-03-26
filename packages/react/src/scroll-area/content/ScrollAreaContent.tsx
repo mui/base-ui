@@ -1,50 +1,45 @@
-'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
-import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
-import { useScrollAreaViewport } from './useScrollAreaViewport';
+import { mergeProps } from '../../merge-props';
 
 const state = {};
 
 /**
- * The actual scrollable container of the scroll area.
+ * A container for the content of the scroll area.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
-const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
-  props: ScrollAreaViewport.Props,
+const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
+  props: ScrollAreaRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { viewportRef } = useScrollAreaRootContext();
-  const { getViewportProps } = useScrollAreaViewport();
-
-  const mergedRef = useForkRef(forwardedRef, viewportRef);
-
   const { renderElement } = useComponentRenderer({
-    propGetter: getViewportProps,
     render: render ?? 'div',
-    ref: mergedRef,
     className,
+    ref: forwardedRef,
     state,
-    extraProps: otherProps,
+    extraProps: mergeProps<'div'>(otherProps, {
+      style: {
+        minWidth: 'fit-content',
+      },
+    }),
   });
 
   return renderElement();
 });
 
-namespace ScrollAreaViewport {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
-
+namespace ScrollAreaRoot {
   export interface State {}
+
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
-ScrollAreaViewport.propTypes /* remove-proptypes */ = {
+ScrollAreaContent.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -67,4 +62,4 @@ ScrollAreaViewport.propTypes /* remove-proptypes */ = {
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
 
-export { ScrollAreaViewport };
+export { ScrollAreaContent };
