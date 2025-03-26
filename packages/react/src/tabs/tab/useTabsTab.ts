@@ -73,7 +73,6 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
-    type: 'button',
   });
 
   const handleRef = useForkRef(compositeItemRef, buttonRef, externalRef);

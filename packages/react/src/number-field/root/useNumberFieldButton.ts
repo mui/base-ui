@@ -8,7 +8,8 @@ import {
 } from '../utils/constants';
 import { mergeProps } from '../../merge-props';
 import { parseNumber } from '../utils/parse';
-import { GenericHTMLProps } from '../../utils/types';
+import type { GenericHTMLProps } from '../../utils/types';
+import type { EventWithOptionalKeyState } from '../utils/types';
 
 export function useNumberFieldButton(
   params: useNumberFieldButton.Parameters,
@@ -94,7 +95,7 @@ export function useNumberFieldButton(
 
             commitValue(event.nativeEvent);
 
-            const amount = getStepAmount() ?? DEFAULT_STEP;
+            const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
             incrementValue(amount, isIncrement ? 1 : -1, undefined, event.nativeEvent);
           },
@@ -116,7 +117,7 @@ export function useNumberFieldButton(
             if (event.pointerType !== 'touch') {
               event.preventDefault();
               inputRef.current?.focus();
-              startAutoChange(isIncrement);
+              startAutoChange(isIncrement, event);
             } else {
               // We need to check if the pointerdown was intentional, and not the result of a scroll
               // or pinch-zoom. In that case, we don't want to change the value.
@@ -125,7 +126,7 @@ export function useNumberFieldButton(
                 movesAfterTouchRef.current = 0;
                 if (moves != null && moves < MAX_POINTER_MOVES_AFTER_TOUCH) {
                   ignoreClickRef.current = true;
-                  startAutoChange(isIncrement);
+                  startAutoChange(isIncrement, event);
                 } else {
                   stopAutoChange();
                 }
@@ -163,7 +164,7 @@ export function useNumberFieldButton(
               return;
             }
 
-            startAutoChange(isIncrement);
+            startAutoChange(isIncrement, event);
           },
           onMouseLeave() {
             if (isTouchingButtonRef.current) {
@@ -219,7 +220,7 @@ namespace useNumberFieldButton {
     allowInputSyncRef: React.RefObject<boolean | null>;
     disabled: boolean;
     formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
-    getStepAmount: () => number | undefined;
+    getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
     id: string | undefined;
     incrementValue: (
       amount: number,
@@ -237,7 +238,7 @@ namespace useNumberFieldButton {
     movesAfterTouchRef: React.RefObject<number | null>;
     readOnly: boolean;
     setValue: (unvalidatedValue: number | null, event?: Event) => void;
-    startAutoChange: (isIncrement: boolean) => void;
+    startAutoChange: (isIncrement: boolean, event?: React.MouseEvent | Event) => void;
     stopAutoChange: () => void;
     value: number | null;
     valueRef: React.RefObject<number | null>;

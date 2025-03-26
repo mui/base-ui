@@ -289,7 +289,7 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
   /**
    * Amount to increment and decrement with the buttons and arrow keys,
    * or to scrub with pointer movement in the scrub area.
-   * @default 1;
+   * @default 1
    */
   step: PropTypes.number,
   /**

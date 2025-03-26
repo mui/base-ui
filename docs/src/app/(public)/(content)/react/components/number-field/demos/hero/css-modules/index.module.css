@@ -53,16 +53,6 @@
   }
 }
 
-.Decrement {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.Increment {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
 .Decrement,
 .Increment {
   box-sizing: border-box;
@@ -90,4 +80,14 @@
   &:active {
     background-color: var(--color-gray-100);
   }
+}
+
+.Decrement {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.Increment {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }

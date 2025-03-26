@@ -126,6 +126,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       if (isHover) {
         // Only allow "patient" clicks to close the popover if it's open.
         // If they clicked within 500ms of the popover opening, keep it open.
+        setStickIfOpen(true);
         clearStickIfOpenTimeout();
         stickIfOpenTimeoutRef.current = window.setTimeout(() => {
           setStickIfOpen(false);
@@ -144,13 +145,15 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     },
   });
 
+  const { openMethod, triggerProps } = useOpenInteractionType(open);
+
   const computedRestMs = delayWithDefault;
 
   const hover = useHover(context, {
-    enabled: openOnHover,
+    enabled: openOnHover && (openMethod !== 'touch' || openReason !== 'click'),
     mouseOnly: true,
     move: false,
-    handleClose: safePolygon(),
+    handleClose: safePolygon({ blockPointerEvents: true }),
     restMs: computedRestMs,
     delay: {
       close: closeDelayWithDefault,
@@ -166,8 +169,6 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const role = useRole(context);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
-
-  const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   const getRootTriggerProps = React.useCallback(
     (externalProps = {}) => getReferenceProps(mergeProps(triggerProps, externalProps)),

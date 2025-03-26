@@ -23,7 +23,7 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
 
-  const { getRootTriggerProps, disabled: selectDisabled, open } = useSelectRootContext();
+  const { getRootTriggerProps, disabled: selectDisabled, mounted } = useSelectRootContext();
 
   const disabled = fieldDisabled || selectDisabled || disabledProp;
 
@@ -35,10 +35,10 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
   const state: SelectTrigger.State = React.useMemo(
     () => ({
       ...fieldState,
-      open,
+      open: mounted,
       disabled,
     }),
-    [fieldState, open, disabled],
+    [fieldState, mounted, disabled],
   );
 
   const styleHookMapping = React.useMemo(

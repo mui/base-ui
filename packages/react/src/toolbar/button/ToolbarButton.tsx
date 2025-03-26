@@ -39,7 +39,6 @@ const ToolbarButton = React.forwardRef(function ToolbarButton(
     buttonRef: forwardedRef,
     disabled,
     focusableWhenDisabled,
-    type: 'button',
   });
 
   const state: ToolbarButton.State = React.useMemo(

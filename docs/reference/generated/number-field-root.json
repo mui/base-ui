@@ -24,7 +24,7 @@
     },
     "step": {
       "type": "number",
-      "default": "1;",
+      "default": "1",
       "description": "Amount to increment and decrement with the buttons and arrow keys,\nor to scrub with pointer movement in the scrub area."
     },
     "smallStep": {

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import type { Metadata, Viewport } from 'next';
-import { Link } from 'docs/src/components/Link';
 import { ArrowRightIcon } from 'docs/src/icons/ArrowRightIcon';
 import { Header } from 'docs/src/components/Header';
 import '../../page.css';
@@ -36,7 +35,7 @@ export default function Homepage() {
         </h2>
         <p className="mb-4">
           We're looking for an experienced Design Engineer to join the team at
-          Senior–Principal level. You will help us improve the library across the
+          Staff–Senior Staff level. You will help us improve the library across the
           board, including API design, performance, a11y, testing workflows, docs,
           support, and implementing components.
         </p>
@@ -171,12 +170,12 @@ export default function Homepage() {
           <li className="mb-0.5">90 minute meeting with the Base UI team.</li>
           <li className="mb-0.5">60 minute culture-fit interview.</li>
         </ol>
-        <Link
-          className="-m-1 inline-flex items-center gap-1 p-1"
-          href="/react/overview/quick-start"
+        <a
+          className="Link -m-1 mr-[0.125em] inline-flex items-center gap-1 gap-[0.25em] p-1"
+          href="https://jobs.ashbyhq.com/MUI/353c3d7c-7e58-44f7-83b0-3b87edb6bebd/application"
         >
           Apply Now <ArrowRightIcon />
-        </Link>
+        </a>
       </div>
     </div>
   );

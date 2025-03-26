@@ -65,6 +65,7 @@ const defaultTestContext = {
   stopAutoChange: NOOP,
   value: null,
   valueRef: { current: null },
+  locale: 'en',
 } as NumberFieldRootContext;
 
 describe('<NumberField.ScrubAreaCursor />', () => {

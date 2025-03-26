@@ -13,7 +13,6 @@ export function useCollapsibleTrigger(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
-    type: 'button',
   });
 
   const handleRef = useForkRef(externalRef, buttonRef);
@@ -22,7 +21,6 @@ export function useCollapsibleTrigger(
     (externalProps: GenericHTMLProps = {}) =>
       mergeProps(
         {
-          type: 'button',
           'aria-controls': panelId,
           'aria-expanded': open,
           disabled,
