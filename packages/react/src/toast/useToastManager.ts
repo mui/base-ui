@@ -4,7 +4,7 @@ import { ToastContext } from './provider/ToastProviderContext';
 /**
  * Returns the array of toasts and methods to create toasts.
  */
-export function useToastManager(): useToast.ReturnValue {
+export function useToastManager(): useToastManager.ReturnValue {
   const context = React.useContext(ToastContext);
 
   if (!context) {
@@ -25,7 +25,7 @@ export function useToastManager(): useToast.ReturnValue {
   );
 }
 
-export namespace useToast {
+export namespace useToastManager {
   export interface ReturnValue {
     toasts: ToastContext<any>['toasts'];
     add: <Data extends object>(options: AddOptions<Data>) => string;

@@ -25,8 +25,8 @@ export function Button() {
 export function List() {
   return Toast.useToastManager().toasts.map((toastItem) => (
     <Toast.Root key={toastItem.id} toast={toastItem} data-testid="root">
-      <Toast.Title data-testid="title">{toastItem.title}</Toast.Title>
-      <Toast.Description data-testid="description">{toastItem.description}</Toast.Description>
+      <Toast.Title data-testid="title" />
+      <Toast.Description data-testid="description" />
       <Toast.Close aria-label="close-button" />
       <Toast.Action data-testid="action" />
     </Toast.Root>

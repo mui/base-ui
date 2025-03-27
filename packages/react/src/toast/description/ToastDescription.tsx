@@ -18,11 +18,13 @@ const ToastDescription = React.forwardRef(function ToastDescription(
   props: ToastDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, id: idProp, ...other } = props;
+  const { render, className, id: idProp, children: childrenProp, ...other } = props;
 
   const { toast } = useToastRootContext();
 
-  const shouldRender = Boolean(other.children);
+  const children = childrenProp ?? toast.description;
+
+  const shouldRender = Boolean(children);
 
   const id = useId(idProp);
 
@@ -53,8 +55,9 @@ const ToastDescription = React.forwardRef(function ToastDescription(
     className,
     state,
     extraProps: {
-      id,
       ...other,
+      id,
+      children,
     },
   });
 

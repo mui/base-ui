@@ -17,11 +17,13 @@ const ToastTitle = React.forwardRef(function ToastTitle(
   props: ToastTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, id: idProp, ...other } = props;
+  const { render, className, id: idProp, children: childrenProp, ...other } = props;
 
   const { toast } = useToastRootContext();
 
-  const shouldRender = Boolean(other.children);
+  const children = childrenProp ?? toast.title;
+
+  const shouldRender = Boolean(children);
 
   const id = useId(idProp);
 
@@ -52,8 +54,9 @@ const ToastTitle = React.forwardRef(function ToastTitle(
     className,
     state,
     extraProps: {
-      id,
       ...other,
+      id,
+      children,
     },
   });
 

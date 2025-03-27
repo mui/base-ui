@@ -183,7 +183,7 @@ const toastId = toastManager.promise(
     setTimeout(() => resolve('world!'), 1000);
   }),
   {
-    // Each are a shortcut for the children of `Toast.Description`
+    // Each are a shortcut for the `description` option
     loading: 'Loading...',
     success: (data) => `Hello ${data}`,
     error: (err) => `Error: ${err}`,
