@@ -72,4 +72,22 @@ describe('<Toast.Description />', () => {
     const descriptionElement = screen.queryByTestId('description');
     expect(descriptionElement).to.equal(null);
   });
+
+  it('renders the description by default', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const titleElement = screen.getByTestId('description');
+    expect(titleElement).to.not.equal(null);
+    expect(titleElement.textContent).to.equal('description');
+  });
 });
