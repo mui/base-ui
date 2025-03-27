@@ -1,5 +1,5 @@
 import { generateId } from '../utils/generateId';
-import { type ToastObject, useToast } from './useToastManager';
+import { type ToastObject, useToastManager } from './useToastManager';
 
 export interface ToastManagerEvent {
   action: 'add' | 'close' | 'update' | 'promise';
@@ -29,7 +29,7 @@ export function createToastManager(): createToastManager.ToastManager {
       };
     },
 
-    add<Data extends object>(options: useToast.AddOptions<Data>): string {
+    add<Data extends object>(options: useToastManager.AddOptions<Data>): string {
       const id = options.id || generateId('toast');
       const toastToAdd: ToastObject<Data> = {
         ...options,
@@ -52,7 +52,7 @@ export function createToastManager(): createToastManager.ToastManager {
       });
     },
 
-    update<Data extends object>(id: string, updates: useToast.UpdateOptions<Data>): void {
+    update<Data extends object>(id: string, updates: useToastManager.UpdateOptions<Data>): void {
       emit({
         action: 'update',
         options: {
@@ -64,7 +64,7 @@ export function createToastManager(): createToastManager.ToastManager {
 
     promise<Value, Data extends object>(
       promiseValue: Promise<Value>,
-      options: useToast.PromiseOptions<Value, Data>,
+      options: useToastManager.PromiseOptions<Value, Data>,
     ): Promise<Value> {
       let handledPromise = promiseValue;
 
@@ -87,12 +87,12 @@ export function createToastManager(): createToastManager.ToastManager {
 export namespace createToastManager {
   export interface ToastManager {
     ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
-    add: <Data extends object>(options: useToast.AddOptions<Data>) => string;
+    add: <Data extends object>(options: useToastManager.AddOptions<Data>) => string;
     close: (id: string) => void;
-    update: <Data extends object>(id: string, updates: useToast.UpdateOptions<Data>) => void;
+    update: <Data extends object>(id: string, updates: useToastManager.UpdateOptions<Data>) => void;
     promise: <Value, Data extends object>(
       promiseValue: Promise<Value>,
-      options: useToast.PromiseOptions<Value, Data>,
+      options: useToastManager.PromiseOptions<Value, Data>,
     ) => Promise<Value>;
   }
 }
