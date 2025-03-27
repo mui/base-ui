@@ -1,69 +1,99 @@
 .Slider {
-  --thumb-radius: 0.5rem;
+  --thumb-radius: 0.625rem;
   --track-height: calc(var(--thumb-radius) * 2);
-  --track-radius: 0.25rem;
+  --track-width: 14rem;
+
+  --indicator-bg: white;
+  --track-bg: var(--color-gray-200);
+  --track-outer-border-color: var(--color-gray-400);
+
+  @media (prefers-color-scheme: dark) {
+    --track-bg: var(--color-gray-200);
+  }
 }
 
 .Control {
   box-sizing: border-box;
+  position: relative;
   display: flex;
   align-items: center;
+  height: 100%;
   width: 100%;
-  /*  padding-block: 0.75rem;*/
   touch-action: none;
   user-select: none;
+  overflow-y: clip;
+  z-index: 1;
 
-  height: 100%;
+  background-repeat: no-repeat;
+  /* prevent colors with tranparency from blending */
+  background-image: linear-gradient(to right, var(--track-bg), var(--track-bg)),
+    linear-gradient(to right, white, white);
 
   &:before {
     position: absolute;
     content: '';
-    /* indicator color */
-    background-color: var(--color-gray-700);
+    background-color: var(--indicator-bg);
     border-radius: var(--thumb-radius) 0 0 var(--thumb-radius);
     height: var(--track-height);
     width: var(--thumb-radius);
     top: 0;
     left: 0;
     transform: translateX(-100%);
-    /*box-shadow:
-      inset 0 1px 0 0 var(--color-gray-200),
-      inset 1px 0 0 var(--color-gray-200),
-      inset 0 -1px 0 0 var(--color-gray-200);*/
   }
 
   &:after {
     position: absolute;
     content: '';
-    /*    background-color: var(--color-gray-200);*/
+    background-repeat: no-repeat;
+    /* prevent colors with tranparency from blending */
+    background-image: linear-gradient(to right, var(--track-bg), var(--track-bg)),
+      linear-gradient(to right, white, white);
     border-radius: 0 var(--thumb-radius) var(--thumb-radius) 0;
     height: var(--track-height);
     width: var(--thumb-radius);
     top: 0;
     right: 0;
     transform: translateX(100%);
-    box-shadow:
-      inset 0 1px 0 0 var(--color-gray-200),
-      inset -1px 0 0 var(--color-gray-200),
-      inset 0 -1px 0 0 var(--color-gray-200);
   }
 }
 
 .Track {
-  width: 20rem;
+  width: var(--track-width);
   height: var(--track-height);
-  /*  background-color: var(--color-gray-200);*/
   box-shadow:
-    inset 0 1px 0 0 var(--color-gray-200),
-    inset 0 -1px 0 0 var(--color-gray-200);
-  /*  border-radius: 0.25rem;*/
+    0 1px 0 0 var(--track-outer-border-color),
+    0 -1px 0 0 var(--track-outer-border-color);
   user-select: none;
+
+  &:before {
+    position: absolute;
+    content: '';
+    border-radius: var(--thumb-radius) 0 0 var(--thumb-radius);
+    height: var(--track-height);
+    width: var(--thumb-radius);
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+    box-shadow: 0 0 0 1px var(--track-outer-border-color);
+  }
+
+  &:after {
+    position: absolute;
+    content: '';
+    border-radius: 0 var(--thumb-radius) var(--thumb-radius) 0;
+    height: var(--track-height);
+    width: var(--thumb-radius);
+    top: 0;
+    right: 0;
+    transform: translateX(100%);
+    box-shadow: 0 0 0 1px var(--track-outer-border-color);
+    z-index: 0;
+  }
 }
 
 .Indicator {
-  background-color: var(--color-gray-700);
+  background-color: var(--indicator-bg);
   user-select: none;
-  padding: 1px;
 }
 
 .Thumb {
@@ -72,7 +102,7 @@
   z-index: 1;
   border-radius: 100%;
   background-color: white;
-  outline: 1px solid var(--color-gray-300);
+  box-shadow: 0px 0px 5px 1px var(--color-gray-400);
   user-select: none;
 
   &:focus-visible {
@@ -80,6 +110,6 @@
   }
 
   &[data-dragging] {
-    background-color: pink;
+    box-shadow: 0px 0px 5px 2px var(--color-gray-300);
   }
 }
