@@ -4,7 +4,7 @@ import { activeElement, contains } from '@floating-ui/react/utils';
 import { generateId } from '../../utils/generateId';
 import { resolvePromiseOptions } from '../utils/resolvePromiseOptions';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useToast, type ToastObject } from '../useToastManager';
+import { useToastManager, type ToastObject } from '../useToastManager';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { ownerDocument } from '../../utils/owner';
 import { isFocusVisible } from '../utils/focusVisible';
@@ -168,55 +168,57 @@ export function useToastProvider(props: useToastProvider.Parameters): ToastConte
     });
   });
 
-  const add = useEventCallback(<Data extends object>(toast: useToast.AddOptions<Data>): string => {
-    const id = toast.id || generateId('toast');
-    const toastToAdd: ToastObject<Data> = {
-      ...toast,
-      id,
-      transitionStatus: 'starting',
-    };
+  const add = useEventCallback(
+    <Data extends object>(toast: useToastManager.AddOptions<Data>): string => {
+      const id = toast.id || generateId('toast');
+      const toastToAdd: ToastObject<Data> = {
+        ...toast,
+        id,
+        transitionStatus: 'starting',
+      };
 
-    setToasts((prev) => {
-      const updatedToasts = [toastToAdd, ...prev];
-      const activeToasts = updatedToasts.filter((t) => t.transitionStatus !== 'ending');
+      setToasts((prev) => {
+        const updatedToasts = [toastToAdd, ...prev];
+        const activeToasts = updatedToasts.filter((t) => t.transitionStatus !== 'ending');
 
-      // Mark oldest toasts for removal when over limit
-      if (activeToasts.length > limit) {
-        const excessCount = activeToasts.length - limit;
-        const oldestActiveToasts = activeToasts.slice(-excessCount);
+        // Mark oldest toasts for removal when over limit
+        if (activeToasts.length > limit) {
+          const excessCount = activeToasts.length - limit;
+          const oldestActiveToasts = activeToasts.slice(-excessCount);
 
-        oldestActiveToasts.forEach((t) => {
-          const timer = timersRef.current.get(t.id);
-          if (timer && timer.timeoutId) {
-            clearTimeout(timer.timeoutId);
-          }
-          timersRef.current.delete(t.id);
-        });
+          oldestActiveToasts.forEach((t) => {
+            const timer = timersRef.current.get(t.id);
+            if (timer && timer.timeoutId) {
+              clearTimeout(timer.timeoutId);
+            }
+            timersRef.current.delete(t.id);
+          });
 
-        return updatedToasts.map((t) =>
-          oldestActiveToasts.some((old) => old.id === t.id)
-            ? { ...t, transitionStatus: 'ending' as const, limited: true }
-            : t,
-        );
+          return updatedToasts.map((t) =>
+            oldestActiveToasts.some((old) => old.id === t.id)
+              ? { ...t, transitionStatus: 'ending' as const, limited: true }
+              : t,
+          );
+        }
+
+        return updatedToasts;
+      });
+
+      const duration = toastToAdd.timeout ?? timeout;
+      if (toastToAdd.type !== 'loading' && duration > 0) {
+        scheduleTimer(id, duration, () => close(id));
       }
 
-      return updatedToasts;
-    });
+      if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
+        pauseTimers();
+      }
 
-    const duration = toastToAdd.timeout ?? timeout;
-    if (toastToAdd.type !== 'loading' && duration > 0) {
-      scheduleTimer(id, duration, () => close(id));
-    }
-
-    if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
-      pauseTimers();
-    }
-
-    return id;
-  });
+      return id;
+    },
+  );
 
   const update = useEventCallback(
-    <Data extends object>(id: string, updates: useToast.UpdateOptions<Data>) => {
+    <Data extends object>(id: string, updates: useToastManager.UpdateOptions<Data>) => {
       setToasts((prev) =>
         prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
       );
@@ -226,7 +228,7 @@ export function useToastProvider(props: useToastProvider.Parameters): ToastConte
   const promise = useEventCallback(
     <Value, Data extends object>(
       promiseValue: Promise<Value>,
-      options: useToast.PromiseOptions<Value, Data>,
+      options: useToastManager.PromiseOptions<Value, Data>,
     ): Promise<Value> => {
       // Create a loading toast (which does not auto-dismiss).
       const loadingOptions = resolvePromiseOptions(options.loading);
