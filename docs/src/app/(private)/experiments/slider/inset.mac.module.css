@@ -1,0 +1,119 @@
+.Slider {
+  --thumb-radius: 0.625rem;
+  --track-height: calc(var(--thumb-radius) * 2);
+  --track-width: 14rem;
+
+  --indicator-bg: white;
+  --track-bg: var(--color-gray-200);
+  --track-outer-border-color: var(--color-gray-400);
+
+  @media (prefers-color-scheme: dark) {
+    --track-bg: var(--color-gray-200);
+  }
+}
+
+.Control {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  touch-action: none;
+  user-select: none;
+  overflow-y: clip;
+  z-index: 1;
+
+  background-repeat: no-repeat;
+  /* prevent colors with tranparency from blending */
+  background-image: linear-gradient(to right, var(--track-bg), var(--track-bg)),
+    linear-gradient(to right, white, white);
+
+  &:before {
+    position: absolute;
+    content: '';
+    background-color: var(--indicator-bg);
+    border-radius: var(--thumb-radius) 0 0 var(--thumb-radius);
+    height: var(--track-height);
+    width: var(--thumb-radius);
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+  }
+
+  &:after {
+    position: absolute;
+    content: '';
+    background-repeat: no-repeat;
+    /* prevent colors with tranparency from blending */
+    background-image: linear-gradient(to right, var(--track-bg), var(--track-bg)),
+      linear-gradient(to right, white, white);
+    border-radius: 0 var(--thumb-radius) var(--thumb-radius) 0;
+    height: var(--track-height);
+    width: var(--thumb-radius);
+    top: 0;
+    right: 0;
+    transform: translateX(100%);
+  }
+
+  &:focus-within {
+    overflow-y: revert-layer;
+  }
+}
+
+.Track {
+  width: var(--track-width);
+  height: var(--track-height);
+  box-shadow:
+    0 1px 0 0 var(--track-outer-border-color),
+    0 -1px 0 0 var(--track-outer-border-color);
+  user-select: none;
+
+  &:before {
+    position: absolute;
+    content: '';
+    border-radius: var(--thumb-radius) 0 0 var(--thumb-radius);
+    height: var(--track-height);
+    width: var(--thumb-radius);
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+    box-shadow: 0 0 0 1px var(--track-outer-border-color);
+  }
+
+  &:after {
+    position: absolute;
+    content: '';
+    border-radius: 0 var(--thumb-radius) var(--thumb-radius) 0;
+    height: var(--track-height);
+    width: var(--thumb-radius);
+    top: 0;
+    right: 0;
+    transform: translateX(100%);
+    box-shadow: 0 0 0 1px var(--track-outer-border-color);
+    z-index: 0;
+  }
+}
+
+.Indicator {
+  background-color: var(--indicator-bg);
+  user-select: none;
+}
+
+.Thumb {
+  width: calc(var(--thumb-radius) * 2);
+  height: calc(var(--thumb-radius) * 2);
+  z-index: 1;
+  border-radius: 100%;
+  background-color: white;
+  box-shadow: 0px 0px 5px 1px var(--color-gray-400);
+  user-select: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+  }
+
+  &[data-dragging] {
+    box-shadow: 0px 0px 5px 2px var(--color-gray-300);
+  }
+}
