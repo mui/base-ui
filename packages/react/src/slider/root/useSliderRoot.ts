@@ -358,13 +358,19 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         values[closestThumbIndex + 1] - minStepsBetweenValues || Infinity,
       );
 
+      const newPercentageValue = clamp(
+        valueRescaled * 100,
+        percentageValues[closestThumbIndex - 1] ?? -Infinity,
+        percentageValues[closestThumbIndex + 1] ?? Infinity,
+      );
+
       return {
         value: replaceArrayItemAtIndex(values, closestThumbIndex, newValue),
         valueRescaled,
         percentageValues: replaceArrayItemAtIndex(
           percentageValues,
           closestThumbIndex,
-          valueRescaled * 100,
+          newPercentageValue,
         ),
         thumbIndex: closestThumbIndex,
       };
