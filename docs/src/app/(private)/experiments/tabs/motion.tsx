@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Tabs } from '@base-ui-components/react/tabs';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, type HTMLMotionProps } from 'motion/react';
 import styles from '../../../(public)/(content)/react/components/tabs/demos/hero/css-modules/index.module.css';
 import { OverviewIcon, ProjectIcon, PersonIcon } from './_icons';
 
@@ -26,7 +26,7 @@ const MotionTabPanel = React.forwardRef(function MotionTabPanel(
         const direction = state.tabActivationDirection === 'right' ? -1 : 1;
         return (
           <motion.div
-            {...renderProps}
+            {...(renderProps as HTMLMotionProps<'div'>)}
             initial={{
               opacity: 0,
               x: -100 * direction,
