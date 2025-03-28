@@ -10,7 +10,9 @@ export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
  * @ignore - internal hook.
  */
 export function useTransitionStatus(open: boolean) {
-  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>();
+  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>(
+    open ? 'idle' : undefined,
+  );
   const [mounted, setMounted] = React.useState(open);
 
   if (open && !mounted) {
