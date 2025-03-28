@@ -5,8 +5,8 @@ import { Tabs } from '@base-ui-components/react/tabs';
 import {
   SettingsMetadata,
   useExperimentSettings,
-} from '../../../components/Experiments/SettingsPanel';
-import '../../../demo-theme.css';
+} from '../../../../components/Experiments/SettingsPanel';
+import '../../../../demo-theme.css';
 import classes from './tabs.module.css';
 
 export default function TabsExperiment() {
