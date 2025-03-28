@@ -266,6 +266,7 @@ export function useSliderControl(
       setValue,
       percentageValues,
       setActive,
+      setDragging,
       thumbRefs,
     ],
   );
