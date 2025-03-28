@@ -5,14 +5,13 @@
 
   --indicator-bg: var(--color-blue);
   --thumb-bg: var(--color-blue);
-  --track-bg: var(--color-gray-200);
   --track-outer-border-color: var(--color-gray-400);
 
+  --track-bg: var(--color-gray-200);
   --dragging-color: oklch(69% 50% 264);
 
   @media (prefers-color-scheme: dark) {
     --track-bg: var(--color-gray-200);
-    /*    --dragging-color: oklch(69% 50% 264);*/
     --dragging-color: blue;
   }
 }
@@ -31,7 +30,7 @@
   background-repeat: no-repeat;
   /* prevent colors with tranparency from blending */
   background-image: linear-gradient(to right, var(--track-bg), var(--track-bg)),
-    linear-gradient(to right, white, white);
+    linear-gradient(to right, canvas, canvas);
 
   &:before {
     position: absolute;
@@ -51,7 +50,7 @@
     background-repeat: no-repeat;
     /* prevent colors with tranparency from blending */
     background-image: linear-gradient(to right, var(--track-bg), var(--track-bg)),
-      linear-gradient(to right, white, white);
+      linear-gradient(to right, canvas, canvas);
     border-radius: 0 var(--thumb-radius) var(--thumb-radius) 0;
     height: var(--track-height);
     width: var(--thumb-radius);
@@ -87,6 +86,7 @@
     left: 0;
     transform: translateX(-100%);
     box-shadow: 0 0 0 1px var(--track-outer-border-color);
+    clip-path: inset(-2px -0.1px -2px -2px);
   }
 
   &:after {
@@ -99,6 +99,7 @@
     right: 0;
     transform: translateX(100%);
     box-shadow: 0 0 0 1px var(--track-outer-border-color);
+    clip-path: inset(-2px -2px -2px 0.1px);
     z-index: 0;
   }
 }
