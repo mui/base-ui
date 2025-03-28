@@ -1,14 +1,19 @@
 .Slider {
   --thumb-radius: 0.625rem;
-  --track-height: calc(var(--thumb-radius) * 2);
+  --track-height: 0.5rem;
   --track-width: 14rem;
 
-  --indicator-bg: white;
+  --indicator-bg: var(--color-blue);
+  --thumb-bg: var(--color-blue);
   --track-bg: var(--color-gray-200);
   --track-outer-border-color: var(--color-gray-400);
 
+  --dragging-color: oklch(69% 50% 264);
+
   @media (prefers-color-scheme: dark) {
     --track-bg: var(--color-gray-200);
+    /*    --dragging-color: oklch(69% 50% 264);*/
+    --dragging-color: blue;
   }
 }
 
@@ -21,7 +26,6 @@
   width: 100%;
   touch-action: none;
   user-select: none;
-  overflow-y: clip;
   z-index: 1;
 
   background-repeat: no-repeat;
@@ -54,6 +58,14 @@
     top: 0;
     right: 0;
     transform: translateX(100%);
+
+    &[data-dragging] {
+      background-color: var(--dragging-color);
+    }
+  }
+
+  &[data-dragging]:before {
+    background-color: var(--dragging-color);
   }
 }
 
@@ -94,6 +106,10 @@
 .Indicator {
   background-color: var(--indicator-bg);
   user-select: none;
+
+  &[data-dragging] {
+    background-color: var(--dragging-color);
+  }
 }
 
 .Thumb {
@@ -101,15 +117,18 @@
   height: calc(var(--thumb-radius) * 2);
   z-index: 1;
   border-radius: 100%;
-  background-color: white;
-  box-shadow: 0px 0px 5px 1px var(--color-gray-400);
+  background-color: var(--indicator-bg);
+  box-shadow: 0 0 0 1px var(--color-blue);
+
   user-select: none;
 
   &:focus-visible {
     outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
   }
 
   &[data-dragging] {
-    box-shadow: 0px 0px 5px 2px var(--color-gray-300);
+    background-color: var(--dragging-color);
+    box-shadow: 0 0 0 1px var(--dragging-color);
   }
 }
