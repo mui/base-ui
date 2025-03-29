@@ -839,6 +839,14 @@ describe('<Field.Root />', () => {
   });
 
   describe('style hooks', () => {
+    const { render: renderFakeTimers, clock } = createRenderer({
+      clockOptions: {
+        shouldAdvanceTime: true,
+      },
+    });
+
+    clock.withFakeTimers();
+
     describe('touched', () => {
       it('should apply [data-touched] style hook to all components when touched', async () => {
         await render(
@@ -1141,7 +1149,7 @@ describe('<Field.Root />', () => {
       });
 
       it('supports Select', async () => {
-        const { user } = await render(
+        const { user } = await renderFakeTimers(
           <Field.Root>
             <Select.Root>
               <Select.Trigger data-testid="trigger" />
@@ -1162,16 +1170,14 @@ describe('<Field.Root />', () => {
         expect(trigger).not.to.have.attribute('data-dirty');
 
         await userEvent.click(trigger);
-
         await flushMicrotasks();
+        clock.tick(200);
 
         const option = screen.getByRole('option', { name: 'Option 1' });
 
         // Arrow Down to focus the Option 1
         await user.keyboard('{ArrowDown}');
-
         await userEvent.click(option);
-
         await flushMicrotasks();
 
         expect(trigger).to.have.attribute('data-dirty', '');
@@ -1386,7 +1392,7 @@ describe('<Field.Root />', () => {
 
       describe('Select', () => {
         it('adds [data-filled] attribute when filled', async () => {
-          const { user } = await render(
+          const { user } = await renderFakeTimers(
             <Field.Root>
               <Select.Root>
                 <Select.Trigger data-testid="trigger" />
@@ -1407,16 +1413,14 @@ describe('<Field.Root />', () => {
           expect(trigger).not.to.have.attribute('data-filled');
 
           await userEvent.click(trigger);
-
           await flushMicrotasks();
+          clock.tick(200);
 
           const option = screen.getByRole('option', { name: 'Option 1' });
 
           // Arrow Down to focus the Option 1
           await user.keyboard('{ArrowDown}');
-
           await userEvent.click(option);
-
           await flushMicrotasks();
 
           expect(trigger).to.have.attribute('data-filled', '');

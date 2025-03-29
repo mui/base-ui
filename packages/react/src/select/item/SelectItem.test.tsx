@@ -7,6 +7,14 @@ import { expect } from 'chai';
 describe('<Select.Item />', () => {
   const { render } = createRenderer();
 
+  const { render: renderFakeTimers, clock } = createRenderer({
+    clockOptions: {
+      shouldAdvanceTime: true,
+    },
+  });
+
+  clock.withFakeTimers();
+
   describeConformance(<Select.Item value="" />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
@@ -172,7 +180,7 @@ describe('<Select.Item />', () => {
   });
 
   it('should focus the selected item upon opening the popup', async () => {
-    const { user } = await render(
+    const { user } = await renderFakeTimers(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
           <Select.Value data-testid="value" />
@@ -192,13 +200,10 @@ describe('<Select.Item />', () => {
     const trigger = screen.getByTestId('trigger');
 
     await user.click(trigger);
-
-    await flushMicrotasks();
+    clock.tick(200);
 
     await user.click(screen.getByRole('option', { name: 'three' }));
     await user.click(trigger);
-
-    await flushMicrotasks();
 
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'three' })).toHaveFocus();
