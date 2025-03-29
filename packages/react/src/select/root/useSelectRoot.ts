@@ -170,9 +170,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     const hasIndex = index !== -1;
 
     if (hasIndex || value === null) {
-      if (hasIndex) {
-        setSelectedIndex(index);
-      }
+      setSelectedIndex(hasIndex ? index : null);
       setLabel(hasIndex ? (labelsRef.current[index] ?? '') : '');
     } else if (value) {
       warn(`The value \`${stringValue}\` is not present in the select items.`);
