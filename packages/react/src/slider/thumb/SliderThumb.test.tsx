@@ -204,6 +204,44 @@ describe('<Slider.Thumb />', () => {
         expect(computedStyles.thumb1.getPropertyValue('left')).to.equal('200px');
         expect(computedStyles.thumb2.getPropertyValue('left')).to.equal('700px');
       });
+
+      it('thumbs cannot be dragged past each other', async () => {
+        const { getByTestId } = await render(
+          <Slider.Root
+            defaultValue={[20, 40]}
+            style={{
+              width: '1000px',
+            }}
+          >
+            <Slider.Control data-testid="control">
+              <Slider.Track>
+                <Slider.Indicator />
+                <Slider.Thumb data-testid="thumb1" />
+                <Slider.Thumb />
+              </Slider.Track>
+            </Slider.Control>
+          </Slider.Root>,
+        );
+
+        const sliderControl = getByTestId('control');
+
+        const computedStyles = getComputedStyle(getByTestId('thumb1'));
+
+        stub(sliderControl, 'getBoundingClientRect').callsFake(
+          () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
+        );
+
+        fireEvent.touchStart(
+          sliderControl,
+          createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
+        );
+        fireEvent.touchMove(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 600, clientY: 0 }]),
+        );
+
+        expect(computedStyles.getPropertyValue('left')).to.equal('400px');
+      });
     });
 
     describe('positions the thumb when the controlled value changes externally', () => {

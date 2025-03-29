@@ -350,12 +350,20 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       }
 
       const closestThumbIndex = closestThumbIndexRef.current ?? 0;
+      const minValueDifference = minStepsBetweenValues * step;
+      const minPercentageDifference = (minValueDifference * 100) / (max - min);
 
       // Bound the new value to the thumb's neighbours.
       newValue = clamp(
         newValue,
-        values[closestThumbIndex - 1] + minStepsBetweenValues || -Infinity,
-        values[closestThumbIndex + 1] - minStepsBetweenValues || Infinity,
+        values[closestThumbIndex - 1] + minValueDifference || -Infinity,
+        values[closestThumbIndex + 1] - minValueDifference || Infinity,
+      );
+
+      const newPercentageValue = clamp(
+        valueRescaled * 100,
+        percentageValues[closestThumbIndex - 1] + minPercentageDifference || -Infinity,
+        percentageValues[closestThumbIndex + 1] - minPercentageDifference || Infinity,
       );
 
       return {
@@ -364,7 +372,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         percentageValues: replaceArrayItemAtIndex(
           percentageValues,
           closestThumbIndex,
-          valueRescaled * 100,
+          newPercentageValue,
         ),
         thumbIndex: closestThumbIndex,
       };
