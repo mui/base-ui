@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { isWebKit } from '../../utils/detectBrowser';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';

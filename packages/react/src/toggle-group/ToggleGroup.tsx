@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { NOOP } from '../utils/noop';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
+import { useComponentRenderer } from '../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../utils/types';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useDirection } from '../direction-provider/DirectionContext';

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import { useForkRef } from '../../utils/useForkRef';
 import { useCompositeRootContext } from '../root/CompositeRootContext';
 import { useCompositeItem } from './useCompositeItem';

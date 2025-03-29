@@ -1,20 +1,18 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
-const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
+const styleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -29,9 +27,9 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   props: TooltipPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...intrinsicProps } = props;
 
-  const { open, instantType, transitionStatus, getRootPopupProps, popupRef, onOpenChangeComplete } =
+  const { open, instantType, transitionStatus, getPopupProps, popupRef, onOpenChangeComplete } =
     useTooltipRootContext();
   const { side, align } = useTooltipPositionerContext();
 
@@ -56,26 +54,15 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     [open, side, align, instantType, transitionStatus],
   );
 
-  const mergedRef = useForkRef(popupRef, forwardedRef);
-
-  // The content element needs to be a child of a wrapper floating element in order to avoid
-  // conflicts with CSS transitions and the positioning transform.
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootPopupProps,
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', props, {
     state,
-    ref: mergedRef,
-    extraProps:
-      transitionStatus === 'starting'
-        ? mergeProps(
-            {
-              style: { transition: 'none' },
-            },
-            otherProps,
-          )
-        : otherProps,
-    customStyleHookMapping,
+    ref: [popupRef, forwardedRef],
+    props: [
+      getPopupProps,
+      transitionStatus === 'starting' ? { style: { transition: 'none' } } : {},
+      intrinsicProps,
+    ],
+    styleHookMapping,
   });
 
   return renderElement();

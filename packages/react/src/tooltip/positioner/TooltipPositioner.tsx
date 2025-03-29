@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
 import { useTooltipPositioner } from './useTooltipPositioner';
@@ -20,7 +19,7 @@ import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
  */
 const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   props: TooltipPositioner.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     render,
@@ -36,13 +35,13 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    ...otherProps
+    ...intrinsicProps
   } = props;
 
   const { open, setPositionerElement, mounted, floatingRootContext } = useTooltipRootContext();
   const keepMounted = useTooltipPortalContext();
 
-  const positioner = useTooltipPositioner({
+  const { positioning, positionerProps } = useTooltipPositioner({
     anchor,
     positionMethod,
     floatingRootContext,
@@ -59,36 +58,31 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     keepMounted,
   });
 
-  const mergedRef = useForkRef(forwardedRef, setPositionerElement);
-
   const state: TooltipPositioner.State = React.useMemo(
     () => ({
       open,
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden],
+    [open, positioning.side, positioning.align, positioning.anchorHidden],
   );
 
   const contextValue: TooltipPositionerContext = React.useMemo(
     () => ({
       ...state,
-      arrowRef: positioner.arrowRef,
-      arrowStyles: positioner.arrowStyles,
-      arrowUncentered: positioner.arrowUncentered,
+      arrowRef: positioning.arrowRef,
+      arrowStyles: positioning.arrowStyles,
+      arrowUncentered: positioning.arrowUncentered,
     }),
-    [state, positioner.arrowRef, positioner.arrowStyles, positioner.arrowUncentered],
+    [state, positioning.arrowRef, positioning.arrowStyles, positioning.arrowUncentered],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: positioner.getPositionerProps,
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', props, {
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
-    customStyleHookMapping: popupStateMapping,
+    ref: [ref, setPositionerElement],
+    props: [positionerProps, intrinsicProps],
+    styleHookMapping: popupStateMapping,
   });
 
   return (

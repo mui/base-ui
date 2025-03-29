@@ -1,22 +1,18 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer } from '@mui/internal-test-utils';
-import { useComponentRenderer, type ComponentRendererSettings } from './useComponentRenderer';
+import { useRenderElement } from './useRenderElement';
+import { useRender } from '../use-render';
 
-describe('useComponentRenderer', () => {
+describe('useRenderElement', () => {
   const { render } = createRenderer();
 
   it('render props does not overwrite className in a render function when unspecified', async () => {
     function TestComponent(props: {
-      render: ComponentRendererSettings<any, Element>['render'];
-      className?: ComponentRendererSettings<any, Element>['className'];
+      render: useRenderElement.ComponentProps<any>['render'];
+      className?: useRenderElement.ComponentProps<any>['className'];
     }) {
-      const { render: renderProp, className } = props;
-      const { renderElement } = useComponentRenderer({
-        render: renderProp,
-        state: {},
-        className,
-      });
+      const renderElement = useRenderElement('div', props);
       return renderElement();
     }
 

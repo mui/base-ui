@@ -6,7 +6,7 @@ import { SelectRootContext, useSelectRootContext } from '../root/SelectRootConte
 import { SelectIndexContext, useSelectIndexContext } from '../root/SelectIndexContext';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useForkRef } from '../../utils/useForkRef';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useComponentRenderer } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectItem } from './useSelectItem';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
