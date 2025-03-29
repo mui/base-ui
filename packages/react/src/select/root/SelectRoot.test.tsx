@@ -264,7 +264,7 @@ describe('<Select.Root />', () => {
     it('should render an internal backdrop when `true`', async () => {
       const { user } = await render(
         <div>
-          <Select.Root>
+          <Select.Root modal>
             <Select.Trigger data-testid="trigger">Open</Select.Trigger>
             <Select.Portal>
               <Select.Positioner data-testid="positioner">
@@ -496,7 +496,7 @@ describe('<Select.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-starting-style] {
             animation: test-anim 1ms;
           }

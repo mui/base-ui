@@ -310,7 +310,7 @@ describe('<Dialog.Root />', () => {
     it('should render an internal backdrop when `true`', async () => {
       const { user } = await render(
         <div>
-          <Dialog.Root>
+          <Dialog.Root modal>
             <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
             <Dialog.Portal>
               <Dialog.Popup />
@@ -761,7 +761,7 @@ describe('<Dialog.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-starting-style] {
             animation: test-anim 1ms;
           }

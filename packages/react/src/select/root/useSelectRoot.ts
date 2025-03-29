@@ -29,7 +29,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     readOnly = false,
     required = false,
     alignItemToTrigger: alignItemToTriggerParam = true,
-    modal = false,
+    modal = true,
     onOpenChangeComplete,
   } = params;
 
@@ -420,7 +420,9 @@ export namespace useSelectRoot {
      */
     transitionStatus?: TransitionStatus;
     /**
-     * Whether the select should prevent outside clicks and lock page scroll when open.
+     * Determines if the select enters a modal state when open.
+     * - `true`: user interaction is limited to just the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
+     * - `false`: user interaction with the rest of the document is allowed.
      * @default true
      */
     modal?: boolean;
