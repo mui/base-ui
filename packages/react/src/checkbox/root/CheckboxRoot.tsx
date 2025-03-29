@@ -71,7 +71,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   });
 
   const computedChecked = isGrouped ? Boolean(groupChecked) : checked;
-  const computedIndeterminate = isGrouped ? groupIndeterminate : indeterminate;
+  const computedIndeterminate = isGrouped ? groupIndeterminate || indeterminate : indeterminate;
 
   React.useEffect(() => {
     if (parentContext && name) {
