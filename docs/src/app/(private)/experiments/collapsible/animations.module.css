@@ -1,3 +1,38 @@
+@keyframes slide-down {
+  from {
+    height: 0;
+  }
+
+  to {
+    height: var(--collapsible-panel-height);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    height: var(--collapsible-panel-height);
+  }
+
+  to {
+    height: 0;
+  }
+}
+
+.Panel {
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+
+  &[data-open] {
+    animation: slide-down var(--duration) ease-out;
+  }
+
+  &[data-closed] {
+    animation: slide-up var(--duration) ease-in;
+  }
+}
+
+/* the styles below are irrelevant to the features */
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -16,7 +51,7 @@
 
 .Root {
   --width: 320px;
-  --duration: 1000ms;
+  --duration: 900ms;
 
   width: var(--width);
 
@@ -43,14 +78,7 @@
 .Icon {
   width: 0.75rem;
   height: 0.75rem;
-}
-
-.Panel {
-  overflow: hidden;
-  box-sizing: border-box;
-  width: 100%;
-  height: auto;
-  /*  height: var(--collapsible-panel-height);*/
+  transition: transform 150ms ease-out;
 }
 
 .Content {
