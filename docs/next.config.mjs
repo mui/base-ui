@@ -88,9 +88,7 @@ const nextConfig = {
     esmExternals: true,
     workerThreads: false,
   },
-  devIndicators: {
-    appIsrStatus: false,
-  },
+  devIndicators: false,
 };
 
 // Remove deprecated options that come from `withDocsInfra()` and cause warnings
