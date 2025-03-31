@@ -25,18 +25,30 @@ const EMPTY_ARRAY: never[] = [];
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
     id: idProp,
-    disabled = false,
+    disabled: disabledProp = false,
     readOnly = false,
     required = false,
     alignItemToTrigger: alignItemToTriggerParam = true,
     modal = false,
+    name: nameProp,
     onOpenChangeComplete,
   } = params;
 
-  const { setDirty, validityData, validationMode, setControlId, setFilled } = useFieldRootContext();
+  const {
+    setDirty,
+    validityData,
+    validationMode,
+    setControlId,
+    setFilled,
+    name: fieldName,
+    disabled: fieldDisabled,
+  } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId(idProp);
+
+  const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
 
   useEnhancedEffect(() => {
     setControlId(id);
@@ -255,7 +267,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const rootContext: SelectRootContext = React.useMemo(
     () => ({
       id,
-      name: params.name,
+      name,
       required,
       disabled,
       readOnly,
@@ -300,7 +312,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }),
     [
       id,
-      params.name,
+      name,
       required,
       disabled,
       readOnly,

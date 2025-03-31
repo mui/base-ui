@@ -3,6 +3,7 @@ import * as React from 'react';
 import { spy, stub } from 'sinon';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
+import { Field } from '@base-ui-components/react/field';
 import { Slider } from '@base-ui-components/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import type { SliderRoot } from './SliderRoot';
@@ -1699,6 +1700,67 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       const [slider1, slider2] = getAllByRole('slider');
       expect(slider1).to.have.attribute('aria-valuetext', `${formatValue(50)} start range`);
       expect(slider2).to.have.attribute('aria-valuetext', `${formatValue(75)} end range`);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('form handling', () => {
+    it('should include the slider value in the form submission', async () => {
+      let stringifiedFormData = '';
+
+      const { getByRole } = await render(
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            stringifiedFormData = new URLSearchParams(formData as any).toString();
+          }}
+        >
+          <Slider.Root name="slider" defaultValue={25}>
+            <Slider.Control>
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const submit = getByRole('button');
+      fireEvent.click(submit);
+
+      expect(stringifiedFormData).to.equal('slider=25');
+    });
+  });
+
+  describe('with Field.Root parent', () => {
+    it('should receive disabled prop from Field.Root', async () => {
+      const { getByTestId } = await render(
+        <Field.Root disabled>
+          <Slider.Root data-testid="root">
+            <Slider.Control>
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const root = getByTestId('root');
+      expect(root).to.have.attribute('data-disabled', '');
+    });
+
+    it('should receive name prop from Field.Root', async () => {
+      const { getByTestId } = await render(
+        <Field.Root name="field-slider">
+          <Slider.Root>
+            <Slider.Control>
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const thumb = getByTestId('thumb');
+      const input = thumb.querySelector('input');
+      expect(input).to.have.attribute('name', 'field-slider');
     });
   });
 });

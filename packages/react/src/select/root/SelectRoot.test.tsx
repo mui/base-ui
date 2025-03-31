@@ -4,6 +4,7 @@ import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
+import { Field } from '@base-ui-components/react/field';
 
 describe('<Select.Root />', () => {
   beforeEach(() => {
@@ -631,6 +632,54 @@ describe('<Select.Root />', () => {
 
       await user.click(trigger);
       expect(handleOpenChange.callCount).to.equal(1);
+    });
+  });
+
+  describe('with Field.Root parent', () => {
+    it('should receive disabled prop from Field.Root', async () => {
+      await render(
+        <Field.Root disabled>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.attribute('aria-disabled', 'true');
+    });
+
+    it('should receive name prop from Field.Root', async () => {
+      await render(
+        <Field.Root name="field-select">
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).to.have.attribute('name', 'field-select');
     });
   });
 
