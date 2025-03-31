@@ -35,7 +35,6 @@ export function useNumberFieldRoot(
     disabled: disabledProp = false,
     invalid = false,
     readOnly = false,
-    autoFocus = false,
     allowWheelScrub = false,
     format,
     value: externalValue,
@@ -357,7 +356,6 @@ export function useNumberFieldRoot(
       name,
       required,
       invalid,
-      autoFocus,
       inputMode,
       getAllowedNonNumericKeys,
       min,
@@ -391,7 +389,6 @@ export function useNumberFieldRoot(
       name,
       required,
       invalid,
-      autoFocus,
       inputMode,
       getAllowedNonNumericKeys,
       min,
@@ -451,11 +448,6 @@ export namespace useNumberFieldRoot {
      * @default false
      */
     invalid?: boolean;
-    /**
-     * Whether to focus the element on page load.
-     * @default false
-     */
-    autoFocus?: boolean;
     /**
      * Whether the user should be unable to change the field value.
      * @default false
@@ -536,7 +528,6 @@ export namespace useNumberFieldRoot {
     name: string | undefined;
     required: boolean;
     invalid: boolean;
-    autoFocus: boolean;
     inputMode: InputMode;
     getAllowedNonNumericKeys: () => (string | undefined)[];
     min: number | undefined;

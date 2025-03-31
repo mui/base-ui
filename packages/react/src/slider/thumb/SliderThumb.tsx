@@ -38,8 +38,6 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 ) {
   const {
     render: renderProp,
-    'aria-label': ariaLabel,
-    'aria-valuetext': ariaValuetext,
     className,
     disabled: disabledProp = false,
     getAriaLabel: getAriaLabelProp,
@@ -86,9 +84,9 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 
   const { getRootProps, getThumbInputProps, disabled, index } = useSliderThumb({
     active: activeIndex,
-    'aria-label': ariaLabel ?? '',
+    'aria-label': props['aria-label'] ?? '',
     'aria-labelledby': ariaLabelledby ?? '',
-    'aria-valuetext': ariaValuetext ?? '',
+    'aria-valuetext': props['aria-valuetext'] ?? '',
     handleInputChange,
     disabled: disabledProp || contextDisabled,
     format,
@@ -187,14 +185,6 @@ SliderThumb.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * The label for the input element.
-   */
-  'aria-label': PropTypes.string,
-  /**
-   * A string value that provides a user-friendly name for the current value of the slider.
-   */
-  'aria-valuetext': PropTypes.string,
   /**
    * @ignore
    */

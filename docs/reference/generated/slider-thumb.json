@@ -2,14 +2,6 @@
   "name": "SliderThumb",
   "description": "The draggable part of the the slider at the tip of the indicator.\nRenders a `<div>` element.",
   "props": {
-    "aria-label": {
-      "type": "string",
-      "description": "The label for the input element."
-    },
-    "aria-valuetext": {
-      "type": "string",
-      "description": "A string value that provides a user-friendly name for the current value of the slider."
-    },
     "getAriaLabel": {
       "type": "function(index: number) => string",
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb"

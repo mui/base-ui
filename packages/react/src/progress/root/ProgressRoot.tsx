@@ -18,9 +18,6 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledby,
-    'aria-valuetext': ariaValuetext,
     format,
     getAriaLabel,
     getAriaValueText,
@@ -33,9 +30,9 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
   } = props;
 
   const { getRootProps, ...progress } = useProgressRoot({
-    'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledby,
-    'aria-valuetext': ariaValuetext,
+    'aria-label': props['aria-label'],
+    'aria-labelledby': props['aria-labelledby'],
+    'aria-valuetext': props['aria-valuetext'],
     format,
     getAriaLabel,
     getAriaValueText,
@@ -93,18 +90,6 @@ ProgressRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * The label for the Indicator component.
-   */
-  'aria-label': PropTypes.string,
-  /**
-   * An id or space-separated list of ids of elements that label the Indicator component.
-   */
-  'aria-labelledby': PropTypes.string,
-  /**
-   * A string value that provides a human-readable text alternative for the current value of the progress indicator.
-   */
-  'aria-valuetext': PropTypes.string,
   /**
    * @ignore
    */

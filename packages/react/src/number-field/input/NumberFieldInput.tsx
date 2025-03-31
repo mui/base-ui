@@ -27,7 +27,6 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   const {
     allowInputSyncRef,
-    autoFocus,
     disabled,
     formatOptionsRef,
     getAllowedNonNumericKeys,
@@ -69,7 +68,6 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         {
           id,
           required,
-          autoFocus,
           name,
           disabled,
           readOnly,
@@ -267,7 +265,6 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       getValidationProps,
       id,
       required,
-      autoFocus,
       name,
       disabled,
       readOnly,
