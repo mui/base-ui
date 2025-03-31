@@ -12,6 +12,9 @@ const InternalBackdrop = React.forwardRef(function InternalBackdrop(
     <div
       ref={ref}
       role="presentation"
+      // Ensures Floating UI's outside press detection runs, as it considers
+      // it an element that existed when the popup rendered.
+      data-floating-ui-inert
       {...props}
       style={{
         position: 'fixed',
