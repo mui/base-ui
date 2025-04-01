@@ -288,42 +288,70 @@ describe('<NumberField.Decrement />', () => {
     expect(input).to.have.value('-2');
   });
 
-  it('should decrement by exact step without rounding when snapOnStep is false', async () => {
-    await render(
-      <NumberField.Root defaultValue={2.7} step={2} snapOnStep={false}>
-        <NumberField.Decrement />
-        <NumberField.Input />
-      </NumberField.Root>,
-    );
+  describe('prop: snapOnStep', () => {
+    it('should decrement by exact step without rounding when snapOnStep is false', async () => {
+      await render(
+        <NumberField.Root defaultValue={2.7} step={2} snapOnStep={false}>
+          <NumberField.Decrement />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
 
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
+      const button = screen.getByRole('button');
+      fireEvent.click(button);
 
-    expect(screen.getByRole('textbox')).to.have.value('0.7');
-  });
+      expect(screen.getByRole('textbox')).to.have.value('0.7');
+    });
 
-  it('should snap on decrement when snapOnStep is snap', async () => {
-    await render(
-      <NumberField.Root defaultValue={1.3} snapOnStep>
-        <NumberField.Decrement />
-        <NumberField.Input />
-      </NumberField.Root>,
-    );
+    it('should snap on decrement when snapOnStep is true', async () => {
+      await render(
+        <NumberField.Root defaultValue={1.3} snapOnStep>
+          <NumberField.Decrement />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
 
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
+      const button = screen.getByRole('button');
+      fireEvent.click(button);
 
-    expect(screen.getByRole('textbox')).to.have.value('1');
+      expect(screen.getByRole('textbox')).to.have.value('1');
 
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: '1.9' } });
-    fireEvent.click(button);
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: '1.9' } });
+      fireEvent.click(button);
 
-    expect(screen.getByRole('textbox')).to.have.value('1');
+      expect(screen.getByRole('textbox')).to.have.value('1');
 
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: '-0.2' } });
-    fireEvent.click(button);
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: '-0.2' } });
+      fireEvent.click(button);
 
-    expect(screen.getByRole('textbox')).to.have.value('-1');
+      expect(screen.getByRole('textbox')).to.have.value('-1');
+    });
+
+    it('should decrement with respect to the min value', async () => {
+      await render(
+        <NumberField.Root defaultValue={8} min={1} step={2} snapOnStep>
+          <NumberField.Decrement />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.click(button);
+      expect(input).to.have.value('7');
+
+      fireEvent.click(button);
+      expect(input).to.have.value('5');
+
+      fireEvent.change(input, { target: { value: '9.112' } });
+      fireEvent.click(button);
+      expect(input).to.have.value('9');
+
+      fireEvent.change(input, { target: { value: '1.112' } });
+      fireEvent.click(button);
+      expect(input).to.have.value('1');
+    });
   });
 
   describe('disabled state', () => {

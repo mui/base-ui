@@ -156,9 +156,9 @@ export function useNumberFieldRoot(
       const eventWithOptionalKeyState = event as EventWithOptionalKeyState;
       const validatedValue = toValidatedNumber(unvalidatedValue, {
         step:
-          event?.type === 'focusout'
+          event?.type === 'focusout' || !dir
             ? undefined
-            : getStepAmount(eventWithOptionalKeyState) * (dir ?? 1),
+            : getStepAmount(eventWithOptionalKeyState) * dir,
         format: formatOptionsRef.current,
         minWithDefault,
         maxWithDefault,
