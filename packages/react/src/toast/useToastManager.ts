@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ToastContext } from './provider/ToastProviderContext';
 
 /**
- * Returns the array of toasts and methods to create toasts.
+ * Returns the array of toasts and methods to manage them.
  */
 export function useToastManager(): useToastManager.ReturnValue {
   const context = React.useContext(ToastContext);
@@ -39,7 +39,7 @@ export namespace useToastManager {
   }
 
   export interface AddOptions<Data extends object>
-    extends Omit<ToastObject<Data>, 'id' | 'animation' | 'height' | 'ref'> {
+    extends Omit<ToastObject<Data>, 'id' | 'animation' | 'height' | 'ref' | 'limited'> {
     id?: string;
   }
 
@@ -77,6 +77,7 @@ export interface ToastObject<Data extends object> {
   /**
    * The amount of time (in ms) before the toast is auto dismissed.
    * A value of `0` will prevent the toast from being dismissed automatically.
+   * @default 5000
    */
   timeout?: number;
   /**
@@ -99,7 +100,7 @@ export interface ToastObject<Data extends object> {
    */
   height?: number;
   /**
-   * Callback function to be called when the toast is closes.
+   * Callback function to be called when the toast is closed.
    */
   onClose?: () => void;
   /**
