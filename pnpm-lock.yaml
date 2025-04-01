@@ -443,9 +443,6 @@ importers:
       react-is:
         specifier: ^19.0.0
         version: 19.0.0
-      react-router-dom:
-        specifier: ^7.4.1
-        version: 7.4.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react-runner:
         specifier: ^1.0.5
         version: 1.0.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
