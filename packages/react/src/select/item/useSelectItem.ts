@@ -41,7 +41,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 
   const lastKeyRef = React.useRef<string | null>(null);
   const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
-  const didMouseDownRef = React.useRef(false);
+  const didPointerDownRef = React.useRef(false);
   const prevPopupHeightRef = React.useRef(0);
   const allowFocusSyncRef = React.useRef(true);
 
@@ -109,8 +109,8 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
             lastKeyRef.current = event.key;
           },
           onClick(event) {
-            if (didMouseDownRef.current) {
-              didMouseDownRef.current = false;
+            if (didPointerDownRef.current) {
+              didPointerDownRef.current = false;
               return;
             }
 
@@ -128,7 +128,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           },
           onPointerDown(event) {
             pointerTypeRef.current = event.pointerType;
-            didMouseDownRef.current = true;
+            didPointerDownRef.current = true;
           },
           onMouseUp(event) {
             if (disabled) {
