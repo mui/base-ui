@@ -18,27 +18,22 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
     checked: externalChecked,
     inputRef: externalInputRef,
     onCheckedChange: onCheckedChangeProp,
-    name,
+    name: nameProp,
     value,
     defaultChecked = false,
     readOnly = false,
     required = false,
     autoFocus = false,
     indeterminate = false,
-    disabled = false,
+    disabled: disabledProp = false,
   } = params;
+
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   const groupContext = useCheckboxGroupContext();
   const groupValue = groupContext?.value;
   const setGroupValue = groupContext?.setValue;
   const defaultGroupValue = groupContext?.defaultValue;
-
-  const [checked, setCheckedState] = useControlled({
-    controlled: name && groupValue ? groupValue.includes(name) : externalChecked,
-    default: name && defaultGroupValue ? defaultGroupValue.includes(name) : defaultChecked,
-    name: 'Checkbox',
-    state: 'checked',
-  });
 
   const {
     labelId,
@@ -49,9 +44,12 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
     setFilled,
     setFocused,
     validationMode,
+    disabled: fieldDisabled,
+    name: fieldName,
   } = useFieldRootContext();
 
-  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
 
   const {
     getValidationProps,
@@ -59,6 +57,13 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
     inputRef: inputValidationRef,
     commitValidation,
   } = useFieldControlValidation();
+
+  const [checked, setCheckedState] = useControlled({
+    controlled: name && groupValue ? groupValue.includes(name) : externalChecked,
+    default: name && defaultGroupValue ? defaultGroupValue.includes(name) : defaultChecked,
+    name: 'Checkbox',
+    state: 'checked',
+  });
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
   const id = useBaseUiId(idProp);
