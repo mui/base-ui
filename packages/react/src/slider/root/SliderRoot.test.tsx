@@ -18,7 +18,7 @@ const GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL = {
   x: 0,
   y: 0,
   top: 0,
-  right: 0,
+  right: 100,
   toJSON() {},
 };
 
