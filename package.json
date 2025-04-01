@@ -86,7 +86,7 @@
     "@vitest/browser": "^3.1.1",
     "@vitest/coverage-istanbul": "3.1.1",
     "@vitest/ui": "3.1.1",
-    "babel-loader": "^9.2.1",
+    "babel-loader": "^10.0.0",
     "babel-plugin-add-import-extension": "1.6.0",
     "babel-plugin-macros": "^3.1.0",
     "babel-plugin-module-resolver": "^5.0.2",
