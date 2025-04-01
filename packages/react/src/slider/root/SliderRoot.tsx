@@ -49,7 +49,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
   const disabled = fieldDisabled || disabledProp;
 
   const { getRootProps, ...slider } = useSliderRoot({
-    'aria-labelledby': props['aria-labelledby'] ?? labelId ?? '',
+    'aria-labelledby': props['aria-labelledby'] ?? labelId,
     defaultValue,
     disabled,
     id: id ?? '',

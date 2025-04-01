@@ -507,7 +507,7 @@ export namespace useSliderRoot {
     /**
      * The id of the element containing a label for the slider.
      */
-    'aria-labelledby': string;
+    'aria-labelledby': string | undefined;
     /**
      * The default value. Use when the component is not controlled.
      */
