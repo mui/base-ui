@@ -1,8 +1,0 @@
-{
-  "name": "CheckboxRoot",
-  "props": {
-    "onCheckedChange": {
-      "type": "(checked, event) => void"
-    }
-  }
-}

@@ -9,7 +9,7 @@ import { refType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 function CompositeItem<Metadata>(props: CompositeItem.Props<Metadata>) {
   const { render, className, itemRef, metadata, ...otherProps } = props;

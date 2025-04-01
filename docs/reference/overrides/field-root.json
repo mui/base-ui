@@ -1,8 +1,0 @@
-{
-  "name": "FieldRoot",
-  "props": {
-    "validate": {
-      "type": "(value) => string | string[] | null | Promise"
-    }
-  }
-}
