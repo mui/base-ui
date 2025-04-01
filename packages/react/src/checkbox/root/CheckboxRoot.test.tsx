@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui-components/react/checkbox';
+import { Field } from '@base-ui-components/react/field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Checkbox.Root />', () => {
@@ -256,6 +257,30 @@ describe('<Checkbox.Root />', () => {
       });
 
       expect(checkbox).to.have.attribute('aria-checked', 'true');
+    });
+  });
+
+  describe('with Field.Root parent', () => {
+    it('should receive disabled prop from Field.Root', async () => {
+      const { getAllByRole } = await render(
+        <Field.Root disabled>
+          <Checkbox.Root />
+        </Field.Root>,
+      );
+
+      const [checkbox] = getAllByRole('checkbox');
+      expect(checkbox).to.have.attribute('disabled');
+    });
+
+    it('should receive name prop from Field.Root', async () => {
+      const { container } = await render(
+        <Field.Root name="field-checkbox">
+          <Checkbox.Root />
+        </Field.Root>,
+      );
+
+      const input = container.querySelector('input[type="checkbox"]');
+      expect(input).to.have.attribute('name', 'field-checkbox');
     });
   });
 
