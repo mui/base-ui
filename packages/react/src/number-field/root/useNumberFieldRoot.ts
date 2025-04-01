@@ -155,10 +155,7 @@ export function useNumberFieldRoot(
     (unvalidatedValue: number | null, event?: React.MouseEvent | Event, dir?: 1 | -1) => {
       const eventWithOptionalKeyState = event as EventWithOptionalKeyState;
       const validatedValue = toValidatedNumber(unvalidatedValue, {
-        step:
-          event?.type === 'focusout' || !dir
-            ? undefined
-            : getStepAmount(eventWithOptionalKeyState) * dir,
+        step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
         format: formatOptionsRef.current,
         minWithDefault,
         maxWithDefault,
