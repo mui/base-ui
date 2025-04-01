@@ -25,7 +25,7 @@
     "playwright": "^1.51.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.2.0",
+    "react-router-dom": "^7.4.1",
     "sinon": "^17.0.1",
     "util": "^0.12.5",
     "webpack": "^5.97.1",
