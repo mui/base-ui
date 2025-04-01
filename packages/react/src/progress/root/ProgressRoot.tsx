@@ -31,7 +31,6 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
 
   const { getRootProps, ...progress } = useProgressRoot({
     'aria-label': props['aria-label'],
-    'aria-labelledby': props['aria-labelledby'],
     'aria-valuetext': props['aria-valuetext'],
     format,
     getAriaLabel,
