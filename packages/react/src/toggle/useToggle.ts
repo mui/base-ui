@@ -33,7 +33,6 @@ export function useToggle(parameters: useToggle.Parameters): useToggle.ReturnVal
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     buttonRef: externalRef,
-    type: 'button',
   });
 
   const getRootProps = React.useCallback(

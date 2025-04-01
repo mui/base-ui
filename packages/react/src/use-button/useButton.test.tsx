@@ -200,4 +200,30 @@ describe('useButton', () => {
       expect(container.firstChild).to.have.text('Submit');
     });
   });
+
+  describe('param: type', () => {
+    it('defaults to button', async () => {
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { disabled, type, ...otherProps } = props;
+        const { getButtonProps } = useButton({ disabled, type });
+
+        return <button {...getButtonProps(otherProps)} />;
+      }
+
+      const { getByRole } = await render(<TestButton>Submit</TestButton>);
+      expect(getByRole('button')).to.have.property('type', 'button');
+    });
+
+    it('should set the type attribute', async () => {
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { disabled, type, ...otherProps } = props;
+        const { getButtonProps } = useButton({ disabled, type });
+
+        return <button {...getButtonProps(otherProps)} />;
+      }
+
+      const { getByRole } = await render(<TestButton type="submit">Submit</TestButton>);
+      expect(getByRole('button')).to.have.property('type', 'submit');
+    });
+  });
 });
