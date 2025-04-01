@@ -1,0 +1,7 @@
+.Indicator {
+  position: absolute;
+  z-index: -1;
+  inset: 4px 0 5px 0;
+  border-radius: 0.25rem;
+  background-color: var(--color-gray-100);
+}

@@ -4,8 +4,9 @@ import { Tabs } from '@base-ui-components/react/tabs';
 import { AnimatePresence, motion, type HTMLMotionProps } from 'motion/react';
 import styles from '../../../(public)/(content)/react/components/tabs/demos/hero/css-modules/index.module.css';
 import { OverviewIcon, ProjectIcon, PersonIcon } from './_icons';
+import motionStyles from './motion.module.css';
 
-const DURATION = 0.6; // seconds
+const DURATION = 1; // seconds
 
 const MotionTabPanel = React.forwardRef(function MotionTabPanel(
   props: Tabs.Panel.Props,
@@ -52,24 +53,58 @@ const MotionTabPanel = React.forwardRef(function MotionTabPanel(
   );
 });
 
+const MotionTab = React.forwardRef(function MotionTab(
+  props: Tabs.Tab.Props & {
+    selectedValue: Tabs.Tab.Props['value'];
+  },
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { value, selectedValue, style, children, ...otherProps } = props;
+  return (
+    <Tabs.Tab
+      ref={forwardedRef}
+      value={value}
+      style={{
+        ...style,
+        position: 'relative',
+      }}
+      {...otherProps}
+    >
+      {children}
+      {value === selectedValue ? (
+        <Tabs.Indicator
+          className={motionStyles.Indicator}
+          render={
+            <motion.div
+              layoutId="indicator"
+              id="indicator"
+              initial={false}
+              animate={{ opacity: 1 }}
+              transition={{
+                layout: { duration: DURATION },
+              }}
+            />
+          }
+        />
+      ) : null}
+    </Tabs.Tab>
+  );
+});
+
 export default function ExampleTabs() {
   const [value, setValue] = React.useState('overview');
   return (
     <Tabs.Root className={styles.Tabs} value={value} onValueChange={setValue}>
       <Tabs.List className={styles.List}>
-        <Tabs.Tab className={styles.Tab} value="overview">
+        <MotionTab className={styles.Tab} value="overview" selectedValue={value}>
           Overview
-        </Tabs.Tab>
-        <Tabs.Tab className={styles.Tab} value="projects">
+        </MotionTab>
+        <MotionTab className={styles.Tab} value="projects" selectedValue={value}>
           Projects
-        </Tabs.Tab>
-        <Tabs.Tab className={styles.Tab} value="account">
+        </MotionTab>
+        <MotionTab className={styles.Tab} value="account" selectedValue={value}>
           Account
-        </Tabs.Tab>
-        <Tabs.Indicator
-          className={styles.Indicator}
-          style={{ transitionProperty: 'none !important' }}
-        />
+        </MotionTab>
       </Tabs.List>
 
       <AnimatePresence mode="wait">
