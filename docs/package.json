@@ -56,7 +56,7 @@
     "react-is": "^19.1.0",
     "react-router-dom": "^7.2.0",
     "react-runner": "^1.0.5",
-    "rehype-pretty-code": "^0.14.0",
+    "rehype-pretty-code": "^0.14.1",
     "remark": "^15.0.1",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1",
