@@ -69,7 +69,7 @@
     "to-vfile": "^8.0.0",
     "unist-util-visit": "^5.0.0",
     "unist-util-visit-parents": "^6.0.1",
-    "vfile-matter": "^5.0.0"
+    "vfile-matter": "^5.0.1"
   },
   "devDependencies": {
     "@babel/plugin-transform-react-constant-elements": "^7.25.9",
