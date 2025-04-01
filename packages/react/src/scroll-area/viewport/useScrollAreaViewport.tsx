@@ -9,9 +9,7 @@ import { MIN_THUMB_SIZE } from '../constants';
 import { getOffset } from '../utils/getOffset';
 import { onVisible } from '../utils/onVisible';
 
-export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) {
-  const { children } = params;
-
+export function useScrollAreaViewport() {
   const {
     viewportRef,
     scrollbarYRef,
@@ -211,17 +209,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
               y: viewportRef.current.scrollTop,
             });
           },
-          children: (
-            <div
-              role="presentation"
-              ref={contentWrapperRef}
-              style={{
-                minWidth: 'fit-content',
-              }}
-            >
-              {children}
-            </div>
-          ),
         },
         externalProps,
       ),
@@ -229,7 +216,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       rootId,
       hiddenState.scrollbarXHidden,
       hiddenState.scrollbarYHidden,
-      children,
       computeThumb,
       handleScroll,
       viewportRef,
@@ -242,10 +228,4 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     }),
     [getViewportProps],
   );
-}
-
-namespace useScrollAreaViewport {
-  export interface Parameters {
-    children?: React.ReactNode;
-  }
 }
