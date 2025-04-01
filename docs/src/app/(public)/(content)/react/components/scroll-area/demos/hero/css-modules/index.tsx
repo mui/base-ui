@@ -6,7 +6,7 @@ export default function ExampleScrollArea() {
   return (
     <ScrollArea.Root className={styles.ScrollArea}>
       <ScrollArea.Viewport className={styles.Viewport}>
-        <div className={styles.Content}>
+        <ScrollArea.Content className={styles.Content}>
           <p className={styles.Paragraph}>
             Vernacular architecture is building done outside any academic tradition,
             and without professional guidance. It is not a particular architectural
@@ -29,7 +29,7 @@ export default function ExampleScrollArea() {
             an effort to be more energy conscious with contemporary design and
             construction—part of a broader interest in sustainable design.
           </p>
-        </div>
+        </ScrollArea.Content>
       </ScrollArea.Viewport>
       <ScrollArea.Scrollbar className={styles.Scrollbar}>
         <ScrollArea.Thumb className={styles.Thumb} />

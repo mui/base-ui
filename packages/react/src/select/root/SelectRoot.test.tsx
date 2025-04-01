@@ -4,6 +4,7 @@ import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
+import { Field } from '@base-ui-components/react/field';
 
 describe('<Select.Root />', () => {
   beforeEach(() => {
@@ -496,7 +497,7 @@ describe('<Select.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-starting-style] {
             animation: test-anim 1ms;
           }
@@ -631,6 +632,99 @@ describe('<Select.Root />', () => {
 
       await user.click(trigger);
       expect(handleOpenChange.callCount).to.equal(1);
+    });
+  });
+
+  describe('with Field.Root parent', () => {
+    it('should receive disabled prop from Field.Root', async () => {
+      await render(
+        <Field.Root disabled>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.attribute('aria-disabled', 'true');
+    });
+
+    it('should receive name prop from Field.Root', async () => {
+      await render(
+        <Field.Root name="field-select">
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).to.have.attribute('name', 'field-select');
+    });
+  });
+
+  it('resets selected index when value is set to null without a null item', async () => {
+    function App() {
+      const [value, setValue] = React.useState<string | null>(null);
+      return (
+        <div>
+          <button onClick={() => setValue('1')}>1</button>
+          <button onClick={() => setValue('2')}>2</button>
+          <button onClick={() => setValue(null)}>null</button>
+          <Select.Root value={value} onValueChange={setValue}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value placeholder="Select a font" data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="1">1</Select.Item>
+                  <Select.Item value="2">2</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    await user.click(screen.getByRole('button', { name: '1' }));
+    expect(screen.getByTestId('value')).to.have.text('1');
+
+    await user.click(screen.getByRole('button', { name: '2' }));
+    expect(screen.getByTestId('value')).to.have.text('2');
+
+    await user.click(screen.getByRole('button', { name: 'null' }));
+    expect(screen.getByTestId('value')).to.have.text('Select a font');
+
+    await user.click(screen.getByTestId('trigger'));
+    await waitFor(() => {
+      expect(screen.queryByRole('option', { name: '2' })).not.to.have.attribute(
+        'data-selected',
+        '',
+      );
     });
   });
 });

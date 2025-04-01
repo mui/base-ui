@@ -5,6 +5,7 @@ import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui-components/react/switch';
 import { userEvent } from '@testing-library/user-event';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+import { Field } from '@base-ui-components/react/field';
 
 describe('<Switch.Root />', () => {
   const { render } = createRenderer();
@@ -276,8 +277,33 @@ describe('<Switch.Root />', () => {
   });
 
   it('should set the name attribute on the input', async () => {
-    await render(<Switch.Root name="switch-name" />);
-    const internalInput = screen.getByRole('checkbox', { hidden: true });
-    expect(internalInput).to.have.attribute('name', 'switch-name');
+    const { getByRole } = await render(<Switch.Root name="switch-name" />);
+    const input = getByRole('checkbox', { hidden: true });
+
+    expect(input).to.have.attribute('name', 'switch-name');
+  });
+
+  describe('with Field.Root parent', () => {
+    it('should receive disabled prop from Field.Root', async () => {
+      const { getByRole } = await render(
+        <Field.Root disabled>
+          <Switch.Root />
+        </Field.Root>,
+      );
+
+      const switchElement = getByRole('switch');
+      expect(switchElement).to.have.attribute('disabled');
+    });
+
+    it('should receive name prop from Field.Root', async () => {
+      const { getByRole } = await render(
+        <Field.Root name="field-switch">
+          <Switch.Root />
+        </Field.Root>,
+      );
+
+      const input = getByRole('checkbox', { hidden: true });
+      expect(input).to.have.attribute('name', 'field-switch');
+    });
   });
 });

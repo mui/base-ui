@@ -11,7 +11,7 @@ import { visuallyHidden } from '../utils';
 
 export function useRadioGroup(params: useRadioGroup.Parameters) {
   const {
-    disabled = false,
+    disabled: disabledProp = false,
     required,
     name: nameProp,
     defaultValue,
@@ -25,8 +25,10 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
     setFocused,
     validationMode,
     name: fieldName,
+    disabled: fieldDisabled,
   } = useFieldRootContext();
 
+  const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
   const fieldControlValidation = useFieldControlValidation();

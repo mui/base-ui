@@ -46,8 +46,15 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
 
   const id = useBaseUiId(idProp);
 
-  const { labelId, state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
+  const {
+    labelId,
+    state: fieldState,
+    disabled: fieldDisabled,
+    name: fieldName,
+  } = useFieldRootContext();
+
   const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp ?? '';
 
   const { getRootProps, ...slider } = useSliderRoot({
     'aria-labelledby': ariaLabelledby ?? labelId ?? '',
@@ -58,7 +65,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     max,
     min,
     minStepsBetweenValues,
-    name: nameProp ?? '',
+    name,
     onValueChange: (onValueChangeProp as useSliderRoot.Parameters['onValueChange']) ?? NOOP,
     onValueCommitted:
       (onValueCommittedProp as useSliderRoot.Parameters['onValueCommitted']) ?? NOOP,

@@ -11,6 +11,7 @@ import { useMenuPositioner } from './useMenuPositioner';
 import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { CompositeList } from '../../composite/list/CompositeList';
+import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
@@ -134,7 +135,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   return (
     <MenuPositionerContext.Provider value={contextValue}>
       {mounted && modal && openReason !== 'hover' && parentNodeId === null && (
-        <InternalBackdrop inert={!open} />
+        <InternalBackdrop inert={inertValue(!open)} />
       )}
       <FloatingNode id={nodeId}>
         <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
