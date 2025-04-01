@@ -34,14 +34,14 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     buttonRef: mergedRef,
   });
 
-  const commitSelection = useEventCallback((event: Event) => {
-    handleSelect();
+  const commitSelection = useEventCallback((event: MouseEvent) => {
+    handleSelect(event);
     setOpen(false, event);
   });
 
   const lastKeyRef = React.useRef<string | null>(null);
   const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
-
+  const didPointerDownRef = React.useRef(false);
   const prevPopupHeightRef = React.useRef(0);
   const allowFocusSyncRef = React.useRef(true);
 
@@ -109,11 +109,12 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
             lastKeyRef.current = event.key;
           },
           onClick(event) {
-            if (
-              disabled ||
-              (lastKeyRef.current === ' ' && typingRef.current) ||
-              (pointerTypeRef.current !== 'touch' && !highlighted)
-            ) {
+            if (didPointerDownRef.current) {
+              didPointerDownRef.current = false;
+              return;
+            }
+
+            if (disabled || (lastKeyRef.current === ' ' && typingRef.current)) {
               return;
             }
 
@@ -127,11 +128,13 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           },
           onPointerDown(event) {
             pointerTypeRef.current = event.pointerType;
+            didPointerDownRef.current = true;
           },
           onMouseUp(event) {
             if (disabled) {
               return;
             }
+
             const disallowSelectedMouseUp = !selectionRef.current.allowSelectedMouseUp && selected;
             const disallowUnselectedMouseUp =
               !selectionRef.current.allowUnselectedMouseUp && !selected;
@@ -213,7 +216,7 @@ export namespace useSelectItem {
     /**
      * The function to handle the selection of the item.
      */
-    handleSelect: () => void;
+    handleSelect: (event: MouseEvent) => void;
     /**
      * The ref to the selection state of the item.
      */
