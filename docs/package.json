@@ -90,7 +90,7 @@
     "mdast-util-mdx-jsx": "^3.2.0",
     "motion": "^11.18.2",
     "prettier": "^3.5.3",
-    "rimraf": "^5.0.10",
+    "rimraf": "^6.0.1",
     "serve": "^14.2.4",
     "tailwindcss": "4.0.3",
     "unified": "^11.0.5",

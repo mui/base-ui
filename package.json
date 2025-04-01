@@ -136,7 +136,7 @@
     "react-dom": "^19.1.0",
     "recast": "^0.23.11",
     "remark": "^15.0.1",
-    "rimraf": "^5.0.10",
+    "rimraf": "^6.0.1",
     "serve": "^14.2.4",
     "style-loader": "^4.0.0",
     "stylelint": "^16.17.0",
