@@ -129,7 +129,7 @@
     "postcss-styled-syntax": "^0.7.1",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
-    "pretty-quick": "^4.0.0",
+    "pretty-quick": "^4.1.1",
     "process": "^0.11.10",
     "react": "^19.0.0",
     "react-docgen": "^5.4.3",
