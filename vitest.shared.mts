@@ -8,20 +8,46 @@ const environment = process.env.VITEST_ENV;
 
 type BrowserModeConfig = (UserWorkspaceConfig['test'] & {})['browser'];
 
-const browserConfig: BrowserModeConfig =
-  environment === 'chromium' || environment === 'firefox'
-    ? {
-        enabled: true,
-        provider: 'playwright',
-        instances: [
-          {
-            browser: environment,
-          },
-        ],
-        headless: !!process.env.CI,
-        screenshotFailures: false,
-      }
-    : undefined;
+const supportedBrowsers = ['chromium', 'webkit'];
+
+if (process.platform === 'darwin') {
+  // Playwright has issues with Firefox on Ubuntu and Windows: https://github.com/microsoft/playwright/issues/34586
+  supportedBrowsers.push('firefox');
+}
+
+function getBrowserConfig(): BrowserModeConfig {
+  if (
+    !!environment &&
+    (supportedBrowsers.includes(environment) || environment === 'all-browsers')
+  ) {
+    const commonConfig = {
+      enabled: true,
+      provider: 'playwright',
+      screenshotFailures: false,
+    };
+
+    if (environment === 'all-browsers') {
+      return {
+        ...commonConfig,
+        headless: true,
+        instances: supportedBrowsers.map((browser) => ({ browser })),
+      };
+    }
+
+    // "Headful" WebKit on Windows is not usable.
+    const isWebKitOnWindows = environment === 'webkit' && process.platform === 'win32';
+
+    if (supportedBrowsers.includes(environment)) {
+      return {
+        ...commonConfig,
+        headless: !!process.env.CI || isWebKitOnWindows,
+        instances: [{ browser: environment }],
+      };
+    }
+  }
+
+  return undefined;
+}
 
 const config: UserWorkspaceConfig = {
   test: {
@@ -35,7 +61,7 @@ const config: UserWorkspaceConfig = {
         url: 'http://localhost',
       },
     },
-    browser: browserConfig,
+    browser: getBrowserConfig(),
     env: {
       VITEST: 'true',
     },

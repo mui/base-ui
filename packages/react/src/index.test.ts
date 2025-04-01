@@ -27,7 +27,7 @@ describe('@base-ui-components/react', () => {
         .filter((key) => !['.', './utils'].includes(key) && !key.startsWith('./unstable-'))
         .map(async (subpath) => {
           const importSpecifier = `@base-ui-components/react/${subpath.replace('./', '')}`;
-          const module = await import(importSpecifier);
+          const module = await import(/* @vite-ignore */ importSpecifier);
 
           Object.keys(module).forEach((exportKey) => {
             expect((BaseUI as Record<string, unknown>)[exportKey]).not.to.equal(
