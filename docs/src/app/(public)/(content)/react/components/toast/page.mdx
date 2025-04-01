@@ -272,24 +272,25 @@ The `data-swipe-direction` attribute can be used to determine the swipe directio
   &[data-swipe-direction='up'] {
     transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
   }
+  &[data-swipe-direction='down'] {
+    transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
+  }
   &[data-swipe-direction='left'] {
     transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
   }
   &[data-swipe-direction='right'] {
     transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
   }
-  &[data-swipe-direction='down'] {
-    transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
-  }
 }
 ```
+
+The `data-limited` attribute indicates that the toast was removed from the list due to exceeding the `limit` option. This is useful for animating the toast differently when it is removed from the list.
 
 ## Examples
 
 ### Custom position
 
-The position of the toasts is controlled by your own CSS. To change the toasts' position, you can modify the `Viewport` and `Root` styles. A more general component could accept a `data-position` attribute, which the CSS handles for each variation.
-The following shows a `top center` position:
+The position of the toasts is controlled by your own CSS. To change the toasts' position, you can modify the `Viewport` and `Root` styles. A more general component could accept a `data-position` attribute, which the CSS handles for each variation. The following shows a top-center position:
 
 <Demo path="./demos/position" />
 
