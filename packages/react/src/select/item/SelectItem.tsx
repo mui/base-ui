@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import type { UseInteractionsReturn } from '@floating-ui/react';
+import type { FloatingEvents, UseInteractionsReturn } from '@floating-ui/react';
 import { SelectRootContext, useSelectRootContext } from '../root/SelectRootContext';
 import { SelectIndexContext, useSelectIndexContext } from '../root/SelectIndexContext';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
@@ -32,6 +32,7 @@ interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
   setActiveIndex: SelectIndexContext['setActiveIndex'];
   popupRef: React.RefObject<HTMLDivElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
+  events: FloatingEvents;
 }
 
 const InnerSelectItem = React.forwardRef(function InnerSelectItem(
@@ -56,6 +57,7 @@ const InnerSelectItem = React.forwardRef(function InnerSelectItem(
     setActiveIndex,
     popupRef,
     keyboardActiveRef,
+    events,
     ...otherProps
   } = props;
 
@@ -63,10 +65,9 @@ const InnerSelectItem = React.forwardRef(function InnerSelectItem(
     () => ({
       disabled,
       open,
-      highlighted,
       selected,
     }),
-    [disabled, open, highlighted, selected],
+    [disabled, open, selected],
   );
 
   const { getItemProps, rootRef } = useSelectItem({
@@ -84,6 +85,7 @@ const InnerSelectItem = React.forwardRef(function InnerSelectItem(
     setActiveIndex,
     popupRef,
     keyboardActiveRef,
+    events,
   });
 
   const mergedRef = useForkRef(rootRef, forwardedRef);
@@ -139,6 +141,14 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  events: PropTypes.shape({
+    emit: PropTypes.func.isRequired,
+    off: PropTypes.func.isRequired,
+    on: PropTypes.func.isRequired,
+  }).isRequired,
   /**
    * @ignore
    */
@@ -254,6 +264,7 @@ const SelectItem = React.forwardRef(function SelectItem(
     registerSelectedItem,
     value,
     keyboardActiveRef,
+    floatingRootContext,
   } = useSelectRootContext();
 
   const itemRef = React.useRef<HTMLDivElement | null>(null);
@@ -302,6 +313,7 @@ const SelectItem = React.forwardRef(function SelectItem(
       setActiveIndex={setActiveIndex}
       popupRef={popupRef}
       keyboardActiveRef={keyboardActiveRef}
+      events={floatingRootContext.events}
       {...otherProps}
     />
   );
@@ -313,7 +325,6 @@ namespace SelectItem {
      * Whether the component should ignore user interaction.
      */
     disabled: boolean;
-    highlighted: boolean;
     selected: boolean;
     /**
      * Whether the select menu is currently open.
