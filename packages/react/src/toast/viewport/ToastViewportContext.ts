@@ -11,7 +11,9 @@ export const ToastViewportContext = React.createContext<ToastViewportContext | u
 export function useToastViewportContext() {
   const context = React.useContext(ToastViewportContext);
   if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
+    throw new Error(
+      'Base UI: ToastViewportContext is missing. Toast parts must be placed within <Toast.Viewport>.',
+    );
   }
   return context;
 }
