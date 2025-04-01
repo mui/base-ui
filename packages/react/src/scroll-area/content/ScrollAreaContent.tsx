@@ -24,6 +24,7 @@ const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
     ref: forwardedRef,
     state,
     extraProps: mergeProps<'div'>(otherProps, {
+      role: 'presentation',
       style: {
         minWidth: 'fit-content',
       },
