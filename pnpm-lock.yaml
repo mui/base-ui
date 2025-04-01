@@ -264,8 +264,8 @@ importers:
         specifier: ^15.0.1
         version: 15.0.1
       rimraf:
-        specifier: ^5.0.10
-        version: 5.0.10
+        specifier: ^6.0.1
+        version: 6.0.1
       serve:
         specifier: ^14.2.4
         version: 14.2.4
@@ -547,8 +547,8 @@ importers:
         specifier: ^3.5.3
         version: 3.5.3
       rimraf:
-        specifier: ^5.0.10
-        version: 5.0.10
+        specifier: ^6.0.1
+        version: 6.0.1
       serve:
         specifier: ^14.2.4
         version: 14.2.4
@@ -7772,10 +7772,6 @@ packages:
   rimraf@4.4.1:
     resolution: {integrity: sha512-Gk8NlF062+T9CqNGn6h4tls3k6T1+/nXdOcSZVikNVtlRdYpA7wRJJMoXmuvOnLW844rPjdQ7JgXCYM6PPC/og==}
     engines: {node: '>=14'}
-    hasBin: true
-
-  rimraf@5.0.10:
-    resolution: {integrity: sha512-l0OE8wL34P4nJH/H2ffoaniAokM2qSmrtXHmlpvYr5AVVX8msAyW0l8NVJFDxlSK4u3Uh/f41cQheDVdnYijwQ==}
     hasBin: true
 
   rimraf@6.0.1:
@@ -17556,10 +17552,6 @@ snapshots:
   rimraf@4.4.1:
     dependencies:
       glob: 9.3.5
-
-  rimraf@5.0.10:
-    dependencies:
-      glob: 10.4.5
 
   rimraf@6.0.1:
     dependencies:
