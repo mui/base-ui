@@ -41,27 +41,61 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     }, [hiddenUntilFoundProp, keepMountedProp]);
   }
 
-  const { mounted, open, panelId, setPanelId, setMounted, setOpen, state } =
-    useCollapsibleRootContext();
-
-  useEnhancedEffect(() => {
-    if (idProp) {
-      setPanelId(idProp);
-    }
-  }, [idProp, setPanelId]);
-
-  const hiddenUntilFound = hiddenUntilFoundProp ?? false;
-
-  const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
-    hiddenUntilFound,
-    panelId,
-    keepMounted: keepMountedProp ?? false,
+  const {
+    abortControllerRef,
+    animationTypeRef,
+    height,
     mounted,
+    onOpenChange,
     open,
-    ref: forwardedRef,
-    setPanelId,
+    panelId,
+    panelRef,
+    runOnceAnimationsFinish,
+    setDimensions,
+    setHiddenUntilFound,
+    setKeepMounted,
     setMounted,
     setOpen,
+    setPanelId,
+    setVisible,
+    state,
+    transitionDimensionRef,
+    visible,
+    width,
+  } = useCollapsibleRootContext();
+
+  const hiddenUntilFound = hiddenUntilFoundProp ?? false;
+  const keepMounted = keepMountedProp ?? false;
+
+  useEnhancedEffect(() => {
+    setHiddenUntilFound(hiddenUntilFound);
+  }, [setHiddenUntilFound, hiddenUntilFound]);
+
+  useEnhancedEffect(() => {
+    setKeepMounted(keepMounted);
+  }, [setKeepMounted, keepMounted]);
+
+  const { getRootProps } = useCollapsiblePanel({
+    abortControllerRef,
+    animationTypeRef,
+    externalRef: forwardedRef,
+    height,
+    hiddenUntilFound,
+    id: idProp ?? panelId,
+    keepMounted,
+    mounted,
+    onOpenChange,
+    open,
+    panelRef,
+    runOnceAnimationsFinish,
+    setDimensions,
+    setMounted,
+    setOpen,
+    setPanelId,
+    setVisible,
+    transitionDimensionRef,
+    visible,
+    width,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -80,11 +114,11 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
-  if (!keepMountedProp && !isOpen && !hiddenUntilFound) {
-    return null;
+  if (keepMounted || hiddenUntilFound || (!keepMounted && mounted)) {
+    return renderElement();
   }
 
-  return renderElement();
+  return null;
 });
 
 export { CollapsiblePanel };
