@@ -28,7 +28,7 @@
     "react-router-dom": "^7.2.0",
     "sinon": "^17.0.1",
     "util": "^0.12.5",
-    "webpack": "^5.97.1",
+    "webpack": "^5.98.0",
     "yargs": "^17.7.2"
   }
 }
