@@ -1,13 +1,72 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { FloatingTree } from '@floating-ui/react';
-import { MenubarRootContext } from './MenubarRootContext';
+import {
+  FloatingNode,
+  useFloating,
+  useFloatingNodeId,
+  useFloatingParentNodeId,
+} from '@floating-ui/react';
 import { MenuOrientation } from '../../menu/root/useMenuRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { useMenuRootContext } from '../../menu/root/MenuRootContext';
+import { Menu } from '../../menu';
+import { MenuPortalContext } from '../../menu/portal/MenuPortalContext';
+import { CompositeList } from '../../composite/list/CompositeList';
+import { useForkRef } from '../../utils';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { inertValue } from '../../utils/inertValue';
 
 const EMPTY_OBJECT = {};
+
+const FakePositioner = React.forwardRef(function FakePositioner(
+  props: BaseUIComponentProps<'div', {}>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { className, render, ...otherProps } = props;
+
+  const {
+    open,
+    floatingRootContext,
+    setPositionerElement,
+    itemDomElements,
+    itemLabels,
+    modal,
+    openReason,
+  } = useMenuRootContext();
+
+  const nodeId = useFloatingNodeId();
+  const parentNodeId = useFloatingParentNodeId();
+
+  useFloating({
+    rootContext: floatingRootContext,
+    nodeId,
+  });
+
+  const mergedRef = useForkRef(forwardedRef, setPositionerElement);
+
+  const { renderElement } = useComponentRenderer({
+    render: render ?? 'div',
+    className,
+    state: EMPTY_OBJECT,
+    ref: mergedRef,
+    extraProps: {
+      ...otherProps,
+    },
+  });
+
+  return (
+    <React.Fragment>
+      {modal && openReason !== 'hover' && parentNodeId === null && (
+        <InternalBackdrop inert={inertValue(!open)} />
+      )}
+      <FloatingNode id={nodeId}>
+        <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
+          {renderElement()}
+        </CompositeList>
+      </FloatingNode>
+    </React.Fragment>
+  );
+});
 
 /**
  *
@@ -23,30 +82,41 @@ const MenubarRoot = React.forwardRef(function MenubarRoot(
     orientation = 'horizontal',
     loop = true,
     disabled = false,
-    openOnHover = false,
-    delay = 100,
     ...otherProps
   } = props;
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    ref: forwardedRef,
-    extraProps: {
-      role: 'menubar',
-      ...otherProps,
-    },
-    state: EMPTY_OBJECT,
-    className,
-  });
-
   return (
-    <FloatingTree>
-      <MenubarRootContext.Provider value={EMPTY_OBJECT}>
-        <CompositeRoot>{renderElement()}</CompositeRoot>
-      </MenubarRootContext.Provider>
-    </FloatingTree>
+    <FakeRoot>
+      <FakePortal>
+        <FakePositioner>
+          <FakePopup className={typeof className === 'string' ? className : undefined}>
+            {props.children}
+          </FakePopup>
+        </FakePositioner>
+      </FakePortal>
+    </FakeRoot>
   );
 });
+
+function FakeRoot(props: React.PropsWithChildren) {
+  return (
+    <Menu.Root open modal={false} orientation="horizontal">
+      {props.children}
+    </Menu.Root>
+  );
+}
+
+function FakePortal(props: React.PropsWithChildren) {
+  return (
+    <div>
+      <MenuPortalContext.Provider value>{props.children}</MenuPortalContext.Provider>
+    </div>
+  );
+}
+
+function FakePopup(props: React.ComponentPropsWithoutRef<'div'>) {
+  return <Menu.Popup {...props} />;
+}
 
 namespace MenubarRoot {
   export interface State {}
@@ -58,28 +128,5 @@ namespace MenubarRoot {
     delay?: number;
   }
 }
-
-MenubarRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
 
 export { MenubarRoot };

@@ -10,9 +10,9 @@ import classes from './menubar.module.css';
 export default function MenubarExperiment() {
   return (
     <div>
-      <Menubar.Root className={classes.Root} orientation="horizontal">
-        <Menu.Root openOnHover={false}>
-          <Menu.Trigger className={classes.Item}>File</Menu.Trigger>
+      <Menubar.Root className={classes.Root} orientation="vertical">
+        <Menu.Root openOnHover={false} modal={false}>
+          <Menu.SubmenuTrigger className={classes.Item}>File</Menu.SubmenuTrigger>
 
           <Menu.Portal>
             <Menu.Positioner
@@ -58,8 +58,8 @@ export default function MenubarExperiment() {
           </Menu.Portal>
         </Menu.Root>
 
-        <Menu.Root openOnHover={false}>
-          <Menu.Trigger className={classes.Item}>Edit</Menu.Trigger>
+        <Menu.Root openOnHover={false} modal={false}>
+          <Menu.SubmenuTrigger className={classes.Item}>Edit</Menu.SubmenuTrigger>
 
           <Menu.Portal>
             <Menu.Positioner
@@ -98,8 +98,8 @@ export default function MenubarExperiment() {
           </Menu.Portal>
         </Menu.Root>
 
-        <Menu.Root openOnHover={false}>
-          <Menu.Trigger className={classes.Item}>View</Menu.Trigger>
+        <Menu.Root openOnHover={false} modal={false}>
+          <Menu.SubmenuTrigger className={classes.Item}>View</Menu.SubmenuTrigger>
 
           <Menu.Portal>
             <Menu.Positioner
@@ -133,7 +133,7 @@ export default function MenubarExperiment() {
         </Menu.Root>
 
         <Menu.Root disabled>
-          <Menu.Trigger className={classes.Item}>Develop</Menu.Trigger>
+          <Menu.SubmenuTrigger className={classes.Item}>Develop</Menu.SubmenuTrigger>
           <Menu.Portal>
             <Menu.Positioner className={menuClasses.Positioner} sideOffset={8}>
               <Menu.Popup className={menuClasses.Popup}>

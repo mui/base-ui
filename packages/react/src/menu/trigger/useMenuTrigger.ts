@@ -7,7 +7,6 @@ import { GenericHTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import { useMenubarRootContext } from '../../menubar/root/MenubarRootContext';
 
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
   const BOUNDARY_OFFSET = 2;
@@ -39,8 +38,6 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
     }
   }, [allowMouseUpTriggerRef, open]);
 
-  const isInsideMenubar = useMenubarRootContext() !== null;
-
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
       return mergeProps(
@@ -48,7 +45,6 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
           'aria-haspopup': 'menu' as const,
           tabIndex: 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
-          role: isInsideMenubar ? 'menuitem' : undefined,
           onMouseDown: (event: React.MouseEvent) => {
             if (open) {
               return;
@@ -103,15 +99,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
         getButtonProps,
       );
     },
-    [
-      getButtonProps,
-      handleRef,
-      open,
-      setOpen,
-      positionerRef,
-      allowMouseUpTriggerRef,
-      isInsideMenubar,
-    ],
+    [getButtonProps, handleRef, open, setOpen, positionerRef, allowMouseUpTriggerRef],
   );
 
   return React.useMemo(
