@@ -10,7 +10,7 @@ import classes from './menubar.module.css';
 export default function MenubarExperiment() {
   return (
     <div>
-      <Menubar.Root className={classes.Root} orientation="vertical">
+      <Menubar.Root className={classes.Root}>
         <Menu.Root openOnHover={false} modal={false}>
           <Menu.SubmenuTrigger className={classes.Item}>File</Menu.SubmenuTrigger>
 
