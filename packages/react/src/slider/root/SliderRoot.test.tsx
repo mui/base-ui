@@ -433,7 +433,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).not.toHaveComputedStyle({ webkitAppearance: 'slider-vertical' });
     });
 
-    it('should report the right position', async () => {
+    it.skipIf(isJSDOM)('should report the right position', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
         <TestSlider orientation="vertical" defaultValue={20} onValueChange={handleValueChange} />,
@@ -448,7 +448,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         x: 0,
         y: 0,
         top: 0,
-        right: 0,
+        right: 10,
         toJSON() {},
       }));
 
@@ -488,7 +488,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '1e-7');
     });
 
-    it('should round value to step precision', async () => {
+    it.skipIf(isJSDOM)('should round value to step precision', async () => {
       const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={0.2} min={0} max={1} step={0.1} />,
       );
@@ -527,71 +527,77 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '0.4');
     });
 
-    it('should not fail to round value to step precision when step is very small', async () => {
-      const { getByRole, getByTestId } = await render(
-        <TestSlider defaultValue={0.00000002} min={0} max={0.0000001} step={0.00000001} />,
-      );
-      const slider = getByRole('slider');
+    it.skipIf(isJSDOM)(
+      'should not fail to round value to step precision when step is very small',
+      async () => {
+        const { getByRole, getByTestId } = await render(
+          <TestSlider defaultValue={0.00000002} min={0} max={0.0000001} step={0.00000001} />,
+        );
+        const slider = getByRole('slider');
 
-      await act(async () => {
-        slider.focus();
-      });
+        await act(async () => {
+          slider.focus();
+        });
 
-      const sliderControl = getByTestId('control');
-      stub(sliderControl, 'getBoundingClientRect').callsFake(
-        () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
-      );
+        const sliderControl = getByTestId('control');
+        stub(sliderControl, 'getBoundingClientRect').callsFake(
+          () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
+        );
 
-      await act(async () => {
-        slider.focus();
-      });
+        await act(async () => {
+          slider.focus();
+        });
 
-      expect(slider).to.have.attribute('aria-valuenow', '2e-8');
+        expect(slider).to.have.attribute('aria-valuenow', '2e-8');
 
-      fireEvent.touchStart(
-        sliderControl,
-        createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
-      );
+        fireEvent.touchStart(
+          sliderControl,
+          createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
+        );
 
-      fireEvent.touchMove(
-        document.body,
-        createTouches([{ identifier: 1, clientX: 80, clientY: 0 }]),
-      );
-      expect(slider).to.have.attribute('aria-valuenow', '8e-8');
-    });
+        fireEvent.touchMove(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 80, clientY: 0 }]),
+        );
+        expect(slider).to.have.attribute('aria-valuenow', '8e-8');
+      },
+    );
 
-    it('should not fail to round value to step precision when step is very small and negative', async () => {
-      const { getByRole, getByTestId } = await render(
-        <TestSlider defaultValue={-0.00000002} min={-0.0000001} max={0} step={0.00000001} />,
-      );
-      const slider = getByRole('slider');
+    it.skipIf(isJSDOM)(
+      'should not fail to round value to step precision when step is very small and negative',
+      async () => {
+        const { getByRole, getByTestId } = await render(
+          <TestSlider defaultValue={-0.00000002} min={-0.0000001} max={0} step={0.00000001} />,
+        );
+        const slider = getByRole('slider');
 
-      await act(async () => {
-        slider.focus();
-      });
+        await act(async () => {
+          slider.focus();
+        });
 
-      const sliderControl = getByTestId('control');
-      stub(sliderControl, 'getBoundingClientRect').callsFake(
-        () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
-      );
+        const sliderControl = getByTestId('control');
+        stub(sliderControl, 'getBoundingClientRect').callsFake(
+          () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
+        );
 
-      await act(async () => {
-        slider.focus();
-      });
+        await act(async () => {
+          slider.focus();
+        });
 
-      expect(slider).to.have.attribute('aria-valuenow', '-2e-8');
+        expect(slider).to.have.attribute('aria-valuenow', '-2e-8');
 
-      fireEvent.touchStart(
-        sliderControl,
-        createTouches([{ identifier: 1, clientX: 80, clientY: 0 }]),
-      );
+        fireEvent.touchStart(
+          sliderControl,
+          createTouches([{ identifier: 1, clientX: 80, clientY: 0 }]),
+        );
 
-      fireEvent.touchMove(
-        document.body,
-        createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
-      );
-      expect(slider).to.have.attribute('aria-valuenow', '-8e-8');
-    });
+        fireEvent.touchMove(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
+        );
+        expect(slider).to.have.attribute('aria-valuenow', '-8e-8');
+      },
+    );
   });
 
   describe('prop: max', () => {
@@ -621,7 +627,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', String(MAX));
     });
 
-    it('should reach right edge value', async () => {
+    it.skipIf(isJSDOM)('should reach right edge value', async () => {
       const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={90} min={6} max={108} step={10} />,
       );
@@ -750,7 +756,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   });
 
   describe('events', () => {
-    it('should call handlers', async () => {
+    it.skipIf(isJSDOM)('should call handlers', async () => {
       const handleValueChange = spy();
       const handleValueCommitted = spy();
 
@@ -793,7 +799,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueCommitted.callCount).to.equal(2);
     });
 
-    it('should support touch events', async () => {
+    it.skipIf(isJSDOM)('should support touch events', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
         <TestRangeSlider defaultValue={[20, 30]} onValueChange={handleValueChange} />,
@@ -853,7 +859,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal([22, 30]);
     });
 
-    it('should only listen to changes from the same touchpoint', async () => {
+    it.skipIf(isJSDOM)('should only listen to changes from the same touchpoint', async () => {
       const handleValueChange = spy();
       const handleValueCommitted = spy();
 
@@ -904,7 +910,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueCommitted.callCount).to.equal(1);
     });
 
-    it('should hedge against a dropped mouseup event', async () => {
+    it.skipIf(isJSDOM)('should hedge against a dropped mouseup event', async () => {
       const handleValueChange = spy();
 
       const { getByTestId } = await render(
@@ -1139,7 +1145,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
-    it('is called when clicking on the control', async () => {
+    it.skipIf(isJSDOM)('is called when clicking on the control', async () => {
       const handleValueChange = spy();
       await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
 
@@ -1194,7 +1200,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(0);
     });
 
-    it('should fire only when the value changes', async () => {
+    it.skipIf(isJSDOM)('should fire only when the value changes', async () => {
       const handleValueChange = spy();
       await render(<TestSlider defaultValue={20} onValueChange={handleValueChange} />);
 
@@ -1231,7 +1237,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       ['range', [2, 1]],
     ] as Values;
     values.forEach(([valueLabel, value]) => {
-      it(`is called even if the ${valueLabel} did not change`, async () => {
+      it.skipIf(isJSDOM)(`is called even if the ${valueLabel} did not change`, async () => {
         const handleValueChange = spy();
 
         await render(
@@ -1286,43 +1292,46 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       });
     });
 
-    it('onValueCommitted is called with the same value as the latest onValueChange when pointerUp occurs at a different location than onValueChange', async () => {
-      const handleValueChange = spy();
-      const handleValueCommitted = spy();
+    it.skipIf(isJSDOM)(
+      'onValueCommitted is called with the same value as the latest onValueChange when pointerUp occurs at a different location than onValueChange',
+      async () => {
+        const handleValueChange = spy();
+        const handleValueCommitted = spy();
 
-      await render(
-        <TestSlider
-          onValueChange={handleValueChange}
-          onValueCommitted={handleValueCommitted}
-          defaultValue={0}
-        />,
-      );
+        await render(
+          <TestSlider
+            onValueChange={handleValueChange}
+            onValueCommitted={handleValueCommitted}
+            defaultValue={0}
+          />,
+        );
 
-      const sliderControl = screen.getByTestId('control');
+        const sliderControl = screen.getByTestId('control');
 
-      stub(sliderControl, 'getBoundingClientRect').callsFake(
-        () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
-      );
+        stub(sliderControl, 'getBoundingClientRect').callsFake(
+          () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
+        );
 
-      fireEvent.pointerDown(sliderControl, {
-        buttons: 1,
-        clientX: 10,
-      });
-      fireEvent.pointerMove(sliderControl, {
-        buttons: 1,
-        clientX: 15,
-      });
-      fireEvent.pointerUp(sliderControl, {
-        buttons: 1,
-        clientX: 20,
-      });
+        fireEvent.pointerDown(sliderControl, {
+          buttons: 1,
+          clientX: 10,
+        });
+        fireEvent.pointerMove(sliderControl, {
+          buttons: 1,
+          clientX: 15,
+        });
+        fireEvent.pointerUp(sliderControl, {
+          buttons: 1,
+          clientX: 20,
+        });
 
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[0][0]).to.equal(10);
-      expect(handleValueChange.args[1][0]).to.equal(15);
-      expect(handleValueCommitted.callCount).to.equal(1);
-      expect(handleValueCommitted.args[0][0]).to.equal(15);
-    });
+        expect(handleValueChange.callCount).to.equal(2);
+        expect(handleValueChange.args[0][0]).to.equal(10);
+        expect(handleValueChange.args[1][0]).to.equal(15);
+        expect(handleValueCommitted.callCount).to.equal(1);
+        expect(handleValueCommitted.args[0][0]).to.equal(15);
+      },
+    );
   });
 
   describe('keyboard interactions', () => {
