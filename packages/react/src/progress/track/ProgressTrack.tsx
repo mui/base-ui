@@ -15,7 +15,7 @@ import { BaseUIComponentProps } from '../../utils/types';
  */
 const ProgressTrack = React.forwardRef(function ProgressTrack(
   props: ProgressTrack.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
@@ -39,6 +39,8 @@ namespace ProgressTrack {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
 
+export { ProgressTrack };
+
 ProgressTrack.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -61,5 +63,3 @@ ProgressTrack.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { ProgressTrack };
