@@ -29,16 +29,19 @@ const MeterIndicator = React.forwardRef(function MeterIndicator(
     };
   }, [percentageValue]);
 
-  const getProps = React.useCallback(
+  const propGetter = React.useCallback(
     (externalProps = {}) =>
-      mergeProps<'div'>(externalProps, {
-        style: getStyles(),
-      }),
+      mergeProps<'div'>(
+        {
+          style: getStyles(),
+        },
+        externalProps,
+      ),
     [getStyles],
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getProps,
+    propGetter,
     render: render ?? 'div',
     state,
     className,

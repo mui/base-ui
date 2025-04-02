@@ -22,13 +22,16 @@ const MeterValue = React.forwardRef(function MeterValue(
 
   const getValueProps = React.useCallback(
     (externalProps = {}) =>
-      mergeProps(externalProps, {
-        'aria-hidden': true,
-        children:
-          typeof children === 'function'
-            ? children(formattedValue, value)
-            : ((formattedValue || value) ?? ''),
-      }),
+      mergeProps(
+        {
+          'aria-hidden': true,
+          children:
+            typeof children === 'function'
+              ? children(formattedValue, value)
+              : ((formattedValue || value) ?? ''),
+        },
+        externalProps,
+      ),
     [children, value, formattedValue],
   );
 
@@ -43,6 +46,16 @@ const MeterValue = React.forwardRef(function MeterValue(
 
   return renderElement();
 });
+
+namespace MeterValue {
+  export interface State extends MeterRoot.State {}
+
+  export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
+    children?: null | ((formattedValue: string, value: number) => React.ReactNode);
+  }
+}
+
+export { MeterValue };
 
 MeterValue.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -66,13 +79,3 @@ MeterValue.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-namespace MeterValue {
-  export interface State extends MeterRoot.State {}
-
-  export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    children?: null | ((formattedValue: string, value: number) => React.ReactNode);
-  }
-}
-
-export { MeterValue };

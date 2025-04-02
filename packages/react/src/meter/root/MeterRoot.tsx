@@ -58,7 +58,7 @@ const MeterRoot = React.forwardRef(function MeterRoot(
           'aria-valuemin': min,
           'aria-valuenow': percentageValue / 100,
           'aria-valuetext': getAriaValueText
-            ? getAriaValueText(value)
+            ? getAriaValueText(formattedValue, value)
             : (ariaValuetext ?? `${percentageValue}%`),
           role: 'meter',
         },
@@ -68,6 +68,7 @@ const MeterRoot = React.forwardRef(function MeterRoot(
       ariaLabel,
       ariaLabelledby,
       ariaValuetext,
+      formattedValue,
       getAriaLabel,
       getAriaValueText,
       max,
@@ -142,11 +143,12 @@ namespace MeterRoot {
      */
     getAriaLabel?: (value: number) => string;
     /**
-     * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the meter indicator.
-     * @param {number} value The component's value to format
+     * A function that returns a string value that provides a human-readable text alternative for the current value of the meter.
+     * @param {string} formattedValue The formatted value
+     * @param {number} value The raw value
      * @returns {string}
      */
-    getAriaValueText?: (value: number) => string;
+    getAriaValueText?: (formattedValue: string, value: number) => string;
     /**
      * The maximum value
      * @default 100
@@ -221,8 +223,9 @@ MeterRoot.propTypes /* remove-proptypes */ = {
    */
   getAriaLabel: PropTypes.func,
   /**
-   * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the meter indicator.
-   * @param {number} value The component's value to format
+   * A function that returns a string value that provides a human-readable text alternative for the current value of the meter.
+   * @param {string} formattedValue The formatted value
+   * @param {number} value The raw value
    * @returns {string}
    */
   getAriaValueText: PropTypes.func,

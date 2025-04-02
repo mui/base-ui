@@ -25,7 +25,7 @@
     },
     "getAriaValueText": {
       "type": "(value) => string",
-      "description": "Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the meter indicator."
+      "description": "A function that returns a string value that provides a human-readable text alternative for the current value of the meter."
     },
     "min": {
       "type": "number",
