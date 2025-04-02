@@ -52,21 +52,26 @@ const MeterRoot = React.forwardRef(function MeterRoot(
   const formattedValue = formatValue(value, locale, formatOptionsRef.current);
 
   const propGetter = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'div'>(
+    (externalProps = {}) => {
+      let ariaValuetext = `${percentageValue}%`;
+      if (getAriaValueText) {
+        ariaValuetext = getAriaValueText(formattedValue, value);
+      } else if (format) {
+        ariaValuetext = formattedValue;
+      }
+      return mergeProps<'div'>(
         {
           'aria-labelledby': labelId,
           'aria-valuemax': max,
           'aria-valuemin': min,
           'aria-valuenow': percentageValue / 100,
-          'aria-valuetext': getAriaValueText
-            ? getAriaValueText(formattedValue, value)
-            : `${percentageValue}%`,
+          'aria-valuetext': ariaValuetext,
           role: 'meter',
         },
         externalProps,
-      ),
-    [formattedValue, getAriaValueText, labelId, max, min, value, percentageValue],
+      );
+    },
+    [format, formattedValue, getAriaValueText, labelId, max, min, value, percentageValue],
   );
 
   const state: MeterRoot.State = React.useMemo(
