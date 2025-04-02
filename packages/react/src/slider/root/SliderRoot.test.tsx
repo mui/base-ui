@@ -1210,14 +1210,14 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       ['rtl', 'horizontal', [ARROW_RIGHT, ARROW_DOWN], [ARROW_LEFT, ARROW_UP]],
       ['rtl', 'vertical', [ARROW_RIGHT, ARROW_DOWN], [ARROW_LEFT, ARROW_UP]],
     ].forEach((entry) => {
-      const [direction, orientation, decrementKeys, incrementKeys]: [
-        TextDirection,
-        Orientation,
-        string[],
-        string[],
-      ] = entry;
+      const [direction, orientation, decrementKeys, incrementKeys] = entry as [
+        direction: TextDirection,
+        orientation: Orientation,
+        decrementKeys: string[],
+        incrementKeys: string[],
+      ];
 
-      describe(direction, () => {
+      describe(String(direction), () => {
         describe(`orientation: ${orientation}`, () => {
           decrementKeys.forEach((key) => {
             it(`key: ${key} decrements the value`, async () => {
