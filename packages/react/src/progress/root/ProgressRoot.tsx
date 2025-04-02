@@ -40,11 +40,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledby,
-    'aria-valuetext': ariaValuetext,
     format,
-    getAriaLabel,
     getAriaValueText,
     max = 100,
     min = 0,
@@ -53,6 +49,8 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
     className,
     ...otherProps
   } = props;
+
+  const [labelId, setLabelId] = React.useState<string | undefined>();
 
   const formatOptionsRef = useLatestRef(format);
 
@@ -73,45 +71,34 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
 
   const contextValue: ProgressRootContext = React.useMemo(
     () => ({
+      formattedValue,
       max,
       min,
-      value,
-      formattedValue,
-      status,
+      setLabelId,
       state,
+      status,
+      value,
     }),
-    [max, min, value, formattedValue, status, state],
+    [formattedValue, max, min, setLabelId, state, status, value],
   );
 
   const propGetter = React.useCallback(
     (externalProps = {}) =>
       mergeProps<'div'>(
         {
-          'aria-label': getAriaLabel ? getAriaLabel(value) : ariaLabel,
-          'aria-labelledby': ariaLabelledby,
+          'aria-labelledby': labelId,
           'aria-valuemax': max,
           'aria-valuemin': min,
           'aria-valuenow': value ?? undefined,
           'aria-valuetext': getAriaValueText
             ? getAriaValueText(formattedValue, value)
-            : (ariaValuetext ?? getDefaultAriaValueText(formattedValue, value)),
+            : (otherProps['aria-valuetext'] ?? getDefaultAriaValueText(formattedValue, value)),
           role: 'progressbar',
         },
         otherProps,
         externalProps,
       ),
-    [
-      ariaLabel,
-      ariaLabelledby,
-      ariaValuetext,
-      formattedValue,
-      getAriaLabel,
-      getAriaValueText,
-      max,
-      min,
-      otherProps,
-      value,
-    ],
+    [formattedValue, getAriaValueText, labelId, max, min, otherProps, value],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -141,29 +128,11 @@ namespace ProgressRoot {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * The label for the Indicator component.
-     */
-    'aria-label'?: string;
-    /**
-     * An id or space-separated list of ids of elements that label the Indicator component.
-     */
-    'aria-labelledby'?: string;
-    /**
-     * A string value that provides a human-readable text alternative for the current value of the progress indicator.
-     */
-    'aria-valuetext'?: string;
-    /**
      * Options to format the value.
      */
     format?: Intl.NumberFormatOptions;
     /**
-     * Accepts a function which returns a string value that provides an accessible name for the Indicator component.
-     * @param {number | null} value The component's value.
-     * @returns {string}
-     */
-    getAriaLabel?: (index: number | null) => string;
-    /**
-     * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress indicator.
+     * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar.
      * @param {string} formattedValue The component's formatted value.
      * @param {number | null} value The component's numerical value.
      * @returns {string}
@@ -194,18 +163,6 @@ ProgressRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * The label for the Indicator component.
-   */
-  'aria-label': PropTypes.string,
-  /**
-   * An id or space-separated list of ids of elements that label the Indicator component.
-   */
-  'aria-labelledby': PropTypes.string,
-  /**
-   * A string value that provides a human-readable text alternative for the current value of the progress indicator.
-   */
-  'aria-valuetext': PropTypes.string,
   /**
    * @ignore
    */
@@ -238,13 +195,7 @@ ProgressRoot.propTypes /* remove-proptypes */ = {
     useGrouping: PropTypes.bool,
   }),
   /**
-   * Accepts a function which returns a string value that provides an accessible name for the Indicator component.
-   * @param {number | null} value The component's value.
-   * @returns {string}
-   */
-  getAriaLabel: PropTypes.func,
-  /**
-   * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress indicator.
+   * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar.
    * @param {string} formattedValue The component's formatted value.
    * @param {number | null} value The component's numerical value.
    * @returns {string}
