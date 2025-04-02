@@ -20,6 +20,9 @@ importers:
 
   .:
     devDependencies:
+      '@arethetypeswrong/cli':
+        specifier: ^0.17.4
+        version: 0.17.4
       '@argos-ci/core':
         specifier: ^3.1.1
         version: 3.1.1
@@ -251,6 +254,9 @@ importers:
       process:
         specifier: ^0.11.10
         version: 0.11.10
+      publint:
+        specifier: ^0.3.9
+        version: 0.3.10
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -604,9 +610,6 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0(react@19.1.0)
     devDependencies:
-      '@arethetypeswrong/cli':
-        specifier: ^0.17.4
-        version: 0.17.4
       '@mui/internal-test-utils':
         specifier: ^2.0.6
         version: 2.0.6(@babel/core@7.26.10)(@types/react-dom@19.0.2(@types/react@19.0.12))(@types/react@19.0.12)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
