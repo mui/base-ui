@@ -2,8 +2,7 @@ import * as React from 'react';
 import { MenuOrientation } from '../../menu/root/useMenuRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 import { Menu } from '../../menu';
-import { MenubarPopup } from './MenubarPopup';
-import { MenubarPositioner } from './MenubarPositioner';
+import { MenubarContent } from './MenubarContent';
 
 /**
  *
@@ -17,11 +16,9 @@ const MenubarRoot = React.forwardRef(function MenubarRoot(
 
   return (
     <Menu.Root open modal={false} orientation={orientation} disabled={disabled} loop={loop}>
-      <MenubarPositioner>
-        <MenubarPopup ref={forwardedRef} {...otherProps}>
-          {props.children}
-        </MenubarPopup>
-      </MenubarPositioner>
+      <MenubarContent ref={forwardedRef} {...otherProps}>
+        {props.children}
+      </MenubarContent>
     </Menu.Root>
   );
 });
