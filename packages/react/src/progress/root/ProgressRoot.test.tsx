@@ -75,4 +75,26 @@ describe('<Progress.Root />', () => {
       expect(progressbar).to.have.attribute('aria-valuetext', formatValue(30));
     });
   });
+
+  describe('prop: locale', () => {
+    it('sets the locale when formatting the value', async () => {
+      // In German locale, numbers use dot as thousands separator and comma as decimal separator
+      const expectedValue = new Intl.NumberFormat('de-DE').format(70.51);
+      const { getByTestId } = await render(
+        <Progress.Root
+          value={70.51}
+          format={{
+            style: 'decimal',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }}
+          locale="de-DE"
+        >
+          <Progress.Value data-testid="value" />
+        </Progress.Root>,
+      );
+
+      expect(getByTestId('value')).to.have.text(expectedValue);
+    });
+  });
 });
