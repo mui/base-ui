@@ -1,0 +1,7 @@
+{
+  "name": "ContextMenuRoot",
+  "description": "A component that creates a context menu activated by right clicking or long pressing.\nWraps the `Menu` component to provide context menu functionality.\nDoesn’t render its own HTML element.",
+  "props": {},
+  "dataAttributes": {},
+  "cssVariables": {}
+}

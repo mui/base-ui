@@ -25,6 +25,7 @@ import {
   type OpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -45,6 +46,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     onTypingChange,
     modal,
   } = parameters;
+
+  const contextMenuContext = useContextMenuRootContext();
+  const hasContextMenuParent = Boolean(contextMenuContext);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [positionerElement, setPositionerElementUnwrapped] = React.useState<HTMLElement | null>(
@@ -120,6 +124,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     handleUnmount,
   ]);
 
+  React.useImperativeHandle(contextMenuContext?.actionsRef, () => ({ setOpen }), [setOpen]);
+
   const clearStickIfOpenTimeout = useEventCallback(() => {
     clearTimeout(stickIfOpenTimeoutRef.current);
   });
@@ -172,7 +178,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const hover = useHover(floatingRootContext, {
-    enabled: hoverEnabled && openOnHover && !disabled && openReason !== 'click',
+    enabled:
+      hoverEnabled && openOnHover && !disabled && openReason !== 'click' && !hasContextMenuParent,
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: false,
@@ -182,7 +189,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const click = useClick(floatingRootContext, {
-    enabled: !disabled,
+    enabled: !disabled && !hasContextMenuParent,
     event: 'mousedown',
     toggle: !openOnHover || !nested,
     ignoreMouse: openOnHover && nested,
@@ -211,6 +218,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     onNavigate: setActiveIndex,
+    openOnArrowKeyDown: !hasContextMenuParent,
   });
 
   const typeahead = useTypeahead(floatingRootContext, {
