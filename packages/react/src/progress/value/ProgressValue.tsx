@@ -52,6 +52,8 @@ const ProgressValue = React.forwardRef(function ProgressValue(
   return renderElement();
 });
 
+export { ProgressValue };
+
 ProgressValue.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -82,5 +84,3 @@ namespace ProgressValue {
     children?: null | ((formattedValue: string | null, value: number | null) => React.ReactNode);
   }
 }
-
-export { ProgressValue };

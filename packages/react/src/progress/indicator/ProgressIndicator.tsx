@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useProgressIndicator } from './useProgressIndicator';
+import { valueToPercent } from '../../utils/valueToPercent';
 import { ProgressRoot } from '../root/ProgressRoot';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStyleHookMapping } from '../root/styleHooks';
@@ -16,25 +17,38 @@ import { BaseUIComponentProps } from '../../utils/types';
  */
 const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   props: ProgressIndicator.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...otherProps } = props;
 
   const { max, min, value, state } = useProgressRootContext();
 
-  const { getRootProps } = useProgressIndicator({
-    max,
-    min,
-    value,
-  });
+  const percentageValue =
+    Number.isFinite(value) && value !== null ? valueToPercent(value, min, max) : null;
+
+  const getStyles = React.useCallback(() => {
+    if (percentageValue == null) {
+      return {};
+    }
+
+    return {
+      insetInlineStart: 0,
+      height: 'inherit',
+      width: `${percentageValue}%`,
+    };
+  }, [percentageValue]);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
     render: render ?? 'div',
     state,
     className,
     ref: forwardedRef,
-    extraProps: otherProps,
+    extraProps: mergeProps<'div'>(
+      {
+        style: getStyles(),
+      },
+      otherProps,
+    ),
     customStyleHookMapping: progressStyleHookMapping,
   });
 
@@ -46,6 +60,8 @@ namespace ProgressIndicator {
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
+
+export { ProgressIndicator };
 
 ProgressIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -69,5 +85,3 @@ ProgressIndicator.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { ProgressIndicator };
