@@ -10,12 +10,16 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { meterStyleHookMapping } from './styleHooks';
 
-function formatValue(value: number, format?: Intl.NumberFormatOptions): string {
+function formatValue(
+  value: number,
+  locale?: Intl.LocalesArgument,
+  format?: Intl.NumberFormatOptions,
+): string {
   if (!format) {
-    return formatNumber(value / 100, [], { style: 'percent' });
+    return formatNumber(value / 100, locale, { style: 'percent' });
   }
 
-  return formatNumber(value, [], format);
+  return formatNumber(value, locale, format);
 }
 /**
  * Groups all parts of the meter and provides the value for screen readers.
@@ -28,9 +32,9 @@ const MeterRoot = React.forwardRef(function MeterRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    'aria-valuetext': ariaValuetextProp,
     format,
     getAriaValueText,
+    locale,
     max = 100,
     min = 0,
     value,
@@ -45,7 +49,7 @@ const MeterRoot = React.forwardRef(function MeterRoot(
 
   const percentageValue = valueToPercent(value, min, max);
 
-  const formattedValue = formatValue(value, formatOptionsRef.current);
+  const formattedValue = formatValue(value, locale, formatOptionsRef.current);
 
   const propGetter = React.useCallback(
     (externalProps = {}) =>
@@ -57,21 +61,12 @@ const MeterRoot = React.forwardRef(function MeterRoot(
           'aria-valuenow': percentageValue / 100,
           'aria-valuetext': getAriaValueText
             ? getAriaValueText(formattedValue, value)
-            : (ariaValuetextProp ?? `${percentageValue}%`),
+            : `${percentageValue}%`,
           role: 'meter',
         },
         externalProps,
       ),
-    [
-      ariaValuetextProp,
-      formattedValue,
-      getAriaValueText,
-      labelId,
-      max,
-      min,
-      value,
-      percentageValue,
-    ],
+    [formattedValue, getAriaValueText, labelId, max, min, value, percentageValue],
   );
 
   const state: MeterRoot.State = React.useMemo(
@@ -129,6 +124,11 @@ namespace MeterRoot {
      */
     getAriaValueText?: (formattedValue: string, value: number) => string;
     /**
+     * The locale used by `Intl.NumberFormat` when formatting the value.
+     * Defaults to the user's runtime locale.
+     */
+    locale?: Intl.LocalesArgument;
+    /**
      * The maximum value
      * @default 100
      */
@@ -152,10 +152,6 @@ MeterRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * Defines the human readable text alternative of aria-valuenow for a range widget.
-   */
-  'aria-valuetext': PropTypes.string,
   /**
    * @ignore
    */
@@ -194,6 +190,48 @@ MeterRoot.propTypes /* remove-proptypes */ = {
    * @returns {string}
    */
   getAriaValueText: PropTypes.func,
+  /**
+   * The locale used by `Intl.NumberFormat` when formatting the value.
+   * Defaults to the user's runtime locale.
+   */
+  locale: PropTypes.oneOfType([
+    PropTypes.arrayOf(
+      PropTypes.oneOfType([
+        PropTypes.shape({
+          baseName: PropTypes.string.isRequired,
+          calendar: PropTypes.string,
+          caseFirst: PropTypes.oneOf(['false', 'lower', 'upper']),
+          collation: PropTypes.string,
+          hourCycle: PropTypes.oneOf(['h11', 'h12', 'h23', 'h24']),
+          language: PropTypes.string.isRequired,
+          maximize: PropTypes.func.isRequired,
+          minimize: PropTypes.func.isRequired,
+          numberingSystem: PropTypes.string,
+          numeric: PropTypes.bool,
+          region: PropTypes.string,
+          script: PropTypes.string,
+          toString: PropTypes.func.isRequired,
+        }),
+        PropTypes.string,
+      ]).isRequired,
+    ),
+    PropTypes.shape({
+      baseName: PropTypes.string.isRequired,
+      calendar: PropTypes.string,
+      caseFirst: PropTypes.oneOf(['false', 'lower', 'upper']),
+      collation: PropTypes.string,
+      hourCycle: PropTypes.oneOf(['h11', 'h12', 'h23', 'h24']),
+      language: PropTypes.string.isRequired,
+      maximize: PropTypes.func.isRequired,
+      minimize: PropTypes.func.isRequired,
+      numberingSystem: PropTypes.string,
+      numeric: PropTypes.bool,
+      region: PropTypes.string,
+      script: PropTypes.string,
+      toString: PropTypes.func.isRequired,
+    }),
+    PropTypes.string,
+  ]),
   /**
    * The maximum value
    * @default 100

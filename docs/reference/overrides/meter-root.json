@@ -1,14 +1,8 @@
 {
   "name": "MeterRoot",
   "props": {
-    "format": {
-      "type": "Intl.NumberFormatOptions"
-    },
-    "getAriaLabel": {
-      "type": "(value) => string"
-    },
     "getAriaValueText": {
-      "type": "(value) => string"
+      "type": "(formattedValue, value) => string"
     }
   }
 }

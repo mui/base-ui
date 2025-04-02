@@ -1,9 +1,6 @@
 {
   "name": "ProgressRoot",
   "props": {
-    "format": {
-      "type": "Intl.NumberFormatOptions"
-    },
     "getAriaLabel": {
       "type": "(value) => string"
     },

@@ -7,16 +7,13 @@
       "required": true,
       "description": "The current value."
     },
-    "aria-valuetext": {
-      "type": "string",
-      "description": "Defines the human readable text alternative of aria-valuenow for a range widget."
-    },
-    "getAriaLabel": {
-      "type": "(value) => string"
-    },
     "getAriaValueText": {
-      "type": "(value) => string",
+      "type": "(formattedValue, value) => string",
       "description": "A function that returns a string value that provides a human-readable text alternative for the current value of the meter."
+    },
+    "locale": {
+      "type": "Intl.LocalesArgument",
+      "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
     },
     "min": {
       "type": "number",
