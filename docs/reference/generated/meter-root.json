@@ -2,14 +2,6 @@
   "name": "MeterRoot",
   "description": "Groups all parts of the meter and provides the value for screen readers.\nRenders a `<div>` element.",
   "props": {
-    "aria-label": {
-      "type": "string",
-      "description": "The label for the Indicator component."
-    },
-    "aria-labelledby": {
-      "type": "string",
-      "description": "An id or space-separated list of ids of elements that label the Indicator component."
-    },
     "value": {
       "type": "number",
       "required": true,
@@ -17,11 +9,10 @@
     },
     "aria-valuetext": {
       "type": "string",
-      "description": "A string value that provides a human-readable text alternative for the current value of the meter indicator."
+      "description": "Defines the human readable text alternative of aria-valuenow for a range widget."
     },
     "getAriaLabel": {
-      "type": "(value) => string",
-      "description": "Accepts a function which returns a string value that provides an accessible name for the Indicator component"
+      "type": "(value) => string"
     },
     "getAriaValueText": {
       "type": "(value) => string",

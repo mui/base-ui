@@ -28,11 +28,8 @@ const MeterRoot = React.forwardRef(function MeterRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledby,
-    'aria-valuetext': ariaValuetext,
+    'aria-valuetext': ariaValuetextProp,
     format,
-    getAriaLabel,
     getAriaValueText,
     max = 100,
     min = 0,
@@ -44,6 +41,8 @@ const MeterRoot = React.forwardRef(function MeterRoot(
 
   const formatOptionsRef = useLatestRef(format);
 
+  const [labelId, setLabelId] = React.useState<string | undefined>();
+
   const percentageValue = valueToPercent(value, min, max);
 
   const formattedValue = formatValue(value, formatOptionsRef.current);
@@ -52,25 +51,22 @@ const MeterRoot = React.forwardRef(function MeterRoot(
     (externalProps = {}) =>
       mergeProps<'div'>(
         {
-          'aria-label': getAriaLabel ? getAriaLabel(value) : ariaLabel,
-          'aria-labelledby': ariaLabelledby,
+          'aria-labelledby': labelId,
           'aria-valuemax': max,
           'aria-valuemin': min,
           'aria-valuenow': percentageValue / 100,
           'aria-valuetext': getAriaValueText
             ? getAriaValueText(formattedValue, value)
-            : (ariaValuetext ?? `${percentageValue}%`),
+            : (ariaValuetextProp ?? `${percentageValue}%`),
           role: 'meter',
         },
         externalProps,
       ),
     [
-      ariaLabel,
-      ariaLabelledby,
-      ariaValuetext,
+      ariaValuetextProp,
       formattedValue,
-      getAriaLabel,
       getAriaValueText,
+      labelId,
       max,
       min,
       value,
@@ -88,14 +84,15 @@ const MeterRoot = React.forwardRef(function MeterRoot(
 
   const contextValue: MeterRootContext = React.useMemo(
     () => ({
+      formattedValue,
       max,
       min,
-      value,
       percentageValue,
-      formattedValue,
+      setLabelId,
       state,
+      value,
     }),
-    [max, min, value, percentageValue, formattedValue, state],
+    [formattedValue, max, min, percentageValue, setLabelId, state, value],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -121,27 +118,9 @@ namespace MeterRoot {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * The label for the Indicator component.
-     */
-    'aria-label'?: string;
-    /**
-     * An id or space-separated list of ids of elements that label the Indicator component.
-     */
-    'aria-labelledby'?: string;
-    /**
-     * A string value that provides a human-readable text alternative for the current value of the meter indicator.
-     */
-    'aria-valuetext'?: string;
-    /**
      * Options to format the value.
      */
     format?: Intl.NumberFormatOptions;
-    /**
-     * Accepts a function which returns a string value that provides an accessible name for the Indicator component
-     * @param {number} value The component's value
-     * @returns {string}
-     */
-    getAriaLabel?: (value: number) => string;
     /**
      * A function that returns a string value that provides a human-readable text alternative for the current value of the meter.
      * @param {string} formattedValue The formatted value
@@ -174,15 +153,7 @@ MeterRoot.propTypes /* remove-proptypes */ = {
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
   /**
-   * The label for the Indicator component.
-   */
-  'aria-label': PropTypes.string,
-  /**
-   * An id or space-separated list of ids of elements that label the Indicator component.
-   */
-  'aria-labelledby': PropTypes.string,
-  /**
-   * A string value that provides a human-readable text alternative for the current value of the meter indicator.
+   * Defines the human readable text alternative of aria-valuenow for a range widget.
    */
   'aria-valuetext': PropTypes.string,
   /**
@@ -216,12 +187,6 @@ MeterRoot.propTypes /* remove-proptypes */ = {
     unitDisplay: PropTypes.oneOf(['long', 'narrow', 'short']),
     useGrouping: PropTypes.bool,
   }),
-  /**
-   * Accepts a function which returns a string value that provides an accessible name for the Indicator component
-   * @param {number} value The component's value
-   * @returns {string}
-   */
-  getAriaLabel: PropTypes.func,
   /**
    * A function that returns a string value that provides a human-readable text alternative for the current value of the meter.
    * @param {string} formattedValue The formatted value

@@ -3,17 +3,15 @@ import * as React from 'react';
 import type { MeterRoot } from './MeterRoot';
 
 export type MeterRootContext = {
+  formattedValue: string;
   max: number;
   min: number;
-  value: number;
   percentageValue: number;
-  formattedValue: string;
+  setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   state: MeterRoot.State;
+  value: number;
 };
 
-/**
- * @ignore - internal component.
- */
 export const MeterRootContext = React.createContext<MeterRootContext | undefined>(undefined);
 
 if (process.env.NODE_ENV !== 'production') {
