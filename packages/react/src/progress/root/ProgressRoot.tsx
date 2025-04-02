@@ -9,16 +9,20 @@ import { ProgressRootContext } from './ProgressRootContext';
 import { progressStyleHookMapping } from './styleHooks';
 import { BaseUIComponentProps } from '../../utils/types';
 
-function formatValue(value: number | null, format?: Intl.NumberFormatOptions): string {
+function formatValue(
+  value: number | null,
+  locale?: Intl.LocalesArgument,
+  format?: Intl.NumberFormatOptions,
+): string {
   if (value == null) {
     return '';
   }
 
   if (!format) {
-    return formatNumber(value / 100, [], { style: 'percent' });
+    return formatNumber(value / 100, locale, { style: 'percent' });
   }
 
-  return formatNumber(value, [], format);
+  return formatNumber(value, locale, format);
 }
 
 function getDefaultAriaValueText(formattedValue: string | null, value: number | null) {
@@ -42,6 +46,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
   const {
     format,
     getAriaValueText,
+    locale,
     max = 100,
     min = 0,
     value,
@@ -58,7 +63,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
   if (Number.isFinite(value)) {
     status = value === max ? 'complete' : 'progressing';
   }
-  const formattedValue = formatValue(value, formatOptionsRef.current);
+  const formattedValue = formatValue(value, locale, formatOptionsRef.current);
 
   const state: ProgressRoot.State = React.useMemo(
     () => ({
@@ -139,6 +144,11 @@ namespace ProgressRoot {
      */
     getAriaValueText?: (formattedValue: string | null, value: number | null) => string;
     /**
+     * The locale used by `Intl.NumberFormat` when formatting the value.
+     * Defaults to the user's runtime locale.
+     */
+    locale?: Intl.LocalesArgument;
+    /**
      * The maximum value.
      * @default 100
      */
@@ -201,6 +211,48 @@ ProgressRoot.propTypes /* remove-proptypes */ = {
    * @returns {string}
    */
   getAriaValueText: PropTypes.func,
+  /**
+   * The locale used by `Intl.NumberFormat` when formatting the value.
+   * Defaults to the user's runtime locale.
+   */
+  locale: PropTypes.oneOfType([
+    PropTypes.arrayOf(
+      PropTypes.oneOfType([
+        PropTypes.shape({
+          baseName: PropTypes.string.isRequired,
+          calendar: PropTypes.string,
+          caseFirst: PropTypes.oneOf(['false', 'lower', 'upper']),
+          collation: PropTypes.string,
+          hourCycle: PropTypes.oneOf(['h11', 'h12', 'h23', 'h24']),
+          language: PropTypes.string.isRequired,
+          maximize: PropTypes.func.isRequired,
+          minimize: PropTypes.func.isRequired,
+          numberingSystem: PropTypes.string,
+          numeric: PropTypes.bool,
+          region: PropTypes.string,
+          script: PropTypes.string,
+          toString: PropTypes.func.isRequired,
+        }),
+        PropTypes.string,
+      ]).isRequired,
+    ),
+    PropTypes.shape({
+      baseName: PropTypes.string.isRequired,
+      calendar: PropTypes.string,
+      caseFirst: PropTypes.oneOf(['false', 'lower', 'upper']),
+      collation: PropTypes.string,
+      hourCycle: PropTypes.oneOf(['h11', 'h12', 'h23', 'h24']),
+      language: PropTypes.string.isRequired,
+      maximize: PropTypes.func.isRequired,
+      minimize: PropTypes.func.isRequired,
+      numberingSystem: PropTypes.string,
+      numeric: PropTypes.bool,
+      region: PropTypes.string,
+      script: PropTypes.string,
+      toString: PropTypes.func.isRequired,
+    }),
+    PropTypes.string,
+  ]),
   /**
    * The maximum value.
    * @default 100
