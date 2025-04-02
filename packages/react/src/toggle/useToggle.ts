@@ -33,11 +33,10 @@ export function useToggle(parameters: useToggle.Parameters): useToggle.ReturnVal
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     buttonRef: externalRef,
-    type: 'button',
   });
 
   const getRootProps = React.useCallback(
-    (externalProps?: GenericHTMLProps): GenericHTMLProps => {
+    (externalProps: GenericHTMLProps = {}): GenericHTMLProps => {
       return mergeProps(
         {
           'aria-pressed': pressed,

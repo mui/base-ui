@@ -31,6 +31,7 @@ interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
   indexRef: React.RefObject<number>;
   setActiveIndex: SelectIndexContext['setActiveIndex'];
   popupRef: React.RefObject<HTMLDivElement | null>;
+  keyboardActiveRef: React.RefObject<boolean>;
 }
 
 const InnerSelectItem = React.forwardRef(function InnerSelectItem(
@@ -54,6 +55,7 @@ const InnerSelectItem = React.forwardRef(function InnerSelectItem(
     indexRef,
     setActiveIndex,
     popupRef,
+    keyboardActiveRef,
     ...otherProps
   } = props;
 
@@ -75,12 +77,13 @@ const InnerSelectItem = React.forwardRef(function InnerSelectItem(
     selected,
     ref: forwardedRef,
     typingRef,
-    handleSelect: () => setValue(value),
+    handleSelect: (event) => setValue(value, event),
     selectionRef,
     selectedIndexRef,
     indexRef,
     setActiveIndex,
     popupRef,
+    keyboardActiveRef,
   });
 
   const mergedRef = useForkRef(rootRef, forwardedRef);
@@ -149,6 +152,12 @@ InnerSelectItem.propTypes /* remove-proptypes */ = {
    */
   indexRef: PropTypes.shape({
     current: PropTypes.number.isRequired,
+  }).isRequired,
+  /**
+   * @ignore
+   */
+  keyboardActiveRef: PropTypes.shape({
+    current: PropTypes.bool.isRequired,
   }).isRequired,
   /**
    * Overrides the text label to use on the trigger when this item is selected
@@ -244,6 +253,7 @@ const SelectItem = React.forwardRef(function SelectItem(
     popupRef,
     registerSelectedItem,
     value,
+    keyboardActiveRef,
   } = useSelectRootContext();
 
   const itemRef = React.useRef<HTMLDivElement | null>(null);
@@ -291,6 +301,7 @@ const SelectItem = React.forwardRef(function SelectItem(
       indexRef={indexRef}
       setActiveIndex={setActiveIndex}
       popupRef={popupRef}
+      keyboardActiveRef={keyboardActiveRef}
       {...otherProps}
     />
   );

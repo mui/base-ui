@@ -8,34 +8,29 @@ import { useButton } from '../../use-button';
 export function useCollapsibleTrigger(
   parameters: useCollapsibleTrigger.Parameters,
 ): useCollapsibleTrigger.ReturnValue {
-  const { panelId, disabled, open, rootRef: externalRef, setOpen } = parameters;
+  const { panelId, disabled, open, rootRef: externalRef, handleTrigger } = parameters;
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
-    type: 'button',
   });
 
   const handleRef = useForkRef(externalRef, buttonRef);
 
   const getRootProps: useCollapsibleTrigger.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps: GenericHTMLProps = {}) =>
-      getButtonProps(
-        mergeProps<'button'>(
-          {
-            type: 'button',
-            'aria-controls': panelId,
-            'aria-expanded': open,
-            disabled,
-            onClick() {
-              setOpen(!open);
-            },
-            ref: handleRef,
-          },
-          externalProps,
-        ),
+      mergeProps(
+        {
+          'aria-controls': panelId,
+          'aria-expanded': open,
+          disabled,
+          onClick: handleTrigger,
+          ref: handleRef,
+        },
+        externalProps,
+        getButtonProps,
       ),
-    [panelId, disabled, getButtonProps, handleRef, open, setOpen],
+    [panelId, disabled, getButtonProps, handleRef, open, handleTrigger],
   );
 
   return {
@@ -60,10 +55,7 @@ export namespace useCollapsibleTrigger {
      */
     open: boolean;
     rootRef: React.Ref<Element>;
-    /**
-     * A state setter that sets the open state of the Collapsible
-     */
-    setOpen: (open: boolean) => void;
+    handleTrigger: () => void;
   }
 
   export interface ReturnValue {

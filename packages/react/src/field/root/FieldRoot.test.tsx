@@ -839,6 +839,14 @@ describe('<Field.Root />', () => {
   });
 
   describe('style hooks', () => {
+    const { render: renderFakeTimers, clock } = createRenderer({
+      clockOptions: {
+        shouldAdvanceTime: true,
+      },
+    });
+
+    clock.withFakeTimers();
+
     describe('touched', () => {
       it('should apply [data-touched] style hook to all components when touched', async () => {
         await render(
@@ -1141,7 +1149,7 @@ describe('<Field.Root />', () => {
       });
 
       it('supports Select', async () => {
-        const { user } = await render(
+        const { user } = await renderFakeTimers(
           <Field.Root>
             <Select.Root>
               <Select.Trigger data-testid="trigger" />
@@ -1162,16 +1170,14 @@ describe('<Field.Root />', () => {
         expect(trigger).not.to.have.attribute('data-dirty');
 
         await userEvent.click(trigger);
-
         await flushMicrotasks();
+        clock.tick(200);
 
         const option = screen.getByRole('option', { name: 'Option 1' });
 
         // Arrow Down to focus the Option 1
         await user.keyboard('{ArrowDown}');
-
         await userEvent.click(option);
-
         await flushMicrotasks();
 
         expect(trigger).to.have.attribute('data-dirty', '');
@@ -1212,6 +1218,31 @@ describe('<Field.Root />', () => {
         expect(control).not.to.have.attribute('data-filled');
         expect(label).not.to.have.attribute('data-filled');
         expect(description).not.to.have.attribute('data-filled');
+      });
+
+      it('changes [data-filled] when the value is changed externally', async () => {
+        function App() {
+          const [value, setValue] = React.useState('');
+          return (
+            <div>
+              <Field.Root>
+                <Field.Control value={value} onChange={(event) => setValue(event.target.value)} />
+              </Field.Root>
+              <button onClick={() => setValue('test')}>change</button>
+              <button onClick={() => setValue('')}>reset</button>
+            </div>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        expect(screen.getByRole('textbox')).not.to.have.attribute('data-filled', '');
+
+        await user.click(screen.getByRole('button', { name: 'change' }));
+        expect(screen.getByRole('textbox')).to.have.attribute('data-filled', '');
+
+        await user.click(screen.getByRole('button', { name: 'reset' }));
+        expect(screen.getByRole('textbox')).not.to.have.attribute('data-filled', '');
       });
 
       describe('Checkbox', () => {
@@ -1361,7 +1392,7 @@ describe('<Field.Root />', () => {
 
       describe('Select', () => {
         it('adds [data-filled] attribute when filled', async () => {
-          const { user } = await render(
+          const { user } = await renderFakeTimers(
             <Field.Root>
               <Select.Root>
                 <Select.Trigger data-testid="trigger" />
@@ -1382,16 +1413,14 @@ describe('<Field.Root />', () => {
           expect(trigger).not.to.have.attribute('data-filled');
 
           await userEvent.click(trigger);
-
           await flushMicrotasks();
+          clock.tick(200);
 
           const option = screen.getByRole('option', { name: 'Option 1' });
 
           // Arrow Down to focus the Option 1
           await user.keyboard('{ArrowDown}');
-
           await userEvent.click(option);
-
           await flushMicrotasks();
 
           expect(trigger).to.have.attribute('data-filled', '');

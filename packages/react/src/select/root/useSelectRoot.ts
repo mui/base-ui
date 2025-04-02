@@ -25,18 +25,30 @@ const EMPTY_ARRAY: never[] = [];
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
     id: idProp,
-    disabled = false,
+    disabled: disabledProp = false,
     readOnly = false,
     required = false,
     alignItemToTrigger: alignItemToTriggerParam = true,
     modal = false,
+    name: nameProp,
     onOpenChangeComplete,
   } = params;
 
-  const { setDirty, validityData, validationMode, setControlId, setFilled } = useFieldRootContext();
+  const {
+    setDirty,
+    validityData,
+    validationMode,
+    setControlId,
+    setFilled,
+    name: fieldName,
+    disabled: fieldDisabled,
+  } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId(idProp);
+
+  const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
 
   useEnhancedEffect(() => {
     setControlId(id);
@@ -63,7 +75,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     setFilled(value !== null);
   }, [setFilled, value]);
 
-  const [controlledAlignItemToTrigger, setcontrolledAlignItemToTrigger] =
+  const [controlledAlignItemToTrigger, setControlledAlignItemToTrigger] =
     React.useState(alignItemToTriggerParam);
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
@@ -72,6 +84,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
+  const keyboardActiveRef = React.useRef(false);
   const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
@@ -93,7 +106,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const alignItemToTrigger = Boolean(mounted && controlledAlignItemToTrigger && !touchModality);
 
   if (!mounted && controlledAlignItemToTrigger !== alignItemToTriggerParam) {
-    setcontrolledAlignItemToTrigger(alignItemToTriggerParam);
+    setControlledAlignItemToTrigger(alignItemToTriggerParam);
   }
 
   if (!alignItemToTriggerParam || !mounted) {
@@ -166,10 +179,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
     const stringValue = typeof value === 'string' || value === null ? value : JSON.stringify(value);
     const index = suppliedIndex ?? valuesRef.current.indexOf(stringValue);
+    const hasIndex = index !== -1;
 
-    if (index !== -1) {
-      setSelectedIndex(index);
-      setLabel(labelsRef.current[index] ?? '');
+    if (hasIndex || value === null) {
+      setSelectedIndex(hasIndex ? index : null);
+      setLabel(hasIndex ? (labelsRef.current[index] ?? '') : '');
     } else if (value) {
       warn(`The value \`${stringValue}\` is not present in the select items.`);
     }
@@ -250,10 +264,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     getItemProps,
   } = useInteractions([click, dismiss, role, listNavigation, typeahead]);
 
-  const rootContext = React.useMemo(
+  const rootContext: SelectRootContext = React.useMemo(
     () => ({
       id,
-      name: params.name,
+      name,
       required,
       disabled,
       readOnly,
@@ -265,7 +279,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setScrollUpArrowVisible,
       scrollDownArrowVisible,
       setScrollDownArrowVisible,
-      setcontrolledAlignItemToTrigger,
+      setControlledAlignItemToTrigger,
       value,
       setValue,
       open,
@@ -294,10 +308,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       modal,
       registerSelectedItem,
       onOpenChangeComplete,
+      keyboardActiveRef,
     }),
     [
       id,
-      params.name,
+      name,
       required,
       disabled,
       readOnly,
@@ -323,6 +338,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       modal,
       registerSelectedItem,
       onOpenChangeComplete,
+      keyboardActiveRef,
     ],
   );
 

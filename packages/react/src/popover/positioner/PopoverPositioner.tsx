@@ -11,6 +11,7 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
+import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 
 /**
@@ -40,8 +41,15 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     ...otherProps
   } = props;
 
-  const { floatingRootContext, open, mounted, setPositionerElement, modal, openReason } =
-    usePopoverRootContext();
+  const {
+    floatingRootContext,
+    open,
+    mounted,
+    setPositionerElement,
+    modal,
+    openReason,
+    openMethod,
+  } = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
 
   const positioner = usePopoverPositioner({
@@ -86,7 +94,9 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      {mounted && modal && openReason !== 'hover' && <InternalBackdrop inert={!open} />}
+      {mounted && modal && openReason !== 'hover' && openMethod !== 'touch' && (
+        <InternalBackdrop inert={inertValue(!open)} />
+      )}
       {renderElement()}
     </PopoverPositionerContext.Provider>
   );

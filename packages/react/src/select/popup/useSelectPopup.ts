@@ -24,7 +24,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     scrollDownArrowVisible,
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
-    setcontrolledAlignItemToTrigger,
+    setControlledAlignItemToTrigger,
+    keyboardActiveRef,
   } = useSelectRootContext();
 
   const initialHeightRef = React.useRef(0);
@@ -175,7 +176,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
       initialPlacedRef.current = true;
       clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
-      setcontrolledAlignItemToTrigger(false);
+      setControlledAlignItemToTrigger(false);
       return;
     }
 
@@ -212,7 +213,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
     handleScrollArrowVisibility,
-    setcontrolledAlignItemToTrigger,
+    setControlledAlignItemToTrigger,
   ]);
 
   React.useEffect(() => {
@@ -238,6 +239,12 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       return mergeProps<'div'>(
         {
           ['data-id' as string]: `${id}-popup`,
+          onKeyDown() {
+            keyboardActiveRef.current = true;
+          },
+          onMouseMove() {
+            keyboardActiveRef.current = false;
+          },
           onScroll(event) {
             if (
               !alignItemToTrigger ||
@@ -312,9 +319,10 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       );
     },
     [
-      getRootPositionerProps,
       id,
       alignItemToTrigger,
+      getRootPositionerProps,
+      keyboardActiveRef,
       positionerElement,
       popupRef,
       handleScrollArrowVisibility,

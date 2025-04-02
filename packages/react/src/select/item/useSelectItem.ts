@@ -21,6 +21,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     indexRef,
     setActiveIndex,
     popupRef,
+    keyboardActiveRef,
   } = params;
 
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -33,127 +34,128 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     buttonRef: mergedRef,
   });
 
-  const commitSelection = useEventCallback((event: Event) => {
-    handleSelect();
+  const commitSelection = useEventCallback((event: MouseEvent) => {
+    handleSelect(event);
     setOpen(false, event);
   });
 
   const lastKeyRef = React.useRef<string | null>(null);
   const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
-
+  const didPointerDownRef = React.useRef(false);
   const prevPopupHeightRef = React.useRef(0);
   const allowFocusSyncRef = React.useRef(true);
 
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return getButtonProps(
-        mergeProps<'div'>(
-          {
-            'aria-disabled': disabled || undefined,
-            tabIndex: highlighted ? 0 : -1,
-            onFocus() {
-              if (allowFocusSyncRef.current) {
-                setActiveIndex(indexRef.current);
-              }
-            },
-            onMouseMove() {
+      return mergeProps<'div'>(
+        {
+          'aria-disabled': disabled || undefined,
+          tabIndex: highlighted ? 0 : -1,
+          onFocus() {
+            if (allowFocusSyncRef.current) {
               setActiveIndex(indexRef.current);
-              if (popupRef.current) {
-                prevPopupHeightRef.current = popupRef.current.offsetHeight;
-              }
-            },
-            onMouseLeave(event) {
-              const popup = popupRef.current;
-              if (!popup || !open) {
-                return;
-              }
-
-              const targetRect = event.currentTarget.getBoundingClientRect();
-
-              // Safari randomly fires `mouseleave` incorrectly when the item is
-              // aligned to the trigger. This is a workaround to prevent the highlight
-              // from being removed while the cursor is still within the bounds of the item.
-              // https://github.com/mui/base-ui/issues/869
-              const isWithinBounds =
-                targetRect.top + 1 <= event.clientY &&
-                event.clientY <= targetRect.bottom - 1 &&
-                targetRect.left + 1 <= event.clientX &&
-                event.clientX <= targetRect.right - 1;
-
-              if (isWithinBounds) {
-                return;
-              }
-
-              // With `alignItemToTrigger`, avoid re-rendering the root due to `onMouseLeave`
-              // firing and causing a performance issue when expanding the popup.
-              if (popup.offsetHeight === prevPopupHeightRef.current) {
-                // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
-                // the mouse out of the popup.
-                allowFocusSyncRef.current = false;
-                setActiveIndex(null);
-                requestAnimationFrame(() => {
-                  popup.focus({ preventScroll: true });
-                  allowFocusSyncRef.current = true;
-                });
-              }
-            },
-            onTouchStart() {
-              selectionRef.current = {
-                allowSelectedMouseUp: false,
-                allowUnselectedMouseUp: false,
-                allowSelect: true,
-              };
-            },
-            onKeyDown(event) {
-              selectionRef.current.allowSelect = true;
-              lastKeyRef.current = event.key;
-            },
-            onClick(event) {
-              if (
-                disabled ||
-                (lastKeyRef.current === ' ' && typingRef.current) ||
-                (pointerTypeRef.current !== 'touch' && !highlighted)
-              ) {
-                return;
-              }
-
-              if (selectionRef.current.allowSelect) {
-                lastKeyRef.current = null;
-                commitSelection(event.nativeEvent);
-              }
-            },
-            onPointerEnter(event) {
-              pointerTypeRef.current = event.pointerType;
-            },
-            onPointerDown(event) {
-              pointerTypeRef.current = event.pointerType;
-            },
-            onMouseUp(event) {
-              if (disabled) {
-                return;
-              }
-              const disallowSelectedMouseUp =
-                !selectionRef.current.allowSelectedMouseUp && selected;
-              const disallowUnselectedMouseUp =
-                !selectionRef.current.allowUnselectedMouseUp && !selected;
-
-              if (
-                disallowSelectedMouseUp ||
-                disallowUnselectedMouseUp ||
-                (pointerTypeRef.current !== 'touch' && !highlighted)
-              ) {
-                return;
-              }
-
-              if (selectionRef.current.allowSelect || !selected) {
-                commitSelection(event.nativeEvent);
-              }
-
-              selectionRef.current.allowSelect = true;
-            },
+            }
           },
-          externalProps,
-        ),
+          onMouseMove() {
+            setActiveIndex(indexRef.current);
+            if (popupRef.current) {
+              prevPopupHeightRef.current = popupRef.current.offsetHeight;
+            }
+          },
+          onMouseLeave(event) {
+            const popup = popupRef.current;
+            if (!popup || !open || keyboardActiveRef.current) {
+              return;
+            }
+
+            const targetRect = event.currentTarget.getBoundingClientRect();
+
+            // Safari randomly fires `mouseleave` incorrectly when the item is
+            // aligned to the trigger. This is a workaround to prevent the highlight
+            // from being removed while the cursor is still within the bounds of the item.
+            // https://github.com/mui/base-ui/issues/869
+            const isWithinBounds =
+              targetRect.top + 1 <= event.clientY &&
+              event.clientY <= targetRect.bottom - 1 &&
+              targetRect.left + 1 <= event.clientX &&
+              event.clientX <= targetRect.right - 1;
+
+            if (isWithinBounds) {
+              return;
+            }
+
+            // With `alignItemToTrigger`, avoid re-rendering the root due to `onMouseLeave`
+            // firing and causing a performance issue when expanding the popup.
+            if (popup.offsetHeight === prevPopupHeightRef.current) {
+              // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
+              // the mouse out of the popup.
+              allowFocusSyncRef.current = false;
+              setActiveIndex(null);
+              requestAnimationFrame(() => {
+                popup.focus({ preventScroll: true });
+                allowFocusSyncRef.current = true;
+              });
+            }
+          },
+          onTouchStart() {
+            selectionRef.current = {
+              allowSelectedMouseUp: false,
+              allowUnselectedMouseUp: false,
+              allowSelect: true,
+            };
+          },
+          onKeyDown(event) {
+            selectionRef.current.allowSelect = true;
+            lastKeyRef.current = event.key;
+          },
+          onClick(event) {
+            if (didPointerDownRef.current) {
+              didPointerDownRef.current = false;
+              return;
+            }
+
+            if (disabled || (lastKeyRef.current === ' ' && typingRef.current)) {
+              return;
+            }
+
+            if (selectionRef.current.allowSelect) {
+              lastKeyRef.current = null;
+              commitSelection(event.nativeEvent);
+            }
+          },
+          onPointerEnter(event) {
+            pointerTypeRef.current = event.pointerType;
+          },
+          onPointerDown(event) {
+            pointerTypeRef.current = event.pointerType;
+            didPointerDownRef.current = true;
+          },
+          onMouseUp(event) {
+            if (disabled) {
+              return;
+            }
+
+            const disallowSelectedMouseUp = !selectionRef.current.allowSelectedMouseUp && selected;
+            const disallowUnselectedMouseUp =
+              !selectionRef.current.allowUnselectedMouseUp && !selected;
+
+            if (
+              disallowSelectedMouseUp ||
+              disallowUnselectedMouseUp ||
+              (pointerTypeRef.current !== 'touch' && !highlighted)
+            ) {
+              return;
+            }
+
+            if (selectionRef.current.allowSelect || !selected) {
+              commitSelection(event.nativeEvent);
+            }
+
+            selectionRef.current.allowSelect = true;
+          },
+        },
+        externalProps,
+        getButtonProps,
       );
     },
     [
@@ -162,6 +164,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
       getButtonProps,
       highlighted,
       indexRef,
+      keyboardActiveRef,
       open,
       popupRef,
       selected,
@@ -213,7 +216,7 @@ export namespace useSelectItem {
     /**
      * The function to handle the selection of the item.
      */
-    handleSelect: () => void;
+    handleSelect: (event: MouseEvent) => void;
     /**
      * The ref to the selection state of the item.
      */
@@ -232,6 +235,7 @@ export namespace useSelectItem {
     indexRef: React.RefObject<number>;
     setActiveIndex: SelectIndexContext['setActiveIndex'];
     popupRef: React.RefObject<HTMLDivElement | null>;
+    keyboardActiveRef: React.RefObject<boolean>;
   }
 
   export interface ReturnValue {
