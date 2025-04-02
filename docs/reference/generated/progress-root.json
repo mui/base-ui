@@ -12,7 +12,7 @@
       "description": "Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar."
     },
     "locale": {
-      "type": "Array<{ baseName: string, calendar?: string, caseFirst?: 'false' | 'lower' | 'upper', collation?: string, hourCycle?: 'h11' | 'h12' | 'h23' | 'h24', language: string, maximize: func, minimize: func, numberingSystem?: string, numeric?: bool, region?: string, script?: string, toString: func } | string> | { baseName: string, calendar?: string, caseFirst?: 'false' | 'lower' | 'upper', collation?: string, hourCycle?: 'h11' | 'h12' | 'h23' | 'h24', language: string, maximize: func, minimize: func, numberingSystem?: string, numeric?: bool, region?: string, script?: string, toString: func } | string",
+      "type": "Intl.LocalesArgument",
       "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
     },
     "min": {
