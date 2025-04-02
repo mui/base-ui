@@ -2,67 +2,56 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { mergeProps } from '../../merge-props';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useProgressRootContext } from '../root/ProgressRootContext';
-import type { ProgressRoot } from '../root/ProgressRoot';
 import { progressStyleHookMapping } from '../root/styleHooks';
+import { ProgressRoot } from '../root/ProgressRoot';
+import { BaseUIComponentProps } from '../../utils/types';
+
 /**
- * A text label displaying the current value.
+ * An accessible label for the progress bar.
  * Renders a `<span>` element.
  *
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
-const ProgressValue = React.forwardRef(function ProgressValue(
-  props: ProgressValue.Props,
+const ProgressLabel = React.forwardRef(function ProgressLabel(
+  props: ProgressLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, ...otherProps } = props;
+  const { render, className, id: idProp, ...otherProps } = props;
 
-  const { value, formattedValue, state } = useProgressRootContext();
+  const id = useBaseUiId(idProp);
 
-  const getValueProps = React.useCallback(
-    (externalProps = {}) => {
-      const formattedValueArg = value == null ? 'indeterminate' : formattedValue;
-      const formattedValueDisplay = value == null ? null : formattedValue;
-      return mergeProps(
-        {
-          'aria-hidden': true,
-          children:
-            typeof children === 'function'
-              ? children(formattedValueArg, value)
-              : formattedValueDisplay,
-        },
-        externalProps,
-      );
-    },
-    [children, value, formattedValue],
-  );
+  const { setLabelId, state } = useProgressRootContext();
+
+  useEnhancedEffect(() => {
+    setLabelId(id);
+    return () => setLabelId(undefined);
+  }, [id, setLabelId]);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getValueProps,
     render: render ?? 'span',
-    className,
     state,
+    className,
     ref: forwardedRef,
-    extraProps: otherProps,
+    extraProps: mergeProps<'span'>({ id }, otherProps),
     customStyleHookMapping: progressStyleHookMapping,
   });
 
   return renderElement();
 });
 
-namespace ProgressValue {
+namespace ProgressLabel {
   export interface State extends ProgressRoot.State {}
 
-  export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    children?: null | ((formattedValue: string | null, value: number | null) => React.ReactNode);
-  }
+  export interface Props extends BaseUIComponentProps<'span', State> {}
 }
 
-export { ProgressValue };
+export { ProgressLabel };
 
-ProgressValue.propTypes /* remove-proptypes */ = {
+ProgressLabel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -70,12 +59,16 @@ ProgressValue.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
-  children: PropTypes.func,
+  children: PropTypes.node,
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

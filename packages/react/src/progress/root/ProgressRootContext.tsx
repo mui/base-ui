@@ -4,6 +4,10 @@ import type { ProgressRoot, ProgressStatus } from './ProgressRoot';
 
 export type ProgressRootContext = {
   /**
+   * Formatted value of the component.
+   */
+  formattedValue: string;
+  /**
    * The maximum value.
    */
   max: number;
@@ -15,12 +19,9 @@ export type ProgressRootContext = {
    * Value of the component.
    */
   value: number | null;
-  /**
-   * Formatted value of the component.
-   */
-  formattedValue: string;
-  status: ProgressStatus;
+  setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   state: ProgressRoot.State;
+  status: ProgressStatus;
 };
 
 /**
