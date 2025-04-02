@@ -1,0 +1,43 @@
+# Context Menu
+
+<Subtitle>A menu that appears at the pointer on right click or long press.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React context menu component that appears at the pointer on right click or long press."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Context Menu is composed together with [Menu](/react/components/menu). Import the components and place them together:
+
+```jsx title="Anatomy" {4,6,25}
+import { ContextMenu } from '@base-ui-components/react/context-menu';
+import { Menu } from '@base-ui-components/react/menu';
+
+<ContextMenu.Root>
+  <Menu.Root>
+    <ContextMenu.Trigger />
+    <Menu.Portal>
+      <Menu.Backdrop />
+      <Menu.Positioner>
+        <Menu.Popup>
+          <Menu.Arrow />
+          <Menu.Item />
+          <Menu.Separator />
+          <Menu.Group>
+            <Menu.GroupLabel />
+          </Menu.Group>
+          <Menu.RadioGroup>
+            <Menu.RadioItem />
+          </Menu.RadioGroup>
+          <Menu.CheckboxItem />
+        </Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
+  </Menu.Root>
+</ContextMenu.Root>;
+```
+
+<Reference component="ContextMenu" parts="Root, Trigger" />

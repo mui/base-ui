@@ -72,6 +72,7 @@ export function useAnchorPositioning(
     floatingRootContext,
     mounted,
     trackAnchor = true,
+    noFlip = false,
     nodeId,
   } = params;
 
@@ -136,21 +137,22 @@ export function useAnchorPositioning(
     ),
   ];
 
-  const flipMiddleware = flip(commonCollisionProps);
+  const flipMiddleware = noFlip ? null : flip(commonCollisionProps);
   const shiftMiddleware = shift({
     ...commonCollisionProps,
-    crossAxis: sticky,
-    limiter: sticky
-      ? undefined
-      : limitShift(() => {
-          if (!arrowRef.current) {
-            return {};
-          }
-          const { height } = arrowRef.current.getBoundingClientRect();
-          return {
-            offset: height / 2 + (typeof collisionPadding === 'number' ? collisionPadding : 0),
-          };
-        }),
+    crossAxis: sticky || noFlip,
+    limiter:
+      sticky || noFlip
+        ? undefined
+        : limitShift(() => {
+            if (!arrowRef.current) {
+              return {};
+            }
+            const { height } = arrowRef.current.getBoundingClientRect();
+            return {
+              offset: height / 2 + (typeof collisionPadding === 'number' ? collisionPadding : 0),
+            };
+          }),
   });
 
   // https://floating-ui.com/docs/flip#combining-with-shift
@@ -431,6 +433,7 @@ export namespace useAnchorPositioning {
     mounted: boolean;
     trackAnchor: boolean;
     nodeId?: string;
+    noFlip?: boolean;
   }
 
   export interface ReturnValue {

@@ -15,6 +15,7 @@ import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 /**
  * Positions the menu popup against the trigger.
@@ -27,7 +28,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    anchor,
+    anchor: anchorProp,
     positionMethod = 'absolute',
     className,
     render,
@@ -58,6 +59,10 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const nodeId = useFloatingNodeId();
   const parentNodeId = useFloatingParentNodeId();
+  const contextMenuContext = useContextMenuRootContext();
+  const hasContextMenuContext = Boolean(contextMenuContext);
+
+  const anchor = contextMenuContext?.anchor ?? anchorProp;
 
   let computedSide = side;
   let computedAlign = align;
@@ -78,7 +83,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     sideOffset,
     align: computedAlign,
     alignOffset,
-    arrowPadding,
+    arrowPadding: hasContextMenuContext ? 0 : arrowPadding,
     collisionBoundary,
     collisionPadding,
     sticky,
@@ -86,6 +91,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     parentNodeId,
     keepMounted,
     trackAnchor,
+    noFlip: hasContextMenuContext,
   });
 
   const state: MenuPositioner.State = React.useMemo(
