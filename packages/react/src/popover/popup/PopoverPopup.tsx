@@ -46,8 +46,12 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     mounted,
     openReason,
     onOpenChangeComplete,
+    floatingRootContext,
   } = usePopoverRootContext();
   const positioner = usePopoverPositionerContext();
+
+  const side = positioner?.side || 'bottom';
+  const align = positioner?.align || 'center';
 
   useOpenChangeComplete({
     open,
@@ -69,12 +73,12 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
   const state: PopoverPopup.State = React.useMemo(
     () => ({
       open,
-      side: positioner.side,
-      align: positioner.align,
+      side,
+      align,
       instant: instantType,
       transitionStatus,
     }),
-    [open, positioner.side, positioner.align, instantType, transitionStatus],
+    [open, side, align, instantType, transitionStatus],
   );
 
   const mergedRef = useForkRef(popupRef, forwardedRef);
@@ -99,7 +103,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   return (
     <FloatingFocusManager
-      context={positioner.context}
+      context={floatingRootContext}
       modal={false}
       disabled={!mounted || openReason === 'hover'}
       initialFocus={resolvedInitialFocus}

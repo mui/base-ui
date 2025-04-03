@@ -18,9 +18,13 @@ if (process.env.NODE_ENV !== 'production') {
   PreviewCardPositionerContext.displayName = 'PreviewCardPositionerContext';
 }
 
-export function usePreviewCardPositionerContext() {
+export function usePreviewCardPositionerContext(optional: false): PreviewCardPositionerContext;
+export function usePreviewCardPositionerContext(
+  optional?: true,
+): PreviewCardPositionerContext | undefined;
+export function usePreviewCardPositionerContext(optional = true) {
   const context = React.useContext(PreviewCardPositionerContext);
-  if (context === undefined) {
+  if (context === undefined && !optional) {
     throw new Error(
       'Base UI: <PreviewCard.Popup> and <PreviewCard.Arrow> must be used within the <PreviewCard.Positioner> component',
     );

@@ -47,8 +47,12 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     mounted,
     instantType,
     onOpenChangeComplete,
+    floatingRootContext,
   } = useMenuRootContext();
-  const { side, align, floatingContext } = useMenuPositionerContext();
+  const positioner = useMenuPositionerContext();
+
+  const side = positioner?.side || 'bottom';
+  const align = positioner?.align || 'center';
 
   useOpenChangeComplete({
     open,
@@ -96,7 +100,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
 
   return (
     <FloatingFocusManager
-      context={floatingContext}
+      context={floatingRootContext}
       modal={false}
       disabled={!mounted}
       visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}

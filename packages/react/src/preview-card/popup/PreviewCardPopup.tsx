@@ -34,7 +34,10 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
 
   const { open, transitionStatus, getRootPopupProps, popupRef, onOpenChangeComplete } =
     usePreviewCardRootContext();
-  const { side, align } = usePreviewCardPositionerContext();
+  const positioner = usePreviewCardPositionerContext();
+
+  const side = positioner?.side || 'bottom';
+  const align = positioner?.align || 'center';
 
   useOpenChangeComplete({
     open,

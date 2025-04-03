@@ -1,0 +1,212 @@
+.Anchor {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: black;
+  color: white;
+  width: 8rem;
+  height: 5rem;
+  padding: 0;
+  margin: 0;
+  user-select: none;
+  anchor-name: --trigger;
+}
+
+.Icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+@position-try --block-end {
+  position-area: block-end;
+}
+@position-try --block-end-start {
+  position-area: block-end span-inline-end;
+}
+@position-try --block-end-end {
+  position-area: block-end span-inline-start;
+}
+@position-try --block-start {
+  position-area: block-start;
+}
+@position-try --block-start-start {
+  position-area: block-start span-inline-end;
+}
+@position-try --block-start-end {
+  position-area: block-start span-inline-start;
+}
+@position-try --inline-start {
+  position-area: inline-start;
+}
+@position-try --inline-start-start {
+  position-area: inline-start span-block-end;
+}
+@position-try --inline-start-end {
+  position-area: inline-start span-block-start;
+}
+@position-try --inline-end {
+  position-area: inline-end;
+}
+@position-try --inline-end-start {
+  position-area: inline-end span-block-end;
+}
+@position-try --inline-end-end {
+  position-area: inline-end span-block-start;
+}
+
+.Popup {
+  box-sizing: border-box;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  background-color: canvas;
+  color: var(--color-gray-900);
+  transform-origin: var(--transform-origin);
+  position: absolute;
+  width: 300px;
+  height: 150px;
+  transition:
+    transform 150ms,
+    opacity 150ms;
+  position-anchor: --trigger;
+
+  &[data-side='top'] {
+    position-area: top;
+    margin-block: 0.5rem;
+    position-try-fallbacks:
+      --block-end, --block-start-start, --block-start-end, --block-end-start, --block-end-end;
+
+    &[data-align='start'] {
+      position-area: block-start span-inline-end;
+    }
+    &[data-align='end'] {
+      position-area: block-start span-inline-start;
+    }
+  }
+
+  &[data-side='bottom'] {
+    position-area: bottom;
+    margin-block: 0.5rem;
+    position-try-fallbacks:
+      --block-start, --block-end-start, --block-end-end, --block-start-start, --block-start-end;
+
+    &[data-align='start'] {
+      position-area: block-end span-inline-end;
+      position-try-fallbacks: flip-block flip-inline;
+    }
+    &[data-align='end'] {
+      position-area: block-end span-inline-start;
+      position-try-fallbacks: flip-block flip-inline;
+    }
+  }
+
+  &[data-side='left'] {
+    position-area: left;
+    margin-inline: 0.5rem;
+    position-try-fallbacks:
+      --inline-end, --inline-start-start, --inline-start-end, --inline-end-start, --inline-end-end;
+
+    &[data-align='start'] {
+      position-area: inline-start span-block-end;
+      position-try-fallbacks: flip-block flip-inline;
+    }
+    &[data-align='end'] {
+      position-area: inline-start span-block-start;
+      position-try-fallbacks: flip-block flip-inline;
+    }
+  }
+
+  &[data-side='right'] {
+    position-area: right;
+    margin-inline: 0.5rem;
+    position-try-fallbacks:
+      --inline-start, --inline-end-start, --inline-end-end, --inline-start-start, --inline-start-end;
+
+    &[data-align='start'] {
+      position-area: inline-end span-block-end;
+      position-try-fallbacks: flip-block flip-inline;
+    }
+    &[data-align='end'] {
+      position-area: inline-end span-block-start;
+      position-try-fallbacks: flip-block flip-inline;
+    }
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  @media (prefers-color-scheme: light) {
+    outline: 1px solid var(--color-gray-200);
+    box-shadow:
+      0 10px 15px -3px var(--color-gray-200),
+      0 4px 6px -4px var(--color-gray-200);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    outline: 1px solid var(--color-gray-300);
+    outline-offset: -1px;
+  }
+}
+
+.Arrow {
+  display: flex;
+
+  &[data-side='top'] {
+    bottom: -8px;
+    rotate: 180deg;
+  }
+
+  &[data-side='bottom'] {
+    top: -8px;
+    rotate: 0deg;
+  }
+
+  &[data-side='left'] {
+    right: -13px;
+    rotate: 90deg;
+  }
+
+  &[data-side='right'] {
+    left: -13px;
+    rotate: -90deg;
+  }
+}
+
+.ArrowFill {
+  fill: canvas;
+}
+
+.ArrowOuterStroke {
+  @media (prefers-color-scheme: light) {
+    fill: var(--color-gray-200);
+  }
+}
+
+.ArrowInnerStroke {
+  @media (prefers-color-scheme: dark) {
+    fill: var(--color-gray-300);
+  }
+}
+
+.Title {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+}
+
+.Description {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color: var(--color-gray-600);
+}
+
+.Actions {
+  display: flex;
+  justify-content: end;
+  gap: 1rem;
+}

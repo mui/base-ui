@@ -23,7 +23,8 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
   const { className, render, ...otherProps } = props;
 
   const { open } = usePopoverRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles } =
+    usePopoverPositionerContext(false);
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) => {
