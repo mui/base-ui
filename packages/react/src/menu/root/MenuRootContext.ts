@@ -2,11 +2,12 @@
 import * as React from 'react';
 import type { useMenuRoot } from './useMenuRoot';
 import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { MenubarRootContext } from '../../menubar/root/MenubarRootContext';
 
 export interface MenuRootContext extends useMenuRoot.ReturnValue {
   disabled: boolean;
   nested: boolean;
-  parentContext: MenuRootContext | undefined;
+  parentContext: MenuRootContext | MenubarRootContext | undefined;
   typingRef: React.RefObject<boolean>;
   modal: boolean;
   openReason: OpenChangeReason | null;

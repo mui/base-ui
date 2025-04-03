@@ -1,8 +1,10 @@
 import * as React from 'react';
+import { FloatingTree } from '@floating-ui/react';
 import { MenuOrientation } from '../../menu/root/useMenuRoot';
 import { BaseUIComponentProps } from '../../utils/types';
-import { Menu } from '../../menu';
 import { MenubarContent } from './MenubarContent';
+import { useMenubarRoot } from './useMenubarRoot';
+import { MenubarRootContext } from './MenubarRootContext';
 
 /**
  *
@@ -12,14 +14,28 @@ const MenubarRoot = React.forwardRef(function MenubarRoot(
   props: MenubarRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { orientation = 'horizontal', loop = true, disabled = false, ...otherProps } = props;
+  const {
+    orientation = 'horizontal',
+    loop = true,
+    disabled = false,
+    children,
+    ...otherProps
+  } = props;
+
+  const menubarRoot = useMenubarRoot({
+    disabled,
+    loop,
+    orientation,
+  });
 
   return (
-    <Menu.Root open modal={false} orientation={orientation} disabled={disabled} loop={loop}>
-      <MenubarContent ref={forwardedRef} {...otherProps}>
-        {props.children}
-      </MenubarContent>
-    </Menu.Root>
+    <FloatingTree>
+      <MenubarRootContext.Provider value={menubarRoot}>
+        <MenubarContent ref={forwardedRef} {...otherProps}>
+          {children}
+        </MenubarContent>
+      </MenubarRootContext.Provider>
+    </FloatingTree>
   );
 });
 

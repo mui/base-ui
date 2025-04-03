@@ -6,6 +6,7 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot } from './useMenuRoot';
 import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { useMenubarRootContext } from '../../menubar/root/MenubarRootContext';
 
 /**
  * Groups all parts of the menu.
@@ -33,7 +34,8 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const direction = useDirection();
 
   const parentContext = useMenuRootContext(true);
-  const nested = parentContext != null;
+  const menubarRootContext = useMenubarRootContext(true);
+  const nested = parentContext != null || menubarRootContext != null;
 
   const openOnHover = openOnHoverProp ?? nested;
   const typingRef = React.useRef(false);
@@ -64,14 +66,14 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     () => ({
       ...menuRoot,
       nested,
-      parentContext,
+      parentContext: parentContext ?? menubarRootContext ?? undefined,
       disabled,
       allowMouseUpTriggerRef:
         parentContext?.allowMouseUpTriggerRef ?? menuRoot.allowMouseUpTriggerRef,
       typingRef,
       modal,
     }),
-    [menuRoot, nested, parentContext, disabled, modal],
+    [menuRoot, nested, parentContext, menubarRootContext, disabled, modal],
   );
 
   if (!nested) {
