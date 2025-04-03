@@ -91,7 +91,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     parentNodeId,
     keepMounted,
     trackAnchor,
-    noFlip: hasContextMenuContext,
+    shiftCrossAxis: hasContextMenuContext,
   });
 
   const state: MenuPositioner.State = React.useMemo(
