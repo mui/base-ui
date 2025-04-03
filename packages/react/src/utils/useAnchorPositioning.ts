@@ -72,7 +72,7 @@ export function useAnchorPositioning(
     floatingRootContext,
     mounted,
     trackAnchor = true,
-    noFlip = false,
+    shiftCrossAxis = false,
     nodeId,
   } = params;
 
@@ -137,12 +137,15 @@ export function useAnchorPositioning(
     ),
   ];
 
-  const flipMiddleware = noFlip ? null : flip(commonCollisionProps);
+  const flipMiddleware = flip({
+    ...commonCollisionProps,
+    mainAxis: !shiftCrossAxis,
+  });
   const shiftMiddleware = shift({
     ...commonCollisionProps,
-    crossAxis: sticky || noFlip,
+    crossAxis: sticky || shiftCrossAxis,
     limiter:
-      sticky || noFlip
+      sticky || shiftCrossAxis
         ? undefined
         : limitShift(() => {
             if (!arrowRef.current) {
@@ -433,7 +436,7 @@ export namespace useAnchorPositioning {
     mounted: boolean;
     trackAnchor: boolean;
     nodeId?: string;
-    noFlip?: boolean;
+    shiftCrossAxis?: boolean;
   }
 
   export interface ReturnValue {
