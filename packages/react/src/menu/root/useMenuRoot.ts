@@ -48,7 +48,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   } = parameters;
 
   const contextMenuContext = useContextMenuRootContext();
-  const hasContextMenuParent = Boolean(contextMenuContext);
+  const hasContextMenuParent = Boolean(contextMenuContext) && !nested;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [positionerElement, setPositionerElementUnwrapped] = React.useState<HTMLElement | null>(
