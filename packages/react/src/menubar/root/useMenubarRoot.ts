@@ -14,25 +14,14 @@ const EMPTY_ARRAY: never[] = [];
 export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenubarRoot.ReturnValue {
   const { orientation, disabled, loop } = parameters;
 
-  const [positionerElement, setPositionerElementUnwrapped] = React.useState<HTMLElement | null>(
-    null,
-  );
-
+  const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-
-  const popupRef = React.useRef<HTMLElement>(null);
-  const positionerRef = React.useRef<HTMLElement | null>(null);
-
   const direction = useDirection();
-  const setPositionerElement = React.useCallback((value: HTMLElement | null) => {
-    positionerRef.current = value;
-    setPositionerElementUnwrapped(value);
-  }, []);
 
   const floatingRootContext = useFloatingRootContext({
     elements: {
       reference: null,
-      floating: positionerElement,
+      floating: contentElement,
     },
     open: true,
   });
@@ -53,9 +42,7 @@ export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenuba
   });
 
   const { getFloatingProps, getItemProps } = useInteractions([listNavigation]);
-
   const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
-
   const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
 
   return React.useMemo(
@@ -66,9 +53,7 @@ export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenuba
       floatingRootContext,
       itemDomElements,
       itemLabels,
-      popupRef,
-      positionerRef,
-      setPositionerElement,
+      setContentElement,
     }),
     [
       activeIndex,
@@ -77,9 +62,7 @@ export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenuba
       floatingRootContext,
       itemDomElements,
       itemLabels,
-      popupRef,
-      positionerRef,
-      setPositionerElement,
+      setContentElement,
     ],
   );
 }
@@ -108,10 +91,8 @@ export namespace useMenubarRoot {
     floatingRootContext: FloatingRootContext;
     itemProps: GenericHTMLProps;
     popupProps: GenericHTMLProps;
-    itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
-    itemLabels: React.MutableRefObject<(string | null)[]>;
-    popupRef: React.RefObject<HTMLElement | null>;
-    positionerRef: React.RefObject<HTMLElement | null>;
-    setPositionerElement: (element: HTMLElement | null) => void;
+    itemDomElements: React.RefObject<(HTMLElement | null)[]>;
+    itemLabels: React.RefObject<(string | null)[]>;
+    setContentElement: (element: HTMLElement | null) => void;
   }
 }

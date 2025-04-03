@@ -23,18 +23,12 @@ export const MenubarContent = React.forwardRef(function MenubarContent(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const {
-    floatingRootContext,
-    setPositionerElement,
-    itemDomElements,
-    itemLabels,
-    popupRef,
-    popupProps,
-  } = useMenubarRootContext();
+  const { floatingRootContext, setContentElement, itemDomElements, itemLabels, popupProps } =
+    useMenubarRootContext();
 
   const nodeId = useFloatingNodeId();
 
-  const mergedRef = useForkRef(forwardedRef, setPositionerElement, popupRef);
+  const mergedRef = useForkRef(forwardedRef, setContentElement);
 
   useFloating({
     rootContext: floatingRootContext,
