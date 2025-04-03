@@ -78,9 +78,11 @@
 
     &[data-align='start'] {
       position-area: block-start span-inline-end;
+      position-try-fallbacks: flip-block flip-inline;
     }
     &[data-align='end'] {
       position-area: block-start span-inline-start;
+      position-try-fallbacks: flip-block flip-inline;
     }
   }
 
