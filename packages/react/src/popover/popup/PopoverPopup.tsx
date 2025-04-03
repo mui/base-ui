@@ -47,6 +47,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     openReason,
     onOpenChangeComplete,
     floatingRootContext,
+    setPositionerElement,
   } = usePopoverRootContext();
   const positioner = usePopoverPositionerContext();
 
@@ -81,7 +82,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     [open, side, align, instantType, transitionStatus],
   );
 
-  const mergedRef = useForkRef(popupRef, forwardedRef);
+  const mergedRef = useForkRef(popupRef, forwardedRef, positioner ? null : setPositionerElement);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getPopupProps,

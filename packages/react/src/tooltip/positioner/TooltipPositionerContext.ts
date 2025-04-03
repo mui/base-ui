@@ -19,9 +19,11 @@ if (process.env.NODE_ENV !== 'production') {
   TooltipPositionerContext.displayName = 'TooltipPositionerContext';
 }
 
-export function useTooltipPositionerContext() {
+export function useTooltipPositionerContext(optional: false): TooltipPositionerContext;
+export function useTooltipPositionerContext(optional?: true): TooltipPositionerContext | undefined;
+export function useTooltipPositionerContext(optional = true) {
   const context = React.useContext(TooltipPositionerContext);
-  if (context === undefined) {
+  if (context === undefined && !optional) {
     throw new Error(
       'Base UI: TooltipPositionerContext is missing. TooltipPositioner parts must be placed within <Tooltip.Positioner>.',
     );

@@ -48,6 +48,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     instantType,
     onOpenChangeComplete,
     floatingRootContext,
+    setPositionerElement,
   } = useMenuRootContext();
   const positioner = useMenuPositionerContext();
 
@@ -71,7 +72,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     menuEvents,
   });
 
-  const mergedRef = useForkRef(forwardedRef, popupRef);
+  const mergedRef = useForkRef(forwardedRef, popupRef, positioner ? null : setPositionerElement);
 
   const state: MenuPopup.State = React.useMemo(
     () => ({

@@ -32,8 +32,14 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, transitionStatus, getRootPopupProps, popupRef, onOpenChangeComplete } =
-    usePreviewCardRootContext();
+  const {
+    open,
+    transitionStatus,
+    getRootPopupProps,
+    popupRef,
+    onOpenChangeComplete,
+    setPositionerElement,
+  } = usePreviewCardRootContext();
   const positioner = usePreviewCardPositionerContext();
 
   const side = positioner?.side || 'bottom';
@@ -63,7 +69,7 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     [open, side, align, transitionStatus],
   );
 
-  const mergedRef = useForkRef(popupRef, forwardedRef);
+  const mergedRef = useForkRef(popupRef, forwardedRef, positioner ? null : setPositionerElement);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getPopupProps,
