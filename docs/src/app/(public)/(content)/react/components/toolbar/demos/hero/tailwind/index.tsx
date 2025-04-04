@@ -12,7 +12,7 @@ export default function ExampleToolbar() {
           render={<Toggle />}
           aria-label="Align left"
           value="align-left"
-          className="flex h-8 items-center justify-center rounded-sm px-[0.75rem] font-[inherit] text-sm font-medium text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
+          className="flex h-8 items-center justify-center rounded-sm px-[0.75rem] font-[inherit] text-sm font-medium text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
         >
           Align Left
         </Toolbar.Button>
@@ -20,7 +20,7 @@ export default function ExampleToolbar() {
           render={<Toggle />}
           aria-label="Align right"
           value="align-right"
-          className="flex h-8 items-center justify-center rounded-sm px-[0.75rem] font-[inherit] text-sm font-medium text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
+          className="flex h-8 items-center justify-center rounded-sm px-[0.75rem] font-[inherit] text-sm font-medium text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
         >
           Align Right
         </Toolbar.Button>
@@ -28,13 +28,13 @@ export default function ExampleToolbar() {
       <Toolbar.Separator className="m-1 h-4 w-px bg-gray-300" />
       <Toolbar.Group className="flex gap-1" aria-label="Numerical format">
         <Toolbar.Button
-          className="flex size-8 items-center justify-center rounded-sm px-[0.75rem] font-[inherit] text-sm font-medium text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
+          className="flex size-8 items-center justify-center rounded-sm px-[0.75rem] font-[inherit] text-sm font-medium text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
           aria-label="Format as currency"
         >
           $
         </Toolbar.Button>
         <Toolbar.Button
-          className="flex size-8 items-center justify-center rounded-sm px-[0.75rem] font-[inherit] text-sm font-medium text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
+          className="flex size-8 items-center justify-center rounded-sm px-[0.75rem] font-[inherit] text-sm font-medium text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
           aria-label="Format as percent"
         >
           %
@@ -44,7 +44,7 @@ export default function ExampleToolbar() {
       <Select.Root defaultValue="helvetica">
         <Toolbar.Button
           render={<Select.Trigger />}
-          className="flex h-8 min-w-32 items-center justify-between rounded-sm px-[0.75rem] font-[inherit] text-sm font-medium text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
+          className="flex h-8 min-w-32 items-center justify-between rounded-sm px-[0.75rem] font-[inherit] text-sm font-medium text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
         >
           <Select.Value placeholder="Helvetica" />
           <Select.Icon>
@@ -53,7 +53,7 @@ export default function ExampleToolbar() {
         </Toolbar.Button>
         <Select.Portal>
           <Select.Positioner className="outline-none" sideOffset={8}>
-            <Select.Popup className="group origin-[var(--transform-origin)] rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:scale-100 data-[ending-style]:opacity-0 data-[ending-style]:opacity-100 data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style]:transition-none dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+            <Select.Popup className="group origin-[var(--transform-origin)] rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:scale-100 data-[ending-style]:opacity-0 data-[ending-style]:opacity-100 data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style]:transition-none dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
               <Select.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
                 <ArrowSvg />
               </Select.Arrow>
@@ -81,7 +81,7 @@ export default function ExampleToolbar() {
       </Select.Root>
       <Toolbar.Separator className="m-1 h-4 w-px bg-gray-300" />
       <Toolbar.Link
-        className="mr-[0.875rem] ml-16 flex-none self-center text-sm text-gray-500 no-underline hover:text-blue-800 focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="mr-[0.875rem] ml-16 flex-none self-center text-sm text-gray-500 no-underline hover:text-blue-800 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         href="#"
       >
         Edited 51m ago
