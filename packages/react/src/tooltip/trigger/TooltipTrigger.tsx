@@ -14,16 +14,16 @@ import { button } from '../../utils/renderFunctions';
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipTrigger = React.forwardRef(function TooltipTrigger(
-  props: TooltipTrigger.Props,
+  componentProps: TooltipTrigger.Props,
   ref: React.ForwardedRef<any>,
 ) {
-  const { className, render, ...intrinsicProps } = props;
+  const { className, render, ...intrinsicProps } = componentProps;
 
   const { open, setTriggerElement, getTriggerProps } = useTooltipRootContext();
 
   const state: TooltipTrigger.State = React.useMemo(() => ({ open }), [open]);
 
-  const renderElement = useRenderElement(button, props, {
+  const renderElement = useRenderElement(button, componentProps, {
     state,
     ref: [ref, setTriggerElement],
     props: [getTriggerProps, intrinsicProps],

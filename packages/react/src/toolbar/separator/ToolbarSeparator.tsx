@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { Separator } from '../../separator';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
+
 /**
  * A separator element accessible to screen readers.
  * Renders a `<div>` element.
@@ -11,8 +12,8 @@ import { useToolbarRootContext } from '../root/ToolbarRootContext';
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
 const ToolbarSeparator = React.forwardRef(function ToolbarSeparator(
-  props: ToolbarSeparator.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  componentProps: ToolbarSeparator.Props,
+  ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   const context = useToolbarRootContext();
 
@@ -23,7 +24,7 @@ const ToolbarSeparator = React.forwardRef(function ToolbarSeparator(
     } as Record<Orientation, Orientation>
   )[context.orientation];
 
-  return <Separator orientation={orientation} {...props} ref={forwardedRef} />;
+  return <Separator orientation={orientation} {...componentProps} ref={ref} />;
 });
 
 ToolbarSeparator.propTypes /* remove-proptypes */ = {

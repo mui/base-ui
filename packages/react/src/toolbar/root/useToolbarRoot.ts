@@ -1,13 +1,9 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../merge-props';
-import { GenericHTMLProps, Orientation } from '../../utils/types';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { ToolbarItemMetadata } from './ToolbarRoot';
 
-export function useToolbarRoot(parameters: useToolbarRoot.Parameters): useToolbarRoot.ReturnValue {
-  const { orientation } = parameters;
-
+export function useToolbarRoot(): useToolbarRoot.ReturnValue {
   const [itemMap, setItemMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ToolbarItemMetadata> | null>(),
   );
@@ -22,46 +18,17 @@ export function useToolbarRoot(parameters: useToolbarRoot.Parameters): useToolba
     return output;
   }, [itemMap]);
 
-  const getRootProps = React.useCallback(
-    (externalProps = {}): React.ComponentPropsWithRef<'div'> => {
-      return mergeProps(
-        {
-          'aria-orientation': orientation,
-          role: 'toolbar',
-        },
-        externalProps,
-      );
-    },
-    [orientation],
-  );
-
   return React.useMemo(
     () => ({
-      getRootProps,
       disabledIndices,
       setItemMap,
     }),
-    [getRootProps, disabledIndices, setItemMap],
+    [disabledIndices, setItemMap],
   );
 }
 
 export namespace useToolbarRoot {
-  export interface Parameters {
-    disabled: boolean;
-    /**
-     * The component orientation.
-     * @default 'horizontal'
-     */
-    orientation: Orientation;
-  }
-
   export interface ReturnValue {
-    /**
-     * Resolver for the Toolbar component's props.
-     * @param externalProps additional props for Toolbar.Root
-     * @returns props that should be spread on Toolbar.Root
-     */
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     disabledIndices: number[];
     setItemMap: React.Dispatch<
       React.SetStateAction<Map<Node, CompositeMetadata<ToolbarItemMetadata> | null>>

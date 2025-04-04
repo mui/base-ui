@@ -24,10 +24,10 @@ const styleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipPopup = React.forwardRef(function TooltipPopup(
-  props: TooltipPopup.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  componentProps: TooltipPopup.Props,
+  ref: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...intrinsicProps } = props;
+  const { className, render, ...intrinsicProps } = componentProps;
 
   const { open, instantType, transitionStatus, getPopupProps, popupRef, onOpenChangeComplete } =
     useTooltipRootContext();
@@ -54,9 +54,9 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     [open, side, align, instantType, transitionStatus],
   );
 
-  const renderElement = useRenderElement('div', props, {
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    ref: [popupRef, forwardedRef],
+    ref: [popupRef, ref],
     props: [
       getPopupProps,
       transitionStatus === 'starting' ? { style: { transition: 'none' } } : {},

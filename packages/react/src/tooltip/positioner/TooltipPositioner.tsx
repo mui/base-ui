@@ -18,7 +18,7 @@ import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipPositioner = React.forwardRef(function TooltipPositioner(
-  props: TooltipPositioner.Props,
+  componentProps: TooltipPositioner.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -36,7 +36,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     sticky = false,
     trackAnchor = true,
     ...intrinsicProps
-  } = props;
+  } = componentProps;
 
   const { open, setPositionerElement, mounted, floatingRootContext } = useTooltipRootContext();
   const keepMounted = useTooltipPortalContext();
@@ -78,7 +78,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     [state, positioning.arrowRef, positioning.arrowStyles, positioning.arrowUncentered],
   );
 
-  const renderElement = useRenderElement('div', props, {
+  const renderElement = useRenderElement('div', componentProps, {
     state,
     ref: [ref, setPositionerElement],
     props: [positionerProps, intrinsicProps],

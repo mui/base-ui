@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { CompositeItem } from '../../composite/item/CompositeItem';
@@ -11,6 +11,7 @@ import { useToolbarRootContext } from '../root/ToolbarRootContext';
 const TOOLBAR_LINK_METADATA = {
   focusableWhenDisabled: true,
 };
+
 /**
  * A link component.
  * Renders an `<a>` element.
@@ -18,15 +19,15 @@ const TOOLBAR_LINK_METADATA = {
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
 const ToolbarLink = React.forwardRef(function ToolbarLink(
-  props: ToolbarLink.Props,
-  forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
+  componentProps: ToolbarLink.Props,
+  ref: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...intrinsicProps } = componentProps;
 
   const { orientation } = useToolbarRootContext();
 
   const { getButtonProps } = useButton({
-    buttonRef: forwardedRef,
+    buttonRef: ref,
     elementName: 'a',
   });
 
@@ -37,12 +38,10 @@ const ToolbarLink = React.forwardRef(function ToolbarLink(
     [orientation],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getButtonProps,
-    render: render ?? 'a',
+  const renderElement = useRenderElement('a', componentProps, {
     state,
-    className,
-    extraProps: otherProps,
+    ref,
+    props: [intrinsicProps, getButtonProps],
   });
 
   return (

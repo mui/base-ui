@@ -14,10 +14,10 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipArrow = React.forwardRef(function TooltipArrow(
-  props: TooltipArrow.Props,
+  componentProps: TooltipArrow.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...intrinsicProps } = props;
+  const { className, render, ...intrinsicProps } = componentProps;
 
   const { open, arrowRef, side, align, arrowUncentered, arrowStyles } =
     useTooltipPositionerContext();
@@ -32,7 +32,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
     [open, side, align, arrowUncentered],
   );
 
-  const renderElement = useRenderElement('div', props, {
+  const renderElement = useRenderElement('div', componentProps, {
     state,
     ref: [ref, arrowRef],
     props: [{ style: arrowStyles, 'aria-hidden': true }, intrinsicProps],

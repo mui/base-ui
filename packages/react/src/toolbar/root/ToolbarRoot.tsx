@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { BaseUIComponentProps, Orientation } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { ToolbarRootContext } from './ToolbarRootContext';
 import { useToolbarRoot } from './useToolbarRoot';
@@ -14,23 +14,20 @@ import { useToolbarRoot } from './useToolbarRoot';
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
 const ToolbarRoot = React.forwardRef(function ToolbarRoot(
-  props: ToolbarRoot.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  componentProps: ToolbarRoot.Props,
+  ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
+    className,
+    render,
     cols = 1,
     disabled = false,
     loop = true,
     orientation = 'horizontal',
-    className,
-    render,
-    ...otherProps
-  } = props;
+    ...intrinsicProps
+  } = componentProps;
 
-  const { getRootProps, disabledIndices, setItemMap } = useToolbarRoot({
-    disabled,
-    orientation,
-  });
+  const { disabledIndices, setItemMap } = useToolbarRoot();
 
   const toolbarRootContext: ToolbarRootContext = React.useMemo(
     () => ({
@@ -43,13 +40,16 @@ const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 
   const state = React.useMemo(() => ({ disabled, orientation }), [disabled, orientation]);
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    extraProps: otherProps,
-    ref: forwardedRef,
+    ref,
+    props: [
+      {
+        'aria-orientation': orientation,
+        role: 'toolbar',
+      },
+      intrinsicProps,
+    ],
   });
 
   return (
@@ -98,8 +98,6 @@ namespace ToolbarRoot {
   }
 }
 
-export { ToolbarRoot };
-
 ToolbarRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -143,3 +141,5 @@ ToolbarRoot.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
+
+export { ToolbarRoot };

@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { ToolbarRoot, ToolbarItemMetadata } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
+import { button } from '../../utils/renderFunctions';
 
 /**
  * A button that can be used as-is or as a trigger for other components.
@@ -16,16 +17,16 @@ import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
 const ToolbarButton = React.forwardRef(function ToolbarButton(
-  props: ToolbarButton.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+  componentProps: ToolbarButton.Props,
+  ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
     className,
+    render,
     disabled: disabledProp = false,
     focusableWhenDisabled = true,
-    render,
-    ...otherProps
-  } = props;
+    ...intrinsicProps
+  } = componentProps;
 
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
 
@@ -36,7 +37,7 @@ const ToolbarButton = React.forwardRef(function ToolbarButton(
   const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
 
   const { getButtonProps } = useButton({
-    buttonRef: forwardedRef,
+    buttonRef: ref,
     disabled,
     focusableWhenDisabled,
     type: 'button',
@@ -51,12 +52,14 @@ const ToolbarButton = React.forwardRef(function ToolbarButton(
     [disabled, focusableWhenDisabled, orientation],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getButtonProps,
-    render: render ?? 'button',
+  const derivedProps: React.ComponentProps<'button'> = {
+    disabled,
+  };
+
+  const renderElement = useRenderElement(button, componentProps, {
     state,
-    className,
-    extraProps: { ...otherProps, disabled },
+    ref,
+    props: [intrinsicProps, derivedProps, getButtonProps],
   });
 
   return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={renderElement()} />;
@@ -81,8 +84,6 @@ namespace ToolbarButton {
     focusableWhenDisabled?: boolean;
   }
 }
-
-export { ToolbarButton };
 
 ToolbarButton.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -116,3 +117,5 @@ ToolbarButton.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
+
+export { ToolbarButton };

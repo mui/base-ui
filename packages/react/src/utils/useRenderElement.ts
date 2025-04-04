@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { BaseUIComponentProps, ComponentRenderFn, GenericHTMLProps } from './types';
+import type { ComponentRenderFn, GenericHTMLProps } from './types';
 import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
 import { resolveClassName } from './resolveClassName';
 import { evaluateRenderProp } from './evaluateRenderProp';
@@ -79,10 +79,8 @@ export namespace useRenderElement {
      * Intrinsic props to be spread on the rendered element.
      */
     props?:
-      | BaseUIComponentProps<any, State>
-      | Array<BaseUIComponentProps<any, State>>
-      | ((props: GenericHTMLProps) => GenericHTMLProps)
-      | Array<(props: GenericHTMLProps) => GenericHTMLProps>;
+      | GenericHTMLProps
+      | Array<GenericHTMLProps | ((props: GenericHTMLProps) => GenericHTMLProps)>;
     /**
      * A mapping of state to style hooks.
      */

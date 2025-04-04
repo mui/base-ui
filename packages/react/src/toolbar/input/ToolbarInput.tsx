@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { ToolbarRoot, ToolbarItemMetadata } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
 import { useToolbarInput } from './useToolbarInput';
+
 /**
  * A native input element that integrates with Toolbar keyboard navigation.
  * Renders an `<input>` element.
@@ -15,16 +16,16 @@ import { useToolbarInput } from './useToolbarInput';
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
 const ToolbarInput = React.forwardRef(function ToolbarInput(
-  props: ToolbarInput.Props,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  componentProps: ToolbarInput.Props,
+  ref: React.ForwardedRef<HTMLInputElement>,
 ) {
   const {
     className,
-    focusableWhenDisabled = true,
     render,
+    focusableWhenDisabled = true,
     disabled: disabledProp = false,
-    ...otherProps
-  } = props;
+    ...intrinsicProps
+  } = componentProps;
 
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
 
@@ -34,8 +35,8 @@ const ToolbarInput = React.forwardRef(function ToolbarInput(
 
   const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
 
-  const { getInputProps } = useToolbarInput({
-    ref: forwardedRef,
+  const { inputProps, getButtonProps } = useToolbarInput({
+    ref,
     disabled,
     focusableWhenDisabled,
   });
@@ -49,12 +50,10 @@ const ToolbarInput = React.forwardRef(function ToolbarInput(
     [disabled, focusableWhenDisabled, orientation],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getInputProps,
-    render: render ?? 'input',
+  const renderElement = useRenderElement('input', componentProps, {
     state,
-    className,
-    extraProps: otherProps,
+    ref,
+    props: [inputProps, intrinsicProps, getButtonProps],
   });
 
   return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={renderElement()} />;
@@ -79,8 +78,6 @@ namespace ToolbarInput {
     focusableWhenDisabled?: boolean;
   }
 }
-
-export { ToolbarInput };
 
 ToolbarInput.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -114,3 +111,5 @@ ToolbarInput.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
+
+export { ToolbarInput };

@@ -1,13 +1,9 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../merge-props';
-import { GenericHTMLProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { ARROW_LEFT, ARROW_RIGHT } from '../../composite/composite';
 
-export function useToolbarInput(
-  parameters: useToolbarInput.Parameters,
-): useToolbarInput.ReturnValue {
+export function useToolbarInput(parameters: useToolbarInput.Parameters) {
   const { disabled, focusableWhenDisabled, ref: externalRef } = parameters;
 
   const { getButtonProps } = useButton({
@@ -18,37 +14,33 @@ export function useToolbarInput(
     elementName: 'input',
   });
 
-  const getInputProps = React.useCallback(
-    (externalProps: GenericHTMLProps = {}) =>
-      mergeProps<'input'>(
-        {
-          onClick(event) {
-            if (disabled) {
-              event.preventDefault();
-            }
-          },
-          onKeyDown(event) {
-            if (event.key !== ARROW_LEFT && event.key !== ARROW_RIGHT && disabled) {
-              event.preventDefault();
-            }
-          },
-          onPointerDown(event) {
-            if (disabled) {
-              event.preventDefault();
-            }
-          },
-        },
-        externalProps,
-        getButtonProps,
-      ),
-    [disabled, getButtonProps],
+  const inputProps: React.ComponentProps<'input'> = React.useMemo(
+    () => ({
+      onClick(event) {
+        if (disabled) {
+          event.preventDefault();
+        }
+      },
+      onKeyDown(event) {
+        if (event.key !== ARROW_LEFT && event.key !== ARROW_RIGHT && disabled) {
+          event.preventDefault();
+        }
+      },
+      onPointerDown(event) {
+        if (disabled) {
+          event.preventDefault();
+        }
+      },
+    }),
+    [disabled],
   );
 
   return React.useMemo(
     () => ({
-      getInputProps,
+      inputProps,
+      getButtonProps,
     }),
-    [getInputProps],
+    [inputProps, getButtonProps],
   );
 }
 
@@ -66,8 +58,5 @@ export namespace useToolbarInput {
      * The element ref.
      */
     ref?: React.Ref<Element>;
-  }
-  export interface ReturnValue {
-    getInputProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   }
 }
