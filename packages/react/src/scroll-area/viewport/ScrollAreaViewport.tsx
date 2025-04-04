@@ -19,10 +19,10 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   props: ScrollAreaViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children, ...otherProps } = props;
+  const { render, className, ...otherProps } = props;
 
   const { viewportRef } = useScrollAreaRootContext();
-  const { getViewportProps } = useScrollAreaViewport({ children });
+  const { getViewportProps } = useScrollAreaViewport();
 
   const mergedRef = useForkRef(forwardedRef, viewportRef);
 

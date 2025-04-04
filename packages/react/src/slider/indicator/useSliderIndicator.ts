@@ -11,7 +11,7 @@ function getRangeStyles(
 ): React.CSSProperties {
   if (orientation === 'vertical') {
     return {
-      position: 'relative',
+      position: 'absolute',
       bottom: `${offset}%`,
       height: `${leap}%`,
       width: 'inherit',
@@ -42,7 +42,7 @@ export function useSliderIndicator(
     internalStyles = getRangeStyles(orientation, trackOffset, trackLeap);
   } else if (orientation === 'vertical') {
     internalStyles = {
-      position: 'relative',
+      position: 'absolute',
       bottom: 0,
       height: `${percentageValues[0]}%`,
       width: 'inherit',

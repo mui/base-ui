@@ -87,9 +87,10 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   const collapsibleContext: CollapsibleRootContext = React.useMemo(
     () => ({
       ...collapsible,
+      onOpenChange,
       state: collapsibleState,
     }),
-    [collapsible, collapsibleState],
+    [collapsible, collapsibleState, onOpenChange],
   );
 
   const state: AccordionItem.State = React.useMemo(

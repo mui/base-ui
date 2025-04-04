@@ -226,7 +226,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
             // We need to commit the number at this point if the input hasn't been blurred.
             const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
-            const amount = getStepAmount() ?? DEFAULT_STEP;
+            const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
             // Prevent insertion of text or caret from moving.
             event.preventDefault();

@@ -4,7 +4,7 @@ import { useRenderElement } from '../utils/useRenderElement';
 import { GenericHTMLProps } from '../utils/types';
 
 /**
- * Returns an object with a `renderElement` function that renders a Base UI component.
+ * Returns an object with a `renderElement` function that renders a Base UI element.
  */
 export function useRender<
   State extends Record<string, unknown>,

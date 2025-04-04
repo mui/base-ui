@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { NOOP } from '../../utils/noop';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useRenderElement';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useEventCallback } from '../../utils/useEventCallback';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStyleHookMapping } from './styleHooks';
@@ -19,7 +19,6 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    children,
     className,
     defaultOpen = false,
     disabled = false,
@@ -29,10 +28,12 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     ...otherProps
   } = props;
 
+  const onOpenChange = useEventCallback(onOpenChangeProp);
+
   const collapsible = useCollapsibleRoot({
     open,
     defaultOpen,
-    onOpenChange: onOpenChangeProp ?? NOOP,
+    onOpenChange,
     disabled,
   });
 
@@ -48,9 +49,10 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   const contextValue: CollapsibleRootContext = React.useMemo(
     () => ({
       ...collapsible,
+      onOpenChange,
       state,
     }),
-    [collapsible, state],
+    [collapsible, onOpenChange, state],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -58,7 +60,7 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     className,
     state,
     ref: forwardedRef,
-    extraProps: { children, ...otherProps },
+    extraProps: otherProps,
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
@@ -72,7 +74,7 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
 
   return (
     <CollapsibleRootContext.Provider value={contextValue}>
-      {children}
+      {otherProps.children}
     </CollapsibleRootContext.Provider>
   );
 });
@@ -81,9 +83,29 @@ namespace CollapsibleRoot {
   export interface State
     extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
 
-  export interface Props
-    extends Partial<useCollapsibleRoot.Parameters>,
-      Omit<BaseUIComponentProps<'div', State>, 'render'> {
+  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'render'> {
+    /**
+     * Whether the collapsible panel is currently open.
+     *
+     * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
+     */
+    open?: boolean;
+    /**
+     * Whether the collapsible panel is initially open.
+     *
+     * To render a controlled collapsible, use the `open` prop instead.
+     * @default false
+     */
+    defaultOpen?: boolean;
+    /**
+     * Event handler called when the panel is opened or closed.
+     */
+    onOpenChange?: (open: boolean) => void;
+    /**
+     * Whether the component should ignore user interaction.
+     * @default false
+     */
+    disabled?: boolean;
     render?: BaseUIComponentProps<'div', State>['render'] | null;
   }
 }
