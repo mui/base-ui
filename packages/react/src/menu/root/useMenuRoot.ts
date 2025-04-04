@@ -6,6 +6,7 @@ import {
   useClick,
   useDismiss,
   useFloatingRootContext,
+  useFocus,
   useHover,
   useInteractions,
   useListNavigation,
@@ -44,6 +45,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     openOnHover,
     onTypingChange,
     modal,
+    parentType,
   } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -198,6 +200,10 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     role: 'menu',
   });
 
+  const focus = useFocus(floatingRootContext, {
+    enabled: parentType === 'menubar',
+  });
+
   const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);
   const itemLabels = React.useRef<(string | null)[]>([]);
 
@@ -229,6 +235,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     hover,
     click,
     dismiss,
+    focus,
     role,
     listNavigation,
     typeahead,
@@ -375,6 +382,7 @@ export namespace useMenuRoot {
      * A ref to imperative actions.
      */
     actionsRef: React.RefObject<Actions> | undefined;
+    parentType: 'menubar' | 'menu' | undefined;
   }
 
   export interface ReturnValue {

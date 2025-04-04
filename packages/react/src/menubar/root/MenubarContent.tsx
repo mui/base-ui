@@ -1,15 +1,15 @@
 import * as React from 'react';
-import { CompositeList } from '@base-ui-components/react/composite/list/CompositeList';
-import { BaseUIComponentProps } from '@base-ui-components/react/utils/types';
-import { useComponentRenderer } from '@base-ui-components/react/utils/useComponentRenderer';
 import {
   useFloatingNodeId,
   useFloating,
   FloatingNode,
   FloatingFocusManager,
 } from '@floating-ui/react';
-import { useForkRef } from '@base-ui-components/react/utils';
-import { mergeProps } from '@base-ui-components/react/merge-props';
+import { CompositeList } from '../../composite/list/CompositeList';
+import { BaseUIComponentProps } from '../../utils/types';
+import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useForkRef } from '../../utils';
+import { mergeProps } from '../../merge-props';
 import { useMenubarRootContext } from './MenubarRootContext';
 
 const EMPTY_OBJECT = {};

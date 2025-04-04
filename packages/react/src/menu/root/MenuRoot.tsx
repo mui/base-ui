@@ -44,6 +44,13 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     typingRef.current = nextTyping;
   }, []);
 
+  let parentType: 'menu' | 'menubar' | undefined;
+  if (parentContext) {
+    parentType = 'menu';
+  } else if (menubarRootContext) {
+    parentType = 'menubar';
+  }
+
   const menuRoot = useMenuRoot({
     direction,
     disabled,
@@ -60,6 +67,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     modal,
     actionsRef,
     onOpenChangeComplete,
+    parentType,
   });
 
   const context: MenuRootContext = React.useMemo(
