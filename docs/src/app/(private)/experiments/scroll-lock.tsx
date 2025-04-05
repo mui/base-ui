@@ -7,7 +7,7 @@ export default function ScrollLock() {
   const [bodyScrollY, setBodyScrollY] = React.useState(false);
   const [longContent, setLongContent] = React.useState(true);
 
-  useScrollLock(enabled);
+  useScrollLock({ enabled, mounted: enabled, open: enabled });
 
   React.useEffect(() => {
     document.body.style.overflowY = bodyScrollY ? 'scroll' : '';
