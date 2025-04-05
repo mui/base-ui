@@ -254,7 +254,6 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   modal: {
     type: 'boolean',
     label: 'Modal',
-    default: true,
   },
   openOnHover: {
     type: 'boolean',
