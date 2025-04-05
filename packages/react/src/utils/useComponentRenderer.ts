@@ -1,10 +1,7 @@
 import * as React from 'react';
-import type { ComponentRenderFn } from './types';
-import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
-import { resolveClassName } from './resolveClassName';
-import { evaluateRenderProp } from './evaluateRenderProp';
-import { useRenderPropForkRef } from './useRenderPropForkRef';
-import { defaultRenderFunctions } from './defaultRenderFunctions';
+import { CustomStyleHookMapping } from './getStyleHookProps';
+import { useRenderElement } from './useRenderElement';
+import type { ComponentRenderFn, GenericHTMLProps } from './types';
 
 export interface ComponentRendererSettings<State, RenderedElementType extends Element> {
   /**
@@ -16,9 +13,9 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
    * The render prop or React element to override the default element.
    */
   render:
-    | ComponentRenderFn<React.HTMLAttributes<any>, State>
+    | ComponentRenderFn<GenericHTMLProps, State>
     | React.ReactElement<Record<string, unknown>>
-    | keyof typeof defaultRenderFunctions;
+    | keyof React.JSX.IntrinsicElements;
   /**
    * The state of the component.
    */
@@ -48,67 +45,22 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
   styleHooks?: boolean;
 }
 
-const emptyObject = {};
-
 /**
  * Returns a function that renders a Base UI component.
- *
- * @ignore - internal hook.
+ * @deprecated use `useRenderElement` instead.
  */
 export function useComponentRenderer<
   State extends Record<string, any>,
   RenderedElementType extends Element,
->(settings: ComponentRendererSettings<State, RenderedElementType>) {
-  const {
-    render: renderProp,
-    className: classNameProp,
-    state,
-    ref,
-    propGetter = (props) => props,
-    extraProps,
-    customStyleHookMapping,
-    styleHooks: generateStyleHooks = true,
-  } = settings;
+>(params: ComponentRendererSettings<State, RenderedElementType>) {
+  const renderString = typeof params.render === 'string' ? params.render : undefined;
+  const renderProp = typeof params.render === 'string' ? undefined : params.render;
 
-  const className = resolveClassName(classNameProp, state);
-  const styleHooks = React.useMemo(() => {
-    if (!generateStyleHooks) {
-      return emptyObject;
-    }
-    return getStyleHookProps(state, customStyleHookMapping);
-  }, [state, customStyleHookMapping, generateStyleHooks]);
-
-  const ownProps: Record<string, any> = {
-    ...styleHooks,
-    ...extraProps,
-  };
-
-  let resolvedRenderProp:
-    | ComponentRenderFn<React.HTMLAttributes<any>, State>
-    | React.ReactElement<Record<string, unknown>>;
-
-  if (typeof renderProp === 'string') {
-    resolvedRenderProp = defaultRenderFunctions[renderProp];
-  } else {
-    resolvedRenderProp = renderProp;
-  }
-
-  let refs: React.Ref<RenderedElementType>[] = [];
-
-  if (ref !== undefined) {
-    refs = Array.isArray(ref) ? ref : [ref];
-  }
-
-  const renderedElementProps = propGetter(ownProps);
-  const propsWithRef: React.HTMLAttributes<any> & React.RefAttributes<any> = {
-    ...renderedElementProps,
-    ref: useRenderPropForkRef(resolvedRenderProp, renderedElementProps.ref, ...refs),
-  };
-  if (className !== undefined) {
-    propsWithRef.className = className;
-  }
-
-  const renderElement = () => evaluateRenderProp(resolvedRenderProp, propsWithRef, state);
+  const renderElement = useRenderElement(
+    renderString,
+    { className: params.className, render: renderProp },
+    { ...params, props: params.extraProps },
+  );
 
   return {
     renderElement,

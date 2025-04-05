@@ -1,9 +1,7 @@
 import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { GenericHTMLProps } from '../utils/types';
-
-const emptyObject = {};
+import { useRenderElement } from '../utils/useRenderElement';
 
 /**
  * Returns an object with a `renderElement` function that renders a Base UI element.
@@ -13,19 +11,21 @@ export function useRender<
   RenderedElementType extends Element,
 >(params: useRender.Parameters<State, RenderedElementType>) {
   const { render, props, state, refs } = params;
-  const { ref, ...extraProps } = props ?? {};
+  const { ref: intrinsicRefProp, ...intrinsicProps } = props || {};
 
   const refsArray = React.useMemo(() => {
-    return [...(refs ?? []), ref].filter(Boolean);
-  }, [refs, ref]) as React.Ref<RenderedElementType>[];
+    return [...(refs || []), intrinsicProps].filter(Boolean);
+  }, [refs, intrinsicProps]) as React.Ref<RenderedElementType>[];
 
-  return useComponentRenderer({
-    render,
-    state: (state ?? emptyObject) as State,
-    ref: refsArray,
-    extraProps,
-    styleHooks: false,
-  });
+  const renderElement = useRenderElement(
+    undefined,
+    { render },
+    { props: intrinsicProps, state, ref: refsArray, styleHooks: false },
+  );
+
+  return {
+    renderElement,
+  };
 }
 
 export namespace useRender {
