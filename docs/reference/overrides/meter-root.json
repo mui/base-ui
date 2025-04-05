@@ -1,0 +1,8 @@
+{
+  "name": "MeterRoot",
+  "props": {
+    "getAriaValueText": {
+      "type": "(formattedValue, value) => string"
+    }
+  }
+}

@@ -18,11 +18,18 @@
     "container": {
       "type": "React.Ref | HTMLElement | null"
     },
+
+    "format": {
+      "type": "Intl.NumberFormatOptions"
+    },
     "initialFocus": {
       "type": "React.Ref | (interactionType => HTMLElement | null)"
     },
     "inputRef": {
       "type": "React.Ref"
+    },
+    "locale": {
+      "type": "Intl.LocalesArgument"
     },
     "onClick": {
       "type": "(event) => void"
