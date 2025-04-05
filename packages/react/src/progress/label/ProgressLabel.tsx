@@ -1,47 +1,57 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { mergeProps } from '../../merge-props';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStyleHookMapping } from '../root/styleHooks';
 import { ProgressRoot } from '../root/ProgressRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * Contains the progress bar indicator.
- * Renders a `<div>` element.
+ * An accessible label for the progress bar.
+ * Renders a `<span>` element.
  *
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
-const ProgressTrack = React.forwardRef(function ProgressTrack(
-  props: ProgressTrack.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+const ProgressLabel = React.forwardRef(function ProgressLabel(
+  props: ProgressLabel.Props,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, id: idProp, ...otherProps } = props;
 
-  const { state } = useProgressRootContext();
+  const id = useBaseUiId(idProp);
+
+  const { setLabelId, state } = useProgressRootContext();
+
+  useEnhancedEffect(() => {
+    setLabelId(id);
+    return () => setLabelId(undefined);
+  }, [id, setLabelId]);
 
   const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
+    render: render ?? 'span',
     state,
     className,
     ref: forwardedRef,
-    extraProps: otherProps,
+    extraProps: mergeProps<'span'>({ id }, otherProps),
     customStyleHookMapping: progressStyleHookMapping,
   });
 
   return renderElement();
 });
 
-namespace ProgressTrack {
+namespace ProgressLabel {
   export interface State extends ProgressRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'span', State> {}
 }
 
-export { ProgressTrack };
+export { ProgressLabel };
 
-ProgressTrack.propTypes /* remove-proptypes */ = {
+ProgressLabel.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -55,6 +65,10 @@ ProgressTrack.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  id: PropTypes.string,
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.

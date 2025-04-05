@@ -52,6 +52,16 @@ const ProgressValue = React.forwardRef(function ProgressValue(
   return renderElement();
 });
 
+namespace ProgressValue {
+  export interface State extends ProgressRoot.State {}
+
+  export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
+    children?: null | ((formattedValue: string | null, value: number | null) => React.ReactNode);
+  }
+}
+
+export { ProgressValue };
+
 ProgressValue.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
@@ -74,13 +84,3 @@ ProgressValue.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-namespace ProgressValue {
-  export interface State extends ProgressRoot.State {}
-
-  export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    children?: null | ((formattedValue: string | null, value: number | null) => React.ReactNode);
-  }
-}
-
-export { ProgressValue };

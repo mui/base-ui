@@ -14,7 +14,9 @@ export default function ExampleProgress() {
   }, []);
 
   return (
-    <Progress.Root value={value}>
+    <Progress.Root className={styles.Progress} value={value}>
+      <Progress.Label className={styles.Label}>Export data</Progress.Label>
+      <Progress.Value className={styles.Value} />
       <Progress.Track className={styles.Track}>
         <Progress.Indicator className={styles.Indicator} />
       </Progress.Track>

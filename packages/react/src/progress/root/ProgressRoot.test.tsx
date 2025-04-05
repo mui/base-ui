@@ -22,23 +22,11 @@ describe('<Progress.Root />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  it('renders a progressbar', async () => {
-    const { getByRole } = await render(
-      <Progress.Root value={30}>
-        <Progress.Value />
-        <Progress.Track>
-          <Progress.Indicator />
-        </Progress.Track>
-      </Progress.Root>,
-    );
-
-    expect(getByRole('progressbar')).to.have.attribute('aria-valuenow', '30');
-  });
-
   describe('ARIA attributes', () => {
     it('sets the correct aria attributes', async () => {
-      const { getByRole } = await render(
+      const { getByRole, getByText } = await render(
         <Progress.Root value={30}>
+          <Progress.Label>Downloading</Progress.Label>
           <Progress.Value />
           <Progress.Track>
             <Progress.Indicator />
@@ -47,11 +35,13 @@ describe('<Progress.Root />', () => {
       );
 
       const progressbar = getByRole('progressbar');
+      const label = getByText('Downloading');
 
       expect(progressbar).to.have.attribute('aria-valuenow', '30');
       expect(progressbar).to.have.attribute('aria-valuemin', '0');
       expect(progressbar).to.have.attribute('aria-valuemax', '100');
       expect(progressbar).to.have.attribute('aria-valuetext', '30%');
+      expect(progressbar.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
     });
 
     it('should update aria-valuenow when value changes', async () => {
@@ -83,6 +73,28 @@ describe('<Progress.Root />', () => {
       const progressbar = getByRole('progressbar');
       expect(value).to.have.text(formatValue(30));
       expect(progressbar).to.have.attribute('aria-valuetext', formatValue(30));
+    });
+  });
+
+  describe('prop: locale', () => {
+    it('sets the locale when formatting the value', async () => {
+      // In German locale, numbers use dot as thousands separator and comma as decimal separator
+      const expectedValue = new Intl.NumberFormat('de-DE').format(70.51);
+      const { getByTestId } = await render(
+        <Progress.Root
+          value={70.51}
+          format={{
+            style: 'decimal',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }}
+          locale="de-DE"
+        >
+          <Progress.Value data-testid="value" />
+        </Progress.Root>,
+      );
+
+      expect(getByTestId('value')).to.have.text(expectedValue);
     });
   });
 });
