@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { NOOP } from '../../utils/noop';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -161,7 +161,7 @@ namespace SliderRoot {
     /**
      * The component orientation.
      */
-    orientation: useSliderRoot.Orientation;
+    orientation: Orientation;
     /**
      * The step increment of the slider when incrementing or decrementing. It will snap
      * to multiples of this value. Decimal values are supported.
