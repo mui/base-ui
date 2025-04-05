@@ -17,6 +17,7 @@ import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { inertValue } from '../../utils/inertValue';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
   ...baseMapping,
@@ -112,7 +113,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 
   return (
     <React.Fragment>
-      {mounted && modal && <InternalBackdrop ref={internalBackdropRef} />}
+      {mounted && modal && <InternalBackdrop ref={internalBackdropRef} inert={inertValue(!open)} />}
       <FloatingFocusManager
         context={floatingRootContext}
         disabled={!mounted}

@@ -24,14 +24,14 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 ) {
   const { render, className, disabled = false, ...otherProps } = props;
 
-  const { mounted, setTriggerElement, getRootTriggerProps, openReason } = usePopoverRootContext();
+  const { open, setTriggerElement, getRootTriggerProps, openReason } = usePopoverRootContext();
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({
       disabled,
-      open: mounted,
+      open,
     }),
-    [disabled, mounted],
+    [disabled, open],
   );
 
   const { getButtonProps, buttonRef } = useButton({

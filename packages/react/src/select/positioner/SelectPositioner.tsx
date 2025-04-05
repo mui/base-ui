@@ -12,6 +12,7 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { HTMLElementType, refType } from '../../utils/proptypes';
+import { inertValue } from '../../utils/inertValue';
 
 /**
  * Positions the select menu popup against the trigger.
@@ -85,7 +86,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
       <SelectPositionerContext.Provider value={positioner}>
-        {mounted && modal && <InternalBackdrop />}
+        {mounted && modal && <InternalBackdrop inert={inertValue(!open)} />}
         {renderElement()}
       </SelectPositionerContext.Provider>
     </CompositeList>
