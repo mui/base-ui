@@ -29,7 +29,6 @@ function getDefaultAriaValueText(formattedValue: string | null, value: number | 
 function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoot.ReturnValue {
   const {
     'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledby,
     'aria-valuetext': ariaValuetext,
     format,
     getAriaLabel,
@@ -52,7 +51,6 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
       mergeProps<'div'>(
         {
           'aria-label': getAriaLabel ? getAriaLabel(value) : ariaLabel,
-          'aria-labelledby': ariaLabelledby,
           'aria-valuemax': max,
           'aria-valuemin': min,
           'aria-valuenow': value ?? undefined,
@@ -63,17 +61,7 @@ function useProgressRoot(parameters: useProgressRoot.Parameters): useProgressRoo
         },
         externalProps,
       ),
-    [
-      ariaLabel,
-      ariaLabelledby,
-      ariaValuetext,
-      formattedValue,
-      getAriaLabel,
-      getAriaValueText,
-      max,
-      min,
-      value,
-    ],
+    [ariaLabel, ariaValuetext, formattedValue, getAriaLabel, getAriaValueText, max, min, value],
   );
 
   return {
@@ -92,10 +80,6 @@ namespace useProgressRoot {
      * The label for the Indicator component.
      */
     'aria-label'?: string;
-    /**
-     * An id or space-separated list of ids of elements that label the Indicator component.
-     */
-    'aria-labelledby'?: string;
     /**
      * A string value that provides a human-readable text alternative for the current value of the progress indicator.
      */
