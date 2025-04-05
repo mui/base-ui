@@ -23,7 +23,8 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   const { render, className, ...otherProps } = props;
 
   const { open } = usePreviewCardRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePreviewCardPositionerContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles } =
+    usePreviewCardPositionerContext(false);
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) =>
