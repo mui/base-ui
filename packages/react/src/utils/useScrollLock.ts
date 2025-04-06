@@ -137,7 +137,14 @@ function preventScrollStandard(referenceElement?: Element | null) {
  *
  * @param enabled - Whether to enable the scroll lock.
  */
-export function useScrollLock(enabled = true, referenceElement?: Element | null) {
+export function useScrollLock(params: {
+  enabled?: boolean;
+  mounted: boolean;
+  open: boolean;
+  referenceElement?: Element | null;
+}) {
+  const { enabled = true, mounted, open, referenceElement } = params;
+
   const isReactAriaHook = React.useMemo(
     () =>
       enabled &&
@@ -147,6 +154,22 @@ export function useScrollLock(enabled = true, referenceElement?: Element | null)
         (isFirefox() && !hasInsetScrollbars(referenceElement))),
     [enabled, referenceElement],
   );
+
+  useEnhancedEffect(() => {
+    // https://github.com/mui/base-ui/issues/1135
+    if (mounted && !open && isWebKit()) {
+      const doc = ownerDocument(referenceElement);
+      const originalUserSelect = doc.body.style.userSelect;
+      const originalWebkitUserSelect = doc.body.style.webkitUserSelect;
+      doc.body.style.userSelect = 'none';
+      doc.body.style.webkitUserSelect = 'none';
+      return () => {
+        doc.body.style.userSelect = originalUserSelect;
+        doc.body.style.webkitUserSelect = originalWebkitUserSelect;
+      };
+    }
+    return undefined;
+  }, [mounted, open, referenceElement]);
 
   usePreventScroll({
     // react-aria will remove the scrollbar offset immediately upon close, since we use `open`,

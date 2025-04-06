@@ -45,7 +45,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const ref = React.useRef<HTMLDivElement | null>(null);
   const lastKeyRef = React.useRef<string | null>(null);
   const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
-
+  const didPointerDownRef = React.useRef(false);
   const prevPopupHeightRef = React.useRef(0);
   const allowFocusSyncRef = React.useRef(true);
   const cursorMovementTimerRef = React.useRef(-1);
@@ -58,8 +58,8 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     buttonRef: mergedRef,
   });
 
-  const commitSelection = useEventCallback((event: Event) => {
-    handleSelect();
+  const commitSelection = useEventCallback((event: MouseEvent) => {
+    handleSelect(event);
     setOpen(false, event);
   });
 
@@ -148,11 +148,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               }
 
               const targetRect = event.currentTarget.getBoundingClientRect();
-
-              // Safari randomly fires `mouseleave` incorrectly when the item is
-              // aligned to the trigger. This is a workaround to prevent the highlight
-              // from being removed while the cursor is still within the bounds of the item.
-              // https://github.com/mui/base-ui/issues/869
+              // Safari randomly fires `mouseleave` incorrectly when the item is aligned to the trigger.
               const isWithinBounds =
                 targetRect.top + 1 <= event.clientY &&
                 event.clientY <= targetRect.bottom - 1 &&
@@ -167,27 +163,18 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               events.off('popupleave', handlePopupLeave);
 
               const wasCursorStationary = cursorMovementTimerRef.current === -1;
-
               if (!wasCursorStationary) {
                 clearTimeout(cursorMovementTimerRef.current);
                 cursorMovementTimerRef.current = -1;
               }
 
-              // With `alignItemToTrigger`, avoid re-rendering the root due to `onMouseLeave`
-              // firing and causing a performance issue when expanding the popup.
               if (popup.offsetHeight === prevPopupHeightRef.current) {
-                // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
-                // the mouse out of the popup.
                 allowFocusSyncRef.current = false;
-
                 if (keyboardActiveRef.current || wasCursorStationary) {
                   setActiveIndex(null);
                 }
-
                 requestAnimationFrame(() => {
-                  if (cursorMovementTimerRef.current !== -1) {
-                    clearTimeout(cursorMovementTimerRef.current);
-                  }
+                  popup.focus({ preventScroll: true });
                   allowFocusSyncRef.current = true;
                 });
               }
@@ -205,6 +192,11 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               setActiveIndex(indexRef.current);
             },
             onClick(event) {
+              // If a pointer down was registered, reset and return.
+              if (didPointerDownRef && didPointerDownRef.current) {
+                didPointerDownRef.current = false;
+                return;
+              }
               if (
                 disabled ||
                 (lastKeyRef.current === ' ' && typingRef.current) ||
@@ -223,6 +215,9 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
             },
             onPointerDown(event) {
               pointerTypeRef.current = event.pointerType;
+              if (didPointerDownRef) {
+                didPointerDownRef.current = true;
+              }
             },
             onMouseUp(event) {
               if (disabled) {
@@ -244,7 +239,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               if (selectionRef.current.allowSelect || !selected) {
                 commitSelection(event.nativeEvent);
               }
-
               selectionRef.current.allowSelect = true;
             },
           },
@@ -314,7 +308,7 @@ export namespace useSelectItem {
     /**
      * The function to handle the selection of the item.
      */
-    handleSelect: () => void;
+    handleSelect: (event: MouseEvent) => void;
     /**
      * The ref to the selection state of the item.
      */

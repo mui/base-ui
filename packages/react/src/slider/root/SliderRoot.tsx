@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { NOOP } from '../../utils/noop';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -46,8 +46,15 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
 
   const id = useBaseUiId(idProp);
 
-  const { labelId, state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
+  const {
+    labelId,
+    state: fieldState,
+    disabled: fieldDisabled,
+    name: fieldName,
+  } = useFieldRootContext();
+
   const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp ?? '';
 
   const { getRootProps, ...slider } = useSliderRoot({
     'aria-labelledby': ariaLabelledby ?? labelId ?? '',
@@ -58,7 +65,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     max,
     min,
     minStepsBetweenValues,
-    name: nameProp ?? '',
+    name,
     onValueChange: (onValueChangeProp as useSliderRoot.Parameters['onValueChange']) ?? NOOP,
     onValueCommitted:
       (onValueCommittedProp as useSliderRoot.Parameters['onValueCommitted']) ?? NOOP,
@@ -154,7 +161,7 @@ namespace SliderRoot {
     /**
      * The component orientation.
      */
-    orientation: useSliderRoot.Orientation;
+    orientation: Orientation;
     /**
      * The step increment of the slider when incrementing or decrementing. It will snap
      * to multiples of this value. Decimal values are supported.

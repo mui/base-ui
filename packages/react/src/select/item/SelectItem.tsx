@@ -78,7 +78,7 @@ const InnerSelectItem = React.forwardRef(function InnerSelectItem(
     selected,
     ref: forwardedRef,
     typingRef,
-    handleSelect: () => setValue(value),
+    handleSelect: (event) => setValue(value, event),
     selectionRef,
     selectedIndexRef,
     indexRef,
