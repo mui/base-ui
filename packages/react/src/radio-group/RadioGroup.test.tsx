@@ -429,4 +429,37 @@ describe('<RadioGroup />', () => {
       expect(error).to.have.text('required');
     });
   });
+
+  describe('with Field.Root', () => {
+    it('should receive disabled prop from Field.Root', () => {
+      render(
+        <Field.Root disabled>
+          <RadioGroup>
+            <Radio.Root value="a" data-testid="radio" />
+          </RadioGroup>
+        </Field.Root>,
+      );
+
+      const radioGroup = screen.getByRole('radiogroup');
+      const radio = screen.getByTestId('radio');
+
+      expect(radioGroup).to.have.attribute('aria-disabled', 'true');
+      expect(radio).to.have.attribute('disabled');
+    });
+
+    it('should receive name prop from Field.Root', () => {
+      render(
+        <Field.Root name="field-radio">
+          <RadioGroup>
+            <Radio.Root value="a" data-testid="radio" />
+          </RadioGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('radiogroup');
+      const input = group.nextElementSibling as HTMLInputElement;
+
+      expect(input).to.have.attribute('name', 'field-radio');
+    });
+  });
 });

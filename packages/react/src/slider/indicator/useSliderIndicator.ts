@@ -1,17 +1,17 @@
 'use client';
 import * as React from 'react';
 import { mergeProps } from '../../merge-props';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { GenericHTMLProps, Orientation } from '../../utils/types';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
 function getRangeStyles(
-  orientation: useSliderRoot.Orientation,
+  orientation: Orientation,
   offset: number,
   leap: number,
 ): React.CSSProperties {
   if (orientation === 'vertical') {
     return {
-      position: 'relative',
+      position: 'absolute',
       bottom: `${offset}%`,
       height: `${leap}%`,
       width: 'inherit',
@@ -42,7 +42,7 @@ export function useSliderIndicator(
     internalStyles = getRangeStyles(orientation, trackOffset, trackLeap);
   } else if (orientation === 'vertical') {
     internalStyles = {
-      position: 'relative',
+      position: 'absolute',
       bottom: 0,
       height: `${percentageValues[0]}%`,
       width: 'inherit',
