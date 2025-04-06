@@ -148,7 +148,11 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               }
 
               const targetRect = event.currentTarget.getBoundingClientRect();
-              // Safari randomly fires `mouseleave` incorrectly when the item is aligned to the trigger.
+
+              // Safari randomly fires `mouseleave` incorrectly when the item is
+              // aligned to the trigger. This is a workaround to prevent the highlight
+              // from being removed while the cursor is still within the bounds of the item.
+              // https://github.com/mui/base-ui/issues/869
               const isWithinBounds =
                 targetRect.top + 1 <= event.clientY &&
                 event.clientY <= targetRect.bottom - 1 &&
@@ -168,13 +172,21 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
                 cursorMovementTimerRef.current = -1;
               }
 
+              // With `alignItemToTrigger`, avoid re-rendering the root due to `onMouseLeave`
+              // firing and causing a performance issue when expanding the popup.
               if (popup.offsetHeight === prevPopupHeightRef.current) {
+                // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
+                // the mouse out of the popup.
                 allowFocusSyncRef.current = false;
+
                 if (keyboardActiveRef.current || wasCursorStationary) {
                   setActiveIndex(null);
                 }
+
                 requestAnimationFrame(() => {
-                  popup.focus({ preventScroll: true });
+                  if (cursorMovementTimerRef.current !== -1) {
+                    clearTimeout(cursorMovementTimerRef.current);
+                  }
                   allowFocusSyncRef.current = true;
                 });
               }
@@ -192,11 +204,11 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               setActiveIndex(indexRef.current);
             },
             onClick(event) {
-              // If a pointer down was registered, reset and return.
-              if (didPointerDownRef && didPointerDownRef.current) {
+              if (didPointerDownRef.current) {
                 didPointerDownRef.current = false;
                 return;
               }
+
               if (
                 disabled ||
                 (lastKeyRef.current === ' ' && typingRef.current) ||
@@ -215,9 +227,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
             },
             onPointerDown(event) {
               pointerTypeRef.current = event.pointerType;
-              if (didPointerDownRef) {
-                didPointerDownRef.current = true;
-              }
+              didPointerDownRef.current = true;
             },
             onMouseUp(event) {
               if (disabled) {
@@ -239,6 +249,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               if (selectionRef.current.allowSelect || !selected) {
                 commitSelection(event.nativeEvent);
               }
+
               selectionRef.current.allowSelect = true;
             },
           },

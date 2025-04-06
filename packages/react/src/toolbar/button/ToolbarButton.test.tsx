@@ -380,7 +380,7 @@ describe('<Toolbar.Button />', () => {
           expect(trigger).toHaveFocus();
         });
 
-        expect(handleValueChange.callCount).to.equal(2);
+        expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueChange.args[0][0]).to.equal('b');
       });
 
