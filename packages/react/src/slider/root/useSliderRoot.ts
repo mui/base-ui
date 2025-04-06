@@ -5,7 +5,7 @@ import { areArraysEqual } from '../../utils/areArraysEqual';
 import { clamp } from '../../utils/clamp';
 import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { GenericHTMLProps, Orientation } from '../../utils/types';
 import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useForkRef } from '../../utils/useForkRef';
@@ -113,8 +113,23 @@ export function validateMinimumDistance(
   return Math.min(...distances) >= step * minStepsBetweenValues;
 }
 
-/**
- */
+function getControlOffset(styles: CSSStyleDeclaration | null, orientation: Orientation) {
+  if (!styles) {
+    return {
+      start: 0,
+      end: 0,
+    };
+  }
+
+  const start = orientation === 'horizontal' ? 'InlineStart' : 'Top';
+  const end = orientation === 'horizontal' ? 'InlineEnd' : 'Bottom';
+
+  return {
+    start: parseFloat(styles[`border${start}Width`]) + parseFloat(styles[`padding${start}`]),
+    end: parseFloat(styles[`border${end}Width`]) + parseFloat(styles[`padding${end}`]),
+  };
+}
+
 export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRoot.ReturnValue {
   const {
     'aria-labelledby': ariaLabelledby,
@@ -183,10 +198,15 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
 
   const [dragging, setDragging] = React.useState(false);
 
+  const controlStylesRef = React.useRef<CSSStyleDeclaration | null>(null);
+
   const registerSliderControl = React.useCallback(
     (element: HTMLElement | null) => {
       if (element) {
         controlRef.current = element;
+        if (controlStylesRef.current == null) {
+          controlStylesRef.current = getComputedStyle(element);
+        }
         inputValidationRef.current = element.querySelector<HTMLInputElement>('input[type="range"]');
       }
     },
@@ -304,33 +324,37 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
        * The difference between the value at the finger origin and the value at
        * the center of the thumb scaled down to fit the range [0, 1]
        */
-      offset: number = 0,
+      thumbOffset: number = 0,
     ): FingerState | null => {
       if (fingerPosition == null) {
         return null;
       }
 
-      const { current: sliderControl } = controlRef;
+      const control = controlRef.current;
 
-      if (!sliderControl) {
+      if (!control) {
         return null;
       }
 
       const isRtl = direction === 'rtl';
       const isVertical = orientation === 'vertical';
 
-      const { width, height, bottom, left } = sliderControl.getBoundingClientRect();
+      const { width, height, bottom, left, right } = control.getBoundingClientRect();
+
+      const controlOffset = getControlOffset(controlStylesRef.current, orientation);
 
       // the value at the finger origin scaled down to fit the range [0, 1]
       let valueRescaled = isVertical
-        ? (bottom - fingerPosition.y) / height + offset
-        : (fingerPosition.x - left) / width + offset * (isRtl ? -1 : 1);
+        ? (bottom - controlOffset.end - fingerPosition.y) /
+            (height - controlOffset.start - controlOffset.end) +
+          thumbOffset
+        : (isRtl
+            ? right - controlOffset.start - fingerPosition.x
+            : fingerPosition.x - left - controlOffset.start) /
+            (width - controlOffset.start - controlOffset.end) +
+          thumbOffset * (isRtl ? -1 : 1);
 
       valueRescaled = clamp(valueRescaled, 0, 1);
-
-      if (isRtl && !isVertical) {
-        valueRescaled = 1 - valueRescaled;
-      }
 
       let newValue = (max - min) * valueRescaled + min;
       newValue = roundValueToStep(newValue, step, min);
@@ -350,12 +374,20 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       }
 
       const closestThumbIndex = closestThumbIndexRef.current ?? 0;
+      const minValueDifference = minStepsBetweenValues * step;
+      const minPercentageDifference = (minValueDifference * 100) / (max - min);
 
       // Bound the new value to the thumb's neighbours.
       newValue = clamp(
         newValue,
-        values[closestThumbIndex - 1] + minStepsBetweenValues || -Infinity,
-        values[closestThumbIndex + 1] - minStepsBetweenValues || Infinity,
+        values[closestThumbIndex - 1] + minValueDifference || -Infinity,
+        values[closestThumbIndex + 1] - minValueDifference || Infinity,
+      );
+
+      const newPercentageValue = clamp(
+        valueRescaled * 100,
+        percentageValues[closestThumbIndex - 1] + minPercentageDifference || -Infinity,
+        percentageValues[closestThumbIndex + 1] - minPercentageDifference || Infinity,
       );
 
       return {
@@ -364,7 +396,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         percentageValues: replaceArrayItemAtIndex(
           percentageValues,
           closestThumbIndex,
-          valueRescaled * 100,
+          newPercentageValue,
         ),
         thumbIndex: closestThumbIndex,
       };
@@ -497,8 +529,6 @@ interface FingerState {
 }
 
 export namespace useSliderRoot {
-  export type Orientation = 'horizontal' | 'vertical';
-
   export interface Parameters {
     /**
      * The id of the slider element.

@@ -81,7 +81,12 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  useScrollLock(open && modal === true, popupElement);
+  useScrollLock({
+    enabled: open && modal === true,
+    mounted,
+    open,
+    referenceElement: popupElement,
+  });
 
   const handleFloatingUIOpenChange = (
     nextOpen: boolean,

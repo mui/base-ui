@@ -2,11 +2,18 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import { CollapsibleRoot } from '../root/CollapsibleRoot';
 import { useCollapsibleTrigger } from './useCollapsibleTrigger';
+
+const styleHookMapping: CustomStyleHookMapping<CollapsibleRoot.State> = {
+  ...triggerOpenStateMapping,
+  ...transitionStatusMapping,
+};
 
 /**
  * A button that opens and closes the collapsible panel.
@@ -18,7 +25,13 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   props: CollapsibleTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { panelId, open, setOpen, state, disabled: contextDisabled } = useCollapsibleRootContext();
+  const {
+    panelId,
+    open,
+    handleTrigger,
+    state,
+    disabled: contextDisabled,
+  } = useCollapsibleRootContext();
 
   const { className, disabled = contextDisabled, id, render, ...otherProps } = props;
 
@@ -26,7 +39,7 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     disabled,
     panelId,
     open,
-    setOpen,
+    handleTrigger,
     rootRef: forwardedRef,
   });
 
@@ -36,7 +49,7 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     state,
     className,
     extraProps: otherProps,
-    customStyleHookMapping: triggerOpenStateMapping,
+    customStyleHookMapping: styleHookMapping,
   });
 
   return renderElement();
