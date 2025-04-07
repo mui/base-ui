@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { mergeProps } from '../../merge-props';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { GenericHTMLProps, Orientation } from '../../utils/types';
 import type { useSliderRoot } from '../root/useSliderRoot';
 
 function getRangeStyles(
-  orientation: useSliderRoot.Orientation,
+  orientation: Orientation,
   offset: number,
   leap: number,
 ): React.CSSProperties {
