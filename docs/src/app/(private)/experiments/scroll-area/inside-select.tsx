@@ -5,9 +5,9 @@ import styles from './inside-select.module.css';
 
 export default function ExampleSelect() {
   return (
-    <Select.Root defaultValue="sans" alignItemToTrigger={false}>
+    <Select.Root defaultValue="item-1" alignItemToTrigger={false}>
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder="Sans-serif" />
+        <Select.Value placeholder="Item 1" />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
@@ -19,12 +19,16 @@ export default function ExampleSelect() {
             <ScrollArea.Root className={styles.ScrollArea}>
               <ScrollArea.Viewport className={styles.Viewport} tabIndex={-1}>
                 {[...Array(300)].map((_, i) => (
-                  <Select.Item key={i} className={styles.Item} value={`item-${i}`}>
+                  <Select.Item
+                    key={i + 1}
+                    className={styles.Item}
+                    value={`item-${i + 1}`}
+                  >
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
                     <Select.ItemText className={styles.ItemText}>
-                      Item {i}
+                      Item {i + 1}
                     </Select.ItemText>
                   </Select.Item>
                 ))}

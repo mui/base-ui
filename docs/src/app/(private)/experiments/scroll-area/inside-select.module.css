@@ -50,7 +50,6 @@
   background-color: canvas;
   color: var(--color-gray-900);
   transform-origin: var(--transform-origin);
-  overflow-y: auto;
   max-height: var(--available-height);
 
   &[data-side='none'] {
