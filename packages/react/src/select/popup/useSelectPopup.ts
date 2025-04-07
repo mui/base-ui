@@ -8,6 +8,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { clearPositionerStyles } from './utils';
 import { isWebKit } from '../../utils/detectBrowser';
 import { useSelectIndexContext } from '../root/SelectIndexContext';
+import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
 
 export function useSelectPopup(): useSelectPopup.ReturnValue {
   const {
@@ -249,6 +250,9 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
             keyboardActiveRef.current = false;
           },
           onMouseLeave(event) {
+            if (isMouseWithinBounds(event)) {
+              return;
+            }
             setActiveIndex(null);
             event.currentTarget.focus({ preventScroll: true });
             floatingRootContext.events.emit('popupleave');

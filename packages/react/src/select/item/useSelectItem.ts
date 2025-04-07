@@ -8,20 +8,8 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectIndexContext } from '../root/SelectIndexContext';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEnhancedEffect } from '../../utils';
-
-const styleHook = 'data-highlighted';
-
-function addHighlight(ref: React.RefObject<HTMLDivElement | null>) {
-  ref.current?.setAttribute(styleHook, '');
-}
-
-function removeHighlight(ref: React.RefObject<HTMLDivElement | null>) {
-  ref.current?.removeAttribute(styleHook);
-}
-
-function hasHighlight(ref: React.RefObject<HTMLDivElement | null>) {
-  return ref.current?.hasAttribute(styleHook);
-}
+import { addHighlight, hasHighlight, removeHighlight } from '../../utils/highlighted';
+import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
 
 export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
   const {
@@ -65,9 +53,9 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 
   const handlePopupLeave = useEventCallback(() => {
     if (cursorMovementTimerRef.current !== -1) {
-      removeHighlight(ref);
       clearTimeout(cursorMovementTimerRef.current);
       cursorMovementTimerRef.current = -1;
+      removeHighlight(ref);
     }
   });
 
@@ -76,12 +64,16 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   }, [handlePopupLeave]);
 
   useEnhancedEffect(() => {
+    if (!open) {
+      return;
+    }
+
     if (highlighted) {
       addHighlight(ref);
     } else {
       removeHighlight(ref);
     }
-  }, [highlighted]);
+  }, [open, highlighted]);
 
   React.useEffect(() => {
     function handleItemHover(item: HTMLDivElement) {
@@ -147,19 +139,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
                 return;
               }
 
-              const targetRect = event.currentTarget.getBoundingClientRect();
-
-              // Safari randomly fires `mouseleave` incorrectly when the item is
-              // aligned to the trigger. This is a workaround to prevent the highlight
-              // from being removed while the cursor is still within the bounds of the item.
-              // https://github.com/mui/base-ui/issues/869
-              const isWithinBounds =
-                targetRect.top + 1 <= event.clientY &&
-                event.clientY <= targetRect.bottom - 1 &&
-                targetRect.left + 1 <= event.clientX &&
-                event.clientX <= targetRect.right - 1;
-
-              if (isWithinBounds) {
+              if (isMouseWithinBounds(event)) {
                 return;
               }
 
