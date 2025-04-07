@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import {
   safePolygon,
   useClientPoint,
-  useDelayGroup,
+  useDelayGroupOptimized,
   useDismiss,
   useFloatingRootContext,
   useFocus,
@@ -115,33 +115,34 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     },
   });
 
-  const { delay: groupDelay, isInstantPhase, currentId } = useDelayGroup(context);
-  // We only pass an object to `FloatingDelayGroup`. A number means the Provider is not
-  // present, so we should ignore the value by using `undefined`.
-  const openGroupDelay = typeof groupDelay === 'object' ? groupDelay.open : undefined;
-  const closeGroupDelay = typeof groupDelay === 'object' ? groupDelay.close : undefined;
+  const { delayRef, isInstantPhase, hasProvider } = useDelayGroupOptimized(context);
 
-  let instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
-  if (!open && context.floatingId === currentId) {
-    instantType = instantTypeState;
-  }
-
-  const computedRestMs = openGroupDelay ?? delayWithDefault;
-  let computedCloseDelay: number | undefined = closeDelayWithDefault;
-
-  // A provider is present and the close delay is not set.
-  if (closeDelay == null && groupDelay !== 0) {
-    computedCloseDelay = closeGroupDelay;
-  }
+  const instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
 
   const hover = useHover(context, {
     enabled: !disabled,
     mouseOnly: true,
     move: false,
     handleClose: hoverable && trackCursorAxis !== 'both' ? safePolygon() : null,
-    restMs: computedRestMs,
-    delay: {
-      close: computedCloseDelay,
+    restMs() {
+      // We only pass an object to `FloatingDelayGroup`. A number means the Provider is not
+      // present, so we should ignore the value by using `undefined`.
+      const computedRestMs =
+        typeof delayRef.current === 'object' ? delayRef.current.open : undefined;
+      return computedRestMs ?? delayWithDefault;
+    },
+    delay() {
+      const closeValue = typeof delayRef.current === 'object' ? delayRef.current.close : undefined;
+
+      let computedCloseDelay: number | undefined = closeDelayWithDefault;
+      // A provider is present and the close delay is not set.
+      if (closeDelay == null && hasProvider) {
+        computedCloseDelay = closeValue;
+      }
+
+      return {
+        close: computedCloseDelay,
+      };
     },
   });
   const focus = useFocus(context, { enabled: !disabled });

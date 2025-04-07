@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FloatingDelayGroup } from '@floating-ui/react';
+import { FloatingDelayGroupOptimized } from '@floating-ui/react';
 
 /**
  * Provides a shared delay for multiple tooltips. The grouping logic ensures that
@@ -12,9 +12,9 @@ import { FloatingDelayGroup } from '@floating-ui/react';
 const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvider(props) {
   const { delay, closeDelay, timeout = 400 } = props;
   return (
-    <FloatingDelayGroup delay={{ open: delay, close: closeDelay }} timeoutMs={timeout}>
+    <FloatingDelayGroupOptimized delay={{ open: delay, close: closeDelay }} timeoutMs={timeout}>
       {props.children}
-    </FloatingDelayGroup>
+    </FloatingDelayGroupOptimized>
   );
 };
 
