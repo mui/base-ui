@@ -204,8 +204,10 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               setActiveIndex(indexRef.current);
             },
             onClick(event) {
-              if (didPointerDownRef.current) {
-                didPointerDownRef.current = false;
+              didPointerDownRef.current = false;
+
+              // Prevent double commit on {Enter}
+              if (event.type === 'keydown' && lastKeyRef.current === null) {
                 return;
               }
 
@@ -233,6 +235,12 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
               if (disabled) {
                 return;
               }
+
+              if (didPointerDownRef.current) {
+                didPointerDownRef.current = false;
+                return;
+              }
+
               const disallowSelectedMouseUp =
                 !selectionRef.current.allowSelectedMouseUp && selected;
               const disallowUnselectedMouseUp =
