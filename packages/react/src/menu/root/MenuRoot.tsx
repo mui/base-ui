@@ -68,6 +68,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     actionsRef,
     onOpenChangeComplete,
     parentType,
+    parentContext: menubarRootContext ?? parentContext,
   });
 
   const context: MenuRootContext = React.useMemo(

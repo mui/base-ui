@@ -4,6 +4,7 @@ import {
   useFloating,
   FloatingNode,
   FloatingFocusManager,
+  useFloatingTree,
 } from '@floating-ui/react';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -23,17 +24,47 @@ export const MenubarContent = React.forwardRef(function MenubarContent(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { floatingRootContext, setContentElement, itemDomElements, itemLabels, popupProps } =
-    useMenubarRootContext();
+  const {
+    floatingRootContext,
+    setContentElement,
+    itemDomElements,
+    itemLabels,
+    popupProps,
+    hasSubmenuOpen,
+    setHasSubmenuOpen,
+  } = useMenubarRootContext();
 
   const nodeId = useFloatingNodeId();
 
   const mergedRef = useForkRef(forwardedRef, setContentElement);
+  const { events: menuEvents } = useFloatingTree()!;
 
   useFloating({
     rootContext: floatingRootContext,
     nodeId,
   });
+
+  const openSubmenus = React.useRef(new Set<string>());
+
+  React.useEffect(() => {
+    function onSubmenuOpenChange(event: { open: boolean; nodeId: string; parentNodeId: string }) {
+      if (event.parentNodeId === nodeId) {
+        if (event.open) {
+          openSubmenus.current.add(event.nodeId);
+        } else {
+          openSubmenus.current.delete(event.nodeId);
+        }
+
+        setHasSubmenuOpen(openSubmenus.current.size > 0);
+      }
+    }
+
+    menuEvents.on('openchange', onSubmenuOpenChange);
+
+    return () => {
+      menuEvents.off('openchange', onSubmenuOpenChange);
+    };
+  }, [menuEvents, nodeId, setHasSubmenuOpen]);
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
@@ -46,7 +77,7 @@ export const MenubarContent = React.forwardRef(function MenubarContent(
   return (
     <FloatingNode id={nodeId}>
       <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
-        <FloatingFocusManager context={floatingRootContext} modal={false}>
+        <FloatingFocusManager context={floatingRootContext} disabled={!hasSubmenuOpen}>
           {renderElement()}
         </FloatingFocusManager>
       </CompositeList>

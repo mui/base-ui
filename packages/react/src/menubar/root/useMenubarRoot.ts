@@ -17,6 +17,7 @@ export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenuba
   const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const direction = useDirection();
+  const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
 
   const floatingRootContext = useFloatingRootContext({
     elements: {
@@ -54,6 +55,8 @@ export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenuba
       itemDomElements,
       itemLabels,
       setContentElement,
+      hasSubmenuOpen,
+      setHasSubmenuOpen,
     }),
     [
       activeIndex,
@@ -61,8 +64,8 @@ export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenuba
       popupProps,
       floatingRootContext,
       itemDomElements,
+      hasSubmenuOpen,
       itemLabels,
-      setContentElement,
     ],
   );
 }
@@ -94,5 +97,7 @@ export namespace useMenubarRoot {
     itemDomElements: React.RefObject<(HTMLElement | null)[]>;
     itemLabels: React.RefObject<(string | null)[]>;
     setContentElement: (element: HTMLElement | null) => void;
+    hasSubmenuOpen: boolean;
+    setHasSubmenuOpen: (open: boolean) => void;
   }
 }

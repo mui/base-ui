@@ -14,6 +14,8 @@ import {
   useTypeahead,
   type FloatingRootContext,
 } from '@floating-ui/react';
+import { MenuRootContext } from './MenuRootContext';
+import { MenubarRootContext } from '../../menubar/root/MenubarRootContext';
 import { GenericHTMLProps } from '../../utils/types';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -45,6 +47,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     openOnHover,
     onTypingChange,
     modal,
+    parentContext,
     parentType,
   } = parameters;
 
@@ -201,7 +204,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const focus = useFocus(floatingRootContext, {
-    enabled: parentType === 'menubar',
+    enabled:
+      parentType === 'menubar' && (parentContext as MenubarRootContext).hasSubmenuOpen && !disabled,
   });
 
   const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);
@@ -383,6 +387,7 @@ export namespace useMenuRoot {
      */
     actionsRef: React.RefObject<Actions> | undefined;
     parentType: 'menubar' | 'menu' | undefined;
+    parentContext: MenuRootContext | MenubarRootContext | undefined;
   }
 
   export interface ReturnValue {
