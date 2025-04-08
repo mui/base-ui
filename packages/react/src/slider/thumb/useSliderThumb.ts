@@ -19,7 +19,8 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
-import type { useSliderRoot } from '../root/useSliderRoot';
+import { useSliderRoot } from '../root/useSliderRoot';
+import { useSliderRootContext } from '../root/SliderRootContext';
 
 export interface ThumbMetadata {
   inputId: string | undefined;
@@ -88,10 +89,11 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     inputRef: inputValidationRef,
     commitValidation,
   } = useFieldControlValidation();
+  const { inputRef: inputRefProp } = useSliderRootContext();
 
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useForkRef(inputRef, inputValidationRef);
+  const mergedInputRef = useForkRef(inputRef, inputValidationRef, inputRefProp);
 
   const thumbMetadata = React.useMemo(
     () => ({
