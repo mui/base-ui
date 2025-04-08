@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { activeElement, contains } from '@floating-ui/react/utils';
+import { activeElement, contains, getTarget } from '@floating-ui/react/utils';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { isFocusVisible } from '../utils/focusVisible';
@@ -32,7 +32,7 @@ export function useToastViewport() {
     }
 
     function handleGlobalKeyDown(event: KeyboardEvent) {
-      if (toasts.length === 0) {
+      if (numToasts === 0) {
         return;
       }
 
@@ -54,10 +54,10 @@ export function useToastViewport() {
     return () => {
       win.removeEventListener('keydown', handleGlobalKeyDown);
     };
-  }, [pauseTimers, setFocused, setPrevFocusElement, toasts.length, viewportRef]);
+  }, [pauseTimers, setFocused, setPrevFocusElement, numToasts, viewportRef]);
 
   React.useEffect(() => {
-    if (!viewportRef.current || !toasts.length) {
+    if (!viewportRef.current || !numToasts) {
       return undefined;
     }
 
@@ -77,11 +77,19 @@ export function useToastViewport() {
         return;
       }
 
-      windowFocusedRef.current = true;
-
-      if (!contains(viewportRef.current, event.target as HTMLElement | null)) {
+      const target = getTarget(event);
+      const activeEl = activeElement(ownerDocument(viewportRef.current));
+      if (
+        !contains(viewportRef.current, target as HTMLElement | null) ||
+        !isFocusVisible(activeEl)
+      ) {
         resumeTimers();
       }
+
+      // Wait for the `handleFocus` event to fire.
+      setTimeout(() => {
+        windowFocusedRef.current = true;
+      });
     }
 
     win.addEventListener('blur', handleWindowBlur, true);
@@ -102,7 +110,7 @@ export function useToastViewport() {
     // since the portal node hasn't yet been created.
     // By adding this dependency, we ensure the window listeners
     // are added when toasts have been created, once the ref is available.
-    toasts.length,
+    numToasts,
   ]);
 
   function handleFocusGuard(event: React.FocusEvent) {
@@ -150,6 +158,14 @@ export function useToastViewport() {
     }
 
     if (focused) {
+      return;
+    }
+
+    // If the window was previously blurred, the focus must be visible to
+    // pause the timers, since for pointers it's unexpected that focus is
+    // considered inside the viewport at this point.
+    const activeEl = activeElement(ownerDocument(viewportRef.current));
+    if (!windowFocusedRef.current && !isFocusVisible(activeEl)) {
       return;
     }
 
