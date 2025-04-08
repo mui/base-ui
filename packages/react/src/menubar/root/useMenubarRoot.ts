@@ -9,8 +9,6 @@ import { type MenuOrientation } from '../../menu/root/useMenuRoot';
 import { GenericHTMLProps } from '../../utils/types';
 import { useDirection } from '../../direction-provider/DirectionContext';
 
-const EMPTY_ARRAY: never[] = [];
-
 export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenubarRoot.ReturnValue {
   const { orientation, disabled, loop } = parameters;
 
@@ -39,7 +37,9 @@ export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenuba
     orientation,
     rtl: direction === 'rtl',
     onNavigate: (index) => {
-      setActiveIndex(index ?? 0);
+      if (index !== null) {
+        setActiveIndex(index);
+      }
     },
   });
 
