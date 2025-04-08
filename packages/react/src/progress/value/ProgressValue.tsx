@@ -53,9 +53,8 @@ const ProgressValue = React.forwardRef(function ProgressValue(
 });
 
 namespace ProgressValue {
-  export interface State extends ProgressRoot.State {}
-
-  export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
+  export interface Props
+    extends Omit<BaseUIComponentProps<'span', ProgressRoot.State>, 'children'> {
     children?: null | ((formattedValue: string | null, value: number | null) => React.ReactNode);
   }
 }

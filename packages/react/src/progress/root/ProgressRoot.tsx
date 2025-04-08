@@ -67,11 +67,9 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
 
   const state: ProgressRoot.State = React.useMemo(
     () => ({
-      max,
-      min,
       status,
     }),
-    [max, min, status],
+    [status],
   );
 
   const contextValue: ProgressRootContext = React.useMemo(
@@ -126,8 +124,6 @@ export type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 
 namespace ProgressRoot {
   export type State = {
-    max: number;
-    min: number;
     status: ProgressStatus;
   };
 

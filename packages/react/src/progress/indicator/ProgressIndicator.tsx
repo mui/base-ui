@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { valueToPercent } from '../../utils/valueToPercent';
-import { ProgressRoot } from '../root/ProgressRoot';
+import type { ProgressRoot } from '../root/ProgressRoot';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStyleHookMapping } from '../root/styleHooks';
-import { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * Visualizes the completion status of the task.
@@ -56,9 +56,7 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
 });
 
 namespace ProgressIndicator {
-  export interface State extends ProgressRoot.State {}
-
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'div', ProgressRoot.State> {}
 }
 
 export { ProgressIndicator };
