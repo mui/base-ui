@@ -5,7 +5,6 @@ import { useToastContext } from '../provider/ToastProviderContext';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ownerDocument } from '../../utils/owner';
-import { ToastRootDataAttributes } from './ToastRootDataAttributes';
 import { ToastRootCssVars } from './ToastRootCssVars';
 import { mergeProps } from '../../merge-props';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -477,8 +476,6 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
           'aria-modal': false,
           'aria-labelledby': titleId,
           'aria-describedby': descriptionId,
-          [ToastRootDataAttributes.swiping]: isSwiping,
-          [ToastRootDataAttributes.swipeDirection]: currentSwipeDirection,
           onPointerDown: handlePointerDown,
           onPointerMove: handlePointerMove,
           onPointerUp: handlePointerUp,
@@ -505,7 +502,6 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
       visibleIndex,
       offsetY,
       isSwiping,
-      currentSwipeDirection,
       dragOffset,
       initialTransform,
       dragDismissed,

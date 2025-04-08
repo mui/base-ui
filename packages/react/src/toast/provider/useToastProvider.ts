@@ -48,6 +48,7 @@ export function useToastProvider(props: useToastProvider.Parameters): ToastConte
   const timersRef = React.useRef(new Map<string, TimerInfo>());
   const viewportRef = React.useRef<HTMLElement | null>(null);
   const windowFocusedRef = React.useRef(true);
+  const isPausedRef = React.useRef(false);
 
   const hoveringRef = useLatestRef(hovering);
   const focusedRef = useLatestRef(focused);
@@ -95,6 +96,10 @@ export function useToastProvider(props: useToastProvider.Parameters): ToastConte
   });
 
   const pauseTimers = useEventCallback(() => {
+    if (isPausedRef.current) {
+      return;
+    }
+    isPausedRef.current = true;
     timersRef.current.forEach((timer) => {
       if (timer.timeoutId) {
         clearTimeout(timer.timeoutId);
@@ -106,6 +111,10 @@ export function useToastProvider(props: useToastProvider.Parameters): ToastConte
   });
 
   const resumeTimers = useEventCallback(() => {
+    if (!isPausedRef.current) {
+      return;
+    }
+    isPausedRef.current = false;
     timersRef.current.forEach((timer, id) => {
       timer.remaining = timer.remaining > 0 ? timer.remaining : timer.delay;
       timer.timeoutId = setTimeout(() => {
