@@ -146,6 +146,9 @@ export default function MenubarExperiment() {
           </Menu.Portal>
         </Menu.Root>
       </Menubar.Root>
+
+      <hr className={classes.Separator} />
+      <input className={classes.Input} placeholder="focus tester" />
     </div>
   );
 }

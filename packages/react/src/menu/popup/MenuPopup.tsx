@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingFocusManager, useFloatingTree } from '@floating-ui/react';
 import { useMenuPopup } from './useMenuPopup';
+import { useMenubarRootContext } from '../../menubar/root/MenubarRootContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -50,6 +51,8 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     floatingRootContext,
   } = useMenuRootContext();
   const positionerContext = useMenuPositionerContext(true);
+
+  const isInMenubar = useMenubarRootContext(true) != null;
 
   useOpenChangeComplete({
     open,
@@ -101,6 +104,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
       modal={false}
       disabled={!mounted}
       visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
+      returnFocus={!isInMenubar}
     >
       {renderElement()}
     </FloatingFocusManager>

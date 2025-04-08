@@ -15,7 +15,7 @@ export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenuba
   const { orientation, disabled, loop } = parameters;
 
   const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
-  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(0);
   const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
   const direction = useDirection();
 
@@ -38,8 +38,9 @@ export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenuba
     loop,
     orientation,
     rtl: direction === 'rtl',
-    disabledIndices: EMPTY_ARRAY,
-    onNavigate: setActiveIndex,
+    onNavigate: (index) => {
+      setActiveIndex(index ?? 0);
+    },
   });
 
   const { getFloatingProps, getItemProps } = useInteractions([listNavigation]);

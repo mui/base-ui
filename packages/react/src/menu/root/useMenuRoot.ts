@@ -151,19 +151,30 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
       const isFocus = reasonValue === 'focus';
 
+      console.log('onOpenChange', openValue, reasonValue);
+
       function changeState() {
         setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
       }
 
-      if (
-        isFocus &&
-        !openValue &&
-        eventValue?.type === 'focusout' &&
-        (eventValue as FocusEvent).relatedTarget ===
-          (parentContext as MenubarRootContext).contentElement
-      ) {
-        // focus goes to the menubar element, so we don't want to close the menu
-        return;
+      if (isFocus) {
+        if (
+          !openValue &&
+          eventValue?.type === 'focusout' &&
+          (eventValue as FocusEvent).relatedTarget ===
+            (parentContext as MenubarRootContext).contentElement
+        ) {
+          // focus goes to the menubar element, so we don't want to close the menu
+          return;
+        }
+
+        if (
+          openValue &&
+          parentType === 'menubar' &&
+          !(parentContext as MenubarRootContext).contentElement?.contains(document.activeElement)
+        ) {
+          return;
+        }
       }
 
       if (isHover) {
@@ -204,17 +215,16 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const focus = useFocus(floatingRootContext, {
-    enabled:
-      parentType === 'menubar' && (parentContext as MenubarRootContext).hasSubmenuOpen && !disabled,
-    visibleOnly: false,
+    enabled: parentType === 'menubar' && !disabled,
+    visibleOnly: !(parentContext as MenubarRootContext).hasSubmenuOpen,
   });
 
   const click = useClick(floatingRootContext, {
     enabled: !disabled,
     event: open ? 'click' : 'mousedown',
-    toggle: true, //!openOnHover || !nested,
-    //ignoreMouse: openOnHover && nested,
-    //stickIfOpen,
+    toggle: !openOnHover || !nested || parentType === 'menubar',
+    ignoreMouse: openOnHover && nested && parentType !== 'menubar',
+    stickIfOpen,
   });
 
   const dismiss = useDismiss(floatingRootContext, {

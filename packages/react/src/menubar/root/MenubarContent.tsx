@@ -77,7 +77,13 @@ export const MenubarContent = React.forwardRef(function MenubarContent(
   return (
     <FloatingNode id={nodeId}>
       <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
-        <FloatingFocusManager context={floatingRootContext} disabled={!hasSubmenuOpen}>
+        <FloatingFocusManager
+          context={floatingRootContext}
+          disabled={!hasSubmenuOpen}
+          modal={false}
+          returnFocus={false}
+          initialFocus={1}
+        >
           {renderElement()}
         </FloatingFocusManager>
       </CompositeList>
