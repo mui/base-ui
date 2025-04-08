@@ -69,6 +69,10 @@
       "default": "'horizontal'",
       "description": "The component orientation."
     },
+    "inputRef": {
+      "type": "React.Ref",
+      "description": "The ref to the hidden input element."
+    },
     "className": {
       "type": "string | (state) => string",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

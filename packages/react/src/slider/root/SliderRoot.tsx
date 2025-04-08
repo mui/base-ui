@@ -302,6 +302,15 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    */
   id: PropTypes.string,
   /**
+   * The ref to the hidden input element.
+   */
+  inputRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({
+      current: PropTypes.object,
+    }),
+  ]),
+  /**
    * The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.
    * @default 10
    */

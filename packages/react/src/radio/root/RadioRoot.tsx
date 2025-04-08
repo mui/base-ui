@@ -146,6 +146,15 @@ RadioRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
+   * The ref to the hidden input element.
+   */
+  inputRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({
+      current: PropTypes.object,
+    }),
+  ]),
+  /**
    * Whether the user should be unable to select the radio button.
    * @default false
    */

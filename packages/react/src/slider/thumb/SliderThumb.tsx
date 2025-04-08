@@ -50,6 +50,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
+    inputRef,
     ...otherProps
   } = props;
 
@@ -110,6 +111,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     step,
     tabIndex: tabIndexProp ?? contextTabIndex,
     values,
+    inputRef,
   });
 
   const styleHooks = React.useMemo(
@@ -233,6 +235,15 @@ SliderThumb.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   inputId: PropTypes.string,
+  /**
+   * @ignore
+   */
+  inputRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({
+      current: PropTypes.object,
+    }),
+  ]),
   /**
    * @ignore
    */
