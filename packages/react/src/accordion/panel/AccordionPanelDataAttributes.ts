@@ -1,3 +1,5 @@
+import { TransitionStatusDataAttributes } from '../../utils/styleHookMapping';
+
 export enum AccordionPanelDataAttributes {
   /**
    * Indicates the index of the accordion item.
@@ -19,9 +21,9 @@ export enum AccordionPanelDataAttributes {
   /**
    * Present when the panel is animating in.
    */
-  startingStyle = 'data-starting-style',
+  startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**
    * Present when the panel is animating out.
    */
-  endingStyle = 'data-ending-style',
+  endingStyle = TransitionStatusDataAttributes.endingStyle,
 }
