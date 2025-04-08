@@ -16,7 +16,7 @@ import { useMenubarRootContext } from './MenubarRootContext';
 const EMPTY_OBJECT = {};
 
 /**
- * @internal
+ * @ignore - internal component.
  */
 export const MenubarContent = React.forwardRef(function MenubarContent(
   props: BaseUIComponentProps<'div', {}>,

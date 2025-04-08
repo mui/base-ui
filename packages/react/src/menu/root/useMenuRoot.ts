@@ -216,7 +216,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const focus = useFocus(floatingRootContext, {
     enabled: parentType === 'menubar' && !disabled,
-    visibleOnly: !(parentContext as MenubarRootContext).hasSubmenuOpen,
+    visibleOnly: !(parentContext as MenubarRootContext)?.hasSubmenuOpen,
   });
 
   const click = useClick(floatingRootContext, {
