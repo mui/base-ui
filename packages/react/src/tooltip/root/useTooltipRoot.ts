@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import {
   safePolygon,
   useClientPoint,
-  useDelayGroupOptimized,
+  useNextDelayGroup,
   useDismiss,
   useFloatingRootContext,
   useFocus,
@@ -115,7 +115,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     },
   });
 
-  const { delayRef, isInstantPhase, hasProvider } = useDelayGroupOptimized(context);
+  const { delayRef, isInstantPhase, hasProvider } = useNextDelayGroup(context);
 
   const instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
 
