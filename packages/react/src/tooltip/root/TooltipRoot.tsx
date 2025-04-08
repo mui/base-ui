@@ -13,6 +13,7 @@ import { OPEN_DELAY } from '../utils/constants';
  */
 const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
   const {
+    disabled = false,
     defaultOpen = false,
     onOpenChange,
     open,
@@ -38,6 +39,7 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
     closeDelay,
     actionsRef,
     onOpenChangeComplete,
+    disabled,
   });
 
   const contextValue: TooltipRootContext = React.useMemo(
