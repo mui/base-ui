@@ -9,6 +9,10 @@ export enum AccordionPanelDataAttributes {
    */
   open = 'data-open',
   /**
+   * Indicates the orientation of the accordion.
+   */
+  orientation = 'data-orientation',
+  /**
    * Present when the accordion item is disabled.
    */
   disabled = 'data-disabled',
