@@ -7,8 +7,8 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStyleHookMapping } from '../root/styleHooks';
-import { ProgressRoot } from '../root/ProgressRoot';
-import { BaseUIComponentProps } from '../../utils/types';
+import type { ProgressRoot } from '../root/ProgressRoot';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * An accessible label for the progress bar.
@@ -44,9 +44,7 @@ const ProgressLabel = React.forwardRef(function ProgressLabel(
 });
 
 namespace ProgressLabel {
-  export interface State extends ProgressRoot.State {}
-
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+  export interface Props extends BaseUIComponentProps<'span', ProgressRoot.State> {}
 }
 
 export { ProgressLabel };
