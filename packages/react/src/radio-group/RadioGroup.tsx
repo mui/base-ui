@@ -34,6 +34,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
     name,
     value,
     defaultValue,
+    inputRef,
     ...otherProps
   } = props;
 
@@ -136,6 +137,10 @@ namespace RadioGroup {
      * Callback fired when the value changes.
      */
     onValueChange?: (value: unknown, event: Event) => void;
+    /**
+     * The ref to the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
   }
 }
 
