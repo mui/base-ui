@@ -52,6 +52,7 @@ const testRootContext: SliderRootContext = {
   tabIndex: null,
   thumbRefs: { current: [] },
   values: [0],
+  inputRef: { current: null },
 };
 
 describe('<Slider.Value />', () => {
