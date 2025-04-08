@@ -12,7 +12,7 @@ export default function MenubarExperiment() {
     <div>
       <h1>Menubar</h1>
       <Menubar.Root className={classes.Root}>
-        <Menu.Root openOnHover={false} modal={false}>
+        <Menu.Root>
           <Menu.SubmenuTrigger className={classes.Item}>File</Menu.SubmenuTrigger>
 
           <Menu.Portal>
@@ -59,7 +59,7 @@ export default function MenubarExperiment() {
           </Menu.Portal>
         </Menu.Root>
 
-        <Menu.Root openOnHover={false} modal={false}>
+        <Menu.Root>
           <Menu.SubmenuTrigger className={classes.Item}>Edit</Menu.SubmenuTrigger>
 
           <Menu.Portal>
@@ -99,7 +99,7 @@ export default function MenubarExperiment() {
           </Menu.Portal>
         </Menu.Root>
 
-        <Menu.Root openOnHover={false} modal={false}>
+        <Menu.Root>
           <Menu.SubmenuTrigger className={classes.Item}>View</Menu.SubmenuTrigger>
 
           <Menu.Portal>

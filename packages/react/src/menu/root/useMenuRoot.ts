@@ -149,9 +149,21 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
       const isKeyboardClick = reasonValue === 'click' && (eventValue as MouseEvent).detail === 0;
       const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
+      const isFocus = reasonValue === 'focus';
 
       function changeState() {
         setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+      }
+
+      if (
+        isFocus &&
+        !openValue &&
+        eventValue?.type === 'focusout' &&
+        (eventValue as FocusEvent).relatedTarget ===
+          (parentContext as MenubarRootContext).contentElement
+      ) {
+        // focus goes to the menubar element, so we don't want to close the menu
+        return;
       }
 
       if (isHover) {
@@ -177,7 +189,12 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const hover = useHover(floatingRootContext, {
-    enabled: hoverEnabled && openOnHover && !disabled && openReason !== 'click',
+    enabled:
+      hoverEnabled &&
+      openOnHover &&
+      !disabled &&
+      openReason !== 'click' &&
+      parentType !== 'menubar',
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: false,
@@ -186,12 +203,18 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
   });
 
+  const focus = useFocus(floatingRootContext, {
+    enabled:
+      parentType === 'menubar' && (parentContext as MenubarRootContext).hasSubmenuOpen && !disabled,
+    visibleOnly: false,
+  });
+
   const click = useClick(floatingRootContext, {
     enabled: !disabled,
-    event: 'mousedown',
-    toggle: !openOnHover || !nested,
-    ignoreMouse: openOnHover && nested,
-    stickIfOpen,
+    event: open ? 'click' : 'mousedown',
+    toggle: true, //!openOnHover || !nested,
+    //ignoreMouse: openOnHover && nested,
+    //stickIfOpen,
   });
 
   const dismiss = useDismiss(floatingRootContext, {
@@ -201,11 +224,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const role = useRole(floatingRootContext, {
     role: 'menu',
-  });
-
-  const focus = useFocus(floatingRootContext, {
-    enabled:
-      parentType === 'menubar' && (parentContext as MenubarRootContext).hasSubmenuOpen && !disabled,
   });
 
   const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);

@@ -48,6 +48,13 @@
     inset-block: 0.15rem;
     inset-inline: 0.15rem;
     border-radius: 0.25rem;
+  }
+
+  &[data-highlighted]::before {
+    background-color: var(--color-gray-600);
+  }
+
+  &[data-popup-open]::before {
     background-color: var(--color-gray-900);
   }
 }

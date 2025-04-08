@@ -5,7 +5,7 @@ import {
   useInteractions,
   useListNavigation,
 } from '@floating-ui/react';
-import { MenuOrientation } from '../../menu/root/useMenuRoot';
+import { type MenuOrientation } from '../../menu/root/useMenuRoot';
 import { GenericHTMLProps } from '../../utils/types';
 import { useDirection } from '../../direction-provider/DirectionContext';
 
@@ -16,8 +16,8 @@ export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenuba
 
   const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-  const direction = useDirection();
   const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
+  const direction = useDirection();
 
   const floatingRootContext = useFloatingRootContext({
     elements: {
@@ -54,6 +54,7 @@ export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenuba
       floatingRootContext,
       itemDomElements,
       itemLabels,
+      contentElement,
       setContentElement,
       hasSubmenuOpen,
       setHasSubmenuOpen,
@@ -66,6 +67,7 @@ export function useMenubarRoot(parameters: useMenubarRoot.Parameters): useMenuba
       itemDomElements,
       hasSubmenuOpen,
       itemLabels,
+      contentElement,
     ],
   );
 }
@@ -96,6 +98,7 @@ export namespace useMenubarRoot {
     popupProps: GenericHTMLProps;
     itemDomElements: React.RefObject<(HTMLElement | null)[]>;
     itemLabels: React.RefObject<(string | null)[]>;
+    contentElement: HTMLElement | null;
     setContentElement: (element: HTMLElement | null) => void;
     hasSubmenuOpen: boolean;
     setHasSubmenuOpen: (open: boolean) => void;

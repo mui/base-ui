@@ -21,7 +21,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     disabled = false,
     closeParentOnEsc = true,
     loop = true,
-    modal = true,
+    modal: modalProp,
     onOpenChange,
     open,
     orientation = 'vertical',
@@ -36,8 +36,19 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const parentContext = useMenuRootContext(true);
   const menubarRootContext = useMenubarRootContext(true);
   const nested = parentContext != null || menubarRootContext != null;
+  const modal = !nested && (modalProp ?? true);
 
-  const openOnHover = openOnHoverProp ?? nested;
+  if (process.env.NODE_ENV !== 'production') {
+    if (nested && modalProp !== undefined) {
+      console.warn(
+        'Base UI: The `modal` prop is not supported on nested menus. It will be ignored.',
+      );
+    }
+  }
+
+  const openOnHover =
+    openOnHoverProp ??
+    (parentContext != null || (menubarRootContext != null && menubarRootContext.hasSubmenuOpen));
   const typingRef = React.useRef(false);
 
   const onTypingChange = React.useCallback((nextTyping: boolean) => {
