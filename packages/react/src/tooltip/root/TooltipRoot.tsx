@@ -102,6 +102,11 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
+   * Whether the tooltip is disabled.
+   * @default false
+   */
+  disabled: PropTypes.bool,
+  /**
    * Whether the tooltip contents can be hovered without closing the tooltip.
    * @default true
    */
