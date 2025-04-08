@@ -6,9 +6,10 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useMeterRootContext } from '../root/MeterRootContext';
-import { MeterRoot } from '../root/MeterRoot';
-import { meterStyleHookMapping } from '../root/styleHooks';
+import type { MeterRoot } from '../root/MeterRoot';
 import { BaseUIComponentProps } from '../../utils/types';
+
+const EMPTY = {};
 /**
  * An accessible label for the meter.
  * Renders a `<span>` element.
@@ -23,7 +24,7 @@ const MeterLabel = React.forwardRef(function MeterLabel(
 
   const id = useBaseUiId(idProp);
 
-  const { setLabelId, state } = useMeterRootContext();
+  const { setLabelId } = useMeterRootContext();
 
   useEnhancedEffect(() => {
     setLabelId(id);
@@ -32,20 +33,17 @@ const MeterLabel = React.forwardRef(function MeterLabel(
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'span',
-    state,
+    state: EMPTY,
     className,
     ref: forwardedRef,
     extraProps: mergeProps<'span'>({ id }, otherProps),
-    customStyleHookMapping: meterStyleHookMapping,
   });
 
   return renderElement();
 });
 
 namespace MeterLabel {
-  export interface State extends MeterRoot.State {}
-
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+  export interface Props extends BaseUIComponentProps<'span', MeterRoot.State> {}
 }
 
 export { MeterLabel };

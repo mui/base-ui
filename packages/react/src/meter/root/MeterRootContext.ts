@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import type { MeterRoot } from './MeterRoot';
 
 export type MeterRootContext = {
   formattedValue: string;
@@ -8,7 +7,6 @@ export type MeterRootContext = {
   min: number;
   percentageValue: number;
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  state: MeterRoot.State;
   value: number;
 };
 

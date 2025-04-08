@@ -6,6 +6,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import type { MeterRoot } from '../root/MeterRoot';
+
+const EMPTY = {};
 /**
  * A text element displaying the current value.
  * Renders a `<span>` element.
@@ -18,7 +20,7 @@ const MeterValue = React.forwardRef(function MeterValue(
 ) {
   const { className, render, children, ...otherProps } = props;
 
-  const { value, formattedValue, state } = useMeterRootContext();
+  const { value, formattedValue } = useMeterRootContext();
 
   const getValueProps = React.useCallback(
     (externalProps = {}) =>
@@ -39,7 +41,7 @@ const MeterValue = React.forwardRef(function MeterValue(
     propGetter: getValueProps,
     render: render ?? 'span',
     className,
-    state,
+    state: EMPTY,
     ref: forwardedRef,
     extraProps: otherProps,
   });
@@ -48,9 +50,7 @@ const MeterValue = React.forwardRef(function MeterValue(
 });
 
 namespace MeterValue {
-  export interface State extends MeterRoot.State {}
-
-  export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
+  export interface Props extends Omit<BaseUIComponentProps<'span', MeterRoot.State>, 'children'> {
     children?: null | ((formattedValue: string, value: number) => React.ReactNode);
   }
 }

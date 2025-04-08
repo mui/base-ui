@@ -2,10 +2,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useMeterRootContext } from '../root/MeterRootContext';
-import { MeterRoot } from '../root/MeterRoot';
-import { meterStyleHookMapping } from '../root/styleHooks';
+import type { MeterRoot } from '../root/MeterRoot';
 import { BaseUIComponentProps } from '../../utils/types';
+
+const EMPTY = {};
 /**
  * Contains the meter indicator and represents the entire range of the meter.
  * Renders a `<div>` element.
@@ -18,24 +18,19 @@ const MeterTrack = React.forwardRef(function MeterTrack(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { state } = useMeterRootContext();
-
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
-    state,
+    state: EMPTY,
     className,
     ref: forwardedRef,
     extraProps: otherProps,
-    customStyleHookMapping: meterStyleHookMapping,
   });
 
   return renderElement();
 });
 
 namespace MeterTrack {
-  export interface State extends MeterRoot.State {}
-
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'div', MeterRoot.State> {}
 }
 
 export { MeterTrack };

@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
-import { MeterRoot } from '../root/MeterRoot';
+import type { MeterRoot } from '../root/MeterRoot';
 import { useMeterRootContext } from '../root/MeterRootContext';
-import { meterStyleHookMapping } from '../root/styleHooks';
+
+const EMPTY = {};
 /**
  * Visualizes the position of the value along the range.
  * Renders a `<div>` element.
@@ -19,7 +20,7 @@ const MeterIndicator = React.forwardRef(function MeterIndicator(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { percentageValue, state } = useMeterRootContext();
+  const { percentageValue } = useMeterRootContext();
 
   const getStyles = React.useCallback(() => {
     return {
@@ -43,20 +44,17 @@ const MeterIndicator = React.forwardRef(function MeterIndicator(
   const { renderElement } = useComponentRenderer({
     propGetter,
     render: render ?? 'div',
-    state,
+    state: EMPTY,
     className,
     ref: forwardedRef,
     extraProps: otherProps,
-    customStyleHookMapping: meterStyleHookMapping,
   });
 
   return renderElement();
 });
 
 namespace MeterIndicator {
-  export interface State extends MeterRoot.State {}
-
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'div', MeterRoot.State> {}
 }
 
 export { MeterIndicator };

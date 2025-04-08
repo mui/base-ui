@@ -8,7 +8,8 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { valueToPercent } from '../../utils/valueToPercent';
-import { meterStyleHookMapping } from './styleHooks';
+
+const EMPTY = {};
 
 function formatValue(
   value: number,
@@ -74,14 +75,6 @@ const MeterRoot = React.forwardRef(function MeterRoot(
     [format, formattedValue, getAriaValueText, labelId, max, min, value, percentageValue],
   );
 
-  const state: MeterRoot.State = React.useMemo(
-    () => ({
-      max,
-      min,
-    }),
-    [max, min],
-  );
-
   const contextValue: MeterRootContext = React.useMemo(
     () => ({
       formattedValue,
@@ -89,20 +82,18 @@ const MeterRoot = React.forwardRef(function MeterRoot(
       min,
       percentageValue,
       setLabelId,
-      state,
       value,
     }),
-    [formattedValue, max, min, percentageValue, setLabelId, state, value],
+    [formattedValue, max, min, percentageValue, setLabelId, value],
   );
 
   const { renderElement } = useComponentRenderer({
     propGetter,
     render: render ?? 'div',
-    state,
+    state: EMPTY,
     className,
     ref: forwardedRef,
     extraProps: otherProps,
-    customStyleHookMapping: meterStyleHookMapping,
   });
 
   return (
@@ -111,10 +102,7 @@ const MeterRoot = React.forwardRef(function MeterRoot(
 });
 
 namespace MeterRoot {
-  export type State = {
-    max: number;
-    min: number;
-  };
+  export interface State {}
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
