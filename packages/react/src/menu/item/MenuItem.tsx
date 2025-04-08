@@ -41,8 +41,10 @@ const InnerMenuItem = React.forwardRef(function InnerMenuItem(
   });
 
   const state: MenuItem.State = React.useMemo(
-    () => ({ disabled, highlighted }),
-    [disabled, highlighted],
+    () => ({
+      disabled,
+    }),
+    [disabled],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -193,7 +195,6 @@ namespace MenuItem {
      * Whether the component should ignore user interaction.
      */
     disabled: boolean;
-    highlighted: boolean;
   };
 
   export interface Props extends BaseUIComponentProps<'div', State> {
