@@ -717,6 +717,10 @@ describe('<Tooltip.Root />', () => {
       await flushMicrotasks();
 
       expect(screen.queryByText('Content')).to.equal(null);
+
+      await act(async () => trigger.focus());
+
+      expect(screen.queryByText('Content')).to.equal(null);
     });
   });
 });
