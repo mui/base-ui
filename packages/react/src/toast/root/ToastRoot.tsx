@@ -11,6 +11,14 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useToastRoot } from './useToastRoot';
 import { useToastContext } from '../provider/ToastProviderContext';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<ToastRoot.State> = {
+  ...transitionStatusMapping,
+  swipeDirection(value) {
+    return value ? { 'data-swipe-direction': value } : null;
+  },
+};
 
 /**
  * Groups all parts of an individual toast.
@@ -59,7 +67,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
     ref: mergedRef,
     className,
     state,
-    customStyleHookMapping: transitionStatusMapping,
+    customStyleHookMapping,
     propGetter: toastRoot.getRootProps,
     extraProps: {
       ...other,
