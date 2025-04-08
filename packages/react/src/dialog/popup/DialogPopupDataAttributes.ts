@@ -22,5 +22,5 @@ export enum DialogPopupDataAttributes {
   /**
    * Present when the dialog has other open dialogs nested within it.
    */
-  hasNestedDialogs = 'data-has-nested-dialogs',
+  nestedDialogOpen = 'data-nested-dialog-open',
 }
