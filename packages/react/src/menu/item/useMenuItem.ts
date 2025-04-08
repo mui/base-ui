@@ -5,6 +5,8 @@ import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps, BaseUIEvent } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
+import { useEnhancedEffect } from '../../utils';
+import { addHighlight, removeHighlight } from '../../utils/highlighted';
 
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
   const {
@@ -25,6 +27,14 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     focusableWhenDisabled: true,
     buttonRef: useForkRef(externalRef, itemRef),
   });
+
+  useEnhancedEffect(() => {
+    if (highlighted) {
+      addHighlight(itemRef);
+    } else {
+      removeHighlight(itemRef);
+    }
+  }, [highlighted]);
 
   const getItemProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
