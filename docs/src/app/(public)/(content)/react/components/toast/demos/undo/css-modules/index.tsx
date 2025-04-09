@@ -45,10 +45,8 @@ function ToastList() {
   const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
     <Toast.Root key={toast.id} toast={toast} className={styles.Toast}>
-      <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
-      <Toast.Description className={styles.Description}>
-        {toast.description}
-      </Toast.Description>
+      <Toast.Title className={styles.Title} />
+      <Toast.Description className={styles.Description} />
       <Toast.Action className={styles.UndoButton} />
       <Toast.Close className={styles.Close} aria-label="Close">
         <XIcon className={styles.Icon} />

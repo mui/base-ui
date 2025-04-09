@@ -66,6 +66,9 @@ AlertDialogRoot.propTypes /* remove-proptypes */ = {
   // └─────────────────────────────────────────────────────────────────────┘
   /**
    * A ref to imperative actions.
+   * - `unmount`: When specified, the dialog will not be unmounted when closed.
+   * Instead, the `unmount` function must be called to unmount the dialog manually.
+   * Useful when the dialog's animation is controlled by an external library.
    */
   actionsRef: PropTypes.shape({
     current: PropTypes.shape({

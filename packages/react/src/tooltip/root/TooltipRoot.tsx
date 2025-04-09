@@ -72,6 +72,9 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
   // └─────────────────────────────────────────────────────────────────────┘
   /**
    * A ref to imperative actions.
+   * - `unmount`: When specified, the tooltip will not be unmounted when closed.
+   * Instead, the `unmount` function must be called to unmount the tooltip manually.
+   * Useful when the tooltip's animation is controlled by an external library.
    */
   actionsRef: PropTypes.shape({
     current: PropTypes.shape({
