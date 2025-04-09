@@ -64,10 +64,9 @@ const InnerSelectItem = React.forwardRef(function InnerSelectItem(
   const state: SelectItem.State = React.useMemo(
     () => ({
       disabled,
-      open,
       selected,
     }),
-    [disabled, open, selected],
+    [disabled, selected],
   );
 
   const { getItemProps, rootRef } = useSelectItem({
@@ -322,14 +321,13 @@ const SelectItem = React.forwardRef(function SelectItem(
 namespace SelectItem {
   export interface State {
     /**
-     * Whether the component should ignore user interaction.
+     * Whether the item should ignore user interaction.
      */
     disabled: boolean;
-    selected: boolean;
     /**
-     * Whether the select menu is currently open.
+     * Whether the item is selected.
      */
-    open: boolean;
+    selected: boolean;
   }
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'id'> {
