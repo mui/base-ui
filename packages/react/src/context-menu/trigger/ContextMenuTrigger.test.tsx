@@ -22,13 +22,11 @@ describe('<ContextMenu.Trigger />', () => {
     await render(
       <ContextMenu.Root>
         <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
-        <Menu.Root>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup />
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
       </ContextMenu.Root>,
     );
 
@@ -43,15 +41,13 @@ describe('<ContextMenu.Trigger />', () => {
     const onOpenChange = spy();
 
     await render(
-      <ContextMenu.Root>
+      <ContextMenu.Root onOpenChange={onOpenChange}>
         <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
-        <Menu.Root onOpenChange={onOpenChange}>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup />
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
       </ContextMenu.Root>,
     );
 
@@ -67,13 +63,11 @@ describe('<ContextMenu.Trigger />', () => {
       await render(
         <ContextMenu.Root>
           <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
-          <Menu.Root>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup />
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
         </ContextMenu.Root>,
       );
 
@@ -99,15 +93,13 @@ describe('<ContextMenu.Trigger />', () => {
       const onOpenChange = spy();
 
       await render(
-        <ContextMenu.Root>
+        <ContextMenu.Root onOpenChange={onOpenChange}>
           <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
-          <Menu.Root onOpenChange={onOpenChange}>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup />
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
         </ContextMenu.Root>,
       );
 
