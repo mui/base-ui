@@ -79,6 +79,13 @@ export function popupConformanceTests(config: PopupTestConfig) {
             const popup = getPopup();
             expect(trigger).to.have.attribute('aria-controls', popup?.id);
           });
+
+          it('allows a custom `id` prop', async () => {
+            await render(prepareComponent({ root: { open: true }, popup: { id: 'MyPopupId' } }));
+            const trigger = getTrigger();
+            const popup = getPopup();
+            expect(trigger.getAttribute('aria-controls')).to.equal(popup?.getAttribute('id'));
+          });
         }
       });
     }
@@ -214,6 +221,7 @@ interface TriggerProps {
 
 interface PopupProps {
   className?: string;
+  id?: string;
   'data-testid'?: string;
   onAnimationEnd?: () => void;
 }
