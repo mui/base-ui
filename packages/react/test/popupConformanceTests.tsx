@@ -80,6 +80,28 @@ export function popupConformanceTests(config: PopupTestConfig) {
             expect(trigger).to.have.attribute('aria-controls', popup?.id);
           });
 
+          it('has the `aria-expanded` attribute on the trigger when open', async () => {
+            const { user } = await render(prepareComponent({}));
+            const trigger = getTrigger();
+            if (!alwaysMounted) {
+              expect(getPopup()).to.equal(null);
+            } else {
+              expect(getPopup()).toBeInaccessible();
+            }
+            expect(trigger).to.have.attribute('aria-expanded', 'false');
+            await user.click(trigger);
+            expect(getPopup()).to.have.attribute('data-open');
+            expect(trigger).to.have.attribute('aria-expanded', 'true');
+          });
+
+          if (expectedPopupRole) {
+            it('has the `aria-haspopup` attribute on the trigger', async () => {
+              await render(prepareComponent({ root: { open: true } }));
+              const trigger = getTrigger();
+              expect(trigger).to.have.attribute('aria-haspopup', expectedPopupRole);
+            });
+          }
+
           it('allows a custom `id` prop', async () => {
             await render(prepareComponent({ root: { open: true }, popup: { id: 'MyPopupId' } }));
             const trigger = getTrigger();
