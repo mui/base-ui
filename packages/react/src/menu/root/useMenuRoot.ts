@@ -76,7 +76,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     setPositionerElementUnwrapped(value);
   }, []);
 
-  const allowMouseUpTriggerRef = React.useRef(false);
+  const allowMouseUpTriggerRef = React.useRef(hasContextMenuParent);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 

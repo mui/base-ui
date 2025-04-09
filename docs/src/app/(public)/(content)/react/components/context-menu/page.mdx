@@ -10,34 +10,45 @@
 
 ## API reference
 
-Context Menu is composed together with [Menu](/react/components/menu). Import the components and place them together:
+Import the components and place them together:
 
-```jsx title="Anatomy" {4,6,25}
+```jsx title="Anatomy"
 import { ContextMenu } from '@base-ui-components/react/context-menu';
-import { Menu } from '@base-ui-components/react/menu';
 
 <ContextMenu.Root>
-  <Menu.Root>
-    <ContextMenu.Trigger />
-    <Menu.Portal>
-      <Menu.Backdrop />
-      <Menu.Positioner>
-        <Menu.Popup>
-          <Menu.Arrow />
-          <Menu.Item />
-          <Menu.Separator />
-          <Menu.Group>
-            <Menu.GroupLabel />
-          </Menu.Group>
-          <Menu.RadioGroup>
-            <Menu.RadioItem />
-          </Menu.RadioGroup>
-          <Menu.CheckboxItem />
-        </Menu.Popup>
-      </Menu.Positioner>
-    </Menu.Portal>
-  </Menu.Root>
+  <ContextMenu.Trigger />
+  <ContextMenu.Portal>
+    <ContextMenu.Backdrop />
+    <ContextMenu.Positioner>
+      <ContextMenu.Popup>
+        <ContextMenu.Arrow />
+        <ContextMenu.Item />
+        <ContextMenu.Separator />
+        <ContextMenu.Group>
+          <ContextMenu.GroupLabel />
+        </ContextMenu.Group>
+        <ContextMenu.RadioGroup>
+          <ContextMenu.RadioItem />
+        </ContextMenu.RadioGroup>
+        <ContextMenu.CheckboxItem />
+      </ContextMenu.Popup>
+    </ContextMenu.Positioner>
+  </ContextMenu.Portal>
 </ContextMenu.Root>;
 ```
 
 <Reference component="ContextMenu" parts="Root, Trigger" />
+<Reference
+  component="Menu"
+  parts="Portal, Positioner, Popup, Arrow, Item,  Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator, SubmenuTrigger, Separator"
+/>
+
+## Examples
+
+Advanced demos are available at the main [Menu](/react/components/menu#examples) page, most of which apply to the context menu as well.
+
+### Nested menu
+
+To create a submenu, nest another menu inside the parent context menu. Use the `<ContextMenu.SubmenuTrigger>` part for the menu item that opens the nested menu.
+
+<Demo path="./demos/submenu" />

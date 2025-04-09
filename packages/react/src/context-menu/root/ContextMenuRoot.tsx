@@ -2,16 +2,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { ContextMenuRootContext } from './ContextMenuRootContext';
+import { Menu } from '../../menu';
 
 /**
  * A component that creates a context menu activated by right clicking or long pressing.
- * Wraps the `Menu` component to provide context menu functionality.
  * Doesn’t render its own HTML element.
  *
  * Documentation: [Base UI Context Menu](https://base-ui.com/react/components/context-menu)
  */
 const ContextMenuRoot: React.FC<ContextMenuRoot.Props> = function ContextMenu(props) {
-  const { children } = props;
+  const { children, ...otherProps } = props;
 
   const [anchor, setAnchor] = React.useState<ContextMenuRootContext['anchor']>({
     getBoundingClientRect() {
@@ -32,7 +32,7 @@ const ContextMenuRoot: React.FC<ContextMenuRoot.Props> = function ContextMenu(pr
 
   return (
     <ContextMenuRootContext.Provider value={contextValue}>
-      {children}
+      <Menu.Root {...otherProps}>{children}</Menu.Root>
     </ContextMenuRootContext.Provider>
   );
 };
@@ -40,7 +40,7 @@ const ContextMenuRoot: React.FC<ContextMenuRoot.Props> = function ContextMenu(pr
 namespace ContextMenuRoot {
   export interface State {}
 
-  export interface Props {
+  export interface Props extends Menu.Root.Props {
     children: React.ReactNode;
   }
 }

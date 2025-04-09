@@ -31,6 +31,7 @@ const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     setAnchor({
       getBoundingClientRect: () => DOMRect.fromRect({ width: 0, height: 0, x, y }),
     });
+
     actionsRef.current?.setOpen(true, event);
   });
 

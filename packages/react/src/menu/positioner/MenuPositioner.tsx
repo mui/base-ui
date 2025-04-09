@@ -62,7 +62,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   const contextMenuContext = useContextMenuRootContext();
   const hasContextMenuContext = Boolean(contextMenuContext);
 
-  const anchor = contextMenuContext?.anchor ?? anchorProp;
+  const anchor = nested ? anchorProp : contextMenuContext?.anchor || anchorProp;
 
   let computedSide = side;
   let computedAlign = align;
