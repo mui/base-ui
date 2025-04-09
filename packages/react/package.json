@@ -101,6 +101,7 @@
     "@types/react-dom": "^19.0.2",
     "@types/sinon": "^17.0.4",
     "@types/use-sync-external-store": "^0.0.6",
+    "@vitest/browser": "^3.1.1",
     "chai": "^4.5.0",
     "fs-extra": "^11.3.0",
     "lodash": "^4.17.21",
@@ -109,7 +110,9 @@
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.4.1",
     "sinon": "^20.0.0",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vitest": "^3.1.1",
+    "vitest-browser-react": "^0.1.1"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",

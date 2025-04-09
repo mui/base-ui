@@ -151,8 +151,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
       const isFocus = reasonValue === 'focus';
 
-      console.log('onOpenChange', openValue, reasonValue);
-
       function changeState() {
         setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
       }

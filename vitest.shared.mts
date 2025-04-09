@@ -12,10 +12,10 @@ const browserConfig: BrowserModeConfig =
   environment === 'chromium' || environment === 'firefox'
     ? {
         enabled: true,
-        provider: 'playwright',
+        provider: 'webdriverio',
         instances: [
           {
-            browser: environment,
+            browser: environment === 'chromium' ? 'chrome' : environment,
           },
         ],
         headless: !!process.env.CI,
