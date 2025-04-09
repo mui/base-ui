@@ -722,5 +722,38 @@ describe('<Tooltip.Root />', () => {
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
+
+    it('should close if open when becoming disabled', async () => {
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+        return (
+          <div>
+            <Root defaultOpen disabled={disabled} delay={0}>
+              <Tooltip.Trigger />
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup>Content</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Root>
+            <button
+              data-testid="disabled"
+              onClick={() => {
+                setDisabled(true);
+              }}
+            />
+          </div>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.queryByText('Content')).not.to.equal(null);
+
+      const disabledButton = screen.getByTestId('disabled');
+      fireEvent.click(disabledButton);
+
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
   });
 });

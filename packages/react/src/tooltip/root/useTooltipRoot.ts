@@ -82,6 +82,12 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
+  React.useEffect(() => {
+    if (open && disabled) {
+      setOpen(false);
+    }
+  }, [disabled, open, setOpen]);
+
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
     open,
