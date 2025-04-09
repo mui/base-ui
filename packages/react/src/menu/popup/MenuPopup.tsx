@@ -15,6 +15,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
   ...baseMapping,
@@ -49,6 +50,8 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     onOpenChangeComplete,
   } = useMenuRootContext();
   const { side, align, floatingContext } = useMenuPositionerContext();
+  const contextMenuContext = useContextMenuRootContext();
+  const hasContextMenuParent = Boolean(contextMenuContext) && !nested;
 
   useOpenChangeComplete({
     open,
@@ -100,6 +103,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
       modal={false}
       disabled={!mounted}
       visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
+      returnFocus={!hasContextMenuParent}
     >
       {renderElement()}
     </FloatingFocusManager>
