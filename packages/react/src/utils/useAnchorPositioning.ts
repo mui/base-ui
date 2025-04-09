@@ -141,22 +141,35 @@ export function useAnchorPositioning(
     ...commonCollisionProps,
     mainAxis: !shiftCrossAxis,
   });
-  const shiftMiddleware = shift({
-    ...commonCollisionProps,
-    crossAxis: sticky || shiftCrossAxis,
-    limiter:
-      sticky || shiftCrossAxis
-        ? undefined
-        : limitShift(() => {
-            if (!arrowRef.current) {
-              return {};
-            }
-            const { height } = arrowRef.current.getBoundingClientRect();
-            return {
-              offset: height / 2 + (typeof collisionPadding === 'number' ? collisionPadding : 0),
-            };
-          }),
-  });
+  const shiftMiddleware = shift(
+    () => ({
+      ...commonCollisionProps,
+      // Use the Layout Viewport to avoid shifting around when pinch-zooming
+      // for context menus.
+      rootBoundary: shiftCrossAxis
+        ? {
+            x: 0,
+            y: 0,
+            width: document.documentElement.clientWidth,
+            height: document.documentElement.clientHeight,
+          }
+        : undefined,
+      crossAxis: sticky || shiftCrossAxis,
+      limiter:
+        sticky || shiftCrossAxis
+          ? undefined
+          : limitShift(() => {
+              if (!arrowRef.current) {
+                return {};
+              }
+              const { height } = arrowRef.current.getBoundingClientRect();
+              return {
+                offset: height / 2 + (typeof collisionPadding === 'number' ? collisionPadding : 0),
+              };
+            }),
+    }),
+    [commonCollisionProps, sticky, shiftCrossAxis, collisionPadding],
+  );
 
   // https://floating-ui.com/docs/flip#combining-with-shift
   if (align !== 'center') {

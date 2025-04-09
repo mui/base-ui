@@ -33,9 +33,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     className,
     render,
     side,
-    align,
-    sideOffset = 0,
-    alignOffset = 0,
+    align: alignProp,
+    sideOffset: sideOffsetProp = 0,
+    alignOffset: alignOffsetProp = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
@@ -62,7 +62,16 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   const contextMenuContext = useContextMenuRootContext();
   const hasContextMenuContext = Boolean(contextMenuContext);
 
-  const anchor = nested ? anchorProp : contextMenuContext?.anchor || anchorProp;
+  let anchor = anchorProp;
+  let sideOffset = sideOffsetProp;
+  let alignOffset = alignOffsetProp;
+  let align = alignProp;
+  if (hasContextMenuContext && !nested) {
+    anchor = contextMenuContext?.anchor ?? anchorProp;
+    align = props.align ?? 'start';
+    alignOffset = props.alignOffset ?? 2;
+    sideOffset = props.sideOffset ?? -5;
+  }
 
   let computedSide = side;
   let computedAlign = align;
@@ -141,7 +150,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   return (
     <MenuPositionerContext.Provider value={contextValue}>
       {mounted && modal && openReason !== 'hover' && parentNodeId === null && (
-        <InternalBackdrop inert={inertValue(!open)} />
+        <InternalBackdrop ref={contextMenuContext?.internalBackdropRef} inert={inertValue(!open)} />
       )}
       <FloatingNode id={nodeId}>
         <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>

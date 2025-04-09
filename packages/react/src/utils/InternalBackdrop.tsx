@@ -19,6 +19,9 @@ const InternalBackdrop = React.forwardRef(function InternalBackdrop(
       style={{
         position: 'fixed',
         inset: 0,
+        // https://github.com/mui/base-ui/pull/1665#issuecomment-2783470701
+        WebkitUserSelect: 'none',
+        userSelect: 'none',
       }}
     />
   );

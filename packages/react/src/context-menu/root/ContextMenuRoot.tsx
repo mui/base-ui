@@ -19,6 +19,8 @@ const ContextMenuRoot: React.FC<ContextMenuRoot.Props> = function ContextMenu(pr
     },
   });
 
+  const backdropRef = React.useRef<HTMLDivElement | null>(null);
+  const internalBackdropRef = React.useRef<HTMLDivElement | null>(null);
   const actionsRef: ContextMenuRootContext['actionsRef'] = React.useRef(null);
 
   const contextValue: ContextMenuRootContext = React.useMemo(
@@ -26,6 +28,8 @@ const ContextMenuRoot: React.FC<ContextMenuRoot.Props> = function ContextMenu(pr
       anchor,
       setAnchor,
       actionsRef,
+      backdropRef,
+      internalBackdropRef,
     }),
     [anchor],
   );

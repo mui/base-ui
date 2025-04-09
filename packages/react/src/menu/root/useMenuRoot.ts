@@ -189,7 +189,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const click = useClick(floatingRootContext, {
-    enabled: !disabled && !hasContextMenuParent,
+    enabled: !disabled,
     event: 'mousedown',
     toggle: !openOnHover || !nested,
     ignoreMouse: openOnHover && nested,

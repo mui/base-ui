@@ -4,6 +4,8 @@ import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 export interface ContextMenuRootContext {
   anchor: { getBoundingClientRect: () => DOMRect };
   setAnchor: React.Dispatch<React.SetStateAction<ContextMenuRootContext['anchor']>>;
+  backdropRef: React.RefObject<HTMLDivElement | null>;
+  internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   actionsRef: React.RefObject<{
     setOpen: (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
   } | null>;

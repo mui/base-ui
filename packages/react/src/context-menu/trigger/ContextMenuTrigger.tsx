@@ -1,11 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { contains, getTarget } from '@floating-ui/react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
 import { mergeProps } from '../../merge-props';
+import { ownerDocument } from '../../utils/owner';
 
 const LONG_PRESS_DELAY = 500;
 const state = {};
@@ -22,14 +24,24 @@ const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 ) {
   const { render, className, ...other } = props;
 
-  const { setAnchor, actionsRef } = useContextMenuRootContext(false);
+  const { setAnchor, actionsRef, internalBackdropRef, backdropRef } =
+    useContextMenuRootContext(false);
 
+  const triggerRef = React.useRef<HTMLDivElement | null>(null);
   const longPressTimerRef = React.useRef(-1);
   const touchPositionRef = React.useRef<{ x: number; y: number } | null>(null);
 
   const handleLongPress = useEventCallback((x: number, y: number, event: Event) => {
     setAnchor({
-      getBoundingClientRect: () => DOMRect.fromRect({ width: 0, height: 0, x, y }),
+      getBoundingClientRect: () => {
+        const isTouchEvent = event.type.startsWith('touch');
+        return DOMRect.fromRect({
+          width: isTouchEvent ? 10 : 0,
+          height: isTouchEvent ? 10 : 0,
+          x,
+          y,
+        });
+      },
     });
 
     actionsRef.current?.setOpen(true, event);
@@ -44,10 +56,6 @@ const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     if (event.touches.length === 1) {
       const touch = event.touches[0];
       touchPositionRef.current = { x: touch.clientX, y: touch.clientY };
-
-      // Prevent default to avoid text selection popup
-      event.preventDefault();
-
       longPressTimerRef.current = window.setTimeout(() => {
         if (touchPositionRef.current) {
           handleLongPress(
@@ -84,6 +92,26 @@ const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   });
 
   React.useEffect(() => {
+    function handleDocumentContextMenu(event: MouseEvent) {
+      const target = getTarget(event);
+      const targetElement = target as HTMLElement | null;
+      if (
+        contains(triggerRef.current, targetElement) ||
+        contains(internalBackdropRef.current, targetElement) ||
+        contains(backdropRef.current, targetElement)
+      ) {
+        event.preventDefault();
+      }
+    }
+
+    const doc = ownerDocument(triggerRef.current);
+    doc.addEventListener('contextmenu', handleDocumentContextMenu);
+    return () => {
+      doc.removeEventListener('contextmenu', handleDocumentContextMenu);
+    };
+  }, [backdropRef, internalBackdropRef]);
+
+  React.useEffect(() => {
     return () => {
       if (longPressTimerRef.current !== -1) {
         clearTimeout(longPressTimerRef.current);
@@ -102,6 +130,7 @@ const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
           onTouchCancel: handleTouchEnd,
           style: {
             WebkitTouchCallout: 'none',
+            touchAction: 'manipulation',
           },
         },
         externalProps,
@@ -112,7 +141,7 @@ const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const { renderElement } = useComponentRenderer({
     propGetter: getTriggerProps,
     render: render ?? 'div',
-    ref: forwardedRef,
+    ref: [triggerRef, forwardedRef],
     className,
     state,
     extraProps: other,

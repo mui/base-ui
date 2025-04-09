@@ -9,11 +9,7 @@ export default function ExampleContextMenu() {
         Right click here
       </ContextMenu.Trigger>
       <ContextMenu.Portal>
-        <ContextMenu.Positioner
-          className={styles.Positioner}
-          align="start"
-          alignOffset={5}
-        >
+        <ContextMenu.Positioner className={styles.Positioner}>
           <ContextMenu.Popup className={styles.Popup}>
             <ContextMenu.Item className={styles.Item}>
               Add to Library
