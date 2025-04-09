@@ -130,7 +130,6 @@ const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
           onTouchCancel: handleTouchEnd,
           style: {
             WebkitTouchCallout: 'none',
-            touchAction: 'manipulation',
           },
         },
         externalProps,
