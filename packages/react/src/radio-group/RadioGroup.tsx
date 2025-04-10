@@ -34,6 +34,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
     onValueChange: onValueChangeProp,
     name,
     value,
+    defaultValue,
     ...otherProps
   } = props;
 
