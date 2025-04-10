@@ -12,7 +12,6 @@ import { useMenubarRoot } from './useMenubarRoot';
 import { MenubarRootContext, useMenubarRootContext } from './MenubarRootContext';
 import { useForkRef, useScrollLock } from '../../utils';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { InternalBackdrop } from '../../utils/InternalBackdrop';
 
 const EMPTY_OBJECT = {};
 
@@ -49,16 +48,27 @@ const MenubarRoot = React.forwardRef(function MenubarRoot(
     render: render ?? 'div',
     className,
     state: EMPTY_OBJECT,
-    ref: mergedRef,
     extraProps: otherProps,
   });
 
+  const context = React.useMemo(
+    () => ({
+      ...menubarRoot,
+      modal,
+    }),
+    [menubarRoot, modal],
+  );
+
   return (
-    <MenubarRootContext.Provider value={menubarRoot}>
-      {modal && menubarRoot.hasSubmenuOpen && <InternalBackdrop />}
+    <MenubarRootContext.Provider value={context}>
       <FloatingTree>
         <MenubarContent>
-          <Composite render={renderElement()} orientation={orientation} loop={loop} />
+          <Composite
+            render={renderElement()}
+            orientation={orientation}
+            loop={loop}
+            ref={mergedRef}
+          />
         </MenubarContent>
       </FloatingTree>
     </MenubarRootContext.Provider>

@@ -192,7 +192,11 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const focus = useFocus(floatingRootContext, {
-    enabled: parentType === 'menubar' && !disabled,
+    enabled:
+      parentType === 'menubar' &&
+      !disabled &&
+      (parentContext as MenubarRootContext).hasSubmenuOpen &&
+      !open,
   });
 
   const click = useClick(floatingRootContext, {

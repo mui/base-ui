@@ -10,7 +10,7 @@ import { isJSDOM } from '#test-utils';
 
 function TestMenubar() {
   return (
-    <Menubar.Root style={{ maxWidth: '25vw' }}>
+    <Menubar.Root style={{ maxWidth: '25vw', display: 'flex' }}>
       <Menu.Root>
         <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
         <Menu.Portal>

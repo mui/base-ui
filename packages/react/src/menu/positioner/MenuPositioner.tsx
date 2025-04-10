@@ -15,6 +15,7 @@ import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
+import { useMenubarRootContext } from '../../menubar/root/MenubarRootContext';
 
 /**
  * Positions the menu popup against the trigger.
@@ -54,10 +55,13 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     modal,
     openReason,
   } = useMenuRootContext();
-  const keepMounted = useMenuPortalContext();
 
+  const keepMounted = useMenuPortalContext();
   const nodeId = useFloatingNodeId();
   const parentNodeId = useFloatingParentNodeId();
+
+  const menubarRootContext = useMenubarRootContext(true);
+  const isInMenubar = menubarRootContext != null;
 
   let computedSide = side;
   let computedAlign = align;
@@ -132,10 +136,17 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     },
   });
 
+  const shouldRenderBackdrop =
+    open &&
+    !nested &&
+    ((!isInMenubar && modal && openReason !== 'hover') ||
+      (isInMenubar && menubarRootContext.modal));
+  const backdropCutout = isInMenubar ? menubarRootContext.contentElement : undefined;
+
   return (
     <MenuPositionerContext.Provider value={contextValue}>
-      {mounted && modal && openReason !== 'hover' && parentNodeId === null && (
-        <InternalBackdrop inert={inertValue(!open)} />
+      {shouldRenderBackdrop && (
+        <InternalBackdrop inert={inertValue(!open)} cutout={backdropCutout} />
       )}
       <FloatingNode id={nodeId}>
         <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
