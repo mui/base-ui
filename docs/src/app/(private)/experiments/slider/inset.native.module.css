@@ -10,6 +10,10 @@
   --track-bg: var(--color-gray-200);
   --dragging-color: oklch(69% 50% 264);
 
+  border: 1px solid var(--track-outer-border-color);
+  border-radius: 9999px;
+  background-color: var(--track-bg);
+
   @media (prefers-color-scheme: dark) {
     --track-bg: var(--color-gray-200);
     --dragging-color: blue;
@@ -19,97 +23,42 @@
 .Control {
   box-sizing: border-box;
   position: relative;
-  display: flex;
-  align-items: center;
-  height: 100%;
-  width: 100%;
   touch-action: none;
   user-select: none;
   z-index: 1;
 
-  background-repeat: no-repeat;
-  /* prevent colors with tranparency from blending */
-  background-image: linear-gradient(to right, var(--track-bg), var(--track-bg)),
-    linear-gradient(to right, canvas, canvas);
-
-  &:before {
-    position: absolute;
-    content: '';
-    background-color: var(--indicator-bg);
-    border-radius: var(--thumb-radius) 0 0 var(--thumb-radius);
-    height: var(--track-height);
-    width: var(--thumb-radius);
-    top: 0;
-    left: 0;
-    transform: translateX(-100%);
-  }
-
-  &:after {
-    position: absolute;
-    content: '';
-    background-repeat: no-repeat;
-    /* prevent colors with tranparency from blending */
-    background-image: linear-gradient(to right, var(--track-bg), var(--track-bg)),
-      linear-gradient(to right, canvas, canvas);
-    border-radius: 0 var(--thumb-radius) var(--thumb-radius) 0;
-    height: var(--track-height);
-    width: var(--thumb-radius);
-    top: 0;
-    right: 0;
-    transform: translateX(100%);
-
-    &[data-dragging] {
-      background-color: var(--dragging-color);
-    }
-  }
-
-  &[data-dragging]:before {
-    background-color: var(--dragging-color);
-  }
+  border-radius: 9999px;
+  padding-inline: var(--thumb-radius);
 }
 
 .Track {
   width: var(--track-width);
   height: var(--track-height);
-  box-shadow:
-    0 1px 0 0 var(--track-outer-border-color),
-    0 -1px 0 0 var(--track-outer-border-color);
   user-select: none;
-
-  &:before {
-    position: absolute;
-    content: '';
-    border-radius: var(--thumb-radius) 0 0 var(--thumb-radius);
-    height: var(--track-height);
-    width: var(--thumb-radius);
-    top: 0;
-    left: 0;
-    transform: translateX(-100%);
-    box-shadow: 0 0 0 1px var(--track-outer-border-color);
-    clip-path: inset(-2px -0.1px -2px -2px);
-  }
-
-  &:after {
-    position: absolute;
-    content: '';
-    border-radius: 0 var(--thumb-radius) var(--thumb-radius) 0;
-    height: var(--track-height);
-    width: var(--thumb-radius);
-    top: 0;
-    right: 0;
-    transform: translateX(100%);
-    box-shadow: 0 0 0 1px var(--track-outer-border-color);
-    clip-path: inset(-2px -2px -2px 0.1px);
-    z-index: 0;
-  }
 }
 
 .Indicator {
   background-color: var(--indicator-bg);
   user-select: none;
 
+  &:before {
+    position: absolute;
+    content: '';
+    border-radius: 9999px 0 0 9999px;
+    height: var(--track-height);
+    width: var(--thumb-radius);
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-color: var(--indicator-bg);
+  }
+
   &[data-dragging] {
     background-color: var(--dragging-color);
+
+    &:before {
+      background-color: var(--dragging-color);
+    }
   }
 }
 
@@ -119,7 +68,6 @@
   z-index: 1;
   border-radius: 100%;
   background-color: var(--indicator-bg);
-  box-shadow: 0 0 0 1px var(--color-blue);
 
   user-select: none;
 
