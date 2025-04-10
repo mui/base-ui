@@ -365,11 +365,11 @@ export namespace useSliderThumb {
     /**
      * The label for the input element.
      */
-    'aria-label': string;
+    'aria-label': string | undefined;
     /**
      * A string value that provides a user-friendly name for the current value of the slider.
      */
-    'aria-valuetext': string;
+    'aria-valuetext': string | undefined;
     /**
      * Options to format the input value.
      * @default null
@@ -392,8 +392,8 @@ export namespace useSliderThumb {
      * @type {((formattedValue: string, value: number, index: number) => string) | null}
      */
     getAriaValueText: ((formattedValue: string, value: number, index: number) => string) | null;
-    id: string;
-    inputId: string;
+    id: string | undefined;
+    inputId: string | undefined;
     disabled: boolean;
     onBlur: React.FocusEventHandler;
     onFocus: React.FocusEventHandler;

@@ -59,11 +59,6 @@
       "type": "Intl.NumberFormatOptions",
       "description": "Options to format the input value."
     },
-    "autoFocus": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether to focus the element on page load."
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -78,11 +73,6 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the user must enter a value before submitting a form."
-    },
-    "invalid": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the field is forcefully marked as invalid."
     },
     "id": {
       "type": "string",

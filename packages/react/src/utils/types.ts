@@ -41,7 +41,10 @@ export type BaseUIComponentProps<
   ElementType extends React.ElementType,
   State,
   RenderFunctionProps = GenericHTMLProps,
-> = Omit<WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>, 'className'> & {
+> = Omit<
+  WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>,
+  'className' | 'color' | 'defaultValue' | 'defaultChecked'
+> & {
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component’s state.

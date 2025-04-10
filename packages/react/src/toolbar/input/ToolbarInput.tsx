@@ -8,6 +8,7 @@ import type { ToolbarRoot, ToolbarItemMetadata } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
 import { useToolbarInput } from './useToolbarInput';
+
 /**
  * A native input element that integrates with Toolbar keyboard navigation.
  * Renders an `<input>` element.
@@ -77,6 +78,7 @@ namespace ToolbarInput {
      * @default true
      */
     focusableWhenDisabled?: boolean;
+    defaultValue?: React.ComponentProps<'input'>['defaultValue'];
   }
 }
 
@@ -96,6 +98,14 @@ ToolbarInput.propTypes /* remove-proptypes */ = {
    * returns a class based on the component’s state.
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  /**
+   * @ignore
+   */
+  defaultValue: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.number,
+    PropTypes.string,
+  ]),
   /**
    * When `true` the item is disabled.
    * @default false

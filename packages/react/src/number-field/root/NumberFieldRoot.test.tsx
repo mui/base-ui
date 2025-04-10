@@ -151,14 +151,6 @@ describe('<NumberField />', () => {
     });
   });
 
-  describe('prop: autoFocus', () => {
-    it('should focus the input', async () => {
-      await render(<NumberField autoFocus />);
-      const input = screen.getByRole('textbox');
-      expect(document.activeElement).to.equal(input);
-    });
-  });
-
   describe('prop: required', () => {
     it('should mark the input as required', async () => {
       await render(<NumberField required />);

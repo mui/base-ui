@@ -83,16 +83,7 @@ namespace Toggle {
           'pressed' | 'defaultPressed' | 'disabled' | 'onPressedChange' | 'value'
         >
       >,
-      Omit<BaseUIComponentProps<'button', State>, 'value'> {
-    /**
-     * The label for the Toggle.
-     */
-    'aria-label'?: React.AriaAttributes['aria-label'];
-    /**
-     * An id or space-separated list of ids of elements that label the Toggle.
-     */
-    'aria-labelledby'?: React.AriaAttributes['aria-labelledby'];
-  }
+      Omit<BaseUIComponentProps<'button', State>, 'value'> {}
 }
 
 Toggle.propTypes /* remove-proptypes */ = {
@@ -100,14 +91,6 @@ Toggle.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * The label for the Toggle.
-   */
-  'aria-label': PropTypes.string,
-  /**
-   * An id or space-separated list of ids of elements that label the Toggle.
-   */
-  'aria-labelledby': PropTypes.string,
   /**
    * @ignore
    */

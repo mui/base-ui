@@ -23,7 +23,6 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
     defaultChecked = false,
     readOnly = false,
     required = false,
-    autoFocus = false,
     indeterminate = false,
     disabled: disabledProp = false,
   } = params;
@@ -162,7 +161,6 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
           // To avoid this, we only set the value if it's defined
           ...(value !== undefined ? { value } : {}),
           required,
-          autoFocus,
           ref: mergedInputRef,
           style: visuallyHidden,
           tabIndex: -1,
@@ -211,7 +209,6 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
       name,
       value,
       required,
-      autoFocus,
       mergedInputRef,
       groupContext,
       setDirty,
@@ -283,11 +280,6 @@ export namespace useCheckboxRoot {
      * @default false
      */
     required?: boolean;
-    /**
-     * Whether to focus the element on page load.
-     * @default false
-     */
-    autoFocus?: boolean;
     /**
      * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
      * @default false

@@ -73,7 +73,8 @@ namespace FieldControl {
     /**
      * Callback fired when the `value` changes. Use when controlled.
      */
-    onValueChange?: (value: string | number | readonly string[] | undefined, event: Event) => void;
+    onValueChange?: (value: React.ComponentProps<'input'>['value'], event: Event) => void;
+    defaultValue?: React.ComponentProps<'input'>['defaultValue'];
   }
 }
 

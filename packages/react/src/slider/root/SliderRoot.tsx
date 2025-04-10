@@ -23,7 +23,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    'aria-labelledby': ariaLabelledby,
     className,
     defaultValue,
     disabled: disabledProp = false,
@@ -57,7 +56,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
   const name = fieldName ?? nameProp ?? '';
 
   const { getRootProps, ...slider } = useSliderRoot({
-    'aria-labelledby': ariaLabelledby ?? labelId ?? '',
+    'aria-labelledby': props['aria-labelledby'] ?? labelId,
     defaultValue,
     disabled,
     id: id ?? '',
@@ -188,7 +187,7 @@ namespace SliderRoot {
           | 'step'
         >
       >,
-      Omit<BaseUIComponentProps<'div', State>, 'defaultValue' | 'onChange' | 'values'> {
+      Omit<BaseUIComponentProps<'div', State>, 'onChange' | 'values'> {
     /**
      * The uncontrolled value of the slider when it’s initially rendered.
      *
@@ -243,11 +242,6 @@ SliderRoot.propTypes /* remove-proptypes */ = {
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
   // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * Identifies the element (or elements) that labels the current element.
-   * @see aria-describedby.
-   */
-  'aria-labelledby': PropTypes.string,
   /**
    * @ignore
    */
