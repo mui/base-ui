@@ -146,33 +146,14 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
+      console.log('onOpenChange', openValue, reasonValue, eventValue);
+
       const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
       const isKeyboardClick = reasonValue === 'click' && (eventValue as MouseEvent).detail === 0;
       const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
-      const isFocus = reasonValue === 'focus';
 
       function changeState() {
         setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
-      }
-
-      if (isFocus) {
-        if (
-          !openValue &&
-          eventValue?.type === 'focusout' &&
-          (eventValue as FocusEvent).relatedTarget ===
-            (parentContext as MenubarRootContext).contentElement
-        ) {
-          // focus goes to the menubar element, so we don't want to close the menu
-          return;
-        }
-
-        if (
-          openValue &&
-          parentType === 'menubar' &&
-          !(parentContext as MenubarRootContext).contentElement?.contains(document.activeElement)
-        ) {
-          return;
-        }
       }
 
       if (isHover) {
@@ -213,10 +194,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const focus = useFocus(floatingRootContext, {
-    enabled:
-      parentType === 'menubar' &&
-      !disabled &&
-      (parentContext as MenubarRootContext)?.hasSubmenuOpen,
+    enabled: parentType === 'menubar' && !disabled,
   });
 
   const click = useClick(floatingRootContext, {

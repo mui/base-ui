@@ -35,7 +35,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const parentContext = useMenuRootContext(true);
   const menubarRootContext = useMenubarRootContext(true);
-  const nested = parentContext != null || menubarRootContext != null;
+  const nested = parentContext != null;
   const modal = !nested && (modalProp ?? true);
 
   if (process.env.NODE_ENV !== 'production') {
@@ -92,20 +92,19 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
         parentContext?.allowMouseUpTriggerRef ?? menuRoot.allowMouseUpTriggerRef,
       typingRef,
       modal,
+      isInMenubar: parentType === 'menubar',
     }),
-    [menuRoot, nested, parentContext, menubarRootContext, disabled, modal],
+    [menuRoot, nested, parentContext, menubarRootContext, disabled, modal, parentType],
   );
+
+  const content = <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
 
   if (!nested) {
     // set up a FloatingTree to provide the context to nested menus
-    return (
-      <FloatingTree>
-        <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>
-      </FloatingTree>
-    );
+    return <FloatingTree>{content}</FloatingTree>;
   }
 
-  return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
+  return content;
 };
 
 namespace MenuRoot {

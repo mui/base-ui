@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { CompositeItem } from '@floating-ui/react';
 import { useMenuTrigger } from './useMenuTrigger';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -28,6 +29,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     setOpen,
     allowMouseUpTriggerRef,
     positionerRef,
+    isInMenubar,
   } = useMenuRootContext();
 
   const { getTriggerProps } = useMenuTrigger({
@@ -62,6 +64,10 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     customStyleHookMapping: pressableTriggerOpenStateMapping,
     extraProps: other,
   });
+
+  if (isInMenubar) {
+    return <CompositeItem render={renderElement()} />;
+  }
 
   return renderElement();
 });

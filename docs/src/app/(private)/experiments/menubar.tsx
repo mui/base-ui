@@ -13,7 +13,7 @@ export default function MenubarExperiment() {
       <h1>Menubar</h1>
       <Menubar.Root className={classes.Root}>
         <Menu.Root>
-          <Menu.SubmenuTrigger className={classes.Item}>File</Menu.SubmenuTrigger>
+          <Menu.Trigger className={classes.Item}>File</Menu.Trigger>
 
           <Menu.Portal>
             <Menu.Positioner
@@ -60,7 +60,7 @@ export default function MenubarExperiment() {
         </Menu.Root>
 
         <Menu.Root>
-          <Menu.SubmenuTrigger className={classes.Item}>Edit</Menu.SubmenuTrigger>
+          <Menu.Trigger className={classes.Item}>Edit</Menu.Trigger>
 
           <Menu.Portal>
             <Menu.Positioner
@@ -100,7 +100,7 @@ export default function MenubarExperiment() {
         </Menu.Root>
 
         <Menu.Root>
-          <Menu.SubmenuTrigger className={classes.Item}>View</Menu.SubmenuTrigger>
+          <Menu.Trigger className={classes.Item}>View</Menu.Trigger>
 
           <Menu.Portal>
             <Menu.Positioner
@@ -134,7 +134,7 @@ export default function MenubarExperiment() {
         </Menu.Root>
 
         <Menu.Root disabled>
-          <Menu.SubmenuTrigger className={classes.Item}>Develop</Menu.SubmenuTrigger>
+          <Menu.Trigger className={classes.Item}>Develop</Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner className={menuClasses.Positioner} sideOffset={8}>
               <Menu.Popup className={menuClasses.Popup}>

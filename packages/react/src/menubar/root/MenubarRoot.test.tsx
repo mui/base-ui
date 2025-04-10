@@ -12,7 +12,7 @@ function TestMenubar() {
   return (
     <Menubar.Root style={{ maxWidth: '25vw' }}>
       <Menu.Root>
-        <Menu.SubmenuTrigger data-testid="file-trigger">File</Menu.SubmenuTrigger>
+        <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
         <Menu.Portal>
           <Menu.Positioner data-testid="file-menu">
             <Menu.Popup>
@@ -34,7 +34,7 @@ function TestMenubar() {
         </Menu.Portal>
       </Menu.Root>
       <Menu.Root>
-        <Menu.SubmenuTrigger data-testid="edit-trigger">Edit</Menu.SubmenuTrigger>
+        <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
         <Menu.Portal>
           <Menu.Positioner data-testid="edit-menu">
             <Menu.Popup>
@@ -45,7 +45,7 @@ function TestMenubar() {
         </Menu.Portal>
       </Menu.Root>
       <Menu.Root>
-        <Menu.SubmenuTrigger data-testid="view-trigger">View</Menu.SubmenuTrigger>
+        <Menu.Trigger data-testid="view-trigger">View</Menu.Trigger>
         <Menu.Portal>
           <Menu.Positioner data-testid="view-menu">
             <Menu.Popup>
