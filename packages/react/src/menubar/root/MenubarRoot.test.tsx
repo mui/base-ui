@@ -2,7 +2,7 @@
 /* eslint-disable testing-library/prefer-presence-queries */
 import * as React from 'react';
 import { expect } from 'vitest';
-import { userEvent as user, page } from '@vitest/browser/context';
+import { userEvent as user } from '@vitest/browser/context';
 import { render } from 'vitest-browser-react';
 import { Menubar } from '@base-ui-components/react/menubar';
 import { Menu } from '@base-ui-components/react/menu';
@@ -66,16 +66,16 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
 
   describe('click interactions', () => {
     it('should open the menu after clicking on its trigger', async () => {
-      render(<TestMenubar />);
+      const screen = render(<TestMenubar />);
 
-      const fileTrigger = page.getByTestId('file-trigger');
+      const fileTrigger = screen.getByTestId('file-trigger');
 
       await user.click(fileTrigger);
-      await expect.element(page.getByTestId('file-menu')).toBeInTheDocument();
+      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
 
       // Click again to close the menu
       await user.click(fileTrigger);
-      await expect.element(page.getByTestId('file-menu')).not.toBeInTheDocument();
+      await expect.element(screen.getByTestId('file-menu')).not.toBeInTheDocument();
     });
 
     it('should close the file menu when clicking outside', async () => {
@@ -84,24 +84,24 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
       const fileTrigger = screen.getByTestId('file-trigger');
       await user.click(fileTrigger);
 
-      await expect.element(page.getByTestId('file-menu')).toBeInTheDocument();
+      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
 
       // Click outside the menubar
       await user.click(document.body);
-      await expect.element(page.getByTestId('file-menu')).not.toBeInTheDocument();
+      await expect.element(screen.getByTestId('file-menu')).not.toBeInTheDocument();
     });
   });
 
   describe('hover behavior', () => {
     it('should not open submenus on hover when no submenu is already open', async () => {
-      render(<TestMenubar />);
+      const screen = render(<TestMenubar />);
 
-      const fileTrigger = page.getByTestId('file-trigger');
+      const fileTrigger = screen.getByTestId('file-trigger');
 
       await user.hover(fileTrigger);
 
       // The file menu should not be open because no submenu is already open
-      await expect.element(page.getByTestId('file-menu')).not.toBeInTheDocument();
+      await expect.element(screen.getByTestId('file-menu')).not.toBeInTheDocument();
     });
 
     it('should open submenus on hover when another submenu is already open', async () => {
