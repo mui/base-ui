@@ -31,6 +31,9 @@
     },
     "data-hidden": {
       "description": "Present when the panel is hidden."
+    },
+    "data-index": {
+      "description": "Indicates the index of the tab panel."
     }
   },
   "cssVariables": {}
