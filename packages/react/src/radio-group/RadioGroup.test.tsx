@@ -462,4 +462,14 @@ describe('<RadioGroup />', () => {
       expect(input).to.have.attribute('name', 'field-radio');
     });
   });
+
+  it('does not forward `value` prop', async () => {
+    render(
+      <RadioGroup value="test" data-testid="radio-group">
+        <Radio.Root value="" />
+      </RadioGroup>,
+    );
+
+    expect(screen.getByTestId('radio-group')).not.to.have.attribute('value');
+  });
 });
