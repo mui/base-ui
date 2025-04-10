@@ -22,21 +22,21 @@ export default function InsetSliders() {
       }}
     >
       <Slider.Root className={styles.mac.Slider} defaultValue={25}>
-        <Slider.Track className={styles.mac.Track}>
-          <Slider.Control className={styles.mac.Control}>
+        <Slider.Control className={styles.mac.Control}>
+          <Slider.Track className={styles.mac.Track}>
             <Slider.Indicator className={styles.mac.Indicator} />
             <Slider.Thumb className={styles.mac.Thumb} />
-          </Slider.Control>
-        </Slider.Track>
+          </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
 
       <Slider.Root className={styles.native.Slider} defaultValue={25}>
-        <Slider.Track className={styles.native.Track}>
-          <Slider.Control className={styles.native.Control}>
+        <Slider.Control className={styles.native.Control}>
+          <Slider.Track className={styles.native.Track}>
             <Slider.Indicator className={styles.native.Indicator} />
             <Slider.Thumb className={styles.native.Thumb} />
-          </Slider.Control>
-        </Slider.Track>
+          </Slider.Track>
+        </Slider.Control>
       </Slider.Root>
     </div>
   );
