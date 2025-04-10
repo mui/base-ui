@@ -65,11 +65,12 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   let computedSide = side;
   let computedAlign = align;
-  if (!side) {
-    computedSide = nested ? 'inline-end' : 'bottom';
-  }
-  if (!align) {
-    computedAlign = nested ? 'start' : 'center';
+  if (nested) {
+    computedSide = computedSide ?? 'inline-end';
+    computedAlign = computedAlign ?? 'start';
+  } else if (isInMenubar) {
+    computedSide = computedSide ?? 'bottom';
+    computedAlign = computedAlign ?? 'start';
   }
 
   const positioner = useMenuPositioner({
