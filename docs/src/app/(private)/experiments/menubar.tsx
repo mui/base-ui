@@ -146,9 +146,64 @@ export default function MenubarExperiment() {
           </Menu.Portal>
         </Menu.Root>
       </Menubar.Root>
-
       <hr className={classes.Separator} />
       <input className={classes.Input} placeholder="focus tester" />
+      Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo quidem,
+      magnam, doloribus obcaecati culpa nemo provident omnis enim accusamus itaque,
+      illum in veritatis fugiat quo voluptatibus iusto nam est iure. Lorem ipsum
+      dolor, sit amet consectetur adipisicing elit. At unde perspiciatis iste autem
+      totam blanditiis atque, eos suscipit. Nesciunt quod soluta itaque expedita
+      consequuntur illo similique reprehenderit eligendi iusto perspiciatis placeat
+      mollitia eos iste obcaecati veniam omnis dolorum doloribus voluptate,
+      doloremque quo necessitatibus aliquid? Officia perspiciatis necessitatibus
+      ratione laudantium suscipit enim exercitationem voluptatem, iure vero optio
+      placeat. Cumque delectus atque dolores optio, quis fugiat in sit architecto
+      deserunt et, illum non aspernatur quibusdam dolorum saepe minus neque amet.
+      Ipsum dignissimos, minima iste saepe placeat perferendis ad ducimus quibusdam
+      deleniti ab est dolorum tenetur praesentium soluta! Voluptatem animi
+      accusantium vitae! Expedita! Lorem ipsum dolor, sit amet consectetur
+      adipisicing elit. At unde perspiciatis iste autem totam blanditiis atque, eos
+      suscipit. Nesciunt quod soluta itaque expedita consequuntur illo similique
+      reprehenderit eligendi iusto perspiciatis placeat mollitia eos iste obcaecati
+      veniam omnis dolorum doloribus voluptate, doloremque quo necessitatibus
+      aliquid? Officia perspiciatis necessitatibus ratione laudantium suscipit enim
+      exercitationem voluptatem, iure vero optio placeat. Cumque delectus atque
+      dolores optio, quis fugiat in sit architecto deserunt et, illum non aspernatur
+      quibusdam dolorum saepe minus neque amet. Ipsum dignissimos, minima iste saepe
+      placeat perferendis ad ducimus quibusdam deleniti ab est dolorum tenetur
+      praesentium soluta! Voluptatem animi accusantium vitae! Expedita! Lorem ipsum
+      dolor, sit amet consectetur adipisicing elit. At unde perspiciatis iste autem
+      totam blanditiis atque, eos suscipit. Nesciunt quod soluta itaque expedita
+      consequuntur illo similique reprehenderit eligendi iusto perspiciatis placeat
+      mollitia eos iste obcaecati veniam omnis dolorum doloribus voluptate,
+      doloremque quo necessitatibus aliquid? Officia perspiciatis necessitatibus
+      ratione laudantium suscipit enim exercitationem voluptatem, iure vero optio
+      placeat. Cumque delectus atque dolores optio, quis fugiat in sit architecto
+      deserunt et, illum non aspernatur quibusdam dolorum saepe minus neque amet.
+      Ipsum dignissimos, minima iste saepe placeat perferendis ad ducimus quibusdam
+      deleniti ab est dolorum tenetur praesentium soluta! Voluptatem animi
+      accusantium vitae! Expedita! Lorem ipsum dolor, sit amet consectetur
+      adipisicing elit. At unde perspiciatis iste autem totam blanditiis atque, eos
+      suscipit. Nesciunt quod soluta itaque expedita consequuntur illo similique
+      reprehenderit eligendi iusto perspiciatis placeat mollitia eos iste obcaecati
+      veniam omnis dolorum doloribus voluptate, doloremque quo necessitatibus
+      aliquid? Officia perspiciatis necessitatibus ratione laudantium suscipit enim
+      exercitationem voluptatem, iure vero optio placeat. Cumque delectus atque
+      dolores optio, quis fugiat in sit architecto deserunt et, illum non aspernatur
+      quibusdam dolorum saepe minus neque amet. Ipsum dignissimos, minima iste saepe
+      placeat perferendis ad ducimus quibusdam deleniti ab est dolorum tenetur
+      praesentium soluta! Voluptatem animi accusantium vitae! Expedita! Lorem ipsum
+      dolor, sit amet consectetur adipisicing elit. At unde perspiciatis iste autem
+      totam blanditiis atque, eos suscipit. Nesciunt quod soluta itaque expedita
+      consequuntur illo similique reprehenderit eligendi iusto perspiciatis placeat
+      mollitia eos iste obcaecati veniam omnis dolorum doloribus voluptate,
+      doloremque quo necessitatibus aliquid? Officia perspiciatis necessitatibus
+      ratione laudantium suscipit enim exercitationem voluptatem, iure vero optio
+      placeat. Cumque delectus atque dolores optio, quis fugiat in sit architecto
+      deserunt et, illum non aspernatur quibusdam dolorum saepe minus neque amet.
+      Ipsum dignissimos, minima iste saepe placeat perferendis ad ducimus quibusdam
+      deleniti ab est dolorum tenetur praesentium soluta! Voluptatem animi
+      accusantium vitae! Expedita!
     </div>
   );
 }

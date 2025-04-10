@@ -10,8 +10,9 @@ import { MenuOrientation } from '../../menu/root/useMenuRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useMenubarRoot } from './useMenubarRoot';
 import { MenubarRootContext, useMenubarRootContext } from './MenubarRootContext';
-import { useForkRef } from '../../utils';
+import { useForkRef, useScrollLock } from '../../utils';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
 
 const EMPTY_OBJECT = {};
 
@@ -23,11 +24,26 @@ const MenubarRoot = React.forwardRef(function MenubarRoot(
   props: MenubarRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { orientation = 'horizontal', loop = true, render, className, ...otherProps } = props;
+  const {
+    orientation = 'horizontal',
+    loop = true,
+    render,
+    className,
+    modal = true,
+    ...otherProps
+  } = props;
 
   const menubarRoot = useMenubarRoot();
+  const { contentElement, setContentElement, hasSubmenuOpen } = menubarRoot;
 
-  const mergedRef = useForkRef(forwardedRef, menubarRoot.setContentElement);
+  const mergedRef = useForkRef(forwardedRef, setContentElement);
+
+  useScrollLock({
+    enabled: modal && hasSubmenuOpen,
+    open: hasSubmenuOpen,
+    mounted: hasSubmenuOpen,
+    referenceElement: contentElement,
+  });
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
@@ -39,6 +55,7 @@ const MenubarRoot = React.forwardRef(function MenubarRoot(
 
   return (
     <MenubarRootContext.Provider value={menubarRoot}>
+      {modal && menubarRoot.hasSubmenuOpen && <InternalBackdrop />}
       <FloatingTree>
         <MenubarContent>
           <Composite render={renderElement()} orientation={orientation} loop={loop} />
@@ -81,6 +98,7 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
 namespace MenubarRoot {
   export interface State {}
   export interface Props extends BaseUIComponentProps<'div', State> {
+    modal?: boolean;
     disabled?: boolean;
     orientation?: MenuOrientation;
     loop?: boolean;
