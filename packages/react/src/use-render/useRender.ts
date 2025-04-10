@@ -13,14 +13,17 @@ export function useRender<
   const { render, props, state, refs } = params;
   const { ref: intrinsicRefProp, ...intrinsicProps } = props || {};
 
-  const refsArray = React.useMemo(() => {
-    return [...(refs || []), intrinsicProps].filter(Boolean);
-  }, [refs, intrinsicProps]) as React.Ref<RenderedElementType>[];
-
   const renderElement = useRenderElement(
     undefined,
     { render },
-    { props: intrinsicProps, state, ref: refsArray, styleHooks: false },
+    {
+      props: intrinsicProps,
+      state,
+      ref: [intrinsicRefProp, ...(refs || [])].filter(
+        (x): x is React.Ref<RenderedElementType> => x != null,
+      ),
+      styleHooks: false,
+    },
   );
 
   return {
