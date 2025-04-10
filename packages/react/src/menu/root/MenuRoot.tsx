@@ -36,10 +36,11 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const parentContext = useMenuRootContext(true);
   const menubarRootContext = useMenubarRootContext(true);
   const nested = parentContext != null;
-  const modal = !nested && (modalProp ?? true);
+  const isInMenubar = menubarRootContext != null;
+  const modal = !nested && !isInMenubar && (modalProp ?? true);
 
   if (process.env.NODE_ENV !== 'production') {
-    if (nested && modalProp !== undefined) {
+    if ((nested || isInMenubar) && modalProp !== undefined) {
       console.warn(
         'Base UI: The `modal` prop is not supported on nested menus. It will be ignored.',
       );
@@ -99,7 +100,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const content = <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
 
-  if (!nested) {
+  if (!nested && !isInMenubar) {
     // set up a FloatingTree to provide the context to nested menus
     return <FloatingTree>{content}</FloatingTree>;
   }

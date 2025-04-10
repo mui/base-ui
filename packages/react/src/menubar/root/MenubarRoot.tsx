@@ -1,5 +1,11 @@
 import * as React from 'react';
-import { Composite } from '@floating-ui/react';
+import {
+  Composite,
+  FloatingNode,
+  FloatingTree,
+  useFloatingNodeId,
+  useFloatingTree,
+} from '@floating-ui/react';
 import { MenuOrientation } from '../../menu/root/useMenuRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useMenubarRoot } from './useMenubarRoot';
@@ -33,10 +39,19 @@ const MenubarRoot = React.forwardRef(function MenubarRoot(
 
   return (
     <MenubarRootContext.Provider value={menubarRoot}>
-      <Composite render={renderElement()} orientation={orientation} loop={loop} />
+      <FloatingTree>
+        <MenubarContent>
+          <Composite render={renderElement()} orientation={orientation} loop={loop} />
+        </MenubarContent>
+      </FloatingTree>
     </MenubarRootContext.Provider>
   );
 });
+
+function MenubarContent(props: React.PropsWithChildren<{}>) {
+  const nodeId = useFloatingNodeId();
+  return <FloatingNode id={nodeId}>{props.children}</FloatingNode>;
+}
 
 namespace MenubarRoot {
   export interface State {}

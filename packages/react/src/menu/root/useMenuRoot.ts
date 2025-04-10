@@ -154,6 +154,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
       function changeState() {
         setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+        if (parentType === 'menubar') {
+          (parentContext as MenubarRootContext).setHasSubmenuOpen(openValue);
+        }
       }
 
       if (isHover) {
@@ -184,7 +187,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       openOnHover &&
       !disabled &&
       openReason !== 'click' &&
-      parentType !== 'menubar',
+      (parentType !== 'menubar' || (parentContext as MenubarRootContext).hasSubmenuOpen),
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: false,
