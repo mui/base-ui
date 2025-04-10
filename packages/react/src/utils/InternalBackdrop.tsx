@@ -1,5 +1,5 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { elementType } from 'prop-types';
 
 /**
  * @ignore - internal component.
@@ -67,6 +67,11 @@ InternalBackdrop.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   className: PropTypes.string,
+  /**
+   * The element to cut out of the backdrop.
+   * This is useful for allowing certain elements to be interactive while the backdrop is present.
+   */
+  cutout: elementType,
 } as any;
 
 export { InternalBackdrop };

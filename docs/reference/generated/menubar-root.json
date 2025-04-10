@@ -1,7 +1,35 @@
 {
   "name": "MenubarRoot",
-  "description": "",
-  "props": {},
+  "description": "The container for menus.",
+  "props": {
+    "modal": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the menubar is modal."
+    },
+    "disabled": {
+      "type": "boolean",
+      "description": "Whether the whole menubar is disabled."
+    },
+    "loop": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
+    },
+    "orientation": {
+      "type": "'horizontal' | 'vertical'",
+      "default": "'horizontal'",
+      "description": "The orientation of the menubar."
+    },
+    "className": {
+      "type": "string | (state) => string",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
   "dataAttributes": {},
   "cssVariables": {}
 }
