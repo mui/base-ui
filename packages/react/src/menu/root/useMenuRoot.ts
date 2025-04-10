@@ -146,17 +146,12 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
-      console.log('onOpenChange', openValue, reasonValue, eventValue);
-
       const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
       const isKeyboardClick = reasonValue === 'click' && (eventValue as MouseEvent).detail === 0;
       const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
 
       function changeState() {
         setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
-        if (parentType === 'menubar') {
-          (parentContext as MenubarRootContext).setHasSubmenuOpen(openValue);
-        }
       }
 
       if (isHover) {
@@ -187,7 +182,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       openOnHover &&
       !disabled &&
       openReason !== 'click' &&
-      (parentType !== 'menubar' || (parentContext as MenubarRootContext).hasSubmenuOpen),
+      (parentType !== 'menubar' || ((parentContext as MenubarRootContext).hasSubmenuOpen && !open)),
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: false,

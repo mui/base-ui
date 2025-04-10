@@ -9,7 +9,7 @@ import {
 import { MenuOrientation } from '../../menu/root/useMenuRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useMenubarRoot } from './useMenubarRoot';
-import { MenubarRootContext } from './MenubarRootContext';
+import { MenubarRootContext, useMenubarRootContext } from './MenubarRootContext';
 import { useForkRef } from '../../utils';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
@@ -50,6 +50,31 @@ const MenubarRoot = React.forwardRef(function MenubarRoot(
 
 function MenubarContent(props: React.PropsWithChildren<{}>) {
   const nodeId = useFloatingNodeId();
+  const { events: menuEvents } = useFloatingTree()!;
+  const openSubmenus = React.useRef(new Set<string>());
+  const rootContext = useMenubarRootContext();
+  React.useEffect(() => {
+    function onSubmenuOpenChange(event: { open: boolean; nodeId: string; parentNodeId: string }) {
+      if (event.parentNodeId !== nodeId) {
+        return;
+      }
+
+      if (event.open) {
+        openSubmenus.current.add(event.nodeId);
+      } else {
+        openSubmenus.current.delete(event.nodeId);
+      }
+
+      rootContext.setHasSubmenuOpen(openSubmenus.current.size > 0);
+    }
+
+    menuEvents.on('openchange', onSubmenuOpenChange);
+
+    return () => {
+      menuEvents.off('openchange', onSubmenuOpenChange);
+    };
+  }, [menuEvents, nodeId, rootContext]);
+
   return <FloatingNode id={nodeId}>{props.children}</FloatingNode>;
 }
 
