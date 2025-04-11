@@ -426,7 +426,7 @@ export namespace useSelectRoot {
      */
     alignItemToTrigger?: boolean;
     /**
-     * The transition status of the Select.
+     * The transition status of the select.
      */
     transitionStatus?: TransitionStatus;
     /**
@@ -436,6 +436,9 @@ export namespace useSelectRoot {
     modal?: boolean;
     /**
      * A ref to imperative actions.
+     * - `unmount`: When specified, the select will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the select manually.
+     * Useful when the select's animation is controlled by an external library.
      */
     actionsRef?: React.RefObject<Actions>;
   }

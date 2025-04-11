@@ -50,12 +50,8 @@ function ToastList() {
           'calc(var(--toast-offset-y) + (var(--toast-index) * var(--gap)) + var(--toast-swipe-movement-y))',
       }}
     >
-      <Toast.Title className="text-[0.975rem] leading-5 font-medium">
-        {toast.title}
-      </Toast.Title>
-      <Toast.Description className="text-[0.925rem] leading-5 text-gray-700">
-        {toast.description}
-      </Toast.Description>
+      <Toast.Title className="text-[0.975rem] leading-5 font-medium" />
+      <Toast.Description className="text-[0.925rem] leading-5 text-gray-700" />
       <Toast.Close
         className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded border-none bg-transparent text-gray-500 hover:bg-gray-100 hover:text-gray-700"
         aria-label="Close"
