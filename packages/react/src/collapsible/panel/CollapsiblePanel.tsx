@@ -10,6 +10,7 @@ import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../root/styleHooks';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
+import { ownerWindow } from '../../utils/owner';
 
 /**
  * A panel with the collapsible contents.
@@ -98,11 +99,38 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     width,
   });
 
+  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
+
+  React.useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) {
+      return undefined;
+    }
+
+    // Ensures the panel will expand to the correct height when the window is resized.
+    // This prevents content from being cut off or the panel not fitting to the content.
+    function handleWindowResize() {
+      if (panel) {
+        const originalHeight = panel.style.height;
+        panel.style.height = 'auto';
+        setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
+        panel.style.height = originalHeight;
+      }
+    }
+
+    const win = ownerWindow(panel);
+    win.addEventListener('resize', handleWindowResize);
+    return () => {
+      win.removeEventListener('resize', handleWindowResize);
+    };
+  }, [panelRef, setDimensions, shouldRender]);
+
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'div',
     state,
     className,
+    ref: [forwardedRef, panelRef],
     extraProps: {
       ...otherProps,
       style: {
@@ -114,11 +142,11 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
-  if (keepMounted || hiddenUntilFound || (!keepMounted && mounted)) {
-    return renderElement();
+  if (!shouldRender) {
+    return null;
   }
 
-  return null;
+  return renderElement();
 });
 
 export { CollapsiblePanel };
