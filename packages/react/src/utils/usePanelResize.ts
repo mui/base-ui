@@ -18,9 +18,12 @@ export function usePanelResize(
     function handleWindowResize() {
       if (panel) {
         const originalHeight = panel.style.height;
+        const originalWidth = panel.style.width;
         panel.style.height = 'auto';
+        panel.style.width = 'auto';
         setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
         panel.style.height = originalHeight;
+        panel.style.width = originalWidth;
       }
     }
 
