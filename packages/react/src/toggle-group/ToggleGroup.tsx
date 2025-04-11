@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { NOOP } from '../utils/noop';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
-import type { BaseUIComponentProps } from '../utils/types';
+import { useRenderElement } from '../utils/useRenderElement';
+import type { BaseUIComponentProps, Orientation } from '../utils/types';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
+import { useControlled } from '../utils/useControlled';
 import { useDirection } from '../direction-provider/DirectionContext';
+import { useEventCallback } from '../utils/useEventCallback';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
-import { useToggleGroup } from './useToggleGroup';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
 
@@ -33,7 +33,7 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
     defaultValue: defaultValueProp,
     disabled: disabledProp = false,
     loop = true,
-    onValueChange: onValueChangeProp,
+    onValueChange,
     orientation = 'horizontal',
     toggleMultiple = false,
     value: valueProp,
@@ -54,12 +54,31 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
     return undefined;
   }, [valueProp, defaultValueProp]);
 
-  const { getRootProps, disabled, setGroupValue, value } = useToggleGroup({
-    value: valueProp,
-    defaultValue,
-    disabled: (toolbarContext?.disabled ?? false) || disabledProp,
-    toggleMultiple,
-    onValueChange: onValueChangeProp ?? NOOP,
+  const disabled = (toolbarContext?.disabled ?? false) || disabledProp;
+
+  const [groupValue, setValueState] = useControlled({
+    controlled: valueProp,
+    default: defaultValue,
+    name: 'ToggleGroup',
+    state: 'value',
+  });
+
+  const setGroupValue = useEventCallback((newValue: string, nextPressed: boolean, event: Event) => {
+    let newGroupValue: any[] | undefined;
+    if (toggleMultiple) {
+      newGroupValue = groupValue.slice();
+      if (nextPressed) {
+        newGroupValue.push(newValue);
+      } else {
+        newGroupValue.splice(groupValue.indexOf(newValue), 1);
+      }
+    } else {
+      newGroupValue = nextPressed ? [newValue] : [];
+    }
+    if (Array.isArray(newGroupValue)) {
+      setValueState(newGroupValue);
+      onValueChange?.(newGroupValue, event);
+    }
   });
 
   const state: ToggleGroup.State = React.useMemo(
@@ -72,19 +91,21 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
       disabled,
       orientation,
       setGroupValue,
-      value,
+      value: groupValue,
     }),
-    [disabled, orientation, setGroupValue, value],
+    [disabled, orientation, setGroupValue, groupValue],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
-    ref: forwardedRef,
+  const renderElement = useRenderElement('div', props, {
     state,
-    className,
+    ref: forwardedRef,
+    props: [
+      {
+        role: 'group',
+      },
+      otherProps,
+    ],
     customStyleHookMapping,
-    extraProps: otherProps,
   });
 
   return (
@@ -100,8 +121,6 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
 
 export { ToggleGroup };
 
-export type ToggleGroupOrientation = 'horizontal' | 'vertical';
-
 namespace ToggleGroup {
   export interface State {
     /**
@@ -111,9 +130,26 @@ namespace ToggleGroup {
     multiple: boolean;
   }
 
-  export interface Props
-    extends Partial<useToggleGroup.Parameters>,
-      Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
+  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
+    /**
+     * The open state of the ToggleGroup represented by an array of
+     * the values of all pressed toggle buttons
+     * This is the controlled counterpart of `defaultValue`.
+     */
+    value?: readonly any[];
+    /**
+     * The open state of the ToggleGroup represented by an array of
+     * the values of all pressed toggle buttons.
+     * This is the uncontrolled counterpart of `value`.
+     */
+    defaultValue?: readonly any[];
+    /**
+     * Callback fired when the pressed states of the ToggleGroup changes.
+     *
+     * @param {any[]} groupValue An array of the `value`s of all the pressed items.
+     * @param {Event} event The corresponding event that initiated the change.
+     */
+    onValueChange?: (groupValue: any[], event: Event) => void;
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -122,13 +158,20 @@ namespace ToggleGroup {
     /**
      * @default 'horizontal'
      */
-    orientation?: ToggleGroupOrientation;
+    orientation?: Orientation;
     /**
      * Whether to loop keyboard focus back to the first item
      * when the end of the list is reached while using the arrow keys.
      * @default true
      */
     loop?: boolean;
+    /**
+     * When `false` only one item in the group can be pressed. If any item in
+     * the group becomes pressed, the others will become unpressed.
+     * When `true` multiple items can be pressed.
+     * @default false
+     */
+    toggleMultiple?: boolean;
   }
 }
 
@@ -148,7 +191,7 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * The open state of the ToggleGroup represented by an array of
-   * the values of all pressed `<ToggleGroup.Item/>`s.
+   * the values of all pressed toggle buttons.
    * This is the uncontrolled counterpart of `value`.
    */
   defaultValue: PropTypes.array,
@@ -169,7 +212,7 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    * @param {any[]} groupValue An array of the `value`s of all the pressed items.
    * @param {Event} event The corresponding event that initiated the change.
    */
-  onValueChange: PropTypes.func,
+  onValueChange: PropTypes.func.isRequired,
   /**
    * @default 'horizontal'
    */
@@ -190,7 +233,7 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
   toggleMultiple: PropTypes.bool,
   /**
    * The open state of the ToggleGroup represented by an array of
-   * the values of all pressed `<ToggleGroup.Item/>`s
+   * the values of all pressed toggle buttons
    * This is the controlled counterpart of `defaultValue`.
    */
   value: PropTypes.array,

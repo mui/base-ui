@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import type { ToggleGroupOrientation } from './ToggleGroup';
+import type { Orientation } from '../utils/types';
 
 export interface ToggleGroupContext {
   value: readonly any[];
   setGroupValue: (newValue: string, nextPressed: boolean, event: Event) => void;
   disabled: boolean;
-  orientation: ToggleGroupOrientation;
+  orientation: Orientation;
 }
 
 export const ToggleGroupContext = React.createContext<ToggleGroupContext | undefined>(undefined);
