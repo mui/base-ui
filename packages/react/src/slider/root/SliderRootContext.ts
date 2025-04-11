@@ -7,7 +7,6 @@ export interface SliderRootContext extends Omit<useSliderRoot.ReturnValue, 'getR
   format?: Intl.NumberFormatOptions;
   state: SliderRoot.State;
   tabIndex: number | null;
-  inputRef: React.Ref<HTMLInputElement> | undefined;
 }
 
 export const SliderRootContext = React.createContext<SliderRootContext | undefined>(undefined);

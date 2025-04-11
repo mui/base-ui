@@ -41,7 +41,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     step = 1,
     tabIndex: externalTabIndex,
     value,
-    inputRef,
     ...otherProps
   } = props;
 
@@ -109,9 +108,8 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
       format,
       state,
       tabIndex: externalTabIndex ?? null,
-      inputRef,
     }),
-    [slider, format, state, externalTabIndex, inputRef],
+    [slider, format, state, externalTabIndex],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -236,10 +234,6 @@ namespace SliderRoot {
      * **Warning**: This is a generic event not a change event.
      */
     onValueCommitted?: (value: Value extends number ? number : Value, event: Event) => void;
-    /**
-     * The ref to the hidden input element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
   }
 }
 
@@ -301,15 +295,6 @@ SliderRoot.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   id: PropTypes.string,
-  /**
-   * The ref to the hidden input element.
-   */
-  inputRef: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.shape({
-      current: PropTypes.object,
-    }),
-  ]),
   /**
    * The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.
    * @default 10
