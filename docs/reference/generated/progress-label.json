@@ -1,6 +1,6 @@
 {
-  "name": "ProgressValue",
-  "description": "A text label displaying the current value.\nRenders a `<span>` element.",
+  "name": "ProgressLabel",
+  "description": "An accessible label for the progress bar.\nRenders a `<span>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

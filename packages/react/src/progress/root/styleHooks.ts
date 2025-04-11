@@ -3,8 +3,6 @@ import type { ProgressRoot } from './ProgressRoot';
 import { ProgressRootDataAttributes } from './ProgressRootDataAttributes';
 
 export const progressStyleHookMapping: CustomStyleHookMapping<ProgressRoot.State> = {
-  max: () => null,
-  min: () => null,
   status(value): Record<string, string> | null {
     if (value === 'progressing') {
       return { [ProgressRootDataAttributes.progressing]: '' };
