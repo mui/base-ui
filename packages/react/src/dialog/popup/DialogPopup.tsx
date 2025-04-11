@@ -38,7 +38,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, finalFocus, id, initialFocus, render, ...other } = props;
+  const { className, finalFocus, initialFocus, render, ...other } = props;
 
   const {
     descriptionElementId,
@@ -77,7 +77,6 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   const { getRootProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
     getPopupProps,
-    id,
     initialFocus,
     modal,
     mounted,
@@ -175,10 +174,6 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    * By default, focus returns to the trigger.
    */
   finalFocus: refType,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
   /**
    * Determines the element to focus when the dialog is opened.
    * By default, the first focusable element is focused.

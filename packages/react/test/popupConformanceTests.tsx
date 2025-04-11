@@ -10,6 +10,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
     triggerMouseAction,
     render,
     expectedPopupRole,
+    expectedAriaHasPopupValue = expectedPopupRole,
     alwaysMounted = false,
   } = config;
 
@@ -78,6 +79,35 @@ export function popupConformanceTests(config: PopupTestConfig) {
             const trigger = getTrigger();
             const popup = getPopup();
             expect(trigger).to.have.attribute('aria-controls', popup?.id);
+          });
+
+          it('has the `aria-expanded` attribute on the trigger when open', async () => {
+            const { user } = await render(prepareComponent({}));
+            const trigger = getTrigger();
+            if (!alwaysMounted) {
+              expect(getPopup()).to.equal(null);
+            } else {
+              expect(getPopup()).toBeInaccessible();
+            }
+            expect(trigger).to.have.attribute('aria-expanded', 'false');
+            await user.click(trigger);
+            expect(getPopup()).to.have.attribute('data-open');
+            expect(trigger).to.have.attribute('aria-expanded', 'true');
+          });
+
+          if (expectedAriaHasPopupValue) {
+            it('has the `aria-haspopup` attribute on the trigger', async () => {
+              await render(prepareComponent({ root: { open: true } }));
+              const trigger = getTrigger();
+              expect(trigger).to.have.attribute('aria-haspopup', expectedAriaHasPopupValue);
+            });
+          }
+
+          it('allows a custom `id` prop', async () => {
+            await render(prepareComponent({ root: { open: true }, popup: { id: 'TestId' } }));
+            const trigger = getTrigger();
+            const popup = getPopup();
+            expect(trigger.getAttribute('aria-controls')).to.equal(popup?.getAttribute('id'));
           });
         }
       });
@@ -198,6 +228,10 @@ export interface PopupTestConfig {
    */
   expectedPopupRole?: string;
   /**
+   * Expected `aria-haspopup` attribute of the trigger element.
+   */
+  expectedAriaHasPopupValue?: string;
+  /**
    * Whether the popup contents are always present in the DOM.
    */
   alwaysMounted?: boolean;
@@ -214,6 +248,7 @@ interface TriggerProps {
 
 interface PopupProps {
   className?: string;
+  id?: string;
   'data-testid'?: string;
   onAnimationEnd?: () => void;
 }
