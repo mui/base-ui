@@ -586,11 +586,11 @@ importers:
         specifier: ^7.27.0
         version: 7.27.0
       '@floating-ui/react':
-        specifier: https://pkg.pr.new/@floating-ui/react@3271
-        version: https://pkg.pr.new/@floating-ui/react@3271(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^0.27.7
+        version: 0.27.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@floating-ui/utils':
-        specifier: https://pkg.pr.new/@floating-ui/utils@3271
-        version: https://pkg.pr.new/@floating-ui/utils@3271
+        specifier: ^0.2.9
+        version: 0.2.9
       '@react-aria/overlays':
         specifier: ^3.26.1
         version: 3.26.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -634,9 +634,6 @@ importers:
       '@types/use-sync-external-store':
         specifier: ^0.0.6
         version: 0.0.6
-      '@vitest/browser':
-        specifier: ^3.1.1
-        version: 3.1.1(msw@2.7.3(@types/node@18.19.85)(typescript@5.8.2))(playwright@1.51.1)(vite@6.2.4(@types/node@18.19.85)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3))(vitest@3.1.1)(webdriverio@9.12.4)
       chai:
         specifier: ^4.5.0
         version: 4.5.0
@@ -667,9 +664,6 @@ importers:
       vitest:
         specifier: ^3.1.1
         version: 3.1.1(@types/debug@4.1.12)(@types/node@18.19.85)(@vitest/browser@3.1.1)(@vitest/ui@3.1.1)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(msw@2.7.3(@types/node@18.19.85)(typescript@5.8.2))(terser@5.39.0)(tsx@4.19.3)
-      vitest-browser-react:
-        specifier: ^0.1.1
-        version: 0.1.1(@types/react-dom@19.0.2(@types/react@19.0.12))(@types/react@19.0.12)(@vitest/browser@3.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vitest@3.1.1)
     publishDirectory: build
 
   test:
@@ -1705,35 +1699,26 @@ packages:
     resolution: {integrity: sha512-RBMg5FRL0I0gs51M/guSAj5/e14VQ4tpZnQNWwuDT66P14I43ItmPfIZRhO9fUVIPOAQXU47atlywZ/czoqFPA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@floating-ui/core@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/core@591a4d2':
-    resolution: {tarball: https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/core@591a4d2}
-    version: 1.6.9
+  '@floating-ui/core@1.6.9':
+    resolution: {integrity: sha512-uMXCuQ3BItDUbAMhIXw7UPXRfAlOAvZzdK9BWpE60MCn+Svt3aLn9jsPTi/WNGlRUu2uI0v5S7JiIUsbsvh3fw==}
 
-  '@floating-ui/dom@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/dom@591a4d2':
-    resolution: {tarball: https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/dom@591a4d2}
-    version: 1.6.13
+  '@floating-ui/dom@1.6.13':
+    resolution: {integrity: sha512-umqzocjDgNRGTuO7Q8CU32dkHkECqI8ZdMZ5Swb6QAM0t5rnlrN3lGo1hdpscRd3WS8T6DKYK4ephgIH9iRh3w==}
 
-  '@floating-ui/react-dom@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/react-dom@591a4d2':
-    resolution: {tarball: https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/react-dom@591a4d2}
-    version: 2.1.2
+  '@floating-ui/react-dom@2.1.2':
+    resolution: {integrity: sha512-06okr5cgPzMNBy+Ycse2A6udMi4bqwW/zgBF/rwjcNqWkyr82Mcg8b0vjX8OJpZFy/FKjJmw6wV7t44kK6kW7A==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@floating-ui/react@https://pkg.pr.new/@floating-ui/react@3271':
-    resolution: {tarball: https://pkg.pr.new/@floating-ui/react@3271}
-    version: 0.27.6
+  '@floating-ui/react@0.27.7':
+    resolution: {integrity: sha512-5V9pwFeiv+95Jlowq/7oiGISSrdXMTs2jfoSy8k+WM6oI/Skm1WWjPdJWeporN2O4UGcsaCJdirKffKayMoPgw==}
     peerDependencies:
       react: '>=17.0.0'
       react-dom: '>=17.0.0'
 
-  '@floating-ui/utils@https://pkg.pr.new/@floating-ui/utils@3271':
-    resolution: {tarball: https://pkg.pr.new/@floating-ui/utils@3271}
-    version: 0.2.9
-
-  '@floating-ui/utils@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/utils@591a4d2':
-    resolution: {tarball: https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/utils@591a4d2}
-    version: 0.2.9
+  '@floating-ui/utils@0.2.9':
+    resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
 
   '@formatjs/ecma402-abstract@2.3.1':
     resolution: {integrity: sha512-Ip9uV+/MpLXWRk03U/GzeJMuPeOXpJBSB5V1tjA6kJhvqssye5J5LoYLc7Z5IAHb7nR62sRoguzrFiVCP/hnzw==}
@@ -9114,22 +9099,6 @@ packages:
       yaml:
         optional: true
 
-  vitest-browser-react@0.1.1:
-    resolution: {integrity: sha512-n9l+sIAexKqqfBuEkjVGdfZ4xAn1Gn/+wc4Mo8KsUSUOVoM9evSY0rVXdMIzCQqloT/zvmFGAtziFINkqu+t7g==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    peerDependencies:
-      '@types/react': ^19.0.12
-      '@types/react-dom': ^19.0.2
-      '@vitest/browser': '>=2.1.0'
-      react: '>18.0.0'
-      react-dom: '>18.0.0'
-      vitest: '>=2.1.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      '@types/react-dom':
-        optional: true
-
   vitest@3.1.1:
     resolution: {integrity: sha512-kiZc/IYmKICeBAZr9DQ5rT7/6bD9G7uqQEki4fxazi1jdVl2mWGzedtBs5s6llz59yQhVb7FFY2MbHzHCnT79Q==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
@@ -10592,32 +10561,30 @@ snapshots:
 
   '@eslint/object-schema@2.1.6': {}
 
-  '@floating-ui/core@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/core@591a4d2':
+  '@floating-ui/core@1.6.9':
     dependencies:
-      '@floating-ui/utils': https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/utils@591a4d2
+      '@floating-ui/utils': 0.2.9
 
-  '@floating-ui/dom@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/dom@591a4d2':
+  '@floating-ui/dom@1.6.13':
     dependencies:
-      '@floating-ui/core': https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/core@591a4d2
-      '@floating-ui/utils': https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/utils@591a4d2
+      '@floating-ui/core': 1.6.9
+      '@floating-ui/utils': 0.2.9
 
-  '@floating-ui/react-dom@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/react-dom@591a4d2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@floating-ui/react-dom@2.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@floating-ui/dom': https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/dom@591a4d2
+      '@floating-ui/dom': 1.6.13
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@floating-ui/react@https://pkg.pr.new/@floating-ui/react@3271(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@floating-ui/react@0.27.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@floating-ui/react-dom': https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/react-dom@591a4d2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@floating-ui/utils': https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/utils@591a4d2
+      '@floating-ui/react-dom': 2.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@floating-ui/utils': 0.2.9
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
       tabbable: 6.2.0
 
-  '@floating-ui/utils@https://pkg.pr.new/@floating-ui/utils@3271': {}
-
-  '@floating-ui/utils@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/utils@591a4d2': {}
+  '@floating-ui/utils@0.2.9': {}
 
   '@formatjs/ecma402-abstract@2.3.1':
     dependencies:
@@ -19607,16 +19574,6 @@ snapshots:
       lightningcss: 1.29.2
       terser: 5.39.0
       tsx: 4.19.3
-
-  vitest-browser-react@0.1.1(@types/react-dom@19.0.2(@types/react@19.0.12))(@types/react@19.0.12)(@vitest/browser@3.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vitest@3.1.1):
-    dependencies:
-      '@vitest/browser': 3.1.1(msw@2.7.3(@types/node@18.19.85)(typescript@5.8.2))(playwright@1.51.1)(vite@6.2.4(@types/node@18.19.85)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3))(vitest@3.1.1)(webdriverio@9.12.4)
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-      vitest: 3.1.1(@types/debug@4.1.12)(@types/node@18.19.85)(@vitest/browser@3.1.1)(@vitest/ui@3.1.1)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(msw@2.7.3(@types/node@18.19.85)(typescript@5.8.2))(terser@5.39.0)(tsx@4.19.3)
-    optionalDependencies:
-      '@types/react': 19.0.12
-      '@types/react-dom': 19.0.2(@types/react@19.0.12)
 
   vitest@3.1.1(@types/debug@4.1.12)(@types/node@18.19.85)(@vitest/browser@3.1.1)(@vitest/ui@3.1.1)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(msw@2.7.3(@types/node@18.19.85)(typescript@5.8.2))(terser@5.39.0)(tsx@4.19.3):
     dependencies:

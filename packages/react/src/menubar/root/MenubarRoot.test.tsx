@@ -1,12 +1,9 @@
-/* eslint-disable react/no-danger */
-/* eslint-disable testing-library/prefer-presence-queries */
 import * as React from 'react';
-import { expect } from 'vitest';
-import { userEvent as user } from '@vitest/browser/context';
-import { render } from 'vitest-browser-react';
+import { expect } from 'chai';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { Menubar } from '@base-ui-components/react/menubar';
 import { Menu } from '@base-ui-components/react/menu';
-import { isJSDOM } from '#test-utils';
 
 function TestMenubar(props: Menubar.Root.Props) {
   return (
@@ -64,379 +61,455 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
+  const { render } = createRenderer();
+
   describe('click interactions', () => {
     it('should open the menu after clicking on its trigger', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
 
       const fileTrigger = screen.getByTestId('file-trigger');
 
       await user.click(fileTrigger);
-      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
+      expect(screen.getByTestId('file-menu')).to.not.equal(null);
 
       // Click again to close the menu
       await user.click(fileTrigger);
-      await expect.element(screen.getByTestId('file-menu')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.equal(null);
+      });
     });
 
     it('should close the file menu when clicking outside', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
 
       const fileTrigger = screen.getByTestId('file-trigger');
       await user.click(fileTrigger);
 
-      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
+      expect(screen.getByTestId('file-menu')).to.not.equal(null);
 
       // Click outside the menubar
       await user.click(document.body);
-      await expect.element(screen.getByTestId('file-menu')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.equal(null);
+      });
     });
   });
 
   describe('hover behavior', () => {
     it('should not open submenus on hover when no submenu is already open', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
 
       const fileTrigger = screen.getByTestId('file-trigger');
 
       await user.hover(fileTrigger);
 
       // The file menu should not be open because no submenu is already open
-      await expect.element(screen.getByTestId('file-menu')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('file-menu')).to.equal(null);
     });
 
     it('should open submenus on hover when another submenu is already open', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
 
       // First click to open the file menu
       const fileTrigger = screen.getByTestId('file-trigger');
       await user.click(fileTrigger);
 
-      await expect.element(screen.getByTestId('file-menu')).toBeVisible();
+      expect(screen.getByTestId('file-menu')).to.not.equal(null);
 
       // Now hover over the edit trigger, it should open because a submenu is already open
-      await expect.element(screen.getByTestId('edit-trigger')).toBeVisible();
+      expect(screen.getByTestId('edit-trigger')).to.not.equal(null);
       const editTrigger = screen.getByTestId('edit-trigger');
 
       await user.hover(editTrigger);
 
-      await expect.element(screen.getByTestId('edit-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
+      });
 
       // The file menu should now be closed
-      await expect.element(screen.getByTestId('file-menu')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('file-menu')).to.equal(null);
 
       // Continue hovering to the view trigger
       const viewTrigger = screen.getByTestId('view-trigger');
       await user.hover(viewTrigger);
 
-      await expect.element(screen.getByTestId('view-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('view-menu')).to.not.equal(null);
+      });
 
       // The edit menu should now be closed
-      await expect.element(screen.getByTestId('edit-menu')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('edit-menu')).to.equal(null);
     });
 
     it('should open nested submenus on hover when parent menu is open', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
 
       // First click to open the file menu
       const fileTrigger = screen.getByTestId('file-trigger');
       await user.click(fileTrigger);
 
-      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
+      expect(screen.getByTestId('file-menu')).to.not.equal(null);
 
       // Now hover over the share submenu trigger
       const shareTrigger = screen.getByTestId('share-trigger');
       await user.hover(shareTrigger);
 
       // The share submenu should open
-      await expect.element(screen.getByTestId('share-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('share-menu')).to.not.equal(null);
+      });
     });
   });
 
   describe('focus behavior', () => {
     it('focuses a menubar item without immediately opening the menu', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
 
       const fileTrigger = screen.getByTestId('file-trigger');
 
       // Focus the file trigger without clicking or pressing a key
-      (fileTrigger.element() as HTMLButtonElement).focus();
+      await act(async () => {
+        fileTrigger.focus();
+      });
 
       // Wait to ensure focus alone doesn't cause the menu to open
-      await expect.element(screen.getByTestId('file-menu')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('file-menu')).to.equal(null);
 
       await user.keyboard('{Enter}');
-      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
     });
   });
 
   describe('keyboard interactions', () => {
     it('should navigate between menubar items with arrow keys', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
 
       const fileTrigger = screen.getByTestId('file-trigger');
       const editTrigger = screen.getByTestId('edit-trigger');
 
       // First focus the file trigger
-      (fileTrigger.element() as HTMLButtonElement).focus();
+      await act(async () => {
+        fileTrigger.focus();
+      });
 
       // Check that file trigger has focus
-      await expect.element(fileTrigger).toHaveFocus();
+      expect(fileTrigger).toHaveFocus();
 
       // Use arrow right to navigate to edit trigger
       await user.keyboard('{ArrowRight}');
 
       // Wait for the edit trigger to get focus
-      await expect.element(editTrigger).toHaveFocus();
+      expect(editTrigger).toHaveFocus();
     });
 
     it('should open menu with Space key', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
       const fileTrigger = screen.getByTestId('file-trigger');
 
       // Focus the file trigger
-      (fileTrigger.element() as HTMLButtonElement).focus();
+      await act(async () => {
+        fileTrigger.focus();
+      });
 
       // Press Space key to open menu
       await user.keyboard(' ');
 
       // Menu should be open
-      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
     });
 
     it('should navigate within menu using arrow keys', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
       const fileTrigger = screen.getByTestId('file-trigger');
 
       // Focus and open file menu
-      (fileTrigger.element() as HTMLButtonElement).focus();
+      await act(async () => {
+        fileTrigger.focus();
+      });
       await user.keyboard('{Enter}');
 
       // File menu should be open
-      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
 
       // First item should be focused automatically
       const firstItem = screen.getByTestId('file-item-1');
-      await expect.element(firstItem).toHaveFocus();
+      expect(firstItem).toHaveFocus();
 
       // Navigate down to second item
       await user.keyboard('{ArrowDown}');
       const secondItem = screen.getByTestId('file-item-2');
-      await expect.element(secondItem).toHaveFocus();
+      expect(secondItem).toHaveFocus();
 
       // Navigate down to submenu trigger
       await user.keyboard('{ArrowDown}');
       const shareTrigger = screen.getByTestId('share-trigger');
-      await expect.element(shareTrigger).toHaveFocus();
+      expect(shareTrigger).toHaveFocus();
     });
 
     it('should open submenu with right arrow key', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
       const fileTrigger = screen.getByTestId('file-trigger');
 
       // Focus and open file menu
-      (fileTrigger.element() as HTMLButtonElement).focus();
+      await act(async () => {
+        fileTrigger.focus();
+      });
       await user.keyboard('{Enter}');
-      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
 
       // Navigate to submenu trigger
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{ArrowDown}');
-      await expect.element(screen.getByTestId('share-trigger')).toHaveFocus();
+      expect(screen.getByTestId('share-trigger')).toHaveFocus();
 
       // Arrow right should open submenu
       await user.keyboard('{ArrowRight}');
 
       // Share submenu should be open
-      await expect.element(screen.getByTestId('share-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('share-menu')).to.not.equal(null);
+      });
 
       // First submenu item should be focused
       const submenuItem = screen.getByTestId('share-item-1');
-      await expect.element(submenuItem).toHaveFocus();
+      expect(submenuItem).toHaveFocus();
     });
 
     it('should close menu with Escape key', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
       const fileTrigger = screen.getByTestId('file-trigger');
 
       // Focus and open file menu
-      (fileTrigger.element() as HTMLButtonElement).focus();
+      await act(async () => {
+        fileTrigger.focus();
+      });
       await user.keyboard('{Enter}');
 
       // Menu should be open
-      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
 
       // Press Escape to close
       await user.keyboard('{Escape}');
 
       // Menu should be closed
-      await expect.element(screen.getByTestId('file-menu')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.equal(null);
+      });
 
       // Trigger should still have focus
-      await expect.element(fileTrigger).toHaveFocus();
+      expect(fileTrigger).toHaveFocus();
     });
 
     it('should close submenu with left arrow key and return focus to submenu trigger', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
       const fileTrigger = screen.getByTestId('file-trigger');
 
       // Focus and open file menu
-      (fileTrigger.element() as HTMLButtonElement).focus();
+      await act(async () => {
+        fileTrigger.focus();
+      });
       await user.keyboard('{Enter}');
-      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
 
       // Navigate to submenu trigger
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{ArrowDown}');
 
       const shareTrigger = screen.getByTestId('share-trigger');
-      await expect.element(shareTrigger).toHaveFocus();
+      expect(shareTrigger).toHaveFocus();
 
       // Open submenu
       await user.keyboard('{ArrowRight}');
-      await expect.element(screen.getByTestId('share-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('share-menu')).to.not.equal(null);
+      });
 
       // Close submenu with left arrow
       await user.keyboard('{ArrowLeft}');
 
       // Submenu should be closed
-      await expect.element(screen.getByTestId('share-menu')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('share-menu')).to.equal(null);
+      });
 
       // Focus should return to submenu trigger
-      await expect.element(shareTrigger).toHaveFocus();
+      expect(shareTrigger).toHaveFocus();
     });
 
     it('should navigate between menus using left/right arrow keys when menus are open', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
       const fileTrigger = screen.getByTestId('file-trigger');
       const editTrigger = screen.getByTestId('edit-trigger');
 
       // Focus and open file menu
-      (fileTrigger.element() as HTMLButtonElement).focus();
+      await act(async () => {
+        fileTrigger.focus();
+      });
       await user.keyboard('{Enter}');
 
       // File menu should be open
-      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
 
       // Navigate right to edit menu
       await user.keyboard('{ArrowRight}');
 
       // File menu should close, edit menu should open
-      await expect.element(screen.getByTestId('file-menu')).not.toBeInTheDocument();
-      await expect.element(screen.getByTestId('edit-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
+      });
 
       // Edit trigger should have focus
-      await expect.element(editTrigger).toHaveFocus();
+      expect(editTrigger).toHaveFocus();
 
       // Navigate back to file menu
       await user.keyboard('{ArrowLeft}');
 
       // Edit menu should close, file menu should open
-      await expect.element(screen.getByTestId('edit-menu')).not.toBeInTheDocument();
-      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('edit-menu')).to.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
 
       // File trigger should have focus
-      await expect.element(fileTrigger).toHaveFocus();
+      expect(fileTrigger).toHaveFocus();
     });
   });
 
-  describe.todo('mixed mouse and keyboard interactions', () => {
+  describe('mixed mouse and keyboard interactions', () => {
     it('should allow keyboard navigation after opening a menu with mouse click', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
 
       // Open the menu with a mouse click
       const fileTrigger = screen.getByTestId('file-trigger');
       await user.click(fileTrigger);
 
       // Menu should be open
-      await expect.element(screen.getByTestId('file-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
 
       // Navigate with keyboard
       await user.keyboard('{ArrowDown}');
       const firstItem = screen.getByTestId('file-item-1');
-      await expect.element(firstItem).toHaveFocus();
+      expect(firstItem).toHaveFocus();
 
       // Continue navigation
       await user.keyboard('{ArrowDown}');
       const secondItem = screen.getByTestId('file-item-2');
-      await expect.element(secondItem).toHaveFocus();
+      expect(secondItem).toHaveFocus();
     });
 
     it('should allow clicking a menu trigger then navigating to another menu with keyboard', async () => {
-      const screen = render(<TestMenubar />);
+      const { user } = await render(<TestMenubar />);
 
       // Open the file menu with a mouse click
       const fileTrigger = screen.getByTestId('file-trigger');
       await user.click(fileTrigger);
 
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
+
       // Navigate to edit menu with keyboard
       await user.keyboard('{ArrowRight}');
 
       // File menu should close, edit menu should open
-      await expect.element(screen.getByTestId('file-menu')).not.toBeInTheDocument();
-      await expect.element(screen.getByTestId('edit-menu')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
+      });
 
       // Edit trigger should have focus
       const editTrigger = screen.getByTestId('edit-trigger');
-      await expect.element(editTrigger).toHaveFocus();
+      expect(editTrigger).toHaveFocus();
     });
   });
 
   describe('prop: loop', () => {
     describe('when loop == true', () => {
       it('should loop around to the first item after the last one', async () => {
-        const screen = render(<TestMenubar loop />);
+        const { user } = await render(<TestMenubar loop />);
 
         const firstItem = screen.getByTestId('file-trigger');
-        (firstItem.element() as HTMLButtonElement).focus();
+        await act(async () => {
+          firstItem.focus();
+        });
 
         await user.keyboard('{ArrowRight}');
         await user.keyboard('{ArrowRight}');
 
         const lastItem = screen.getByTestId('view-trigger');
-        await expect.element(lastItem).toHaveFocus();
+        expect(lastItem).toHaveFocus();
 
         await user.keyboard('{ArrowRight}');
-        await expect.element(firstItem).toHaveFocus();
+        expect(firstItem).toHaveFocus();
       });
 
       it('should loop around to the last item after the first one', async () => {
-        const screen = render(<TestMenubar loop />);
+        const { user } = await render(<TestMenubar loop />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
-        (fileTrigger.element() as HTMLButtonElement).focus();
-        await expect.element(fileTrigger).toHaveFocus();
+        await act(async () => {
+          fileTrigger.focus();
+        });
+        expect(fileTrigger).toHaveFocus();
 
         await user.keyboard('{ArrowLeft}');
         const lastItem = screen.getByTestId('view-trigger');
-        await expect.element(lastItem).toHaveFocus();
+        expect(lastItem).toHaveFocus();
       });
     });
 
     describe('when loop == false', () => {
-      it('should loop around to the first item after the last one', async () => {
-        const screen = render(<TestMenubar loop={false} />);
+      it('should stay on the last item when navigating beyond it', async () => {
+        const { user } = await render(<TestMenubar loop={false} />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
-        (fileTrigger.element() as HTMLButtonElement).focus();
+        await act(async () => {
+          fileTrigger.focus();
+        });
 
         await user.keyboard('{ArrowRight}');
         await user.keyboard('{ArrowRight}');
 
         const lastItem = screen.getByTestId('view-trigger');
-        await expect.element(lastItem).toHaveFocus();
+        expect(lastItem).toHaveFocus();
 
         await user.keyboard('{ArrowRight}');
-        await expect.element(lastItem).toHaveFocus();
+        expect(lastItem).toHaveFocus();
       });
 
-      it('should loop around to the last item after the first one', async () => {
-        const screen = render(<TestMenubar loop={false} />);
+      it('should stay on the first item when navigating before it', async () => {
+        const { user } = await render(<TestMenubar loop={false} />);
 
         const firstItem = screen.getByTestId('file-trigger');
-        (firstItem.element() as HTMLButtonElement).focus();
+        await act(async () => {
+          firstItem.focus();
+        });
 
         await user.keyboard('{ArrowLeft}');
-        await expect.element(firstItem).toHaveFocus();
+        expect(firstItem).toHaveFocus();
       });
     });
   });
