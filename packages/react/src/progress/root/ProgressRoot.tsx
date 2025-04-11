@@ -2,8 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { formatNumber } from '../../utils/formatNumber';
-import { mergeProps } from '../../merge-props';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStyleHookMapping } from './styleHooks';
@@ -52,7 +51,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
     value,
     render,
     className,
-    ...otherProps
+    ...elementProps
   } = props;
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
@@ -85,31 +84,22 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
     [formattedValue, max, min, setLabelId, state, status, value],
   );
 
-  const propGetter = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'div'>(
-        {
-          'aria-labelledby': labelId,
-          'aria-valuemax': max,
-          'aria-valuemin': min,
-          'aria-valuenow': value ?? undefined,
-          'aria-valuetext': getAriaValueText
-            ? getAriaValueText(formattedValue, value)
-            : (otherProps['aria-valuetext'] ?? getDefaultAriaValueText(formattedValue, value)),
-          role: 'progressbar',
-        },
-        otherProps,
-        externalProps,
-      ),
-    [formattedValue, getAriaValueText, labelId, max, min, otherProps, value],
-  );
-
-  const { renderElement } = useComponentRenderer({
-    propGetter,
-    render: render ?? 'div',
+  const renderElement = useRenderElement('div', props, {
     state,
-    className,
     ref: forwardedRef,
+    props: [
+      {
+        'aria-labelledby': labelId,
+        'aria-valuemax': max,
+        'aria-valuemin': min,
+        'aria-valuenow': value ?? undefined,
+        'aria-valuetext': getAriaValueText
+          ? getAriaValueText(formattedValue, value)
+          : (props['aria-valuetext'] ?? getDefaultAriaValueText(formattedValue, value)),
+        role: 'progressbar',
+      },
+      elementProps,
+    ],
     customStyleHookMapping: progressStyleHookMapping,
   });
 

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStyleHookMapping } from '../root/styleHooks';
 import type { ProgressRoot } from '../root/ProgressRoot';
@@ -17,16 +17,14 @@ const ProgressTrack = React.forwardRef(function ProgressTrack(
   props: ProgressTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = props;
 
   const { state } = useProgressRootContext();
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
+  const renderElement = useRenderElement('div', props, {
     state,
-    className,
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: elementProps,
     customStyleHookMapping: progressStyleHookMapping,
   });
 
