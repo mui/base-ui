@@ -102,7 +102,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     ],
   );
 
-  const contextValue = React.useMemo(
+  const contextValue: SliderRootContext = React.useMemo(
     () => ({
       ...slider,
       format,
@@ -236,6 +236,7 @@ namespace SliderRoot {
     onValueCommitted?: (value: Value extends number ? number : Value, event: Event) => void;
   }
 }
+
 export { SliderRoot };
 
 SliderRoot.propTypes /* remove-proptypes */ = {

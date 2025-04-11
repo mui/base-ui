@@ -77,6 +77,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     orientation,
     percentageValues,
     rootRef: externalRef,
+    inputRef: inputRefProp,
     step,
     tabIndex: externalTabIndex,
     values: sliderValues,
@@ -92,7 +93,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
 
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useForkRef(inputRef, inputValidationRef);
+  const mergedInputRef = useForkRef(inputRef, inputValidationRef, inputRefProp);
 
   const thumbMetadata = React.useMemo(
     () => ({
@@ -404,6 +405,7 @@ export namespace useSliderThumb {
      * @default null
      */
     tabIndex: number | null;
+    inputRef: React.Ref<HTMLInputElement> | undefined;
   }
 
   export interface ReturnValue {

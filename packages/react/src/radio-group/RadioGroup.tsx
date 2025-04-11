@@ -33,6 +33,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
     required,
     onValueChange: onValueChangeProp,
     name,
+    inputRef,
     ...otherProps
   } = props;
 
@@ -136,6 +137,10 @@ namespace RadioGroup {
      * Callback fired when the value changes.
      */
     onValueChange?: (value: unknown, event: Event) => void;
+    /**
+     * The ref to the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
   }
 }
 
@@ -164,6 +169,15 @@ RadioGroup.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * The ref to the hidden input element.
+   */
+  inputRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({
+      current: PropTypes.object,
+    }),
+  ]),
   /**
    * Identifies the field when a form is submitted.
    */
