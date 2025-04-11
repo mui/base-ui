@@ -82,8 +82,6 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 
-  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
-
   usePanelResize(panelRef, setDimensions, open);
 
   const { getRootProps } = useCollapsiblePanel({
@@ -130,6 +128,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     customStyleHookMapping: accordionStyleHookMapping,
   });
 
+  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
   if (!shouldRender) {
     return null;
   }

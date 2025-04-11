@@ -99,8 +99,6 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     width,
   });
 
-  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
-
   usePanelResize(panelRef, setDimensions, open);
 
   const { renderElement } = useComponentRenderer({
@@ -120,6 +118,7 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
+  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
   if (!shouldRender) {
     return null;
   }
