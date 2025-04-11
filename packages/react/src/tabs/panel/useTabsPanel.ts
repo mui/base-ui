@@ -7,6 +7,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import type { TabsRootContext } from '../root/TabsRootContext';
 import type { TabValue } from '../root/TabsRoot';
+import { TabsPanelDataAttributes } from './TabsPanelDataAttributes';
 
 export interface TabPanelMetadata {
   id?: string;
@@ -56,7 +57,7 @@ function useTabsPanel(parameters: useTabsPanel.Parameters): useTabsPanel.ReturnV
           role: 'tabpanel',
           tabIndex: hidden ? -1 : 0,
           ref: handleRef,
-          ['data-index' as string]: index,
+          [TabsPanelDataAttributes.index]: index,
         },
         externalProps,
       );

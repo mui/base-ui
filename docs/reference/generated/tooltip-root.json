@@ -28,6 +28,11 @@
       "default": "'none'",
       "description": "Determines which axis the tooltip should track the cursor on."
     },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the tooltip is disabled."
+    },
     "delay": {
       "type": "number",
       "default": "600",
