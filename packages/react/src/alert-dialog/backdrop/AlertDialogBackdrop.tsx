@@ -9,6 +9,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useForkRef } from '../../utils/useForkRef';
+import { mergeProps } from '../../merge-props';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> = {
   ...baseMapping,
@@ -43,11 +44,16 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
     className,
     state,
     ref: mergedRef,
-    extraProps: {
-      role: 'presentation',
-      hidden: !mounted,
-      ...other,
-    },
+    extraProps: mergeProps(
+      {
+        role: 'presentation',
+        hidden: !mounted,
+        style: {
+          WebkitUserSelect: 'none',
+        },
+      },
+      other,
+    ),
     customStyleHookMapping,
   });
 
