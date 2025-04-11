@@ -89,13 +89,13 @@
     rotate: 0deg;
   }
 
-  &[data-side='left'] {
-    right: -13px;
+  &[data-side='inline-start'] {
+    inset-inline-end: -13px;
     rotate: 90deg;
   }
 
-  &[data-side='right'] {
-    left: -13px;
+  &[data-side='inline-end'] {
+    inset-inline-start: -13px;
     rotate: -90deg;
   }
 }

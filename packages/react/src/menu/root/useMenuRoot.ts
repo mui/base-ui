@@ -6,6 +6,7 @@ import {
   useClick,
   useDismiss,
   useFloatingRootContext,
+  useFocus,
   useHover,
   useInteractions,
   useListNavigation,
@@ -13,6 +14,8 @@ import {
   useTypeahead,
   type FloatingRootContext,
 } from '@floating-ui/react';
+import { MenuRootContext } from './MenuRootContext';
+import { MenubarRootContext } from '../../menubar/root/MenubarRootContext';
 import { GenericHTMLProps } from '../../utils/types';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -44,6 +47,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     openOnHover,
     onTypingChange,
     modal,
+    parentContext,
+    parentType,
   } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -172,7 +177,12 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const hover = useHover(floatingRootContext, {
-    enabled: hoverEnabled && openOnHover && !disabled && openReason !== 'click',
+    enabled:
+      hoverEnabled &&
+      openOnHover &&
+      !disabled &&
+      openReason !== 'click' &&
+      (parentType !== 'menubar' || ((parentContext as MenubarRootContext).hasSubmenuOpen && !open)),
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: false,
@@ -181,11 +191,19 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
   });
 
+  const focus = useFocus(floatingRootContext, {
+    enabled:
+      parentType === 'menubar' &&
+      !disabled &&
+      (parentContext as MenubarRootContext).hasSubmenuOpen &&
+      !open,
+  });
+
   const click = useClick(floatingRootContext, {
     enabled: !disabled,
-    event: 'mousedown',
-    toggle: !openOnHover || !nested,
-    ignoreMouse: openOnHover && nested,
+    event: open ? 'click' : 'mousedown',
+    toggle: !openOnHover || !nested || parentType === 'menubar',
+    ignoreMouse: openOnHover && nested && parentType !== 'menubar',
     stickIfOpen,
   });
 
@@ -229,6 +247,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     hover,
     click,
     dismiss,
+    focus,
     role,
     listNavigation,
     typeahead,
@@ -378,6 +397,8 @@ export namespace useMenuRoot {
      * Useful when the menu's animation is controlled by an external library.
      */
     actionsRef: React.RefObject<Actions> | undefined;
+    parentType: 'menubar' | 'menu' | undefined;
+    parentContext: MenuRootContext | MenubarRootContext | undefined;
   }
 
   export interface ReturnValue {

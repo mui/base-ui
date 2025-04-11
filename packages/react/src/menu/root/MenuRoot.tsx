@@ -6,6 +6,7 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot } from './useMenuRoot';
 import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { useMenubarRootContext } from '../../menubar/root/MenubarRootContext';
 
 /**
  * Groups all parts of the menu.
@@ -20,7 +21,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     disabled = false,
     closeParentOnEsc = true,
     loop = true,
-    modal = true,
+    modal: modalProp,
     onOpenChange,
     open,
     orientation = 'vertical',
@@ -33,14 +34,34 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const direction = useDirection();
 
   const parentContext = useMenuRootContext(true);
+  const menubarRootContext = useMenubarRootContext(true);
   const nested = parentContext != null;
+  const isInMenubar = menubarRootContext != null;
+  const modal = !nested && !isInMenubar && (modalProp ?? true);
 
-  const openOnHover = openOnHoverProp ?? nested;
+  if (process.env.NODE_ENV !== 'production') {
+    if ((nested || isInMenubar) && modalProp !== undefined) {
+      console.warn(
+        'Base UI: The `modal` prop is not supported on nested menus. It will be ignored.',
+      );
+    }
+  }
+
+  const openOnHover =
+    openOnHoverProp ??
+    (parentContext != null || (menubarRootContext != null && menubarRootContext.hasSubmenuOpen));
   const typingRef = React.useRef(false);
 
   const onTypingChange = React.useCallback((nextTyping: boolean) => {
     typingRef.current = nextTyping;
   }, []);
+
+  let parentType: 'menu' | 'menubar' | undefined;
+  if (parentContext) {
+    parentType = 'menu';
+  } else if (menubarRootContext) {
+    parentType = 'menubar';
+  }
 
   const menuRoot = useMenuRoot({
     direction,
@@ -58,32 +79,33 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     modal,
     actionsRef,
     onOpenChangeComplete,
+    parentType,
+    parentContext: menubarRootContext ?? parentContext,
   });
 
   const context: MenuRootContext = React.useMemo(
     () => ({
       ...menuRoot,
       nested,
-      parentContext,
+      parentContext: parentContext ?? menubarRootContext ?? undefined,
       disabled,
       allowMouseUpTriggerRef:
         parentContext?.allowMouseUpTriggerRef ?? menuRoot.allowMouseUpTriggerRef,
       typingRef,
       modal,
+      isInMenubar: parentType === 'menubar',
     }),
-    [menuRoot, nested, parentContext, disabled, modal],
+    [menuRoot, nested, parentContext, menubarRootContext, disabled, modal, parentType],
   );
 
-  if (!nested) {
+  const content = <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
+
+  if (!nested && !isInMenubar) {
     // set up a FloatingTree to provide the context to nested menus
-    return (
-      <FloatingTree>
-        <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>
-      </FloatingTree>
-    );
+    return <FloatingTree>{content}</FloatingTree>;
   }
 
-  return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
+  return content;
 };
 
 namespace MenuRoot {

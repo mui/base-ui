@@ -47,6 +47,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     mounted,
     instantType,
     onOpenChangeComplete,
+    isInMenubar,
   } = useMenuRootContext();
   const { side, align, floatingContext } = useMenuPositionerContext();
 
@@ -100,6 +101,9 @@ const MenuPopup = React.forwardRef(function MenuPopup(
       modal={false}
       disabled={!mounted}
       visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
+      returnFocus={!nested && !isInMenubar}
+      initialFocus={nested ? -1 : 0}
+      closeOnFocusOut
     >
       {renderElement()}
     </FloatingFocusManager>

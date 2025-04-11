@@ -40,6 +40,7 @@
     "./form": "./src/form/index.ts",
     "./input": "./src/input/index.ts",
     "./menu": "./src/menu/index.ts",
+    "./menubar": "./src/menubar/index.ts",
     "./merge-props": "./src/merge-props/index.ts",
     "./meter": "./src/meter/index.ts",
     "./number-field": "./src/number-field/index.ts",
@@ -83,7 +84,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.27.0",
-    "@floating-ui/react": "^0.27.6",
+    "@floating-ui/react": "^0.27.7",
     "@floating-ui/utils": "^0.2.9",
     "@react-aria/overlays": "^3.26.1",
     "prop-types": "^15.8.1",
@@ -109,7 +110,8 @@
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.4.1",
     "sinon": "^20.0.0",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vitest": "^3.1.1"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",
