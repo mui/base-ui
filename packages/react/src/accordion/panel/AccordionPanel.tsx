@@ -84,7 +84,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
 
-  usePanelResize(panelRef, setDimensions, shouldRender);
+  usePanelResize(panelRef, setDimensions, open);
 
   const { getRootProps } = useCollapsiblePanel({
     abortControllerRef,

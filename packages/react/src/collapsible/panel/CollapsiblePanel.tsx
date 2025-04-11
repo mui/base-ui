@@ -101,7 +101,7 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 
   const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
 
-  usePanelResize(panelRef, setDimensions, shouldRender);
+  usePanelResize(panelRef, setDimensions, open);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,

@@ -5,11 +5,11 @@ import { ownerWindow } from './owner';
 export function usePanelResize(
   panelRef: React.RefObject<HTMLElement | null>,
   setDimensions: (dimensions: { height: number; width: number }) => void,
-  shouldRender: boolean,
+  open: boolean,
 ) {
   React.useEffect(() => {
     const panel = panelRef.current;
-    if (!panel) {
+    if (!panel || !open) {
       return undefined;
     }
 
@@ -32,5 +32,5 @@ export function usePanelResize(
     return () => {
       win.removeEventListener('resize', handleWindowResize);
     };
-  }, [panelRef, setDimensions, shouldRender]);
+  }, [panelRef, setDimensions, open]);
 }
