@@ -8,6 +8,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { mergeProps } from '../../merge-props';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
   ...popupStateMapping,
@@ -38,7 +39,16 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     className,
     state,
     ref: forwardedRef,
-    extraProps: { role: 'presentation', hidden: !mounted, ...other },
+    extraProps: mergeProps(
+      {
+        role: 'presentation',
+        hidden: !mounted,
+        style: {
+          WebkitUserSelect: 'none',
+        },
+      },
+      other,
+    ),
     customStyleHookMapping,
   });
 
