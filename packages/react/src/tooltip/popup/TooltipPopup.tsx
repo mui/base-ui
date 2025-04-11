@@ -61,7 +61,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     props: mergeProps<'div'>(
       getPopupProps,
       {
-        style: { transition: 'none' },
+        style: transitionStatus === 'starting' ? { transition: 'none' } : {},
       },
       intrinsicProps,
     ),
