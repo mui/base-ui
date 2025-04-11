@@ -226,7 +226,7 @@ describe('useButton', () => {
       expect(getByRole('button')).to.have.property('type', 'submit');
     });
 
-    it('should not set type attribute on non-button elements', async () => {
+    it('does not set type attribute by default on non-button elements', async () => {
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { disabled, ...otherProps } = props;
         const { getButtonProps } = useButton({ disabled });
@@ -234,8 +234,8 @@ describe('useButton', () => {
         return <span {...getButtonProps(otherProps)} />;
       }
 
-      const { getByRole } = await render(<TestButton>Submit</TestButton>);
-      expect(getByRole('button')).not.to.have.property('type');
+      const { getByRole } = await render(<TestButton />);
+      expect(getByRole('button')).not.to.have.attribute('type');
     });
   });
 });
