@@ -3,7 +3,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingFocusManager, useFloatingTree } from '@floating-ui/react';
 import { useMenuPopup } from './useMenuPopup';
-import { useMenubarRootContext } from '../../menubar/root/MenubarRootContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -103,7 +102,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
       disabled={!mounted}
       visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
       returnFocus={!nested && !isInMenubar}
-      initialFocus={nested || isInMenubar ? -1 : 0}
+      initialFocus={nested ? -1 : 0}
       closeOnFocusOut
     >
       {renderElement()}

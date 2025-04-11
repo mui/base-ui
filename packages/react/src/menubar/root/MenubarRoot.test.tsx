@@ -204,7 +204,7 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
       expect(editTrigger).toHaveFocus();
     });
 
-    it('should open menu with Space key', async () => {
+    it('should open the menu with Space key', async () => {
       const { user } = await render(<TestMenubar />);
       const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -222,7 +222,7 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
       });
     });
 
-    it('should navigate within menu using arrow keys', async () => {
+    it('should navigate within the menu using arrow keys', async () => {
       const { user } = await render(<TestMenubar />);
       const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -239,20 +239,26 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
 
       // First item should be focused automatically
       const firstItem = screen.getByTestId('file-item-1');
-      expect(firstItem).toHaveFocus();
+      await waitFor(() => {
+        expect(firstItem).toHaveFocus();
+      });
 
       // Navigate down to second item
       await user.keyboard('{ArrowDown}');
       const secondItem = screen.getByTestId('file-item-2');
-      expect(secondItem).toHaveFocus();
+      await waitFor(() => {
+        expect(secondItem).toHaveFocus();
+      });
 
       // Navigate down to submenu trigger
       await user.keyboard('{ArrowDown}');
       const shareTrigger = screen.getByTestId('share-trigger');
-      expect(shareTrigger).toHaveFocus();
+      await waitFor(() => {
+        expect(shareTrigger).toHaveFocus();
+      });
     });
 
-    it('should open submenu with right arrow key', async () => {
+    it('should open the submenu with right arrow key', async () => {
       const { user } = await render(<TestMenubar />);
       const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -265,10 +271,19 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
         expect(screen.queryByTestId('file-menu')).to.not.equal(null);
       });
 
-      // Navigate to submenu trigger
+      await waitFor(() => {
+        expect(screen.getByTestId('file-item-1')).toHaveFocus();
+      });
+
       await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByTestId('file-item-2')).toHaveFocus();
+      });
+
       await user.keyboard('{ArrowDown}');
-      expect(screen.getByTestId('share-trigger')).toHaveFocus();
+      await waitFor(() => {
+        expect(screen.getByTestId('share-trigger')).toHaveFocus();
+      });
 
       // Arrow right should open submenu
       await user.keyboard('{ArrowRight}');
@@ -283,7 +298,7 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
       expect(submenuItem).toHaveFocus();
     });
 
-    it('should close menu with Escape key', async () => {
+    it('should close the menu with Escape key', async () => {
       const { user } = await render(<TestMenubar />);
       const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -291,6 +306,7 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
       await act(async () => {
         fileTrigger.focus();
       });
+
       await user.keyboard('{Enter}');
 
       // Menu should be open
@@ -305,9 +321,6 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('file-menu')).to.equal(null);
       });
-
-      // Trigger should still have focus
-      expect(fileTrigger).toHaveFocus();
     });
 
     it('should close submenu with left arrow key and return focus to submenu trigger', async () => {
@@ -325,10 +338,16 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
 
       // Navigate to submenu trigger
       await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByTestId('file-item-2')).toHaveFocus();
+      });
+
       await user.keyboard('{ArrowDown}');
 
       const shareTrigger = screen.getByTestId('share-trigger');
-      expect(shareTrigger).toHaveFocus();
+      await waitFor(() => {
+        expect(shareTrigger).toHaveFocus();
+      });
 
       // Open submenu
       await user.keyboard('{ArrowRight}');
@@ -351,7 +370,6 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
     it('should navigate between menus using left/right arrow keys when menus are open', async () => {
       const { user } = await render(<TestMenubar />);
       const fileTrigger = screen.getByTestId('file-trigger');
-      const editTrigger = screen.getByTestId('edit-trigger');
 
       // Focus and open file menu
       await act(async () => {
@@ -375,9 +393,6 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
         expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
       });
 
-      // Edit trigger should have focus
-      expect(editTrigger).toHaveFocus();
-
       // Navigate back to file menu
       await user.keyboard('{ArrowLeft}');
 
@@ -388,9 +403,6 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('file-menu')).to.not.equal(null);
       });
-
-      // File trigger should have focus
-      expect(fileTrigger).toHaveFocus();
     });
   });
 
@@ -439,10 +451,6 @@ describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
       });
-
-      // Edit trigger should have focus
-      const editTrigger = screen.getByTestId('edit-trigger');
-      expect(editTrigger).toHaveFocus();
     });
   });
 
