@@ -2,13 +2,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { mergeProps } from '../../merge-props';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.State> = {
   ...baseMapping,
@@ -25,7 +24,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   props: PopoverBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...other } = props;
+  const { className, render, ...elementProps } = props;
 
   const { open, mounted, transitionStatus, openReason } = usePopoverRootContext();
 
@@ -37,19 +36,17 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     [open, transitionStatus],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', props, {
     state,
     ref: forwardedRef,
-    extraProps: mergeProps<'div'>(
+    props: [
       {
         role: 'presentation',
         hidden: !mounted,
         style: openReason === 'hover' ? { pointerEvents: 'none' } : {},
       },
-      other,
-    ),
+      elementProps,
+    ],
     customStyleHookMapping,
   });
 

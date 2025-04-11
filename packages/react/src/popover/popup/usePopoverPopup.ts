@@ -1,25 +1,19 @@
 import * as React from 'react';
-import { mergeProps } from '../../merge-props';
 import type { GenericHTMLProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { InteractionType } from '../../utils/useEnhancedClickHandler';
 
 export function usePopoverPopup(params: usePopoverPopup.Parameters): usePopoverPopup.ReturnValue {
-  const { getProps, titleId, descriptionId, initialFocus } = params;
+  const { titleId, descriptionId, initialFocus } = params;
 
   const { popupRef, openMethod } = usePopoverRootContext();
 
-  const getPopupProps = React.useCallback(
-    (externalProps = {}) => {
-      return mergeProps<'div'>(
-        {
-          'aria-labelledby': titleId,
-          'aria-describedby': descriptionId,
-        },
-        getProps(externalProps),
-      );
-    },
-    [getProps, titleId, descriptionId],
+  const props = React.useMemo<GenericHTMLProps>(
+    () => ({
+      'aria-labelledby': titleId,
+      'aria-describedby': descriptionId,
+    }),
+    [titleId, descriptionId],
   );
 
   // Default initial focus logic:
@@ -50,16 +44,15 @@ export function usePopoverPopup(params: usePopoverPopup.Parameters): usePopoverP
 
   return React.useMemo(
     () => ({
-      getPopupProps,
+      props,
       resolvedInitialFocus,
     }),
-    [getPopupProps, resolvedInitialFocus],
+    [props, resolvedInitialFocus],
   );
 }
 
 namespace usePopoverPopup {
   export interface Parameters {
-    getProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     titleId: string | undefined;
     descriptionId: string | undefined;
     initialFocus:
@@ -69,7 +62,7 @@ namespace usePopoverPopup {
   }
 
   export interface ReturnValue {
-    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    props: GenericHTMLProps;
     resolvedInitialFocus: React.RefObject<HTMLElement | null> | 0;
   }
 }

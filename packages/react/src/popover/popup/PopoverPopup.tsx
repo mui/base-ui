@@ -3,10 +3,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { FloatingFocusManager } from '@floating-ui/react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import { usePopoverPopup } from './usePopoverPopup';
-import { useForkRef } from '../../utils/useForkRef';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -14,9 +12,9 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { refType } from '../../utils/proptypes';
-import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
   ...baseMapping,
@@ -30,16 +28,16 @@ const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverPopup = React.forwardRef(function PopoverPopup(
-  props: PopoverPopup.Props,
+  componentProps: PopoverPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, initialFocus, finalFocus, ...otherProps } = props;
+  const { className, render, initialFocus, finalFocus, ...elementProps } = componentProps;
 
   const {
     open,
     instantType,
     transitionStatus,
-    getRootPopupProps,
+    getPopupProps,
     titleId,
     descriptionId,
     popupRef,
@@ -59,8 +57,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     },
   });
 
-  const { getPopupProps, resolvedInitialFocus } = usePopoverPopup({
-    getProps: getRootPopupProps,
+  const { props, resolvedInitialFocus } = usePopoverPopup({
     titleId,
     descriptionId,
     initialFocus,
@@ -77,23 +74,17 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     [open, positioner.side, positioner.align, instantType, transitionStatus],
   );
 
-  const mergedRef = useForkRef(popupRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getPopupProps,
-    ref: mergedRef,
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    extraProps:
-      transitionStatus === 'starting'
-        ? mergeProps(
-            {
-              style: { transition: 'none' },
-            },
-            otherProps,
-          )
-        : otherProps,
+    ref: [forwardedRef, popupRef],
+    props: [
+      props,
+      getPopupProps,
+      {
+        style: transitionStatus === 'starting' ? { transition: 'none' } : {},
+      },
+      elementProps,
+    ],
     customStyleHookMapping,
   });
 

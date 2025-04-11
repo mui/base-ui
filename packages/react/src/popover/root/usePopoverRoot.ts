@@ -173,9 +173,14 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const role = useRole(context);
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
+  const { getReferenceProps, getFloatingProps: getPopupProps } = useInteractions([
+    hover,
+    click,
+    dismiss,
+    role,
+  ]);
 
-  const getRootTriggerProps = React.useCallback(
+  const getTriggerProps = React.useCallback(
     (externalProps = {}) => getReferenceProps(mergeProps(triggerProps, externalProps)),
     [getReferenceProps, triggerProps],
   );
@@ -195,8 +200,8 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       setTitleId,
       descriptionId,
       setDescriptionId,
-      getRootTriggerProps,
-      getRootPopupProps: getFloatingProps,
+      getTriggerProps,
+      getPopupProps,
       floatingRootContext: context,
       instantType,
       openMethod,
@@ -212,8 +217,8 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       positionerElement,
       titleId,
       descriptionId,
-      getRootTriggerProps,
-      getFloatingProps,
+      getTriggerProps,
+      getPopupProps,
       context,
       instantType,
       openMethod,
@@ -289,8 +294,8 @@ export namespace usePopoverRoot {
     descriptionId: string | undefined;
     setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
     floatingRootContext: FloatingRootContext;
-    getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     instantType: 'dismiss' | 'click' | undefined;
     setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
     positionerElement: HTMLElement | null;

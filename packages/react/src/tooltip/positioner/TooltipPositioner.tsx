@@ -1,8 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
 import { useTooltipPositioner } from './useTooltipPositioner';
@@ -11,6 +9,7 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Positions the tooltip against the trigger.
@@ -19,7 +18,7 @@ import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipPositioner = React.forwardRef(function TooltipPositioner(
-  props: TooltipPositioner.Props,
+  componentProps: TooltipPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -36,8 +35,8 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const { open, setPositionerElement, mounted, floatingRootContext } = useTooltipRootContext();
   const keepMounted = useTooltipPortalContext();
@@ -59,8 +58,6 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     keepMounted,
   });
 
-  const mergedRef = useForkRef(forwardedRef, setPositionerElement);
-
   const state: TooltipPositioner.State = React.useMemo(
     () => ({
       open,
@@ -81,13 +78,10 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     [state, positioner.arrowRef, positioner.arrowStyles, positioner.arrowUncentered],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: positioner.getPositionerProps,
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
+    props: [positioner.props, elementProps],
+    ref: [forwardedRef, setPositionerElement],
     customStyleHookMapping: popupStateMapping,
   });
 

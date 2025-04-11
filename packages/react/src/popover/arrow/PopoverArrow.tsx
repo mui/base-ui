@@ -3,12 +3,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { mergeProps } from '../../merge-props';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Displays an element positioned against the popover anchor.
@@ -17,26 +15,13 @@ import { mergeProps } from '../../merge-props';
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverArrow = React.forwardRef(function PopoverArrow(
-  props: PopoverArrow.Props,
+  componentProps: PopoverArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...elementProps } = componentProps;
 
   const { open } = usePopoverRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
-
-  const getArrowProps = React.useCallback(
-    (externalProps = {}) => {
-      return mergeProps<'div'>(
-        {
-          style: arrowStyles,
-          'aria-hidden': true,
-        },
-        externalProps,
-      );
-    },
-    [arrowStyles],
-  );
 
   const state: PopoverArrow.State = React.useMemo(
     () => ({
@@ -48,15 +33,10 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
     [open, side, align, arrowUncentered],
   );
 
-  const mergedRef = useForkRef(arrowRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getArrowProps,
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
+    ref: [forwardedRef, arrowRef],
+    props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
     customStyleHookMapping: popupStateMapping,
   });
 
