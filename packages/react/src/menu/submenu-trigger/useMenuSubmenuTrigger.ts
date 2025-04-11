@@ -4,6 +4,7 @@ import { FloatingEvents } from '@floating-ui/react';
 import { useMenuItem } from '../item/useMenuItem';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
+import { useMenuRootContext } from '../root/MenuRootContext';
 
 export function useMenuSubmenuTrigger(
   parameters: useMenuSubmenuTrigger.Parameters,
@@ -17,7 +18,10 @@ export function useMenuSubmenuTrigger(
     setTriggerElement,
     allowMouseUpTriggerRef,
     typingRef,
+    setActiveIndex,
   } = parameters;
+
+  const { open } = useMenuRootContext();
 
   const { getItemProps, rootRef: menuItemRef } = useMenuItem({
     closeOnClick: false,
@@ -30,17 +34,23 @@ export function useMenuSubmenuTrigger(
     typingRef,
   });
 
-  const menuTriggerRef = useForkRef(menuItemRef, setTriggerElement);
+  const triggerRef = React.useRef<HTMLDivElement | null>(null);
+  const menuTriggerRef = useForkRef(triggerRef, menuItemRef, setTriggerElement);
 
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps) => {
       return {
         ...getItemProps(externalProps),
-        'aria-haspopup': 'menu' as const,
+        tabIndex: open || highlighted ? 0 : -1,
         ref: menuTriggerRef,
+        onBlur() {
+          if (highlighted) {
+            setActiveIndex(null);
+          }
+        },
       };
     },
-    [getItemProps, menuTriggerRef],
+    [getItemProps, highlighted, menuTriggerRef, open, setActiveIndex],
   );
 
   return React.useMemo(
@@ -80,6 +90,10 @@ export namespace useMenuSubmenuTrigger {
      * A ref that is set to `true` when the user is using the typeahead feature.
      */
     typingRef: React.RefObject<boolean>;
+    /**
+     * A callback to set the active index of the menu.
+     */
+    setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
   }
 
   export interface ReturnValue {
