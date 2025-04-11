@@ -198,7 +198,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const dismiss = useDismiss(floatingRootContext, {
     bubbles: closeParentOnEsc && nested,
-    outsidePressEvent: 'mousedown',
+    // For context menus, this avoids an issue on long press where the menu closes right
+    // after opening.
+    outsidePressEvent: hasContextMenuParent ? 'pointerdown' : 'mousedown',
   });
 
   const role = useRole(floatingRootContext, {
