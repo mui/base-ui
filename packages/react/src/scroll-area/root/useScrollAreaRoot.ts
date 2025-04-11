@@ -183,6 +183,7 @@ export function useScrollAreaRoot() {
     (externalProps = {}) =>
       mergeProps<'div'>(
         {
+          role: 'presentation',
           onPointerEnter: handlePointerEnterOrMove,
           onPointerMove: handlePointerEnterOrMove,
           onPointerDown({ pointerType }) {
