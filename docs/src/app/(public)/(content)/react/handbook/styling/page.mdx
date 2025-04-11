@@ -13,25 +13,41 @@ You retain total control of your styling layer.
 
 ### CSS classes
 
-Every component accepts a `className` prop which you can use to pass CSS classes to its DOM element.
-The `className` prop, in addition to accepting a string, can be defined as a function that takes a component state as an argument:
+Components that render an HTML element accept a `className` prop to style it with CSS classes.
+
+```tsx title="switch.tsx"
+<Switch.Thumb className="SwitchThumb" />
+```
+
+It can also be passed a function that takes the component's state as an argument.
 
 ```tsx title="switch.tsx"
 <Switch.Thumb className={(state) => (state.checked ? 'checked' : 'unchecked')} />
 ```
 
-### CSS variables
-
-Some components expose CSS custom properties to aid with styling, such as `--accordion-panel-height`, `--transform-origin`, or `--active-tab-width`.
-
 ### Data attributes
 
-Base UI components provide data attributes designed for styling their states.
-For example, a [Switch](/react/components/switch) may be styled using its `[data-checked]` and `[data-unchecked]` attributes, among others.
+Components provide data attributes designed for styling their states. For example, [Switch](/react/components/switch) can be styled using its `[data-checked]` and `[data-unchecked]` attributes, among others.
 
-Check out each component's API reference for a complete list of available data attributes.
+```css title="switch.css"
+.SwitchThumb[data-checked] {
+  background-color: green;
+}
+```
 
-## Tailwind
+### CSS variables
+
+Components expose CSS variables to aid in styling, often containing dynamic numeric values to be used in sizing or transform calculations. For example, [Popover](/react/components/popover) expose CSS variables on the `Popup` component like `--available-height` and `--anchor-width`.
+
+```css title="popover.css"
+.Popup {
+  max-height: var(--available-height);
+}
+```
+
+Check out each component’s API reference for a complete list of available data attributes and CSS variables.
+
+## Tailwind CSS
 
 Apply Tailwind classes to each part via the `className` prop.
 
@@ -42,16 +58,16 @@ import { Menu } from '@base-ui-components/react/menu';
 export default function ExampleMenu() {
   return (
     <Menu.Root>
-      <Menu.Trigger className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
+      <Menu.Trigger className="flex h-10 select-none items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
         Song
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner className="outline-none" sideOffset={8}>
-          <Menu.Popup className="origin-[var(--transform-origin)] rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
-            <Menu.Item className="flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
+          <Menu.Popup className="origin-[var(--transform-origin)] rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[starting-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+            <Menu.Item className="flex cursor-default select-none py-2 pl-4 pr-8 text-sm leading-4 outline-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
               Add to Library
             </Menu.Item>
-            <Menu.Item className="flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
+            <Menu.Item className="flex cursor-default select-none py-2 pl-4 pr-8 text-sm leading-4 outline-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
               Add to Playlist
             </Menu.Item>
           </Menu.Popup>
