@@ -5,7 +5,6 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { mergeProps } from '../../merge-props';
 
 /**
  * An element to attach the tooltip to.
@@ -26,7 +25,7 @@ const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   const renderElement = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, setTriggerElement],
-    props: mergeProps(getTriggerProps, intrinsicProps),
+    props: [getTriggerProps, intrinsicProps],
     customStyleHookMapping: triggerOpenStateMapping,
   });
 

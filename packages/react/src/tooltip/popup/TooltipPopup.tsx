@@ -8,7 +8,6 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -58,13 +57,13 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   const renderElement = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, popupRef],
-    props: mergeProps<'div'>(
+    props: [
       getPopupProps,
       {
         style: transitionStatus === 'starting' ? { transition: 'none' } : {},
       },
       intrinsicProps,
-    ),
+    ],
     customStyleHookMapping,
   });
 
