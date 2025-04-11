@@ -109,9 +109,9 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const dismiss = useDismiss(context, {
     outsidePressEvent: 'mousedown',
     outsidePress(event) {
-      if (event.button !== 0) {
-        return false;
-      }
+      // if (event.button !== 0) {
+      //   return false;
+      // }
       const target = getTarget(event) as Element | null;
       if (isTopmost && dismissible) {
         const backdrop = target as HTMLDivElement | null;
