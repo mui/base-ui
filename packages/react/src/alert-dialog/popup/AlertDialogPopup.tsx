@@ -22,8 +22,8 @@ import { inertValue } from '../../utils/inertValue';
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
-  hasNestedDialogs(value) {
-    return value ? { [AlertDialogPopupDataAttributes.hasNestedDialogs]: '' } : null;
+  nestedDialogOpen(value) {
+    return value ? { [AlertDialogPopupDataAttributes.nestedDialogOpen]: '' } : null;
   },
 };
 
@@ -86,16 +86,16 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     titleElementId,
   });
 
-  const hasNestedDialogs = nestedOpenDialogCount > 0;
+  const nestedDialogOpen = nestedOpenDialogCount > 0;
 
   const state: AlertDialogPopup.State = React.useMemo(
     () => ({
       open,
       nested,
       transitionStatus,
-      hasNestedDialogs,
+      nestedDialogOpen,
     }),
-    [open, nested, transitionStatus, hasNestedDialogs],
+    [open, nested, transitionStatus, nestedDialogOpen],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -155,7 +155,7 @@ namespace AlertDialogPopup {
     /**
      * Whether the dialog has nested dialogs open.
      */
-    hasNestedDialogs: boolean;
+    nestedDialogOpen: boolean;
   }
 }
 

@@ -210,7 +210,7 @@ describe('<AlertDialog.Popup />', () => {
   });
 
   describe('style hooks', () => {
-    it('adds the `nested` and `has-nested-dialogs` style hooks if a dialog has a parent dialog', async () => {
+    it('adds the `nested` and `nested-dialog-open` style hooks if a dialog has a parent dialog', async () => {
       await render(
         <AlertDialog.Root open>
           <AlertDialog.Portal>
@@ -236,11 +236,11 @@ describe('<AlertDialog.Popup />', () => {
       expect(parentDialog).not.to.have.attribute('data-nested');
       expect(nestedDialog).to.have.attribute('data-nested');
 
-      expect(parentDialog).to.have.attribute('data-has-nested-dialogs');
-      expect(nestedDialog).not.to.have.attribute('data-has-nested-dialogs');
+      expect(parentDialog).to.have.attribute('data-nested-dialog-open');
+      expect(nestedDialog).not.to.have.attribute('data-nested-dialog-open');
     });
 
-    it('adds the `nested` and `has-nested-dialogs` style hooks on an alert dialog if has a parent dialog', async () => {
+    it('adds the `nested` and `nested-dialog-open` style hooks on an alert dialog if has a parent dialog', async () => {
       await render(
         <Dialog.Root open>
           <Dialog.Portal>
@@ -266,8 +266,8 @@ describe('<AlertDialog.Popup />', () => {
       expect(parentDialog).not.to.have.attribute('data-nested');
       expect(nestedDialog).to.have.attribute('data-nested');
 
-      expect(parentDialog).to.have.attribute('data-has-nested-dialogs');
-      expect(nestedDialog).not.to.have.attribute('data-has-nested-dialogs');
+      expect(parentDialog).to.have.attribute('data-nested-dialog-open');
+      expect(nestedDialog).not.to.have.attribute('data-nested-dialog-open');
     });
   });
 });

@@ -116,7 +116,7 @@
     outline: 1px solid var(--color-gray-300);
   }
 
-  &[data-has-nested-dialogs] {
+  &[data-nested-dialog-open] {
     &::after {
       content: '';
       inset: 0;
