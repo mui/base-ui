@@ -4,14 +4,15 @@
   "props": {
     "defaultValue": {
       "type": "array",
-      "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s.\nThis is the uncontrolled counterpart of `value`."
+      "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed toggle buttons.\nThis is the uncontrolled counterpart of `value`."
     },
     "value": {
       "type": "array",
-      "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s\nThis is the controlled counterpart of `defaultValue`."
+      "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed toggle buttons\nThis is the controlled counterpart of `defaultValue`."
     },
     "onValueChange": {
       "type": "function(groupValue: Array<any>, event: Event) => void",
+      "required": true,
       "description": "Callback fired when the pressed states of the ToggleGroup changes."
     },
     "toggleMultiple": {
