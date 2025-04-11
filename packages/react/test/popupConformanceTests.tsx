@@ -10,6 +10,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
     triggerMouseAction,
     render,
     expectedPopupRole,
+    expectedAriaHasPopupValue = expectedPopupRole,
     alwaysMounted = false,
   } = config;
 
@@ -94,16 +95,16 @@ export function popupConformanceTests(config: PopupTestConfig) {
             expect(trigger).to.have.attribute('aria-expanded', 'true');
           });
 
-          if (expectedPopupRole) {
+          if (expectedAriaHasPopupValue) {
             it('has the `aria-haspopup` attribute on the trigger', async () => {
               await render(prepareComponent({ root: { open: true } }));
               const trigger = getTrigger();
-              expect(trigger).to.have.attribute('aria-haspopup', expectedPopupRole);
+              expect(trigger).to.have.attribute('aria-haspopup', expectedAriaHasPopupValue);
             });
           }
 
           it('allows a custom `id` prop', async () => {
-            await render(prepareComponent({ root: { open: true }, popup: { id: 'MyPopupId' } }));
+            await render(prepareComponent({ root: { open: true }, popup: { id: 'TestId' } }));
             const trigger = getTrigger();
             const popup = getPopup();
             expect(trigger.getAttribute('aria-controls')).to.equal(popup?.getAttribute('id'));
@@ -226,6 +227,10 @@ export interface PopupTestConfig {
    * Expected `role` attribute of the popup element.
    */
   expectedPopupRole?: string;
+  /**
+   * Expected `aria-haspopup` attribute of the trigger element.
+   */
+  expectedAriaHasPopupValue?: string;
   /**
    * Whether the popup contents are always present in the DOM.
    */
