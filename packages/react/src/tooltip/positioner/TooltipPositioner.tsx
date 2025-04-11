@@ -35,7 +35,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    ...intrinsicProps
+    ...elementProps
   } = componentProps;
 
   const { open, setPositionerElement, mounted, floatingRootContext } = useTooltipRootContext();
@@ -80,7 +80,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 
   const renderElement = useRenderElement('div', componentProps, {
     state,
-    props: [positioner.props, intrinsicProps],
+    props: [positioner.props, elementProps],
     ref: [forwardedRef, setPositionerElement],
     customStyleHookMapping: popupStateMapping,
   });

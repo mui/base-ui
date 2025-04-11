@@ -27,7 +27,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
   componentProps: TooltipPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...intrinsicProps } = componentProps;
+  const { className, render, ...elementProps } = componentProps;
 
   const { open, instantType, transitionStatus, getPopupProps, popupRef, onOpenChangeComplete } =
     useTooltipRootContext();
@@ -62,7 +62,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
       {
         style: transitionStatus === 'starting' ? { transition: 'none' } : {},
       },
-      intrinsicProps,
+      elementProps,
     ],
     customStyleHookMapping,
   });
