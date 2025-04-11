@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStyleHookMapping } from '../root/styleHooks';
@@ -20,7 +19,7 @@ const ProgressLabel = React.forwardRef(function ProgressLabel(
   props: ProgressLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, id: idProp, ...otherProps } = props;
+  const { render, className, id: idProp, ...elementProps } = props;
 
   const id = useBaseUiId(idProp);
 
@@ -31,12 +30,15 @@ const ProgressLabel = React.forwardRef(function ProgressLabel(
     return () => setLabelId(undefined);
   }, [id, setLabelId]);
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'span',
+  const renderElement = useRenderElement('span', props, {
     state,
-    className,
     ref: forwardedRef,
-    extraProps: mergeProps<'span'>({ id }, otherProps),
+    props: [
+      {
+        id,
+      },
+      elementProps,
+    ],
     customStyleHookMapping: progressStyleHookMapping,
   });
 

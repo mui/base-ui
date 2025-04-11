@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { mergeProps } from '../../merge-props';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import type { ProgressRoot } from '../root/ProgressRoot';
 import { useProgressRootContext } from '../root/ProgressRootContext';
@@ -19,7 +18,7 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   props: ProgressIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = props;
 
   const { max, min, value, state } = useProgressRootContext();
 
@@ -38,17 +37,15 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
     };
   }, [percentageValue]);
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
+  const renderElement = useRenderElement('div', props, {
     state,
-    className,
     ref: forwardedRef,
-    extraProps: mergeProps<'div'>(
+    props: [
       {
         style: getStyles(),
       },
-      otherProps,
-    ),
+      elementProps,
+    ],
     customStyleHookMapping: progressStyleHookMapping,
   });
 
