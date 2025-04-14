@@ -16,7 +16,7 @@ import { useButton } from '../use-button/useButton';
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */
 const Toggle = React.forwardRef(function Toggle(
-  props: Toggle.Props,
+  componentProps: Toggle.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -29,8 +29,8 @@ const Toggle = React.forwardRef(function Toggle(
     render,
     type, // cannot change button type
     value: valueProp,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const value = valueProp ?? '';
 
@@ -67,7 +67,7 @@ const Toggle = React.forwardRef(function Toggle(
     [disabled, pressed],
   );
 
-  const renderElement = useRenderElement('button', props, {
+  const renderElement = useRenderElement('button', componentProps, {
     state,
     ref: buttonRef,
     props: [
@@ -80,7 +80,7 @@ const Toggle = React.forwardRef(function Toggle(
         },
         ref: buttonRef,
       },
-      otherProps,
+      elementProps,
       getButtonProps,
     ],
   });

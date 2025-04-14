@@ -26,7 +26,7 @@ const customStyleHookMapping = {
  * Documentation: [Base UI Toggle Group](https://base-ui.com/react/components/toggle-group)
  */
 const ToggleGroup = React.forwardRef(function ToggleGroup(
-  props: ToggleGroup.Props,
+  componentProps: ToggleGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -39,8 +39,8 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
     value: valueProp,
     className,
     render,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const direction = useDirection();
 
@@ -96,14 +96,14 @@ const ToggleGroup = React.forwardRef(function ToggleGroup(
     [disabled, orientation, setGroupValue, groupValue],
   );
 
-  const renderElement = useRenderElement('div', props, {
+  const renderElement = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [
       {
         role: 'group',
       },
-      otherProps,
+      elementProps,
     ],
     customStyleHookMapping,
   });
@@ -212,7 +212,7 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    * @param {any[]} groupValue An array of the `value`s of all the pressed items.
    * @param {Event} event The corresponding event that initiated the change.
    */
-  onValueChange: PropTypes.func.isRequired,
+  onValueChange: PropTypes.func,
   /**
    * @default 'horizontal'
    */

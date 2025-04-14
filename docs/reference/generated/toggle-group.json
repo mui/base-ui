@@ -12,7 +12,6 @@
     },
     "onValueChange": {
       "type": "function(groupValue: Array<any>, event: Event) => void",
-      "required": true,
       "description": "Callback fired when the pressed states of the ToggleGroup changes."
     },
     "toggleMultiple": {
