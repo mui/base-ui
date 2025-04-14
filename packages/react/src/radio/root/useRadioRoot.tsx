@@ -97,7 +97,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
               return;
             }
 
-            if (disabled || readOnly || value == null) {
+            if (disabled || readOnly || value === undefined) {
               return;
             }
 
@@ -143,7 +143,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
 
 namespace useRadioRoot {
   export interface Parameters {
-    value: unknown;
+    value: any;
     disabled?: boolean;
     readOnly?: boolean;
     required?: boolean;
