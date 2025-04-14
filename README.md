@@ -1,8 +1,12 @@
-# Base UI
+<!-- #host-reference -->
+<!-- markdownlint-disable-next-line -->
+<div align="center">
+  <a href="https://base-ui.com/" rel="noopener" target="_blank"><img width="38" height="52" src="https://base-ui.com/static/logo.svg" alt="Base UI logo" style="width: 84px; height: 84px;"></a>
+</div>
+
+<h1 align="center">Base UI</h1>
 
 From the creators of Radix, Floating UI, and Material UI, Base UI is an unstyled UI component library for building accessible user interfaces.
-
----
 
 ## Documentation
 
