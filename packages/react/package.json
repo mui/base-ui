@@ -54,6 +54,7 @@
     "./slider": "./src/slider/index.ts",
     "./switch": "./src/switch/index.ts",
     "./tabs": "./src/tabs/index.ts",
+    "./toast": "./src/toast/index.ts",
     "./toggle": "./src/toggle/index.ts",
     "./toggle-group": "./src/toggle-group/index.ts",
     "./toolbar": "./src/toolbar/index.ts",
@@ -82,7 +83,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.27.0",
-    "@floating-ui/react": "^0.27.6",
+    "@floating-ui/react": "^0.27.7",
     "@floating-ui/utils": "^0.2.9",
     "@react-aria/overlays": "^3.26.1",
     "prop-types": "^15.8.1",
@@ -90,7 +91,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.4",
-    "@mui/internal-test-utils": "^2.0.6",
+    "@mui/internal-test-utils": "^2.0.7",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/chai": "^4.3.20",
@@ -103,12 +104,12 @@
     "chai": "^4.5.0",
     "fs-extra": "^11.3.0",
     "lodash": "^4.17.21",
-    "publint": "^0.3.10",
+    "publint": "^0.3.11",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.4.1",
+    "react-router-dom": "^7.5.0",
     "sinon": "^20.0.0",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",

@@ -9,11 +9,12 @@ import { useDirection } from '../direction-provider/DirectionContext';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { useToggleGroup } from './useToggleGroup';
 import { ToggleGroupContext } from './ToggleGroupContext';
+import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
 
 const customStyleHookMapping = {
   multiple(value: boolean) {
     if (value) {
-      return { 'data-multiple': '' } as Record<string, string>;
+      return { [ToggleGroupDataAttributes.multiple]: '' } as Record<string, string>;
     }
     return null;
   },

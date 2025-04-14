@@ -550,7 +550,7 @@ describe('<Tooltip.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-ending-style] {
             animation: test-anim 1ms;
           }
@@ -637,7 +637,7 @@ describe('<Tooltip.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-starting-style] {
             animation: test-anim 1ms;
           }
@@ -692,6 +692,68 @@ describe('<Tooltip.Root />', () => {
       );
 
       expect(onOpenChangeComplete.callCount).to.equal(0);
+    });
+  });
+
+  describe('prop: disabled', () => {
+    it('should not open when disabled', async () => {
+      await render(
+        <Root disabled delay={0}>
+          <Tooltip.Trigger />
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).to.equal(null);
+
+      await act(async () => trigger.focus());
+
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
+
+    it('should close if open when becoming disabled', async () => {
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+        return (
+          <div>
+            <Root defaultOpen disabled={disabled} delay={0}>
+              <Tooltip.Trigger />
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup>Content</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Root>
+            <button
+              data-testid="disabled"
+              onClick={() => {
+                setDisabled(true);
+              }}
+            />
+          </div>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.queryByText('Content')).not.to.equal(null);
+
+      const disabledButton = screen.getByTestId('disabled');
+      fireEvent.click(disabledButton);
+
+      expect(screen.queryByText('Content')).to.equal(null);
     });
   });
 });

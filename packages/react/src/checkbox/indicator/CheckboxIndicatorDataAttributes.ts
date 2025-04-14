@@ -1,3 +1,5 @@
+import { TransitionStatusDataAttributes } from '../../utils/styleHookMapping';
+
 export enum CheckboxIndicatorDataAttributes {
   /**
    * Present when the checkbox is checked.
@@ -22,11 +24,11 @@ export enum CheckboxIndicatorDataAttributes {
   /**
    * Present when the checkbox indicator is animating in.
    */
-  startingStyle = 'data-starting-style',
+  startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**
    * Present when the checkbox indicator is animating out.
    */
-  endingStyle = 'data-ending-style',
+  endingStyle = TransitionStatusDataAttributes.endingStyle,
   /**
    * Present when the checkbox is in valid state (when wrapped in Field.Root).
    */
