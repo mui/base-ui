@@ -173,17 +173,18 @@ export function useScrollAreaViewport() {
   }, [viewportRef, setHovering]);
 
   React.useEffect(() => {
-    if (
-      !contentWrapperRef.current ||
-      !viewportRef.current ||
-      typeof ResizeObserver === 'undefined'
-    ) {
+    if (typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
     const ro = new ResizeObserver(computeThumb);
-    ro.observe(contentWrapperRef.current);
-    ro.observe(viewportRef.current);
+
+    if (contentWrapperRef.current) {
+      ro.observe(contentWrapperRef.current);
+    }
+    if (viewportRef.current) {
+      ro.observe(viewportRef.current);
+    }
 
     return () => {
       ro.disconnect();
