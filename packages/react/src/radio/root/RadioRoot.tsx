@@ -27,6 +27,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     disabled: disabledProp = false,
     readOnly: readOnlyProp = false,
     required: requiredProp = false,
+    inputRef,
     ...otherProps
   } = props;
 
@@ -47,6 +48,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     ...props,
     disabled,
     readOnly,
+    inputRef,
   });
 
   const state: RadioRoot.State = React.useMemo(
@@ -101,6 +103,10 @@ namespace RadioRoot {
      * @default false
      */
     readOnly?: boolean;
+    /**
+     * The ref to the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
   }
 
   export interface State {
@@ -139,6 +145,15 @@ RadioRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * The ref to the hidden input element.
+   */
+  inputRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({
+      current: PropTypes.object,
+    }),
+  ]),
   /**
    * Whether the user should be unable to select the radio button.
    * @default false
