@@ -33,7 +33,7 @@ export default function Modality() {
 
 function SelectDemo({ modal, withBackdrop }: Props) {
   return (
-    <Select.Root defaultValue="system" modal={modal} alignItemToTrigger={false}>
+    <Select.Root defaultValue="system" modal={modal} anchor="trigger">
       <Select.Trigger aria-label="Select font" render={<Trigger />}>
         <Select.Value placeholder="System font" />
         <SelectDropdownArrow />
@@ -284,7 +284,7 @@ const MenuPopup = styled(Menu.Popup)(
       transform: scale(0.8);
     }
   }
-      
+
   &[data-exiting] {
     opacity: 0;
     transform: scale(0.8);

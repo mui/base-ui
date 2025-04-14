@@ -1,6 +1,6 @@
 {
   "name": "SelectPositioner",
-  "description": "Positions the select menu popup against the trigger.\nRenders a `<div>` element.",
+  "description": "Positions the select menu popup.\nRenders a `<div>` element.",
   "props": {
     "align": {
       "type": "'start' | 'center' | 'end'",
@@ -29,7 +29,7 @@
     },
     "anchor": {
       "type": "React.Ref | Element | VirtualElement | (() => Element | VirtualElement | null) | null",
-      "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
+      "description": "An element to position the popup against.\nBy default, the popup will be positioned over the top of the trigger so that\nthe selected item's text is aligned with the trigger's value text."
     },
     "collisionBoundary": {
       "type": "'clipping-ancestors' | Element | Element[] | Rect",

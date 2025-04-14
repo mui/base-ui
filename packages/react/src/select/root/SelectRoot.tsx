@@ -23,7 +23,6 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     open,
     defaultOpen = false,
     onOpenChange,
-    alignItemToTrigger = true,
     name,
     disabled = false,
     readOnly = false,
@@ -40,7 +39,6 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
     open,
     defaultOpen,
     onOpenChange,
-    alignItemToTrigger,
     name,
     disabled,
     readOnly,
@@ -147,11 +145,6 @@ SelectRoot.propTypes /* remove-proptypes */ = {
       unmount: PropTypes.func.isRequired,
     }).isRequired,
   }),
-  /**
-   * Determines if the selected item inside the popup should align to the trigger element.
-   * @default true
-   */
-  alignItemToTrigger: PropTypes.bool,
   /**
    * @ignore
    */

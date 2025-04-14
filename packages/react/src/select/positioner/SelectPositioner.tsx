@@ -15,7 +15,7 @@ import { HTMLElementType, refType } from '../../utils/proptypes';
 import { inertValue } from '../../utils/inertValue';
 
 /**
- * Positions the select menu popup against the trigger.
+ * Positions the select menu popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -25,7 +25,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    anchor,
+    anchor = 'item',
     positionMethod = 'absolute',
     className,
     render,
@@ -41,8 +41,41 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     ...otherProps
   } = props;
 
-  const { open, mounted, setPositionerElement, listRef, labelsRef, floatingRootContext, modal } =
-    useSelectRootContext();
+  const {
+    open,
+    mounted,
+    setPositionerElement,
+    listRef,
+    labelsRef,
+    floatingRootContext,
+    modal,
+    touchModality,
+    scrollUpArrowVisible,
+    setScrollUpArrowVisible,
+    scrollDownArrowVisible,
+    setScrollDownArrowVisible,
+    usingItemAnchorRef,
+  } = useSelectRootContext();
+
+  const isItemAnchor = anchor === 'item';
+
+  const [controlledItemAnchor, setControlledItemAnchor] = React.useState(isItemAnchor);
+  const usingItemAnchor = mounted && controlledItemAnchor && !touchModality;
+
+  React.useImperativeHandle(usingItemAnchorRef, () => usingItemAnchor);
+
+  if (!mounted && controlledItemAnchor !== isItemAnchor) {
+    setControlledItemAnchor(isItemAnchor);
+  }
+
+  if (anchor !== 'item' || !mounted) {
+    if (scrollUpArrowVisible) {
+      setScrollUpArrowVisible(false);
+    }
+    if (scrollDownArrowVisible) {
+      setScrollDownArrowVisible(false);
+    }
+  }
 
   const positioner = useSelectPositioner({
     anchor,
@@ -58,6 +91,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     sticky,
     trackAnchor,
+    usingItemAnchor,
     keepMounted: true,
   });
 
@@ -83,9 +117,19 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     extraProps: otherProps,
   });
 
+  const contextValue: SelectPositionerContext = React.useMemo(
+    () => ({
+      ...positioner,
+      usingItemAnchor,
+      controlledItemAnchor,
+      setControlledItemAnchor,
+    }),
+    [positioner, usingItemAnchor, controlledItemAnchor],
+  );
+
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
-      <SelectPositionerContext.Provider value={positioner}>
+      <SelectPositionerContext.Provider value={contextValue}>
         {mounted && modal && <InternalBackdrop inert={inertValue(!open)} />}
         {renderElement()}
       </SelectPositionerContext.Provider>
@@ -130,7 +174,8 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
   alignOffset: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
   /**
    * An element to position the popup against.
-   * By default, the popup will be positioned against the trigger.
+   * By default, the popup will be positioned over the top of the trigger so that
+   * the selected item's text is aligned with the trigger's value text.
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     HTMLElementType,

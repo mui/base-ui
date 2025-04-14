@@ -50,7 +50,7 @@ export default function PopupsInPopups() {
 
 function SelectDemo({ modal }: Props) {
   return (
-    <Select.Root modal={modal} defaultValue="system" alignItemToTrigger={false}>
+    <Select.Root modal={modal} defaultValue="system" anchor="trigger">
       <Tooltip.Root>
         <Select.Trigger
           aria-label="Select font"
@@ -393,7 +393,7 @@ const MenuPopup = styled(Menu.Popup)(
       transform: scale(0.8);
     }
   }
-      
+
   &[data-exiting] {
     opacity: 0;
     transform: scale(0.8);
