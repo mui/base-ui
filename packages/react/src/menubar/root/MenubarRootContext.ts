@@ -1,8 +1,11 @@
 import * as React from 'react';
-import { useMenubarRoot } from './useMenubarRoot';
 
-export interface MenubarRootContext extends useMenubarRoot.ReturnValue {
+export interface MenubarRootContext {
   modal: boolean;
+  contentElement: HTMLElement | null;
+  setContentElement: (element: HTMLElement | null) => void;
+  hasSubmenuOpen: boolean;
+  setHasSubmenuOpen: (open: boolean) => void;
 }
 
 export const MenubarRootContext = React.createContext<MenubarRootContext | null>(null);

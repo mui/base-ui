@@ -9,7 +9,6 @@ import {
 } from '@floating-ui/react';
 import { MenuOrientation } from '../../menu/root/useMenuRoot';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useMenubarRoot } from './useMenubarRoot';
 import { MenubarRootContext, useMenubarRootContext } from './MenubarRootContext';
 import { useForkRef, useScrollLock } from '../../utils';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -32,8 +31,8 @@ const MenubarRoot = React.forwardRef(function MenubarRoot(
     ...otherProps
   } = props;
 
-  const menubarRoot = useMenubarRoot();
-  const { contentElement, setContentElement, hasSubmenuOpen } = menubarRoot;
+  const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
+  const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
 
   const mergedRef = useForkRef(forwardedRef, setContentElement);
 
@@ -61,10 +60,13 @@ const MenubarRoot = React.forwardRef(function MenubarRoot(
 
   const context = React.useMemo(
     () => ({
-      ...menubarRoot,
+      contentElement,
+      setContentElement,
+      hasSubmenuOpen,
+      setHasSubmenuOpen,
       modal,
     }),
-    [menubarRoot, modal],
+    [contentElement, hasSubmenuOpen, modal],
   );
 
   return (
