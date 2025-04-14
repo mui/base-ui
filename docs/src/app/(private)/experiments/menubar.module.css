@@ -9,6 +9,11 @@
   &:focus-visible {
     outline: none;
   }
+
+  &[data-orientation='vertical'] {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .Item {
@@ -17,7 +22,7 @@
   user-select: none;
   padding-block: 0.5rem;
   padding-inline: 1rem;
-  display: flex;
+  display: block;
   font-size: 0.875rem;
   line-height: 1.25rem;
   z-index: 0;
@@ -32,11 +37,7 @@
     color: var(--color-gray-50);
   }
 
-  &[data-disabled]:hover::before {
-    background-color: var(--color-gray-300);
-  }
-
-  &[data-disabled] {
+  &:disabled {
     color: var(--color-gray-400);
   }
 
@@ -54,6 +55,10 @@
   &:hover::before,
   &:focus-visible::before {
     background-color: var(--color-gray-600);
+  }
+
+  &:disabled:hover::before {
+    background-color: var(--color-gray-300);
   }
 
   &[data-popup-open]::before {

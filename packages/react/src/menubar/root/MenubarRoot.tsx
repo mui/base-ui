@@ -14,8 +14,6 @@ import { MenubarRootContext, useMenubarRootContext } from './MenubarRootContext'
 import { useForkRef, useScrollLock } from '../../utils';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 
-const EMPTY_OBJECT = {};
-
 /**
  * The container for menus.
  *
@@ -46,10 +44,18 @@ const MenubarRoot = React.forwardRef(function MenubarRoot(
     referenceElement: contentElement,
   });
 
+  const state = React.useMemo(
+    () => ({
+      orientation,
+      modal,
+    }),
+    [orientation, modal],
+  );
+
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
-    state: EMPTY_OBJECT,
+    state,
     extraProps: otherProps,
   });
 

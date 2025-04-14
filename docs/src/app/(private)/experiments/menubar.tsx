@@ -2,16 +2,32 @@
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import { Menubar } from '@base-ui-components/react/menubar';
-
+import {
+  SettingsMetadata,
+  useExperimentSettings,
+} from '../../../components/Experiments/SettingsPanel';
 import '../../../demo-theme.css';
 import menuClasses from './menu/menu.module.css';
 import classes from './menubar.module.css';
 
+interface Settings {
+  modal: boolean;
+  loop: boolean;
+  orientation: 'horizontal' | 'vertical';
+}
+
 export default function MenubarExperiment() {
+  const { settings } = useExperimentSettings<Settings>();
+
   return (
     <div style={{ isolation: 'isolate' }}>
       <h1>Menubar</h1>
-      <Menubar.Root className={classes.Root}>
+      <Menubar.Root
+        className={classes.Root}
+        loop={settings.loop}
+        orientation={settings.orientation}
+        modal={settings.modal}
+      >
         <Menu.Root>
           <Menu.Trigger className={classes.Item}>File</Menu.Trigger>
 
@@ -148,71 +164,28 @@ export default function MenubarExperiment() {
       </Menubar.Root>
       <hr className={classes.Separator} />
       <input className={classes.Input} placeholder="focus tester" />
-      <div style={{ zIndex: 100, position: 'relative' }}>
-        <a href="#">z-index: 100</a>
-      </div>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo quidem,
-        magnam, doloribus obcaecati culpa nemo provident omnis enim accusamus itaque,
-        illum in veritatis fugiat quo voluptatibus iusto nam est iure. Lorem ipsum
-        dolor, sit amet consectetur adipisicing elit. At unde perspiciatis iste autem
-        totam blanditiis atque, eos suscipit. Nesciunt quod soluta itaque expedita
-        consequuntur illo similique reprehenderit eligendi iusto perspiciatis placeat
-        mollitia eos iste obcaecati veniam omnis dolorum doloribus voluptate,
-        doloremque quo necessitatibus aliquid? Officia perspiciatis necessitatibus
-        ratione laudantium suscipit enim exercitationem voluptatem, iure vero optio
-        placeat. Cumque delectus atque dolores optio, quis fugiat in sit architecto
-        deserunt et, illum non aspernatur quibusdam dolorum saepe minus neque amet.
-        Ipsum dignissimos, minima iste saepe placeat perferendis ad ducimus quibusdam
-        deleniti ab est dolorum tenetur praesentium soluta! Voluptatem animi
-        accusantium vitae! Expedita! Lorem ipsum dolor, sit amet consectetur
-        adipisicing elit. At unde perspiciatis iste autem totam blanditiis atque, eos
-        suscipit. Nesciunt quod soluta itaque expedita consequuntur illo similique
-        reprehenderit eligendi iusto perspiciatis placeat mollitia eos iste obcaecati
-        veniam omnis dolorum doloribus voluptate, doloremque quo necessitatibus
-        aliquid? Officia perspiciatis necessitatibus ratione laudantium suscipit enim
-        exercitationem voluptatem, iure vero optio placeat. Cumque delectus atque
-        dolores optio, quis fugiat in sit architecto deserunt et, illum non
-        aspernatur quibusdam dolorum saepe minus neque amet. Ipsum dignissimos,
-        minima iste saepe placeat perferendis ad ducimus quibusdam deleniti ab est
-        dolorum tenetur praesentium soluta! Voluptatem animi accusantium vitae!
-        Expedita! Lorem ipsum dolor, sit amet consectetur adipisicing elit. At unde
-        perspiciatis iste autem totam blanditiis atque, eos suscipit. Nesciunt quod
-        soluta itaque expedita consequuntur illo similique reprehenderit eligendi
-        iusto perspiciatis placeat mollitia eos iste obcaecati veniam omnis dolorum
-        doloribus voluptate, doloremque quo necessitatibus aliquid? Officia
-        perspiciatis necessitatibus ratione laudantium suscipit enim exercitationem
-        voluptatem, iure vero optio placeat. Cumque delectus atque dolores optio,
-        quis fugiat in sit architecto deserunt et, illum non aspernatur quibusdam
-        dolorum saepe minus neque amet. Ipsum dignissimos, minima iste saepe placeat
-        perferendis ad ducimus quibusdam deleniti ab est dolorum tenetur praesentium
-        soluta! Voluptatem animi accusantium vitae! Expedita! Lorem ipsum dolor, sit
-        amet consectetur adipisicing elit. At unde perspiciatis iste autem totam
-        blanditiis atque, eos suscipit. Nesciunt quod soluta itaque expedita
-        consequuntur illo similique reprehenderit eligendi iusto perspiciatis placeat
-        mollitia eos iste obcaecati veniam omnis dolorum doloribus voluptate,
-        doloremque quo necessitatibus aliquid? Officia perspiciatis necessitatibus
-        ratione laudantium suscipit enim exercitationem voluptatem, iure vero optio
-        placeat. Cumque delectus atque dolores optio, quis fugiat in sit architecto
-        deserunt et, illum non aspernatur quibusdam dolorum saepe minus neque amet.
-        Ipsum dignissimos, minima iste saepe placeat perferendis ad ducimus quibusdam
-        deleniti ab est dolorum tenetur praesentium soluta! Voluptatem animi
-        accusantium vitae! Expedita! Lorem ipsum dolor, sit amet consectetur
-        adipisicing elit. At unde perspiciatis iste autem totam blanditiis atque, eos
-        suscipit. Nesciunt quod soluta itaque expedita consequuntur illo similique
-        reprehenderit eligendi iusto perspiciatis placeat mollitia eos iste obcaecati
-        veniam omnis dolorum doloribus voluptate, doloremque quo necessitatibus
-        aliquid? Officia perspiciatis necessitatibus ratione laudantium suscipit enim
-        exercitationem voluptatem, iure vero optio placeat. Cumque delectus atque
-        dolores optio, quis fugiat in sit architecto deserunt et, illum non
-        aspernatur quibusdam dolorum saepe minus neque amet. Ipsum dignissimos,
-        minima iste saepe placeat perferendis ad ducimus quibusdam deleniti ab est
-        dolorum tenetur praesentium soluta! Voluptatem animi accusantium vitae!
-        Expedita!
-      </p>
     </div>
   );
 }
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  loop: {
+    type: 'boolean',
+    label: 'Loop',
+    default: true,
+  },
+  modal: {
+    type: 'boolean',
+    label: 'Modal',
+    default: true,
+  },
+  orientation: {
+    type: 'string',
+    label: 'Orientation',
+    options: ['horizontal', 'vertical'],
+    default: 'horizontal',
+  },
+};
 
 function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
   return (
