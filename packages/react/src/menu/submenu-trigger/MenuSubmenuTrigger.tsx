@@ -11,7 +11,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { mergeProps } from '../../merge-props';
-import { MenubarRootContext } from '../../menubar/root/MenubarRootContext';
+import { MenubarContext } from '../../menubar/MenubarContext';
 
 /**
  * A menu item that opens a submenu.
@@ -78,9 +78,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   return renderElement();
 });
 
-function isMenuRootContext(
-  context: MenuRootContext | MenubarRootContext,
-): context is MenuRootContext {
+function isMenuRootContext(context: MenuRootContext | MenubarContext): context is MenuRootContext {
   return 'activeIndex' in context;
 }
 

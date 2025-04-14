@@ -4,7 +4,7 @@ import { Menu } from '@base-ui-components/react/menu';
 
 export default function ExampleMenubar() {
   return (
-    <Menubar.Root className="flex rounded-md border border-gray-200 bg-gray-50 p-1">
+    <Menubar className="flex rounded-md border border-gray-200 bg-gray-50 p-1">
       <Menu.Root>
         <Menu.Trigger className="rounded-sm px-4 py-2 text-sm font-medium text-gray-700 outline-none select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 disabled:cursor-not-allowed disabled:opacity-50 data-[popup-open]:bg-gray-100">
           File
@@ -127,7 +127,7 @@ export default function ExampleMenubar() {
           Help
         </Menu.Trigger>
       </Menu.Root>
-    </Menubar.Root>
+    </Menubar>
   );
 }
 

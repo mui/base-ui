@@ -1,5 +1,5 @@
 {
-  "name": "MenubarRoot",
+  "name": "Menubar",
   "description": "The container for menus.",
   "props": {
     "modal": {

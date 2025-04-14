@@ -15,7 +15,7 @@ import {
   type FloatingRootContext,
 } from '@floating-ui/react';
 import { MenuRootContext } from './MenuRootContext';
-import { MenubarRootContext } from '../../menubar/root/MenubarRootContext';
+import { MenubarContext } from '../../menubar/MenubarContext';
 import { GenericHTMLProps } from '../../utils/types';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -182,7 +182,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       openOnHover &&
       !disabled &&
       openReason !== 'click' &&
-      (parentType !== 'menubar' || ((parentContext as MenubarRootContext).hasSubmenuOpen && !open)),
+      (parentType !== 'menubar' || ((parentContext as MenubarContext).hasSubmenuOpen && !open)),
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: false,
@@ -195,7 +195,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     enabled:
       parentType === 'menubar' &&
       !disabled &&
-      (parentContext as MenubarRootContext).hasSubmenuOpen &&
+      (parentContext as MenubarContext).hasSubmenuOpen &&
       !open,
   });
 
@@ -395,7 +395,7 @@ export namespace useMenuRoot {
      */
     actionsRef: React.RefObject<Actions> | undefined;
     parentType: 'menubar' | 'menu' | undefined;
-    parentContext: MenuRootContext | MenubarRootContext | undefined;
+    parentContext: MenuRootContext | MenubarContext | undefined;
   }
 
   export interface ReturnValue {

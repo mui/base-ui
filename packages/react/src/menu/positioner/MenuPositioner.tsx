@@ -15,7 +15,7 @@ import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
-import { useMenubarRootContext } from '../../menubar/root/MenubarRootContext';
+import { useMenubarContext } from '../../menubar/MenubarContext';
 
 /**
  * Positions the menu popup against the trigger.
@@ -60,8 +60,8 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   const nodeId = useFloatingNodeId();
   const parentNodeId = useFloatingParentNodeId();
 
-  const menubarRootContext = useMenubarRootContext(true);
-  const isInMenubar = menubarRootContext != null;
+  const menubarContext = useMenubarContext(true);
+  const isInMenubar = menubarContext != null;
 
   let computedSide = side;
   let computedAlign = align;
@@ -140,9 +140,8 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   const shouldRenderBackdrop =
     open &&
     !nested &&
-    ((!isInMenubar && modal && openReason !== 'hover') ||
-      (isInMenubar && menubarRootContext.modal));
-  const backdropCutout = isInMenubar ? menubarRootContext.contentElement : undefined;
+    ((!isInMenubar && modal && openReason !== 'hover') || (isInMenubar && menubarContext.modal));
+  const backdropCutout = isInMenubar ? menubarContext.contentElement : undefined;
 
   return (
     <MenuPositionerContext.Provider value={contextValue}>

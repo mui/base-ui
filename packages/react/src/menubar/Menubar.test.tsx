@@ -5,9 +5,9 @@ import { createRenderer, isJSDOM } from '#test-utils';
 import { Menubar } from '@base-ui-components/react/menubar';
 import { Menu } from '@base-ui-components/react/menu';
 
-function TestMenubar(props: Menubar.Root.Props) {
+function TestMenubar(props: Menubar.Props) {
   return (
-    <Menubar.Root {...props} style={{ maxWidth: '25vw', display: 'flex' }}>
+    <Menubar {...props} style={{ maxWidth: '25vw', display: 'flex' }}>
       <Menu.Root>
         <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
         <Menu.Portal>
@@ -52,11 +52,11 @@ function TestMenubar(props: Menubar.Root.Props) {
           </Menu.Positioner>
         </Menu.Portal>
       </Menu.Root>
-    </Menubar.Root>
+    </Menubar>
   );
 }
 
-describe.skipIf(isJSDOM)('<Menubar.Root />', () => {
+describe.skipIf(isJSDOM)('<Menubar />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });

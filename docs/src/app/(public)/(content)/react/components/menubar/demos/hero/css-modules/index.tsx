@@ -5,7 +5,7 @@ import styles from './index.module.css';
 
 export default function ExampleMenubar() {
   return (
-    <Menubar.Root className={styles.Menubar}>
+    <Menubar className={styles.Menubar}>
       <Menu.Root>
         <Menu.Trigger className={styles.MenuTrigger}>File</Menu.Trigger>
         <Menu.Portal>
@@ -91,7 +91,7 @@ export default function ExampleMenubar() {
           Help
         </Menu.Trigger>
       </Menu.Root>
-    </Menubar.Root>
+    </Menubar>
   );
 }
 

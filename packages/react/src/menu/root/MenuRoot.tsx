@@ -6,7 +6,7 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot } from './useMenuRoot';
 import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
-import { useMenubarRootContext } from '../../menubar/root/MenubarRootContext';
+import { useMenubarContext } from '../../menubar/MenubarContext';
 
 /**
  * Groups all parts of the menu.
@@ -34,9 +34,9 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const direction = useDirection();
 
   const parentContext = useMenuRootContext(true);
-  const menubarRootContext = useMenubarRootContext(true);
+  const menubarContext = useMenubarContext(true);
   const nested = parentContext != null;
-  const isInMenubar = menubarRootContext != null;
+  const isInMenubar = menubarContext != null;
   const modal = !nested && !isInMenubar && (modalProp ?? true);
 
   if (process.env.NODE_ENV !== 'production') {
@@ -49,7 +49,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const openOnHover =
     openOnHoverProp ??
-    (parentContext != null || (menubarRootContext != null && menubarRootContext.hasSubmenuOpen));
+    (parentContext != null || (menubarContext != null && menubarContext.hasSubmenuOpen));
   const typingRef = React.useRef(false);
 
   const onTypingChange = React.useCallback((nextTyping: boolean) => {
@@ -59,7 +59,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   let parentType: 'menu' | 'menubar' | undefined;
   if (parentContext) {
     parentType = 'menu';
-  } else if (menubarRootContext) {
+  } else if (menubarContext) {
     parentType = 'menubar';
   }
 
@@ -80,14 +80,14 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     actionsRef,
     onOpenChangeComplete,
     parentType,
-    parentContext: menubarRootContext ?? parentContext,
+    parentContext: menubarContext ?? parentContext,
   });
 
   const context: MenuRootContext = React.useMemo(
     () => ({
       ...menuRoot,
       nested,
-      parentContext: parentContext ?? menubarRootContext ?? undefined,
+      parentContext: parentContext ?? menubarContext ?? undefined,
       disabled,
       allowMouseUpTriggerRef:
         parentContext?.allowMouseUpTriggerRef ?? menuRoot.allowMouseUpTriggerRef,
@@ -95,7 +95,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       modal,
       isInMenubar: parentType === 'menubar',
     }),
-    [menuRoot, nested, parentContext, menubarRootContext, disabled, modal, parentType],
+    [menuRoot, nested, parentContext, menubarContext, disabled, modal, parentType],
   );
 
   const content = <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;

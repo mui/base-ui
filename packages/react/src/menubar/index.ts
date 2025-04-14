@@ -1,1 +1,1 @@
-export * as Menubar from './index.parts';
+export { Menubar } from './Menubar';

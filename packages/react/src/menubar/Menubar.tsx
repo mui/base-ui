@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -7,19 +9,19 @@ import {
   useFloatingNodeId,
   useFloatingTree,
 } from '@floating-ui/react';
-import { MenuOrientation } from '../../menu/root/useMenuRoot';
-import { BaseUIComponentProps } from '../../utils/types';
-import { MenubarRootContext, useMenubarRootContext } from './MenubarRootContext';
-import { useForkRef, useScrollLock } from '../../utils';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { MenuOrientation } from '../menu/root/useMenuRoot';
+import { BaseUIComponentProps } from '../utils/types';
+import { MenubarContext, useMenubarContext } from './MenubarContext';
+import { useForkRef, useScrollLock } from '../utils';
+import { useComponentRenderer } from '../utils/useComponentRenderer';
 
 /**
  * The container for menus.
  *
  * Documentation: [Base UI Menubar](https://base-ui.com/react/components/menubar)
  */
-const MenubarRoot = React.forwardRef(function MenubarRoot(
-  props: MenubarRoot.Props,
+const Menubar = React.forwardRef(function Menubar(
+  props: Menubar.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -70,7 +72,7 @@ const MenubarRoot = React.forwardRef(function MenubarRoot(
   );
 
   return (
-    <MenubarRootContext.Provider value={context}>
+    <MenubarContext.Provider value={context}>
       <FloatingTree>
         <MenubarContent>
           <Composite
@@ -81,11 +83,11 @@ const MenubarRoot = React.forwardRef(function MenubarRoot(
           />
         </MenubarContent>
       </FloatingTree>
-    </MenubarRootContext.Provider>
+    </MenubarContext.Provider>
   );
 });
 
-MenubarRoot.propTypes /* remove-proptypes */ = {
+Menubar.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
   // │ These PropTypes are generated from the TypeScript type definitions. │
   // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
@@ -132,7 +134,7 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
   const nodeId = useFloatingNodeId();
   const { events: menuEvents } = useFloatingTree()!;
   const openSubmenus = React.useRef(new Set<string>());
-  const rootContext = useMenubarRootContext();
+  const rootContext = useMenubarContext();
   React.useEffect(() => {
     function onSubmenuOpenChange(event: { open: boolean; nodeId: string; parentNodeId: string }) {
       if (event.parentNodeId !== nodeId) {
@@ -158,7 +160,7 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
   return <FloatingNode id={nodeId}>{props.children}</FloatingNode>;
 }
 
-namespace MenubarRoot {
+namespace Menubar {
   export interface State {}
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
@@ -195,4 +197,4 @@ MenubarContent.propTypes /* remove-proptypes */ = {
   children: PropTypes.node,
 } as any;
 
-export { MenubarRoot };
+export { Menubar };

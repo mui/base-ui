@@ -22,7 +22,7 @@ export default function MenubarExperiment() {
   return (
     <div style={{ isolation: 'isolate' }}>
       <h1>Menubar</h1>
-      <Menubar.Root
+      <Menubar
         className={classes.Root}
         loop={settings.loop}
         orientation={settings.orientation}
@@ -161,7 +161,7 @@ export default function MenubarExperiment() {
             </Menu.Positioner>
           </Menu.Portal>
         </Menu.Root>
-      </Menubar.Root>
+      </Menubar>
       <hr className={classes.Separator} />
       <input className={classes.Input} placeholder="focus tester" />
     </div>
