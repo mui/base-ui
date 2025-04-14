@@ -42,6 +42,7 @@
     "./menu": "./src/menu/index.ts",
     "./merge-props": "./src/merge-props/index.ts",
     "./meter": "./src/meter/index.ts",
+    "./navigation-menu": "./src/navigation-menu/index.ts",
     "./number-field": "./src/number-field/index.ts",
     "./popover": "./src/popover/index.ts",
     "./preview-card": "./src/preview-card/index.ts",
@@ -83,10 +84,11 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.27.0",
-    "@floating-ui/react": "^0.27.7",
+    "@floating-ui/react": "https://pkg.pr.new/@floating-ui/react@3297",
     "@floating-ui/utils": "^0.2.9",
     "@react-aria/overlays": "^3.27.0",
     "prop-types": "^15.8.1",
+    "tabbable": "^6.2.0",
     "use-sync-external-store": "^1.5.0"
   },
   "devDependencies": {

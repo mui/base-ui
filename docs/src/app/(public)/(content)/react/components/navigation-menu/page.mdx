@@ -1,0 +1,37 @@
+# Navigation Menu
+
+<Subtitle>A collection of links and menus for website navigation.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React navigation menu component that displays a collection of links and menus for website navigation."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
+
+<NavigationMenu.Root>
+  <NavigationMenu.List>
+    <NavigationMenu.Item>
+      <NavigationMenu.Trigger />
+      <NavigationMenu.Portal>
+        <NavigationMenu.Backdrop />
+        <NavigationMenu.Positioner>
+          <NavigationMenu.Popup>
+            <NavigationMenu.Arrow />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+    </NavigationMenu.Item>
+  </NavigationMenu.List>
+</NavigationMenu.Root>;
+```
+
+<Reference
+  component="NavigationMenu"
+  parts="Root, List, Item, Trigger, Backdrop, Portal, Positioner, Popup, Content"
+/>

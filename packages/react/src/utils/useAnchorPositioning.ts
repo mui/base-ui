@@ -17,6 +17,7 @@ import {
   type Padding,
   type FloatingContext,
   type Side as PhysicalSide,
+  AutoUpdateOptions,
 } from '@floating-ui/react';
 import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
@@ -66,11 +67,11 @@ export function useAnchorPositioning(
     collisionPadding = 5,
     sticky = false,
     arrowPadding = 5,
+    trackAnchor = true,
     // Private parameters
     keepMounted = false,
     floatingRootContext,
     mounted,
-    trackAnchor = true,
     nodeId,
   } = params;
 
@@ -219,7 +220,7 @@ export function useAnchorPositioning(
     };
   }
 
-  const autoUpdateOptions = React.useMemo(
+  const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
       elementResize: trackAnchor && typeof ResizeObserver !== 'undefined',
       layoutShift: trackAnchor && typeof IntersectionObserver !== 'undefined',
@@ -315,6 +316,7 @@ export function useAnchorPositioning(
       refs,
       context,
       isPositioned,
+      update,
     }),
     [
       floatingStyles,
@@ -327,6 +329,7 @@ export function useAnchorPositioning(
       refs,
       context,
       isPositioned,
+      update,
     ],
   );
 }
@@ -440,5 +443,6 @@ export namespace useAnchorPositioning {
     refs: ReturnType<typeof useFloating>['refs'];
     context: FloatingContext;
     isPositioned: boolean;
+    update: () => void;
   }
 }
