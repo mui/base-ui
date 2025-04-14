@@ -33,7 +33,7 @@ export default function Modality() {
 
 function SelectDemo({ modal, withBackdrop }: Props) {
   return (
-    <Select.Root defaultValue="system" modal={modal} anchor="trigger">
+    <Select.Root defaultValue="system" modal={modal}>
       <Select.Trigger aria-label="Select font" render={<Trigger />}>
         <Select.Value placeholder="System font" />
         <SelectDropdownArrow />
@@ -42,7 +42,7 @@ function SelectDemo({ modal, withBackdrop }: Props) {
       {withBackdrop && <Select.Backdrop render={<Backdrop />} />}
 
       <Select.Portal>
-        <Select.Positioner sideOffset={5} render={<Positioner />}>
+        <Select.Positioner sideOffset={5} render={<Positioner />} anchor="trigger">
           <SelectPopup>
             <SelectItem value="system">
               <SelectItemIndicator render={<CheckIcon />} />

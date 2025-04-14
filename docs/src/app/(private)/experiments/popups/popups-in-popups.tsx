@@ -50,7 +50,7 @@ export default function PopupsInPopups() {
 
 function SelectDemo({ modal }: Props) {
   return (
-    <Select.Root modal={modal} defaultValue="system" anchor="trigger">
+    <Select.Root modal={modal} defaultValue="system">
       <Tooltip.Root>
         <Select.Trigger
           aria-label="Select font"
@@ -67,7 +67,7 @@ function SelectDemo({ modal }: Props) {
       </Tooltip.Root>
 
       <Select.Portal>
-        <Select.Positioner sideOffset={5} render={<Positioner />}>
+        <Select.Positioner sideOffset={5} render={<Positioner />} anchor="trigger">
           <SelectPopup>
             <SelectItem value="system">
               <SelectItemIndicator render={<CheckIcon />} />
