@@ -1,9 +1,10 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
 <style>
   @media (prefers-color-scheme: dark) {
     .a { fill: #fff; }
   }
 </style>
-<path d="M9.37508 4.00068C9.16838 3.98792 9 4.15718 9 4.36447V16C12.3137 16 15 13.3113 15 9.99457C15 6.80395 12.5141 4.19446 9.37508 4.00068Z" class="a" fill="#000"/>
-<path fill-rule="evenodd" class="a" clip-rule="evenodd" d="M8 6.4V8V16C4.68629 16 2 13.1346 2 9.6V8V0C5.31371 0 8 2.86537 8 6.4Z" fill="#000"/>
+<path d="M18.6251 7.00119C18.2806 6.97886 18 7.27506 18 7.63782V28C23.5228 28 28 23.2948 28 17.4905C28 11.9069 23.8568 7.3403 18.6251 7.00119Z" class="a" fill="#000"/>
+<path fill-rule="evenodd" class="a" clip-rule="evenodd" d="M16 11.2V14V28C10.4771 28 6 22.9856 6 16.8V14V0C11.5228 0 16 5.0144 16 11.2Z" fill="#000"/>
 </svg>
