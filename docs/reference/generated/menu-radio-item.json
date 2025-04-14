@@ -40,6 +40,12 @@
     },
     "data-unchecked": {
       "description": "Present when the menu radio item is not selected."
+    },
+    "data-highlighted": {
+      "description": "Present when the menu radio item is highlighted."
+    },
+    "data-disabled": {
+      "description": "Present when the menu radio item is disabled."
     }
   },
   "cssVariables": {}

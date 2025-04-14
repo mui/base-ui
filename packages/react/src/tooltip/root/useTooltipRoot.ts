@@ -33,6 +33,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     delay,
     closeDelay,
     onOpenChangeComplete,
+    disabled,
   } = params;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -60,6 +61,10 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     },
     [onOpenChange, setOpenUnwrapped],
   );
+
+  if (open && disabled) {
+    setOpen(false);
+  }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -130,6 +135,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   }
 
   const hover = useHover(context, {
+    enabled: !disabled,
     mouseOnly: true,
     move: false,
     handleClose: hoverable && trackCursorAxis !== 'both' ? safePolygon() : null,
@@ -138,10 +144,10 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       close: computedCloseDelay,
     },
   });
-  const focus = useFocus(context);
-  const dismiss = useDismiss(context, { referencePress: true });
+  const focus = useFocus(context, { enabled: !disabled });
+  const dismiss = useDismiss(context, { enabled: !disabled, referencePress: true });
   const clientPoint = useClientPoint(context, {
-    enabled: trackCursorAxis !== 'none',
+    enabled: !disabled && trackCursorAxis !== 'none',
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });
 
@@ -224,8 +230,16 @@ export namespace useTooltipRoot {
     closeDelay?: number;
     /**
      * A ref to imperative actions.
+     * - `unmount`: When specified, the tooltip will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the tooltip manually.
+     * Useful when the tooltip's animation is controlled by an external library.
      */
     actionsRef?: React.RefObject<Actions>;
+    /**
+     * Whether the tooltip is disabled.
+     * @default false
+     */
+    disabled?: boolean;
   }
 
   export interface ReturnValue {

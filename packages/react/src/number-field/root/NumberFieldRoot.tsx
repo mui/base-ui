@@ -7,6 +7,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
+import { styleHookMapping } from '../utils/styleHooks';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -85,6 +86,7 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     state,
     className,
     extraProps: otherProps,
+    customStyleHookMapping: styleHookMapping,
   });
 
   return (
