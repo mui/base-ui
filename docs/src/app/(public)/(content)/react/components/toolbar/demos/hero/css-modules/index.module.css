@@ -6,6 +6,7 @@
   background-color: var(--color-gray-50);
   border-radius: 0.375rem;
   padding: 0.125rem;
+  width: 37.5rem;
 }
 
 .Group {
@@ -78,7 +79,7 @@
   text-decoration: none;
   align-self: center;
   flex: 0 0 auto;
-  margin-inline: 4rem 0.875rem;
+  margin-inline: auto 0.875rem;
 
   &:focus-visible {
     outline: 2px solid var(--color-blue);

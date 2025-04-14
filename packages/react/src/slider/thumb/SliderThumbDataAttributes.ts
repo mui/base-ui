@@ -1,5 +1,9 @@
 export enum SliderThumbDataAttributes {
   /**
+   * Indicates the index of the thumb in range sliders.
+   */
+  index = 'data-index',
+  /**
    * Present while the user is dragging.
    */
   dragging = 'data-dragging',

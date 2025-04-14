@@ -13,6 +13,7 @@ import { OPEN_DELAY } from '../utils/constants';
  */
 const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
   const {
+    disabled = false,
     defaultOpen = false,
     onOpenChange,
     open,
@@ -38,6 +39,7 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
     closeDelay,
     actionsRef,
     onOpenChangeComplete,
+    disabled,
   });
 
   const contextValue: TooltipRootContext = React.useMemo(
@@ -72,6 +74,9 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
   // └─────────────────────────────────────────────────────────────────────┘
   /**
    * A ref to imperative actions.
+   * - `unmount`: When specified, the tooltip will not be unmounted when closed.
+   * Instead, the `unmount` function must be called to unmount the tooltip manually.
+   * Useful when the tooltip's animation is controlled by an external library.
    */
   actionsRef: PropTypes.shape({
     current: PropTypes.shape({
@@ -99,6 +104,11 @@ TooltipRoot.propTypes /* remove-proptypes */ = {
    * @default 600
    */
   delay: PropTypes.number,
+  /**
+   * Whether the tooltip is disabled.
+   * @default false
+   */
+  disabled: PropTypes.bool,
   /**
    * Whether the tooltip contents can be hovered without closing the tooltip.
    * @default true

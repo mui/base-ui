@@ -5,7 +5,7 @@ import { SelectScrollArrow } from '../scroll-arrow/SelectScrollArrow';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * An element that scrolls the select menu down when hovered.
+ * An element that scrolls the select menu up when hovered.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -19,6 +19,7 @@ const SelectScrollUpArrow = React.forwardRef(function SelectScrollUpArrow(
 
 namespace SelectScrollUpArrow {
   export interface State {}
+
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Whether to keep the HTML element in the DOM while the select menu is not scrollable.
