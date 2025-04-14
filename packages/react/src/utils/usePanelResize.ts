@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { ownerWindow } from './owner';
+import { Dimensions } from '../collapsible/root/useCollapsibleRoot';
 
 function setAutoSize(panel: HTMLElement) {
   const originalHeight = panel.style.height;
@@ -19,7 +20,7 @@ function setAutoSize(panel: HTMLElement) {
  */
 export function usePanelResize(
   panelRef: React.RefObject<HTMLElement | null>,
-  setDimensions: React.Dispatch<React.SetStateAction<{ height: number; width: number }>>,
+  setDimensions: React.Dispatch<React.SetStateAction<Dimensions>>,
   open: boolean,
 ) {
   React.useEffect(() => {
