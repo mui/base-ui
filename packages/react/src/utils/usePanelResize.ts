@@ -25,7 +25,7 @@ export function usePanelResize(
 ) {
   React.useEffect(() => {
     const panel = panelRef.current;
-    if (!panel || !open) {
+    if (!panel || !open || typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
