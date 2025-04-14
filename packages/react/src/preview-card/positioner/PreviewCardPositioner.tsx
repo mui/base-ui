@@ -44,7 +44,6 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     anchor,
     floatingRootContext,
     positionMethod,
-    open,
     mounted,
     side,
     sideOffset,

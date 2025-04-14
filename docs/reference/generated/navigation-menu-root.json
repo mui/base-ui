@@ -1,0 +1,50 @@
+{
+  "name": "NavigationMenuRoot",
+  "description": "Groups all parts of the navigation menu.\nRenders a `<nav>` element.",
+  "props": {
+    "defaultValue": {
+      "type": "any",
+      "description": "The uncontrolled value of the item that should be initially selected.\n\nTo render a controlled navigation menu, use the `value` prop instead."
+    },
+    "value": {
+      "type": "any",
+      "default": "null",
+      "description": "The controlled value of the navigation navigation menu item that should be currently open.\n\nTo render an uncontrolled navigation navigation menu, use the `defaultValue` prop instead."
+    },
+    "onValueChange": {
+      "type": "((value: any) => void)",
+      "description": "Callback fired when the value changes."
+    },
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the navigation menu is initially open.\n\nTo render a controlled menu, use the `open` prop instead."
+    },
+    "open": {
+      "type": "boolean",
+      "description": "Whether the navigation menu is currently open."
+    },
+    "onOpenChange": {
+      "type": "((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)",
+      "description": "Event handler called when the navigation menu is opened or closed."
+    },
+    "actionsRef": {
+      "type": "RefObject<{ unmount: () => void; }>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the navigation menu will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the navigation menu manually.\nUseful when the navigation menu's animation is controlled by an external library."
+    },
+    "onOpenChangeComplete": {
+      "type": "((open: boolean) => void)",
+      "description": "Event handler called after any animations complete when the navigation menu is closed."
+    },
+    "className": {
+      "type": "string | ((state: State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

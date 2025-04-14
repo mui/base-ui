@@ -1,0 +1,69 @@
+# Navigation Menu
+
+<Subtitle>A collection of links and menus for website navigation.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React navigation menu component that displays a collection of links and menus for website navigation."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
+
+<NavigationMenu.Root>
+  <NavigationMenu.List>
+    <NavigationMenu.Item>
+      <NavigationMenu.Trigger />
+      <NavigationMenu.Content>
+        <NavigationMenu.Link />
+      </NavigationMenu.Content>
+    </NavigationMenu.Item>
+  </NavigationMenu.List>
+
+  <NavigationMenu.Portal>
+    <NavigationMenu.Backdrop />
+    <NavigationMenu.Positioner>
+      <NavigationMenu.Popup>
+        <NavigationMenu.Arrow />
+        <NavigationMenu.Viewport />
+      </NavigationMenu.Popup>
+    </NavigationMenu.Positioner>
+  </NavigationMenu.Portal>
+</NavigationMenu.Root>;
+```
+
+<Reference
+  component="NavigationMenu"
+  parts="Root, List, Item, Trigger, Icon, Content, Link, Backdrop, Portal, Positioner, Popup, Viewport, Arrow"
+/>
+
+## Examples
+
+### Nested submenus
+
+A `NavigationMenu.Root` component can be nested within a higher-level `NavigationMenu.Content` part to create a multi-level navigation menu.
+
+<Demo path="./demos/nested" />
+
+### Custom links
+
+The `NavigationMenu.Link` part can be customized to render the link from your framework using the `render` prop to enable client-side routing.
+
+```jsx title="Next.js example" {1,7}
+import NextLink from 'next/link';
+import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
+
+function Link(props: NavigationMenu.Link.Props) {
+  return (
+    <NavigationMenu.Link
+      render={<NextLink href={props.href} />}
+      {...props}
+    />
+  );
+}
+```

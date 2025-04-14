@@ -170,11 +170,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               return;
             }
 
-            if ((event.target as HTMLElement).closest('[data-floating-ui-portal]') != null) {
-              // don't navigate if the event came from a popup
-              return;
-            }
-
             if (textDirectionRef?.current == null) {
               textDirectionRef.current = getTextDirection(element);
             }

@@ -30,7 +30,7 @@ const FocusGuard = React.forwardRef(function FocusGuard(
     style: visuallyHidden,
   };
 
-  return <span {...props} {...restProps} />;
+  return <span {...props} {...restProps} data-base-ui-focus-guard="" />;
 });
 
 export { FocusGuard };

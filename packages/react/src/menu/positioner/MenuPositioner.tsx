@@ -70,7 +70,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     anchor,
     floatingRootContext,
     positionMethod,
-    open,
     mounted,
     side: computedSide,
     sideOffset,

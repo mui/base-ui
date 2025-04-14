@@ -93,6 +93,10 @@ export const nav = [
         href: '/react/components/meter',
       },
       {
+        label: 'Navigation Menu',
+        href: '/react/components/navigation-menu',
+      },
+      {
         label: 'Number Field',
         href: '/react/components/number-field',
       },
