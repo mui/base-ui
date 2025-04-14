@@ -72,11 +72,6 @@ export function useSelectPositioner(
 
 export namespace useSelectPositioner {
   export interface Parameters extends Omit<useAnchorPositioning.Parameters, 'anchor'> {
-    /**
-     * An element to position the popup against.
-     * By default, the popup will be positioned over the top of the trigger so that
-     * the selected item's text is aligned with the trigger's value text.
-     */
     anchor?: 'item' | 'trigger' | useAnchorPositioning.Parameters['anchor'];
     usingItemAnchor: boolean;
   }
@@ -86,6 +81,7 @@ export namespace useSelectPositioner {
      * An element to position the popup against.
      * By default, the popup will be positioned over the top of the trigger so that
      * the selected item's text is aligned with the trigger's value text.
+     * @default 'item'
      */
     anchor?: 'item' | 'trigger' | useAnchorPositioning.Parameters['anchor'];
   }

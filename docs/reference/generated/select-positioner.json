@@ -29,6 +29,7 @@
     },
     "anchor": {
       "type": "React.Ref | Element | VirtualElement | (() => Element | VirtualElement | null) | null",
+      "default": "'item'",
       "description": "An element to position the popup against.\nBy default, the popup will be positioned over the top of the trigger so that\nthe selected item's text is aligned with the trigger's value text."
     },
     "collisionBoundary": {

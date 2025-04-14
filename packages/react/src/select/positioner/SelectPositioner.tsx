@@ -176,8 +176,10 @@ SelectPositioner.propTypes /* remove-proptypes */ = {
    * An element to position the popup against.
    * By default, the popup will be positioned over the top of the trigger so that
    * the selected item's text is aligned with the trigger's value text.
+   * @default 'item'
    */
   anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    PropTypes.oneOf(['item', 'trigger']),
     HTMLElementType,
     refType,
     PropTypes.object,
