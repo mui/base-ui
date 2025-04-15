@@ -2,10 +2,6 @@
   "name": "SliderRoot",
   "description": "Groups all parts of the slider.\nRenders a `<div>` element.",
   "props": {
-    "aria-labelledby": {
-      "type": "string",
-      "description": "Identifies the element (or elements) that labels the current element."
-    },
     "name": {
       "type": "string",
       "description": "Identifies the field when a form is submitted."

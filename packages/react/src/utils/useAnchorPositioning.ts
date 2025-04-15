@@ -351,10 +351,6 @@ export namespace useAnchorPositioning {
       | React.RefObject<Element | null>
       | (() => Element | VirtualElement | null);
     /**
-     * Whether the popup is currently open.
-     */
-    open?: boolean;
-    /**
      * Determines which CSS `position` property to use.
      * @default 'absolute'
      */
@@ -425,6 +421,7 @@ export namespace useAnchorPositioning {
   }
 
   export interface Parameters extends SharedParameters {
+    open?: boolean;
     keepMounted?: boolean;
     trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
     floatingRootContext?: FloatingRootContext;

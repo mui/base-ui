@@ -23,8 +23,8 @@ import { inertValue } from '../../utils/inertValue';
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
-  hasNestedDialogs(value) {
-    return value ? { [DialogPopupDataAttributes.hasNestedDialogs]: '' } : null;
+  nestedDialogOpen(value) {
+    return value ? { [DialogPopupDataAttributes.nestedDialogOpen]: '' } : null;
   },
 };
 
@@ -87,12 +87,17 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     titleElementId,
   });
 
-  const state: DialogPopup.State = {
-    open,
-    nested,
-    transitionStatus,
-    hasNestedDialogs: nestedOpenDialogCount > 0,
-  };
+  const nestedDialogOpen = nestedOpenDialogCount > 0;
+
+  const state: DialogPopup.State = React.useMemo(
+    () => ({
+      open,
+      nested,
+      transitionStatus,
+      nestedDialogOpen,
+    }),
+    [open, nested, transitionStatus, nestedDialogOpen],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
@@ -151,7 +156,7 @@ namespace DialogPopup {
     /**
      * Whether the dialog has nested dialogs open.
      */
-    hasNestedDialogs: boolean;
+    nestedDialogOpen: boolean;
   }
 }
 
