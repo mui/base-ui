@@ -1,3 +1,5 @@
+import { TransitionStatusDataAttributes } from '../../utils/styleHookMapping';
+
 export enum MenuRadioItemIndicatorDataAttributes {
   /**
    * Present when the menu radio item is selected.
@@ -14,9 +16,9 @@ export enum MenuRadioItemIndicatorDataAttributes {
   /**
    * Present when the radio indicator is animating in.
    */
-  startingStyle = 'data-starting-style',
+  startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**
    * Present when the radio indicator is animating out.
    */
-  endingStyle = 'data-ending-style',
+  endingStyle = TransitionStatusDataAttributes.endingStyle,
 }

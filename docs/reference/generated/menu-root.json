@@ -12,12 +12,12 @@
       "description": "Whether the menu is currently open."
     },
     "onOpenChange": {
-      "type": "(open, event) => void",
+      "type": "((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the menu is opened or closed."
     },
     "actionsRef": {
-      "type": "{ current: { unmount: func } }",
-      "description": "A ref to imperative actions."
+      "type": "RefObject<{ unmount: () => void; }>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the menu will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the menu manually.\nUseful when the menu's animation is controlled by an external library."
     },
     "closeParentOnEsc": {
       "type": "boolean",
@@ -30,7 +30,7 @@
       "description": "Whether the menu should prevent outside clicks and lock page scroll when open."
     },
     "onOpenChangeComplete": {
-      "type": "(open) => void",
+      "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the menu is closed."
     },
     "disabled": {
@@ -53,9 +53,13 @@
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
     "orientation": {
-      "type": "'horizontal' | 'vertical'",
+      "type": "MenuOrientation",
       "default": "'vertical'",
       "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys."
+    },
+    "children": {
+      "type": "ReactNode",
+      "required": true
     }
   },
   "dataAttributes": {},

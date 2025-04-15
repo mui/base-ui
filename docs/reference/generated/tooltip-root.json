@@ -12,21 +12,26 @@
       "description": "Whether the tooltip is currently open."
     },
     "onOpenChange": {
-      "type": "(open, event, reason) => void",
+      "type": "((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the tooltip is opened or closed."
     },
     "actionsRef": {
-      "type": "{ current: { unmount: func } }",
-      "description": "A ref to imperative actions."
+      "type": "RefObject<Actions>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the tooltip will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the tooltip manually.\nUseful when the tooltip's animation is controlled by an external library."
     },
     "onOpenChangeComplete": {
-      "type": "(open) => void",
+      "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the tooltip is opened or closed."
     },
     "trackCursorAxis": {
-      "type": "'none' | 'x' | 'y' | 'both'",
+      "type": "'none' | 'both' | 'x' | 'y'",
       "default": "'none'",
       "description": "Determines which axis the tooltip should track the cursor on."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the tooltip is disabled."
     },
     "delay": {
       "type": "number",
@@ -42,6 +47,9 @@
       "type": "boolean",
       "default": "true",
       "description": "Whether the tooltip contents can be hovered without closing the tooltip."
+    },
+    "children": {
+      "type": "ReactNode"
     }
   },
   "dataAttributes": {},

@@ -141,6 +141,10 @@ export const nav = [
         href: '/react/components/tabs',
       },
       {
+        label: 'Toast',
+        href: '/react/components/toast',
+      },
+      {
         label: 'Toggle',
         href: '/react/components/toggle',
       },

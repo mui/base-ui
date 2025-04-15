@@ -266,6 +266,9 @@ export namespace usePopoverRoot {
     closeDelay?: number;
     /**
      * A ref to imperative actions.
+     * - `unmount`: When specified, the popover will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the popover manually.
+     * Useful when the popover's animation is controlled by an external library.
      */
     actionsRef?: React.RefObject<Actions>;
     /**

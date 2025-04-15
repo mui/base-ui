@@ -7,7 +7,6 @@ import { useEventCallback } from './useEventCallback';
  * Executes a function once all animations have finished on the provided element.
  * @param ref - The element to watch for animations.
  * @param waitForNextTick - Whether to wait for the next tick before checking for animations.
- * @ignore - internal hook.
  */
 export function useAnimationsFinished(
   ref: React.RefObject<HTMLElement | null>,
