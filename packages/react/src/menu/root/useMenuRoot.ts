@@ -175,9 +175,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     enabled: hoverEnabled && openOnHover && !disabled && openReason !== 'click',
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
-    delay: {
-      open: delay,
-    },
+    move: nested,
+    restMs: nested ? undefined : delay,
+    delay: nested ? { open: delay } : undefined,
   });
 
   const click = useClick(floatingRootContext, {
