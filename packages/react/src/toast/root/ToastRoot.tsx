@@ -100,7 +100,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   return <ToastRootContext.Provider value={toastRoot}>{renderElement()}</ToastRootContext.Provider>;
 });
 
-export namespace ToastRoot {
+namespace ToastRoot {
   export type ToastObject<Data extends object = any> = ToastObjectType<Data>;
 
   export interface State {

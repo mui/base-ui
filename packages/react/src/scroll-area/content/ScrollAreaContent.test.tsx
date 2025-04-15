@@ -9,7 +9,11 @@ describe('<ScrollArea.Content />', () => {
   describeConformance(<ScrollArea.Content />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(<ScrollArea.Root>{node}</ScrollArea.Root>);
+      return render(
+        <ScrollArea.Root>
+          <ScrollArea.Viewport>{node}</ScrollArea.Viewport>
+        </ScrollArea.Root>,
+      );
     },
   }));
 });

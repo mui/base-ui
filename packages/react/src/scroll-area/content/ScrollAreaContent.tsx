@@ -1,8 +1,11 @@
+'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeProps } from '../../merge-props';
+import { useEnhancedEffect } from '../../utils';
+import { useScrollAreaViewportContext } from '../viewport/ScrollAreaViewportContext';
 
 const state = {};
 
@@ -18,12 +21,33 @@ const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
 ) {
   const { render, className, ...otherProps } = props;
 
+  const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
+
+  const { computeThumbPosition } = useScrollAreaViewportContext();
+
+  useEnhancedEffect(() => {
+    if (typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+
+    const ro = new ResizeObserver(computeThumbPosition);
+
+    if (contentWrapperRef.current) {
+      ro.observe(contentWrapperRef.current);
+    }
+
+    return () => {
+      ro.disconnect();
+    };
+  }, [computeThumbPosition]);
+
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
     className,
-    ref: forwardedRef,
+    ref: [forwardedRef, contentWrapperRef],
     state,
     extraProps: mergeProps<'div'>(otherProps, {
+      role: 'presentation',
       style: {
         minWidth: 'fit-content',
       },
@@ -33,7 +57,7 @@ const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
   return renderElement();
 });
 
-export namespace ScrollAreaContent {
+namespace ScrollAreaContent {
   export interface State {}
 
   export interface Props extends BaseUIComponentProps<'div', State> {}

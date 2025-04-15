@@ -8,7 +8,7 @@ export type DirectionContext = {
 };
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 export const DirectionContext = React.createContext<DirectionContext | undefined>(undefined);
 

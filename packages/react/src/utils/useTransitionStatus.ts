@@ -7,7 +7,6 @@ export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 /**
  * Provides a status string for CSS animations.
  * @param open - a boolean that determines if the element is open.
- * @ignore - internal hook.
  */
 export function useTransitionStatus(open: boolean) {
   const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>(

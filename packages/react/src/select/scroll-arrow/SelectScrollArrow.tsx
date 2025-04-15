@@ -13,7 +13,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useSelectIndexContext } from '../root/SelectIndexContext';
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   props: SelectScrollArrow.Props,
