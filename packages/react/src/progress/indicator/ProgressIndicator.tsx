@@ -15,10 +15,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
 const ProgressIndicator = React.forwardRef(function ProgressIndicator(
-  props: ProgressIndicator.Props,
+  componentProps: ProgressIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { max, min, value, state } = useProgressRootContext();
 
@@ -37,7 +37,7 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
     };
   }, [percentageValue]);
 
-  const renderElement = useRenderElement('div', props, {
+  const renderElement = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [

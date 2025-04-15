@@ -16,10 +16,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
 const ProgressLabel = React.forwardRef(function ProgressLabel(
-  props: ProgressLabel.Props,
+  componentProps: ProgressLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, id: idProp, ...elementProps } = props;
+  const { render, className, id: idProp, ...elementProps } = componentProps;
 
   const id = useBaseUiId(idProp);
 
@@ -30,7 +30,7 @@ const ProgressLabel = React.forwardRef(function ProgressLabel(
     return () => setLabelId(undefined);
   }, [id, setLabelId]);
 
-  const renderElement = useRenderElement('span', props, {
+  const renderElement = useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
     props: [

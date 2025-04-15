@@ -39,7 +39,7 @@ function getDefaultAriaValueText(formattedValue: string | null, value: number | 
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
 const ProgressRoot = React.forwardRef(function ProgressRoot(
-  props: ProgressRoot.Props,
+  componentProps: ProgressRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -52,7 +52,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
     render,
     className,
     ...elementProps
-  } = props;
+  } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
 
@@ -84,7 +84,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
     [formattedValue, max, min, setLabelId, state, status, value],
   );
 
-  const renderElement = useRenderElement('div', props, {
+  const renderElement = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -95,7 +95,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
         'aria-valuenow': value ?? undefined,
         'aria-valuetext': getAriaValueText
           ? getAriaValueText(formattedValue, value)
-          : (props['aria-valuetext'] ?? getDefaultAriaValueText(formattedValue, value)),
+          : (componentProps['aria-valuetext'] ?? getDefaultAriaValueText(formattedValue, value)),
         role: 'progressbar',
       },
       elementProps,

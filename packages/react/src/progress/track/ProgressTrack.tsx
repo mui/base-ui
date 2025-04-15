@@ -14,14 +14,14 @@ import type { BaseUIComponentProps } from '../../utils/types';
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
 const ProgressTrack = React.forwardRef(function ProgressTrack(
-  props: ProgressTrack.Props,
+  componentProps: ProgressTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { state } = useProgressRootContext();
 
-  const renderElement = useRenderElement('div', props, {
+  const renderElement = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: elementProps,

@@ -13,17 +13,17 @@ import { progressStyleHookMapping } from '../root/styleHooks';
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
 const ProgressValue = React.forwardRef(function ProgressValue(
-  props: ProgressValue.Props,
+  componentProps: ProgressValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, ...elementProps } = props;
+  const { className, render, children, ...elementProps } = componentProps;
 
   const { value, formattedValue, state } = useProgressRootContext();
 
   const formattedValueArg = value == null ? 'indeterminate' : formattedValue;
   const formattedValueDisplay = value == null ? null : formattedValue;
 
-  const renderElement = useRenderElement('span', props, {
+  const renderElement = useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
     props: [
