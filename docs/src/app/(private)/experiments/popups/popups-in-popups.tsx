@@ -50,7 +50,7 @@ export default function PopupsInPopups() {
 
 function SelectDemo({ modal }: Props) {
   return (
-    <Select.Root modal={modal} defaultValue="system" alignItemToTrigger={false}>
+    <Select.Root modal={modal} defaultValue="system">
       <Tooltip.Root>
         <Select.Trigger
           aria-label="Select font"
@@ -67,7 +67,7 @@ function SelectDemo({ modal }: Props) {
       </Tooltip.Root>
 
       <Select.Portal>
-        <Select.Positioner sideOffset={5} render={<Positioner />}>
+        <Select.Positioner sideOffset={5} render={<Positioner />} anchor="trigger">
           <SelectPopup>
             <SelectItem value="system">
               <SelectItemIndicator render={<CheckIcon />} />
@@ -393,7 +393,7 @@ const MenuPopup = styled(Menu.Popup)(
       transform: scale(0.8);
     }
   }
-      
+
   &[data-exiting] {
     opacity: 0;
     transform: scale(0.8);
