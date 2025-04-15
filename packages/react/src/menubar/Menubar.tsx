@@ -67,8 +67,9 @@ const Menubar = React.forwardRef(function Menubar(
       hasSubmenuOpen,
       setHasSubmenuOpen,
       modal,
+      orientation,
     }),
-    [contentElement, hasSubmenuOpen, modal],
+    [contentElement, hasSubmenuOpen, modal, orientation],
   );
 
   return (

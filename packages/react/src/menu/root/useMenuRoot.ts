@@ -225,7 +225,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     nested: nested || parentType === 'menubar',
     loop,
     orientation,
-    parentOrientation: parentType === 'menubar' ? 'vertical' : undefined,
+    parentOrientation:
+      parentType === 'menubar' ? (parentContext as MenubarContext).orientation : undefined,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     onNavigate: setActiveIndex,

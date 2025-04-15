@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { MenuOrientation } from '../menu/root/useMenuRoot';
 
 export interface MenubarContext {
   modal: boolean;
@@ -7,6 +8,7 @@ export interface MenubarContext {
   setContentElement: (element: HTMLElement | null) => void;
   hasSubmenuOpen: boolean;
   setHasSubmenuOpen: (open: boolean) => void;
+  orientation: MenuOrientation;
 }
 
 export const MenubarContext = React.createContext<MenubarContext | null>(null);
