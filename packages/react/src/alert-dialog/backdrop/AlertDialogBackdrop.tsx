@@ -49,6 +49,7 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
         role: 'presentation',
         hidden: !mounted,
         style: {
+          userSelect: 'none',
           WebkitUserSelect: 'none',
         },
       },

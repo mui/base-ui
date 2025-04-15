@@ -49,6 +49,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
         role: 'presentation',
         hidden: !mounted,
         style: {
+          userSelect: 'none',
           WebkitUserSelect: 'none',
         },
       },

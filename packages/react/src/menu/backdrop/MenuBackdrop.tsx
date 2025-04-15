@@ -47,6 +47,7 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
         hidden: !mounted,
         style: {
           pointerEvents: openReason === 'hover' ? 'none' : undefined,
+          userSelect: 'none',
           WebkitUserSelect: 'none',
         },
       },

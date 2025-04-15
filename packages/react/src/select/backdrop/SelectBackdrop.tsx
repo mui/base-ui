@@ -44,6 +44,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
         role: 'presentation',
         hidden: !mounted,
         style: {
+          userSelect: 'none',
           WebkitUserSelect: 'none',
         },
       },

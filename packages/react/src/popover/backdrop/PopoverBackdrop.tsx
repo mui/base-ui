@@ -48,6 +48,7 @@ const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
         hidden: !mounted,
         style: {
           pointerEvents: openReason === 'hover' ? 'none' : undefined,
+          userSelect: 'none',
           WebkitUserSelect: 'none',
         },
       },
