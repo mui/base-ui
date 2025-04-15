@@ -7,6 +7,7 @@ import { clamp } from '../../utils/clamp';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { MIN_THUMB_SIZE } from '../constants';
 import { getOffset } from '../utils/getOffset';
+import { onVisible } from '../utils/onVisible';
 
 export function useScrollAreaViewport() {
   const {
@@ -27,9 +28,7 @@ export function useScrollAreaViewport() {
 
   const direction = useDirection();
 
-  const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
-
-  const computeThumb = useEventCallback(() => {
+  const computeThumbPosition = useEventCallback(() => {
     const viewportEl = viewportRef.current;
     const scrollbarYEl = scrollbarYRef.current;
     const scrollbarXEl = scrollbarXRef.current;
@@ -47,6 +46,10 @@ export function useScrollAreaViewport() {
     const viewportWidth = viewportEl.clientWidth;
     const scrollTop = viewportEl.scrollTop;
     const scrollLeft = viewportEl.scrollLeft;
+
+    if (scrollableContentHeight === 0 || scrollableContentWidth === 0) {
+      return;
+    }
 
     const scrollbarYHidden = viewportHeight >= scrollableContentHeight;
     const scrollbarXHidden = viewportWidth >= scrollableContentWidth;
@@ -143,14 +146,18 @@ export function useScrollAreaViewport() {
   });
 
   useEnhancedEffect(() => {
-    // First load computation.
-    // Wait for the scrollbar-related refs to be set.
-    queueMicrotask(computeThumb);
-  }, [computeThumb]);
+    if (!viewportRef.current) {
+      return undefined;
+    }
+
+    const cleanup = onVisible(viewportRef.current, computeThumbPosition);
+    return cleanup;
+  }, [computeThumbPosition, viewportRef]);
 
   useEnhancedEffect(() => {
-    computeThumb();
-  }, [computeThumb, hiddenState, direction]);
+    // Wait for scrollbar-related refs to be set
+    queueMicrotask(computeThumbPosition);
+  }, [computeThumbPosition, hiddenState, direction]);
 
   useEnhancedEffect(() => {
     // `onMouseEnter` doesn't fire upon load, so we need to check if the viewport is already
@@ -161,27 +168,26 @@ export function useScrollAreaViewport() {
   }, [viewportRef, setHovering]);
 
   React.useEffect(() => {
-    if (
-      !contentWrapperRef.current ||
-      !viewportRef.current ||
-      typeof ResizeObserver === 'undefined'
-    ) {
+    if (typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
-    const ro = new ResizeObserver(computeThumb);
-    ro.observe(contentWrapperRef.current);
-    ro.observe(viewportRef.current);
+    const ro = new ResizeObserver(computeThumbPosition);
+
+    if (viewportRef.current) {
+      ro.observe(viewportRef.current);
+    }
 
     return () => {
       ro.disconnect();
     };
-  }, [computeThumb, viewportRef]);
+  }, [computeThumbPosition, viewportRef]);
 
   const getViewportProps = React.useCallback(
     (externalProps = {}) =>
       mergeProps<'div'>(
         {
+          role: 'presentation',
           ...(rootId && { 'data-id': `${rootId}-viewport` }),
           // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
           ...((!hiddenState.scrollbarXHidden || !hiddenState.scrollbarYHidden) && { tabIndex: 0 }),
@@ -193,7 +199,7 @@ export function useScrollAreaViewport() {
               return;
             }
 
-            computeThumb();
+            computeThumbPosition();
 
             handleScroll({
               x: viewportRef.current.scrollLeft,
@@ -207,7 +213,7 @@ export function useScrollAreaViewport() {
       rootId,
       hiddenState.scrollbarXHidden,
       hiddenState.scrollbarYHidden,
-      computeThumb,
+      computeThumbPosition,
       handleScroll,
       viewportRef,
     ],
@@ -216,7 +222,8 @@ export function useScrollAreaViewport() {
   return React.useMemo(
     () => ({
       getViewportProps,
+      computeThumbPosition,
     }),
-    [getViewportProps],
+    [getViewportProps, computeThumbPosition],
   );
 }
