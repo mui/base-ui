@@ -81,9 +81,6 @@ function getDisallowedModifierKeys(modifierKeys: ModifierKey[]) {
 
 const EMPTY_ARRAY: never[] = [];
 
-/**
- * @ignore - internal hook.
- */
 export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
     itemSizes,

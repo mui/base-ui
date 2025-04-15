@@ -1,315 +1,397 @@
 'use client';
 import * as React from 'react';
-import { hasComputedStyleMapSupport } from '../../utils/hasComputedStyleMapSupport';
 import { mergeProps } from '../../merge-props';
-import { ownerWindow } from '../../utils/owner';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { GenericHTMLProps } from '../../utils/types';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import { useOnMount } from '../../utils/useOnMount';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-
-function getAnimationNameFromComputedStyles(element: HTMLElement) {
-  if (hasComputedStyleMapSupport()) {
-    const styleMap = element.computedStyleMap();
-    const animationName = styleMap.get('animation-name');
-    return (animationName as CSSKeywordValue)?.value ?? undefined;
-  }
-
-  const containerWindow = ownerWindow(element);
-  const computedStyles = containerWindow.getComputedStyle(element);
-  return computedStyles.animationName;
-}
-
-let cachedSupportsHiddenUntilFound: boolean | undefined;
-
-function supportsHiddenUntilFound(element: HTMLElement) {
-  // detect support for onbeforematch event and content-visibility
-  if (cachedSupportsHiddenUntilFound === undefined) {
-    const supportsCssContentVisibility =
-      typeof CSS !== 'undefined' &&
-      typeof CSS.supports === 'function' &&
-      CSS.supports('content-visibility', 'hidden');
-    const supportsOnBeforeMatch = 'onbeforematch' in ownerWindow(element);
-    cachedSupportsHiddenUntilFound =
-      process.env.NODE_ENV === 'test'
-        ? supportsOnBeforeMatch
-        : supportsCssContentVisibility && supportsOnBeforeMatch;
-  }
-  return cachedSupportsHiddenUntilFound;
-}
-
-interface Dimensions {
-  height: number;
-  width: number;
-}
+import { warn } from '../../utils/warn';
+import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
+import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
+import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';
 
 export function useCollapsiblePanel(
   parameters: useCollapsiblePanel.Parameters,
 ): useCollapsiblePanel.ReturnValue {
   const {
+    abortControllerRef,
+    animationTypeRef,
+    externalRef,
+    height,
     hiddenUntilFound,
-    panelId,
     keepMounted,
-    open,
+    id: idParam,
     mounted,
-    ref,
-    setPanelId,
-    setMounted: setContextMounted,
+    onOpenChange,
+    open,
+    panelRef,
+    runOnceAnimationsFinish,
+    setDimensions,
+    setMounted,
     setOpen,
+    setPanelId,
+    setVisible,
+    transitionDimensionRef,
+    visible,
+    width,
   } = parameters;
 
-  const id = useBaseUiId(panelId);
+  const isBeforeMatchRef = React.useRef(false);
+  const latestAnimationNameRef = React.useRef<string>(null);
+  const shouldCancelInitialOpenAnimationRef = React.useRef(open);
+  const shouldCancelInitialOpenTransitionRef = React.useRef(open);
 
-  const panelRef = React.useRef<HTMLElement | null>(null);
+  /**
+   * When opening, the `hidden` attribute is removed immediately.
+   * When closing, the `hidden` attribute is set after any exit animations runs.
+   */
+  const hidden = React.useMemo(() => {
+    if (animationTypeRef.current === 'css-animation') {
+      return !visible;
+    }
 
-  const [{ height, width }, setDimensions] = React.useState<Dimensions>({
-    height: 0,
-    width: 0,
-  });
-
-  const latestAnimationNameRef = React.useRef<string>('none');
-  const originalTransitionDurationStyleRef = React.useRef<string | null>(null);
-
-  const isTransitioningRef = React.useRef(false);
+    return !open && !mounted;
+  }, [open, mounted, visible, animationTypeRef]);
 
   useEnhancedEffect(() => {
     if (!keepMounted && !open) {
       setPanelId(undefined);
     } else {
-      setPanelId(id);
+      setPanelId(idParam);
     }
     return () => {
       setPanelId(undefined);
     };
-  }, [id, setPanelId, keepMounted, open]);
+  }, [idParam, setPanelId, keepMounted, open]);
 
+  /**
+   * When `keepMounted` is `true` this runs once as soon as it exists in the DOM
+   * regardless of initial open state.
+   *
+   * When `keepMounted` is `false` this runs on every mount, typically every
+   * time it opens. If the panel is in the middle of a close transition that is
+   * interrupted and re-opens, this won't run as the panel was not unmounted.
+   */
   const handlePanelRef = useEventCallback((element: HTMLElement) => {
-    if (!element) {
-      return;
-    }
-
-    panelRef.current = element;
-
-    const computedAnimationName = getAnimationNameFromComputedStyles(element);
-
-    latestAnimationNameRef.current = computedAnimationName ?? 'none';
-    originalTransitionDurationStyleRef.current = element.style.transitionDuration;
-  });
-
-  const mergedRef = useForkRef(ref, handlePanelRef);
-
-  const runOnceAnimationsFinish = useAnimationsFinished(panelRef);
-
-  const isOpen = open || mounted;
-
-  const isBeforeMatchRef = React.useRef(false);
-  const isInitialOpenAnimationRef = React.useRef(isOpen);
-
-  const registerCssTransitionListeners = React.useCallback(() => {
-    const element = panelRef.current;
-
     if (!element) {
       return undefined;
     }
-
-    function handleTransitionRun() {
-      isTransitioningRef.current = true;
-    }
-
-    function handleTransitionEnd() {
-      isTransitioningRef.current = false;
-    }
-
-    function handleTransitionCancel() {
-      isTransitioningRef.current = false;
-    }
-
-    element.addEventListener('transitioncancel', handleTransitionCancel);
-    element.addEventListener('transitionend', handleTransitionEnd);
-    element.addEventListener('transitionrun', handleTransitionRun);
-
-    return () => {
-      element.removeEventListener('transitioncancel', handleTransitionCancel);
-      element.removeEventListener('transitionend', handleTransitionEnd);
-      element.removeEventListener('transitionrun', handleTransitionRun);
-    };
-  }, []);
-
-  useEnhancedEffect(() => {
-    const { current: element } = panelRef;
-
-    let frame1 = -1;
-    let frame2 = -1;
-
-    if (element) {
-      const isBeforeMatch = isBeforeMatchRef.current;
-      const isInitialOpenAnimation = isInitialOpenAnimationRef.current;
-      const isTransitioning = isTransitioningRef.current;
-
-      const originalAnimationName =
-        element.style.animationName === 'none' ? '' : element.style.animationName;
-      const originalTransitionDuration = originalTransitionDurationStyleRef.current;
-
-      // cancel animation/transitions for these specific instances:
-      // 1. when initially open, on mount/load, it should just appear fully open
-      //    but remain animated per styles afterwards
-      // 2. when using `hidden='until-found'` and is opened by find-in-page, it
-      //    should open instantly but remain animated //    as styled afterwards
-      const shouldCancelAnimation = isBeforeMatch || isInitialOpenAnimation;
-
-      element.style.animationName = 'none';
-
-      const isClosed = !open && !mounted;
-
-      if (!isTransitioning || isClosed) {
-        if (!keepMounted) {
-          // when keepMounted is false the panel does not exist in the DOM so transition
-          // listeners need to be eagerly registered here before any state change
-          registerCssTransitionListeners();
-        }
-        const rect = isClosed ? { height: 0, width: 0 } : element.getBoundingClientRect();
-        setDimensions({
-          height: rect.height,
-          width: rect.width,
-        });
+    if (animationTypeRef.current == null || transitionDimensionRef.current == null) {
+      const panelStyles = getComputedStyle(element);
+      /**
+       * animationTypeRef is safe to read in render because it's only ever set
+       * once here during the first render and never again.
+       * https://react.dev/learn/referencing-values-with-refs#best-practices-for-refs
+       */
+      if (panelStyles.animationName !== 'none' && panelStyles.transitionDuration !== '0s') {
+        warn('CSS transitions and CSS animations both detected');
+      } else if (panelStyles.animationName === 'none' && panelStyles.transitionDuration !== '0s') {
+        animationTypeRef.current = 'css-transition';
+      } else if (panelStyles.animationName !== 'none' && panelStyles.transitionDuration === '0s') {
+        animationTypeRef.current = 'css-animation';
+      } else {
+        animationTypeRef.current = 'none';
       }
 
-      element.style.animationName = shouldCancelAnimation ? 'none' : originalAnimationName;
-      element.style.transitionDuration = shouldCancelAnimation
-        ? '0s'
-        : (originalTransitionDuration ?? '');
+      /**
+       * We need to know in advance which side is being collapsed when using CSS
+       * transitions in order to set the value of width/height to `0px` momentarily.
+       * Setting both to `0px` will break layout.
+       */
+      if (
+        element.getAttribute(AccordionRootDataAttributes.orientation) === 'horizontal' ||
+        panelStyles.transitionProperty.indexOf('width') > -1
+      ) {
+        transitionDimensionRef.current = 'width';
+      } else {
+        transitionDimensionRef.current = 'height';
+      }
+    }
 
-      runOnceAnimationsFinish(() => {
-        setContextMounted(open);
-        if (isBeforeMatch) {
-          isBeforeMatchRef.current = false;
-          frame1 = requestAnimationFrame(() => {
-            frame2 = requestAnimationFrame(() => {
-              element.style.transitionDuration = originalTransitionDurationStyleRef.current ?? '';
-            });
-          });
-        }
+    if (animationTypeRef.current !== 'css-transition') {
+      return undefined;
+    }
+
+    /**
+     * Explicitly set `display` to ensure the panel is actually rendered before
+     * measuring anything. `!important` is to needed to override a conflicting
+     * Tailwind v4 default that sets `display: none !important` on `[hidden]`:
+     * https://github.com/tailwindlabs/tailwindcss/blob/cd154a4f471e7a63cc27cad15dada650de89d52b/packages/tailwindcss/preflight.css#L320-L326
+     */
+    element.style.setProperty('display', 'block', 'important');
+
+    if (height === undefined || width === undefined) {
+      setDimensions({ height: element.scrollHeight, width: element.scrollWidth });
+      element.style.removeProperty('display');
+
+      if (shouldCancelInitialOpenTransitionRef.current) {
+        element.style.setProperty('transition-duration', '0s');
+      }
+    }
+
+    let frame = -1;
+    let nextFrame = -1;
+
+    frame = requestAnimationFrame(() => {
+      shouldCancelInitialOpenTransitionRef.current = false;
+      nextFrame = requestAnimationFrame(() => {
+        /**
+         * This is slightly faster than another RAF and is the earliest
+         * opportunity to remove the temporary `transition-duration: 0s` that
+         * was applied to cancel opening transitions of initially open panels.
+         * https://nolanlawson.com/2018/09/25/accurately-measuring-layout-on-the-web/
+         */
+        setTimeout(() => {
+          element.style.removeProperty('transition-duration');
+        });
       });
-    }
-
-    return () => {
-      cancelAnimationFrame(frame1);
-      cancelAnimationFrame(frame2);
-    };
-  }, [
-    mounted,
-    keepMounted,
-    open,
-    registerCssTransitionListeners,
-    runOnceAnimationsFinish,
-    setContextMounted,
-    setPanelId,
-  ]);
-
-  useOnMount(() => {
-    const element = panelRef.current;
-
-    let frame2 = -1;
-    let frame3 = -1;
-
-    const frame = requestAnimationFrame(() => {
-      isInitialOpenAnimationRef.current = false;
-
-      if (element) {
-        frame2 = requestAnimationFrame(() => {
-          frame3 = requestAnimationFrame(() => {
-            // it takes 3 frames to unset `'0s'` from the initial open state correctly
-            element.style.transitionDuration = originalTransitionDurationStyleRef.current ?? '';
-          });
-        });
-      }
     });
 
     return () => {
       cancelAnimationFrame(frame);
-      cancelAnimationFrame(frame2);
-      cancelAnimationFrame(frame3);
+      cancelAnimationFrame(nextFrame);
     };
   });
 
-  useOnMount(registerCssTransitionListeners);
+  const mergedPanelRef = useForkRef(externalRef, panelRef, handlePanelRef);
 
-  // if `hidden="until-found"` content is revealed by browser's in-page search
-  // we need to manually sync the open state
+  /**
+   * This handles CSS transitions for 2 cases when we can't rely on the trigger handler:
+   * 1. When `keepMounted={false}`, the panel may not exist in the DOM
+   * 2. When controlled, the open state may change externally without involving the trigger
+   */
+  useEnhancedEffect(() => {
+    if (animationTypeRef.current !== 'css-transition' || keepMounted) {
+      return undefined;
+    }
+
+    const panel = panelRef.current;
+
+    if (!panel) {
+      return undefined;
+    }
+
+    let resizeFrame = -1;
+
+    if (abortControllerRef.current != null) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
+    if (open) {
+      /* opening */
+      panel.style.setProperty('display', 'block', 'important');
+
+      /**
+       * When `keepMounted={false}` and the panel is initially closed, the very
+       * first time it opens (not any subsequent opens) `data-starting-style` is
+       * off or missing by a frame so we need to set it manually. Otherwise any
+       * CSS properties expected to transition using [data-starting-style] may
+       * be mis-timed and appear to be complete skipped.
+       */
+      if (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) {
+        panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
+      }
+
+      setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
+
+      resizeFrame = requestAnimationFrame(() => {
+        panel.style.removeProperty('display');
+      });
+    } else {
+      /* closing */
+      resizeFrame = requestAnimationFrame(() => {
+        setDimensions({ height: 0, width: 0 });
+      });
+
+      abortControllerRef.current = new AbortController();
+
+      runOnceAnimationsFinish(() => {
+        panel.style.removeProperty('content-visibility');
+        setMounted(false);
+        abortControllerRef.current = null;
+      }, abortControllerRef.current.signal);
+    }
+
+    return () => {
+      cancelAnimationFrame(resizeFrame);
+    };
+  }, [
+    abortControllerRef,
+    animationTypeRef,
+    hiddenUntilFound,
+    keepMounted,
+    mounted,
+    open,
+    panelRef,
+    runOnceAnimationsFinish,
+    setDimensions,
+    setMounted,
+    transitionDimensionRef,
+  ]);
+
+  useEnhancedEffect(() => {
+    if (animationTypeRef.current !== 'css-animation') {
+      return;
+    }
+
+    const panel = panelRef.current;
+    if (!panel) {
+      return;
+    }
+
+    latestAnimationNameRef.current = panel.style.animationName || latestAnimationNameRef.current;
+
+    panel.style.setProperty('animation-name', 'none');
+
+    setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
+
+    if (!shouldCancelInitialOpenAnimationRef.current && !isBeforeMatchRef.current) {
+      panel.style.removeProperty('animation-name');
+    }
+
+    if (open) {
+      if (abortControllerRef.current != null) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+      setMounted(true);
+      setVisible(true);
+    } else {
+      abortControllerRef.current = new AbortController();
+      runOnceAnimationsFinish(() => {
+        setMounted(false);
+        setVisible(false);
+        abortControllerRef.current = null;
+      }, abortControllerRef.current.signal);
+    }
+  }, [
+    abortControllerRef,
+    animationTypeRef,
+    open,
+    panelRef,
+    runOnceAnimationsFinish,
+    setDimensions,
+    setMounted,
+    setVisible,
+    visible,
+  ]);
+
+  useOnMount(() => {
+    const frame = requestAnimationFrame(() => {
+      shouldCancelInitialOpenAnimationRef.current = false;
+    });
+    return () => cancelAnimationFrame(frame);
+  });
+
+  useEnhancedEffect(() => {
+    if (!hiddenUntilFound) {
+      return undefined;
+    }
+
+    const panel = panelRef.current;
+    if (!panel) {
+      return undefined;
+    }
+
+    let frame = -1;
+    let nextFrame = -1;
+
+    if (open && isBeforeMatchRef.current) {
+      panel.style.transitionDuration = '0s';
+      setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
+      frame = requestAnimationFrame(() => {
+        isBeforeMatchRef.current = false;
+        nextFrame = requestAnimationFrame(() => {
+          setTimeout(() => {
+            panel.style.removeProperty('transition-duration');
+          });
+        });
+      });
+    }
+
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(nextFrame);
+    };
+  }, [hiddenUntilFound, open, panelRef, setDimensions]);
+
+  useEnhancedEffect(() => {
+    const panel = panelRef.current;
+
+    if (panel && hiddenUntilFound && hidden) {
+      /**
+       * React only supports a boolean for the `hidden` attribute and forces
+       * legit string values to booleans so we have to force it back in the DOM
+       * when necessary: https://github.com/facebook/react/issues/24740
+       */
+      panel.setAttribute('hidden', 'until-found');
+      /**
+       * Set data-starting-style here to persist the closed styles, this is to
+       * prevent transitions from starting when the `hidden` attribute changes
+       * to `'until-found'` as they could have different `display` properties:
+       * https://github.com/tailwindlabs/tailwindcss/pull/14625
+       */
+      if (animationTypeRef.current === 'css-transition') {
+        panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
+      }
+    }
+  }, [hiddenUntilFound, hidden, animationTypeRef, panelRef]);
+
   React.useEffect(
     function registerBeforeMatchListener() {
-      const { current: element } = panelRef;
-
-      if (!element || !supportsHiddenUntilFound(element)) {
+      const panel = panelRef.current;
+      if (!panel) {
         return undefined;
       }
 
-      function handleOnBeforeMatch(event: Event) {
-        event.preventDefault();
-
+      function handleBeforeMatch() {
         isBeforeMatchRef.current = true;
-
-        // beforematch only fires if the matching content is initially hidden
         setOpen(true);
+        onOpenChange(true);
       }
 
-      element.addEventListener('beforematch', handleOnBeforeMatch);
+      panel.addEventListener('beforematch', handleBeforeMatch);
 
       return () => {
-        element.removeEventListener('beforematch', handleOnBeforeMatch);
+        panel.removeEventListener('beforematch', handleBeforeMatch);
       };
     },
-    [setOpen],
+    [onOpenChange, panelRef, setOpen],
   );
 
-  // There is a bug in react that forces string values for the `hidden` attribute to a boolean
-  // so we have to force it back to `'until-found'` in the DOM when applicable
-  // https://github.com/facebook/react/issues/24740
-  useEnhancedEffect(() => {
-    const { current: element } = panelRef;
-
-    if (
-      element &&
-      supportsHiddenUntilFound(element) &&
-      element?.hidden &&
-      !isOpen &&
-      hiddenUntilFound === true
-    ) {
-      // @ts-ignore
-      element.hidden = 'until-found';
-    }
-  }, [hiddenUntilFound, isOpen]);
-
-  const hidden = hiddenUntilFound ? 'until-found' : 'hidden';
-
-  const getRootProps: useCollapsiblePanel.ReturnValue['getRootProps'] = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'button'>(
+  const getRootProps = React.useCallback(
+    (externalProps?: GenericHTMLProps): GenericHTMLProps => {
+      return mergeProps(
         {
-          id,
-          hidden: isOpen ? undefined : Boolean(hidden),
-          ref: mergedRef,
+          hidden,
+          id: idParam,
+          ref: mergedPanelRef,
         },
         externalProps,
-      ),
-    [hidden, id, isOpen, mergedRef],
+      );
+    },
+    [hidden, idParam, mergedPanelRef],
   );
 
   return React.useMemo(
     () => ({
       getRootProps,
-      height,
-      width,
-      isOpen,
     }),
-    [getRootProps, height, width, isOpen],
+    [getRootProps],
   );
 }
 
 export namespace useCollapsiblePanel {
   export interface Parameters {
+    abortControllerRef: React.RefObject<AbortController | null>;
+    animationTypeRef: React.RefObject<AnimationType>;
+    externalRef: React.ForwardedRef<HTMLDivElement>;
+    /**
+     * The height of the panel.
+     */
+    height: number | undefined;
     /**
      * Allows the browser’s built-in page search to find and expand the panel contents.
      *
@@ -317,32 +399,44 @@ export namespace useCollapsiblePanel {
      * to hide the element without removing it from the DOM.
      */
     hiddenUntilFound: boolean;
-    panelId: React.HTMLAttributes<Element>['id'];
+    /**
+     * The `id` attribute of the panel.
+     */
+    id: React.HTMLAttributes<Element>['id'];
     /**
      * Whether to keep the element in the DOM while the panel is closed.
      * This prop is ignored when `hiddenUntilFound` is used.
      */
     keepMounted: boolean;
+    /**
+     * Whether the collapsible panel is currently mounted.
+     */
     mounted: boolean;
+    onOpenChange: (open: boolean) => void;
     /**
      * Whether the collapsible panel is currently open.
      */
     open: boolean;
-    ref: React.Ref<HTMLElement>;
-    setPanelId: (id: string | undefined) => void;
-    setOpen: (nextOpen: boolean) => void;
+    panelRef: React.RefObject<HTMLElement | null>;
+    runOnceAnimationsFinish: (fnToExecute: () => void, signal?: AbortSignal | null) => void;
+    setDimensions: React.Dispatch<React.SetStateAction<Dimensions>>;
     setMounted: (nextMounted: boolean) => void;
+    setOpen: (nextOpen: boolean) => void;
+    setPanelId: (id: string | undefined) => void;
+    setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+    transitionDimensionRef: React.RefObject<'height' | 'width' | null>;
+    /**
+     * The visible state of the panel used to determine the `[hidden]` attribute
+     * only when CSS keyframe animations are used.
+     */
+    visible: boolean;
+    /**
+     * The width of the panel.
+     */
+    width: number | undefined;
   }
 
   export interface ReturnValue {
-    getRootProps: (
-      externalProps?: React.ComponentPropsWithRef<'button'>,
-    ) => React.ComponentPropsWithRef<'button'>;
-    height: number;
-    width: number;
-    /**
-     * The open state of the panel, that accounts for animation/transition status.
-     */
-    isOpen: boolean;
+    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   }
 }

@@ -6,6 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { useScrollAreaViewport } from './useScrollAreaViewport';
+import { ScrollAreaViewportContext } from './ScrollAreaViewportContext';
 
 const state = {};
 
@@ -19,10 +20,10 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   props: ScrollAreaViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children, ...otherProps } = props;
+  const { render, className, ...otherProps } = props;
 
   const { viewportRef } = useScrollAreaRootContext();
-  const { getViewportProps } = useScrollAreaViewport({ children });
+  const { getViewportProps, computeThumbPosition } = useScrollAreaViewport();
 
   const mergedRef = useForkRef(forwardedRef, viewportRef);
 
@@ -35,7 +36,18 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     extraProps: otherProps,
   });
 
-  return renderElement();
+  const contextValue: ScrollAreaViewportContext = React.useMemo(
+    () => ({
+      computeThumbPosition,
+    }),
+    [computeThumbPosition],
+  );
+
+  return (
+    <ScrollAreaViewportContext.Provider value={contextValue}>
+      {renderElement()}
+    </ScrollAreaViewportContext.Provider>
+  );
 });
 
 namespace ScrollAreaViewport {
