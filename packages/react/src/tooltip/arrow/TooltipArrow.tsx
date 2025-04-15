@@ -22,7 +22,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
   const { className, render, ...otherProps } = props;
 
   const { open, arrowRef, side, align, arrowUncentered, arrowStyles } =
-    useTooltipPositionerContext();
+    useTooltipPositionerContext(false);
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) => {

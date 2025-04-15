@@ -31,9 +31,19 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
 ) {
   const { className, render, ...otherProps } = props;
 
-  const { open, instantType, transitionStatus, getRootPopupProps, popupRef, onOpenChangeComplete } =
-    useTooltipRootContext();
-  const { side, align } = useTooltipPositionerContext();
+  const {
+    open,
+    instantType,
+    transitionStatus,
+    getRootPopupProps,
+    popupRef,
+    onOpenChangeComplete,
+    setPositionerElement,
+  } = useTooltipRootContext();
+  const positioner = useTooltipPositionerContext();
+
+  const side = positioner?.side || 'bottom';
+  const align = positioner?.align || 'center';
 
   useOpenChangeComplete({
     open,
@@ -56,7 +66,7 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     [open, side, align, instantType, transitionStatus],
   );
 
-  const mergedRef = useForkRef(popupRef, forwardedRef);
+  const mergedRef = useForkRef(popupRef, forwardedRef, positioner ? null : setPositionerElement);
 
   // The content element needs to be a child of a wrapper floating element in order to avoid
   // conflicts with CSS transitions and the positioning transform.

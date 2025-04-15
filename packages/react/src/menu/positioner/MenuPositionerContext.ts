@@ -26,9 +26,11 @@ if (process.env.NODE_ENV !== 'production') {
   MenuPositionerContext.displayName = 'MenuPositionerContext';
 }
 
-export function useMenuPositionerContext() {
+export function useMenuPositionerContext(optional: false): MenuPositionerContext;
+export function useMenuPositionerContext(optional?: true): MenuPositionerContext | undefined;
+export function useMenuPositionerContext(optional = true) {
   const context = React.useContext(MenuPositionerContext);
-  if (context === undefined) {
+  if (context === undefined && !optional) {
     throw new Error(
       'Base UI: MenuPositionerContext is missing. MenuPositioner parts must be placed within <Menu.Positioner>.',
     );

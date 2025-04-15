@@ -22,7 +22,7 @@ const MenuArrow = React.forwardRef(function MenuArrow(
   const { className, render, ...otherProps } = props;
 
   const { open } = useMenuRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext(false);
 
   const state: MenuArrow.State = React.useMemo(
     () => ({
