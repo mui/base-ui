@@ -12,9 +12,6 @@ export interface ToolbarRootContext {
   >;
 }
 
-/**
- * @ignore - internal component.
- */
 export const ToolbarRootContext = React.createContext<ToolbarRootContext | undefined>(undefined);
 
 if (process.env.NODE_ENV !== 'production') {
