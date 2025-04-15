@@ -1,12 +1,14 @@
+import { CommonTriggerDataAttributes } from '../../utils/popupStateMapping';
+
 export enum SelectTriggerDataAttributes {
   /**
    * Present when the corresponding select is open.
    */
-  popupOpen = 'data-popup-open',
+  popupOpen = CommonTriggerDataAttributes.popupOpen,
   /**
    * Present when the trigger is pressed.
    */
-  pressed = 'data-pressed',
+  pressed = CommonTriggerDataAttributes.pressed,
   /**
    * Present when the select is disabled.
    */

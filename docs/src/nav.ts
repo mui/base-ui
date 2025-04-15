@@ -89,6 +89,10 @@ export const nav = [
         href: '/react/components/menu',
       },
       {
+        label: 'Meter',
+        href: '/react/components/meter',
+      },
+      {
         label: 'Number Field',
         href: '/react/components/number-field',
       },
@@ -131,6 +135,10 @@ export const nav = [
       {
         label: 'Tabs',
         href: '/react/components/tabs',
+      },
+      {
+        label: 'Toast',
+        href: '/react/components/toast',
       },
       {
         label: 'Toggle',

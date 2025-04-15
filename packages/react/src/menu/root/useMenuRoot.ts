@@ -175,10 +175,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     enabled: hoverEnabled && openOnHover && !disabled && openReason !== 'click',
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
-    move: false,
-    delay: {
-      open: delay,
-    },
+    move: nested,
+    restMs: nested ? undefined : delay,
+    delay: nested ? { open: delay } : undefined,
   });
 
   const click = useClick(floatingRootContext, {
@@ -266,6 +265,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   return React.useMemo(
     () => ({
       activeIndex,
+      setActiveIndex,
       allowMouseUpTriggerRef,
       floatingRootContext,
       itemProps,
@@ -379,6 +379,9 @@ export namespace useMenuRoot {
     modal: boolean;
     /**
      * A ref to imperative actions.
+     * - `unmount`: When specified, the menu will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the menu manually.
+     * Useful when the menu's animation is controlled by an external library.
      */
     actionsRef: React.RefObject<Actions> | undefined;
   }
@@ -404,6 +407,7 @@ export namespace useMenuRoot {
     instantType: 'dismiss' | 'click' | undefined;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
     setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+    setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
   }
 
   export interface Actions {

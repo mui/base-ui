@@ -22,6 +22,7 @@ import { replaceArrayItemAtIndex } from '../utils/replaceArrayItemAtIndex';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { ThumbMetadata } from '../thumb/useSliderThumb';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { SliderThumbDataAttributes } from '../thumb/SliderThumbDataAttributes';
 
 function areValuesEqual(
   newValue: number | readonly number[],
@@ -77,11 +78,11 @@ export function focusThumb(
 
   if (
     !sliderRef.current.contains(doc.activeElement) ||
-    Number(doc?.activeElement?.getAttribute('data-index')) !== thumbIndex
+    Number(doc?.activeElement?.getAttribute(SliderThumbDataAttributes.index)) !== thumbIndex
   ) {
     (
       sliderRef.current.querySelector(
-        `[type="range"][data-index="${thumbIndex}"]`,
+        `[type="range"][${SliderThumbDataAttributes.index}="${thumbIndex}"]`,
       ) as HTMLInputElement
     ).focus();
   }
@@ -537,7 +538,7 @@ export namespace useSliderRoot {
     /**
      * The id of the element containing a label for the slider.
      */
-    'aria-labelledby': string;
+    'aria-labelledby': string | undefined;
     /**
      * The default value. Use when the component is not controlled.
      */

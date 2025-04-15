@@ -6,6 +6,7 @@ import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import { styleHookMapping } from '../utils/styleHooks';
 
 /**
  * An interactive area where the user can click and drag to change the field value.
@@ -43,6 +44,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
     state,
     className,
     extraProps: otherProps,
+    customStyleHookMapping: styleHookMapping,
   });
 
   return renderElement();

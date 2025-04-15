@@ -54,6 +54,9 @@
     }
   },
   "dataAttributes": {
+    "data-orientation": {
+      "description": "Indicates the orientation of the accordion."
+    },
     "data-disabled": {
       "description": "Present when the accordion is disabled."
     }

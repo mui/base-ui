@@ -17,7 +17,7 @@
     },
     "actionsRef": {
       "type": "{ current: { unmount: func } }",
-      "description": "A ref to imperative actions."
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library."
     },
     "modal": {
       "type": "'trap-focus' | bool",
