@@ -83,7 +83,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.27.0",
-    "@floating-ui/react": "^0.27.7",
+    "@floating-ui/react": "https://pkg.pr.new/@floating-ui/react@58d73ce",
     "@floating-ui/utils": "^0.2.9",
     "@react-aria/overlays": "^3.26.1",
     "prop-types": "^15.8.1",
