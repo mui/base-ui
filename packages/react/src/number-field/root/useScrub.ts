@@ -13,9 +13,6 @@ import { NumberFieldRootDataAttributes } from './NumberFieldRootDataAttributes';
 import { useEventCallback } from '../../utils/useEventCallback';
 import type { EventWithOptionalKeyState } from '../utils/types';
 
-/**
- * @internal
- */
 export function useScrub(params: useScrub.Parameters) {
   const { disabled, readOnly, value, inputRef, incrementValue, getStepAmount } = params;
 
