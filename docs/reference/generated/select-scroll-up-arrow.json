@@ -1,6 +1,6 @@
 {
   "name": "SelectScrollUpArrow",
-  "description": "An element that scrolls the select menu down when hovered.\nRenders a `<div>` element.",
+  "description": "An element that scrolls the select menu up when hovered.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | (state) => string",

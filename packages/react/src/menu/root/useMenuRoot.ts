@@ -76,7 +76,12 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(open && modal && openReason !== 'hover', triggerElement);
+  useScrollLock({
+    enabled: open && modal && openReason !== 'hover',
+    mounted,
+    open,
+    referenceElement: positionerElement,
+  });
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -368,6 +373,9 @@ export namespace useMenuRoot {
     modal: boolean;
     /**
      * A ref to imperative actions.
+     * - `unmount`: When specified, the menu will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the menu manually.
+     * Useful when the menu's animation is controlled by an external library.
      */
     actionsRef: React.RefObject<Actions> | undefined;
   }

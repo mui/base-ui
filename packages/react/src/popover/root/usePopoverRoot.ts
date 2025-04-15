@@ -64,7 +64,12 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(open && modal && openReason !== 'hover', triggerElement);
+  useScrollLock({
+    enabled: open && modal && openReason !== 'hover',
+    mounted,
+    open,
+    referenceElement: positionerElement,
+  });
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
@@ -261,6 +266,9 @@ export namespace usePopoverRoot {
     closeDelay?: number;
     /**
      * A ref to imperative actions.
+     * - `unmount`: When specified, the popover will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the popover manually.
+     * Useful when the popover's animation is controlled by an external library.
      */
     actionsRef?: React.RefObject<Actions>;
     /**

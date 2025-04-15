@@ -20,6 +20,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import type { useSliderRoot } from '../root/useSliderRoot';
+import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 
 export interface ThumbMetadata {
   inputId: string | undefined;
@@ -138,7 +139,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     (externalProps = {}) => {
       return mergeProps(
         {
-          ['data-index' as string]: index,
+          [SliderThumbDataAttributes.index]: index,
           id: thumbId,
           onFocus() {
             setFocused(true);
@@ -284,7 +285,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
                   index,
                 )
               : ariaValuetext || getDefaultAriaValueText(sliderValues, index, format ?? undefined),
-          ['data-index' as string]: index,
+          [SliderThumbDataAttributes.index as string]: index,
           disabled,
           id: inputId,
           max,

@@ -71,7 +71,11 @@ export function parseNumber(
 
   let num = parseFloat(unformattedNumber);
 
-  if (PERCENT_RE.test(formattedNumber)) {
+  const style = options?.style;
+  const isUnitPercent = style === 'unit' && options?.unit === 'percent';
+  const isPercent = PERCENT_RE.test(formattedNumber) || style === 'percent';
+
+  if (!isUnitPercent && isPercent) {
     num /= 100;
   }
 

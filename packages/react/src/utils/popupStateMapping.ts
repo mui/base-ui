@@ -1,24 +1,59 @@
 import type { CustomStyleHookMapping } from './getStyleHookProps';
+import { TransitionStatusDataAttributes } from './styleHookMapping';
+
+export enum CommonPopupDataAttributes {
+  /**
+   * Present when the popup is open.
+   */
+  open = 'data-open',
+  /**
+   * Present when the popup is closed.
+   */
+  closed = 'data-closed',
+  /**
+   * Present when the popup is animating in.
+   */
+  startingStyle = TransitionStatusDataAttributes.startingStyle,
+  /**
+   * Present when the popup is animating out.
+   */
+  endingStyle = TransitionStatusDataAttributes.endingStyle,
+  /**
+   * Present when the anchor is hidden.
+   */
+  anchorHidden = 'data-anchor-hidden',
+}
+
+export enum CommonTriggerDataAttributes {
+  /**
+   * Present when the popup is open.
+   */
+  popupOpen = 'data-popup-open',
+  /**
+   * Present when a pressable trigger is pressed.
+   */
+  pressed = 'data-pressed',
+}
 
 const TRIGGER_HOOK = {
-  'data-popup-open': '',
+  [CommonTriggerDataAttributes.popupOpen]: '',
 };
 
 const PRESSABLE_TRIGGER_HOOK = {
-  'data-popup-open': '',
-  'data-pressed': '',
+  [CommonTriggerDataAttributes.popupOpen]: '',
+  [CommonTriggerDataAttributes.pressed]: '',
 };
 
 const POPUP_OPEN_HOOK = {
-  'data-open': '',
+  [CommonPopupDataAttributes.open]: '',
 };
 
 const POPUP_CLOSED_HOOK = {
-  'data-closed': '',
+  [CommonPopupDataAttributes.closed]: '',
 };
 
 const ANCHOR_HIDDEN_HOOK = {
-  'data-anchor-hidden': '',
+  [CommonPopupDataAttributes.anchorHidden]: '',
 };
 
 export const triggerOpenStateMapping = {

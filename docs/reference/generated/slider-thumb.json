@@ -55,6 +55,9 @@
     },
     "data-focused": {
       "description": "Present when the slider is focused (when wrapped in Field.Root)."
+    },
+    "data-index": {
+      "description": "Indicates the index of the thumb in range sliders."
     }
   },
   "cssVariables": {}

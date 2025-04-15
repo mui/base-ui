@@ -5,6 +5,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { SCROLL_TIMEOUT } from '../constants';
 import { getOffset } from '../utils/getOffset';
 import { ScrollAreaRootCssVars } from './ScrollAreaRootCssVars';
+import { ScrollAreaScrollbarDataAttributes } from '../scrollbar/ScrollAreaScrollbarDataAttributes';
 
 interface Size {
   width: number;
@@ -79,9 +80,9 @@ export function useScrollAreaRoot() {
     thumbDraggingRef.current = true;
     startYRef.current = event.clientY;
     startXRef.current = event.clientX;
-    currentOrientationRef.current = event.currentTarget.getAttribute('data-orientation') as
-      | 'vertical'
-      | 'horizontal';
+    currentOrientationRef.current = event.currentTarget.getAttribute(
+      ScrollAreaScrollbarDataAttributes.orientation,
+    ) as 'vertical' | 'horizontal';
 
     if (viewportRef.current) {
       startScrollTopRef.current = viewportRef.current.scrollTop;

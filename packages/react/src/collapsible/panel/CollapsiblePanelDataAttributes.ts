@@ -1,3 +1,5 @@
+import { TransitionStatusDataAttributes } from '../../utils/styleHookMapping';
+
 export enum CollapsiblePanelDataAttributes {
   /**
    * Present when the collapsible panel is open.
@@ -10,9 +12,9 @@ export enum CollapsiblePanelDataAttributes {
   /**
    * Present when the panel is animating in.
    */
-  startingStyle = 'data-starting-style',
+  startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**
    * Present when the panel is animating out.
    */
-  endingStyle = 'data-ending-style',
+  endingStyle = TransitionStatusDataAttributes.endingStyle,
 }

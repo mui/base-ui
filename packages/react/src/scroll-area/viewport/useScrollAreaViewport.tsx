@@ -8,9 +8,7 @@ import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { MIN_THUMB_SIZE } from '../constants';
 import { getOffset } from '../utils/getOffset';
 
-export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) {
-  const { children } = params;
-
+export function useScrollAreaViewport() {
   const {
     viewportRef,
     scrollbarYRef,
@@ -52,24 +50,28 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
     const scrollbarYHidden = viewportHeight >= scrollableContentHeight;
     const scrollbarXHidden = viewportWidth >= scrollableContentWidth;
-
-    const nextWidth = scrollbarXHidden
-      ? 0
-      : (viewportWidth / scrollableContentWidth) * viewportWidth;
-    const nextHeight = scrollbarYHidden
-      ? 0
-      : (viewportHeight / scrollableContentHeight) * viewportHeight;
+    const ratioX = viewportWidth / scrollableContentWidth;
+    const ratioY = viewportHeight / scrollableContentHeight;
+    const nextWidth = scrollbarXHidden ? 0 : viewportWidth;
+    const nextHeight = scrollbarYHidden ? 0 : viewportHeight;
 
     const scrollbarXOffset = getOffset(scrollbarXEl, 'padding', 'x');
     const scrollbarYOffset = getOffset(scrollbarYEl, 'padding', 'y');
     const thumbXOffset = getOffset(thumbXEl, 'margin', 'x');
     const thumbYOffset = getOffset(thumbYEl, 'margin', 'y');
 
-    const clampedNextWidth = Math.max(MIN_THUMB_SIZE, nextWidth - scrollbarXOffset - thumbXOffset);
-    const clampedNextHeight = Math.max(
-      MIN_THUMB_SIZE,
-      nextHeight - scrollbarYOffset - thumbYOffset,
-    );
+    const idealNextWidth = nextWidth - scrollbarXOffset - thumbXOffset;
+    const idealNextHeight = nextHeight - scrollbarYOffset - thumbYOffset;
+
+    const maxNextWidth = scrollbarXEl
+      ? Math.min(scrollbarXEl.offsetWidth, idealNextWidth)
+      : idealNextWidth;
+    const maxNextHeight = scrollbarYEl
+      ? Math.min(scrollbarYEl.offsetHeight, idealNextHeight)
+      : idealNextHeight;
+
+    const clampedNextWidth = Math.max(MIN_THUMB_SIZE, maxNextWidth * ratioX);
+    const clampedNextHeight = Math.max(MIN_THUMB_SIZE, maxNextHeight * ratioY);
 
     setThumbSize((prevSize) => {
       if (prevSize.height === clampedNextHeight && prevSize.width === clampedNextWidth) {
@@ -198,16 +200,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
               y: viewportRef.current.scrollTop,
             });
           },
-          children: (
-            <div
-              ref={contentWrapperRef}
-              style={{
-                minWidth: 'fit-content',
-              }}
-            >
-              {children}
-            </div>
-          ),
         },
         externalProps,
       ),
@@ -215,7 +207,6 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       rootId,
       hiddenState.scrollbarXHidden,
       hiddenState.scrollbarYHidden,
-      children,
       computeThumb,
       handleScroll,
       viewportRef,
@@ -228,10 +219,4 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     }),
     [getViewportProps],
   );
-}
-
-namespace useScrollAreaViewport {
-  export interface Parameters {
-    children?: React.ReactNode;
-  }
 }

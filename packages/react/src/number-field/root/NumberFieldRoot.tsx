@@ -7,7 +7,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
-import { fieldValidityMapping } from '../../field/utils/constants';
+import { styleHookMapping } from '../utils/styleHooks';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -34,6 +34,7 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     value,
     onValueChange,
     allowWheelScrub,
+    snapOnStep,
     format,
     locale,
     render,
@@ -81,7 +82,7 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     state,
     className,
     extraProps: otherProps,
-    customStyleHookMapping: fieldValidityMapping,
+    customStyleHookMapping: styleHookMapping,
   });
 
   return (
@@ -270,6 +271,11 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    * @default 0.1
    */
   smallStep: PropTypes.number,
+  /**
+   * Whether the value should snap to the nearest step when incrementing or decrementing.
+   * @default false
+   */
+  snapOnStep: PropTypes.bool,
   /**
    * Amount to increment and decrement with the buttons and arrow keys,
    * or to scrub with pointer movement in the scrub area.
