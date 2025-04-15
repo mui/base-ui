@@ -1,8 +1,0 @@
-{
-  "name": "NumberFieldRoot",
-  "props": {
-    "onValueChange": {
-      "type": "(value, event) => void"
-    }
-  }
-}

@@ -21,8 +21,6 @@ interface UseRootElementNameReturnValue {
 }
 
 /**
- * @ignore - do not document.
- *
  * Use this function determine the host element correctly on the server (in a SSR context, for example Next.js)
  */
 export function useRootElementName(

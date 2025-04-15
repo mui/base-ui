@@ -25,7 +25,7 @@ export type ProgressRootContext = {
 };
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 export const ProgressRootContext = React.createContext<ProgressRootContext | undefined>(undefined);
 

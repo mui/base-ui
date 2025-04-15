@@ -12,11 +12,11 @@
       "description": "Whether the popover is currently open."
     },
     "onOpenChange": {
-      "type": "(open, event, reason) => void",
+      "type": "((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the popover is opened or closed."
     },
     "actionsRef": {
-      "type": "{ current: { unmount: func } }",
+      "type": "RefObject<Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library."
     },
     "modal": {
@@ -25,7 +25,7 @@
       "description": "Whether the popover should prevent outside clicks and lock page scroll when open."
     },
     "onOpenChangeComplete": {
-      "type": "(open) => void",
+      "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the popover is opened or closed."
     },
     "openOnHover": {
@@ -42,6 +42,9 @@
       "type": "number",
       "default": "0",
       "description": "How long to wait before closing the popover that was opened on hover.\nSpecified in milliseconds.\n\nRequires the `openOnHover` prop."
+    },
+    "children": {
+      "type": "ReactNode"
     }
   },
   "dataAttributes": {},
